@@ -15,8 +15,12 @@
 
     <h2>Others</h2>
     <p>
+      <%--
+        this jumps to another side file "count.jsp"
+      --%>
+      <a href="count">count inventory</a>
+    <p>
       <a href="hello">invoke action method</a>
-    </p>
     <p>
       <%-- resources files are served normally. --%>
       <a href="help/help.html">regular resources</a>

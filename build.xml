@@ -38,6 +38,8 @@
 	</target>
 	
 	<target name="dist" depends="jar,javadoc">
+		<ant dir="example" target="war" />
+		
 		<tstamp/>
 		<zip destfile="build/stapler-${DSTAMP}.zip">
 			<fileset dir="build">
@@ -46,6 +48,8 @@
 			</fileset>
 			<fileset dir="." includes="LICENSE.txt"/>
 			<fileset dir="../www" excludes="**/CVS"/>
+			<fileset dir="example/build" includes="*.war"/>
+			<fileset dir="." includes="example/**/*" excludes="**/CVS, example/build/**/*"/>
 		</zip>
 	</target>
 </project>
