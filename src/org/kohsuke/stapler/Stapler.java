@@ -168,7 +168,7 @@ public class Stapler extends HttpServlet {
         // check a public getter <obj>.get<Token>(request)
         try {
             Method method = node.getClass().getMethod("get"+methodName,requestArgs);
-            invoke(req,rsp,method.invoke(node,new RequestProxy(req,tokens,idx)),ancestors,tokens,idx);
+            invoke(req,rsp,method.invoke(node,new Object[]{new RequestProxy(req,tokens,idx)}),ancestors,tokens,idx);
             return;
         } catch (NoSuchMethodException e) {
             // fall through
