@@ -13,6 +13,7 @@ import javax.servlet.ServletContextEvent;
  */
 public class WebAppMain implements ServletContextListener {
     public void contextInitialized(ServletContextEvent event) {
+        // BookStore.theStore is the singleton instance of the application
         Stapler.setRoot(event,BookStore.theStore);
     }
 
