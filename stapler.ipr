@@ -176,6 +176,7 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/example/example.iml" filepath="$PROJECT_DIR$/example/example.iml" />
       <module fileurl="file://$PROJECT_DIR$/stapler.iml" filepath="$PROJECT_DIR$/stapler.iml" />
     </modules>
   </component>

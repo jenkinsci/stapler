@@ -38,7 +38,8 @@
 	</target>
 	
 	<target name="dist" depends="jar,javadoc">
-		<zip destfile="build/stapler.zip">
+		<tstamp/>
+		<zip destfile="build/stapler-${DSTAMP}.zip">
 			<fileset dir="build">
 				<include name="*.jar"/>
 				<include name="javadoc/**/*"/>

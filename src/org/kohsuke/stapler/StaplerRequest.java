@@ -4,9 +4,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.ServletContext;
 import javax.servlet.RequestDispatcher;
 import java.io.IOException;
+import java.util.List;
 
 /**
- * Defines additional parameters made available by the request dispatcher.
+ * Defines additional parameters/operations made available by Stapler.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -45,4 +46,26 @@ public interface StaplerRequest extends HttpServletRequest {
      * So typically it's something like <tt>http://foobar:8080/something</tt>
      */
     String getRootPath();
+
+    /**
+     * Returns a list of ancestor objects that lead to the "it" object.
+     * The returned list contains {@link Ancestor} objects sorted in the
+     * order from root to the "it" object.
+     *
+     * <p>
+     * For example, if the URL was "foo/bar/zot" and the "it" object
+     * was determined as <code>root.getFoo().getBar("zot")</code>,
+     * then this list will contain the following 3 objects in this order:
+     * <ol>
+     *  <li>the root object
+     *  <li>root.getFoo() object
+     *  <li>root.getFoo().getBar("zot") object (the "it" object)
+     * </ol>
+     * <p>
+     * 
+     *
+     * @return
+     *      list of {@link Ancestor}s. Can be empty, but always non-null.
+     */
+    List getAncestors();
 }

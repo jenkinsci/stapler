@@ -2,24 +2,24 @@ package org.kohsuke.stapler;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.MalformedURLException;
 
 /**
  * Maps an HTTP request to a method call / JSP invocation against a model object
@@ -51,7 +51,7 @@ public class Stapler extends HttpServlet {
             return; // done
 
         // consider reusing this ArrayList.
-        invoke( req, rsp, root, new ArrayList(), tokenizeRequestURL(req), 0 );
+        invoke( req, rsp, root, req.getServletPath() );
     }
 
     /**
@@ -83,13 +83,17 @@ public class Stapler extends HttpServlet {
         return true;
     }
 
-    private static String[] tokenizeRequestURL(HttpServletRequest req) {
-        StringTokenizer tknzr = new StringTokenizer(req.getServletPath(),"/");
+    private static String[] tokenize(String url) {
+        StringTokenizer tknzr = new StringTokenizer(url,"/");
         String[] tokens = new String[tknzr.countTokens()];
         int i=0;
         while(tknzr.hasMoreTokens())
             tokens[i++] = tknzr.nextToken();
         return tokens;
+    }
+
+    void invoke(HttpServletRequest req, HttpServletResponse rsp, Object root, String url) throws IOException, ServletException {
+        invoke(req,rsp,root,new ArrayList(),tokenize(url),0);
     }
 
     private void invoke(HttpServletRequest req, HttpServletResponse rsp, Object node, List ancestors, String[] tokens, int idx ) throws IOException, ServletException {
@@ -112,10 +116,10 @@ public class Stapler extends HttpServlet {
                 URL indexHtml = getSideFileURL(node,"index.html");
                 if(indexHtml!=null && serveStaticResource(req,rsp,indexHtml))
                     return; // done
-                rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                rsp.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
-            forward(node, indexJsp, ancestors, req, rsp);
+            forward(node,indexJsp,new RequestImpl(this,req,ancestors,tokens,idx),rsp);
             return;
         }
         final String next = tokens[idx++];
@@ -168,7 +172,7 @@ public class Stapler extends HttpServlet {
         // check a public getter <obj>.get<Token>(request)
         try {
             Method method = node.getClass().getMethod("get"+methodName,requestArgs);
-            invoke(req,rsp,method.invoke(node,new Object[]{new RequestProxy(req,tokens,idx)}),ancestors,tokens,idx);
+            invoke(req,rsp,method.invoke(node,new Object[]{new RequestImpl(this,req,ancestors,tokens,idx)}),ancestors,tokens,idx);
             return;
         } catch (NoSuchMethodException e) {
             // fall through
@@ -206,7 +210,8 @@ public class Stapler extends HttpServlet {
         try {
             Method method = node.getClass().getMethod("do"+methodName,actionArgs);
             method.invoke(node,new Object[]{
-                new RequestProxy(req,tokens,idx), rsp
+                new RequestImpl(this,req,ancestors,tokens,idx),
+                new ResponseImpl(this,rsp)
             });
             return;
         } catch (NoSuchMethodException e) {
@@ -221,6 +226,15 @@ public class Stapler extends HttpServlet {
             return;
         }
 
+        if( node.getClass().isArray() ) {
+            try {
+                int i = Integer.parseInt(next);
+                invoke(req,rsp,((Object[])node)[i],ancestors,tokens,idx);
+                return;
+            } catch (NumberFormatException e) {
+                // fall through
+            }
+        }
         if( node instanceof List ) {
             try {
                 int i = Integer.parseInt(next);
@@ -245,7 +259,7 @@ public class Stapler extends HttpServlet {
         // so for now we just assume it's a JSP
         RequestDispatcher disp = getResourceDispatcher(node,next+".jsp");
         if(disp!=null) {
-            forward(node,disp,ancestors,new RequestProxy(req,tokens,idx),rsp);
+            forward(node,disp,new RequestImpl(this,req,ancestors,tokens,idx),rsp);
             return;
         }
 
@@ -256,13 +270,12 @@ public class Stapler extends HttpServlet {
         rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 
-    private void forward(Object node, RequestDispatcher dispatcher, List ancestors, HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
+    private void forward(Object node, RequestDispatcher dispatcher, StaplerRequest req, HttpServletResponse rsp) throws ServletException, IOException {
         req.setAttribute("it",node);
-        req.setAttribute("ancestors",ancestors);
-        dispatcher.forward(req,rsp);
+        dispatcher.forward(req,new ResponseImpl(this,rsp));
     }
 
-    private RequestDispatcher getResourceDispatcher(Object node, String fileName) throws MalformedURLException {
+    RequestDispatcher getResourceDispatcher(Object node, String fileName) throws MalformedURLException {
         for( Class c = node.getClass(); c!=Object.class; c=c.getSuperclass() ) {
             String name = "/WEB-INF/side-files/"+c.getName().replace('.','/')+'/'+fileName;
             if(getServletContext().getResource(name)!=null) {
@@ -289,61 +302,6 @@ public class Stapler extends HttpServlet {
     }
 
 
-
-    private class AncestorImpl implements Ancestor {
-        private final List owner;
-        private final int listIndex;
-
-        private Object object;
-        private String[] tokens;
-        private int index;
-        private String contextPath;
-
-        public AncestorImpl(List owner) {
-            this.owner = owner;
-            listIndex = owner.size();
-            owner.add(this);
-        }
-
-        public void set(Object object, String[] tokens, int index, HttpServletRequest req ) {
-            this.object = object;
-            this.tokens = tokens;
-            this.index = index;
-            this.contextPath = req.getContextPath();
-        }
-
-        public Object getObject() {
-            return object;
-        }
-
-        public String getUrl() {
-            StringBuffer buf = new StringBuffer(contextPath);
-            for( int i=0; i<index; i++ ) {
-                buf.append('/');
-                buf.append(tokens[i]);
-            }
-            return buf.toString();
-        }
-
-        public Ancestor getPrev() {
-            if(listIndex==0)
-                return null;
-            else
-                return (Ancestor)owner.get(listIndex-1);
-        }
-
-        public Ancestor getNext() {
-            if(listIndex==owner.size()-1)
-                return null;
-            else
-                return (Ancestor)owner.get(listIndex+1);
-        }
-
-        public String toString() {
-            return object.toString();
-        }
-    }
-
     /**
      * Gets the URL (e.g., "/WEB-INF/side-files/fully/qualified/class/name/jspName")
      * from a class and the JSP name.
@@ -362,54 +320,26 @@ public class Stapler extends HttpServlet {
 
     private static final Class[] actionArgs = new Class[]{
         StaplerRequest.class,
-        HttpServletResponse.class
+        StaplerResponse.class
     };
 
 
-    class RequestProxy extends HttpServletRequestWrapper implements StaplerRequest {
-        private final String[] tokens;
-        private final int idx;
-
-        private String rest;
-
-        public RequestProxy(HttpServletRequest httpServletRequest, String[] tokens, int idx) {
-            super(httpServletRequest);
-            this.tokens = tokens;
-            this.idx = idx;
-        }
-
-        public String getRestOfPath() {
-            if(rest==null)
-                rest = assembleRestOfPath(tokens,idx);
-            return rest;
-        }
-
-        public ServletContext getServletContext() {
-            return Stapler.this.getServletContext();
-        }
-
-        private String assembleRestOfPath(String[] tokens,int idx) {
-            StringBuffer buf = new StringBuffer();
-            for( ; idx<tokens.length; idx++ ) {
-                buf.append('/');
-                buf.append(tokens[idx]);
-            }
-            return buf.toString();
-        }
-
-        public RequestDispatcher getView(Object it,String jspName) throws IOException {
-            return getResourceDispatcher(it,jspName);
-        }
-
-        public String getRootPath() {
-            StringBuffer buf = super.getRequestURL();
-            int idx = 0;
-            for( int i=0; i<3; i++ )
-                idx = buf.indexOf("/",idx)+1;
-            buf.setLength(idx-1);
-            buf.append(super.getContextPath());
-            return buf.toString();
-        }
+    /**
+     * Sets the specified object as the root of the web application.
+     *
+     * <p>
+     * This method should be invoked from your implementation of
+     * {@link ServletContextListener#contextInitialized(ServletContextEvent)}.
+     *
+     * <p>
+     * This is just a convenience method to invoke
+     * <code>servletContext.setAttribute("app",rootApp)</code>.
+     *
+     * <p>
+     * The root object is bound to the URL '/' and used to resolve
+     * all the requests to this web application.
+     */
+    public static void setRoot( ServletContextEvent event, Object rootApp ) {
+        event.getServletContext().setAttribute("app",rootApp);
     }
-
 }
