@@ -24,6 +24,7 @@
 			</manifest>
 			<fileset dir="build/classes" includes="**/*.class"/>
 			<metainf dir="." includes="LICENSE.txt"/>
+			<metainf dir="src" includes="META-INF/*"/>
 		</jar>
 	</target>
 	
