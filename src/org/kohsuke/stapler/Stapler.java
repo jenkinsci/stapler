@@ -47,32 +47,40 @@ public class Stapler extends HttpServlet {
     protected void service(HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
         // TODO: test
         URL url = getServletContext().getResource(req.getServletPath());
-        if(url!=null) {
-            URLConnection con = url.openConnection();
-            InputStream in = null;
-            try {
-                in = con.getInputStream();
-            } catch (IOException e) {
-                // Tomcat only reports a missing resource error here
-                ;
-            }
-            if(in!=null) {
-                con.connect();
-                rsp.setContentType(getServletContext().getMimeType(req.getServletPath()));
-                if(con.getContentLength()!=-1)
-                    rsp.setContentLength(con.getContentLength());
-
-                byte[] buf = new byte[1024];
-                int len;
-                while((len=in.read(buf))>0)
-                    rsp.getOutputStream().write(buf,0,len);
-                in.close();
-                return;
-            }
-        }
+        if(url!=null && serveStaticResource(req,rsp,url))
+            return; // done
 
         // consider reusing this ArrayList.
         invoke( req, rsp, root, new ArrayList(), tokenizeRequestURL(req), 0 );
+    }
+
+    /**
+     * Serves the specified URL as a static resource.
+     *
+     * @return false
+     *      if the resource doesn't exist.
+     */
+    private boolean serveStaticResource(HttpServletRequest req, HttpServletResponse rsp, URL url) throws IOException {
+        URLConnection con = url.openConnection();
+        InputStream in = null;
+        try {
+            in = con.getInputStream();
+        } catch (IOException e) {
+            // Tomcat only reports a missing resource error here
+            return false;
+        }
+
+        con.connect();
+        rsp.setContentType(getServletContext().getMimeType(req.getServletPath()));
+        if(con.getContentLength()!=-1)
+            rsp.setContentLength(con.getContentLength());
+
+        byte[] buf = new byte[1024];
+        int len;
+        while((len=in.read(buf))>0)
+            rsp.getOutputStream().write(buf,0,len);
+        in.close();
+        return true;
     }
 
     private static String[] tokenizeRequestURL(HttpServletRequest req) {
@@ -101,6 +109,9 @@ public class Stapler extends HttpServlet {
             // TODO: find the list of welcome pages for this class by reading web.xml
             RequestDispatcher indexJsp = getResourceDispatcher(node,"index.jsp");
             if(indexJsp==null) {
+                URL indexHtml = getSideFileURL(node,"index.html");
+                if(indexHtml!=null && serveStaticResource(req,rsp,indexHtml))
+                    return; // done
                 rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
@@ -109,6 +120,16 @@ public class Stapler extends HttpServlet {
         }
         final String next = tokens[idx++];
         final String arg = (tokens.length==idx)?null:tokens[idx];
+
+
+        // if the token includes '.', try static resources
+        if(next.indexOf('.')!=-1 && arg==null) {
+            URL res = getSideFileURL(node,next);
+            if(res!=null && serveStaticResource(req,rsp,res))
+                return; // done
+            // otherwise continue
+        }
+
 
         // check a public property first <obj>.<token>
         try {
@@ -124,6 +145,7 @@ public class Stapler extends HttpServlet {
         }
 
         String methodName = getMethodName(next);
+
 
         // check a public getter <obj>.get<Token>()
         try {
@@ -141,6 +163,25 @@ public class Stapler extends HttpServlet {
             rsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;
         }
+
+
+        // check a public getter <obj>.get<Token>(request)
+        try {
+            Method method = node.getClass().getMethod("get"+methodName,requestArgs);
+            invoke(req,rsp,method.invoke(node,new RequestProxy(req,tokens,idx)),ancestors,tokens,idx);
+            return;
+        } catch (NoSuchMethodException e) {
+            // fall through
+        } catch (IllegalAccessException e) {
+            // since we're only looking for public methods, this shall never happen
+            getServletContext().log("Error while serving "+req.getRequestURL(),e);
+            // fall through
+        } catch (InvocationTargetException e) {
+            getServletContext().log("Error while serving "+req.getRequestURL(),e);
+            rsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return;
+        }
+
 
         // check a public selector <obj>.get<Token>(<arg>)
         if(arg!=null) {
@@ -223,13 +264,22 @@ public class Stapler extends HttpServlet {
 
     private RequestDispatcher getResourceDispatcher(Object node, String fileName) throws MalformedURLException {
         for( Class c = node.getClass(); c!=Object.class; c=c.getSuperclass() ) {
-            String name = "/WEB-INF/views/"+c.getName().replace('.','/')+'/'+fileName;
+            String name = "/WEB-INF/side-files/"+c.getName().replace('.','/')+'/'+fileName;
             if(getServletContext().getResource(name)!=null) {
                 // Tomcat returns a RequestDispatcher even if the JSP file doesn't exist.
                 // so check if the resource exists first.
                 RequestDispatcher disp = getServletContext().getRequestDispatcher(name);
                 if(disp!=null)  return disp;
             }
+        }
+        return null;
+    }
+
+    private URL getSideFileURL(Object node,String fileName) throws MalformedURLException {
+        for( Class c = node.getClass(); c!=Object.class; c=c.getSuperclass() ) {
+            String name = "/WEB-INF/side-files/"+c.getName().replace('.','/')+'/'+fileName;
+            URL url = getServletContext().getResource(name);
+            if(url!=null) return url;
         }
         return null;
     }
@@ -295,14 +345,17 @@ public class Stapler extends HttpServlet {
     }
 
     /**
-     * Gets the URL (e.g., "/WEB-INF/views/fully/qualified/class/name/jspName")
+     * Gets the URL (e.g., "/WEB-INF/side-files/fully/qualified/class/name/jspName")
      * from a class and the JSP name.
      */
     public static String getViewURL(Class clazz,String jspName) {
-        return "/WEB-INF/views/"+clazz.getName().replace('.','/')+'/'+jspName;
+        return "/WEB-INF/side-files/"+clazz.getName().replace('.','/')+'/'+jspName;
     }
 
     private static final Class[] emptyArgs = new Class[0];
+    private static final Class[] requestArgs = new Class[] {
+        StaplerRequest.class
+    };
     private static final Class[] selectorArgs = new Class[] {
         String.class
     };

@@ -35,7 +35,7 @@ public class Include extends SimpleTagSupport {
         ServletContext sc = cfg.getServletContext();
 
         for( Class c = it.getClass(); c!=Object.class; c=c.getSuperclass() ) {
-            String name = "/WEB-INF/views/"+c.getName().replace('.','/')+'/'+page;
+            String name = "/WEB-INF/side-files/"+c.getName().replace('.','/')+'/'+page;
             if(sc.getResource(name)!=null) {
                 // Tomcat returns a RequestDispatcher even if the JSP file doesn't exist.
                 // so check if the resource exists first.
