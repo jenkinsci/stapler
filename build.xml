@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<project name="stapler" default="dist">
+	
+	<path id="classpath">
+		<fileset dir="lib" includes="*.jar"/>
+	</path>
+	
+	<target name="clean">
+		<delete dir="build"/>
+	</target>
+	
+	<target name="compile">
+		<mkdir dir="build/classes" />
+		<javac srcdir="src" destdir="build/classes" debug="on">
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+	
+	<target name="jar" depends="compile">
+		<tstamp/>
+		<jar destfile="build/stapler.jar">
+			<manifest>
+				<attribute name="version" value="${DSTAMP}"/>
+			</manifest>
+			<fileset dir="build/classes" includes="**/*.class"/>
+			<metainf dir="." includes="LICENSE.txt"/>
+		</jar>
+	</target>
+	
+	<target name="javadoc">
+		<javadoc locale="en_US"
+			destdir="build/javadoc">
+			<packageset dir="src"/>
+			<classpath refid="classpath" />
+			<link href="http://java.sun.com/j2ee/1.4/docs/api/" offline="true"
+				packagelistLoc="ref/j2ee"/>
+		</javadoc>
+	</target>
+	
+	<target name="dist" depends="jar,javadoc">
+		<zip destfile="build/stapler.zip">
+			<fileset dir="build">
+				<include name="*.jar"/>
+				<include name="javadoc/**/*"/>
+			</fileset>
+			<fileset dir="." includes="LICENSE.txt"/>
+			<fileset dir="../www" excludes="**/CVS"/>
+		</zip>
+	</target>
+</project>
