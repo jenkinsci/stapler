@@ -36,7 +36,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         return stapler.getServletContext();
     }
 
-    private String assembleRestOfPath(String[] tokens,int idx) {
+    private static String assembleRestOfPath(String[] tokens,int idx) {
         StringBuffer buf = new StringBuffer();
         for( ; idx<tokens.length; idx++ ) {
             buf.append('/');
