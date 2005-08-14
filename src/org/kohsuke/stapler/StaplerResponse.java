@@ -30,4 +30,8 @@ public interface StaplerResponse extends HttpServletResponse {
      *      Request to be forwarded.
      */
     void forward(Object it, String url, StaplerRequest request) throws ServletException, IOException;
+    /**
+     * Redirects the browser to where it came from (the referer.)
+     */
+    void forwardToPreviousPage(StaplerRequest request) throws ServletException, IOException;
 }

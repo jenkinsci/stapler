@@ -21,4 +21,10 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
     public void forward(Object it, String url, StaplerRequest request) throws ServletException, IOException {
         stapler.invoke(request,response,it,url);
     }
+
+    public void forwardToPreviousPage(StaplerRequest request) throws ServletException, IOException {
+        String referer = request.getHeader("Referer");
+        if(referer==null)   referer=".";
+        sendRedirect(referer);
+    }
 }
