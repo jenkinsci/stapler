@@ -292,7 +292,7 @@ public class Stapler extends HttpServlet {
 
     RequestDispatcher getResourceDispatcher(Object node, String fileName) throws MalformedURLException {
         for( Class c = node.getClass(); c!=Object.class; c=c.getSuperclass() ) {
-            String name = "/WEB-INF/side-files/"+c.getName().replace('.','/')+'/'+fileName;
+            String name = "/WEB-INF/side-files/"+c.getName().replace('.','/').replace('$','/')+'/'+fileName;
             if(getServletContext().getResource(name)!=null) {
                 // Tomcat returns a RequestDispatcher even if the JSP file doesn't exist.
                 // so check if the resource exists first.
