@@ -119,7 +119,7 @@ public class Stapler extends HttpServlet {
                 rsp.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
-            forward(node,indexJsp,new RequestImpl(this,req,ancestors,tokens,idx),rsp);
+            forward(indexJsp,new RequestImpl(this,req,ancestors,tokens,idx),rsp);
             return;
         }
         final String next = tokens[idx++];
@@ -204,6 +204,22 @@ public class Stapler extends HttpServlet {
                 rsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 return;
             }
+
+            try {
+                Method method = node.getClass().getMethod("get"+methodName,int_selectorArgs);
+                invoke(req,rsp,method.invoke(node,new Object[]{Integer.valueOf(arg)}),ancestors,tokens,idx+1);
+                return;
+            } catch (NoSuchMethodException e) {
+                // fall through
+            } catch (IllegalAccessException e) {
+                // since we're only looking for public methods, this shall never happen
+                getServletContext().log("Error while serving "+req.getRequestURL(),e);
+                // fall through
+            } catch (InvocationTargetException e) {
+                getServletContext().log("Error while serving "+req.getRequestURL(),e);
+                rsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                return;
+            }
         }
 
         // check action <obj>.do<token>()
@@ -259,7 +275,7 @@ public class Stapler extends HttpServlet {
         // so for now we just assume it's a JSP
         RequestDispatcher disp = getResourceDispatcher(node,next+".jsp");
         if(disp!=null) {
-            forward(node,disp,new RequestImpl(this,req,ancestors,tokens,idx),rsp);
+            forward(disp,new RequestImpl(this,req,ancestors,tokens,idx),rsp);
             return;
         }
 
@@ -270,8 +286,7 @@ public class Stapler extends HttpServlet {
         rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 
-    private void forward(Object node, RequestDispatcher dispatcher, StaplerRequest req, HttpServletResponse rsp) throws ServletException, IOException {
-        req.setAttribute("it",node);
+    private void forward(RequestDispatcher dispatcher, StaplerRequest req, HttpServletResponse rsp) throws ServletException, IOException {
         dispatcher.forward(req,new ResponseImpl(this,rsp));
     }
 
@@ -282,7 +297,9 @@ public class Stapler extends HttpServlet {
                 // Tomcat returns a RequestDispatcher even if the JSP file doesn't exist.
                 // so check if the resource exists first.
                 RequestDispatcher disp = getServletContext().getRequestDispatcher(name);
-                if(disp!=null)  return disp;
+                if(disp!=null) {
+                    return new RequestDispatcherWrapper(disp,node);
+                }
             }
         }
         return null;
@@ -316,6 +333,9 @@ public class Stapler extends HttpServlet {
     };
     private static final Class[] selectorArgs = new Class[] {
         String.class
+    };
+    private static final Class[] int_selectorArgs = new Class[] {
+        int.class
     };
 
     private static final Class[] actionArgs = new Class[]{

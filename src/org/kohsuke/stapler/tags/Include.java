@@ -47,6 +47,8 @@ import java.io.PrintWriter;
  */
 public class Include extends SimpleTagSupport {
 
+    private Object it;
+
     private String page;
 
     /**
@@ -56,12 +58,22 @@ public class Include extends SimpleTagSupport {
         this.page = page;
     }
 
+    /**
+     * Specifies the object for which JSP will be included.
+     */
+    public void setIt(Object it) {
+        this.it = it;
+    }
+
     private Object getPageObject( String name ) {
         return getJspContext().getAttribute(name,PageContext.PAGE_SCOPE);
     }
 
     public void doTag() throws JspException, IOException {
         Object it = getJspContext().getAttribute("it",PageContext.REQUEST_SCOPE);
+        final Object oldIt = it;
+        if(this.it!=null)
+            it = this.it;
 
         ServletConfig cfg = (ServletConfig) getPageObject(PageContext.CONFIG);
         ServletContext sc = cfg.getServletContext();
@@ -73,15 +85,19 @@ public class Include extends SimpleTagSupport {
                 // so check if the resource exists first.
                 RequestDispatcher disp = sc.getRequestDispatcher(name);
                 if(disp!=null) {
+                    getJspContext().setAttribute("it",it,PageContext.REQUEST_SCOPE);
                     try {
+                        HttpServletRequest request = (HttpServletRequest) getPageObject(PageContext.REQUEST);
                         disp.include(
-                            (HttpServletRequest)getPageObject(PageContext.REQUEST),
+                            request,
                             new Wrapper(
                                 (HttpServletResponse)getPageObject(PageContext.RESPONSE),
                                 new PrintWriter(getJspContext().getOut()) )
                         );
                     } catch (ServletException e) {
                         throw new JspException(e);
+                    } finally {
+                        getJspContext().setAttribute("it",oldIt,PageContext.REQUEST_SCOPE);
                     }
                     return;
                 }
