@@ -154,7 +154,7 @@ public class Stapler extends HttpServlet {
         // check a public getter <obj>.get<Token>()
         try {
             Method method = node.getClass().getMethod("get"+methodName,emptyArgs);
-            invoke(req,rsp,method.invoke(node,emptyArgs),ancestors,tokens,idx);
+            invoke(req,rsp,method.invoke(node,(Object[])emptyArgs),ancestors,tokens,idx);
             return;
         } catch (NoSuchMethodException e) {
             // fall through
@@ -281,6 +281,26 @@ public class Stapler extends HttpServlet {
 
         // TODO: check if we can route to static resources
         // which directory shall we look up a resource from?
+
+        // check action <obj>.doDynamic()
+        try {
+            Method method = node.getClass().getMethod("doDynamic",actionArgs);
+            method.invoke(node,new Object[]{
+                new RequestImpl(this,req,ancestors,tokens,idx-1),
+                new ResponseImpl(this,rsp)
+            });
+            return;
+        } catch (NoSuchMethodException e) {
+            // fall through
+        } catch (IllegalAccessException e) {
+            // since we're only looking for public methods, this shall never happen
+            getServletContext().log("Error while serving "+req.getRequestURL(),e);
+            // fall through
+        } catch (InvocationTargetException e) {
+            getServletContext().log("Error while serving "+req.getRequestURL(),e);
+            rsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return;
+        }
 
         // we really run out of options.
         rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
