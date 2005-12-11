@@ -1,0 +1,17 @@
+<project default="dist"
+	xmlns:a="jelly:ant">
+
+	<goal name="dist:build" prereqs="jar">
+		<attainGoal name="javadoc" />
+		<a:ant dir="example" target="war" />
+		
+		<a:zip destfile="target/stapler-${pom.currentVersion}.zip">
+			<a:fileset dir="target" includes="*.jar" />
+			<a:zipfileset dir="target/docs/apidocs" prefix="javadoc" />
+			<a:fileset dir="." includes="LICENSE.txt"/>
+			<a:fileset dir="../www" excludes="**/CVS"/>
+			<a:fileset dir="example/build" includes="*.war"/>
+			<a:fileset dir="." includes="example/**/*" excludes="**/CVS, example/build/**/*"/>
+		</a:zip>
+	</goal>
+</project>
