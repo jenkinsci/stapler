@@ -310,7 +310,7 @@ public class Stapler extends HttpServlet {
         for( final Function f : getMethods.signature() ) {
             String name = camelize(f.getName().substring(2)); // 'doFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name,1) {
-                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException {
                     f.invoke(node,req,rsp);
                 }
             });
@@ -318,7 +318,7 @@ public class Stapler extends HttpServlet {
 
         if(node.clazz.isArray()) {
             dispatchers.add(new Dispatcher() {
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                     try {
                         invoke(req,rsp,((Object[])node)[req.tokens.nextAsInt()]);
                         return true;
@@ -331,7 +331,7 @@ public class Stapler extends HttpServlet {
 
         if(List.class.isAssignableFrom(node.clazz)) {
             dispatchers.add(new Dispatcher() {
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                     try {
                         invoke(req,rsp,((List)node).get(req.tokens.nextAsInt()));
                         return true;
@@ -344,7 +344,7 @@ public class Stapler extends HttpServlet {
 
         if(Map.class.isAssignableFrom(node.clazz)) {
             dispatchers.add(new Dispatcher() {
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                     try {
                         Object item = ((Map)node).get(req.tokens.peek());
                         if(item!=null) {
@@ -363,7 +363,7 @@ public class Stapler extends HttpServlet {
         }
 
         dispatchers.add(new Dispatcher() {
-            public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+            public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                 // check JSP views
                 // I thought about generalizing this to invoke other resources (such as static images, etc)
                 // but I realized that those would require a very different handling.
@@ -389,7 +389,7 @@ public class Stapler extends HttpServlet {
             .name("doDynamic") ) {
 
             dispatchers.add(new Dispatcher() {
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException {
                     f.invoke(node,req,rsp);
                     return true;
                 }
