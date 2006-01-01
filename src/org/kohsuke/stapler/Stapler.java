@@ -62,7 +62,7 @@ public class Stapler extends HttpServlet {
      */
     private boolean serveStaticResource(HttpServletRequest req, HttpServletResponse rsp, URL url) throws IOException {
         URLConnection con = url.openConnection();
-        InputStream in = null;
+        InputStream in;
         try {
             in = con.getInputStream();
         } catch (IOException e) {
@@ -134,64 +134,27 @@ public class Stapler extends HttpServlet {
             // otherwise continue
         }
 
-
-        // check a public property first <obj>.<token>
         try {
-            Field field = node.getClass().getField(next);
-            invoke(req,rsp,field.get(node),ancestors,tokens,idx);
-            return;
-        } catch (NoSuchFieldException e) {
-            // fall through
-        } catch (IllegalAccessException e) {
-            // since we're only looking for public fields, this shall never happen
-            getServletContext().log(e.getMessage(),e);
-            // fall through
-        }
-
-        String methodName = getMethodName(next);
-
-
-        // check a public getter <obj>.get<Token>()
-        try {
-            Method method = node.getClass().getMethod("get"+methodName,emptyArgs);
-            invoke(req,rsp,method.invoke(node,(Object[])emptyArgs),ancestors,tokens,idx);
-            return;
-        } catch (NoSuchMethodException e) {
-            // fall through
-        } catch (IllegalAccessException e) {
-            // since we're only looking for public methods, this shall never happen
-            getServletContext().log("Error while serving "+req.getRequestURL(),e);
-            // fall through
-        } catch (InvocationTargetException e) {
-            getServletContext().log("Error while serving "+req.getRequestURL(),e);
-            rsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return;
-        }
-
-
-        // check a public getter <obj>.get<Token>(request)
-        try {
-            Method method = node.getClass().getMethod("get"+methodName,requestArgs);
-            invoke(req,rsp,method.invoke(node,new Object[]{new RequestImpl(this,req,ancestors,tokens,idx)}),ancestors,tokens,idx);
-            return;
-        } catch (NoSuchMethodException e) {
-            // fall through
-        } catch (IllegalAccessException e) {
-            // since we're only looking for public methods, this shall never happen
-            getServletContext().log("Error while serving "+req.getRequestURL(),e);
-            // fall through
-        } catch (InvocationTargetException e) {
-            getServletContext().log("Error while serving "+req.getRequestURL(),e);
-            rsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return;
-        }
-
-
-        // check a public selector <obj>.get<Token>(<arg>)
-        if(arg!=null) {
+            // check a public property first <obj>.<token>
             try {
-                Method method = node.getClass().getMethod("get"+methodName,selectorArgs);
-                invoke(req,rsp,method.invoke(node,new Object[]{arg}),ancestors,tokens,idx+1);
+                Field field = node.getClass().getField(next);
+                invoke(req,rsp,field.get(node),ancestors,tokens,idx);
+                return;
+            } catch (NoSuchFieldException e) {
+                // fall through
+            } catch (IllegalAccessException e) {
+                // since we're only looking for public fields, this shall never happen
+                getServletContext().log(e.getMessage(),e);
+                // fall through
+            }
+
+            String methodName = getMethodName(next);
+
+
+            // check a public getter <obj>.get<Token>()
+            try {
+                Method method = node.getClass().getMethod("get"+methodName,emptyArgs);
+                invoke(req,rsp,method.invoke(node,emptyArgs),ancestors,tokens,idx);
                 return;
             } catch (NoSuchMethodException e) {
                 // fall through
@@ -199,15 +162,13 @@ public class Stapler extends HttpServlet {
                 // since we're only looking for public methods, this shall never happen
                 getServletContext().log("Error while serving "+req.getRequestURL(),e);
                 // fall through
-            } catch (InvocationTargetException e) {
-                getServletContext().log("Error while serving "+req.getRequestURL(),e);
-                rsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                return;
             }
 
+
+            // check a public getter <obj>.get<Token>(request)
             try {
-                Method method = node.getClass().getMethod("get"+methodName,int_selectorArgs);
-                invoke(req,rsp,method.invoke(node,new Object[]{Integer.valueOf(arg)}),ancestors,tokens,idx+1);
+                Method method = node.getClass().getMethod("get"+methodName,requestArgs);
+                invoke(req,rsp,method.invoke(node,new Object[]{new RequestImpl(this,req,ancestors,tokens,idx)}),ancestors,tokens,idx);
                 return;
             } catch (NoSuchMethodException e) {
                 // fall through
@@ -215,95 +176,114 @@ public class Stapler extends HttpServlet {
                 // since we're only looking for public methods, this shall never happen
                 getServletContext().log("Error while serving "+req.getRequestURL(),e);
                 // fall through
-            } catch (InvocationTargetException e) {
+            }
+
+
+            // check a public selector <obj>.get<Token>(<arg>)
+            if(arg!=null) {
+                try {
+                    Method method = node.getClass().getMethod("get"+methodName,selectorArgs);
+                    invoke(req,rsp,method.invoke(node,new Object[]{arg}),ancestors,tokens,idx+1);
+                    return;
+                } catch (NoSuchMethodException e) {
+                    // fall through
+                } catch (IllegalAccessException e) {
+                    // since we're only looking for public methods, this shall never happen
+                    getServletContext().log("Error while serving "+req.getRequestURL(),e);
+                    // fall through
+                }
+
+                try {
+                    Method method = node.getClass().getMethod("get"+methodName,int_selectorArgs);
+                    invoke(req,rsp,method.invoke(node,new Object[]{Integer.valueOf(arg)}),ancestors,tokens,idx+1);
+                    return;
+                } catch (NoSuchMethodException e) {
+                    // fall through
+                } catch (IllegalAccessException e) {
+                    // since we're only looking for public methods, this shall never happen
+                    getServletContext().log("Error while serving "+req.getRequestURL(),e);
+                    // fall through
+                }
+            }
+
+            // check action <obj>.do<token>()
+            try {
+                Method method = node.getClass().getMethod("do"+methodName,actionArgs);
+                method.invoke(node,new Object[]{
+                    new RequestImpl(this,req,ancestors,tokens,idx),
+                    new ResponseImpl(this,rsp)
+                });
+                return;
+            } catch (NoSuchMethodException e) {
+                // fall through
+            } catch (IllegalAccessException e) {
+                // since we're only looking for public methods, this shall never happen
                 getServletContext().log("Error while serving "+req.getRequestURL(),e);
-                rsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                return;
-            }
-        }
-
-        // check action <obj>.do<token>()
-        try {
-            Method method = node.getClass().getMethod("do"+methodName,actionArgs);
-            method.invoke(node,new Object[]{
-                new RequestImpl(this,req,ancestors,tokens,idx),
-                new ResponseImpl(this,rsp)
-            });
-            return;
-        } catch (NoSuchMethodException e) {
-            // fall through
-        } catch (IllegalAccessException e) {
-            // since we're only looking for public methods, this shall never happen
-            getServletContext().log("Error while serving "+req.getRequestURL(),e);
-            // fall through
-        } catch (InvocationTargetException e) {
-            getServletContext().log("Error while serving "+req.getRequestURL(),e);
-            rsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return;
-        }
-
-        if( node.getClass().isArray() ) {
-            try {
-                int i = Integer.parseInt(next);
-                invoke(req,rsp,((Object[])node)[i],ancestors,tokens,idx);
-                return;
-            } catch (NumberFormatException e) {
                 // fall through
             }
-        }
-        if( node instanceof List ) {
-            try {
-                int i = Integer.parseInt(next);
-                invoke(req,rsp,((List)node).get(i),ancestors,tokens,idx);
+
+            if( node.getClass().isArray() ) {
+                try {
+                    int i = Integer.parseInt(next);
+                    invoke(req,rsp,((Object[])node)[i],ancestors,tokens,idx);
+                    return;
+                } catch (NumberFormatException e) {
+                    // fall through
+                }
+            }
+            if( node instanceof List ) {
+                try {
+                    int i = Integer.parseInt(next);
+                    invoke(req,rsp,((List)node).get(i),ancestors,tokens,idx);
+                    return;
+                } catch (NumberFormatException e) {
+                    // fall through
+                }
+            }
+            if( node instanceof Map ) {
+                Object item = ((Map)node).get(next);
+                if(item!=null) {
+                    invoke(req,rsp,item,ancestors,tokens,idx);
+                    return;
+                }
+                // otherwise just fall through
+            }
+
+            // check JSP views
+            // I thought about generalizing this to invoke other resources (such as static images, etc)
+            // but I realized that those would require a very different handling.
+            // so for now we just assume it's a JSP
+            RequestDispatcher disp = getResourceDispatcher(node,next+".jsp");
+            if(disp!=null) {
+                forward(disp,new RequestImpl(this,req,ancestors,tokens,idx),rsp);
                 return;
-            } catch (NumberFormatException e) {
+            }
+
+            // TODO: check if we can route to static resources
+            // which directory shall we look up a resource from?
+
+            // check action <obj>.doDynamic()
+            try {
+                Method method = node.getClass().getMethod("doDynamic",actionArgs);
+                method.invoke(node,new Object[]{
+                    new RequestImpl(this,req,ancestors,tokens,idx-1),
+                    new ResponseImpl(this,rsp)
+                });
+                return;
+            } catch (NoSuchMethodException e) {
+                // fall through
+            } catch (IllegalAccessException e) {
+                // since we're only looking for public methods, this shall never happen
+                getServletContext().log("Error while serving "+req.getRequestURL(),e);
                 // fall through
             }
-        }
-        if( node instanceof Map ) {
-            Object item = ((Map)node).get(next);
-            if(item!=null) {
-                invoke(req,rsp,item,ancestors,tokens,idx);
-                return;
-            }
-            // otherwise just fall through
-        }
 
-        // check JSP views
-        // I thought about generalizing this to invoke other resources (such as static images, etc)
-        // but I realized that those would require a very different handling.
-        // so for now we just assume it's a JSP
-        RequestDispatcher disp = getResourceDispatcher(node,next+".jsp");
-        if(disp!=null) {
-            forward(disp,new RequestImpl(this,req,ancestors,tokens,idx),rsp);
-            return;
-        }
-
-        // TODO: check if we can route to static resources
-        // which directory shall we look up a resource from?
-
-        // check action <obj>.doDynamic()
-        try {
-            Method method = node.getClass().getMethod("doDynamic",actionArgs);
-            method.invoke(node,new Object[]{
-                new RequestImpl(this,req,ancestors,tokens,idx-1),
-                new ResponseImpl(this,rsp)
-            });
-            return;
-        } catch (NoSuchMethodException e) {
-            // fall through
-        } catch (IllegalAccessException e) {
-            // since we're only looking for public methods, this shall never happen
+            // we really run out of options.
+            rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } catch( InvocationTargetException e) {
             getServletContext().log("Error while serving "+req.getRequestURL(),e);
-            // fall through
-        } catch (InvocationTargetException e) {
-            getServletContext().log("Error while serving "+req.getRequestURL(),e);
-            rsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return;
+            throw new ServletException(e.getTargetException());
         }
-
-        // we really run out of options.
-        rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 
     private void forward(RequestDispatcher dispatcher, StaplerRequest req, HttpServletResponse rsp) throws ServletException, IOException {
