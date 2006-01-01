@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Collections;
 import java.util.WeakHashMap;
+import java.util.HashMap;
 
 /**
  * Maps an HTTP request to a method call / JSP invocation against a model object
@@ -38,6 +39,11 @@ public class Stapler extends HttpServlet {
     private /*final*/ Object root;
 
     /**
+     * Duck-type wrappers for the given class.
+     */
+    private Map<Class,Class[]> wrappers;
+
+    /**
      * All {@link Dispatcher}s.
      */
     private static final Map<Class,List<Dispatcher>> dispatchers
@@ -48,6 +54,9 @@ public class Stapler extends HttpServlet {
         root = servletConfig.getServletContext().getAttribute("app");
         if(root==null)
             throw new ServletException("there's no \"app\" attribute in the application context.");
+        wrappers = (Map<Class,Class[]>) servletConfig.getServletContext().getAttribute("wrappers");
+        if(wrappers==null)
+            wrappers = new HashMap<Class,Class[]>();
     }
 
     protected void service(HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
@@ -100,7 +109,7 @@ public class Stapler extends HttpServlet {
 
             // TODO: duck typing wrappers
             r = new ArrayList<Dispatcher>();
-            buildDispatchers(new ClassDescriptor(node),r);
+            buildDispatchers(new ClassDescriptor(node,wrappers.get(node)),r);
             dispatchers.put(node,r);
             return r;
         }
