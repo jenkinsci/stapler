@@ -11,24 +11,23 @@ import java.util.List;
  * @author Kohsuke Kawaguchi
  */
 class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
-    private final String[] tokens;
-    private final int idx;
+    private final TokenList tokens;
 
+    private final Stapler stapler;
+    final List<AncestorImpl> ancestors;
+    // lazily computed
     private String rest;
-    private Stapler stapler;
-    private List ancestors;
 
-    public RequestImpl(Stapler stapler, HttpServletRequest request, List ancestors, String[] tokens, int idx) {
+    public RequestImpl(Stapler stapler, HttpServletRequest request, List<AncestorImpl> ancestors, TokenList tokens) {
         super(request);
         this.stapler = stapler;
         this.ancestors = ancestors;
         this.tokens = tokens;
-        this.idx = idx;
     }
 
     public String getRestOfPath() {
         if(rest==null)
-            rest = assembleRestOfPath(tokens,idx);
+            rest = assembleRestOfPath(tokens);
         return rest;
     }
 
@@ -36,11 +35,11 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         return stapler.getServletContext();
     }
 
-    private static String assembleRestOfPath(String[] tokens,int idx) {
+    private static String assembleRestOfPath(TokenList tokens) {
         StringBuffer buf = new StringBuffer();
-        for( ; idx<tokens.length; idx++ ) {
+        for( int i=tokens.idx; i<tokens.length(); i++ ) {
             buf.append('/');
-            buf.append(tokens[idx]);
+            buf.append(tokens.get(i));
         }
         return buf.toString();
     }

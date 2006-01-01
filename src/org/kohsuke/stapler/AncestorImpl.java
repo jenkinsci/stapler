@@ -7,7 +7,7 @@ import java.util.List;
  * @author Kohsuke Kawaguchi
  */
 class AncestorImpl implements Ancestor {
-    private final List owner;
+    private final List<AncestorImpl> owner;
     private final int listIndex;
 
     private Object object;
@@ -15,16 +15,16 @@ class AncestorImpl implements Ancestor {
     private int index;
     private String contextPath;
 
-    public AncestorImpl(List owner) {
+    public AncestorImpl(List<AncestorImpl> owner) {
         this.owner = owner;
         listIndex = owner.size();
         owner.add(this);
     }
 
-    public void set(Object object, String[] tokens, int index, HttpServletRequest req ) {
+    public void set(Object object, TokenList tokens, HttpServletRequest req ) {
         this.object = object;
-        this.tokens = tokens;
-        this.index = index;
+        this.tokens = tokens.tokens;
+        this.index = tokens.idx;
         this.contextPath = req.getContextPath();
     }
 
@@ -45,14 +45,14 @@ class AncestorImpl implements Ancestor {
         if(listIndex==0)
             return null;
         else
-            return (Ancestor)owner.get(listIndex-1);
+            return owner.get(listIndex-1);
     }
 
     public Ancestor getNext() {
         if(listIndex==owner.size()-1)
             return null;
         else
-            return (Ancestor)owner.get(listIndex+1);
+            return owner.get(listIndex+1);
     }
 
     public String toString() {
