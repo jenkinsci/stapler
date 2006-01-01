@@ -37,7 +37,10 @@ final class TokenList {
         return tokens[--idx];
     }
     public int nextAsInt() throws NumberFormatException {
-        int i = Integer.valueOf(peek());
+        String p = peek();
+        if(p==null)
+            throw new NumberFormatException();  // no more token
+        int i = Integer.valueOf(p);
         idx++;
         return i;
     }

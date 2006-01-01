@@ -1,6 +1,5 @@
 package org.kohsuke.stapler;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -21,10 +20,10 @@ class AncestorImpl implements Ancestor {
         owner.add(this);
     }
 
-    public void set(Object object, TokenList tokens, HttpServletRequest req ) {
+    public void set(Object object, RequestImpl req ) {
         this.object = object;
-        this.tokens = tokens.tokens;
-        this.index = tokens.idx;
+        this.tokens = req.tokens.tokens;
+        this.index = req.tokens.idx;
         this.contextPath = req.getContextPath();
     }
 

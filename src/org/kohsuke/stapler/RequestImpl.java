@@ -11,10 +11,19 @@ import java.util.List;
  * @author Kohsuke Kawaguchi
  */
 class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
-    private final TokenList tokens;
+    /**
+     * Tokenized URLs and consumed tokens.
+     * This object is modified by {@link Stapler} as we parse through the URL.
+     */
+    public final TokenList tokens;
+    /**
+     * Ancesotr nodes traversed so far.
+     * This object is modified by {@link Stapler} as we parse through the URL.
+     */
+    public final List<AncestorImpl> ancestors;
 
     private final Stapler stapler;
-    final List<AncestorImpl> ancestors;
+    
     // lazily computed
     private String rest;
 

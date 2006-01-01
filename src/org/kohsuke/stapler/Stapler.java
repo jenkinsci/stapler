@@ -107,20 +107,23 @@ public class Stapler extends HttpServlet {
     }
 
     void invoke(HttpServletRequest req, HttpServletResponse rsp, Object root, String url) throws IOException, ServletException {
-        invoke(req,rsp,root,new ArrayList<AncestorImpl>(),new TokenList(url));
+        invoke(
+            new RequestImpl(this,req,new ArrayList<AncestorImpl>(),new TokenList(url)),
+            new ResponseImpl(this,rsp),
+            root );
     }
 
-    private void invoke(HttpServletRequest req, HttpServletResponse rsp, Object node, List<AncestorImpl> ancestors, TokenList tokens ) throws IOException, ServletException {
+    private void invoke(RequestImpl req, ResponseImpl rsp, Object node ) throws IOException, ServletException {
         // adds this node to ancestor list
-        AncestorImpl a = new AncestorImpl(ancestors);
-        a.set(node,tokens,req);
+        AncestorImpl a = new AncestorImpl(req.ancestors);
+        a.set(node,req);
 
         if(node==null) {
             rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
-        if(!tokens.hasMore()) {
+        if(!req.tokens.hasMore()) {
             if(!req.getServletPath().endsWith("/")) {
                 rsp.sendRedirect(req.getContextPath()+req.getServletPath()+'/');
                 return;
@@ -134,15 +137,13 @@ public class Stapler extends HttpServlet {
                 rsp.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
-            forward(indexJsp,new RequestImpl(this,req,ancestors,tokens),rsp);
+            forward(indexJsp,req,rsp);
             return;
         }
 
-        StaplerResponse srsp = new ResponseImpl(this,rsp);
-
         try {
             for( Dispatcher d : getDispatchers(node.getClass()) ) {
-                if(d.dispatch(req,srsp,node,ancestors,tokens))
+                if(d.dispatch(req,rsp,node))
                     return;
             }
         } catch (IllegalAccessException e) {
@@ -219,7 +220,7 @@ public class Stapler extends HttpServlet {
     }
 
     private interface Dispatcher {
-        boolean dispatch( HttpServletRequest req, StaplerResponse rsp, Object node, List ancestors, TokenList tokens )
+        boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
             throws IOException, ServletException, IllegalAccessException, InvocationTargetException;
     }
 
@@ -236,18 +237,18 @@ public class Stapler extends HttpServlet {
             this(name,0);
         }
 
-        public final boolean dispatch( HttpServletRequest req, StaplerResponse rsp, Object node, List ancestors, TokenList tokens )
+        public final boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
             throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-            if(!tokens.peek().equals(name))
+            if(!req.tokens.peek().equals(name))
                 return false;
-            if(tokens.countRemainingTokens()<=argCount)
+            if(req.tokens.countRemainingTokens()<=argCount)
                 return false;
-            tokens.next();
-            doDispatch(req,rsp,node,ancestors,tokens);
+            req.tokens.next();
+            doDispatch(req,rsp,node);
             return true;
         }
 
-        protected abstract void doDispatch( HttpServletRequest req, StaplerResponse rsp, Object node, List ancestors, TokenList tokens )
+        protected abstract void doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
             throws IOException, ServletException, IllegalAccessException, InvocationTargetException;
     }
 
@@ -256,8 +257,8 @@ public class Stapler extends HttpServlet {
         // check public properties of the form NODE.TOKEN
         for (final Field f : node.fields) {
             dispatchers.add(new NameBasedDispatcher(f.getName()) {
-                public void doDispatch(HttpServletRequest req, StaplerResponse rsp, Object node, List ancestors, TokenList tokens) throws IOException, ServletException, IllegalAccessException {
-                    invoke(req, rsp, f.get(node), ancestors, tokens);
+                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException {
+                    invoke(req, rsp, f.get(node));
                 }
             });
         }
@@ -266,63 +267,60 @@ public class Stapler extends HttpServlet {
 
         // check public selector methods of the form NODE.getTOKEN()
         for( final Function f : getMethods.signature() ) {
-            final String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name) {
-                public void doDispatch(HttpServletRequest req, StaplerResponse rsp, Object node, List ancestors, TokenList tokens) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    invoke(req,rsp,f.invoke(node),ancestors,tokens);
+                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    invoke(req,rsp,f.invoke(node));
                 }
             });
         }
 
         // check public selector methods of the form static NODE.getTOKEN(StaplerRequest)
         for( final Function f : getMethods.signature(StaplerRequest.class) ) {
-            final String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name) {
-                public void doDispatch(HttpServletRequest req, StaplerResponse rsp, Object node, List ancestors, TokenList tokens) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    invoke(req,rsp,f.invoke(node,new RequestImpl(Stapler.this,req,ancestors,tokens)),ancestors,tokens);
+                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    invoke(req,rsp,f.invoke(node,req));
                 }
             });
         }
 
         // check public selector methods <obj>.get<Token>(String)
         for( final Function f : getMethods.signature(String.class) ) {
-            final String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name,1) {
-                public void doDispatch(HttpServletRequest req, StaplerResponse rsp, Object node, List ancestors, TokenList tokens) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    invoke(req,rsp,f.invoke(node,tokens.next()),ancestors,tokens);
+                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    invoke(req,rsp,f.invoke(node,req.tokens.next()));
                 }
             });
         }
 
         // check public selector methods <obj>.get<Token>(int)
         for( final Function f : getMethods.signature(int.class) ) {
-            final String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name,1) {
-                public void doDispatch(HttpServletRequest req, StaplerResponse rsp, Object node, List ancestors, TokenList tokens) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    int idx = Integer.valueOf(tokens.next());
-                    invoke(req,rsp,f.invoke(node,idx),ancestors,tokens);
+                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    int idx = Integer.valueOf(req.tokens.next());
+                    invoke(req,rsp,f.invoke(node,idx));
                 }
             });
         }
 
         // check action <obj>.do<token>()
         for( final Function f : getMethods.signature() ) {
-            final String name = camelize(f.getName().substring(2)); // 'doFoo' -> 'foo'
+            String name = camelize(f.getName().substring(2)); // 'doFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name,1) {
-                public void doDispatch(HttpServletRequest req, StaplerResponse rsp, Object node, List ancestors, TokenList tokens) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    f.invoke(node,
-                        new RequestImpl(Stapler.this,req,ancestors,tokens),
-                        rsp
-                    );
+                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    f.invoke(node,req,rsp);
                 }
             });
         }
 
         if(node.clazz.isArray()) {
             dispatchers.add(new Dispatcher() {
-                public boolean dispatch(HttpServletRequest req, StaplerResponse rsp, Object node, List ancestors, TokenList tokens) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     try {
-                        invoke(req,rsp,((Object[])node)[tokens.nextAsInt()],ancestors,tokens);
+                        invoke(req,rsp,((Object[])node)[req.tokens.nextAsInt()]);
                         return true;
                     } catch (NumberFormatException e) {
                         return false; // try next
@@ -333,9 +331,9 @@ public class Stapler extends HttpServlet {
 
         if(List.class.isAssignableFrom(node.clazz)) {
             dispatchers.add(new Dispatcher() {
-                public boolean dispatch(HttpServletRequest req, StaplerResponse rsp, Object node, List ancestors, TokenList tokens) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     try {
-                        invoke(req,rsp,((List)node).get(tokens.nextAsInt()),ancestors,tokens);
+                        invoke(req,rsp,((List)node).get(req.tokens.nextAsInt()));
                         return true;
                     } catch (NumberFormatException e) {
                         return false; // try next
@@ -346,12 +344,12 @@ public class Stapler extends HttpServlet {
 
         if(Map.class.isAssignableFrom(node.clazz)) {
             dispatchers.add(new Dispatcher() {
-                public boolean dispatch(HttpServletRequest req, StaplerResponse rsp, Object node, List ancestors, TokenList tokens) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     try {
-                        Object item = ((Map)node).get(tokens.peek());
+                        Object item = ((Map)node).get(req.tokens.peek());
                         if(item!=null) {
-                            tokens.next();
-                            invoke(req,rsp,item,ancestors,tokens);
+                            req.tokens.next();
+                            invoke(req,rsp,item);
                             return true;
                         } else {
                             // otherwise just fall through
@@ -365,19 +363,19 @@ public class Stapler extends HttpServlet {
         }
 
         dispatchers.add(new Dispatcher() {
-            public boolean dispatch(HttpServletRequest req, StaplerResponse rsp, Object node, List ancestors, TokenList tokens) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+            public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                 // check JSP views
                 // I thought about generalizing this to invoke other resources (such as static images, etc)
                 // but I realized that those would require a very different handling.
                 // so for now we just assume it's a JSP
-                String next = tokens.peek();
+                String next = req.tokens.peek();
                 if(next==null)  return false;
 
                 RequestDispatcher disp = getResourceDispatcher(node,next+".jsp");
                 if(disp==null)  return false;
 
-                tokens.next();
-                forward(disp,new RequestImpl(Stapler.this,req,ancestors,tokens),rsp);
+                req.tokens.next();
+                forward(disp,req,rsp);
                 return true;
             }
         });
@@ -391,11 +389,8 @@ public class Stapler extends HttpServlet {
             .name("doDynamic") ) {
 
             dispatchers.add(new Dispatcher() {
-                public boolean dispatch(HttpServletRequest req, StaplerResponse rsp, Object node, List ancestors, TokenList tokens) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    f.invoke(node,
-                        new RequestImpl(Stapler.this,req,ancestors,tokens),
-                        rsp
-                    );
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    f.invoke(node,req,rsp);
                     return true;
                 }
             });
