@@ -20,7 +20,7 @@ final class TokenList {
     }
 
     public boolean hasMore() {
-        return tokens.length==idx;
+        return tokens.length!=idx;
     }
 
     public String peek() {
