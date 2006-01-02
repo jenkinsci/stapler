@@ -315,10 +315,10 @@ public class Stapler extends HttpServlet {
             });
         }
 
-        // check action <obj>.do<token>()
-        for( final Function f : getMethods.signature() ) {
+        // check action <obj>.do<token>(StaplerRequest,StaplerResponse)
+        for( final Function f : node.methods.prefix("do").signature(StaplerRequest.class,StaplerResponse.class) ) {
             String name = camelize(f.getName().substring(2)); // 'doFoo' -> 'foo'
-            dispatchers.add(new NameBasedDispatcher(name,1) {
+            dispatchers.add(new NameBasedDispatcher(name,0) {
                 public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException {
                     f.invoke(node,req,rsp);
                 }
