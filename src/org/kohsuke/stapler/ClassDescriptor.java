@@ -35,16 +35,18 @@ final class ClassDescriptor {
         for (Method m : clazz.getMethods()) {
             functions.add(new Function.InstanceFunction(m));
         }
-        for (Class w : wrappers) {
-            for (Method m : w.getMethods()) {
-                if(!Modifier.isStatic(m.getModifiers()))
-                    continue;
-                Class<?>[] p = m.getParameterTypes();
-                if(p.length==0)
-                    continue;
-                if(p[0].isAssignableFrom(clazz))
-                    continue;
-                functions.add(new Function.StaticFunction(m));
+        if(wrappers!=null) {
+            for (Class w : wrappers) {
+                for (Method m : w.getMethods()) {
+                    if(!Modifier.isStatic(m.getModifiers()))
+                        continue;
+                    Class<?>[] p = m.getParameterTypes();
+                    if(p.length==0)
+                        continue;
+                    if(p[0].isAssignableFrom(clazz))
+                        continue;
+                    functions.add(new Function.StaticFunction(m));
+                }
             }
         }
         this.methods = new FunctionList(functions);
