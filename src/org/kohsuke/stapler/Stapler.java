@@ -403,7 +403,7 @@ public class Stapler extends HttpServlet {
 
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException {
-                    f.invoke(0, node,req,rsp);
+                    f.invoke(req, node,req,rsp);
                     return true;
                 }
             });
