@@ -33,7 +33,7 @@ final class ClassDescriptor {
         // instance methods
         List<Function> functions = new ArrayList<Function>();
         for (Method m : clazz.getMethods()) {
-            functions.add(new Function.InstanceFunction(m));
+            functions.add(new Function.InstanceFunction(m).protectBy(m));
         }
         if(wrappers!=null) {
             for (Class w : wrappers) {
@@ -45,7 +45,7 @@ final class ClassDescriptor {
                         continue;
                     if(p[0].isAssignableFrom(clazz))
                         continue;
-                    functions.add(new Function.StaticFunction(m));
+                    functions.add(new Function.StaticFunction(m).protectBy(m));
                 }
             }
         }
