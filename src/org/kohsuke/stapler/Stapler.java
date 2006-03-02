@@ -21,6 +21,10 @@ import java.util.Map;
 import java.util.Collections;
 import java.util.WeakHashMap;
 import java.util.HashMap;
+import java.util.Date;
+import java.util.Locale;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 
 /**
  * Maps an HTTP request to a method call / JSP invocation against a model object
@@ -86,9 +90,30 @@ public class Stapler extends HttpServlet {
         }
 
         con.connect();
-        rsp.setContentType(getServletContext().getMimeType(req.getServletPath()));
+        {// send out Last-Modified, or check If-Modified-Since
+            long lastModified = con.getLastModified();
+            if(lastModified!=0) {
+                String since = req.getHeader("If-Modified-Since");
+                if(since!=null) {
+                    try {
+                        long ims = HTTP_DATE_FORMAT.parse(since).getTime();
+                        if(lastModified<ims+1000) {
+                            // +1000 because date header is second-precision and Java has milli-second precision
+                            rsp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+                            return true;
+                        }
+                    } catch (ParseException e) {
+                        // just ignore and serve the content
+                    }
+                }
+                rsp.setHeader("Last-Modified",HTTP_DATE_FORMAT.format(new Date(lastModified)));
+            }
+        }
+
+
         if(con.getContentLength()!=-1)
             rsp.setContentLength(con.getContentLength());
+        rsp.setContentType(getServletContext().getMimeType(req.getServletPath()));
 
         byte[] buf = new byte[1024];
         int len;
@@ -409,4 +434,10 @@ public class Stapler extends HttpServlet {
             });
         }
     }
+
+    /**
+     * HTTP date format.
+     */
+    private static final SimpleDateFormat HTTP_DATE_FORMAT =
+        new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 }
