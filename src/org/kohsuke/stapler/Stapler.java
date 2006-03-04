@@ -290,9 +290,8 @@ public class Stapler extends HttpServlet {
     private void buildDispatchers( ClassDescriptor node, List<Dispatcher> dispatchers ) {
         // check public properties of the form NODE.TOKEN
         for (final Field f : node.fields) {
-            LimitedTo a = f.getAnnotation(LimitedTo.class);
-            final String role = (a!=null)?a.value():null;
             dispatchers.add(new NameBasedDispatcher(f.getName()) {
+                final String role = getProtectedRole(f);
                 public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException {
                     if(role!=null && !req.isUserInRole(role))
                         throw new IllegalAccessException("Needs to be in role "+role);
@@ -432,6 +431,15 @@ public class Stapler extends HttpServlet {
                     return true;
                 }
             });
+        }
+    }
+
+    private String getProtectedRole(Field f) {
+        try {
+            LimitedTo a = f.getAnnotation(LimitedTo.class);
+            return (a!=null)?a.value():null;
+        } catch (LinkageError e) {
+            return null;    // running in JDK 1.4
         }
     }
 

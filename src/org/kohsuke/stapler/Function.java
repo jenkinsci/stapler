@@ -16,11 +16,16 @@ abstract class Function {
     abstract Object invoke(HttpServletRequest req, Object o, Object... args) throws IllegalAccessException, InvocationTargetException;
 
     final Function protectBy(Method m) {
-        LimitedTo a = m.getAnnotation(LimitedTo.class);
-        if(a==null)
-            return this;    // not protected
-        else
-            return new ProtectedFunction(this,a.value());
+        try {
+            LimitedTo a = m.getAnnotation(LimitedTo.class);
+            if(a==null)
+                return this;    // not protected
+            else
+                return new ProtectedFunction(this,a.value());
+        } catch (LinkageError e) {
+            // running in JDK 1.4
+            return this;
+        }
     }
 
     /**

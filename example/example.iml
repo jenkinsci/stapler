@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module version="4" relativePaths="true" type="J2EE_WEB_MODULE" j2ee-integration="Tomcat Server">
+<module version="4" relativePaths="true" type="J2EE_WEB_MODULE" j2ee-integration="Generic Application Server">
   <component name="ModuleRootManager" />
   <component name="NewModuleRootManager">
     <output url="file://$MODULE_DIR$/build/exploded/WEB-INF/classes" />
@@ -12,7 +12,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="stapler" />
-    <orderEntry type="library" name="Tomcat 5" level="application_server_libraries" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -39,11 +38,11 @@
       <attribute name="URI" value="/WEB-INF/lib/stapler.jar" />
     </containerElement>
     <containerElement type="library" level="module">
-      <url>jar://$MODULE_DIR$/WEB-INF/lib/standard.jar!/</url>
       <attribute name="method" value="1" />
       <attribute name="URI" value="/WEB-INF/lib/standard.jar" />
+      <url>jar://$MODULE_DIR$/WEB-INF/lib/standard.jar!/</url>
     </containerElement>
-    <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/WEB-INF/web.xml" version="2.3" />
+    <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/WEB-INF/web.xml" optional="false" version="2.3" />
     <webroots>
       <root url="file://$MODULE_DIR$/resources" relative="/" />
       <root url="file://$MODULE_DIR$/WEB-INF" relative="/WEB-INF" />
@@ -51,6 +50,11 @@
   </component>
   <component name="WeblogicWebModuleProperties">
     <option name="IS_RUN_APPC" value="false" />
+  </component>
+  <component name="org.mevenide.idea.module.ModuleSettings">
+    <favoriteGoals>
+      <list size="0" />
+    </favoriteGoals>
   </component>
 </module>
 
