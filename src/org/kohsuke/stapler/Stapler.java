@@ -420,18 +420,32 @@ public class Stapler extends HttpServlet {
         // TODO: check if we can route to static resources
         // which directory shall we look up a resource from?
 
-        // check action <obj>.doDynamic()
+        // check action <obj>.doDynamic(req,rsp)
         for( final Function f : node.methods
             .signature(StaplerRequest.class,StaplerResponse.class)
             .name("doDynamic") ) {
 
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException {
-                    f.invoke(req, node,req,rsp);
+                    f.invoke(req,node,req,rsp);
                     return true;
                 }
             });
         }
+
+        // check public selector methods <obj>.getDynamic(<token>,req,rsp)
+        for( final Function f : getMethods.signature(String.class,StaplerRequest.class,StaplerResponse.class).name("getDynamic")) {
+            dispatchers.add(new Dispatcher() {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, IOException, ServletException {
+                    if(!req.tokens.hasMore())
+                        return false;
+                    String token = req.tokens.next();
+                    invoke(req,rsp,f.invoke(req,node,token,req,rsp));
+                    return true;
+                }
+            });
+        }
+
     }
 
     private String getProtectedRole(Field f) {
