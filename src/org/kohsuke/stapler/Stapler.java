@@ -164,15 +164,14 @@ public class Stapler extends HttpServlet {
             }
             // TODO: find the list of welcome pages for this class by reading web.xml
             RequestDispatcher indexJsp = getResourceDispatcher(node,"index.jsp");
-            if(indexJsp==null) {
-                URL indexHtml = getSideFileURL(node,"index.html");
-                if(indexHtml!=null && serveStaticResource(req,rsp,indexHtml))
-                    return; // done
-                rsp.sendError(HttpServletResponse.SC_FORBIDDEN);
+            if(indexJsp!=null) {
+                forward(indexJsp,req,rsp);
                 return;
             }
-            forward(indexJsp,req,rsp);
-            return;
+
+            URL indexHtml = getSideFileURL(node,"index.html");
+            if(indexHtml!=null && serveStaticResource(req,rsp,indexHtml))
+                return; // done
         }
 
         try {
@@ -273,7 +272,7 @@ public class Stapler extends HttpServlet {
 
         public final boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
             throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-            if(!req.tokens.peek().equals(name))
+            if(!req.tokens.hasMore() || !req.tokens.peek().equals(name))
                 return false;
             if(req.tokens.countRemainingTokens()<=argCount)
                 return false;
@@ -356,6 +355,8 @@ public class Stapler extends HttpServlet {
         if(node.clazz.isArray()) {
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
+                    if(!req.tokens.hasMore())
+                        return false;
                     try {
                         invoke(req,rsp,((Object[])node)[req.tokens.nextAsInt()]);
                         return true;
@@ -369,6 +370,8 @@ public class Stapler extends HttpServlet {
         if(List.class.isAssignableFrom(node.clazz)) {
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
+                    if(!req.tokens.hasMore())
+                        return false;
                     try {
                         invoke(req,rsp,((List)node).get(req.tokens.nextAsInt()));
                         return true;
@@ -382,6 +385,8 @@ public class Stapler extends HttpServlet {
         if(Map.class.isAssignableFrom(node.clazz)) {
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
+                    if(!req.tokens.hasMore())
+                        return false;
                     try {
                         Object item = ((Map)node).get(req.tokens.peek());
                         if(item!=null) {
@@ -416,6 +421,21 @@ public class Stapler extends HttpServlet {
                 return true;
             }
         });
+
+        // check action <obj>.doIndex(req,rsp)
+        for( final Function f : node.methods
+            .signature(StaplerRequest.class,StaplerResponse.class)
+            .name("doIndex") ) {
+
+            dispatchers.add(new Dispatcher() {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException {
+                    if(req.tokens.hasMore())
+                        return false;   // applicable only when there's no more token
+                    f.invoke(req,node,req,rsp);
+                    return true;
+                }
+            });
+        }
 
         // TODO: check if we can route to static resources
         // which directory shall we look up a resource from?
