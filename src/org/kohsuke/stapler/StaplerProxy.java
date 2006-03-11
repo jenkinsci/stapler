@@ -8,5 +8,14 @@ package org.kohsuke.stapler;
  * @author Kohsuke Kawaguchi
  */
 public interface StaplerProxy {
+    /**
+     * Returns the object that is responsible for processing web requests.
+     *
+     * @return
+     *      If null is returned, it generates 404.
+     *      If {@code this} object is returned, no further
+     *      {@link StaplerProxy} look-up is done and {@code this} object
+     *      processes the request.
+     */
     Object getTarget();
 }
