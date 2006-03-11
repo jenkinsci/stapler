@@ -148,6 +148,13 @@ public class Stapler extends HttpServlet {
     }
 
     private void invoke(RequestImpl req, ResponseImpl rsp, Object node ) throws IOException, ServletException {
+        while(node instanceof StaplerProxy) {
+            Object n = ((StaplerProxy)node).getTarget();
+            if(n==node)
+                break;  // if the proxy returns itself, assume that it doesn't want to proxy
+            node = n;
+        }
+
         // adds this node to ancestor list
         AncestorImpl a = new AncestorImpl(req.ancestors);
         a.set(node,req);
