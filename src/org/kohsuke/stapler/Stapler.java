@@ -303,6 +303,8 @@ public class Stapler extends HttpServlet {
 
         // check public selector methods of the form NODE.getTOKEN()
         for( final Function f : getMethods.signature() ) {
+            if(f.getName().length()<=3)
+                continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name) {
                 public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
@@ -313,6 +315,8 @@ public class Stapler extends HttpServlet {
 
         // check public selector methods of the form static NODE.getTOKEN(StaplerRequest)
         for( final Function f : getMethods.signature(StaplerRequest.class) ) {
+            if(f.getName().length()<=3)
+                continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name) {
                 public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
@@ -323,6 +327,8 @@ public class Stapler extends HttpServlet {
 
         // check public selector methods <obj>.get<Token>(String)
         for( final Function f : getMethods.signature(String.class) ) {
+            if(f.getName().length()<=3)
+                continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name,1) {
                 public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
@@ -333,6 +339,8 @@ public class Stapler extends HttpServlet {
 
         // check public selector methods <obj>.get<Token>(int)
         for( final Function f : getMethods.signature(int.class) ) {
+            if(f.getName().length()<=3)
+                continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name,1) {
                 public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
