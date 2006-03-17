@@ -3,7 +3,7 @@
   <pomVersion>3</pomVersion>
   <name>stapler</name>
   <id>stapler</id>
-  <currentVersion>1.4</currentVersion>
+  <currentVersion>1.5</currentVersion>
   <package>org.kohsuke.stapler</package>
 
   <organization>
