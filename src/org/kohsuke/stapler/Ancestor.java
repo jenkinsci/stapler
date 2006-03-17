@@ -1,5 +1,7 @@
 package org.kohsuke.stapler;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Information about ancestor of the "it" node.
  *
@@ -13,6 +15,18 @@ public interface Ancestor {
 
     /**
      * Gets the URL to this ancestor.
+     *
+     * <p>
+     * The returned string represents the portion of the request URL
+     * that matches this object. It starts with
+     * {@link HttpServletRequest#getContextPath() context path},
+     * and it ends without '/'. So, for example, if your web app
+     * is deployed as "mywebapp" and this ancestor object is
+     * obtained from the app root object by <tt>getFoo().getBar(3)</tt>,
+     * then this string will be <tt>/mywebapp/foo/bar/3</tt> 
+     *
+     * @return
+     *      never null.
      */
     String getUrl();
 

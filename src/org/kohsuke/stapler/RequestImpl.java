@@ -27,11 +27,14 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
     // lazily computed
     private String rest;
 
+    private final String originalRequestURI;
+
     public RequestImpl(Stapler stapler, HttpServletRequest request, List<AncestorImpl> ancestors, TokenList tokens) {
         super(request);
         this.stapler = stapler;
         this.ancestors = ancestors;
         this.tokens = tokens;
+        this.originalRequestURI = request.getRequestURI();
     }
 
     public String getRestOfPath() {
@@ -69,5 +72,9 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
 
     public List getAncestors() {
         return ancestors;
+    }
+
+    public String getOriginalRequestURI() {
+        return originalRequestURI;
     }
 }

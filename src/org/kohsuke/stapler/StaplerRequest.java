@@ -68,4 +68,11 @@ public interface StaplerRequest extends HttpServletRequest {
      *      list of {@link Ancestor}s. Can be empty, but always non-null.
      */
     List getAncestors();
+
+    /**
+     * Gets the {@link HttpServletRequest#getRequestURI() request URI}
+     * of the original request, so that you can access the value even from
+     * JSP.
+     */
+    String getOriginalRequestURI();
 }
