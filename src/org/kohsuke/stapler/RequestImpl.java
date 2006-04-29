@@ -2,10 +2,14 @@ package org.kohsuke.stapler;
 
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletContext;
 import javax.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.util.List;
+import java.util.Date;
+import java.util.Calendar;
+import java.text.ParseException;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -23,7 +27,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
     public final List<AncestorImpl> ancestors;
 
     private final Stapler stapler;
-    
+
     // lazily computed
     private String rest;
 
@@ -76,5 +80,35 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
 
     public String getOriginalRequestURI() {
         return originalRequestURI;
+    }
+
+    public boolean checkIfModified(long lastModified, StaplerResponse rsp) {
+        if(lastModified<=0)
+            return false;
+
+        // send out Last-Modified, or check If-Modified-Since
+        String since = getHeader("If-Modified-Since");
+        if(since!=null) {
+            try {
+                long ims = Stapler.HTTP_DATE_FORMAT.parse(since).getTime();
+                if(lastModified<ims+1000) {
+                    // +1000 because date header is second-precision and Java has milli-second precision
+                    rsp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+                    return true;
+                }
+            } catch (ParseException e) {
+                // just ignore and serve the content
+            }
+        }
+        rsp.setHeader("Last-Modified",Stapler.HTTP_DATE_FORMAT.format(new Date(lastModified)));
+        return false;
+    }
+
+    public boolean checkIfModified(Date timestampOfResource, StaplerResponse rsp) {
+        return checkIfModified(timestampOfResource.getTime(),rsp);
+    }
+
+    public boolean checkIfModified(Calendar timestampOfResource, StaplerResponse rsp) {
+        return checkIfModified(timestampOfResource.getTimeInMillis(),rsp);
     }
 }

@@ -1,10 +1,13 @@
 package org.kohsuke.stapler;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletContext;
 import javax.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.util.List;
+import java.util.Date;
+import java.util.Calendar;
 
 /**
  * Defines additional parameters/operations made available by Stapler.
@@ -75,4 +78,46 @@ public interface StaplerRequest extends HttpServletRequest {
      * JSP.
      */
     String getOriginalRequestURI();
+
+    /**
+     * Checks "If-Modified-Since" header and returns false
+     * if the resource needs to be served.
+     *
+     * <p>
+     * This method can behave in three ways.
+     *
+     * <ol>
+     *  <li>If <tt>timestampOfResource</tt> is 0 or negative,
+     *      this method just returns false.
+     *
+     *  <li>If "If-Modified-Since" header is sent and if it's bigger than
+     *      <tt>timestampOfResource</tt>, then this method sets
+     *      {@link HttpServletResponse#SC_NOT_MODIFIED} as the response code
+     *      and returns true.
+     *
+     *  <li>Otherwise, "Last-Modified" header is added with <tt>timestampOfResource</tt> value,
+     *      and this method returns false.
+     * </ol>
+     *
+     * @param timestampOfResource
+     *      The time stamp of the resource.
+     * @param rsp
+     *      This object is updated accordingly to simplify processing.
+     *
+     * @return
+     *      false to indicate that the caller has to serve the actual resource.
+     *      true to indicate that the caller should just quit processing right there
+     *      (and send back {@link HttpServletResponse#SC_NOT_MODIFIED}.
+     */
+    boolean checkIfModified(long timestampOfResource, StaplerResponse rsp);
+
+    /**
+     * @see #checkIfModified(long, StaplerResponse)
+     */
+    boolean checkIfModified(Date timestampOfResource, StaplerResponse rsp);
+
+    /**
+     * @see #checkIfModified(long, StaplerResponse)
+     */
+    boolean checkIfModified(Calendar timestampOfResource, StaplerResponse rsp);
 }

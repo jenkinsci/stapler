@@ -495,6 +495,6 @@ public class Stapler extends HttpServlet {
     /**
      * HTTP date format.
      */
-    private static final SimpleDateFormat HTTP_DATE_FORMAT =
+    static final SimpleDateFormat HTTP_DATE_FORMAT =
         new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 }
