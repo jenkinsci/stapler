@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <pomVersion>3</pomVersion>
-  <name>stapler</name>
-  <id>stapler</id>
+  <groupId>org.kohsuke.stapler</groupId>
+  <artifactId>stapler</artifactId>
   <currentVersion>1.5</currentVersion>
   <package>org.kohsuke.stapler</package>
 
