@@ -10,11 +10,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +83,12 @@ public class Stapler extends HttpServlet {
      *      if the resource doesn't exist.
      */
     private boolean serveStaticResource(HttpServletRequest req, HttpServletResponse rsp, URL url) throws IOException {
+        // jetty reports directories as URLs, which isn't what this is intended for,
+        // so check and reject.
+        File f = toFile(url);
+        if(f!=null && f.isDirectory())
+            return false;
+
         URLConnection con = url.openConnection();
         InputStream in;
         try {
@@ -104,6 +113,10 @@ public class Stapler extends HttpServlet {
                         }
                     } catch (ParseException e) {
                         // just ignore and serve the content
+                    } catch (NumberFormatException e) {
+                        // trying to locate a bug with Jetty
+                        getServletContext().log("Error parsing ["+since+"]",e);
+                        throw e;
                     }
                 }
                 rsp.setHeader("Last-Modified",HTTP_DATE_FORMAT.format(new Date(lastModified)));
@@ -121,6 +134,20 @@ public class Stapler extends HttpServlet {
             rsp.getOutputStream().write(buf,0,len);
         in.close();
         return true;
+    }
+
+    /**
+     * If the URL is "file://", return its file representation.
+     */
+    private File toFile(URL url) {
+        String urlstr = url.toExternalForm();
+        if(!urlstr.startsWith("file:"))
+            return null;
+        try {
+            return new File(new URI(urlstr).getPath());
+        } catch (URISyntaxException e) {
+            return null;
+        }
     }
 
     private List<Dispatcher> getDispatchers( Class node ) {
