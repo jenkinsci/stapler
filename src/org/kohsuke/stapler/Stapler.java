@@ -18,6 +18,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -193,7 +194,7 @@ public class Stapler extends HttpServlet {
 
         if(!req.tokens.hasMore()) {
             if(!req.getServletPath().endsWith("/")) {
-                rsp.sendRedirect(req.getContextPath()+req.getServletPath()+'/');
+                rsp.sendRedirect2(req.getContextPath()+req.getServletPath()+'/');
                 return;
             }
             // TODO: find the list of welcome pages for this class by reading web.xml
