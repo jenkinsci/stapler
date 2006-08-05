@@ -1,7 +1,7 @@
 package org.kohsuke.stapler;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**

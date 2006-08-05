@@ -1,15 +1,15 @@
 package org.kohsuke.stapler;
 
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletContext;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Date;
-import java.util.Calendar;
 import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -39,6 +39,10 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         this.ancestors = ancestors;
         this.tokens = tokens;
         this.originalRequestURI = request.getRequestURI();
+    }
+
+    public Stapler getStapler() {
+        return stapler;
     }
 
     public String getRestOfPath() {

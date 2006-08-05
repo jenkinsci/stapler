@@ -1,9 +1,9 @@
 package org.kohsuke.stapler;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.ServletException;
 import java.io.IOException;
 
 /**

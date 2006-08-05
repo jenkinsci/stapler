@@ -1,8 +1,8 @@
 package org.kohsuke.stapler;
 
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Abstracts the difference between normal instance methods and
