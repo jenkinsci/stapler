@@ -19,7 +19,7 @@ import java.util.WeakHashMap;
 public class MetaClassLoader {
     private final MetaClassLoader parent;
 
-    private final ClassLoader loader;
+    public final ClassLoader loader;
 
     private final Map<String,TagLibrary> taglibs = new HashMap<String,TagLibrary>();
 
@@ -40,7 +40,7 @@ public class MetaClassLoader {
         if(tl==null) { // can we load them here?
             URL res = loader.getResource(nsUri+"/taglib");
             if(res!=null) {
-                tl = new CustomTagLibrary(ROOT_CONTEXT,loader,nsUri);
+                tl = new CustomTagLibrary(createContext(),loader,nsUri);
                 taglibs.put(nsUri,tl);
             }
         }
@@ -52,7 +52,7 @@ public class MetaClassLoader {
      * Creates {@link JellyContext} for compiling view scripts
      * for classes in this classloader.
      */
-    public JellyContext craeteContext() {
+    public JellyContext createContext() {
         JellyContext context = new JellyContext(ROOT_CONTEXT) {
             public TagLibrary getTagLibrary(String namespaceURI) {
                 TagLibrary tl = super.getTagLibrary(namespaceURI);

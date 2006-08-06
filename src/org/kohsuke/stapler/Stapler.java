@@ -1,5 +1,8 @@
 package org.kohsuke.stapler;
 
+import org.apache.commons.jelly.Script;
+import org.apache.commons.jelly.JellyException;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContextEvent;
@@ -149,11 +152,7 @@ public class Stapler extends HttpServlet {
         }
     }
 
-    private List<Dispatcher> getDispatchers( Class node ) {
-        return MetaClass.get(node).dispatchers;
-    }
 
-    
     void invoke(HttpServletRequest req, HttpServletResponse rsp, Object root, String url) throws IOException, ServletException {
         invoke(
             new RequestImpl(this,req,new ArrayList<AncestorImpl>(),new TokenList(url)),
@@ -178,6 +177,8 @@ public class Stapler extends HttpServlet {
             return;
         }
 
+        MetaClass metaClass = MetaClass.get(node.getClass());
+
         if(!req.tokens.hasMore()) {
             if(!req.getServletPath().endsWith("/")) {
                 rsp.sendRedirect2(req.getContextPath()+req.getServletPath()+'/');
@@ -190,13 +191,23 @@ public class Stapler extends HttpServlet {
                 return;
             }
 
+            try {
+                Script script = metaClass.findScript("index");
+                if(script!=null) {
+                    metaClass.invoke(req,rsp,script,node);
+                    return;
+                }
+            } catch (JellyException e) {
+                throw new ServletException(e);
+            }
+
             URL indexHtml = getSideFileURL(node,"index.html");
             if(indexHtml!=null && serveStaticResource(req,rsp,indexHtml))
                 return; // done
         }
 
         try {
-            for( Dispatcher d : getDispatchers(node.getClass()) ) {
+            for( Dispatcher d : metaClass.dispatchers ) {
                 if(d.dispatch(req,rsp,node))
                     return;
             }

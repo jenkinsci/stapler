@@ -12,7 +12,7 @@ import javax.servlet.ServletResponse;
  *
  * @author Kohsuke Kawaguchi
  */
-public class ContentTypeTag extends TagSupport {
+public class ContentTypeTag extends AbstractStaplerTag {
     private String contentType;
 
     /**
@@ -23,6 +23,6 @@ public class ContentTypeTag extends TagSupport {
     }
 
     public void doTag(XMLOutput output) throws MissingAttributeException, JellyTagException {
-        ((ServletResponse)getContext().getVariable("response")).setContentType(contentType);
+        getResponse().setContentType(contentType);
     }
 }

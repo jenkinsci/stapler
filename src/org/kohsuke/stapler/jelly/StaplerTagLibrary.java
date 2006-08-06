@@ -8,6 +8,10 @@ import org.apache.commons.jelly.TagLibrary;
 public class StaplerTagLibrary extends TagLibrary {
     public StaplerTagLibrary() {
         registerTag("contentType",ContentTypeTag.class);
+        registerTag("header",HeaderTag.class);
         registerTag("include",IncludeTag.class);
+        registerTag("nbsp",NbspTag.class);
+        registerTag("isUserInRole",IsUserInRoleTag.class);
+        registerTag("parentScope",ParentScopeTag.class);
     }
 }

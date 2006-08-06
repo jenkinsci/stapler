@@ -9,6 +9,7 @@ import org.apache.commons.jelly.impl.DynamicTag;
 import org.apache.commons.jelly.impl.TagFactory;
 import org.apache.commons.jelly.impl.TagScript;
 import org.xml.sax.Attributes;
+import org.kohsuke.stapler.MetaClass;
 
 import java.net.URL;
 import java.util.Hashtable;
@@ -73,7 +74,7 @@ public final class CustomTagLibrary extends TagLibrary {
     private Script load(String name) throws JellyException {
 
         Script script = scripts.get(name);
-        if(script!=null)
+        if(script!=null && !MetaClass.NO_CACHE)
             return script;
 
         URL res = classLoader.getResource(basePath + '/' + name + ".jelly");

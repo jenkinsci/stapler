@@ -8,6 +8,7 @@ import org.apache.commons.jelly.XMLOutput;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,7 +33,7 @@ public class MetaClass {
      */
     private final Class clazz;
 
-    private final MetaClassLoader classLoader;
+    public final MetaClassLoader classLoader;
 
     public final List<Dispatcher> dispatchers = new ArrayList<Dispatcher>();
 
@@ -272,12 +273,17 @@ public class MetaClass {
         }
     }
 
-    private void invoke(RequestImpl req, ResponseImpl rsp, Script script, Object it) throws IOException, JellyTagException {
+    void invoke(RequestImpl req, ResponseImpl rsp, Script script, Object it) throws IOException, JellyTagException {
         // invoke Jelly script to render result
         JellyContext context = new JellyContext();
         context.setVariable("request",req);
         context.setVariable("response",rsp);
         context.setVariable("it",it);
+        ServletContext servletContext = req.getServletContext();
+        context.setVariable("servletContext",servletContext);
+        context.setVariable("app",servletContext.getAttribute("app"));
+        // property bag to store request scope variables
+        context.setVariable("requestScope",context.getVariables());
 
         OutputStream output = rsp.getOutputStream();
         output = new FilterOutputStream(output) {
@@ -302,11 +308,14 @@ public class MetaClass {
         synchronized(scripts) {
             script = scripts.get(name);
             if(script==null || NO_CACHE) {
-                URL res = clazz.getClassLoader().
-                    getResource(clazz.getName().replace('.','/').replace('$','/')+'/'+name +".jelly");
-                if(res!=null) {
-                    script = classLoader.craeteContext().compileScript(res);
-                    scripts.put(name,script);
+                ClassLoader cl = clazz.getClassLoader();
+                if(cl!=null) {
+                    URL res = cl.
+                        getResource(clazz.getName().replace('.','/').replace('$','/')+'/'+name +".jelly");
+                    if(res!=null) {
+                        script = classLoader.createContext().compileScript(res);
+                        scripts.put(name,script);
+                    }
                 }
             }
         }
