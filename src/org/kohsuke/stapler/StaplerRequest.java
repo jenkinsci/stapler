@@ -36,13 +36,23 @@ public interface StaplerRequest extends HttpServletRequest {
     ServletContext getServletContext();
 
     /**
-     * Gets the URL (e.g., "/WEB-INF/views/fully/qualified/class/name/jspName")
-     * for the given object and the JSP name.
+     * Gets the {@link RequestDispatcher} that represents a specific view
+     * for the given object.
+     *
+     * This support both JSP and Jelly.
+     *
+     * @param viewName
+     *      If this name is relative name like "foo.jsp" or "bar/zot.jelly",
+     *      then the corresponding "side file" is searched by this name.
+     *      <p>
+     *      For Jelly, this also accepts absolute path name that starts
+     *      with '/', such as "/foo/bar/zot.jelly". In this case,
+     *      <tt>it.getClass().getClassLoader()</tt> is searched for this script. 
      *
      * @return null
-     *      if the JSP is not found.
+     *      if neither JSP nor Jelly is not found by the given name.
      */
-    RequestDispatcher getView(Object it,String jspName) throws IOException;
+    RequestDispatcher getView(Object it,String viewName) throws IOException;
 
     /**
      * Gets the part of the request URL from protocol up to the context path.

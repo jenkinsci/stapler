@@ -192,9 +192,9 @@ public class Stapler extends HttpServlet {
             }
 
             try {
-                Script script = metaClass.findScript("index");
+                Script script = metaClass.findScript("index.jelly");
                 if(script!=null) {
-                    metaClass.invoke(req,rsp,script,node);
+                    metaClass.invokeScript(req,rsp,script,node);
                     return;
                 }
             } catch (JellyException e) {

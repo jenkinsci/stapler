@@ -47,17 +47,6 @@ public class IncludeTag extends TagSupport {
         } catch (JellyException e) {
             throw new JellyTagException("Error loading '"+page+"' for "+it.getClass(),e);
         }
-        if(script==null) {
-            // try page as full path to Jelly
-            URL res = c.classLoader.loader.getResource(page);
-            if(res!=null) {
-                try {
-                    script = c.classLoader.createContext().compileScript(res);
-                } catch (JellyException e) {
-                    throw new JellyTagException("Error loading "+res,e);
-                }
-            }
-        }
 
         if(script==null) {
             throw new JellyTagException("No page found '"+page+"' for "+it.getClass());

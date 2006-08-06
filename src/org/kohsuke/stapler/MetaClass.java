@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.Enumeration;
 
 /**
  * The stapler version of the {@link Class} object,
@@ -213,13 +214,13 @@ public class MetaClass {
                 if(next==null)  return false;
 
                 try {
-                    Script script = findScript(next);
+                    Script script = findScript(next+".jelly");
 
                     if(script==null)        return false;   // no Jelly script found
 
                     req.tokens.next();
 
-                    invoke(req, rsp, script, node);
+                    invokeScript(req, rsp, script, node);
 
                     return true;
                 } catch (JellyException e) {
@@ -273,9 +274,16 @@ public class MetaClass {
         }
     }
 
-    void invoke(RequestImpl req, ResponseImpl rsp, Script script, Object it) throws IOException, JellyTagException {
+    public void invokeScript(RequestImpl req, ResponseImpl rsp, Script script, Object it) throws IOException, JellyTagException {
         // invoke Jelly script to render result
         JellyContext context = new JellyContext();
+        Enumeration en = req.getAttributeNames();
+
+        // expose request attributes, just like JSP
+        while (en.hasMoreElements()) {
+            String name = (String) en.nextElement();
+            context.setVariable(name,req.getAttribute(name));
+        }
         context.setVariable("request",req);
         context.setVariable("response",rsp);
         context.setVariable("it",it);
@@ -284,6 +292,8 @@ public class MetaClass {
         context.setVariable("app",servletContext.getAttribute("app"));
         // property bag to store request scope variables
         context.setVariable("requestScope",context.getVariables());
+        // this variable is needed to make "jelly:fmt" taglib work correctly
+        context.setVariable("org.apache.commons.jelly.tags.fmt.locale",req.getLocale());
 
         OutputStream output = rsp.getOutputStream();
         output = new FilterOutputStream(output) {
@@ -302,16 +312,36 @@ public class MetaClass {
 
     /**
      * Locates the Jelly script view of the given name.
+     *
+     * @param name
+     *      if this is a relative path, such as "foo.jelly" or "foo/bar.jel",
+     *      then it is assumed to be relative to this class, so
+     *      "org/acme/MyClass/foo.jelly" or "org/acme/MyClass/foo/bar.jel"
+     *      will be searched.
+     *      <p>
+     *      If this starts with "/", then it is assumed to be absolute,
+     *      and that name is searched from the classloader. This is useful
+     *      to do mix-in.
      */
     public Script findScript(String name) throws JellyException {
         Script script;
+
         synchronized(scripts) {
             script = scripts.get(name);
             if(script==null || NO_CACHE) {
                 ClassLoader cl = clazz.getClassLoader();
                 if(cl!=null) {
-                    URL res = cl.
-                        getResource(clazz.getName().replace('.','/').replace('$','/')+'/'+name +".jelly");
+
+                    URL res;
+
+                    if(name.startsWith("/")) {
+                        // try name as full path to the Jelly script
+                        res = cl.getResource(name.substring(1));
+                    } else {
+                        // assume that it's a view of this class
+                        res = cl.getResource(clazz.getName().replace('.','/').replace('$','/')+'/'+name);
+                    }
+
                     if(res!=null) {
                         script = classLoader.createContext().compileScript(res);
                         scripts.put(name,script);

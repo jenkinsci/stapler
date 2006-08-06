@@ -1,5 +1,8 @@
 package org.kohsuke.stapler;
 
+import org.apache.commons.jelly.Script;
+import org.apache.commons.jelly.JellyException;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -64,8 +67,23 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         return buf.toString();
     }
 
-    public RequestDispatcher getView(Object it,String jspName) throws IOException {
-        return stapler.getResourceDispatcher(it,jspName);
+    public RequestDispatcher getView(Object it,String viewName) throws IOException {
+        // check JSP view first
+        RequestDispatcher rd = stapler.getResourceDispatcher(it, viewName);
+        if(rd!=null)    return rd;
+
+        // then Jelly view
+        try {
+            Script script = MetaClass.get(it.getClass()).findScript(viewName);
+            if(script!=null)
+                return new JellyRequestDispatcher(it,script);
+        } catch (JellyException e) {
+            IOException io = new IOException(e.getMessage());
+            io.initCause(e);
+            throw io;
+        }
+
+        return null;
     }
 
     public String getRootPath() {
