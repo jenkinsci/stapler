@@ -13,5 +13,6 @@ public class StaplerTagLibrary extends TagLibrary {
         registerTag("nbsp",NbspTag.class);
         registerTag("isUserInRole",IsUserInRoleTag.class);
         registerTag("parentScope",ParentScopeTag.class);
+        registerTag("out",OutTag.class);
     }
 }
