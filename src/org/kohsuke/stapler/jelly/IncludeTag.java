@@ -21,6 +21,8 @@ public class IncludeTag extends TagSupport {
 
     private String page;
 
+    private Object from;
+
     /**
      * Specifies the name of the JSP to be included.
      */
@@ -35,12 +37,20 @@ public class IncludeTag extends TagSupport {
         this.it = it;
     }
 
+    /**
+     * When loading the script, use the classloader from this object
+     * to locate the script.
+     */
+    public void setFrom(Object from) {
+        this.from = from;
+    }
+
     public void doTag(XMLOutput output) throws MissingAttributeException, JellyTagException {
         Object it = this.it;
         if(it==null)
             it = getContext().getVariable("it");
 
-        MetaClass c = MetaClass.get(it.getClass());
+        MetaClass c = MetaClass.get((from!=null?from:it).getClass());
         Script script;
         try {
             script = c.findScript(page);
