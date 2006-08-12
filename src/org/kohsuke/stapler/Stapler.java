@@ -84,7 +84,7 @@ public class Stapler extends HttpServlet {
      * @return false
      *      if the resource doesn't exist.
      */
-    private boolean serveStaticResource(HttpServletRequest req, HttpServletResponse rsp, URL url) throws IOException {
+    boolean serveStaticResource(HttpServletRequest req, HttpServletResponse rsp, URL url) throws IOException {
         // jetty reports directories as URLs, which isn't what this is intended for,
         // so check and reject.
         File f = toFile(url);

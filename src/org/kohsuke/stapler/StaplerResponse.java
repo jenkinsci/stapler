@@ -3,6 +3,8 @@ package org.kohsuke.stapler;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.File;
+import java.net.URL;
 
 /**
  * Defines additional operations made available by Stapler.
@@ -40,4 +42,14 @@ public interface StaplerResponse extends HttpServletResponse {
      * escapes the URL.
      */
     void sendRedirect2(String url) throws IOException;
+
+    /**
+     * Serves a static resource.
+     *
+     * <p>
+     * This method sets content type, HTTP status code, sends the complete data
+     * and closes the response. This method also handles cache-control HTTP headers
+     * like "If-Modified-Since" and others.
+     */
+    void serveFile(StaplerRequest request, URL res) throws ServletException, IOException;
 }

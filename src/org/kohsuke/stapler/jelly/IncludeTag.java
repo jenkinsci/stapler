@@ -9,8 +9,6 @@ import org.apache.commons.jelly.TagSupport;
 import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.MetaClass;
 
-import java.net.URL;
-
 /**
  * Tag that includes views of the object.
  *
