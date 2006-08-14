@@ -65,6 +65,13 @@ public class IncludeTag extends TagSupport {
             context = new JellyContext(context);
             context.setVariable("it",this.it);
         }
-        script.run(context,output);
+
+        ClassLoader old = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(c.classLoader.loader);
+        try {
+            script.run(context,output);
+        } finally {
+            Thread.currentThread().setContextClassLoader(old);
+        }
     }
 }

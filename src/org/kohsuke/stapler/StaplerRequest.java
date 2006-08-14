@@ -1,5 +1,8 @@
 package org.kohsuke.stapler;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.ConvertUtils;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -8,6 +11,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Defines additional parameters/operations made available by Stapler.
@@ -130,4 +134,62 @@ public interface StaplerRequest extends HttpServletRequest {
      * @see #checkIfModified(long, StaplerResponse)
      */
     boolean checkIfModified(Calendar timestampOfResource, StaplerResponse rsp);
+
+    /**
+     * Binds form parameters to a bean by using introspection.
+     *
+     * For example, if there's a parameter called 'foo' that has value 'abc',
+     * then <tt>bean.setFoo('abc')</tt> will be invoked. This will be repeated
+     * for all parameters. Parameters that do not have corresponding setters will
+     * be simply ignored.
+     *
+     * <p>
+     * Values are converted into the right type. See {@link ConvertUtils#convert(String, Class)}.
+     *
+     * @see BeanUtils#setProperty(Object, String, Object)
+     *
+     * @param bean
+     *      The object which will be filled out.
+     */
+    void bindParameters( Object bean );
+
+    /**
+     * Binds form parameters to a bean by using introspection.
+     *
+     * This method works like {@link #bindParameters(Object)}, but it performs a
+     * pre-processing on property names. Namely, only property names that start
+     * with the given prefix will be used for binding, and only the portion of the
+     * property name after the prefix is used.
+     *
+     * So for example, if the prefix is "foo.", then property name "foo.bar" with value
+     * "zot" will invoke <tt>bean.setBar("zot")</tt>.
+     */
+    void bindParameters( Object bean, String prefix );
+
+    /**
+     * Binds collection form parameters to beans by using introspection.
+     *
+     * <p>
+     * This method works like {@link #bindParameters(Object,String)}, but it assumes
+     * that form parameters have multiple-values, and use individual values to
+     * fill in multiple beans.
+     *
+     * <p>
+     * For example, if <tt>getParameterValues("foo")=={"abc","def"}</tt>
+     * and <tt>getParameterValues("bar")=={"5","3"}</tt>, then this method will
+     * return two objects (the first with "abc" and "5", the second with
+     * "def" and "3".)
+     *
+     * @param type
+     *      Type of the bean to be created. This class must have the default no-arg
+     *      constructor.
+     *
+     * @param prefix
+     *      See {@link #bindParameters(Object, String)} for details.
+     *
+     * @return
+     *      Can be empty but never null.
+     */
+    <T>
+    List<T> bindParametersToList( Class<T> type, String prefix );
 }

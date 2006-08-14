@@ -24,6 +24,15 @@
     </orderEntry>
     <orderEntry type="module" module-name="commons-jelly" exported="" />
     <orderEntry type="module" module-name="commons-jexl" exported="" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/commons-beanutils-1.6.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntryProperties />
   </component>
   <component name="org.mevenide.idea.module.ModuleSettings">

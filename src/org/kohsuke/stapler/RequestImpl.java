@@ -1,7 +1,8 @@
 package org.kohsuke.stapler;
 
-import org.apache.commons.jelly.Script;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.jelly.JellyException;
+import org.apache.commons.jelly.Script;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -9,10 +10,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -132,5 +137,79 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
 
     public boolean checkIfModified(Calendar timestampOfResource, StaplerResponse rsp) {
         return checkIfModified(timestampOfResource.getTimeInMillis(),rsp);
+    }
+
+    public void bindParameters(Object bean) {
+        bindParameters(bean,"");
+    }
+
+    public void bindParameters(Object bean, String prefix) {
+        Enumeration e = getParameterNames();
+        while(e.hasMoreElements()) {
+            String name = (String)e.nextElement();
+            if(name.startsWith(prefix))
+                fill(bean,name.substring(prefix.length()), getParameter(name) );
+        }
+    }
+
+    public <T>
+    List<T> bindParametersToList(Class<T> type, String prefix) {
+        List<T> r = new ArrayList<T>();
+
+        int len = Integer.MAX_VALUE;
+
+        Enumeration e = getParameterNames();
+        while(e.hasMoreElements()) {
+            String name = (String)e.nextElement();
+            if(name.startsWith(prefix))
+                len = Math.min(len,getParameterValues(name).length);
+        }
+
+        try {
+            for( int i=0; i<len; i++ ) {
+                T t = type.newInstance();
+                r.add(t);
+
+                e = getParameterNames();
+                while(e.hasMoreElements()) {
+                    String name = (String)e.nextElement();
+                    if(name.startsWith(prefix))
+                        fill(t, name.substring(prefix.length()), getParameterValues(name)[i] );
+                }
+            }
+        } catch (InstantiationException x) {
+            throw new InstantiationError(x.getMessage());
+        } catch (IllegalAccessException x) {
+            throw new IllegalAccessError(x.getMessage());
+        }
+
+        return r;
+    }
+
+    private static void fill(Object bean, String key, String value) {
+        StringTokenizer tokens = new StringTokenizer(key);
+        while(tokens.hasMoreTokens()) {
+            String token = tokens.nextToken();
+            boolean last = !tokens.hasMoreTokens();  // is this the last token?
+
+            try {
+                if(last) {
+                    BeanUtils.copyProperty(bean,token,value);
+                } else {
+                    bean = BeanUtils.getProperty(bean,token);
+                }
+            } catch (IllegalAccessException x) {
+                throw new IllegalAccessError(x.getMessage());
+            } catch (InvocationTargetException x) {
+                Throwable e = x.getTargetException();
+                if(e instanceof RuntimeException)
+                    throw (RuntimeException)e;
+                if(e instanceof Error)
+                    throw (Error)e;
+                throw new RuntimeException(x);
+            } catch (NoSuchMethodException e) {
+                // ignore if there's no such property
+            }
+        }
     }
 }
