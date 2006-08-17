@@ -128,7 +128,11 @@ public class Stapler extends HttpServlet {
 
         if(con.getContentLength()!=-1)
             rsp.setContentLength(con.getContentLength());
-        rsp.setContentType(getServletContext().getMimeType(req.getServletPath()));
+
+        String fileName = url.toString();
+        int idx = fileName.lastIndexOf('/');
+        fileName = fileName.substring(idx+1);
+        rsp.setContentType(getServletContext().getMimeType(fileName));
 
         byte[] buf = new byte[1024];
         int len;
