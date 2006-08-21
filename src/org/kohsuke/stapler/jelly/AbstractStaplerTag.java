@@ -2,9 +2,9 @@ package org.kohsuke.stapler.jelly;
 
 import org.apache.commons.jelly.TagSupport;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletContext;
 
 /**
  * @author Kohsuke Kawaguchi

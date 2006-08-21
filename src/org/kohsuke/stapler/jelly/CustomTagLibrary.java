@@ -8,8 +8,8 @@ import org.apache.commons.jelly.TagLibrary;
 import org.apache.commons.jelly.impl.DynamicTag;
 import org.apache.commons.jelly.impl.TagFactory;
 import org.apache.commons.jelly.impl.TagScript;
-import org.xml.sax.Attributes;
 import org.kohsuke.stapler.MetaClass;
+import org.xml.sax.Attributes;
 
 import java.net.URL;
 import java.util.Hashtable;

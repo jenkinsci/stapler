@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Defines additional parameters/operations made available by Stapler.

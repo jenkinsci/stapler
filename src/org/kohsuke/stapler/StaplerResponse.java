@@ -3,7 +3,6 @@ package org.kohsuke.stapler;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.File;
 import java.net.URL;
 
 /**

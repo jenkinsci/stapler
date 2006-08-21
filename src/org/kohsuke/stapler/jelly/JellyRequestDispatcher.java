@@ -1,21 +1,21 @@
-package org.kohsuke.stapler;
+package org.kohsuke.stapler.jelly;
 
-import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.JellyTagException;
+import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.MetaClass;
-import org.kohsuke.stapler.RequestImpl;
-import org.kohsuke.stapler.ResponseImpl;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.ServletException;
 import java.io.IOException;
 
 /**
  * @author Kohsuke Kawaguchi
  */
-public class JellyRequestDispatcher implements RequestDispatcher {
+final class JellyRequestDispatcher implements RequestDispatcher {
     private final Object it;
     private final Script script;
 
@@ -26,9 +26,9 @@ public class JellyRequestDispatcher implements RequestDispatcher {
 
     public void forward(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
         try {
-            MetaClass.get(it.getClass()).invokeScript(
-                (RequestImpl)servletRequest,
-                (ResponseImpl)servletResponse,
+            MetaClass.get(it.getClass()).loadTearOff(JellyClassTearOff.class).invokeScript(
+                (StaplerRequest)servletRequest,
+                (StaplerResponse)servletResponse,
                 script, it);
         } catch (JellyTagException e) {
             throw new ServletException(e);

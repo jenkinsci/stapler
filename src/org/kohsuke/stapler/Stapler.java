@@ -1,7 +1,6 @@
 package org.kohsuke.stapler;
 
-import org.apache.commons.jelly.Script;
-import org.apache.commons.jelly.JellyException;
+import org.kohsuke.stapler.jelly.JellyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -196,13 +195,10 @@ public class Stapler extends HttpServlet {
             }
 
             try {
-                Script script = metaClass.findScript("index.jelly");
-                if(script!=null) {
-                    metaClass.invokeScript(req,rsp,script,node);
+                if(metaClass.loadTearOff(JellyClassTearOff.class).serveIndexJelly(req,rsp,node))
                     return;
-                }
-            } catch (JellyException e) {
-                throw new ServletException(e);
+            } catch (LinkageError e) {
+                // jelly is not present.
             }
 
             URL indexHtml = getSideFileURL(node,"index.html");

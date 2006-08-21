@@ -1,7 +1,6 @@
 package org.kohsuke.stapler.jelly;
 
 import org.apache.commons.jelly.JellyContext;
-import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.MissingAttributeException;
 import org.apache.commons.jelly.Script;
@@ -51,8 +50,10 @@ public class IncludeTag extends TagSupport {
         MetaClass c = MetaClass.get((from!=null?from:it).getClass());
         Script script;
         try {
-            script = c.findScript(page);
-        } catch (JellyException e) {
+            script = c.loadTearOff(JellyClassTearOff.class).findScript(page);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
             throw new JellyTagException("Error loading '"+page+"' for "+it.getClass(),e);
         }
 

@@ -1,26 +1,17 @@
 package org.kohsuke.stapler;
 
-import org.apache.commons.jelly.JellyContext;
-import org.apache.commons.jelly.JellyException;
-import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
-import org.apache.commons.jelly.XMLOutput;
+import org.kohsuke.stapler.jelly.JellyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.ServletContext;
-import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.Enumeration;
 
 /**
  * The stapler version of the {@link Class} object,
@@ -28,11 +19,11 @@ import java.util.Enumeration;
  *
  * @author Kohsuke Kawaguchi
  */
-public class MetaClass {
+public class MetaClass extends TearOffSupport {
     /**
      * This meta class wraps this class
      */
-    private final Class clazz;
+    public final Class clazz;
 
     public final MetaClassLoader classLoader;
 
@@ -42,14 +33,7 @@ public class MetaClass {
      * Base metaclass.
      * Note that <tt>baseClass.clazz==clazz.getSuperClass()</tt>
      */
-    private final MetaClass baseClass;
-
-    /**
-     * Compiled jelly script views of this class.
-     * Access needs to be synchronized.
-     */
-    private final Map<String,Script> scripts = new HashMap<String,Script>();
-
+    public final MetaClass baseClass;
 
     private MetaClass(Class clazz) {
         this.clazz = clazz;
@@ -207,27 +191,37 @@ public class MetaClass {
             }
         });
 
-        dispatchers.add(new Dispatcher() {
-            public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
-                // check Jelly view
-                String next = req.tokens.peek();
-                if(next==null)  return false;
+        try {
+            dispatchers.add(new Dispatcher() {
+                final JellyClassTearOff tearOff = loadTearOff(JellyClassTearOff.class);
 
-                try {
-                    Script script = findScript(next+".jelly");
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
+                    // check Jelly view
+                    String next = req.tokens.peek();
+                    if(next==null)  return false;
 
-                    if(script==null)        return false;   // no Jelly script found
+                    try {
+                        Script script = tearOff.findScript(next+".jelly");
 
-                    req.tokens.next();
+                        if(script==null)        return false;   // no Jelly script found
 
-                    invokeScript(req, rsp, script, node);
+                        req.tokens.next();
 
-                    return true;
-                } catch (JellyException e) {
-                    throw new ServletException(e);
+                        tearOff.invokeScript(req, rsp, script, node);
+
+                        return true;
+                    } catch (RuntimeException e) {
+                        throw e;
+                    } catch (IOException e) {
+                        throw e;
+                    } catch (Exception e) {
+                        throw new ServletException(e);
+                    }
                 }
-            }
-        });
+            });
+        } catch (LinkageError e) {
+            // jelly not present. ignore
+        }
 
         // check action <obj>.doIndex(req,rsp)
         for( final Function f : node.methods
@@ -272,91 +266,6 @@ public class MetaClass {
                 }
             });
         }
-    }
-
-    public void invokeScript(RequestImpl req, ResponseImpl rsp, Script script, Object it) throws IOException, JellyTagException {
-        // invoke Jelly script to render result
-        JellyContext context = new JellyContext();
-        Enumeration en = req.getAttributeNames();
-
-        // expose request attributes, just like JSP
-        while (en.hasMoreElements()) {
-            String name = (String) en.nextElement();
-            context.setVariable(name,req.getAttribute(name));
-        }
-        context.setVariable("request",req);
-        context.setVariable("response",rsp);
-        context.setVariable("it",it);
-        ServletContext servletContext = req.getServletContext();
-        context.setVariable("servletContext",servletContext);
-        context.setVariable("app",servletContext.getAttribute("app"));
-        // property bag to store request scope variables
-        context.setVariable("requestScope",context.getVariables());
-        // this variable is needed to make "jelly:fmt" taglib work correctly
-        context.setVariable("org.apache.commons.jelly.tags.fmt.locale",req.getLocale());
-
-        OutputStream output = rsp.getOutputStream();
-        output = new FilterOutputStream(output) {
-            public void flush() {
-                // flushing ServletOutputStream causes Tomcat to
-                // send out headers, making it impossible to set contentType from the script.
-                // so don't let Jelly flush.
-            }
-        };
-        XMLOutput xmlOutput = XMLOutput.createXMLOutput(output);
-        script.run(context,xmlOutput);
-        xmlOutput.flush();
-        xmlOutput.close();
-        output.close();
-    }
-
-    /**
-     * Locates the Jelly script view of the given name.
-     *
-     * @param name
-     *      if this is a relative path, such as "foo.jelly" or "foo/bar.jel",
-     *      then it is assumed to be relative to this class, so
-     *      "org/acme/MyClass/foo.jelly" or "org/acme/MyClass/foo/bar.jel"
-     *      will be searched.
-     *      <p>
-     *      If this starts with "/", then it is assumed to be absolute,
-     *      and that name is searched from the classloader. This is useful
-     *      to do mix-in.
-     */
-    public Script findScript(String name) throws JellyException {
-        Script script;
-
-        synchronized(scripts) {
-            script = scripts.get(name);
-            if(script==null || NO_CACHE) {
-                ClassLoader cl = clazz.getClassLoader();
-                if(cl!=null) {
-
-                    URL res;
-
-                    if(name.startsWith("/")) {
-                        // try name as full path to the Jelly script
-                        res = cl.getResource(name.substring(1));
-                    } else {
-                        // assume that it's a view of this class
-                        res = cl.getResource(clazz.getName().replace('.','/').replace('$','/')+'/'+name);
-                    }
-
-                    if(res!=null) {
-                        script = classLoader.createContext().compileScript(res);
-                        scripts.put(name,script);
-                    }
-                }
-            }
-        }
-        if(script!=null)
-            return script;
-
-        // not found on this class, delegate to the parent
-        if(baseClass!=null)
-            return baseClass.findScript(name);
-
-        return null;
     }
 
     private String getProtectedRole(Field f) {

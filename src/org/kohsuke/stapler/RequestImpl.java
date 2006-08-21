@@ -1,8 +1,7 @@
 package org.kohsuke.stapler;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.jelly.JellyException;
-import org.apache.commons.jelly.Script;
+import org.kohsuke.stapler.jelly.JellyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -79,13 +78,11 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
 
         // then Jelly view
         try {
-            Script script = MetaClass.get(it.getClass()).findScript(viewName);
-            if(script!=null)
-                return new JellyRequestDispatcher(it,script);
-        } catch (JellyException e) {
-            IOException io = new IOException(e.getMessage());
-            io.initCause(e);
-            throw io;
+            rd = MetaClass.get(it.getClass()).loadTearOff(JellyClassTearOff.class).createDispatcher(it,viewName);
+            if(rd!=null)
+                return rd;
+        } catch (LinkageError e) {
+            // jelly not present
         }
 
         return null;

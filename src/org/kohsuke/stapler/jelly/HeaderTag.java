@@ -1,8 +1,8 @@
 package org.kohsuke.stapler.jelly;
 
-import org.apache.commons.jelly.XMLOutput;
-import org.apache.commons.jelly.MissingAttributeException;
 import org.apache.commons.jelly.JellyTagException;
+import org.apache.commons.jelly.MissingAttributeException;
+import org.apache.commons.jelly.XMLOutput;
 
 /**
  * Adds an HTTP header to the response.
