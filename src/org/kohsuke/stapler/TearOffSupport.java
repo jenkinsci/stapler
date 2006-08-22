@@ -33,6 +33,11 @@ public abstract class TearOffSupport {
             } catch (IllegalAccessException e) {
                 throw new IllegalAccessError(e.getMessage());
             } catch (InvocationTargetException e) {
+                Throwable ex = e.getTargetException();
+                if(ex instanceof RuntimeException)
+                    throw (RuntimeException)ex;
+                if(ex instanceof Error)
+                    throw (Error)ex;
                 throw new Error(e);
             } catch (NoSuchMethodException e) {
                 throw new NoSuchMethodError(e.getMessage());

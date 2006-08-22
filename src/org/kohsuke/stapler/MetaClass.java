@@ -25,6 +25,10 @@ public class MetaClass extends TearOffSupport {
      */
     public final Class clazz;
 
+    /**
+     * {@link MetaClassLoader} that wraps {@code clazz.getClassLoader()}.
+     * Null if the class is loaded by the bootstrap classloader.
+     */
     public final MetaClassLoader classLoader;
 
     public final List<Dispatcher> dispatchers = new ArrayList<Dispatcher>();

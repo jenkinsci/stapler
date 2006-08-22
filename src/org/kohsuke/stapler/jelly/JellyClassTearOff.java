@@ -30,14 +30,17 @@ public class JellyClassTearOff {
 
     public JellyClassTearOff(MetaClass owner) {
         this.owner = owner;
-        classLoader = owner.classLoader.loadTearOff(JellyClassLoaderTearOff.class);
+        if(owner.classLoader!=null)
+            classLoader = owner.classLoader.loadTearOff(JellyClassLoaderTearOff.class);
+        else
+            classLoader = null;
     }
 
     /**
      * Compiled jelly script views of this class.
      * Access needs to be synchronized.
      */
-    private final Map<String, Script> scripts = new HashMap<String,Script>();
+    private final Map<String,Script> scripts = new HashMap<String,Script>();
 
     /**
      * Locates the Jelly script view of the given name.
