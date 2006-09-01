@@ -104,9 +104,10 @@ public class Stapler extends HttpServlet {
             long lastModified = con.getLastModified();
             if(lastModified!=0) {
                 String since = req.getHeader("If-Modified-Since");
+                SimpleDateFormat format = HTTP_DATE_FORMAT.get();
                 if(since!=null) {
                     try {
-                        long ims = HTTP_DATE_FORMAT.parse(since).getTime();
+                        long ims = format.parse(since).getTime();
                         if(lastModified<ims+1000) {
                             // +1000 because date header is second-precision and Java has milli-second precision
                             rsp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
@@ -120,7 +121,7 @@ public class Stapler extends HttpServlet {
                         throw e;
                     }
                 }
-                rsp.setHeader("Last-Modified",HTTP_DATE_FORMAT.format(new Date(lastModified)));
+                rsp.setHeader("Last-Modified",format.format(new Date(lastModified)));
             }
         }
 
@@ -284,8 +285,12 @@ public class Stapler extends HttpServlet {
 
 
     /**
-     * HTTP date format.
+     * HTTP date format. Notice that {@link SimpleDateFormat} is thread unsafe.
      */
-    static final SimpleDateFormat HTTP_DATE_FORMAT =
-        new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+    static final ThreadLocal<SimpleDateFormat> HTTP_DATE_FORMAT =
+        new ThreadLocal<SimpleDateFormat>() {
+            protected SimpleDateFormat initialValue() {
+                return new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+            }
+        };
 }

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -112,19 +113,22 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
 
         // send out Last-Modified, or check If-Modified-Since
         String since = getHeader("If-Modified-Since");
+        SimpleDateFormat format = Stapler.HTTP_DATE_FORMAT.get();
         if(since!=null) {
             try {
-                long ims = Stapler.HTTP_DATE_FORMAT.parse(since).getTime();
+                long ims = format.parse(since).getTime();
                 if(lastModified<ims+1000) {
                     // +1000 because date header is second-precision and Java has milli-second precision
                     rsp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
                     return true;
                 }
+            } catch (NumberFormatException e) {
+                // just ignore and serve the content
             } catch (ParseException e) {
                 // just ignore and serve the content
             }
         }
-        rsp.setHeader("Last-Modified",Stapler.HTTP_DATE_FORMAT.format(new Date(lastModified)));
+        rsp.setHeader("Last-Modified",format.format(new Date(lastModified)));
         return false;
     }
 
