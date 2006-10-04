@@ -5,6 +5,7 @@ import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.XMLOutput;
+import org.apache.commons.jelly.Tag;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -19,6 +20,7 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.lang.ref.WeakReference;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -39,8 +41,28 @@ public class JellyClassTearOff {
     /**
      * Compiled jelly script views of this class.
      * Access needs to be synchronized.
+     * <p>
+     * Jelly leaks memory (because {@link Script}s hold on to {@link Tag})
+     * which usually holds on to {@link JellyContext} that was last used to run it,
+     * which often holds on to some big/heavy objects.)
+     *
+     * So it's important to allow {@link Script}s to be garbage collected.
+     * This is not an ideal fix, but it works.
      */
-    private final Map<String,Script> scripts = new HashMap<String,Script>();
+    private volatile WeakReference<Map<String,Script>> scripts;
+
+    private Map<String,Script> getScripts() {
+        Map<String,Script> r=null;
+        if(scripts!=null)
+            r = scripts.get();
+
+        if(r!=null)
+            return r;
+
+        r = new HashMap<String,Script>();
+        scripts = new WeakReference<Map<String,Script>>(r);
+        return r;
+    }
 
     /**
      * Locates the Jelly script view of the given name.
@@ -58,8 +80,8 @@ public class JellyClassTearOff {
     public Script findScript(String name) throws JellyException {
         Script script;
 
-        synchronized(scripts) {
-            script = scripts.get(name);
+        synchronized(this) {
+            script = getScripts().get(name);
             if(script==null || MetaClass.NO_CACHE) {
                 ClassLoader cl = owner.clazz.getClassLoader();
                 if(cl!=null) {
@@ -76,7 +98,7 @@ public class JellyClassTearOff {
 
                     if(res!=null) {
                         script = classLoader.createContext().compileScript(res);
-                        scripts.put(name,script);
+                        getScripts().put(name,script);
                     }
                 }
             }
