@@ -7,14 +7,20 @@ import org.kohsuke.stapler.MetaClassLoader;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.lang.ref.WeakReference;
 
 /**
+ * {@link MetaClassLoader} tear-off for Jelly support.
+ *
  * @author Kohsuke Kawaguchi
  */
 public class JellyClassLoaderTearOff {
     private final MetaClassLoader owner;
 
-    private final Map<String, TagLibrary> taglibs = new HashMap<String,TagLibrary>();
+    /**
+     * See {@link JellyClassTearOff#scripts} for why we use {@link WeakReference} here.
+     */
+    private volatile WeakReference<Map<String,TagLibrary>> taglibs;
 
     public JellyClassLoaderTearOff(MetaClassLoader owner) {
         this.owner = owner;
@@ -26,14 +32,25 @@ public class JellyClassLoaderTearOff {
         if(owner.parent!=null)        // parent first
             tl = owner.parent.loadTearOff(JellyClassLoaderTearOff.class).getTagLibrary(nsUri);
 
-        if(tl==null)        // then see if it's cached
-            tl = taglibs.get(nsUri);
+        if(tl!=null)
+            return tl;
+
+        Map<String,TagLibrary> m=null;
+        if(taglibs!=null)
+            m = taglibs.get();
+        if(m==null) {
+            m = new HashMap<String, TagLibrary>();
+            taglibs = new WeakReference<Map<String,TagLibrary>>(m);
+        }
+
+        // then see if it's cached
+        tl = m.get(nsUri);
 
         if(tl==null) { // can we load them here?
             URL res = owner.loader.getResource(nsUri+"/taglib");
             if(res!=null) {
                 tl = new CustomTagLibrary(createContext(),owner.loader,nsUri);
-                taglibs.put(nsUri,tl);
+                m.put(nsUri,tl);
             }
         }
 
