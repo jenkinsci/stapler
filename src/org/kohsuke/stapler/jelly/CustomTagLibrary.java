@@ -16,7 +16,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 /**
- * {@link TagLibrary} that loads tags from tag files in a given directory.
+ * {@link TagLibrary} that loads tags from tag files in a directory.
  *
  * @author Kohsuke Kawaguchi
  */

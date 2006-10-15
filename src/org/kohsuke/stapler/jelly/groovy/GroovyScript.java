@@ -8,6 +8,9 @@ import org.apache.commons.jelly.XMLOutput;
 import org.codehaus.groovy.runtime.InvokerHelper;
 
 /**
+ * Wraps a Groovy-driven Jelly script into {@link Script}
+ * (so that it can be called from other Jelly scripts.) 
+ *
  * @author Kohsuke Kawaguchi
  */
 public class GroovyScript implements Script {
