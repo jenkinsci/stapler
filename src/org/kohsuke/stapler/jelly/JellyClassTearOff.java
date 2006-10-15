@@ -113,7 +113,7 @@ public class JellyClassTearOff {
         return null;
     }
 
-    public void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException, JellyTagException {
+    public static void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException, JellyTagException {
         // invoke Jelly script to render result
         JellyContext context = new JellyContext();
         Enumeration en = req.getAttributeNames();

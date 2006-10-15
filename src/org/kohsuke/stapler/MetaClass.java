@@ -2,6 +2,7 @@ package org.kohsuke.stapler;
 
 import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
+import org.kohsuke.stapler.jelly.groovy.GroovyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -211,7 +212,7 @@ public class MetaClass extends TearOffSupport {
 
                         req.tokens.next();
 
-                        tearOff.invokeScript(req, rsp, script, node);
+                        JellyClassTearOff.invokeScript(req, rsp, script, node);
 
                         return true;
                     } catch (RuntimeException e) {
@@ -225,6 +226,37 @@ public class MetaClass extends TearOffSupport {
             });
         } catch (LinkageError e) {
             // jelly not present. ignore
+        }
+
+        try {
+            dispatchers.add(new Dispatcher() {
+                final GroovyClassTearOff tearOff = loadTearOff(GroovyClassTearOff.class);
+
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
+                    // check Groovy view
+                    String next = req.tokens.peek();
+                    if(next==null)  return false;
+
+                    try {
+                        Script script = tearOff.findScript(next+".groovy");
+                        if(script==null)        return false;   // no Groovy script found
+
+                        req.tokens.next();
+
+                        JellyClassTearOff.invokeScript(req, rsp, script, node);
+
+                        return true;
+                    } catch (RuntimeException e) {
+                        throw e;
+                    } catch (IOException e) {
+                        throw e;
+                    } catch (Exception e) {
+                        throw new ServletException(e);
+                    }
+                }
+            });
+        } catch (LinkageError e) {
+            // groovy not present. ignore
         }
 
         // check action <obj>.doIndex(req,rsp)

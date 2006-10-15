@@ -24,7 +24,10 @@ public class GroovyClassTearOff {
 
     public GroovyClassTearOff(MetaClass owner) {
         this.owner = owner;
-        this.classLoader = owner.classLoader.loadTearOff(GroovyClassLoaderTearOff.class);
+        if(owner.classLoader!=null)
+            classLoader = owner.classLoader.loadTearOff(GroovyClassLoaderTearOff.class);
+        else
+            classLoader = null;
     }
 
     public Script findScript(String name) throws IOException {
