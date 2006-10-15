@@ -181,9 +181,9 @@ public final class JellyBuilder extends GroovyObjectSupport {
                             ns.startPrefixMapping(output);
                     }
 
-                    output.startElement(n.getLocalPart(), n.getNamespaceURI(), n.getQualifiedName(), toAttributes(attributes));
+                    output.startElement(n.getNamespaceURI(), n.getLocalPart(), n.getQualifiedName(), toAttributes(attributes));
                     invokeBody(output);
-                    output.endElement(n.getLocalPart(), n.getNamespaceURI(), n.getQualifiedName());
+                    output.endElement(n.getNamespaceURI(), n.getLocalPart(), n.getQualifiedName());
 
                     if(nsList!=null) {
                         for (Namespace ns : nsList)
