@@ -19,7 +19,7 @@ public abstract class TearOffSupport {
     public final <T> T getTearOff(Class<T> t) {
         Map<Class,Object> m = tearOffs;
         if(m==null)     return null;
-        return t.cast(m.get(t));
+        return (T)m.get(t);
     }
 
     public final <T> T loadTearOff(Class<T> t) {
