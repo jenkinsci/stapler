@@ -17,6 +17,7 @@ public class JellyBinding extends Binding {
     public JellyBinding(JellyContext context, XMLOutput out) {
         this.context = context;
         this.out = out;
+        setProperty("output",out);
     }
 
     public Object getVariable(String name) {

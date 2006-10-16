@@ -9,8 +9,11 @@ import org.apache.commons.jelly.impl.DynamicTag;
 import org.apache.commons.jelly.impl.TagFactory;
 import org.apache.commons.jelly.impl.TagScript;
 import org.kohsuke.stapler.MetaClass;
+import org.kohsuke.stapler.MetaClassLoader;
+import org.kohsuke.stapler.jelly.groovy.GroovyClassLoaderTearOff;
 import org.xml.sax.Attributes;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Map;
@@ -30,6 +33,7 @@ public final class CustomTagLibrary extends TagLibrary {
     private final JellyContext master;
 
     private final ClassLoader classLoader;
+    private final MetaClassLoader metaClassLoader;
     private final String basePath;
     /**
      * Compiled tag files.
@@ -40,6 +44,7 @@ public final class CustomTagLibrary extends TagLibrary {
         this.master = master;
         this.classLoader = classLoader;
         this.basePath = basePath;
+        this.metaClassLoader = MetaClassLoader.get(classLoader);
     }
 
     public TagScript createTagScript(String name, Attributes attributes) throws JellyException {
@@ -78,15 +83,33 @@ public final class CustomTagLibrary extends TagLibrary {
             return script;
 
         URL res = classLoader.getResource(basePath + '/' + name + ".jelly");
-        if(res==null)
-            return null;
+        if(res!=null) {
+            script = loadJellyScript(res);
+            scripts.put(name,script);
+            return script;
+        }
 
+        res = classLoader.getResource(basePath + '/' + name + ".groovy");
+        if(res!=null) {
+            try {
+                GroovyClassLoaderTearOff gcl = metaClassLoader.getTearOff(GroovyClassLoaderTearOff.class);
+                script = gcl.parse(res);
+                scripts.put(name,script);
+                return script;
+            } catch (LinkageError e) {
+                // no groovy. ignore
+            } catch (IOException e) {
+                throw new JellyException(e);
+            }
+        }
+
+        return null;
+    }
+
+    private Script loadJellyScript(URL res) throws JellyException {
         // compile script
         JellyContext context = new JellyContext(master);
         context.setClassLoader(classLoader);
-        script = context.compileScript(res);
-        scripts.put(name,script);
-
-        return script;
+        return context.compileScript(res);
     }
 }
