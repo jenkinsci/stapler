@@ -51,69 +51,6 @@ public class MetaClass extends TearOffSupport {
 
 
     private void buildDispatchers( ClassDescriptor node ) {
-        // check public properties of the form NODE.TOKEN
-        for (final Field f : node.fields) {
-            dispatchers.add(new NameBasedDispatcher(f.getName()) {
-                final String role = getProtectedRole(f);
-                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException {
-                    if(role!=null && !req.isUserInRole(role))
-                        throw new IllegalAccessException("Needs to be in role "+role);
-                    req.getStapler().invoke(req, rsp, f.get(node));
-                }
-            });
-        }
-
-        FunctionList getMethods = node.methods.prefix("get");
-
-        // check public selector methods of the form NODE.getTOKEN()
-        for( final Function f : getMethods.signature() ) {
-            if(f.getName().length()<=3)
-                continue;
-            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
-            dispatchers.add(new NameBasedDispatcher(name) {
-                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    req.getStapler().invoke(req,rsp,f.invoke(req, node));
-                }
-            });
-        }
-
-        // check public selector methods of the form static NODE.getTOKEN(StaplerRequest)
-        for( final Function f : getMethods.signature(StaplerRequest.class) ) {
-            if(f.getName().length()<=3)
-                continue;
-            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
-            dispatchers.add(new NameBasedDispatcher(name) {
-                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    req.getStapler().invoke(req,rsp,f.invoke(req, node,req));
-                }
-            });
-        }
-
-        // check public selector methods <obj>.get<Token>(String)
-        for( final Function f : getMethods.signature(String.class) ) {
-            if(f.getName().length()<=3)
-                continue;
-            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
-            dispatchers.add(new NameBasedDispatcher(name,1) {
-                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    req.getStapler().invoke(req,rsp,f.invoke(req, node,req.tokens.next()));
-                }
-            });
-        }
-
-        // check public selector methods <obj>.get<Token>(int)
-        for( final Function f : getMethods.signature(int.class) ) {
-            if(f.getName().length()<=3)
-                continue;
-            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
-            dispatchers.add(new NameBasedDispatcher(name,1) {
-                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    int idx = Integer.valueOf(req.tokens.next());
-                    req.getStapler().invoke(req,rsp,f.invoke(req, node,idx));
-                }
-            });
-        }
-
         // check action <obj>.do<token>(StaplerRequest,StaplerResponse)
         for( final Function f : node.methods.prefix("do").signature(StaplerRequest.class,StaplerResponse.class) ) {
             String name = camelize(f.getName().substring(2)); // 'doFoo' -> 'foo'
@@ -123,59 +60,7 @@ public class MetaClass extends TearOffSupport {
                 }
             });
         }
-
-        if(node.clazz.isArray()) {
-            dispatchers.add(new Dispatcher() {
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
-                    if(!req.tokens.hasMore())
-                        return false;
-                    try {
-                        req.getStapler().invoke(req,rsp,((Object[])node)[req.tokens.nextAsInt()]);
-                        return true;
-                    } catch (NumberFormatException e) {
-                        return false; // try next
-                    }
-                }
-            });
-        }
-
-        if(List.class.isAssignableFrom(node.clazz)) {
-            dispatchers.add(new Dispatcher() {
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
-                    if(!req.tokens.hasMore())
-                        return false;
-                    try {
-                        req.getStapler().invoke(req,rsp,((List)node).get(req.tokens.nextAsInt()));
-                        return true;
-                    } catch (NumberFormatException e) {
-                        return false; // try next
-                    }
-                }
-            });
-        }
-
-        if(Map.class.isAssignableFrom(node.clazz)) {
-            dispatchers.add(new Dispatcher() {
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
-                    if(!req.tokens.hasMore())
-                        return false;
-                    try {
-                        Object item = ((Map)node).get(req.tokens.peek());
-                        if(item!=null) {
-                            req.tokens.next();
-                            req.getStapler().invoke(req,rsp,item);
-                            return true;
-                        } else {
-                            // otherwise just fall through
-                            return false;
-                        }
-                    } catch (NumberFormatException e) {
-                        return false; // try next
-                    }
-                }
-            });
-        }
-
+        
         dispatchers.add(new Dispatcher() {
             public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                 // check JSP views
@@ -270,6 +155,121 @@ public class MetaClass extends TearOffSupport {
                         return false;   // applicable only when there's no more token
                     f.invoke(req,node,req,rsp);
                     return true;
+                }
+            });
+        }
+
+        // check public properties of the form NODE.TOKEN
+        for (final Field f : node.fields) {
+            dispatchers.add(new NameBasedDispatcher(f.getName()) {
+                final String role = getProtectedRole(f);
+                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException {
+                    if(role!=null && !req.isUserInRole(role))
+                        throw new IllegalAccessException("Needs to be in role "+role);
+                    req.getStapler().invoke(req, rsp, f.get(node));
+                }
+            });
+        }
+
+        FunctionList getMethods = node.methods.prefix("get");
+
+        // check public selector methods of the form NODE.getTOKEN()
+        for( final Function f : getMethods.signature() ) {
+            if(f.getName().length()<=3)
+                continue;
+            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            dispatchers.add(new NameBasedDispatcher(name) {
+                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    req.getStapler().invoke(req,rsp,f.invoke(req, node));
+                }
+            });
+        }
+
+        // check public selector methods of the form static NODE.getTOKEN(StaplerRequest)
+        for( final Function f : getMethods.signature(StaplerRequest.class) ) {
+            if(f.getName().length()<=3)
+                continue;
+            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            dispatchers.add(new NameBasedDispatcher(name) {
+                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    req.getStapler().invoke(req,rsp,f.invoke(req, node,req));
+                }
+            });
+        }
+
+        // check public selector methods <obj>.get<Token>(String)
+        for( final Function f : getMethods.signature(String.class) ) {
+            if(f.getName().length()<=3)
+                continue;
+            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            dispatchers.add(new NameBasedDispatcher(name,1) {
+                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    req.getStapler().invoke(req,rsp,f.invoke(req, node,req.tokens.next()));
+                }
+            });
+        }
+
+        // check public selector methods <obj>.get<Token>(int)
+        for( final Function f : getMethods.signature(int.class) ) {
+            if(f.getName().length()<=3)
+                continue;
+            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            dispatchers.add(new NameBasedDispatcher(name,1) {
+                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    int idx = Integer.valueOf(req.tokens.next());
+                    req.getStapler().invoke(req,rsp,f.invoke(req, node,idx));
+                }
+            });
+        }
+
+        if(node.clazz.isArray()) {
+            dispatchers.add(new Dispatcher() {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
+                    if(!req.tokens.hasMore())
+                        return false;
+                    try {
+                        req.getStapler().invoke(req,rsp,((Object[])node)[req.tokens.nextAsInt()]);
+                        return true;
+                    } catch (NumberFormatException e) {
+                        return false; // try next
+                    }
+                }
+            });
+        }
+
+        if(List.class.isAssignableFrom(node.clazz)) {
+            dispatchers.add(new Dispatcher() {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
+                    if(!req.tokens.hasMore())
+                        return false;
+                    try {
+                        req.getStapler().invoke(req,rsp,((List)node).get(req.tokens.nextAsInt()));
+                        return true;
+                    } catch (NumberFormatException e) {
+                        return false; // try next
+                    }
+                }
+            });
+        }
+
+        if(Map.class.isAssignableFrom(node.clazz)) {
+            dispatchers.add(new Dispatcher() {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
+                    if(!req.tokens.hasMore())
+                        return false;
+                    try {
+                        Object item = ((Map)node).get(req.tokens.peek());
+                        if(item!=null) {
+                            req.tokens.next();
+                            req.getStapler().invoke(req,rsp,item);
+                            return true;
+                        } else {
+                            // otherwise just fall through
+                            return false;
+                        }
+                    } catch (NumberFormatException e) {
+                        return false; // try next
+                    }
                 }
             });
         }
