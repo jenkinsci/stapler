@@ -1,6 +1,9 @@
 package org.kohsuke.stapler;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.ConvertUtils;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
@@ -10,6 +13,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,6 +22,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.beans.PropertyDescriptor;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -195,7 +200,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
 
             try {
                 if(last) {
-                    BeanUtils.copyProperty(bean,token,value);
+                    copyProperty(bean,token,value);
                 } else {
                     bean = BeanUtils.getProperty(bean,token);
                 }
@@ -211,6 +216,42 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
             } catch (NoSuchMethodException e) {
                 // ignore if there's no such property
             }
+        }
+    }
+
+    private static void copyProperty(Object bean, String name, Object value) throws IllegalAccessException, InvocationTargetException {
+        PropertyDescriptor propDescriptor;
+        try {
+            propDescriptor =
+                PropertyUtils.getPropertyDescriptor(bean, name);
+        } catch (NoSuchMethodException e) {
+            propDescriptor = null;
+        }
+        if ((propDescriptor != null) &&
+            (propDescriptor.getWriteMethod() == null)) {
+            propDescriptor = null;
+        }
+        if (propDescriptor != null) {
+            Converter converter = ConvertUtils.lookup(propDescriptor.getPropertyType());
+            if (converter != null)
+                value = converter.convert(propDescriptor.getPropertyType(), value);
+            try {
+                PropertyUtils.setSimpleProperty(bean, name, value);
+            } catch (NoSuchMethodException e) {
+                throw new NoSuchMethodError(e.getMessage());
+            }
+            return;
+        }
+
+        // try a field
+        try {
+            Field field = bean.getClass().getField(name);
+            Converter converter = ConvertUtils.lookup(field.getType());
+            if (converter != null)
+                value = converter.convert(field.getType(), value);
+            field.set(bean,value);
+        } catch (NoSuchFieldException e) {
+            // no such field
         }
     }
 }
