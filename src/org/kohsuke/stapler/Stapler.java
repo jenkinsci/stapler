@@ -200,6 +200,10 @@ public class Stapler extends HttpServlet {
                     return;
             } catch (LinkageError e) {
                 // jelly is not present.
+                if(!jellyLinkageErrorReported) {
+                    jellyLinkageErrorReported = true;
+                    getServletContext().log("Jelly not present. Skipped",e);
+                }
             }
 
             URL indexHtml = getSideFileURL(node,"index.html");
@@ -293,4 +297,6 @@ public class Stapler extends HttpServlet {
                 return new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
             }
         };
+
+    private static boolean jellyLinkageErrorReported;
 }
