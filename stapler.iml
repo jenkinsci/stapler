@@ -30,7 +30,9 @@
           <root url="jar://$MODULE_DIR$/lib/commons-beanutils-1.6.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/lib/commons-beanutils-1.6-src.zip!/" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
