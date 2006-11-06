@@ -22,8 +22,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="commons-jelly" exported="" />
-    <orderEntry type="module" module-name="commons-jexl" exported="" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -44,6 +42,24 @@
         <SOURCES>
           <root url="jar://$MODULE_DIR$/lib/groovy.src.zip!/" />
         </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/commons-jexl-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/commons-jelly-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntryProperties />

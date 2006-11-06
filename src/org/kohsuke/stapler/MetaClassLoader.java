@@ -2,6 +2,10 @@ package org.kohsuke.stapler;
 
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.io.File;
+import java.net.URLClassLoader;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 /**
  * The stapler version of the {@link ClassLoader} object,
@@ -19,7 +23,9 @@ public class MetaClassLoader extends TearOffSupport {
     }
 
     public static MetaClassLoader get(ClassLoader cl) {
-        if(cl ==null)     return null;
+        if(cl ==null)
+            return debugLoader; // if no parent, delegate to the debug loader if available.
+        
         synchronized(classMap) {
             MetaClassLoader mc = classMap.get(cl);
             if(mc==null) {
@@ -27,6 +33,23 @@ public class MetaClassLoader extends TearOffSupport {
                 classMap.put(cl,mc);
             }
             return mc;
+        }
+    }
+
+    /**
+     * If non-null, delegate to this classloader.
+     */
+    private static MetaClassLoader debugLoader = null;
+
+    static {
+        try {
+            String path = System.getProperty("stapler.resourcePath");
+            if(path!=null) {
+                debugLoader = new MetaClassLoader(
+                    new URLClassLoader(new URL[]{new File(path).toURL()}));
+            }
+        } catch (MalformedURLException e) {
+            throw new Error(e);
         }
     }
 

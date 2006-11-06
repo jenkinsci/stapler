@@ -7,6 +7,7 @@ import org.kohsuke.stapler.jelly.groovy.GroovyClassTearOff;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -317,7 +318,10 @@ public class MetaClass extends TearOffSupport {
         return Character.toLowerCase(name.charAt(0))+name.substring(1);
     }
 
-
+    /**
+     * Don't cache anything in memory, so that any change
+     * will take effect instantly.
+     */
     public static boolean NO_CACHE = false;
 
     static {
@@ -327,6 +331,7 @@ public class MetaClass extends TearOffSupport {
             // ignore.
         }
     }
+
 
 
     public static MetaClass get(Class c) {
