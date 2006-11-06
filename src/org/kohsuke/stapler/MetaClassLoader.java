@@ -39,7 +39,14 @@ public class MetaClassLoader extends TearOffSupport {
     /**
      * If non-null, delegate to this classloader.
      */
-    private static MetaClassLoader debugLoader = null;
+    public static MetaClassLoader debugLoader = null;
+
+    /**
+     * All {@link MetaClass}es.
+     *
+     * Avoids class leaks by {@link WeakHashMap}.
+     */
+    private static final Map<ClassLoader,MetaClassLoader> classMap = new WeakHashMap<ClassLoader,MetaClassLoader>();
 
     static {
         try {
@@ -52,11 +59,4 @@ public class MetaClassLoader extends TearOffSupport {
             throw new Error(e);
         }
     }
-
-    /**
-     * All {@link MetaClass}es.
-     *
-     * Avoids class leaks by {@link WeakHashMap}.
-     */
-    private static final Map<ClassLoader,MetaClassLoader> classMap = new WeakHashMap<ClassLoader,MetaClassLoader>();
 }
