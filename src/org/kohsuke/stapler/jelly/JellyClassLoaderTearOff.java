@@ -4,10 +4,10 @@ import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.TagLibrary;
 import org.kohsuke.stapler.MetaClassLoader;
 
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.lang.ref.WeakReference;
 
 /**
  * {@link MetaClassLoader} tear-off for Jelly support.
