@@ -17,11 +17,9 @@ import java.util.Map;
 public abstract class AbstractTearOff<CLT,S,E extends Exception> {
     protected final MetaClass owner;
     protected final CLT classLoader;
-    private final Class<CLT> cltClass;
 
     protected AbstractTearOff(MetaClass owner, Class<CLT> cltClass) {
         this.owner = owner;
-        this.cltClass = cltClass;
         if(owner.classLoader!=null)
             classLoader = owner.classLoader.loadTearOff(cltClass);
         else
@@ -63,7 +61,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> {
 
         // not found on this class, delegate to the parent
         if(owner.baseClass!=null)
-            return ((AbstractTearOff<CLT,S,E>)owner.baseClass.loadTearOff(cltClass)).findScript(name);
+            return ((AbstractTearOff<CLT,S,E>)owner.baseClass.loadTearOff(getClass())).findScript(name);
 
         return null;
     }
