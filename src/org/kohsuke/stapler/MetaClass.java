@@ -7,7 +7,6 @@ import org.kohsuke.stapler.jelly.groovy.GroovyClassTearOff;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import java.io.IOException;
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
