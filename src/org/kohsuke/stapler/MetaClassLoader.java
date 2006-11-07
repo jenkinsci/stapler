@@ -24,7 +24,7 @@ public class MetaClassLoader extends TearOffSupport {
 
     public static MetaClassLoader get(ClassLoader cl) {
         if(cl ==null)
-            return debugLoader; // if no parent, delegate to the debug loader if available.
+            return null; // if no parent, delegate to the debug loader if available.
         
         synchronized(classMap) {
             MetaClassLoader mc = classMap.get(cl);
