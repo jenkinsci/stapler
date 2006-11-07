@@ -47,14 +47,22 @@ public class JellyClassLoaderTearOff {
         tl = m.get(nsUri);
 
         if(tl==null) { // can we load them here?
-            URL res = owner.loader.getResource(nsUri+"/taglib");
+            String taglibBasePath = trimHeadSlash(nsUri);
+            URL res = owner.loader.getResource(taglibBasePath +"/taglib");
             if(res!=null) {
-                tl = new CustomTagLibrary(createContext(),owner.loader,nsUri);
+                tl = new CustomTagLibrary(createContext(),owner.loader,taglibBasePath);
                 m.put(nsUri,tl);
             }
         }
 
         return tl;
+    }
+
+    private String trimHeadSlash(String nsUri) {
+        if(nsUri.startsWith("/"))
+            return nsUri.substring(1);
+        else
+            return nsUri;
     }
 
     /**
