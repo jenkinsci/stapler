@@ -82,6 +82,16 @@ public final class CustomTagLibrary extends TagLibrary {
         if(script!=null && !MetaClass.NO_CACHE)
             return script;
 
+        script=null;
+        if(MetaClassLoader.debugLoader!=null)
+            script = load(name, MetaClassLoader.debugLoader.loader);
+        if(script==null)
+            script = load(name, classLoader);
+        return script;
+    }
+
+    private Script load(String name, ClassLoader classLoader) throws JellyException {
+        Script script;
         URL res = classLoader.getResource(basePath + '/' + name + ".jelly");
         if(res!=null) {
             script = loadJellyScript(res);
