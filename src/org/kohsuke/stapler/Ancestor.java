@@ -23,7 +23,10 @@ public interface Ancestor {
      * and it ends without '/'. So, for example, if your web app
      * is deployed as "mywebapp" and this ancestor object is
      * obtained from the app root object by <tt>getFoo().getBar(3)</tt>,
-     * then this string will be <tt>/mywebapp/foo/bar/3</tt> 
+     * then this string will be <tt>/mywebapp/foo/bar/3</tt>
+     *
+     * <p>
+     * Any ASCII-unsafe characters are escaped.
      *
      * @return
      *      never null.

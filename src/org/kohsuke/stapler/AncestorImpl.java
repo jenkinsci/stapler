@@ -1,6 +1,8 @@
 package org.kohsuke.stapler;
 
 import java.util.List;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -37,7 +39,15 @@ class AncestorImpl implements Ancestor {
             buf.append('/');
             buf.append(tokens[i]);
         }
-        return buf.toString();
+        
+        try {
+            // 3 arg version accepts illegal character. 1-arg version doesn't
+            return new URI(null,buf.toString(),null).toASCIIString();
+        } catch (URISyntaxException e) {
+            IllegalArgumentException y = new IllegalArgumentException();
+            y.initCause(e);
+            throw y;
+        }
     }
 
     public Ancestor getPrev() {
