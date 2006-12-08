@@ -52,9 +52,7 @@
       <root url="file://$MODULE_DIR$/WEB-INF" relative="/WEB-INF" />
     </webroots>
   </component>
-  <component name="WeblogicWebModuleProperties">
-    <option name="IS_RUN_APPC" value="false" />
-  </component>
+  <component name="WeblogicWebModuleProperties" />
   <component name="org.mevenide.idea.module.ModuleSettings">
     <favoriteGoals>
       <list size="0" />
