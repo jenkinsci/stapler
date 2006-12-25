@@ -12,8 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Constructor;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Properties;
 import java.beans.PropertyDescriptor;
 
 /**
@@ -190,6 +193,79 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         }
 
         return r;
+    }
+
+    public <T> T bindParameters(Class<T> type, String prefix) {
+        return bindParameters(type,prefix,0);
+    }
+
+    public <T> T bindParameters(Class<T> type, String prefix, int index) {
+        String[] names = loadConstructorParamNames(type);
+
+        // the actual arguments to invoke the constructor with.
+        Object[] args = new Object[names.length];
+
+        // constructor
+        Constructor<T> c = findConstructor(type, names.length);
+        Class[] types = c.getParameterTypes();
+
+        // convert parameters
+        for( int i=0; i<names.length; i++ ) {
+            String param = getParameterValues(prefix + names[i])[index];
+
+            Converter converter = ConvertUtils.lookup(types[i]);
+            if (converter==null)
+                throw new IllegalArgumentException("Unable to convert to "+types[i]);
+
+            args[i] = converter.convert(types[i],param);
+        }
+
+        try {
+            return c.newInstance(args);
+        } catch (InstantiationException e) {
+            InstantiationError x = new InstantiationError(e.getMessage());
+            x.initCause(e);
+            throw x;
+        } catch (IllegalAccessException e) {
+            IllegalAccessError x = new IllegalAccessError(e.getMessage());
+            x.initCause(e);
+            throw x;
+        } catch (InvocationTargetException e) {
+            Throwable x = e.getTargetException();
+            if(x instanceof Error)
+                throw (Error)x;
+            if(x instanceof RuntimeException)
+                throw (RuntimeException)x;
+            throw new IllegalArgumentException(x);
+        }
+    }
+
+    private <T> Constructor<T> findConstructor(Class<T> type, int length) {
+        for (Constructor<T> c : type.getConstructors()) {
+            if(c.getParameterTypes().length==length)
+                return c;
+        }
+        throw new IllegalArgumentException(type+" does not have a constructor with "+length+" arguments");
+    }
+
+    /**
+     * Loads the property file and determines the constructor parameter names.
+     */
+    private String[] loadConstructorParamNames(Class<?> type) {
+        String resourceName = type.getName().replace('.', '/') + ".stapler";
+        InputStream s = type.getClassLoader().getResourceAsStream(resourceName);
+        if(s==null)
+            throw new IllegalArgumentException("Unable to find "+resourceName);
+
+        try {
+            Properties p = new Properties();
+            p.load(s);
+            s.close();
+
+            return p.getProperty("constructor").split(",");
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Unable to load "+resourceName,e);
+        }
     }
 
     private static void fill(Object bean, String key, String value) {

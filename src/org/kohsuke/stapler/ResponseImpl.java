@@ -3,9 +3,11 @@ package org.kohsuke.stapler;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
+import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.InputStream;
 import java.net.URL;
 
 /**
@@ -40,6 +42,11 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
     public void serveFile(StaplerRequest req, URL resource) throws ServletException, IOException {
         stapler.serveStaticResource(req,this,resource);
     }
+
+    public void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName) throws ServletException, IOException {
+        stapler.serveStaticResource(req,this,data,lastModified,contentLength,fileName);
+    }
+
 
     /**
      * Escapes non-ASCII characters.

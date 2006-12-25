@@ -191,4 +191,31 @@ public interface StaplerRequest extends HttpServletRequest {
      */
     <T>
     List<T> bindParametersToList( Class<T> type, String prefix );
+
+    /**
+     * Instanciates a new object by injecting constructor parameters from the form parameters.
+     *
+     * <p>
+     * The given class must have a constructor annotated with '@stapler-constructor',
+     * and must be processed by the maven-stapler-plugin, so that the parameter names
+     * of the constructor is available at runtime.
+     *
+     * <p>
+     * The prefix is used to control the form parameter name. For example,
+     * if the prefix is "foo." and if the constructor is define as
+     * <code>Foo(String a, String b)</code>, then the constructor will be invoked
+     * as <code>new Foo(getParameter("foo.a"),getParameter("foo.b"))</code>.
+     */
+    <T>
+    T bindParameters( Class<T> type, String prefix );
+
+    /**
+     * Works like {@link #bindParameters(Class, String)} but uses n-th value
+     * of all the parameters.
+     *
+     * <p>
+     * This is useful for creating multiple instances from repeated form fields.
+     */
+    <T>
+    T bindParameters( Class<T> type, String prefix, int index );
 }

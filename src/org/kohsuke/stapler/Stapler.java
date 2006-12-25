@@ -22,13 +22,10 @@ import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 /**
  * Maps an HTTP request to a method call / JSP invocation against a model object
@@ -51,12 +48,6 @@ public class Stapler extends HttpServlet {
      */
     private Map<Class,Class[]> wrappers;
 
-    /**
-     * All {@link Dispatcher}s.
-     */
-    private static final Map<Class,List<Dispatcher>> dispatchers
-        = Collections.synchronizedMap(new WeakHashMap<Class, List<Dispatcher>>());
-
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         root = servletConfig.getServletContext().getAttribute("app");
@@ -78,10 +69,7 @@ public class Stapler extends HttpServlet {
     }
 
     /**
-     * Serves the specified URL as a static resource.
-     *
-     * @return false
-     *      if the resource doesn't exist.
+     * Serves the specified {@link URL} as a static resource.
      */
     boolean serveStaticResource(HttpServletRequest req, HttpServletResponse rsp, URL url) throws IOException {
         // jetty reports directories as URLs, which isn't what this is intended for,
@@ -91,6 +79,7 @@ public class Stapler extends HttpServlet {
             return false;
 
         URLConnection con = url.openConnection();
+
         InputStream in;
         try {
             in = con.getInputStream();
@@ -100,8 +89,26 @@ public class Stapler extends HttpServlet {
         }
 
         con.connect();
+
+        return serveStaticResource(req,rsp, in, con.getLastModified(), con.getContentLength(), url.toString());
+    }
+
+    /**
+     * Serves the specified {@link InputStream} as a static resource.
+     *
+     * @param contentLength
+     *      if the length of the input stream is known in advance, specify that value
+     *      so that HTTP keep-alive works. Otherwise specify -1 to indicate that the length is unknown.
+     * @param fileName
+     *      file name of this resource. Used to determine the MIME type.
+     *      Since the only important portion is the file extension, this could be just a file name,
+     *      or a full path name, or even a pseudo file name that doesn't actually exist.
+     *      It supports both '/' and '\\' as the path separator.
+     * @return false
+     *      if the resource doesn't exist.
+     */
+    boolean serveStaticResource(HttpServletRequest req, HttpServletResponse rsp, InputStream in, long lastModified, int contentLength, String fileName) throws IOException {
         {// send out Last-Modified, or check If-Modified-Since
-            long lastModified = con.getLastModified();
             if(lastModified!=0) {
                 String since = req.getHeader("If-Modified-Since");
                 SimpleDateFormat format = HTTP_DATE_FORMAT.get();
@@ -126,11 +133,12 @@ public class Stapler extends HttpServlet {
         }
 
 
-        if(con.getContentLength()!=-1)
-            rsp.setContentLength(con.getContentLength());
+        if(contentLength!=-1)
+            rsp.setContentLength(contentLength);
 
-        String fileName = url.toString();
         int idx = fileName.lastIndexOf('/');
+        fileName = fileName.substring(idx+1);
+        idx = fileName.lastIndexOf('\\');
         fileName = fileName.substring(idx+1);
         rsp.setContentType(getServletContext().getMimeType(fileName));
 
