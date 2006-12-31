@@ -3,7 +3,7 @@
   <pomVersion>3</pomVersion>
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler</artifactId>
-  <currentVersion>1.15</currentVersion>
+  <currentVersion>1.16-SNAPSHOT</currentVersion>
   <package>org.kohsuke.stapler</package>
 
   <organization>
