@@ -2,7 +2,6 @@ package org.kohsuke.stapler.jelly;
 
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
-import org.apache.commons.jelly.MissingAttributeException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.TagSupport;
 import org.apache.commons.jelly.XMLOutput;
@@ -20,6 +19,8 @@ public class IncludeTag extends TagSupport {
 
     private Object from;
 
+    private boolean optional;
+
     /**
      * Specifies the name of the JSP to be included.
      */
@@ -29,6 +30,7 @@ public class IncludeTag extends TagSupport {
 
     /**
      * Specifies the object for which JSP will be included.
+     * Defaults to the "it" object in the current context.
      */
     public void setIt(Object it) {
         this.it = it;
@@ -42,7 +44,14 @@ public class IncludeTag extends TagSupport {
         this.from = from;
     }
 
-    public void doTag(XMLOutput output) throws MissingAttributeException, JellyTagException {
+    /**
+     * If true, not finding the page is not an error.
+     */
+    public void setOptional(boolean optional) {
+        this.optional = optional;
+    }
+
+    public void doTag(XMLOutput output) throws JellyTagException {
         Object it = this.it;
         if(it==null)
             it = getContext().getVariable("it");
@@ -58,6 +67,7 @@ public class IncludeTag extends TagSupport {
         }
 
         if(script==null) {
+            if(optional)    return;
             throw new JellyTagException("No page found '"+page+"' for "+it.getClass());
         }
 
