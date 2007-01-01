@@ -38,7 +38,7 @@ public class IncludeTag extends TagSupport {
 
     /**
      * When loading the script, use the classloader from this object
-     * to locate the script.
+     * to locate the script. Otherwise defaults to "it" object.
      */
     public void setFrom(Object from) {
         this.from = from;
