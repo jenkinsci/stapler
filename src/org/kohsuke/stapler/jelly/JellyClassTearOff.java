@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.BufferedOutputStream;
 import java.net.URL;
 import java.util.Enumeration;
 
@@ -54,7 +55,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
         context.setVariable("org.apache.commons.jelly.tags.fmt.locale",req.getLocale());
 
         OutputStream output = rsp.getOutputStream();
-        output = new FilterOutputStream(output) {
+        output = new FilterOutputStream(new BufferedOutputStream(output)) {
             public void flush() {
                 // flushing ServletOutputStream causes Tomcat to
                 // send out headers, making it impossible to set contentType from the script.
