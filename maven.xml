@@ -7,8 +7,9 @@
 		</a:zip>
 	</goal>
 	
-	<goal name="dist:build" prereqs="jar">
+	<goal name="dist:build">
 		<attainGoal name="javadoc" />
+		<attainGoal name="jar" />
 		<a:ant dir="example" target="war" />
 		
 		<a:zip destfile="target/stapler-${pom.currentVersion}.zip">
