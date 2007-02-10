@@ -158,9 +158,17 @@ public class Stapler extends HttpServlet {
         if(!urlstr.startsWith("file:"))
             return null;
         try {
-            return new File(new URI(null,urlstr,null).getPath());
+            //when URL contains escapes like %20, this does the conversion correctly
+            return new File(url.toURI().getPath());
         } catch (URISyntaxException e) {
-            return null;
+            try {
+                // some containers, such as Winstone, doesn't escape ' ', and for those
+                // we need to do this
+                return new File(new URI(null,urlstr,null).getPath());
+            } catch (URISyntaxException _) {
+                // the whole thing could fail anyway.
+                return null;
+            }
         }
     }
 
