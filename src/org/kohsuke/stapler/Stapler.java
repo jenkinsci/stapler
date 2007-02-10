@@ -158,7 +158,7 @@ public class Stapler extends HttpServlet {
         if(!urlstr.startsWith("file:"))
             return null;
         try {
-            return new File(new URI(urlstr).getPath());
+            return new File(new URI(null,urlstr,null).getPath());
         } catch (URISyntaxException e) {
             return null;
         }
