@@ -163,7 +163,8 @@ public class Stapler extends HttpServlet {
         } catch (URISyntaxException e) {
             try {
                 // some containers, such as Winstone, doesn't escape ' ', and for those
-                // we need to do this
+                // we need to do this. This method doesn't fail when urlstr contains '%20',
+                // so toURI() has to be tried first.
                 return new File(new URI(null,urlstr,null).getPath());
             } catch (URISyntaxException _) {
                 // the whole thing could fail anyway.
