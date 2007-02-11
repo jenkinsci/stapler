@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * The stapler version of the {@link Class} object,
@@ -56,6 +58,8 @@ public class MetaClass extends TearOffSupport {
             String name = camelize(f.getName().substring(2)); // 'doFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name,0) {
                 public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException {
+                    if(LOGGER.isLoggable(Level.FINE))
+                        LOGGER.fine("Invoking "+f.getName()+" on "+node+" for "+req.tokens);
                     f.invoke(req, node,req,rsp);
                 }
             });
@@ -76,6 +80,10 @@ public class MetaClass extends TearOffSupport {
                 if(disp==null)  return false;
 
                 req.tokens.next();
+
+                if(LOGGER.isLoggable(Level.FINE))
+                    LOGGER.fine("Invoking "+next+".jsp"+" on "+node+" for "+req.tokens);
+
                 stapler.forward(disp,req,rsp);
                 return true;
             }
@@ -96,6 +104,9 @@ public class MetaClass extends TearOffSupport {
                         if(script==null)        return false;   // no Jelly script found
 
                         req.tokens.next();
+
+                        if(LOGGER.isLoggable(Level.FINE))
+                            LOGGER.fine("Invoking "+next+".jelly"+" on "+node+" for "+req.tokens);
 
                         JellyClassTearOff.invokeScript(req, rsp, script, node);
 
@@ -128,6 +139,9 @@ public class MetaClass extends TearOffSupport {
 
                         req.tokens.next();
 
+                        if(LOGGER.isLoggable(Level.FINE))
+                            LOGGER.fine("Invoking "+next+".groovy"+" on "+node+" for "+req.tokens);
+
                         JellyClassTearOff.invokeScript(req, rsp, script, node);
 
                         return true;
@@ -153,6 +167,10 @@ public class MetaClass extends TearOffSupport {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException {
                     if(req.tokens.hasMore())
                         return false;   // applicable only when there's no more token
+
+                    if(LOGGER.isLoggable(Level.FINE))
+                        LOGGER.fine("Invoking doIndex on "+node+" for "+req.tokens);
+
                     f.invoke(req,node,req,rsp);
                     return true;
                 }
@@ -166,6 +184,10 @@ public class MetaClass extends TearOffSupport {
                 public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException {
                     if(role!=null && !req.isUserInRole(role))
                         throw new IllegalAccessException("Needs to be in role "+role);
+
+                    if(LOGGER.isLoggable(Level.FINE))
+                        LOGGER.fine("Getting "+f.getName()+" field on "+node+" for "+req.tokens);
+
                     req.getStapler().invoke(req, rsp, f.get(node));
                 }
             });
@@ -180,6 +202,9 @@ public class MetaClass extends TearOffSupport {
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name) {
                 public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    if(LOGGER.isLoggable(Level.FINE))
+                        LOGGER.fine("Calling "+f.getName()+"() on "+node+" for "+req.tokens);
+
                     req.getStapler().invoke(req,rsp,f.invoke(req, node));
                 }
             });
@@ -192,6 +217,9 @@ public class MetaClass extends TearOffSupport {
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name) {
                 public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    if(LOGGER.isLoggable(Level.FINE))
+                        LOGGER.fine("Calling "+f.getName()+"(req) on "+node+" for "+req.tokens);
+
                     req.getStapler().invoke(req,rsp,f.invoke(req, node,req));
                 }
             });
@@ -204,7 +232,12 @@ public class MetaClass extends TearOffSupport {
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name,1) {
                 public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    req.getStapler().invoke(req,rsp,f.invoke(req, node,req.tokens.next()));
+                    String token = req.tokens.next();
+
+                    if(LOGGER.isLoggable(Level.FINE))
+                        LOGGER.fine("Calling "+f.getName()+"(\""+token+"\") on "+node+" for "+req.tokens);
+
+                    req.getStapler().invoke(req,rsp,f.invoke(req, node, token));
                 }
             });
         }
@@ -216,7 +249,11 @@ public class MetaClass extends TearOffSupport {
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name,1) {
                 public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    int idx = Integer.valueOf(req.tokens.next());
+                    int idx = req.tokens.nextAsInt();
+
+                    if(LOGGER.isLoggable(Level.FINE))
+                        LOGGER.fine("Calling "+f.getName()+"("+idx+") on "+node+" for "+req.tokens);
+
                     req.getStapler().invoke(req,rsp,f.invoke(req, node,idx));
                 }
             });
@@ -228,7 +265,12 @@ public class MetaClass extends TearOffSupport {
                     if(!req.tokens.hasMore())
                         return false;
                     try {
-                        req.getStapler().invoke(req,rsp,((Object[])node)[req.tokens.nextAsInt()]);
+                        int index = req.tokens.nextAsInt();
+
+                        if(LOGGER.isLoggable(Level.FINE))
+                            LOGGER.fine("Calling ["+index+"] on "+node+" for "+req.tokens);
+
+                        req.getStapler().invoke(req,rsp,((Object[])node)[index]);
                         return true;
                     } catch (NumberFormatException e) {
                         return false; // try next
@@ -243,7 +285,12 @@ public class MetaClass extends TearOffSupport {
                     if(!req.tokens.hasMore())
                         return false;
                     try {
-                        req.getStapler().invoke(req,rsp,((List)node).get(req.tokens.nextAsInt()));
+                        int index = req.tokens.nextAsInt();
+
+                        if(LOGGER.isLoggable(Level.FINE))
+                            LOGGER.fine("Calling get("+index+") on "+node+" for "+req.tokens);
+
+                        req.getStapler().invoke(req,rsp,((List)node).get(index));
                         return true;
                     } catch (NumberFormatException e) {
                         return false; // try next
@@ -258,13 +305,20 @@ public class MetaClass extends TearOffSupport {
                     if(!req.tokens.hasMore())
                         return false;
                     try {
-                        Object item = ((Map)node).get(req.tokens.peek());
+                        String key = req.tokens.peek();
+                        Object item = ((Map)node).get(key);
                         if(item!=null) {
                             req.tokens.next();
+
+                            if(LOGGER.isLoggable(Level.FINE))
+                                LOGGER.fine("get(\""+key+"\") on "+node+" found "+item+" for "+req.tokens);
+
                             req.getStapler().invoke(req,rsp,item);
                             return true;
                         } else {
                             // otherwise just fall through
+                            if(LOGGER.isLoggable(Level.FINE))
+                                LOGGER.fine("get(\""+key+"\")==null for "+req.tokens);
                             return false;
                         }
                     } catch (NumberFormatException e) {
@@ -284,6 +338,9 @@ public class MetaClass extends TearOffSupport {
 
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException {
+                    if(LOGGER.isLoggable(Level.FINE))
+                        LOGGER.fine("Invoking doDynamic on "+node+" for "+req.tokens);
+
                     f.invoke(req,node,req,rsp);
                     return true;
                 }
@@ -297,6 +354,10 @@ public class MetaClass extends TearOffSupport {
                     if(!req.tokens.hasMore())
                         return false;
                     String token = req.tokens.next();
+
+                    if(LOGGER.isLoggable(Level.FINE))
+                        LOGGER.fine("Invoking getDynamic(\""+token+"\") on "+node+" for "+req.tokens);
+
                     req.getStapler().invoke(req,rsp,f.invoke(req,node,token,req,rsp));
                     return true;
                 }
@@ -351,4 +412,6 @@ public class MetaClass extends TearOffSupport {
      * Avoids class leaks by {@link WeakHashMap}.
      */
     private static final Map<Class,MetaClass> classMap = new WeakHashMap<Class,MetaClass>();
+
+    private static final Logger LOGGER = Logger.getLogger(MetaClass.class.getName());
 }
