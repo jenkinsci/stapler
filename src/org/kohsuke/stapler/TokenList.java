@@ -9,6 +9,9 @@ import java.util.StringTokenizer;
  */
 final class TokenList {
     public final String[] tokens;
+    /**
+     * Index of the next token.
+     */
     public int idx;
 
     TokenList(String url) {
@@ -55,5 +58,16 @@ final class TokenList {
 
     public int countRemainingTokens() {
         return length()-idx;
+    }
+
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        for( int i=0; i<tokens.length; i++) {
+            if(buf.length()>0)  buf.append('/');
+            if(i==idx)  buf.append('!');
+            buf.append(tokens[i]);
+        }
+        return buf.toString();
     }
 }
