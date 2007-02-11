@@ -19,6 +19,8 @@ import java.io.OutputStream;
 import java.io.BufferedOutputStream;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -76,6 +78,8 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
         try {
             Script script = findScript("index.jelly");
             if(script!=null) {
+                if(LOGGER.isLoggable(Level.FINE))
+                    LOGGER.fine("Invoking index.jelly on "+node);
                 invokeScript(req,rsp,script,node);
                 return true;
             }
@@ -100,4 +104,6 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
             throw io;
         }
     }
+
+    private static final Logger LOGGER = Logger.getLogger(JellyClassTearOff.class.getName());
 }

@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Maps an HTTP request to a method call / JSP invocation against a model object
@@ -59,7 +61,9 @@ public class Stapler extends HttpServlet {
     }
 
     protected void service(HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
-        // TODO: test
+        if(LOGGER.isLoggable(Level.FINE))
+            LOGGER.fine("Processing request for "+req.getServletPath());
+
         URL url = getServletContext().getResource(req.getServletPath());
         if(url!=null && serveStaticResource(req,rsp,url))
             return; // done
@@ -77,6 +81,9 @@ public class Stapler extends HttpServlet {
         File f = toFile(url);
         if(f!=null && f.isDirectory())
             return false;
+
+        if(LOGGER.isLoggable(Level.FINE))
+            LOGGER.fine("Serving static resource "+f);
 
         URLConnection con = url.openConnection();
 
@@ -183,6 +190,8 @@ public class Stapler extends HttpServlet {
 
     void invoke(RequestImpl req, ResponseImpl rsp, Object node ) throws IOException, ServletException {
         while(node instanceof StaplerProxy) {
+            if(LOGGER.isLoggable(Level.FINE))
+                LOGGER.fine("Invoking StaplerProxy.getTarget() on "+node);
             Object n = ((StaplerProxy)node).getTarget();
             if(n==node)
                 break;  // if the proxy returns itself, assume that it doesn't want to proxy
@@ -202,12 +211,17 @@ public class Stapler extends HttpServlet {
 
         if(!req.tokens.hasMore()) {
             if(!req.getServletPath().endsWith("/")) {
-                rsp.sendRedirect2(req.getContextPath()+req.getServletPath()+'/');
+                String target = req.getContextPath() + req.getServletPath() + '/';
+                if(LOGGER.isLoggable(Level.FINE))
+                    LOGGER.fine("Redirecting to "+target);
+                rsp.sendRedirect2(target);
                 return;
             }
             // TODO: find the list of welcome pages for this class by reading web.xml
             RequestDispatcher indexJsp = getResourceDispatcher(node,"index.jsp");
             if(indexJsp!=null) {
+                if(LOGGER.isLoggable(Level.FINE))
+                    LOGGER.fine("Invoking index.jsp on "+node);
                 forward(indexJsp,req,rsp);
                 return;
             }
@@ -316,4 +330,6 @@ public class Stapler extends HttpServlet {
         };
 
     private static boolean jellyLinkageErrorReported;
+
+    private static final Logger LOGGER = Logger.getLogger(Stapler.class.getName());
 }
