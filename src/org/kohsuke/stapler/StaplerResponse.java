@@ -54,6 +54,8 @@ public interface StaplerResponse extends HttpServletResponse {
      */
     void serveFile(StaplerRequest request, URL res) throws ServletException, IOException;
 
+    void serveFile(StaplerRequest request, URL res, long expiration) throws ServletException, IOException;
+
     /**
      * Serves a static resource.
      *
@@ -66,7 +68,14 @@ public interface StaplerResponse extends HttpServletResponse {
      * @param lastModified
      *      The timestamp when the resource was last modified. See {@link URLConnection#getLastModified()}
      *      for the meaning of the value. 0 if unknown, in which case "If-Modified-Since" handling
-     *      will not be performed. 
+     *      will not be performed.
+     * @param expiration
+     *      The number of milliseconds until the resource will "expire".
+     *      Until it expires the browser will be allowed to cache it
+     *      and serve it without checking back with the server.
+     *      After it expires, the client will send conditional GET to
+     *      check if the resource is actually modified or not.
+     *      If 0, it will immediately expire.
      * @param contentLength
      *      if the length of the input stream is known in advance, specify that value
      *      so that HTTP keep-alive works. Otherwise specify -1 to indicate that the length is unknown.
@@ -75,6 +84,16 @@ public interface StaplerResponse extends HttpServletResponse {
      *      Since the only important portion is the file extension, this could be just a file name,
      *      or a full path name, or even a pseudo file name that doesn't actually exist.
      *      It supports both '/' and '\\' as the path separator.
+     */
+    void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, int contentLength, String fileName) throws ServletException, IOException;
+
+    /**
+     * Serves a static resource.
+     *
+     * Expiration date is set to the value that forces browser to do conditional GET
+     * for all resources.
+     *
+     * @see #serveFile(StaplerRequest, InputStream, long, long, int, String)
      */
     void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName) throws ServletException, IOException;
 }

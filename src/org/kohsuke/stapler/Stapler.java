@@ -65,7 +65,7 @@ public class Stapler extends HttpServlet {
             LOGGER.fine("Processing request for "+req.getServletPath());
 
         URL url = getServletContext().getResource(req.getServletPath());
-        if(url!=null && serveStaticResource(req,rsp,url))
+        if(url!=null && serveStaticResource(req,rsp,url, MetaClass.NO_CACHE ? 0 : 24*60*60*1000/*1 day*/))
             return; // done
 
         // consider reusing this ArrayList.
@@ -75,7 +75,7 @@ public class Stapler extends HttpServlet {
     /**
      * Serves the specified {@link URL} as a static resource.
      */
-    boolean serveStaticResource(HttpServletRequest req, HttpServletResponse rsp, URL url) throws IOException {
+    boolean serveStaticResource(HttpServletRequest req, HttpServletResponse rsp, URL url, long expiration) throws IOException {
         // jetty reports directories as URLs, which isn't what this is intended for,
         // so check and reject.
         File f = toFile(url);
@@ -97,7 +97,7 @@ public class Stapler extends HttpServlet {
 
         con.connect();
 
-        return serveStaticResource(req,rsp, in, con.getLastModified(), con.getContentLength(), url.toString());
+        return serveStaticResource(req,rsp, in, con.getLastModified(), expiration, con.getContentLength(), url.toString());
     }
 
     /**
@@ -106,6 +106,13 @@ public class Stapler extends HttpServlet {
      * @param contentLength
      *      if the length of the input stream is known in advance, specify that value
      *      so that HTTP keep-alive works. Otherwise specify -1 to indicate that the length is unknown.
+     * @param expiration
+     *      The number of milliseconds until the resource will "expire".
+     *      Until it expires the browser will be allowed to cache it
+     *      and serve it without checking back with the server.
+     *      After it expires, the client will send conditional GET to
+     *      check if the resource is actually modified or not.
+     *      If 0, it will immediately expire.
      * @param fileName
      *      file name of this resource. Used to determine the MIME type.
      *      Since the only important portion is the file extension, this could be just a file name,
@@ -114,7 +121,7 @@ public class Stapler extends HttpServlet {
      * @return false
      *      if the resource doesn't exist.
      */
-    boolean serveStaticResource(HttpServletRequest req, HttpServletResponse rsp, InputStream in, long lastModified, int contentLength, String fileName) throws IOException {
+    boolean serveStaticResource(HttpServletRequest req, HttpServletResponse rsp, InputStream in, long lastModified, long expiration, int contentLength, String fileName) throws IOException {
         {// send out Last-Modified, or check If-Modified-Since
             if(lastModified!=0) {
                 String since = req.getHeader("If-Modified-Since");
@@ -135,7 +142,13 @@ public class Stapler extends HttpServlet {
                         throw e;
                     }
                 }
-                rsp.setHeader("Last-Modified",format.format(new Date(lastModified)));
+
+                String lastModifiedStr = format.format(new Date(lastModified));
+                rsp.setHeader("Last-Modified", lastModifiedStr);
+                if(expiration<=0)
+                    rsp.setHeader("Expires",lastModifiedStr);
+                else
+                    rsp.setHeader("Expires",format.format(new Date(new Date().getTime()+expiration)));
             }
         }
 
@@ -238,7 +251,7 @@ public class Stapler extends HttpServlet {
             }
 
             URL indexHtml = getSideFileURL(node,"index.html");
-            if(indexHtml!=null && serveStaticResource(req,rsp,indexHtml))
+            if(indexHtml!=null && serveStaticResource(req,rsp,indexHtml,0))
                 return; // done
         }
 

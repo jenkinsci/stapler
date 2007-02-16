@@ -39,12 +39,20 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
         sendRedirect(encode(url));
     }
 
+    public void serveFile(StaplerRequest req, URL resource, long expiration) throws ServletException, IOException {
+        stapler.serveStaticResource(req,this,resource,expiration);
+    }
+
     public void serveFile(StaplerRequest req, URL resource) throws ServletException, IOException {
-        stapler.serveStaticResource(req,this,resource);
+        serveFile(req,resource,-1);
+    }
+
+    public void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, int contentLength, String fileName) throws ServletException, IOException {
+        stapler.serveStaticResource(req,this,data,lastModified,expiration,contentLength,fileName);
     }
 
     public void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName) throws ServletException, IOException {
-        stapler.serveStaticResource(req,this,data,lastModified,contentLength,fileName);
+        serveFile(req,data,lastModified,-1,contentLength,fileName);
     }
 
 
