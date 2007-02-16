@@ -116,6 +116,10 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
     }
 
     public boolean checkIfModified(long lastModified, StaplerResponse rsp) {
+        return checkIfModified(lastModified,rsp,0);
+    }
+
+    public boolean checkIfModified(long lastModified, StaplerResponse rsp, long expiration) {
         if(lastModified<=0)
             return false;
 
@@ -136,7 +140,15 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
                 // just ignore and serve the content
             }
         }
-        rsp.setHeader("Last-Modified",format.format(new Date(lastModified)));
+        String tm = format.format(new Date(lastModified));
+        rsp.setHeader("Last-Modified", tm);
+        if(expiration==0) {
+            // don't let browsers
+            rsp.setHeader("Expires", tm);
+        } else {
+            // expire in "NOW+expiration" 
+            rsp.setHeader("Expires",format.format(new Date(new Date().getTime()+expiration)));
+        }
         return false;
     }
 

@@ -112,6 +112,10 @@ public interface StaplerRequest extends HttpServletRequest {
      *      and this method returns false.
      * </ol>
      *
+     * <p>
+     * This method sends out the "Expires" header to force browser
+     * to re-validate all the time.
+     *
      * @param timestampOfResource
      *      The time stamp of the resource.
      * @param rsp
@@ -133,6 +137,19 @@ public interface StaplerRequest extends HttpServletRequest {
      * @see #checkIfModified(long, StaplerResponse)
      */
     boolean checkIfModified(Calendar timestampOfResource, StaplerResponse rsp);
+
+    /**
+     * @param expiration
+     *      The number of milliseconds until the resource will "expire".
+     *      Until it expires the browser will be allowed to cache it
+     *      and serve it without checking back with the server.
+     *      After it expires, the client will send conditional GET to
+     *      check if the resource is actually modified or not.
+     *      If 0, it will immediately expire.
+     *
+     * @see #checkIfModified(long, StaplerResponse)
+     */
+    boolean checkIfModified(long timestampOfResource, StaplerResponse rsp, long expiration);
 
     /**
      * Binds form parameters to a bean by using introspection.
