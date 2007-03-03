@@ -186,6 +186,9 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
                 len = Math.min(len,getParameterValues(name).length);
         }
 
+        if(len==Integer.MAX_VALUE)
+            return r;   // nothing
+
         try {
             for( int i=0; i<len; i++ ) {
                 T t = type.newInstance();
