@@ -4,6 +4,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.converters.URLConverter;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
 
@@ -28,6 +29,7 @@ import java.util.StringTokenizer;
 import java.util.Properties;
 import java.beans.PropertyDescriptor;
 import java.net.URL;
+import java.net.MalformedURLException;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -354,6 +356,15 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
     }
 
     static {
-        ConvertUtils.register(new URLConverter(), URL.class);
+        ConvertUtils.register(new Converter() {
+            public Object convert(Class type, Object value) {
+                if(value==null) return null;
+                try {
+                    return new URL(value.toString());
+                } catch (MalformedURLException e) {
+                    throw new ConversionException(e);
+                }
+            }
+        }, URL.class);
     }
 }
