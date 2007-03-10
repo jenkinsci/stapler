@@ -1,11 +1,10 @@
 package org.kohsuke.stapler;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.beanutils.Converter;
-import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.ConversionException;
-import org.apache.commons.beanutils.converters.URLConverter;
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
@@ -13,11 +12,14 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,11 +27,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.Properties;
-import java.beans.PropertyDescriptor;
-import java.net.URL;
-import java.net.MalformedURLException;
+import java.util.StringTokenizer;
 
 /**
  * @author Kohsuke Kawaguchi
