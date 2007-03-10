@@ -226,7 +226,12 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
 
         // convert parameters
         for( int i=0; i<names.length; i++ ) {
-            String param = getParameterValues(prefix + names[i])[index];
+            String[] values = getParameterValues(prefix + names[i]);
+            String param;
+            if(values!=null)
+                param = values[index];
+            else
+                param = null;
 
             Converter converter = ConvertUtils.lookup(types[i]);
             if (converter==null)
