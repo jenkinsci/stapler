@@ -4,7 +4,7 @@
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler</artifactId>
   <packaging>jar</packaging>
-  <version>1.24-SNAPSHOT</version>
+  <version>1.25-SNAPSHOT</version>
 
   <description>Stapler HTTP request handling engine</description>
 
@@ -34,9 +34,8 @@
   
   <scm>
     <connection>scm:cvs:pserver:guest@cvs.dev.java.net:/cvs:stapler/stapler</connection>
-    <developerConnection>scm:cvs:pserver:${user.name}@cvs.dev.java.net:/cvs:stapler/stapler</developerConnection>
+    <developerConnection>scm:cvs:pserver:kohsuke@cvs.dev.java.net:/cvs:stapler/stapler</developerConnection>
     <url>https://stapler.dev.java.net/source/browse/stapler/stapler</url>
-    <tag>stapler-1_24</tag>
   </scm>
 
   <distributionManagement>
@@ -185,8 +184,7 @@
             <phase>process-classes</phase>
             <configuration>
               <tasks>
-                <taskdef name="retroweaver" classname="com.rc.retroweaver.ant.RetroWeaverTask"
-                         classpathref="maven.test.classpath"/>
+                <taskdef name="retroweaver" classname="com.rc.retroweaver.ant.RetroWeaverTask" classpathref="maven.test.classpath" />
                 <retroweaver srcdir="${project.build.outputDirectory}" />
               </tasks>
             </configuration>
