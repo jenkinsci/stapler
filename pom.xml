@@ -31,6 +31,20 @@
       <archive>https://${maven.javanet.project}.dev.java.net/servlets/SummarizeList?listName=cvs</archive>
     </mailingList>
   </mailingLists>
+  
+  <scm>
+    <connection>scm:cvs:pserver:guest@cvs.dev.java.net:/cvs:stapler/stapler</connection>
+    <developerConnection>scm:cvs:pserver:${user.name}@cvs.dev.java.net:/cvs:stapler/stapler</developerConnection>
+    <url>https://stapler.dev.java.net/source/browse/stapler/stapler</url>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <uniqueVersion>false</uniqueVersion>
+      <id>local-repository</id>
+      <url>file:${path-to-m2-repo.java.net}</url>
+    </repository>
+  </distributionManagement>
 
   <developers>
     <developer>
