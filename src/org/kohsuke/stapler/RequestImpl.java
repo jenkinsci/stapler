@@ -104,7 +104,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         StringBuffer buf = super.getRequestURL();
         int idx = 0;
         for( int i=0; i<3; i++ )
-            idx = buf.substring(idx).indexOf("/")+1;
+            idx += buf.substring(idx).indexOf("/")+1;
         buf.setLength(idx-1);
         buf.append(super.getContextPath());
         return buf.toString();
