@@ -4,7 +4,7 @@
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler</artifactId>
   <packaging>jar</packaging>
-  <version>1.24</version>
+  <version>1.24-SNAPSHOT</version>
 
   <description>Stapler HTTP request handling engine</description>
 
@@ -56,6 +56,18 @@
   </developers>
 
   <dependencies>
+    <dependency><!-- only used in antrun -->
+      <groupId>net.sourceforge.retroweaver</groupId>
+      <artifactId>retroweaver</artifactId>
+      <version>1.2.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.sourceforge.retroweaver</groupId>
+      <artifactId>retroweaver-rt</artifactId>
+      <version>1.2.3</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
@@ -110,6 +122,7 @@
         </includes>
       </resource>
     </resources>
+    
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -117,6 +130,71 @@
           <source>1.5</source>
           <target>1.5</target>
         </configuration>
+      </plugin>
+      <!-- retrotranslator is good but too big for stapler
+      <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>retrotranslator-maven-plugin</artifactId>
+          <version>1.0-alpha-2</version>
+          <executions>
+              <execution>
+                  <phase>process-classes</phase>
+                  <goals>
+                      <goal>translate</goal>
+                  </goals>
+                  <configuration>
+                      <filesets>
+                          <fileset>
+                              <directory>${project.build.outputDirectory}</directory>
+                              <includes>
+                                  <include>**/*.class</include>
+                              </includes>
+                          </fileset>
+                      </filesets>
+                  </configuration>
+              </execution>
+          </executions>
+      </plugin>-->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>dependency-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-retroweaver-rt</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>net.sourceforge.retroweaver</groupId>
+                  <artifactId>retroweaver-rt</artifactId>
+                  <version>1.2.3</version>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${basedir}/target/classes</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>process-classes</phase>
+            <configuration>
+              <tasks>
+                <taskdef name="retroweaver" classname="com.rc.retroweaver.ant.RetroWeaverTask"
+                         classpathref="maven.test.classpath"/>
+                <retroweaver srcdir="${project.build.outputDirectory}" />
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
