@@ -78,4 +78,22 @@ final class FunctionList implements Iterable<Function> {
             }
         });
     }
+
+    /**
+     * Returns {@link Function}s that has the parameters
+     * that start with given types (but can have additional parameters.)
+     */
+    public FunctionList signatureStartsWith(final Class... args) {
+        return filter(new Filter() {
+            public boolean keep(Function m) {
+                Class[] params = m.getParameterTypes();
+                if(params.length<args.length)  return false;
+                for( int i=0; i<args.length; i++ ) {
+                    if(params[i]!=args[i])
+                        return false;
+                }
+                return true;
+            }
+        });
+    }
 }

@@ -278,7 +278,9 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         String resourceName = type.getName().replace('.', '/') + ".stapler";
         InputStream s = type.getClassLoader().getResourceAsStream(resourceName);
         if(s==null)
-            throw new IllegalArgumentException("Unable to find "+resourceName);
+            throw new IllegalArgumentException(
+                "Unable to find "+resourceName+". "+
+                "Have you put @stapler-constructor javadoc tag on a constructor?");
 
         try {
             Properties p = new Properties();

@@ -1,8 +1,12 @@
 package org.kohsuke.stapler;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.ServletException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Abstracts the difference between normal instance methods and
@@ -11,8 +15,45 @@ import java.lang.reflect.Method;
  * @author Kohsuke Kawaguchi
  */
 abstract class Function {
+    /**
+     * Gets the method name.
+     */
     abstract String getName();
+
+    /**
+     * Gets the type of parameters in a single array.
+     */
     abstract Class[] getParameterTypes();
+
+    /**
+     * Gets the annotations on parameters.
+     */
+    abstract Annotation[][] getParameterAnnotatoins();
+
+    /**
+     * Use the given arguments as the first N arguments,
+     * then figure out the rest of the arguments by looking at parameter annotations,
+     * then finally call {@link #invoke}.
+     */
+    Object bindAndinvoke(HttpServletRequest req, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException {
+        Class[] types = getParameterTypes();
+        Annotation[][] annotations = getParameterAnnotatoins();
+
+        // initial arguments
+        List<Object> arguments = new ArrayList<Object>(types.length);
+        for (Object a : args)
+            arguments.add(a);
+
+        // figure out the rest
+        for( int i=arguments.size(); i<types.length; i++ )
+            arguments.add(AnnotationHandler.handle(req,annotations[i],types[i]));
+
+        return invoke(req,o,arguments.toArray());
+    }
+
+    /**
+     * Invokes the method.
+     */
     abstract Object invoke(HttpServletRequest req, Object o, Object... args) throws IllegalAccessException, InvocationTargetException;
 
     final Function protectBy(Method m) {
@@ -46,6 +87,10 @@ abstract class Function {
             return m.getParameterTypes();
         }
 
+        Annotation[][] getParameterAnnotatoins() {
+            return m.getParameterAnnotations();
+        }
+
         public Object invoke(HttpServletRequest req, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
             return m.invoke(o,args);
         }
@@ -69,6 +114,13 @@ abstract class Function {
             Class[] p = m.getParameterTypes();
             Class[] r = new Class[p.length-1];
             System.arraycopy(p,1,r,0,r.length);
+            return r;
+        }
+
+        Annotation[][] getParameterAnnotatoins() {
+            Annotation[][] a = m.getParameterAnnotations();
+            Annotation[][] r = new Annotation[a.length-1][];
+            System.arraycopy(a,1,r,0,r.length);
             return r;
         }
 
@@ -98,6 +150,10 @@ abstract class Function {
 
         public Class[] getParameterTypes() {
             return core.getParameterTypes();
+        }
+
+        Annotation[][] getParameterAnnotatoins() {
+            return core.getParameterAnnotatoins();
         }
 
         public Object invoke(HttpServletRequest req, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
