@@ -4,5 +4,5 @@
 # mvn clean deploy
 # javanet:dist
 
-ver=$(show-pom-version pom.xml)
-javanettasks uploadFile stapler /stapler-$ver.zip "$ver release" stable target/stapler-$ver.zip
+ver=$(show-pom-version target/checkout/pom.xml)
+javanettasks uploadFile stapler /stapler-$ver.zip "$ver release" stable target/checkout/target/stapler-$ver-bin.zip
