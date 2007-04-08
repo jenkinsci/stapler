@@ -26,8 +26,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Maps an HTTP request to a method call / JSP invocation against a model object
@@ -195,10 +195,20 @@ public class Stapler extends HttpServlet {
 
 
     void invoke(HttpServletRequest req, HttpServletResponse rsp, Object root, String url) throws IOException, ServletException {
-        invoke(
-            new RequestImpl(this,req,new ArrayList<AncestorImpl>(),new TokenList(url)),
-            new ResponseImpl(this,rsp),
-            root );
+        RequestImpl sreq = new RequestImpl(this, req, new ArrayList<AncestorImpl>(), new TokenList(url));
+        StaplerRequest oreq = CURRENT_REQUEST.get();
+        CURRENT_REQUEST.set(sreq);
+
+        ResponseImpl srsp = new ResponseImpl(this, rsp);
+        StaplerResponse orsp = CURRENT_RESPONSE.get();
+        CURRENT_RESPONSE.set(srsp);
+
+        try {
+            invoke(sreq,srsp,root);
+        } finally {
+            CURRENT_REQUEST.set(oreq);
+            CURRENT_RESPONSE.set(orsp);
+        }
     }
 
     void invoke(RequestImpl req, ResponseImpl rsp, Object node ) throws IOException, ServletException {
@@ -330,7 +340,19 @@ public class Stapler extends HttpServlet {
         event.getServletContext().setAttribute("app",rootApp);
     }
 
+    /**
+     * Gets the current {@link StaplerRequest} that the calling thread is associated with.
+     */
+    public static StaplerRequest getCurrentRequest() {
+        return CURRENT_REQUEST.get();
+    }
 
+    /**
+     * Gets the current {@link StaplerResponse} that the calling thread is associated with.
+     */
+    public static StaplerResponse getCurrentResponse() {
+        return CURRENT_RESPONSE.get();
+    }
 
     /**
      * HTTP date format. Notice that {@link SimpleDateFormat} is thread unsafe.
@@ -341,6 +363,9 @@ public class Stapler extends HttpServlet {
                 return new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
             }
         };
+
+    private static ThreadLocal<StaplerRequest> CURRENT_REQUEST = new ThreadLocal<StaplerRequest>();
+    private static ThreadLocal<StaplerResponse> CURRENT_RESPONSE = new ThreadLocal<StaplerResponse>();
 
     private static boolean jellyLinkageErrorReported;
 

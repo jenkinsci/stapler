@@ -13,6 +13,7 @@ import java.net.URLConnection;
  * <p>
  * Right now, there's none.
  *
+ * @see Stapler#getCurrentResponse() 
  * @author Kohsuke Kawaguchi
  */
 public interface StaplerResponse extends HttpServletResponse {

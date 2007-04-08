@@ -15,6 +15,7 @@ import java.util.List;
 /**
  * Defines additional parameters/operations made available by Stapler.
  *
+ * @see Stapler#getCurrentRequest()
  * @author Kohsuke Kawaguchi
  */
 public interface StaplerRequest extends HttpServletRequest {
