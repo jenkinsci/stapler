@@ -34,6 +34,17 @@ public interface Ancestor {
     String getUrl();
 
     /**
+     * Gets the relative path from the current object to this ancestor.
+     *
+     * <p>
+     * The returned string looks like "../.." (ends without '/')
+     *
+     * @return
+     *      never null.
+     */
+    String getRelativePath();
+
+    /**
      * Gets the previous ancestor, or null if none (meaning
      * this is the root object.)
      */

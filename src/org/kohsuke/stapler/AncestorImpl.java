@@ -34,7 +34,7 @@ class AncestorImpl implements Ancestor {
     }
 
     public String getUrl() {
-        StringBuffer buf = new StringBuffer(contextPath);
+        StringBuilder buf = new StringBuilder(contextPath);
         for( int i=0; i<index; i++ ) {
             buf.append('/');
             buf.append(tokens[i]);
@@ -48,6 +48,16 @@ class AncestorImpl implements Ancestor {
             y.initCause(e);
             throw y;
         }
+    }
+
+    public String getRelativePath() {
+        StringBuilder buf = new StringBuilder();
+        for( int i=index; i<tokens.length; i++ ) {
+            if(buf.length()>0)  buf.append('/');
+            buf.append("..");
+        }
+        if(buf.length()==0) buf.append('.');
+        return buf.toString();
     }
 
     public Ancestor getPrev() {
