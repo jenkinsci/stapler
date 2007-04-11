@@ -84,7 +84,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * @return
      *      list of {@link Ancestor}s. Can be empty, but always non-null.
      */
-    List getAncestors();
+    List<Ancestor> getAncestors();
 
     /**
      * Gets the {@link HttpServletRequest#getRequestURI() request URI}

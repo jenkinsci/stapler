@@ -29,6 +29,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.Collections;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -45,6 +46,8 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
      */
     public final List<AncestorImpl> ancestors;
 
+    private final List<Ancestor> ancestorsView;
+
     private final Stapler stapler;
 
     // lazily computed
@@ -56,6 +59,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         super(request);
         this.stapler = stapler;
         this.ancestors = ancestors;
+        this.ancestorsView = Collections.<Ancestor>unmodifiableList(ancestors);
         this.tokens = tokens;
         this.originalRequestURI = request.getRequestURI();
     }
@@ -110,8 +114,8 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         return buf.toString();
     }
 
-    public List getAncestors() {
-        return ancestors;
+    public List<Ancestor> getAncestors() {
+        return ancestorsView;
     }
 
     public String getOriginalRequestURI() {
