@@ -8,7 +8,7 @@ import java.util.List;
 import java.io.IOException;
 
 /**
- * Writes all the property of one {@link ExposedBean} to {@link DataWriter}.
+ * Writes all the property of one {@link ExportedBean} to {@link DataWriter}.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -28,7 +28,7 @@ public class Parser<T> {
     /*package*/ Parser(ParserBuilder parent, Class<T> type) {
         this.parent = parent;
         this.type = type;
-        ExposedBean eb = type.getAnnotation(ExposedBean.class);
+        ExportedBean eb = type.getAnnotation(ExportedBean.class);
         if(eb ==null)
             throw new IllegalArgumentException(type+" doesn't have @ExposedBean");
         this.defaultVisibility = eb.defaultVisibility();
@@ -36,7 +36,7 @@ public class Parser<T> {
         parent.parsers.put(type,this);
 
         Class<? super T> sc = type.getSuperclass();
-        if(sc!=null && sc.getAnnotation(ExposedBean.class)!=null)
+        if(sc!=null && sc.getAnnotation(ExportedBean.class)!=null)
             superParser = parent.get(sc);
         else
             superParser = null;
@@ -46,16 +46,16 @@ public class Parser<T> {
         // Use reflection to find out what properties are exposed.
         for( Field f : type.getFields() ) {
             if(f.getDeclaringClass()!=type) continue;
-            Exposed exposed = f.getAnnotation(Exposed.class);
-            if(exposed !=null)
-                properties.add(new FieldProperty(this,f,exposed));
+            Exported exported = f.getAnnotation(Exported.class);
+            if(exported !=null)
+                properties.add(new FieldProperty(this,f, exported));
         }
 
         for( Method m : type.getMethods() ) {
             if(m.getDeclaringClass()!=type) continue;
-            Exposed exposed = m.getAnnotation(Exposed.class);
-            if(exposed !=null)
-                properties.add(new MethodProperty(this,m,exposed));
+            Exported exported = m.getAnnotation(Exported.class);
+            if(exported !=null)
+                properties.add(new MethodProperty(this,m, exported));
         }
 
         this.properties = properties.toArray(new Property[properties.size()]);

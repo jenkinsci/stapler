@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
 
 /**
- * Indicates that the class has {@link Exposed} annotations
+ * Indicates that the class has {@link Exported} annotations
  * on its properties to indicate which properties are written
  * as values to the remote XML/JSON API.
  *
@@ -16,15 +16,15 @@ import java.lang.annotation.ElementType;
  * This annotation inherits, so it only needs to be placed on the base class.
  *
  * @author Kohsuke Kawaguchi
- * @see Exposed
+ * @see Exported
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
 @Target(ElementType.TYPE)
-public @interface ExposedBean {
+public @interface ExportedBean {
     /**
-     * Controls the default visibility of all {@link Exposed} properties
+     * Controls the default visibility of all {@link Exported} properties
      * of this class (and its descendants.)
      *
      * <p>

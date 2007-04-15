@@ -12,12 +12,12 @@ import static java.lang.annotation.ElementType.METHOD;
  * to the remote API.
  *
  * @author Kohsuke Kawaguchi
- * @see ExposedBean
+ * @see ExportedBean
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Target({FIELD, METHOD})
-public @interface Exposed {
+public @interface Exported {
     /**
      * Controls how visible this property is.
      *
@@ -35,7 +35,7 @@ public @interface Exposed {
      *
      * <p>
      * The default value of this property is determined by
-     * {@link ExposedBean#defaultVisibility()}.
+     * {@link ExportedBean#defaultVisibility()}.
      *
      * <p>
      * So bigger the number, more important the property is.

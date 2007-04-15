@@ -9,8 +9,8 @@ import java.lang.reflect.Field;
 class FieldProperty extends Property {
     private final Field field;
 
-    public FieldProperty(Parser owner, Field field, Exposed exposed) {
-        super(owner,field.getName(),exposed);
+    public FieldProperty(Parser owner, Field field, Exported exported) {
+        super(owner,field.getName(), exported);
         this.field = field;
     }
 

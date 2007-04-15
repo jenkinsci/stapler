@@ -5,9 +5,9 @@ package org.kohsuke.stapler.export;
  * of <tt>writeReplace</tt> in Java serialization.
  * @author Kohsuke Kawaguchi
  */
-public interface CustomExposureBean {
+public interface CustomExportedBean {
     /**
      * The returned object will be introspected and written as JSON/XML.
      */
-    Object toExposedObject();
+    Object toExportedObject();
 }

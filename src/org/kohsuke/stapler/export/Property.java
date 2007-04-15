@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Exposes one {@link Exposed exposed property} of {@link ExposedBean} to
+ * Exposes one {@link Exported exposed property} of {@link ExportedBean} to
  * {@link DataWriter}.
  *  
  * @author Kohsuke Kawaguchi
@@ -21,10 +21,10 @@ abstract class Property implements Comparable<Property> {
     final ParserBuilder owner;
     final int visibility;
 
-    Property(Parser parent, String name, Exposed exposed) {
+    Property(Parser parent, String name, Exported exported) {
         this.owner = parent.parent;
-        this.name = exposed.name().length()>1 ? exposed.name() : name;
-        int v = exposed.visibility();
+        this.name = exported.name().length()>1 ? exported.name() : name;
+        int v = exported.visibility();
         if(v==0)
             v = parent.defaultVisibility;
         this.visibility = v;
@@ -63,8 +63,8 @@ abstract class Property implements Comparable<Property> {
             return;
         }
 
-        if(value instanceof CustomExposureBean) {
-            writeValue(((CustomExposureBean)value).toExposedObject(),depth,writer);
+        if(value instanceof CustomExportedBean) {
+            writeValue(((CustomExportedBean)value).toExportedObject(),depth,writer);
             return;
         }
 

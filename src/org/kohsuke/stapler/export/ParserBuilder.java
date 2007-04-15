@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Creates and maintains {@link Parser}s, that are used to write out
- * the value representation of {@link ExposedBean exposed beans}.
+ * the value representation of {@link ExportedBean exposed beans}.
  * @author Kohsuke Kawaguchi
  */
 public class ParserBuilder {
