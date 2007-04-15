@@ -258,6 +258,10 @@
         <option name="path" value="$PROJECT_DIR$/pom.xml" />
         <plugin-list />
       </pom>
+      <pom>
+        <option name="path" value="C:/kohsuke/My Projects/stapler/maven-stapler-plugin/pom.xml" />
+        <plugin-list />
+      </pom>
     </pom-list>
   </component>
   <component name="Palette2">
@@ -388,7 +392,7 @@
       <module fileurl="file://$PROJECT_DIR$/stapler.iml" filepath="$PROJECT_DIR$/stapler.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="JDK1.5" />
+  <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="1.6" project-jdk-type="JavaSDK" />
   <component name="ProjectRunConfigurationManager" />
   <component name="RmicSettings">
     <option name="IS_EANABLED" value="false" />
