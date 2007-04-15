@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
  * {@link Property} based on {@link Method}.
  * @author Kohsuke Kawaguchi
  */
-public class MethodProperty extends Property {
+final class MethodProperty extends Property {
     private final Method method;
     MethodProperty(Parser owner, Method m, Exposed exposed) {
         super(owner,buildName(m.getName()),exposed);
