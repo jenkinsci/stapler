@@ -1,5 +1,7 @@
 package org.kohsuke.stapler;
 
+import org.kohsuke.stapler.export.Flavor;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -97,4 +99,13 @@ public interface StaplerResponse extends HttpServletResponse {
      * @see #serveFile(StaplerRequest, InputStream, long, long, int, String)
      */
     void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName) throws ServletException, IOException;
+
+    /**
+     * Serves the exposed bean in the specified flavor.
+     *
+     * <p>
+     * This method performs the complete output from the header to the response body.
+     * If the flavor is JSON, this method also supports JSONP via the 'jsonp' query parameter.
+     */
+    void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException,IOException;
 }

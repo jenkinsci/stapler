@@ -1,5 +1,9 @@
 package org.kohsuke.stapler;
 
+import org.kohsuke.stapler.export.Flavor;
+import org.kohsuke.stapler.export.Parser;
+import org.kohsuke.stapler.export.ParserBuilder;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
@@ -8,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.net.URL;
 
 /**
@@ -55,6 +60,25 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
         serveFile(req,data,lastModified,-1,contentLength,fileName);
     }
 
+    public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException, IOException {
+        String pad=null;
+        PrintWriter w=null;
+
+        setContentType(flavor.contentType);
+
+        if(flavor== Flavor.JSON) {
+            pad = req.getParameter("jsonp");
+            w = getWriter();
+            if(pad!=null) w.print(pad+'(');
+        }
+
+        Parser p = parserBuilder.get(exposedBean.getClass());
+        p.writeTo(exposedBean,flavor.createDataWriter(exposedBean,this));
+
+
+        if(pad!=null) w.print(')');
+    }
+
 
     /**
      * Escapes non-ASCII characters.
@@ -97,4 +121,6 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
         if(ch>='a')     ch = (char)(ch-'a'+'A');
         return ch;
     }
+
+    private static final ParserBuilder parserBuilder = new ParserBuilder();
 }
