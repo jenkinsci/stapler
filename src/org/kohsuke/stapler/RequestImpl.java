@@ -268,7 +268,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
     }
 
     private <T> Constructor<T> findConstructor(Class<T> type, int length) {
-        for (Constructor<T> c : type.getConstructors()) {
+        for (Constructor c : type.getConstructors()) {
             if(c.getParameterTypes().length==length)
                 return c;
         }
