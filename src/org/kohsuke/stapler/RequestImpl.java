@@ -114,6 +114,10 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         return buf.toString();
     }
 
+    public String getReferer() {
+        return getHeader("Referer");
+    }
+
     public List<Ancestor> getAncestors() {
         return ancestorsView;
     }

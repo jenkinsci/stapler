@@ -65,6 +65,13 @@ public interface StaplerRequest extends HttpServletRequest {
     String getRootPath();
 
     /**
+     * Gets the referer header (like "http://foobar.com/zot") or null.
+     *
+     * This is just a convenience method.
+     */
+    String getReferer();
+
+    /**
      * Returns a list of ancestor objects that lead to the "it" object.
      * The returned list contains {@link Ancestor} objects sorted in the
      * order from root to the "it" object.
