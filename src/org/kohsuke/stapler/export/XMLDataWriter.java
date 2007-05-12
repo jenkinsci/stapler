@@ -36,8 +36,26 @@ final class XMLDataWriter implements DataWriter {
     public void value(String v) throws IOException {
         String n = adjustName();
         out.write('<'+n+'>');
-        out.write(v);
+        out.write(escape(v));
         out.write("</"+n+'>');
+    }
+
+    private String escape(String v) {
+        StringBuffer buf = new StringBuffer(v.length()+64);
+        for( int i=0; i<v.length(); i++ ) {
+            char ch = v.charAt(i);
+            if(ch=='<')
+                buf.append("&lt;");
+            else
+            if(ch=='>')
+                buf.append("&gt;");
+            else
+            if(ch=='&')
+                buf.append("&amp;");
+            else
+                buf.append(ch);
+        }
+        return buf.toString();
     }
 
     public void valueNull() {
