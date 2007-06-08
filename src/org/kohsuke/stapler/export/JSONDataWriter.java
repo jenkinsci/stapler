@@ -39,7 +39,21 @@ final class JSONDataWriter implements DataWriter {
     }
 
     public void value(String v) throws IOException {
-        data('\"'+v+'\"');
+        StringBuilder buf = new StringBuilder(v.length());
+        buf.append('\"');
+        for( int i=0; i<v.length(); i++ ) {
+            char c = v.charAt(i);
+            switch(c) {
+            case '"':   buf.append("\\\"");break;
+            case '\\':  buf.append("\\\\");break;
+            case '\n':  buf.append("\\n");break;
+            case '\r':  buf.append("\\r");break;
+            case '\t':  buf.append("\\t");break;
+            default:    buf.append(c);break;
+            }
+        }
+        buf.append('\"');
+        data(buf.toString());
     }
 
     public void valueNull() throws IOException {
