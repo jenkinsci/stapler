@@ -94,7 +94,10 @@ public class SchemaGenerator {
                 itemType = t;
             }
 
-            Element e = cm.element().name(p.name).type(getXmlTypeName(itemType));
+            Element e = cm.element()
+                .name(isCollection?XMLDataWriter.toSingular(p.name):p.name)
+                .type(getXmlTypeName(itemType));
+
             if(!t.isPrimitive())
                 e.minOccurs(0);
             if(isCollection)

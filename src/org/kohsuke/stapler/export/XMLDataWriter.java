@@ -89,10 +89,13 @@ final class XMLDataWriter implements DataWriter {
      * by considering {@link #isArray}
      */
     private String adjustName() {
-        if(isArray) {
-            if(name.endsWith("s"))
-                return name.substring(0,name.length()-1);
-        }
+        if(isArray) return toSingular(name);
+        return name;
+    }
+
+    /*package*/ static String toSingular(String name) {
+        if(name.endsWith("s"))
+            return name.substring(0,name.length()-1);
         return name;
     }
 }
