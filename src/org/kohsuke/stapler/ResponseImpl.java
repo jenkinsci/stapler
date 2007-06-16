@@ -1,13 +1,12 @@
 package org.kohsuke.stapler;
 
 import org.kohsuke.stapler.export.Flavor;
-import org.kohsuke.stapler.export.Parser;
-import org.kohsuke.stapler.export.ParserBuilder;
+import org.kohsuke.stapler.export.Model;
+import org.kohsuke.stapler.export.ModelBuilder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -72,7 +71,7 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
             if(pad!=null) w.print(pad+'(');
         }
 
-        Parser p = parserBuilder.get(exposedBean.getClass());
+        Model p = MODEL_BUILDER.get(exposedBean.getClass());
         p.writeTo(exposedBean,flavor.createDataWriter(exposedBean,this));
 
 
@@ -122,5 +121,5 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
         return ch;
     }
 
-    private static final ParserBuilder parserBuilder = new ParserBuilder();
+    private static final ModelBuilder MODEL_BUILDER = new ModelBuilder();
 }

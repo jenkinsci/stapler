@@ -21,7 +21,7 @@ public abstract class Property implements Comparable<Property> {
      * Name of the property.
      */
     public final String name;
-    final ParserBuilder owner;
+    final ModelBuilder owner;
     /**
      * Visibility depth level of this property.
      *
@@ -33,9 +33,9 @@ public abstract class Property implements Comparable<Property> {
      * Model to which this property belongs to.
      * Never null.
      */
-    public final Parser parent;
+    public final Model parent;
 
-    Property(Parser parent, String name, Exported exported) {
+    Property(Model parent, String name, Exported exported) {
         this.parent = parent;
         this.owner = parent.parent;
         this.name = exported.name().length()>1 ? exported.name() : name;

@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
  */
 final class MethodProperty extends Property {
     private final Method method;
-    MethodProperty(Parser owner, Method m, Exported exported) {
+    MethodProperty(Model owner, Method m, Exported exported) {
         super(owner,buildName(m.getName()), exported);
         this.method = m;
     }

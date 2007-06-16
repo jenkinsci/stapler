@@ -13,20 +13,20 @@ import java.io.IOException;
  *
  * @author Kohsuke Kawaguchi
  */
-public class Parser<T> {
+public class Model<T> {
     private final Class<T> type;
 
     /**
-     * {@link Parser} for the super class.
+     * {@link Model} for the super class.
      */
-    private final Parser<? super T> superParser;
+    private final Model<? super T> superModel;
 
     private final Property[] properties;
 
-    /*package*/ final ParserBuilder parent;
+    /*package*/ final ModelBuilder parent;
     /*package*/ final int defaultVisibility;
 
-    /*package*/ Parser(ParserBuilder parent, Class<T> type) {
+    /*package*/ Model(ModelBuilder parent, Class<T> type) {
         this.parent = parent;
         this.type = type;
         ExportedBean eb = type.getAnnotation(ExportedBean.class);
@@ -34,13 +34,13 @@ public class Parser<T> {
             throw new IllegalArgumentException(type+" doesn't have @ExposedBean");
         this.defaultVisibility = eb.defaultVisibility();
         
-        parent.parsers.put(type,this);
+        parent.models.put(type,this);
 
         Class<? super T> sc = type.getSuperclass();
         if(sc!=null && sc.getAnnotation(ExportedBean.class)!=null)
-            superParser = parent.get(sc);
+            superModel = parent.get(sc);
         else
-            superParser = null;
+            superModel = null;
 
         List<Property> properties = new ArrayList<Property>();
 
@@ -80,8 +80,8 @@ public class Parser<T> {
     }
 
     void writeTo(T object, int depth, DataWriter writer) throws IOException {
-        if(superParser!=null)
-            superParser.writeTo(object,depth,writer);
+        if(superModel !=null)
+            superModel.writeTo(object,depth,writer);
 
         for (Property p : properties)
             p.writeTo(object,depth,writer);

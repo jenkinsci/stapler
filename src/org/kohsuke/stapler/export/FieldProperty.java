@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 class FieldProperty extends Property {
     private final Field field;
 
-    public FieldProperty(Parser owner, Field field, Exported exported) {
+    public FieldProperty(Model owner, Field field, Exported exported) {
         super(owner,field.getName(), exported);
         this.field = field;
     }
