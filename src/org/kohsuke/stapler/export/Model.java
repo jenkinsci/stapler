@@ -14,7 +14,10 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  */
 public class Model<T> {
-    private final Class<T> type;
+    /**
+     * The class being modeled.
+     */
+    public final Class<T> type;
 
     /**
      * {@link Model} for the super class.
