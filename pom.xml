@@ -119,30 +119,6 @@
           <target>1.5</target>
         </configuration>
       </plugin>
-      <!-- retrotranslator is good but too big for stapler
-      <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>retrotranslator-maven-plugin</artifactId>
-          <version>1.0-alpha-2</version>
-          <executions>
-              <execution>
-                  <phase>process-classes</phase>
-                  <goals>
-                      <goal>translate</goal>
-                  </goals>
-                  <configuration>
-                      <filesets>
-                          <fileset>
-                              <directory>${project.build.outputDirectory}</directory>
-                              <includes>
-                                  <include>**/*.class</include>
-                              </includes>
-                          </fileset>
-                      </filesets>
-                  </configuration>
-              </execution>
-          </executions>
-      </plugin>-->
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
