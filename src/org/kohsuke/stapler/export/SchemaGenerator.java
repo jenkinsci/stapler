@@ -75,8 +75,10 @@ public class SchemaGenerator {
 
         if(m.superModel==null)
             cm = ct.sequence();
-        else
+        else {
+            addToQueue(m.superModel);
             cm = ct.complexContent().extension().base(new QName(m.superModel.type.getName())).sequence();
+        }
 
         for (Property p : m.getProperties()) {
             Class t = p.getType();
