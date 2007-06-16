@@ -21,7 +21,7 @@ public interface XSD {
         SimpleType simpleType();
     }
 
-    public interface Element extends TypedXmlWriter {
+    public interface Element extends Annotated {
         @XmlAttribute
         Element name(String v);
         @XmlAttribute
@@ -66,6 +66,14 @@ public interface XSD {
     public interface Enumeration extends TypedXmlWriter {
         @XmlAttribute
         void value(String v);
+    }
+
+    public interface Annotated extends TypedXmlWriter {
+        Annotation annotation();
+    }
+
+    public interface Annotation extends TypedXmlWriter {
+        void documentation(String value);
     }
 
     public abstract class Types {

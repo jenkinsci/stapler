@@ -1,12 +1,14 @@
 package org.kohsuke.stapler.export;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Writes all the property of one {@link ExportedBean} to {@link DataWriter}.
@@ -29,7 +31,12 @@ public class Model<T> {
     /*package*/ final ModelBuilder parent;
     /*package*/ final int defaultVisibility;
 
-    /*package*/ Model(ModelBuilder parent, Class<T> type) {
+    /**
+     * Lazily loaded "*.javadoc" file for this model. 
+     */
+    private volatile Properties javadoc;
+
+        /*package*/ Model(ModelBuilder parent, Class<T> type) {
         this.parent = parent;
         this.type = type;
         ExportedBean eb = type.getAnnotation(ExportedBean.class);
@@ -71,6 +78,35 @@ public class Model<T> {
      */
     public List<Property> getProperties() {
         return Collections.unmodifiableList(Arrays.asList(properties));
+    }
+
+    /**
+     * Loads the javadoc list and returns it as {@link Properties}.
+     *
+     * @return always non-null.
+     */
+    /*package*/ Properties getJavadoc() {
+        if(javadoc!=null)    return javadoc;
+        synchronized(this) {
+            if(javadoc!=null)    return javadoc;
+
+            // load
+            Properties p = new Properties();
+            InputStream is = type.getClassLoader().getResourceAsStream(type.getName().replace('$', '/').replace('.', '/') + ".javadoc");
+            if(is!=null) {
+                try {
+                    try {
+                        p.load(is);
+                    } finally {
+                        is.close();
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException("Unable to load javadoc for "+type,e);
+                }
+            }
+            javadoc = p;
+            return javadoc;
+        }
     }
 
     /**

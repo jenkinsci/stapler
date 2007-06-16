@@ -6,6 +6,7 @@ import org.kohsuke.stapler.export.XSD.ComplexType;
 import org.kohsuke.stapler.export.XSD.ContentModel;
 import org.kohsuke.stapler.export.XSD.Element;
 import org.kohsuke.stapler.export.XSD.Schema;
+import org.kohsuke.stapler.export.XSD.Annotated;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.Result;
@@ -102,7 +103,17 @@ public class SchemaGenerator {
                 e.minOccurs(0);
             if(isCollection)
                 e.maxOccurs("unbounded");
+
+            annotate(e,p.getJavadoc());
         }
+    }
+
+    /**
+     * Annotates the schema element by javadoc, if that exists.
+     */
+    private void annotate(Annotated e, String javadoc) {
+        if(javadoc==null)   return;
+        e.annotation().documentation(javadoc);
     }
 
     /**

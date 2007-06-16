@@ -4,6 +4,7 @@ import java.beans.Introspector;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.io.IOException;
 
 /**
  * {@link Property} based on {@link Method}.
@@ -32,6 +33,10 @@ final class MethodProperty extends Property {
 
     public Class getType() {
         return method.getReturnType();
+    }
+
+    public String getJavadoc() {
+        return parent.getJavadoc().getProperty(method.getName()+"()");
     }
 
     protected Object getValue(Object object) throws IllegalAccessException, InvocationTargetException {

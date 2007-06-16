@@ -54,6 +54,11 @@ public abstract class Property implements Comparable<Property> {
     public abstract Class getType();
 
     /**
+     * Gets the associated javadoc, if any, or null.
+     */
+    public abstract String getJavadoc();
+
+    /**
      * Writes one property of the given object to {@link DataWriter}.
      */
     public void writeTo(Object object, int depth, DataWriter writer) throws IOException {
