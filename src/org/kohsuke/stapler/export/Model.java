@@ -1,12 +1,12 @@
 package org.kohsuke.stapler.export;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Collections;
-import java.io.IOException;
+import java.util.List;
 
 /**
  * Writes all the property of one {@link ExportedBean} to {@link DataWriter}.
@@ -22,7 +22,7 @@ public class Model<T> {
     /**
      * {@link Model} for the super class.
      */
-    private final Model<? super T> superModel;
+    public final Model<? super T> superModel;
 
     private final Property[] properties;
 

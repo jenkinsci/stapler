@@ -3,6 +3,7 @@ package org.kohsuke.stapler.export;
 import java.beans.Introspector;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 /**
  * {@link Property} based on {@link Method}.
@@ -25,6 +26,13 @@ final class MethodProperty extends Property {
         return Introspector.decapitalize(name);
     }
 
+    public Type getGenericType() {
+        return method.getGenericReturnType();
+    }
+
+    public Class getType() {
+        return method.getReturnType();
+    }
 
     protected Object getValue(Object object) throws IllegalAccessException, InvocationTargetException {
         return method.invoke(object);

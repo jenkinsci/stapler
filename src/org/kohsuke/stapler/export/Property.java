@@ -2,6 +2,7 @@ package org.kohsuke.stapler.export;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -48,6 +49,9 @@ public abstract class Property implements Comparable<Property> {
     public int compareTo(Property that) {
         return this.name.compareTo(that.name);
     }
+
+    public abstract Type getGenericType();
+    public abstract Class getType();
 
     /**
      * Writes one property of the given object to {@link DataWriter}.
@@ -136,12 +140,12 @@ public abstract class Property implements Comparable<Property> {
      */
     protected abstract Object getValue(Object bean) throws IllegalAccessException, InvocationTargetException;
 
-    private static final Set<Class> STRING_TYPES = new HashSet<Class>(Arrays.asList(
+    /*package*/ static final Set<Class> STRING_TYPES = new HashSet<Class>(Arrays.asList(
         String.class,
         URL.class
     ));
 
-    private static final Set<Class> PRIMITIVE_TYPES = new HashSet<Class>(Arrays.asList(
+    /*package*/ static final Set<Class> PRIMITIVE_TYPES = new HashSet<Class>(Arrays.asList(
         Integer.class,
         Long.class,
         Boolean.class
