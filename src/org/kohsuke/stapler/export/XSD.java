@@ -2,6 +2,7 @@ package org.kohsuke.stapler.export;
 
 import com.sun.xml.txw2.TypedXmlWriter;
 import com.sun.xml.txw2.annotation.XmlAttribute;
+import com.sun.xml.txw2.annotation.XmlElement;
 
 import javax.xml.namespace.QName;
 
@@ -13,6 +14,7 @@ import javax.xml.namespace.QName;
 public interface XSD {
     public static final String URI = "http://www.w3.org/2001/XMLSchema";
 
+    @XmlElement("schema")
     public interface Schema extends TypedXmlWriter {
         Element element();
         ComplexType complexType();

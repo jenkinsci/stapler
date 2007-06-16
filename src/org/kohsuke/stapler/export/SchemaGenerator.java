@@ -42,7 +42,7 @@ public class SchemaGenerator {
      */
     public void generateSchema(Result r) {
         Schema s = TXW.create(Schema.class, ResultFactory.createSerializer(r));
-        s._namespace("xsd",XSD.URI);
+        s._namespace(XSD.URI,"xsd");
 
         queue.clear();
         written.clear();
@@ -127,7 +127,12 @@ public class SchemaGenerator {
         }
 
         // otherwise bean
-        addToQueue(builder.get(t));
+        try {
+            addToQueue(builder.get(t));
+        } catch (IllegalArgumentException e) {
+            // not an exposed bean by itself
+            return XSD.Types.ANYTYPE;
+        }
         return new QName(t.getName());
     }
 }

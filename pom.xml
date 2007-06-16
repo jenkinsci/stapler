@@ -66,6 +66,13 @@
       <artifactId>jsp-api</artifactId>
       <version>2.0</version>
     </dependency>
+    <!-- optional REST support -->
+    <dependency>
+      <groupId>com.sun.xml.txw2</groupId>
+      <artifactId>txw2</artifactId>
+      <version>20070616</version>
+      <optional>true</optional>
+    </dependency>
     <!-- optional Jelly support -->
     <dependency>
       <groupId>commons-jelly</groupId>
