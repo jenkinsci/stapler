@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Collections;
 import java.io.IOException;
 
 /**
@@ -60,6 +61,13 @@ public class Parser<T> {
 
         this.properties = properties.toArray(new Property[properties.size()]);
         Arrays.sort(this.properties);
+    }
+
+    /**
+     * Gets all the exported properties.
+     */
+    public List<Property> getProperties() {
+        return Collections.unmodifiableList(Arrays.asList(properties));
     }
 
     /**

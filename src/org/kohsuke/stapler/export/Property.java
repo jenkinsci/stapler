@@ -16,12 +16,27 @@ import java.util.Set;
  *  
  * @author Kohsuke Kawaguchi
  */
-abstract class Property implements Comparable<Property> {
-    final String name;
+public abstract class Property implements Comparable<Property> {
+    /**
+     * Name of the property.
+     */
+    public final String name;
     final ParserBuilder owner;
-    final int visibility;
+    /**
+     * Visibility depth level of this property.
+     *
+     * @see Exported#visibility()
+     */
+    public final int visibility;
+
+    /**
+     * Model to which this property belongs to.
+     * Never null.
+     */
+    public final Parser parent;
 
     Property(Parser parent, String name, Exported exported) {
+        this.parent = parent;
         this.owner = parent.parent;
         this.name = exported.name().length()>1 ? exported.name() : name;
         int v = exported.visibility();
