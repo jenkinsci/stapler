@@ -191,10 +191,12 @@ public interface StaplerRequest extends HttpServletRequest {
     void bindParameters( Object bean, String prefix );
 
     /**
-     * Binds collection form parameters to beans by using introspection.
+     * Binds collection form parameters to beans by using introspection or
+     * constructor parameters injection.
      *
      * <p>
-     * This method works like {@link #bindParameters(Object,String)}, but it assumes
+     * This method works like {@link #bindParameters(Object,String)} and
+     * {@link #bindParameters(Class, String)}, but it assumes
      * that form parameters have multiple-values, and use individual values to
      * fill in multiple beans.
      *

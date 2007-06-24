@@ -16,7 +16,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/commons-cli/commons-cli/1.0/commons-cli-1.0.jar!/" />
+          <root url="jar://$M2_REPO$/commons-cli/commons-cli/1.0/commons-cli-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -25,7 +25,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/org/ccil/cowan/tagsoup/tagsoup/0.9.7/tagsoup-0.9.7.jar!/" />
+          <root url="jar://$M2_REPO$/org/ccil/cowan/tagsoup/tagsoup/0.9.7/tagsoup-0.9.7.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -34,7 +34,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/com/ibm/icu/icu4j/2.6.1/icu4j-2.6.1.jar!/" />
+          <root url="jar://$M2_REPO$/com/ibm/icu/icu4j/2.6.1/icu4j-2.6.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -43,7 +43,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/xerces/xmlParserAPIs/2.6.2/xmlParserAPIs-2.6.2.jar!/" />
+          <root url="jar://$M2_REPO$/xerces/xmlParserAPIs/2.6.2/xmlParserAPIs-2.6.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -52,7 +52,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/javax/servlet/jstl/1.0.6/jstl-1.0.6.jar!/" />
+          <root url="jar://$M2_REPO$/javax/servlet/jstl/1.0.6/jstl-1.0.6.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -61,7 +61,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/commons-logging/commons-logging/1.0/commons-logging-1.0.jar!/" />
+          <root url="jar://$M2_REPO$/commons-logging/commons-logging/1.0/commons-logging-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -70,7 +70,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/junit/junit/3.8.1/junit-3.8.1.jar!/" />
+          <root url="jar://$M2_REPO$/junit/junit/3.8.1/junit-3.8.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -79,7 +79,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/commons-jexl/commons-jexl/1.0/commons-jexl-1.0.jar!/" />
+          <root url="jar://$M2_REPO$/commons-jexl/commons-jexl/1.0/commons-jexl-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -88,7 +88,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/forehead/forehead/1.0-beta-5/forehead-1.0-beta-5.jar!/" />
+          <root url="jar://$M2_REPO$/forehead/forehead/1.0-beta-5/forehead-1.0-beta-5.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -97,7 +97,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/jaxen/jaxen/1.1-beta-4/jaxen-1.1-beta-4.jar!/" />
+          <root url="jar://$M2_REPO$/jaxen/jaxen/1.1-beta-4/jaxen-1.1-beta-4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -106,7 +106,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/commons-lang/commons-lang/2.0/commons-lang-2.0.jar!/" />
+          <root url="jar://$M2_REPO$/commons-lang/commons-lang/2.0/commons-lang-2.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -115,7 +115,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar!/" />
+          <root url="jar://$M2_REPO$/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -124,7 +124,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/javax/servlet/servlet-api/2.3/servlet-api-2.3.jar!/" />
+          <root url="jar://$M2_REPO$/javax/servlet/servlet-api/2.3/servlet-api-2.3.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -133,7 +133,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar!/" />
+          <root url="jar://$M2_REPO$/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -142,7 +142,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/groovy/groovy-all/1.0-jsr-06/groovy-all-1.0-jsr-06.jar!/" />
+          <root url="jar://$M2_REPO$/groovy/groovy-all/1.0-jsr-06/groovy-all-1.0-jsr-06.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -151,7 +151,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/commons-jelly/commons-jelly/1.0/commons-jelly-1.0.jar!/" />
+          <root url="jar://$M2_REPO$/commons-jelly/commons-jelly/1.0/commons-jelly-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -160,7 +160,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/xerces/xercesImpl/2.2.1/xercesImpl-2.2.1.jar!/" />
+          <root url="jar://$M2_REPO$/xerces/xercesImpl/2.2.1/xercesImpl-2.2.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -169,7 +169,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/xalan/xalan/2.6.0/xalan-2.6.0.jar!/" />
+          <root url="jar://$M2_REPO$/xalan/xalan/2.6.0/xalan-2.6.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -178,7 +178,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/jdom/jdom/b10/jdom-b10.jar!/" />
+          <root url="jar://$M2_REPO$/jdom/jdom/b10/jdom-b10.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -187,7 +187,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/commons-collections/commons-collections/2.0/commons-collections-2.0.jar!/" />
+          <root url="jar://$M2_REPO$/commons-collections/commons-collections/2.0/commons-collections-2.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -196,7 +196,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/commons-beanutils/commons-beanutils/1.6/commons-beanutils-1.6.jar!/" />
+          <root url="jar://$M2_REPO$/commons-beanutils/commons-beanutils/1.6/commons-beanutils-1.6.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -205,7 +205,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/xom/xom/1.0b3/xom-1.0b3.jar!/" />
+          <root url="jar://$M2_REPO$/xom/xom/1.0b3/xom-1.0b3.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -214,7 +214,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/com/sun/xml/txw2/txw2/20070616/txw2-20070616.jar!/" />
+          <root url="jar://$M2_REPO$/com/sun/xml/txw2/txw2/20070616/txw2-20070616.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -223,7 +223,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/javax/servlet/jsp-api/2.0/jsp-api-2.0.jar!/" />
+          <root url="jar://$M2_REPO$/javax/servlet/jsp-api/2.0/jsp-api-2.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -232,7 +232,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../unixHome/.m2/repository/commons-discovery/commons-discovery/20030211.213356/commons-discovery-20030211.213356.jar!/" />
+          <root url="jar://$M2_REPO$/commons-discovery/commons-discovery/20030211.213356/commons-discovery-20030211.213356.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

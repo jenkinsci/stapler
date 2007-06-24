@@ -201,21 +201,29 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
             return r;   // nothing
 
         try {
-            for( int i=0; i<len; i++ ) {
-                T t = type.newInstance();
-                r.add(t);
+            loadConstructorParamNames(type);
+            // use the designated constructor for databinding
+            for( int i=0; i<len; i++ )
+                r.add(bindParameters(type,prefix,i));
+        } catch (NoStaplerConstructorException _) {
+            // no designated data binding constructor. use reflection
+            try {
+                for( int i=0; i<len; i++ ) {
+                    T t = type.newInstance();
+                    r.add(t);
 
-                e = getParameterNames();
-                while(e.hasMoreElements()) {
-                    String name = (String)e.nextElement();
-                    if(name.startsWith(prefix))
-                        fill(t, name.substring(prefix.length()), getParameterValues(name)[i] );
+                    e = getParameterNames();
+                    while(e.hasMoreElements()) {
+                        String name = (String)e.nextElement();
+                        if(name.startsWith(prefix))
+                            fill(t, name.substring(prefix.length()), getParameterValues(name)[i] );
+                    }
                 }
+            } catch (InstantiationException x) {
+                throw new InstantiationError(x.getMessage());
+            } catch (IllegalAccessException x) {
+                throw new IllegalAccessError(x.getMessage());
             }
-        } catch (InstantiationException x) {
-            throw new InstantiationError(x.getMessage());
-        } catch (IllegalAccessException x) {
-            throw new IllegalAccessError(x.getMessage());
         }
 
         return r;
@@ -286,7 +294,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         String resourceName = type.getName().replace('.', '/') + ".stapler";
         InputStream s = type.getClassLoader().getResourceAsStream(resourceName);
         if(s==null)
-            throw new IllegalArgumentException(
+            throw new NoStaplerConstructorException(
                 "Unable to find "+resourceName+". "+
                 "Have you put @stapler-constructor javadoc tag on a constructor?");
 
