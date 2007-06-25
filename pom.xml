@@ -54,7 +54,14 @@
       <email>kk@kohsuke.org</email>
     </developer>
   </developers>
-
+  
+  <repositories>
+    <repository>
+      <id>java.net2</id>
+      <url>http://download.java.net/maven/2/</url>
+    </repository>
+  </repositories>
+  
   <dependencies>
     <dependency>
       <groupId>javax.servlet</groupId>
