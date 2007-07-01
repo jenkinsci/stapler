@@ -20,9 +20,13 @@ final class XMLDataWriter implements DataWriter {
     private final Writer out;
     public boolean isArray;
 
-    XMLDataWriter(Object bean, StaplerResponse rsp) throws IOException {
+    XMLDataWriter(Object bean, Writer out) throws IOException {
         name = Introspector.decapitalize(bean.getClass().getSimpleName());
-        out = rsp.getWriter();
+        this.out = out;
+    }
+
+    XMLDataWriter(Object bean, StaplerResponse rsp) throws IOException {
+        this(bean,rsp.getWriter());
     }
 
     public void name(String name) {

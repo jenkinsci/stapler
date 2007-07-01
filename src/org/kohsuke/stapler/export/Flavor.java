@@ -3,6 +3,7 @@ package org.kohsuke.stapler.export;
 import org.kohsuke.stapler.StaplerResponse;
 
 import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Export flavor.
@@ -14,10 +15,16 @@ public enum Flavor {
         public DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException {
             return new JSONDataWriter(rsp);
         }
+        public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
+            return new JSONDataWriter(w);
+        }
     },
     XML("application/xml;charset=UTF-8") {
         public DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException {
             return new XMLDataWriter(bean,rsp);
+        }
+        public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
+            return new XMLDataWriter(bean,w);
         }
     };
 
@@ -31,4 +38,5 @@ public enum Flavor {
     }
 
     public abstract DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException;
+    public abstract DataWriter createDataWriter(Object bean, Writer w) throws IOException;
 }

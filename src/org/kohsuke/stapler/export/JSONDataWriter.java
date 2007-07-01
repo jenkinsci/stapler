@@ -14,6 +14,10 @@ final class JSONDataWriter implements DataWriter {
     private boolean needComma;
     private final Writer out;
 
+    JSONDataWriter(Writer out) throws IOException {
+        this.out = out;
+    }
+
     JSONDataWriter(StaplerResponse rsp) throws IOException {
         out = rsp.getWriter();
     }
