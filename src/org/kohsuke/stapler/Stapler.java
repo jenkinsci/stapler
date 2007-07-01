@@ -160,7 +160,9 @@ public class Stapler extends HttpServlet {
         fileName = fileName.substring(idx+1);
         idx = fileName.lastIndexOf('\\');
         fileName = fileName.substring(idx+1);
-        rsp.setContentType(getServletContext().getMimeType(fileName));
+        String mimeType = getServletContext().getMimeType(fileName);
+        if(mimeType==null)  mimeType="application/octet-stream";
+        rsp.setContentType(mimeType);
 
         byte[] buf = new byte[1024];
         int len;
