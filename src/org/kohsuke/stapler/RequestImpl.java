@@ -280,7 +280,16 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
     }
 
     private <T> Constructor<T> findConstructor(Class<T> type, int length) {
-        for (Constructor c : type.getConstructors()) {
+        Constructor<?>[] ctrs = type.getConstructors();
+        // one with DataBoundConstructor is the most reliable
+        for (Constructor c : ctrs) {
+            if(c.getAnnotation(DataBoundConstructor.class)!=null)
+                return c;
+        }
+        // if not, maybe this was from @stapler-constructor,
+        // so look for the constructor with the expected argument length.
+        // this is not very reliable.
+        for (Constructor c : ctrs) {
             if(c.getParameterTypes().length==length)
                 return c;
         }
