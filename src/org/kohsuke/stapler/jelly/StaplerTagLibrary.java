@@ -14,5 +14,6 @@ public class StaplerTagLibrary extends TagLibrary {
         registerTag("isUserInRole",IsUserInRoleTag.class);
         registerTag("parentScope",ParentScopeTag.class);
         registerTag("out",OutTag.class);
+        registerTag("copyStream",CopyStreamTag.class);
     }
 }
