@@ -122,54 +122,57 @@ public class Stapler extends HttpServlet {
      *      if the resource doesn't exist.
      */
     boolean serveStaticResource(HttpServletRequest req, HttpServletResponse rsp, InputStream in, long lastModified, long expiration, int contentLength, String fileName) throws IOException {
-        {// send out Last-Modified, or check If-Modified-Since
-            if(lastModified!=0) {
-                String since = req.getHeader("If-Modified-Since");
-                SimpleDateFormat format = HTTP_DATE_FORMAT.get();
-                if(since!=null) {
-                    try {
-                        long ims = format.parse(since).getTime();
-                        if(lastModified<ims+1000) {
-                            // +1000 because date header is second-precision and Java has milli-second precision
-                            rsp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-                            return true;
+        try {
+            {// send out Last-Modified, or check If-Modified-Since
+                if(lastModified!=0) {
+                    String since = req.getHeader("If-Modified-Since");
+                    SimpleDateFormat format = HTTP_DATE_FORMAT.get();
+                    if(since!=null) {
+                        try {
+                            long ims = format.parse(since).getTime();
+                            if(lastModified<ims+1000) {
+                                // +1000 because date header is second-precision and Java has milli-second precision
+                                rsp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+                                return true;
+                            }
+                        } catch (ParseException e) {
+                            // just ignore and serve the content
+                        } catch (NumberFormatException e) {
+                            // trying to locate a bug with Jetty
+                            getServletContext().log("Error parsing ["+since+"]",e);
+                            throw e;
                         }
-                    } catch (ParseException e) {
-                        // just ignore and serve the content
-                    } catch (NumberFormatException e) {
-                        // trying to locate a bug with Jetty
-                        getServletContext().log("Error parsing ["+since+"]",e);
-                        throw e;
                     }
+
+                    String lastModifiedStr = format.format(new Date(lastModified));
+                    rsp.setHeader("Last-Modified", lastModifiedStr);
+                    if(expiration<=0)
+                        rsp.setHeader("Expires",lastModifiedStr);
+                    else
+                        rsp.setHeader("Expires",format.format(new Date(new Date().getTime()+expiration)));
                 }
-
-                String lastModifiedStr = format.format(new Date(lastModified));
-                rsp.setHeader("Last-Modified", lastModifiedStr);
-                if(expiration<=0)
-                    rsp.setHeader("Expires",lastModifiedStr);
-                else
-                    rsp.setHeader("Expires",format.format(new Date(new Date().getTime()+expiration)));
             }
-        }
 
 
-        if(contentLength!=-1)
+            if(contentLength!=-1)
             rsp.setContentLength(contentLength);
 
-        int idx = fileName.lastIndexOf('/');
-        fileName = fileName.substring(idx+1);
-        idx = fileName.lastIndexOf('\\');
-        fileName = fileName.substring(idx+1);
-        String mimeType = getServletContext().getMimeType(fileName);
-        if(mimeType==null)  mimeType="application/octet-stream";
-        rsp.setContentType(mimeType);
+            int idx = fileName.lastIndexOf('/');
+            fileName = fileName.substring(idx+1);
+            idx = fileName.lastIndexOf('\\');
+            fileName = fileName.substring(idx+1);
+            String mimeType = getServletContext().getMimeType(fileName);
+            if(mimeType==null)  mimeType="application/octet-stream";
+            rsp.setContentType(mimeType);
 
-        byte[] buf = new byte[1024];
-        int len;
-        while((len=in.read(buf))>0)
+            byte[] buf = new byte[1024];
+            int len;
+            while((len=in.read(buf))>0)
             rsp.getOutputStream().write(buf,0,len);
-        in.close();
-        return true;
+            return true;
+        } finally {
+            in.close();
+        }
     }
 
     /**
