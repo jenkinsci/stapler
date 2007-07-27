@@ -71,11 +71,10 @@ public class IncludeTag extends TagSupport {
             throw new JellyTagException("No page found '"+page+"' for "+it.getClass());
         }
 
-        JellyContext context = getContext();
-        if(this.it!=null) {
-            context = new JellyContext(context);
+        context = new JellyContext(getContext());
+        if(this.it!=null)
             context.setVariable("it",this.it);
-        }
+        context.setVariable("from", from!=null?from:it);
 
         ClassLoader old = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(c.classLoader.loader);
