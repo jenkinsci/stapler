@@ -1,6 +1,7 @@
 package org.kohsuke.stapler;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,20 +36,27 @@ abstract class Function {
      * then figure out the rest of the arguments by looking at parameter annotations,
      * then finally call {@link #invoke}.
      */
-    Object bindAndinvoke(HttpServletRequest req, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException {
+    Object bindAndinvoke(Object o, StaplerRequest req, StaplerResponse rsp) throws IllegalAccessException, InvocationTargetException, ServletException {
         Class[] types = getParameterTypes();
         Annotation[][] annotations = getParameterAnnotatoins();
 
-        // initial arguments
-        List<Object> arguments = new ArrayList<Object>(types.length);
-        for (Object a : args)
-            arguments.add(a);
+        Object[] arguments = new Object[types.length];
 
-        // figure out the rest
-        for( int i=arguments.size(); i<types.length; i++ )
-            arguments.add(AnnotationHandler.handle(req,annotations[i],types[i]));
+        // find arguments. either known types, or with annotations
+        for( int i=0; i<types.length; i++ ) {
+            Class t = types[i];
+            if(t==StaplerRequest.class || t==HttpServletRequest.class) {
+                arguments[i] = req;
+                continue;
+            }
+            if(t==StaplerResponse.class || t==HttpServletResponse.class) {
+                arguments[i] = rsp;
+                continue;
+            }
+            arguments[i] = AnnotationHandler.handle(req,annotations[i], t);
+        }
 
-        return invoke(req,o,arguments.toArray());
+        return invoke(req,o,arguments);
     }
 
     /**

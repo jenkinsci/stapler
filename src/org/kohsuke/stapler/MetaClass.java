@@ -53,14 +53,14 @@ public class MetaClass extends TearOffSupport {
 
 
     private void buildDispatchers( ClassDescriptor node ) {
-        // check action <obj>.do<token>(StaplerRequest,StaplerResponse,...)
-        for( final Function f : node.methods.prefix("do").signatureStartsWith(StaplerRequest.class,StaplerResponse.class) ) {
+        // check action <obj>.do<token>(...)
+        for( final Function f : node.methods.prefix("do") ) {
             String name = camelize(f.getName().substring(2)); // 'doFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name,0) {
                 public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException {
                     if(LOGGER.isLoggable(Level.FINE))
                         LOGGER.fine("Invoking "+f.getName()+" on "+node+" for "+req.tokens);
-                    f.bindAndinvoke(req, node,req,rsp);
+                    f.bindAndinvoke(node,req,rsp);
                 }
             });
         }
