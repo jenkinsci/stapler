@@ -5,6 +5,7 @@ import org.kohsuke.stapler.export.Flavor;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -122,11 +123,11 @@ public interface StaplerResponse extends HttpServletResponse {
      * @param req
      *      Used to determine whether the client supports compression
      */
-    OutputStream getCompressedOutputStream(StaplerRequest req) throws IOException;
+    OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException;
 
     /**
-     * Works like {@link #getCompressedOutputStream(StaplerRequest)} but this
+     * Works like {@link #getCompressedOutputStream(HttpServletRequest)} but this
      * method is for {@link #getWriter()}.
      */
-    Writer getCompressedWriter(StaplerRequest req) throws IOException;
+    Writer getCompressedWriter(HttpServletRequest req) throws IOException;
 }

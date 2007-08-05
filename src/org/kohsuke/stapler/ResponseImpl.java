@@ -7,6 +7,7 @@ import org.kohsuke.stapler.export.ModelBuilder;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
+import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -81,7 +82,7 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
         if(pad!=null) w.print(')');
     }
 
-    public OutputStream getCompressedOutputStream(StaplerRequest req) throws IOException {
+    public OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException {
         String acceptEncoding = req.getHeader("Accept-Encoding");
         if(acceptEncoding==null || acceptEncoding.indexOf("gzip")==-1)
             return getOutputStream();   // compression not available
@@ -90,7 +91,7 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
         return new GZIPOutputStream(getOutputStream());
     }
 
-    public Writer getCompressedWriter(StaplerRequest req) throws IOException {
+    public Writer getCompressedWriter(HttpServletRequest req) throws IOException {
         String acceptEncoding = req.getHeader("Accept-Encoding");
         if(acceptEncoding==null || acceptEncoding.indexOf("gzip")==-1)
             return getWriter();   // compression not available

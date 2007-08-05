@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -65,7 +66,7 @@ public class Stapler extends HttpServlet {
             LOGGER.fine("Processing request for "+req.getServletPath());
 
         URL url = getServletContext().getResource(req.getServletPath());
-        if(url!=null && serveStaticResource(req,rsp,url, MetaClass.NO_CACHE ? 0 : 24*60*60*1000/*1 day*/))
+        if(url!=null && serveStaticResource(req,new ResponseImpl(this,rsp),url, MetaClass.NO_CACHE ? 0 : 24*60*60*1000/*1 day*/))
             return; // done
 
         // consider reusing this ArrayList.
@@ -75,7 +76,7 @@ public class Stapler extends HttpServlet {
     /**
      * Serves the specified {@link URL} as a static resource.
      */
-    boolean serveStaticResource(HttpServletRequest req, HttpServletResponse rsp, URL url, long expiration) throws IOException {
+    boolean serveStaticResource(HttpServletRequest req, StaplerResponse rsp, URL url, long expiration) throws IOException {
         // jetty reports directories as URLs, which isn't what this is intended for,
         // so check and reject.
         File f = toFile(url);
@@ -121,7 +122,7 @@ public class Stapler extends HttpServlet {
      * @return false
      *      if the resource doesn't exist.
      */
-    boolean serveStaticResource(HttpServletRequest req, HttpServletResponse rsp, InputStream in, long lastModified, long expiration, int contentLength, String fileName) throws IOException {
+    boolean serveStaticResource(HttpServletRequest req, StaplerResponse rsp, InputStream in, long lastModified, long expiration, int contentLength, String fileName) throws IOException {
         try {
             {// send out Last-Modified, or check If-Modified-Since
                 if(lastModified!=0) {
@@ -165,10 +166,17 @@ public class Stapler extends HttpServlet {
             if(mimeType==null)  mimeType="application/octet-stream";
             rsp.setContentType(mimeType);
 
+            OutputStream out;
+            if(mimeType.startsWith("text/") || fileName.endsWith(".js") || fileName.endsWith(".css") || fileName.endsWith(".html"))
+                out = rsp.getCompressedOutputStream(req);
+            else
+                out = rsp.getOutputStream();
+
             byte[] buf = new byte[1024];
             int len;
             while((len=in.read(buf))>0)
-                rsp.getOutputStream().write(buf,0,len);
+                out.write(buf,0,len);
+            out.close();
             return true;
         } finally {
             in.close();
