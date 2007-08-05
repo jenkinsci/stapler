@@ -3,9 +3,12 @@ package org.kohsuke.stapler;
 import org.kohsuke.stapler.export.Flavor;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -108,4 +111,22 @@ public interface StaplerResponse extends HttpServletResponse {
      * If the flavor is JSON, this method also supports JSONP via the 'jsonp' query parameter.
      */
     void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException,IOException;
+
+    /**
+     * Works like {@link #getOutputStream()} but tries to send the response
+     * with gzip compression if the client supports it.
+     *
+     * <p>
+     * This method is useful for sending out a large text content.
+     *
+     * @param req
+     *      Used to determine whether the client supports compression
+     */
+    OutputStream getCompressedOutputStream(StaplerRequest req) throws IOException;
+
+    /**
+     * Works like {@link #getCompressedOutputStream(StaplerRequest)} but this
+     * method is for {@link #getWriter()}.
+     */
+    Writer getCompressedWriter(StaplerRequest req) throws IOException;
 }

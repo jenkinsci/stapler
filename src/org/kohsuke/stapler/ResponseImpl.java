@@ -12,7 +12,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.net.URL;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -76,6 +79,24 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
 
 
         if(pad!=null) w.print(')');
+    }
+
+    public OutputStream getCompressedOutputStream(StaplerRequest req) throws IOException {
+        String acceptEncoding = req.getHeader("Accept-Encoding");
+        if(acceptEncoding==null || acceptEncoding.indexOf("gzip")==-1)
+            return getOutputStream();   // compression not available
+
+        addHeader("Content-Encoding","gzip");
+        return new GZIPOutputStream(getOutputStream());
+    }
+
+    public Writer getCompressedWriter(StaplerRequest req) throws IOException {
+        String acceptEncoding = req.getHeader("Accept-Encoding");
+        if(acceptEncoding==null || acceptEncoding.indexOf("gzip")==-1)
+            return getWriter();   // compression not available
+
+        addHeader("Content-Encoding","gzip");
+        return new OutputStreamWriter(new GZIPOutputStream(getOutputStream()),getCharacterEncoding());
     }
 
 
