@@ -168,7 +168,7 @@ public class Stapler extends HttpServlet {
             byte[] buf = new byte[1024];
             int len;
             while((len=in.read(buf))>0)
-            rsp.getOutputStream().write(buf,0,len);
+                rsp.getOutputStream().write(buf,0,len);
             return true;
         } finally {
             in.close();
