@@ -65,15 +65,31 @@ public class Stapler extends HttpServlet {
     }
 
     protected void service(HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
-        if(LOGGER.isLoggable(Level.FINE))
-            LOGGER.fine("Processing request for "+req.getServletPath());
+        String servletPath = req.getServletPath();
 
-        URL url = getServletContext().getResource(req.getServletPath());
-        if(url!=null && serveStaticResource(req,new ResponseImpl(this,rsp),url, MetaClass.NO_CACHE ? 0 : 24*60*60*1000/*1 day*/))
-            return; // done
+        if(LOGGER.isLoggable(Level.FINE))
+            LOGGER.fine("Processing request for "+servletPath);
+
+        boolean staticLink = false;
+
+        if(servletPath.startsWith("/static/")) {
+            // skip "/static/..../ portion
+            int idx = servletPath.indexOf('/',8);
+            servletPath=servletPath.substring(idx);
+            staticLink = true;
+        }
+
+        URL url = getServletContext().getResource(servletPath);
+        if(url!=null) {
+            int expires = MetaClass.NO_CACHE ? 0 : 24 * 60 * 60 * 1000; /*1 day*/
+            if(staticLink)
+                expires*=365;   // static resources are unique, so we can set a long expiration date
+            if(serveStaticResource(req, new ResponseImpl(this, rsp), url, expires))
+                return; // done
+        }
 
         // consider reusing this ArrayList.
-        invoke( req, rsp, root, req.getServletPath() );
+        invoke( req, rsp, root, req.getServletPath());
     }
 
     /**
