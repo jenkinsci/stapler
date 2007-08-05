@@ -81,7 +81,7 @@ public class Stapler extends HttpServlet {
 
         URL url = getServletContext().getResource(servletPath);
         if(url!=null) {
-            int expires = MetaClass.NO_CACHE ? 0 : 24 * 60 * 60 * 1000; /*1 day*/
+            long expires = MetaClass.NO_CACHE ? 0 : 24L * 60 * 60 * 1000; /*1 day*/
             if(staticLink)
                 expires*=365;   // static resources are unique, so we can set a long expiration date
             if(serveStaticResource(req, new ResponseImpl(this, rsp), url, expires))
