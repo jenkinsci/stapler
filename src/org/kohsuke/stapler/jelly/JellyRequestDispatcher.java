@@ -26,7 +26,7 @@ final class JellyRequestDispatcher implements RequestDispatcher {
 
     public void forward(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
         try {
-            MetaClass.get(it.getClass()).loadTearOff(JellyClassTearOff.class).invokeScript(
+            JellyClassTearOff.invokeScript(
                 (StaplerRequest)servletRequest,
                 (StaplerResponse)servletResponse,
                 script, it);
