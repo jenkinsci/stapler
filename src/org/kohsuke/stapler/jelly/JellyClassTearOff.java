@@ -5,6 +5,7 @@ import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.XMLOutput;
+import org.apache.commons.jelly.impl.TagScript;
 import org.kohsuke.stapler.AbstractTearOff;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
@@ -56,8 +57,17 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
         // this variable is needed to make "jelly:fmt" taglib work correctly
         context.setVariable("org.apache.commons.jelly.tags.fmt.locale",req.getLocale());
 
-        OutputStream output = rsp.getOutputStream();
-        output = new FilterOutputStream(new BufferedOutputStream(output)) {
+        // do we want to do compression?
+        OutputStream output=null;
+        if (script instanceof TagScript) {
+            TagScript ts = (TagScript) script;
+            if(ts.getLocalName().equals("compress"))
+                output = rsp.getCompressedOutputStream(req);
+        }
+        if(output==null)    // nope
+            output = new BufferedOutputStream(rsp.getOutputStream());
+
+        output = new FilterOutputStream(output) {
             public void flush() {
                 // flushing ServletOutputStream causes Tomcat to
                 // send out headers, making it impossible to set contentType from the script.
