@@ -27,6 +27,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -155,9 +158,6 @@ public class Stapler extends HttpServlet {
             }
 
 
-            if(contentLength!=-1)
-            rsp.setContentLength(contentLength);
-
             int idx = fileName.lastIndexOf('/');
             fileName = fileName.substring(idx+1);
             idx = fileName.lastIndexOf('\\');
@@ -166,11 +166,19 @@ public class Stapler extends HttpServlet {
             if(mimeType==null)  mimeType="application/octet-stream";
             rsp.setContentType(mimeType);
 
+            idx = fileName.lastIndexOf('.');
+            String ext = fileName.substring(idx+1);
+
             OutputStream out;
-            if(mimeType.startsWith("text/") || fileName.endsWith(".js") || fileName.endsWith(".css") || fileName.endsWith(".html"))
+            if(mimeType.startsWith("text/") || TEXT_FILES.contains(ext))
+                // with gzip compression, Content-Length header needs to indicate the # of bytes after compression,
+                // so we can't compute it upfront.
                 out = rsp.getCompressedOutputStream(req);
-            else
+            else {
+                if(contentLength!=-1)
+                    rsp.setContentLength(contentLength);
                 out = rsp.getOutputStream();
+            }
 
             byte[] buf = new byte[1024];
             int len;
@@ -383,4 +391,11 @@ public class Stapler extends HttpServlet {
     private static boolean jellyLinkageErrorReported;
 
     private static final Logger LOGGER = Logger.getLogger(Stapler.class.getName());
+
+    /**
+     * Extensions that look like text files.
+     */
+    private static final Set<String> TEXT_FILES = new HashSet<String>(Arrays.asList(
+        "css","js","html","txt","java","htm","c","cpp","h","rb","pl","py","xml"
+    ));
 }
