@@ -43,8 +43,8 @@ public class CopyStreamTag extends AbstractStaplerTag {
 
         try {
             try {
-                int last = 0;
                 while((len=in.read(buf,0,buf.length))>=0) {
+                    int last = 0;
                     for (int i=0; i<len; i++ ) {
                         char ch = buf[i];
                         switch(ch) {
