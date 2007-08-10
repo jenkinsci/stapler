@@ -18,6 +18,13 @@ public enum Flavor {
         public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
             return new JSONDataWriter(w);
         }
+        // JSON can be written without a specific root object given. 
+        public DataWriter createDataWriter(StaplerResponse rsp) throws IOException {
+            return new JSONDataWriter(rsp);
+        }
+        public DataWriter createDataWriter(Writer w) throws IOException {
+            return new JSONDataWriter(w);
+        }
     },
     XML("application/xml;charset=UTF-8") {
         public DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException {
