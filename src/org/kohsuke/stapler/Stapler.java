@@ -2,11 +2,7 @@ package org.kohsuke.stapler;
 
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,21 +11,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Arrays;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,10 +29,7 @@ import java.util.logging.Logger;
  */
 public class Stapler extends HttpServlet {
 
-    /**
-     * Root of the model object.
-     */
-    private /*final*/ Object root;
+    private /*final*/ ServletContext context;
 
     /**
      * Duck-type wrappers for the given class.
@@ -56,9 +38,7 @@ public class Stapler extends HttpServlet {
 
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
-        root = servletConfig.getServletContext().getAttribute("app");
-        if(root==null)
-            throw new ServletException("there's no \"app\" attribute in the application context.");
+        this.context = servletConfig.getServletContext();
         wrappers = (Map<Class,Class[]>) servletConfig.getServletContext().getAttribute("wrappers");
         if(wrappers==null)
             wrappers = new HashMap<Class,Class[]>();
@@ -87,6 +67,10 @@ public class Stapler extends HttpServlet {
             if(serveStaticResource(req, new ResponseImpl(this, rsp), url, expires))
                 return; // done
         }
+
+        Object root = context.getAttribute("app");
+        if(root==null)
+            throw new ServletException("there's no \"app\" attribute in the application context.");
 
         // consider reusing this ArrayList.
         invoke( req, rsp, root, req.getServletPath());
