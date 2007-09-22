@@ -122,6 +122,10 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         return ancestorsView;
     }
 
+    public boolean hasParameter(String name) {
+        return getParameter(name)!=null;
+    }
+
     public String getOriginalRequestURI() {
         return originalRequestURI;
     }
