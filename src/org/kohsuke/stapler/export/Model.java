@@ -36,7 +36,7 @@ public class Model<T> {
      */
     private volatile Properties javadoc;
 
-        /*package*/ Model(ModelBuilder parent, Class<T> type) {
+    /*package*/ Model(ModelBuilder parent, Class<T> type) {
         this.parent = parent;
         this.type = type;
         ExportedBean eb = type.getAnnotation(ExportedBean.class);
