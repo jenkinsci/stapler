@@ -287,8 +287,11 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         Constructor<?>[] ctrs = type.getConstructors();
         // one with DataBoundConstructor is the most reliable
         for (Constructor c : ctrs) {
-            if(c.getAnnotation(DataBoundConstructor.class)!=null)
+            if(c.getAnnotation(DataBoundConstructor.class)!=null) {
+                if(c.getParameterTypes().length!=length)
+                    throw new IllegalArgumentException(c+" has @DataBoundConstructor but it doesn't match with your .stapler file. Try clean rebuild");
                 return c;
+            }
         }
         // if not, maybe this was from @stapler-constructor,
         // so look for the constructor with the expected argument length.
