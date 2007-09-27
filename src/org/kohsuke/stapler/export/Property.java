@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -123,6 +124,10 @@ public abstract class Property implements Comparable<Property> {
                 writeValue(e.getValue(),depth,writer);
             }
             writer.endObject();
+            return;
+        }
+        if(value instanceof Date) {
+            writer.valuePrimitive(((Date) value).getTime());
             return;
         }
         if(value instanceof Calendar) {
