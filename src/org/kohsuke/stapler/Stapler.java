@@ -59,13 +59,16 @@ public class Stapler extends HttpServlet {
             staticLink = true;
         }
 
-        URL url = getServletContext().getResource(servletPath);
-        if(url!=null) {
-            long expires = MetaClass.NO_CACHE ? 0 : 24L * 60 * 60 * 1000; /*1 day*/
-            if(staticLink)
-                expires*=365;   // static resources are unique, so we can set a long expiration date
-            if(serveStaticResource(req, new ResponseImpl(this, rsp), url, expires))
-                return; // done
+        if(servletPath.length()!=0) {
+            // getResource requires '/' prefix (and resin insists on that, too) but servletPath can be empty string (hudson #879)
+            URL url = getServletContext().getResource(servletPath);
+            if(url!=null) {
+                long expires = MetaClass.NO_CACHE ? 0 : 24L * 60 * 60 * 1000; /*1 day*/
+                if(staticLink)
+                    expires*=365;   // static resources are unique, so we can set a long expiration date
+                if(serveStaticResource(req, new ResponseImpl(this, rsp), url, expires))
+                    return; // done
+            }
         }
 
         Object root = context.getAttribute("app");
