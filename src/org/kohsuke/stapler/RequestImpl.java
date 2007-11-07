@@ -1,10 +1,8 @@
 package org.kohsuke.stapler;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.ConversionException;
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.beanutils.Converter;
-import org.apache.commons.beanutils.PropertyUtils;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.apache.commons.beanutils.*;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
@@ -18,18 +16,12 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.Collections;
+import java.util.*;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -264,6 +256,56 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         }
 
         return invokeConstructor(c, args);
+    }
+
+    public <T> T bindParameters(Class<T> type, JSONObject src) {
+        String[] names = loadConstructorParamNames(type);
+
+        // the actual arguments to invoke the constructor with.
+        Object[] args = new Object[names.length];
+
+        // constructor
+        Constructor<T> c = findConstructor(type, names.length);
+        Class[] types = c.getParameterTypes();
+        Type[] genTypes = c.getGenericParameterTypes();
+
+        // convert parameters
+        for( int i=0; i<names.length; i++ ) {
+            args[i] = convertJSON(src.get(names[i]),types[i],genTypes[i]);
+        }
+
+        return invokeConstructor(c, args);
+    }
+
+    private Object convertJSON(Object o, Class target, Type genericType) {
+        if(o==null)     return null;
+
+        Lister l = Lister.create(target,genericType);
+
+        if (o instanceof JSONObject) {
+            JSONObject j = (JSONObject) o;
+
+            if(l==null) {
+                // single value conversion
+                return bindParameters(target,j);
+            } else {
+                // only one value given to the collection
+                l.add(bindParameters(target,j));
+                return l.toCollection();
+            }
+        }
+        if (o instanceof JSONArray) {
+            JSONArray a = (JSONArray) o;
+            for (Object item : a) {
+                
+            }
+        }
+
+        Converter converter = ConvertUtils.lookup(target);
+        if (converter==null)
+            throw new IllegalArgumentException("Unable to convert to "+target);
+
+        return converter.convert(target,o);
     }
 
     private <T> T invokeConstructor(Constructor<T> c, Object[] args) {
