@@ -12,6 +12,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import net.sf.json.JSONObject;
+import net.sf.json.JSONArray;
+
 /**
  * Defines additional parameters/operations made available by Stapler.
  *
@@ -250,4 +253,46 @@ public interface StaplerRequest extends HttpServletRequest {
      */
     <T>
     T bindParameters( Class<T> type, String prefix, int index );
+
+    /**
+     * Data-bind from a {@link JSONObject} to the given target type,
+     * by using introspection or constructor parameters injection.
+     *
+     * <p>
+     * For example, if you have a constructor that looks like the following:
+     *
+     * <pre>
+     * class Foo {
+     *   &#64;{@link DataBoundConstructor}
+     *   public Foo(Integer x, String y, boolean z, Bar bar) { ... }
+     * }
+     *
+     * class Bar {
+     *   &#64;{@link DataBoundConstructor}
+     *   public Bar(int x, int y) {}
+     * }
+     * </pre>
+     *
+     * ... and if JSONObject looks like
+     *
+     * <pre>{ y:"text", z:true, bar:{x:1,y:2}}</pre>
+     *
+     * then, this method returns
+     *
+     * <pre>new Foo(null,"text",true,new Bar(1,2))</pre>
+     */
+    <T>
+    T bindJSON(Class<T> type, JSONObject src);
+
+    /**
+     * Data-bind from either {@link JSONObject} or {@link JSONArray} to a list,
+     * by using {@link #bindJSON(Class, JSONObject)} as the lower-level mechanism.
+     *
+     * <p>
+     * If the source is {@link JSONObject}, the returned list will contain
+     * a single item. If it is {@link JSONArray}, each item will be bound.
+     * If it is null, then the list will be empty.
+     */
+    <T>
+    List<T> bindJSONToList(Class<T> type, Object src);
 }

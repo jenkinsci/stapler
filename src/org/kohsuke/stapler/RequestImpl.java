@@ -2,7 +2,12 @@ package org.kohsuke.stapler;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.beanutils.*;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.ConversionException;
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.PropertyUtils;
+import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
@@ -21,9 +26,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 /**
+ * {@link StaplerRequest} implementation.
+ * 
  * @author Kohsuke Kawaguchi
  */
 class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
@@ -258,7 +272,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         return invokeConstructor(c, args);
     }
 
-    public <T> T bindParameters(Class<T> type, JSONObject src) {
+    public <T> T bindJSON(Class<T> type, JSONObject src) {
         String[] names = loadConstructorParamNames(type);
 
         // the actual arguments to invoke the constructor with.
@@ -277,6 +291,24 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         return invokeConstructor(c, args);
     }
 
+    public <T> List<T> bindJSONToList(Class<T> type, Object src) {
+        ArrayList<T> r = new ArrayList<T>();
+        if (src instanceof JSONObject) {
+            JSONObject j = (JSONObject) src;
+            r.add(bindJSON(type,j));
+        }
+        if (src instanceof JSONArray) {
+            JSONArray a = (JSONArray) src;
+            for (Object o : a) {
+                if (o instanceof JSONObject) {
+                    JSONObject j = (JSONObject) o;
+                    r.add(bindJSON(type,j));
+                }
+            }
+        }
+        return r;
+    }
+
     private Object convertJSON(Object o, Class target, Type genericType) {
         if(o==null)     return null;
 
@@ -287,18 +319,18 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
 
             if(l==null) {
                 // single value conversion
-                return bindParameters(target,j);
+                return bindJSON(target,j);
             } else {
                 // only one value given to the collection
-                l.add(bindParameters(target,j));
+                l.add(bindJSON(target,j));
                 return l.toCollection();
             }
         }
         if (o instanceof JSONArray) {
             JSONArray a = (JSONArray) o;
-            for (Object item : a) {
-                
-            }
+            for (Object item : a)
+                l.add(convertJSON(item,l.itemType,l.itemGenericType));
+            return l.toCollection();
         }
 
         Converter converter = ConvertUtils.lookup(target);
@@ -353,7 +385,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
      * Loads the property file and determines the constructor parameter names.
      */
     private String[] loadConstructorParamNames(Class<?> type) {
-        String resourceName = type.getName().replace('.', '/') + ".stapler";
+        String resourceName = type.getName().replace('.', '/').replace('$','/') + ".stapler";
         InputStream s = type.getClassLoader().getResourceAsStream(resourceName);
         if(s==null)
             throw new NoStaplerConstructorException(

@@ -86,6 +86,11 @@
       <version>2.1</version>
       <classifier>jdk15</classifier>
     </dependency>
+    <dependency>
+      <groupId>org.jvnet</groupId>
+      <artifactId>tiger-types</artifactId>
+      <version>1.0</version>
+    </dependency>
     <!-- optional REST support -->
     <dependency>
       <groupId>com.sun.xml.txw2</groupId>
