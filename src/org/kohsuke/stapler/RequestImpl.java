@@ -263,6 +263,10 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
             args[i] = converter.convert(types[i],param);
         }
 
+        return invokeConstructor(c, args);
+    }
+
+    private <T> T invokeConstructor(Constructor<T> c, Object[] args) {
         try {
             return c.newInstance(args);
         } catch (InstantiationException e) {
