@@ -81,7 +81,7 @@
       <version>1.7.0</version>
     </dependency>
     <dependency>
-      <groupId>net.sf.json-lib</groupId>
+      <groupId>org.kohsuke.stapler</groupId>
       <artifactId>json-lib</artifactId>
       <version>2.1</version>
       <classifier>jdk15</classifier>
