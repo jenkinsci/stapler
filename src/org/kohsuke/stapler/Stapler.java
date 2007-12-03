@@ -217,8 +217,10 @@ public class Stapler extends HttpServlet {
         }
     }
 
-
-    void invoke(HttpServletRequest req, HttpServletResponse rsp, Object root, String url) throws IOException, ServletException {
+    /**
+     * Performs stapler processing on the given root object and request URL.
+     */
+    public void invoke(HttpServletRequest req, HttpServletResponse rsp, Object root, String url) throws IOException, ServletException {
         RequestImpl sreq = new RequestImpl(this, req, new ArrayList<AncestorImpl>(), new TokenList(url));
         StaplerRequest oreq = CURRENT_REQUEST.get();
         CURRENT_REQUEST.set(sreq);
