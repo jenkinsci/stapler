@@ -386,7 +386,10 @@ public class Stapler extends HttpServlet {
     static final ThreadLocal<SimpleDateFormat> HTTP_DATE_FORMAT =
         new ThreadLocal<SimpleDateFormat>() {
             protected SimpleDateFormat initialValue() {
-                return new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+                // RFC1945 section 3.3 Date/Time Formats states that timezones must be in GMT
+                SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+                format.setTimeZone(TimeZone.getTimeZone("GMT"));
+                return format;
             }
         };
 
