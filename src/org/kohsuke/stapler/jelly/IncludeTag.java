@@ -52,6 +52,8 @@ public class IncludeTag extends TagSupport {
     }
 
     public void doTag(XMLOutput output) throws JellyTagException {
+        if(page==null)
+            throw new JellyTagException("The page attribute is not specified");
         Object it = this.it;
         if(it==null)
             it = getContext().getVariable("it");
