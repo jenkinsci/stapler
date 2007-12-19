@@ -56,9 +56,6 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
 
     private final Stapler stapler;
 
-    // lazily computed
-    private String rest;
-
     private final String originalRequestURI;
 
     public RequestImpl(Stapler stapler, HttpServletRequest request, List<AncestorImpl> ancestors, TokenList tokens) {
@@ -75,22 +72,11 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
     }
 
     public String getRestOfPath() {
-        if(rest==null)
-            rest = assembleRestOfPath(tokens);
-        return rest;
+        return tokens.assembleRestOfPath();
     }
 
     public ServletContext getServletContext() {
         return stapler.getServletContext();
-    }
-
-    private static String assembleRestOfPath(TokenList tokens) {
-        StringBuffer buf = new StringBuffer();
-        for( int i=tokens.idx; i<tokens.length(); i++ ) {
-            buf.append('/');
-            buf.append(tokens.get(i));
-        }
-        return buf.toString();
     }
 
     public RequestDispatcher getView(Object it,String viewName) throws IOException {

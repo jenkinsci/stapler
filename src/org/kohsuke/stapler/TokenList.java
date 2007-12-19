@@ -70,4 +70,13 @@ final class TokenList {
         }
         return buf.toString();
     }
+
+    public String assembleRestOfPath() {
+        StringBuilder buf = new StringBuilder();
+        for( int i=idx; i<length(); i++ ) {
+            buf.append('/');
+            buf.append(tokens[i]);
+        }
+        return buf.toString();
+    }
 }

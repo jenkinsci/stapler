@@ -31,6 +31,11 @@ public interface StaplerRequest extends HttpServletRequest {
      * "foo/bar" portion matched <tt>bar.jsp</tt>, this method returns
      * "/zot/abc".
      *
+     * <p>
+     * If this method is invoked from getters or {@link StaplerProxy#getTarget()}
+     * during the object traversal, this method returns the path portion
+     * that is not yet processed.
+     *
      * @return
      *      can be empty string, but never null.
      */
