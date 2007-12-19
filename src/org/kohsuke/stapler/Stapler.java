@@ -1,6 +1,8 @@
 package org.kohsuke.stapler;
 
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
+import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
+import org.apache.commons.jelly.expression.ExpressionFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -364,6 +366,25 @@ public class Stapler extends HttpServlet {
      */
     public static void setRoot( ServletContextEvent event, Object rootApp ) {
         event.getServletContext().setAttribute("app",rootApp);
+    }
+
+    /**
+     * Sets the Jelly {@link ExpressionFactory} to be used to parse views.
+     *
+     * <p>
+     * This method should be invoked from your implementation of
+     * {@link ServletContextListener#contextInitialized(ServletContextEvent)}.
+     *
+     * <p>
+     * Once views are parsed, they won't be re-parsed just because you called
+     * this method to override the expression factory.
+     *
+     * <p>
+     * The primary use case of this feature is to customize the behavior
+     * of JEXL evaluation. 
+     */
+    public static void setExpressionFactory( ServletContextEvent event, ExpressionFactory factory ) {
+        JellyClassLoaderTearOff.EXPRESSION_FACTORY = factory;
     }
 
     /**
