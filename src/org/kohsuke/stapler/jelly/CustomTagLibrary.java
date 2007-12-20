@@ -118,7 +118,7 @@ public final class CustomTagLibrary extends TagLibrary {
 
     private Script loadJellyScript(URL res) throws JellyException {
         // compile script
-        JellyContext context = new JellyContext(master);
+        JellyContext context = new CustomJellyContext(master);
         context.setClassLoader(classLoader);
         return context.compileScript(res);
     }

@@ -38,7 +38,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
 
     public static void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException, JellyTagException {
         // invoke Jelly script to render result
-        JellyContext context = new JellyContext();
+        JellyContext context = new CustomJellyContext();
         Enumeration en = req.getAttributeNames();
 
         // expose request attributes, just like JSP

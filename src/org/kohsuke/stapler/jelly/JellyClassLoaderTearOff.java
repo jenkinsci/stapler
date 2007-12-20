@@ -75,7 +75,7 @@ public class JellyClassLoaderTearOff {
      * for classes in this classloader.
      */
     public JellyContext createContext() {
-        JellyContext context = new JellyContext(ROOT_CONTEXT) {
+        JellyContext context = new CustomJellyContext(ROOT_CONTEXT) {
             @Override
             public TagLibrary getTagLibrary(String namespaceURI) {
                 TagLibrary tl = super.getTagLibrary(namespaceURI);
@@ -87,16 +87,6 @@ public class JellyClassLoaderTearOff {
                 }
                 return tl;
             }
-
-            @Override
-            protected XMLParser createXMLParser() {
-                return new XMLParser() {
-                    @Override
-                    protected ExpressionFactory createExpressionFactory() {
-                        return EXPRESSION_FACTORY;
-                    }
-                };
-            }
         };
         context.setExportLibraries(false);
         return context;
@@ -105,9 +95,10 @@ public class JellyClassLoaderTearOff {
     /**
      * Used as the root context for compiling scripts.
      */
-    private static final JellyContext ROOT_CONTEXT = new JellyContext();
+    private static final JellyContext ROOT_CONTEXT = new CustomJellyContext();
 
     static {
         ROOT_CONTEXT.registerTagLibrary("jelly:stapler",new StaplerTagLibrary());
     }
+
 }
