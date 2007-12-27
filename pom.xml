@@ -88,6 +88,11 @@
       <version>1.7.0</version>
     </dependency>
     <dependency>
+      <groupId>org.jvnet.localizer</groupId>
+      <artifactId>localizer</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.kohsuke.stapler</groupId>
       <artifactId>json-lib</artifactId>
       <version>2.1</version>

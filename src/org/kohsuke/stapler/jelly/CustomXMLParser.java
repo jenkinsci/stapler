@@ -2,7 +2,9 @@ package org.kohsuke.stapler.jelly;
 
 import org.apache.commons.jelly.parser.XMLParser;
 import org.apache.commons.jelly.expression.ExpressionFactory;
+import org.apache.commons.jelly.expression.Expression;
 import org.apache.commons.jelly.JellyContext;
+import org.apache.commons.jelly.JellyException;
 
 import java.net.URL;
 
@@ -38,11 +40,30 @@ class CustomJellyContext extends JellyContext {
 
     @Override
     protected XMLParser createXMLParser() {
-        return new XMLParser() {
-            @Override
-            protected ExpressionFactory createExpressionFactory() {
-                return JellyClassLoaderTearOff.EXPRESSION_FACTORY;
+        return new CustomXMLParser();
+    }
+
+    private static class CustomXMLParser extends XMLParser implements ExpressionFactory {
+        private ResourceBundle resourceBundle;
+
+        @Override
+        protected ExpressionFactory createExpressionFactory() {
+            return this;
+        }
+
+        public Expression createExpression(String text) throws JellyException {
+            if(text.startsWith("%")) {
+                if(resourceBundle==null) {
+                    String scriptUrl = locator.getSystemId();
+                    if(scriptUrl.endsWith(".jelly"))    // cut the trailing .jelly
+                        scriptUrl = scriptUrl.substring(0,scriptUrl.length()-".jelly".length());
+                    resourceBundle = new ResourceBundle(scriptUrl);
+                }
+    
+                return new InternationalizedStringExpression(resourceBundle,text);
+            } else {
+                return JellyClassLoaderTearOff.EXPRESSION_FACTORY.createExpression(text);
             }
-        };
+        }
     }
 }
