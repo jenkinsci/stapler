@@ -42,7 +42,9 @@ public class ResourceBundle {
 
         while(true) {
             String msg = get(suffix).getProperty(key);
-            if(msg!=null)
+            if(msg!=null && msg.length()>0)
+                // ignore a definition without value, because stapler:i18n generates
+                // value-less definitions
                 return MessageFormat.format(msg,args);
 
             int idx = suffix.lastIndexOf('_');
