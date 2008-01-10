@@ -113,14 +113,30 @@ public class Model<T> {
      * Writes the property values of the given object to the writer.
      */
     public void writeTo(T object, DataWriter writer) throws IOException {
+        writeTo(object,0,writer);
+    }
+
+    /**
+     * Writes the property values of the given object to the writer.
+     *
+     * @param baseVisibility
+     *      This parameters controls how much data we'd be writing,
+     *      by adding bias to the sub tree cutting.
+     *      A property with {@link Exported#visibility() visibility} X will be written
+     *      if the current depth Y and baseVisibility Z satisfies X+Z>Y.
+     *
+     *      0 is the normal value. Positive value means writing bigger tree,
+     *      and negative value means writing smaller trees.
+     */
+    public void writeTo(T object, int baseVisibility, DataWriter writer) throws IOException {
         writer.startObject();
-        writeTo(object,1,writer);
+        writeNestedObjectTo(object,1-baseVisibility,writer);
         writer.endObject();
     }
 
-    void writeTo(T object, int depth, DataWriter writer) throws IOException {
+    void writeNestedObjectTo(T object, int depth, DataWriter writer) throws IOException {
         if(superModel !=null)
-            superModel.writeTo(object,depth,writer);
+            superModel.writeNestedObjectTo(object,depth,writer);
 
         for (Property p : properties)
             p.writeTo(object,depth,writer);

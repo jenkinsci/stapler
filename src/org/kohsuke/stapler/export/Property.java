@@ -61,6 +61,11 @@ public abstract class Property implements Comparable<Property> {
 
     /**
      * Writes one property of the given object to {@link DataWriter}.
+     *
+     * @param depth
+     *      The current level of object nesting that the writer is in.
+     *      If it's beyond a certain cut-off, the property won't be written
+     *      and this method becomes no-op.
      */
     public void writeTo(Object object, int depth, DataWriter writer) throws IOException {
         if(visibility<depth)    return; // not visible
@@ -141,7 +146,7 @@ public abstract class Property implements Comparable<Property> {
 
         // otherwise handle it as a bean
         writer.startObject();
-        owner.get(c).writeTo(value,depth+1,writer);
+        owner.get(c).writeNestedObjectTo(value,depth+1,writer);
         writer.endObject();
     }
 
