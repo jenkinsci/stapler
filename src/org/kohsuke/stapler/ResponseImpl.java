@@ -75,8 +75,18 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
             if(pad!=null) w.print(pad+'(');
         }
 
+        // use the depth query parameter to control the amount of data we send.
+        int depth=0;
+        try {
+            String s = req.getParameter("depth");
+            if(s!=null)
+                depth = Integer.parseInt(s);
+        } catch(NumberFormatException e) {
+            throw new ServletException("Depth parameter must be a number");
+        }
+
         Model p = MODEL_BUILDER.get(exposedBean.getClass());
-        p.writeTo(exposedBean,flavor.createDataWriter(exposedBean,this));
+        p.writeTo(exposedBean,depth,flavor.createDataWriter(exposedBean,this));
 
 
         if(pad!=null) w.print(')');
