@@ -62,6 +62,9 @@ public class InternationalizedStringExpression extends ExpressionSupport {
     /**
      * Takes a string like "arg)" or "arg,arg,...)", then
      * find "arg" and returns it.
+     *
+     * Note: this code is also copied into idea-stapler-plugin,
+     * so don't forget to update that when this code changes.
      */
     private String tokenize(String text) throws JellyException {
         int parenthesis=0;
