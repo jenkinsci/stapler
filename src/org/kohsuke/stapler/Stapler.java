@@ -1,10 +1,15 @@
 package org.kohsuke.stapler;
 
-import org.kohsuke.stapler.jelly.JellyClassTearOff;
-import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 import org.apache.commons.jelly.expression.ExpressionFactory;
+import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
+import org.kohsuke.stapler.jelly.JellyClassTearOff;
 
-import javax.servlet.*;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,10 +18,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,12 +80,12 @@ public class Stapler extends HttpServlet {
 
         if(servletPath.length()!=0) {
             // getResource requires '/' prefix (and resin insists on that, too) but servletPath can be empty string (hudson #879)
-            URL url = getServletContext().getResource(servletPath);
-            if(url!=null) {
+            URLConnection con = openResourcePathByLocale(req,servletPath);
+            if(con!=null) {
                 long expires = MetaClass.NO_CACHE ? 0 : 24L * 60 * 60 * 1000; /*1 day*/
                 if(staticLink)
                     expires*=365;   // static resources are unique, so we can set a long expiration date
-                if(serveStaticResource(req, new ResponseImpl(this, rsp), url, expires))
+                if(serveStaticResource(req, new ResponseImpl(this, rsp), con, expires))
                     return; // done
             }
         }
@@ -82,31 +99,77 @@ public class Stapler extends HttpServlet {
     }
 
     /**
+     * Works like {@link #openResourcePath(String)} but open the locale specific resource
+     * if that's available.
+     *
+     * @return
+     *      null if the resource was not found.
+     */
+    URLConnection openResourcePathByLocale(HttpServletRequest req,String resourcePath) throws IOException {
+        int idx = resourcePath.lastIndexOf('.');
+        if(idx<0)   // no file extension
+            return openResourcePath(resourcePath);
+        String base = resourcePath.substring(0,idx);
+        String ext = resourcePath.substring(idx);
+        if(ext.indexOf('/')>=0) // the '.' we found was not an extension separator
+            return openResourcePath(resourcePath);
+
+        Locale loc = req.getLocale();
+
+        URLConnection con;
+
+        // try locale specific resources first.
+        con = openResourcePath(base+'.'+loc.getLanguage()+'_'+loc.getCountry()+'_'+loc.getVariant()+ext);
+        if(con!=null)   return con;
+        con = openResourcePath(base+'.'+loc.getLanguage()+'_'+loc.getCountry()+ext);
+        if(con!=null)   return con;
+        con = openResourcePath(base+'.'+loc.getLanguage()+ext);
+        if(con!=null)   return con;
+        // default
+        return openResourcePath(resourcePath);
+    }
+
+    private URLConnection openResourcePath(String resourcePath) throws IOException {
+        return openURL(getServletContext().getResource(resourcePath));
+    }
+
+    /**
+     * Serves the specified {@link URLConnection} as a static resource.
+     */
+    boolean serveStaticResource(HttpServletRequest req, StaplerResponse rsp, URLConnection con, long expiration) throws IOException {
+        return serveStaticResource(req,rsp, con.getInputStream(),
+                con.getLastModified(), expiration, con.getContentLength(), con.getURL().toString());
+    }
+
+    /**
      * Serves the specified {@link URL} as a static resource.
      */
     boolean serveStaticResource(HttpServletRequest req, StaplerResponse rsp, URL url, long expiration) throws IOException {
+        return serveStaticResource(req,rsp,openURL(url),expiration);
+    }
+    
+    /**
+     * Opens URL, with error handling to absorb container differences.
+     */
+    private URLConnection openURL(URL url) throws IOException {
+        if(url==null)   return null;
+
         // jetty reports directories as URLs, which isn't what this is intended for,
         // so check and reject.
         File f = toFile(url);
         if(f!=null && f.isDirectory())
-            return false;
-
-        if(LOGGER.isLoggable(Level.FINE))
-            LOGGER.fine("Serving static resource "+f);
+            return null;
 
         URLConnection con = url.openConnection();
 
-        InputStream in;
         try {
-            in = con.getInputStream();
+            con.getInputStream();
         } catch (IOException e) {
             // Tomcat only reports a missing resource error here
-            return false;
+            return null;
         }
 
-        con.connect();
-
-        return serveStaticResource(req,rsp, in, con.getLastModified(), expiration, con.getContentLength(), url.toString());
+        return con;
     }
 
     /**
