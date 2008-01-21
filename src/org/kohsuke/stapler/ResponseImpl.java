@@ -19,6 +19,8 @@ import java.net.URL;
 import java.util.zip.GZIPOutputStream;
 
 /**
+ * {@link StaplerResponse} implementation.
+ * 
  * @author Kohsuke Kawaguchi
  */
 class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse {
