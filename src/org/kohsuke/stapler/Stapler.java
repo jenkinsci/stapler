@@ -119,11 +119,11 @@ public class Stapler extends HttpServlet {
         URLConnection con;
 
         // try locale specific resources first.
-        con = openResourcePath(base+'.'+loc.getLanguage()+'_'+loc.getCountry()+'_'+loc.getVariant()+ext);
+        con = openResourcePath(base+'_'+loc.getLanguage()+'_'+loc.getCountry()+'_'+loc.getVariant()+ext);
         if(con!=null)   return con;
-        con = openResourcePath(base+'.'+loc.getLanguage()+'_'+loc.getCountry()+ext);
+        con = openResourcePath(base+'_'+loc.getLanguage()+'_'+loc.getCountry()+ext);
         if(con!=null)   return con;
-        con = openResourcePath(base+'.'+loc.getLanguage()+ext);
+        con = openResourcePath(base+'_'+loc.getLanguage()+ext);
         if(con!=null)   return con;
         // default
         return openResourcePath(resourcePath);
