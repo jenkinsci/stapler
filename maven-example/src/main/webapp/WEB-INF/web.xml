@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" version="2.4">
+
+  <!-- tell the container that Stapler will handle all the requests -->
+  <servlet>
+    <servlet-name>Stapler</servlet-name>
+    <servlet-class>org.kohsuke.stapler.Stapler</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Stapler</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+
+  <!-- tell the container to invoke WebAppMain on start-up -->
+  <listener>
+    <listener-class>example.WebAppMain</listener-class>
+  </listener>
+</web-app>
