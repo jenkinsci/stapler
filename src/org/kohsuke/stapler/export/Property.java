@@ -163,6 +163,10 @@ public abstract class Property implements Comparable<Property> {
     /*package*/ static final Set<Class> PRIMITIVE_TYPES = new HashSet<Class>(Arrays.asList(
         Integer.class,
         Long.class,
-        Boolean.class
+        Boolean.class,
+        Short.class,
+        Character.class,
+        Float.class,
+        Double.class
     ));
 }
