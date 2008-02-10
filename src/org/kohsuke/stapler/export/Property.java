@@ -37,6 +37,11 @@ public abstract class Property implements Comparable<Property> {
      */
     public final Model parent;
 
+    /**
+     * @see Exported#inline()
+     */
+    private final boolean inline;
+
     Property(Model parent, String name, Exported exported) {
         this.parent = parent;
         this.owner = parent.parent;
@@ -45,6 +50,7 @@ public abstract class Property implements Comparable<Property> {
         if(v==0)
             v = parent.defaultVisibility;
         this.visibility = v;
+        this.inline = exported.inline();
     }
 
     public int compareTo(Property that) {
@@ -72,7 +78,7 @@ public abstract class Property implements Comparable<Property> {
 
         try {
             writer.name(name);
-            writeValue(getValue(object),depth,writer);
+            writeValue(getValue(object),depth-(inline?1:0),writer);
         } catch (IllegalAccessException e) {
             IOException x = new IOException("Failed to write " + name);
             x.initCause(e);

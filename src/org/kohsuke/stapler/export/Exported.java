@@ -49,4 +49,18 @@ public @interface Exported {
      * The default is to use the Java property name.
      */
     String name() default "";
+
+    /**
+     * Visibility adjustment for traversing this property.
+     *
+     * <p>
+     * If true, visiting this property won't increase the depth count,
+     * so the referenced object is exported as if it were a part of this
+     * object.
+     *
+     * <p>
+     * This flag can be used to selectively expand the subree to be
+     * returned to the client.
+     */
+    boolean inline() default false;
 }
