@@ -49,7 +49,7 @@ public class SchemaGenerator {
         written.clear();
 
         // element decl for the root element
-        s.element().name(top.type.getName()).type(getXmlTypeName(top.type));
+        s.element().name(getXmlElementName(top.type)).type(getXmlTypeName(top.type));
 
         // write all beans
         while(!queue.isEmpty())
@@ -63,21 +63,21 @@ public class SchemaGenerator {
     }
 
     private void writeEnum(Schema s, Class e) {
-        XSD.Restriction facets = s.simpleType().name(e.getName()).restriction().base(XSD.Types.STRING);
+        XSD.Restriction facets = s.simpleType().name(getXmlToken(e)).restriction().base(XSD.Types.STRING);
         for (Object constant : e.getEnumConstants()) {
             facets.enumeration().value(constant.toString());
         }
     }
 
     private void writeBean(Schema s, Model<?> m) {
-        ComplexType ct = s.complexType().name(m.type.getName());
+        ComplexType ct = s.complexType().name(getXmlToken(m.type));
         final ContentModel cm;
 
         if(m.superModel==null)
             cm = ct.sequence();
         else {
             addToQueue(m.superModel);
-            cm = ct.complexContent().extension().base(new QName(m.superModel.type.getName())).sequence();
+            cm = ct.complexContent().extension().base(getXmlTypeName(m.superModel.type)).sequence();
         }
 
         for (Property p : m.getProperties()) {
@@ -121,7 +121,7 @@ public class SchemaGenerator {
     /**
      * Adds the schema for the XML representation of the given class.
      */
-    public void add(Class c) {
+    public void add(Class<?> c) {
         addToQueue(builder.get(c));
     }
 
@@ -139,7 +139,7 @@ public class SchemaGenerator {
         if(Calendar.class.isAssignableFrom(t))      return XSD.Types.LONG;
         if(Enum.class.isAssignableFrom(t)) {
             enums.add(t);
-            return new QName(t.getName());
+            return new QName(getXmlToken(t));
         }
 
         // otherwise bean
@@ -149,6 +149,15 @@ public class SchemaGenerator {
             // not an exposed bean by itself
             return XSD.Types.ANYTYPE;
         }
-        return new QName(t.getName());
+        
+        return new QName(getXmlToken(t));
+    }
+
+    private String getXmlToken(Class<?> t) {
+        return t.getName().replace('$','-');
+    }
+
+    private String getXmlElementName(Class<?> type) {
+        return getXmlToken(type);
     }
 }
