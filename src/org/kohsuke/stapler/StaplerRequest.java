@@ -102,9 +102,9 @@ public interface StaplerRequest extends HttpServletRequest {
     List<Ancestor> getAncestors();
 
     /**
-     * Finds the nearest ancestor of the given type, or null if not found.
+     * Finds the nearest ancestor that has the object of the given type, or null if not found.
      */
-    <T> T findAncestor(Class<T> type);
+    Ancestor findAncestor(Class type);
 
     /**
      * Short for {@code getParameter(name)!=nulll}
