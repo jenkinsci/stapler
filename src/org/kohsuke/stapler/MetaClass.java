@@ -67,17 +67,18 @@ public class MetaClass extends TearOffSupport {
         
         dispatchers.add(new Dispatcher() {
             public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
-                // check JSP views
-                // I thought about generalizing this to invoke other resources (such as static images, etc)
-                // but I realized that those would require a very different handling.
-                // so for now we just assume it's a JSP
                 String next = req.tokens.peek();
                 if(next==null)  return false;
 
                 Stapler stapler = req.getStapler();
 
-                RequestDispatcher disp = stapler.getResourceDispatcher(node,next+".jsp");
-                if(disp==null)  return false;
+                // check static resources
+                RequestDispatcher disp = stapler.getResourceDispatcher(node,next);
+                if(disp==null) {
+                    // check JSP views
+                    disp = stapler.getResourceDispatcher(node,next+".jsp");
+                    if(disp==null)  return false;
+                }
 
                 req.tokens.next();
 
