@@ -114,6 +114,16 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         return ancestorsView;
     }
 
+    public <T> T findAncestor(Class<T> type) {
+        for( int i = ancestors.size()-1; i>=0; i-- ) {
+            Object o = ancestors.get(i).getObject();
+            if (type.isInstance(o))
+                return type.cast(o);
+        }
+
+        return null;
+    }
+
     public boolean hasParameter(String name) {
         return getParameter(name)!=null;
     }
