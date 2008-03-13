@@ -98,39 +98,39 @@ public class Stapler extends HttpServlet {
         invoke( req, rsp, root, req.getServletPath());
     }
 
-    /**
-     * Works like {@link #openResourcePath(String)} but open the locale specific resource
-     * if that's available.
-     *
-     * @return
-     *      null if the resource was not found.
-     */
-    URLConnection openResourcePathByLocale(HttpServletRequest req,String resourcePath) throws IOException {
-        int idx = resourcePath.lastIndexOf('.');
-        if(idx<0)   // no file extension
-            return openResourcePath(resourcePath);
-        String base = resourcePath.substring(0,idx);
-        String ext = resourcePath.substring(idx);
-        if(ext.indexOf('/')>=0) // the '.' we found was not an extension separator
-            return openResourcePath(resourcePath);
+    private URLConnection openResourcePathByLocale(HttpServletRequest req,String resourcePath) throws IOException {
+        return selectResourceByLocale(getServletContext().getResource(resourcePath),req.getLocale());
+    }
 
-        Locale loc = req.getLocale();
+    /**
+     * Basically works like {@link URL#openConnection()} but it uses the
+     * locale specific resource if available, by using the given locale.
+     *
+     * <p>
+     * The syntax of the locale specific resource is the same as property file localization.
+     * So Japanese resource for <tt>foo.html</tt> would be named <tt>foo_ja.html</tt>.
+     */
+    URLConnection selectResourceByLocale(URL url, Locale locale) throws IOException {
+        String s = url.toString();
+        int idx = s.lastIndexOf('.');
+        if(idx<0)   // no file extension, so no locale switch available
+            return openURL(url);
+        String base = s.substring(0,idx);
+        String ext = s.substring(idx);
+        if(ext.indexOf('/')>=0) // the '.' we found was not an extension separator
+            return openURL(url);
 
         URLConnection con;
 
         // try locale specific resources first.
-        con = openResourcePath(base+'_'+loc.getLanguage()+'_'+loc.getCountry()+'_'+loc.getVariant()+ext);
+        con = openURL(new URL(base+'_'+ locale.getLanguage()+'_'+ locale.getCountry()+'_'+ locale.getVariant()+ext));
         if(con!=null)   return con;
-        con = openResourcePath(base+'_'+loc.getLanguage()+'_'+loc.getCountry()+ext);
+        con = openURL(new URL(base+'_'+ locale.getLanguage()+'_'+ locale.getCountry()+ext));
         if(con!=null)   return con;
-        con = openResourcePath(base+'_'+loc.getLanguage()+ext);
+        con = openURL(new URL(base+'_'+ locale.getLanguage()+ext));
         if(con!=null)   return con;
         // default
-        return openResourcePath(resourcePath);
-    }
-
-    private URLConnection openResourcePath(String resourcePath) throws IOException {
-        return openURL(getServletContext().getResource(resourcePath));
+        return openURL(url);
     }
 
     /**

@@ -57,6 +57,14 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
         serveFile(req,resource,-1);
     }
 
+    public void serveLocalizedFile(StaplerRequest request, URL res) throws ServletException, IOException {
+        serveLocalizedFile(request,res,-1);
+    }
+
+    public void serveLocalizedFile(StaplerRequest request, URL res, long expiration) throws ServletException, IOException {
+        stapler.serveStaticResource(request, this, stapler.selectResourceByLocale(res,request.getLocale()), expiration);
+    }
+
     public void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, int contentLength, String fileName) throws ServletException, IOException {
         stapler.serveStaticResource(req,this,data,lastModified,expiration,contentLength,fileName);
     }

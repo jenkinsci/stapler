@@ -64,6 +64,22 @@ public interface StaplerResponse extends HttpServletResponse {
     void serveFile(StaplerRequest request, URL res, long expiration) throws ServletException, IOException;
 
     /**
+     * Works like {@link #serveFile(StaplerRequest, URL)} but chooses the locale specific
+     * version of the resource if it's available. The convention of "locale specific version"
+     * is the same as that of property files.
+     * So Japanese resource for <tt>foo.html</tt> would be named <tt>foo_ja.html</tt>.
+     */
+    void serveLocalizedFile(StaplerRequest request, URL res) throws ServletException, IOException;
+
+    /**
+     * Works like {@link #serveFile(StaplerRequest, URL, long)} but chooses the locale
+     * specific version of the resource if it's available.
+     *
+     * See {@link #serveLocalizedFile(StaplerRequest, URL)} for more details.
+     */
+    void serveLocalizedFile(StaplerRequest request, URL res, long expiration) throws ServletException, IOException;
+
+    /**
      * Serves a static resource.
      *
      * <p>
