@@ -49,7 +49,10 @@ public class ResourceBundle {
 
             int idx = suffix.lastIndexOf('_');
             if(idx<0)   // failed to find
-                return MessageFormat.format(key,args);
+                // see http://www.nabble.com/i18n-and-l10n-problems-td16004047.html for more discussion
+                //
+                // return MessageFormat.format(key,args);
+                return key;
             suffix = suffix.substring(0,idx);
         }
     }
