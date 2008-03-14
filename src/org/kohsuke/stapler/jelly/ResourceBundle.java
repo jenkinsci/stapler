@@ -67,10 +67,17 @@ public class ResourceBundle {
         // attempt to load
         props = new Properties();
         String url = baseName + key + ".properties";
-        InputStream in;
+        InputStream in=null;
         try {
             in = new URL(url).openStream();
+            // an user reported that on IBM JDK, URL.openStream
+            // returns null instead of IOException.
+            // see http://www.nabble.com/WAS---Hudson-tt16026561.html
         } catch (IOException e) {
+            // failed.
+        }
+
+        if(in==null) {
             // no such resources, so put an empty value
             resources.put(key,props);
             return props;
