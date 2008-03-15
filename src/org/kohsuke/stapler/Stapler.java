@@ -64,8 +64,8 @@ public class Stapler extends HttpServlet {
     }
 
     protected void service(HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
-        String servletPath = req.getServletPath();
-
+    	String servletPath = getServletPath(req);
+        
         if(LOGGER.isLoggable(Level.FINE))
             LOGGER.fine("Processing request for "+servletPath);
 
@@ -95,7 +95,7 @@ public class Stapler extends HttpServlet {
             throw new ServletException("there's no \"app\" attribute in the application context.");
 
         // consider reusing this ArrayList.
-        invoke( req, rsp, root, req.getServletPath());
+        invoke( req, rsp, root, servletPath);
     }
 
     private URLConnection openResourcePathByLocale(HttpServletRequest req,String resourcePath) throws IOException {
@@ -327,8 +327,9 @@ public class Stapler extends HttpServlet {
         MetaClass metaClass = MetaClass.get(node.getClass());
 
         if(!req.tokens.hasMore()) {
-            if(!req.getServletPath().endsWith("/")) {
-                String target = req.getContextPath() + req.getServletPath() + '/';
+            String servletPath = getServletPath(req);
+            if(!servletPath.endsWith("/")) {
+                String target = req.getContextPath() + servletPath + '/';
                 if(LOGGER.isLoggable(Level.FINE))
                     LOGGER.fine("Redirecting to "+target);
                 rsp.sendRedirect2(target);
@@ -493,4 +494,18 @@ public class Stapler extends HttpServlet {
     private static final Set<String> TEXT_FILES = new HashSet<String>(Arrays.asList(
         "css","js","html","txt","java","htm","c","cpp","h","rb","pl","py","xml"
     ));
+
+    /**
+     * IBM JDK workaround, which reports incorrect getServletPath when stapler
+     * is bound to '/'.
+     *
+     * See http://www.nabble.com/WAS---Hudson-tt16026561.html for more details
+     */
+    private String getServletPath(HttpServletRequest req) {
+    	String servletPath = req.getServletPath();
+    	String pathInfo = req.getPathInfo();
+    	if (pathInfo != null)
+            servletPath += pathInfo;
+    	return servletPath;
+    }
 }
