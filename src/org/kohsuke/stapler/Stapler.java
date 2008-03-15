@@ -99,7 +99,9 @@ public class Stapler extends HttpServlet {
     }
 
     private URLConnection openResourcePathByLocale(HttpServletRequest req,String resourcePath) throws IOException {
-        return selectResourceByLocale(getServletContext().getResource(resourcePath),req.getLocale());
+        URL url = getServletContext().getResource(resourcePath);
+        if(url==null)   return null;
+        return selectResourceByLocale(url,req.getLocale());
     }
 
     /**
@@ -137,6 +139,7 @@ public class Stapler extends HttpServlet {
      * Serves the specified {@link URLConnection} as a static resource.
      */
     boolean serveStaticResource(HttpServletRequest req, StaplerResponse rsp, URLConnection con, long expiration) throws IOException {
+        if(con==null)   return false;
         return serveStaticResource(req,rsp, con.getInputStream(),
                 con.getLastModified(), expiration, con.getContentLength(), con.getURL().toString());
     }

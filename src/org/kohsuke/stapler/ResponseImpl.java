@@ -50,7 +50,8 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
     }
 
     public void serveFile(StaplerRequest req, URL resource, long expiration) throws ServletException, IOException {
-        stapler.serveStaticResource(req,this,resource,expiration);
+        if(!stapler.serveStaticResource(req,this,resource,expiration))
+            sendError(SC_NOT_FOUND);
     }
 
     public void serveFile(StaplerRequest req, URL resource) throws ServletException, IOException {
@@ -62,11 +63,13 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
     }
 
     public void serveLocalizedFile(StaplerRequest request, URL res, long expiration) throws ServletException, IOException {
-        stapler.serveStaticResource(request, this, stapler.selectResourceByLocale(res,request.getLocale()), expiration);
+        if(!stapler.serveStaticResource(request, this, stapler.selectResourceByLocale(res,request.getLocale()), expiration))
+            sendError(SC_NOT_FOUND);
     }
 
     public void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, int contentLength, String fileName) throws ServletException, IOException {
-        stapler.serveStaticResource(req,this,data,lastModified,expiration,contentLength,fileName);
+        if(!stapler.serveStaticResource(req,this,data,lastModified,expiration,contentLength,fileName))
+            sendError(SC_NOT_FOUND);        
     }
 
     public void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName) throws ServletException, IOException {
