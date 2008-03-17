@@ -21,5 +21,13 @@ import java.lang.annotation.Target;
 @Target(METHOD)
 @Documented
 public @interface WebMethod {
+    /**
+     * URL names assigned to this method.
+     *
+     * <p>
+     * Normally, for <tt>doXyz</tt> method, the name is <tt>xyz</tt>,
+     * but you can use this to assign multiple names or non-default names.
+     * Often useful for using names that contain non-identifier characters. 
+     */
     String[] name();
 }
