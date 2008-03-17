@@ -56,9 +56,10 @@ public class MetaClass extends TearOffSupport {
         // check action <obj>.do<token>(...)
         for( final Function f : node.methods.prefix("do") ) {
             WebMethod a = f.getAnnotation(WebMethod.class);
+            
             String[] names;
-            if(a.name().length>0)   names=a.name();
-            else                    names=new String[]{camelize(f.getName().substring(2))}; // 'doFoo' -> 'foo'
+            if(a!=null && a.name().length>0)   names=a.name();
+            else    names=new String[]{camelize(f.getName().substring(2))}; // 'doFoo' -> 'foo'
 
             for (String name : names) {
                 dispatchers.add(new NameBasedDispatcher(name,0) {
