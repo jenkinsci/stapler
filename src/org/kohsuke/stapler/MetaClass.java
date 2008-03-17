@@ -55,14 +55,20 @@ public class MetaClass extends TearOffSupport {
     private void buildDispatchers( ClassDescriptor node ) {
         // check action <obj>.do<token>(...)
         for( final Function f : node.methods.prefix("do") ) {
-            String name = camelize(f.getName().substring(2)); // 'doFoo' -> 'foo'
-            dispatchers.add(new NameBasedDispatcher(name,0) {
-                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException {
-                    if(LOGGER.isLoggable(Level.FINE))
-                        LOGGER.fine("Invoking "+f.getName()+" on "+node+" for "+req.tokens);
-                    f.bindAndinvoke(node,req,rsp);
-                }
-            });
+            WebMethod a = f.getAnnotation(WebMethod.class);
+            String[] names;
+            if(a.name().length>0)   names=a.name();
+            else                    names=new String[]{camelize(f.getName().substring(2))}; // 'doFoo' -> 'foo'
+
+            for (String name : names) {
+                dispatchers.add(new NameBasedDispatcher(name,0) {
+                    public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException {
+                        if(LOGGER.isLoggable(Level.FINE))
+                            LOGGER.fine("Invoking "+f.getName()+" on "+node+" for "+req.tokens);
+                        f.bindAndinvoke(node,req,rsp);
+                    }
+                });
+            }
         }
         
         dispatchers.add(new Dispatcher() {

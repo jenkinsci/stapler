@@ -1,13 +1,11 @@
 package org.kohsuke.stapler;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.annotation.Annotation;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Abstracts the difference between normal instance methods and
@@ -77,6 +75,8 @@ abstract class Function {
         }
     }
 
+    public abstract <A extends Annotation> A getAnnotation(Class<A> annotation);
+
     /**
      * Normal instance methods.
      */
@@ -101,6 +101,10 @@ abstract class Function {
 
         public Object invoke(HttpServletRequest req, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
             return m.invoke(o,args);
+        }
+
+        public <A extends Annotation> A getAnnotation(Class<A> annotation) {
+            return m.getAnnotation(annotation);
         }
     }
 
@@ -138,6 +142,10 @@ abstract class Function {
             System.arraycopy(args,0,r,1,args.length);
             return m.invoke(null,r);
         }
+
+        public <A extends Annotation> A getAnnotation(Class<A> annotation) {
+            return m.getAnnotation(annotation);
+        }
     }
 
     /**
@@ -169,6 +177,10 @@ abstract class Function {
                 return core.invoke(req, o, args);
             else
                 throw new IllegalAccessException("Needs to be in role "+role);
+        }
+
+        public <A extends Annotation> A getAnnotation(Class<A> annotation) {
+            return core.getAnnotation(annotation);
         }
     }
 }
