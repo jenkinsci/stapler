@@ -17,5 +17,6 @@ public class StaplerTagLibrary extends TagLibrary {
         registerTag("copyStream",CopyStreamTag.class);
         registerTag("compress",CompressTag.class);
         registerTag("redirect",RedirectTag.class);
+        registerTag("statusCode",StatusCodeTag.class);
     }
 }

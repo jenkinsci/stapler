@@ -21,7 +21,7 @@ public class HeaderTag extends AbstractStaplerTag {
         this.value = value;
     }
 
-    public void doTag(XMLOutput output) throws MissingAttributeException, JellyTagException {
+    public void doTag(XMLOutput output) throws JellyTagException {
         getResponse().addHeader(name,value);
     }
 }
