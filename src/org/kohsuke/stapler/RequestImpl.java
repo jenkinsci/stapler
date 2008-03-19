@@ -319,7 +319,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
                 return bindJSON(target,j);
             } else {
                 // only one value given to the collection
-                l.add(bindJSON(target,j));
+                l.add(convertJSON(j,l.itemType,l.itemGenericType));
                 return l.toCollection();
             }
         }
