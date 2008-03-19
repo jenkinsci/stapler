@@ -80,7 +80,7 @@ public class Stapler extends HttpServlet {
 
         if(servletPath.length()!=0) {
             // getResource requires '/' prefix (and resin insists on that, too) but servletPath can be empty string (hudson #879)
-            URLConnection con = openResourcePathByLocale(req,servletPath);
+            OpenConnection con = openResourcePathByLocale(req,servletPath);
             if(con!=null) {
                 long expires = MetaClass.NO_CACHE ? 0 : 24L * 60 * 60 * 1000; /*1 day*/
                 if(staticLink)
@@ -98,7 +98,41 @@ public class Stapler extends HttpServlet {
         invoke( req, rsp, root, servletPath);
     }
 
-    private URLConnection openResourcePathByLocale(HttpServletRequest req,String resourcePath) throws IOException {
+    /**
+     * Tomcat and GlassFish returns a fresh {@link InputStream} every time
+     * {@link URLConnection#getInputStream()} is invoked in their {@code org.apache.naming.resources.DirContextURLConnection}.
+     *
+     * <p>
+     * All the other {@link URLConnection}s in JDK don't do this --- they return the same {@link InputStream},
+     * even the one for the file:// URLs.
+     *
+     * <p>
+     * In Tomcat (and most likely in GlassFish, although this is not verifid), resource look up on
+     * {@link ServletContext#getResource(String)} successfully returns non-existent URL, and
+     * the failure can be only detected by {@link IOException} from {@link URLConnection#getInputStream()}.
+     *
+     * <p>
+     * Therefore, for the whole thing to work without resource leak, once we open {@link InputStream}
+     * for the sake of really making sure that the resource exists, we need to hang on to that stream.
+     *
+     * <p>
+     * Hence the need for this tuple.
+     */
+    private static final class OpenConnection {
+        final URLConnection connection;
+        final InputStream stream;
+
+        private OpenConnection(URLConnection connection, InputStream stream) {
+            this.connection = connection;
+            this.stream = stream;
+        }
+
+        private OpenConnection(URLConnection connection) throws IOException {
+            this(connection,connection.getInputStream());
+        }
+    }
+
+    private OpenConnection openResourcePathByLocale(HttpServletRequest req,String resourcePath) throws IOException {
         URL url = getServletContext().getResource(resourcePath);
         if(url==null)   return null;
         return selectResourceByLocale(url,req.getLocale());
@@ -112,7 +146,7 @@ public class Stapler extends HttpServlet {
      * The syntax of the locale specific resource is the same as property file localization.
      * So Japanese resource for <tt>foo.html</tt> would be named <tt>foo_ja.html</tt>.
      */
-    URLConnection selectResourceByLocale(URL url, Locale locale) throws IOException {
+    OpenConnection selectResourceByLocale(URL url, Locale locale) throws IOException {
         String s = url.toString();
         int idx = s.lastIndexOf('.');
         if(idx<0)   // no file extension, so no locale switch available
@@ -122,7 +156,7 @@ public class Stapler extends HttpServlet {
         if(ext.indexOf('/')>=0) // the '.' we found was not an extension separator
             return openURL(url);
 
-        URLConnection con;
+        OpenConnection con;
 
         // try locale specific resources first.
         con = openURL(new URL(base+'_'+ locale.getLanguage()+'_'+ locale.getCountry()+'_'+ locale.getVariant()+ext));
@@ -138,10 +172,13 @@ public class Stapler extends HttpServlet {
     /**
      * Serves the specified {@link URLConnection} as a static resource.
      */
-    boolean serveStaticResource(HttpServletRequest req, StaplerResponse rsp, URLConnection con, long expiration) throws IOException {
+    boolean serveStaticResource(HttpServletRequest req, StaplerResponse rsp, OpenConnection con, long expiration) throws IOException {
         if(con==null)   return false;
-        return serveStaticResource(req,rsp, con.getInputStream(),
-                con.getLastModified(), expiration, con.getContentLength(), con.getURL().toString());
+        return serveStaticResource(req,rsp, con.stream,
+                con.connection.getLastModified(),
+                expiration,
+                con.connection.getContentLength(),
+                con.connection.getURL().toString());
     }
 
     /**
@@ -154,7 +191,7 @@ public class Stapler extends HttpServlet {
     /**
      * Opens URL, with error handling to absorb container differences.
      */
-    private URLConnection openURL(URL url) throws IOException {
+    private OpenConnection openURL(URL url) throws IOException {
         if(url==null)   return null;
 
         // jetty reports directories as URLs, which isn't what this is intended for,
@@ -166,13 +203,11 @@ public class Stapler extends HttpServlet {
         URLConnection con = url.openConnection();
 
         try {
-            con.getInputStream();
+            return new OpenConnection(con);
         } catch (IOException e) {
-            // Tomcat only reports a missing resource error here
+            // Tomcat only reports a missing resource error here, from URLConnection.getInputStream()
             return null;
         }
-
-        return con;
     }
 
     /**
