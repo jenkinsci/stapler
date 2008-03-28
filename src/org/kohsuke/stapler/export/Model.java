@@ -41,7 +41,7 @@ public class Model<T> {
         this.type = type;
         ExportedBean eb = type.getAnnotation(ExportedBean.class);
         if(eb ==null)
-            throw new IllegalArgumentException(type+" doesn't have @"+ ExportedBean.class.getSimpleName());
+            throw new NotExportableException(type);
         this.defaultVisibility = eb.defaultVisibility();
         
         parent.models.put(type,this);

@@ -94,6 +94,13 @@ public abstract class Property implements Comparable<Property> {
      * Writes one value of the property to {@link DataWriter}.
      */
     private void writeValue(Object value, int depth, DataWriter writer) throws IOException {
+        writeValue(value,depth,writer,false);
+    }
+
+    /**
+     * Writes one value of the property to {@link DataWriter}.
+     */
+    private void writeValue(Object value, int depth, DataWriter writer, boolean skipIfFail) throws IOException {
         if(value==null) {
             writer.valueNull();
             return;
@@ -117,14 +124,14 @@ public abstract class Property implements Comparable<Property> {
         if(c.getComponentType()!=null) { // array
             writer.startArray();
             for (Object item : (Object[]) value)
-                writeValue(item,depth,writer);
+                writeValue(item,depth,writer,true);
             writer.endArray();
             return;
         }
         if(value instanceof Collection) {
             writer.startArray();
             for (Object item : (Collection) value)
-                writeValue(item,depth,writer);
+                writeValue(item,depth,writer,true);
             writer.endArray();
             return;
         }
@@ -152,7 +159,16 @@ public abstract class Property implements Comparable<Property> {
 
         // otherwise handle it as a bean
         writer.startObject();
-        owner.get(c).writeNestedObjectTo(value,depth+1,writer);
+        Model model = null;
+        try {
+            model = owner.get(c);
+        } catch (NotExportableException e) {
+            if(!skipIfFail)
+                throw e;
+            // otherwise ignore this error by writing empty object
+        }
+        if(model!=null)
+            model.writeNestedObjectTo(value,depth+1,writer);
         writer.endObject();
     }
 
