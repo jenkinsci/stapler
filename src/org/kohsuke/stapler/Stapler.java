@@ -69,6 +69,7 @@ public class Stapler extends HttpServlet {
         String defaultEncodings = servletConfig.getInitParameter("default-encodings");
         if(defaultEncodings!=null) {
             for(String t : defaultEncodings.split(";")) {
+                t=t.trim();
                 int idx=t.indexOf('=');
                 if(idx<0)   throw new ServletException("Invalid format: "+t);
                 defaultEncodingForStaticResources.put(t.substring(0,idx),t.substring(idx+1));
