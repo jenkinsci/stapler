@@ -51,6 +51,11 @@ public class Stapler extends HttpServlet {
     private /*final*/ ServletContext context;
 
     /**
+     * If non-null, static HTML resources in the war is served with this encoding.
+     */
+    private final Map<String,String> defaultEncodingForStaticResources = new HashMap<String, String>();
+
+    /**
      * Duck-type wrappers for the given class.
      */
     private Map<Class,Class[]> wrappers;
@@ -61,6 +66,14 @@ public class Stapler extends HttpServlet {
         wrappers = (Map<Class,Class[]>) servletConfig.getServletContext().getAttribute("wrappers");
         if(wrappers==null)
             wrappers = new HashMap<Class,Class[]>();
+        String defaultEncodings = servletConfig.getInitParameter("default-encodings");
+        if(defaultEncodings!=null) {
+            for(String t : defaultEncodings.split(";")) {
+                int idx=t.indexOf('=');
+                if(idx<0)   throw new ServletException("Invalid format: "+t);
+                defaultEncodingForStaticResources.put(t.substring(0,idx),t.substring(idx+1));
+            }
+        }
     }
 
     protected void service(HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
@@ -270,6 +283,8 @@ public class Stapler extends HttpServlet {
             fileName = fileName.substring(idx+1);
             String mimeType = getServletContext().getMimeType(fileName);
             if(mimeType==null)  mimeType="application/octet-stream";
+            if(defaultEncodingForStaticResources.containsKey(mimeType))
+                mimeType += ";charset="+defaultEncodingForStaticResources.get(mimeType);
             rsp.setContentType(mimeType);
 
             idx = fileName.lastIndexOf('.');
