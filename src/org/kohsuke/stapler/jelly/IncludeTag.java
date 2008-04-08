@@ -21,6 +21,8 @@ public class IncludeTag extends TagSupport {
 
     private boolean optional;
 
+    private Class clazz;
+
     /**
      * Specifies the name of the JSP to be included.
      */
@@ -45,6 +47,16 @@ public class IncludeTag extends TagSupport {
     }
 
     /**
+     * When loading script, load from this class.
+     *
+     * By default this is "from.getClass()". This takes
+     * precedence over the {@link #setFrom(Object)} method.
+     */
+    public void setClass(Class clazz) {
+        this.clazz = clazz;
+    }
+
+    /**
      * If true, not finding the page is not an error.
      */
     public void setOptional(boolean optional) {
@@ -58,7 +70,7 @@ public class IncludeTag extends TagSupport {
         if(it==null)
             it = getContext().getVariable("it");
 
-        MetaClass c = MetaClass.get((from!=null?from:it).getClass());
+        MetaClass c = MetaClass.get(getScriptClass(it));
         Script script;
         try {
             script = c.loadTearOff(JellyClassTearOff.class).findScript(page);
@@ -85,5 +97,11 @@ public class IncludeTag extends TagSupport {
         } finally {
             Thread.currentThread().setContextClassLoader(old);
         }
+    }
+
+    private Class getScriptClass(Object it) {
+        if (clazz != null) return clazz;
+        if (from != null) return from.getClass();
+        else return it.getClass();
     }
 }
