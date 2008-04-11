@@ -77,12 +77,12 @@ public class IncludeTag extends TagSupport {
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new JellyTagException("Error loading '"+page+"' for "+c.clazz,e);
+            throw new JellyTagException("Error loading '"+page+"' for "+it.getClass(),e);
         }
 
         if(script==null) {
             if(optional)    return;
-            throw new JellyTagException("No page found '"+page+"' for "+c.clazz);
+            throw new JellyTagException("No page found '"+page+"' for "+it.getClass());
         }
 
         context = new JellyContext(getContext());
