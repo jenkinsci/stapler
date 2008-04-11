@@ -38,6 +38,12 @@ public class CopyStreamTag extends AbstractStaplerTag {
 
 
     public void doTag(XMLOutput xmlOutput) throws JellyTagException {
+        if(in==null)
+            // In JEXL, failures evaluate to null, so if the input is meant to be
+            // set from expression, we don't want that evaluation failure to cause
+            // the entire page rendering to fail.
+            return;
+
         char[] buf = new char[8192];
         int len;
 
