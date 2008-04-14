@@ -1,13 +1,13 @@
 package org.kohsuke.stapler;
 
 import org.apache.commons.beanutils.Converter;
-import org.apache.commons.beanutils.ConvertUtils;
+import static org.kohsuke.stapler.Stapler.CONVERT_UTILS;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -20,7 +20,7 @@ abstract class AnnotationHandler<T extends Annotation> {
             AnnotationHandler h = HANDLERS.get(a.annotationType());
             if(h==null)     continue;
 
-            Converter converter = ConvertUtils.lookup(targetType);
+            Converter converter = CONVERT_UTILS.lookup(targetType);
             if (converter==null)
                 throw new IllegalArgumentException("Unable to convert to "+targetType);
 

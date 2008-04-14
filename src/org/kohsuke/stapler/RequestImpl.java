@@ -7,8 +7,10 @@ import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
+import static org.kohsuke.stapler.Stapler.CONVERT_UTILS;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -259,7 +261,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
             else
                 param = null;
 
-            Converter converter = ConvertUtils.lookup(types[i]);
+            Converter converter = CONVERT_UTILS.lookup(types[i]);
             if (converter==null)
                 throw new IllegalArgumentException("Unable to convert to "+types[i]);
 
@@ -330,7 +332,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
             return l.toCollection();
         }
 
-        Converter converter = ConvertUtils.lookup(target);
+        Converter converter = CONVERT_UTILS.lookup(target);
         if (converter==null)
             throw new IllegalArgumentException("Unable to convert to "+target);
 
@@ -440,7 +442,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
             propDescriptor = null;
         }
         if (propDescriptor != null) {
-            Converter converter = ConvertUtils.lookup(propDescriptor.getPropertyType());
+            Converter converter = CONVERT_UTILS.lookup(propDescriptor.getPropertyType());
             if (converter != null)
                 value = converter.convert(propDescriptor.getPropertyType(), value);
             try {
@@ -461,18 +463,5 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         } catch (NoSuchFieldException e) {
             // no such field
         }
-    }
-
-    static {
-        ConvertUtils.register(new Converter() {
-            public Object convert(Class type, Object value) {
-                if(value==null) return null;
-                try {
-                    return new URL(value.toString());
-                } catch (MalformedURLException e) {
-                    throw new ConversionException(e);
-                }
-            }
-        }, URL.class);
     }
 }

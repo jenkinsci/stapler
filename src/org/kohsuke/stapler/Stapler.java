@@ -1,5 +1,12 @@
 package org.kohsuke.stapler;
 
+import net.sf.json.JSONObject;
+import org.apache.commons.beanutils.ConversionException;
+import org.apache.commons.beanutils.ConvertUtilsBean;
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.converters.DoubleConverter;
+import org.apache.commons.beanutils.converters.FloatConverter;
+import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
@@ -558,5 +565,31 @@ public class Stapler extends HttpServlet {
     	if (pathInfo != null)
             servletPath += pathInfo;
     	return servletPath;
+    }
+
+
+    /**
+     * This is the {@link Converter} registry that Stapler uses, primarily
+     * for form-to-JSON binding in {@link StaplerRequest#bindJSON(Class, JSONObject)}
+     * and its family of methods. 
+     */
+    public static final ConvertUtilsBean CONVERT_UTILS = new ConvertUtilsBean();
+
+    static {
+        CONVERT_UTILS.register(new Converter() {
+            public Object convert(Class type, Object value) {
+                if(value==null) return null;
+                try {
+                    return new URL(value.toString());
+                } catch (MalformedURLException e) {
+                    throw new ConversionException(e);
+                }
+            }
+        }, URL.class);
+
+        // mapping for boxed types should map null to null, instead of null to zero.
+        CONVERT_UTILS.register(new IntegerConverter(null),Integer.class);
+        CONVERT_UTILS.register(new FloatConverter(null),Float.class);
+        CONVERT_UTILS.register(new DoubleConverter(null),Double.class);
     }
 }
