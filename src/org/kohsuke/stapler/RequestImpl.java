@@ -280,23 +280,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
 
         // convert parameters
         for( int i=0; i<names.length; i++ ) {
-            Object value = src.get(names[i]);
-            if(value==null) {
-                // can this property value defined at lower level in the JSON tree?
-                // this happens if a part of the form is optional and its visibility
-                // is controlled by a check box.
-                // OTOH, we don't want to go too deep and find incorrect match.
-                for( Object child : src.values() ) {
-                    if (child instanceof JSONObject) {
-                        JSONObject co = (JSONObject) child;
-                        if(co.containsKey(names[i])) {
-                            value = co.get(names[i]);
-                            break;
-                        }
-                    }
-                }
-            }
-            args[i] = convertJSON(value,types[i],genTypes[i]);
+            args[i] = convertJSON(src.get(names[i]),types[i],genTypes[i]);
         }
 
         return invokeConstructor(c, args);
