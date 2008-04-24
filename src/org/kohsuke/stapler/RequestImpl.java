@@ -3,14 +3,12 @@ package org.kohsuke.stapler;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.jvnet.tiger_types.Lister;
-import org.kohsuke.stapler.jelly.JellyClassTearOff;
 import static org.kohsuke.stapler.Stapler.CONVERT_UTILS;
+import org.kohsuke.stapler.jelly.JellyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -24,8 +22,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -284,7 +280,23 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
 
         // convert parameters
         for( int i=0; i<names.length; i++ ) {
-            args[i] = convertJSON(src.get(names[i]),types[i],genTypes[i]);
+            Object value = src.get(names[i]);
+            if(value==null) {
+                // can this property value defined at lower level in the JSON tree?
+                // this happens if a part of the form is optional and its visibility
+                // is controlled by a check box.
+                // OTOH, we don't want to go too deep and find incorrect match.
+                for( Object child : src.values() ) {
+                    if (child instanceof JSONObject) {
+                        JSONObject co = (JSONObject) child;
+                        if(co.containsKey(names[i])) {
+                            value = co.get(names[i]);
+                            break;
+                        }
+                    }
+                }
+            }
+            args[i] = convertJSON(value,types[i],genTypes[i]);
         }
 
         return invokeConstructor(c, args);
