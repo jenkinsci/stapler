@@ -393,6 +393,14 @@ public class Stapler extends HttpServlet {
                 rsp.sendRedirect2(target);
                 return;
             }
+            
+            if(req.getMethod().equals("DELETE")) {
+                if(node instanceof HttpDeletable) {
+                    ((HttpDeletable)node).delete(req,rsp);
+                    return;
+                }
+            }
+
             // TODO: find the list of welcome pages for this class by reading web.xml
             RequestDispatcher indexJsp = getResourceDispatcher(node,"index.jsp");
             if(indexJsp!=null) {
