@@ -51,7 +51,13 @@ public class MetaClass extends TearOffSupport {
             new ClassDescriptor(clazz,null/*support wrappers*/));
     }
 
-
+    /**
+     * Build {@link #dispatchers}.
+     *
+     * <p>
+     * This is the meat of URL dispatching. It looks at the class
+     * via reflection and figures out what URLs are handled by who. 
+     */
     private void buildDispatchers( ClassDescriptor node ) {
         // check action <obj>.do<token>(...)
         for( final Function f : node.methods.prefix("do") ) {
