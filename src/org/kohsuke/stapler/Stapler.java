@@ -4,6 +4,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DoubleConverter;
 import org.apache.commons.beanutils.converters.FloatConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
@@ -582,6 +583,13 @@ public class Stapler extends HttpServlet {
      * and its family of methods. 
      */
     public static final ConvertUtilsBean CONVERT_UTILS = new ConvertUtilsBean();
+
+    public static Converter lookupConverter(Class type) {
+        Converter c = CONVERT_UTILS.lookup(type);
+        if(c!=null) return c;
+        // fall back to compatibility behavior
+        return ConvertUtils.lookup(type);
+    }
 
     static {
         CONVERT_UTILS.register(new Converter() {

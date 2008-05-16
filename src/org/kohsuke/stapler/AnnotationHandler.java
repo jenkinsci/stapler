@@ -1,7 +1,6 @@
 package org.kohsuke.stapler;
 
 import org.apache.commons.beanutils.Converter;
-import static org.kohsuke.stapler.Stapler.CONVERT_UTILS;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +19,7 @@ abstract class AnnotationHandler<T extends Annotation> {
             AnnotationHandler h = HANDLERS.get(a.annotationType());
             if(h==null)     continue;
 
-            Converter converter = CONVERT_UTILS.lookup(targetType);
+            Converter converter = Stapler.lookupConverter(targetType);
             if (converter==null)
                 throw new IllegalArgumentException("Unable to convert to "+targetType);
 

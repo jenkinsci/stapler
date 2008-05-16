@@ -7,7 +7,6 @@ import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.jvnet.tiger_types.Lister;
-import static org.kohsuke.stapler.Stapler.CONVERT_UTILS;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
@@ -257,7 +256,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
             else
                 param = null;
 
-            Converter converter = CONVERT_UTILS.lookup(types[i]);
+            Converter converter = Stapler.lookupConverter(types[i]);
             if (converter==null)
                 throw new IllegalArgumentException("Unable to convert to "+types[i]);
 
@@ -328,7 +327,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
             return l.toCollection();
         }
 
-        Converter converter = CONVERT_UTILS.lookup(target);
+        Converter converter = Stapler.lookupConverter(target);
         if (converter==null)
             throw new IllegalArgumentException("Unable to convert to "+target);
 
@@ -438,7 +437,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
             propDescriptor = null;
         }
         if (propDescriptor != null) {
-            Converter converter = CONVERT_UTILS.lookup(propDescriptor.getPropertyType());
+            Converter converter = Stapler.lookupConverter(propDescriptor.getPropertyType());
             if (converter != null)
                 value = converter.convert(propDescriptor.getPropertyType(), value);
             try {
