@@ -391,7 +391,9 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
             p.load(s);
             s.close();
 
-            return p.getProperty("constructor").split(",");
+            String v = p.getProperty("constructor");
+            if(v.length()==0)   return new String[0];
+            return v.split(",");
         } catch (IOException e) {
             throw new IllegalArgumentException("Unable to load "+resourceName,e);
         }
