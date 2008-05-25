@@ -3,6 +3,7 @@ package org.kohsuke.stapler;
 import org.kohsuke.stapler.export.Flavor;
 import org.kohsuke.stapler.export.Model;
 import org.kohsuke.stapler.export.ModelBuilder;
+import org.apache.commons.io.IOUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
@@ -16,7 +17,12 @@ import java.io.PrintWriter;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URL;
+import java.net.HttpURLConnection;
 import java.util.zip.GZIPOutputStream;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * {@link StaplerResponse} implementation.
@@ -123,6 +129,42 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
         return new OutputStreamWriter(new GZIPOutputStream(getOutputStream()),getCharacterEncoding());
     }
 
+    public void reverseProxyTo(URL url, StaplerRequest req) throws IOException {
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setDoOutput(true);
+
+        Enumeration h = req.getHeaderNames();
+        while(h.hasMoreElements()) {
+            String key = (String) h.nextElement();
+            Enumeration v = req.getHeaders(key);
+            while (v.hasMoreElements()) {
+                con.addRequestProperty(key,(String)v.nextElement());
+            }
+        }
+
+        // copy the request body
+        con.setRequestMethod(req.getMethod());
+        // TODO: how to set request headers?
+        copyAndClose(req.getInputStream(), con.getOutputStream());
+
+        // copy the response
+        setStatus(con.getResponseCode(),con.getResponseMessage());
+        Map<String,List<String>> rspHeaders = con.getHeaderFields();
+        for (Entry<String, List<String>> header : rspHeaders.entrySet()) {
+            if(header.getKey()==null)   continue;   // response line
+            for (String value : header.getValue()) {
+                addHeader(header.getKey(),value);
+            }
+        }
+
+        copyAndClose(con.getInputStream(), getOutputStream());
+    }
+
+    private void copyAndClose(InputStream in, OutputStream out) throws IOException {
+        IOUtils.copy(in, out);
+        IOUtils.closeQuietly(in);
+        IOUtils.closeQuietly(out);
+    }
 
     /**
      * Escapes non-ASCII characters.

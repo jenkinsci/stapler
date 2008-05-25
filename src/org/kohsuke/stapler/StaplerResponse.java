@@ -3,7 +3,6 @@ package org.kohsuke.stapler;
 import org.kohsuke.stapler.export.Flavor;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -146,4 +145,9 @@ public interface StaplerResponse extends HttpServletResponse {
      * method is for {@link #getWriter()}.
      */
     Writer getCompressedWriter(HttpServletRequest req) throws IOException;
+
+    /**
+     * Performs the reverse proxy to the given URL.
+     */
+    void reverseProxyTo(URL url, StaplerRequest req) throws IOException;
 }
