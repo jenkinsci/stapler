@@ -50,6 +50,19 @@ class AncestorImpl implements Ancestor {
         }
     }
 
+    public String getFullUrl() {
+        StringBuilder buf = new StringBuilder();
+        StaplerRequest req = Stapler.getCurrentRequest();
+        buf.append(req.getScheme());
+        buf.append("://");
+        buf.append(req.getServerName());
+        if(req.getServerPort()!=80)
+            buf.append(':').append(req.getServerPort());
+        buf.append(getUrl());
+
+        return buf.toString();
+    }
+
     public String getRelativePath() {
         StringBuilder buf = new StringBuilder();
         for( int i=index; i<tokens.length; i++ ) {

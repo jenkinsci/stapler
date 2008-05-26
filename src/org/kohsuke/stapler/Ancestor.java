@@ -34,6 +34,15 @@ public interface Ancestor {
     String getUrl();
 
     /**
+     * Gets the complete URL to this ancestor.
+     *
+     * <p>
+     * This method works like {@link #getUrl()} except it contains
+     * the host name and the port number.
+     */
+    String getFullUrl();
+
+    /**
      * Gets the relative path from the current object to this ancestor.
      *
      * <p>
