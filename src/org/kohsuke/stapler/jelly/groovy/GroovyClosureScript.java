@@ -1,16 +1,11 @@
 package org.kohsuke.stapler.jelly.groovy;
 
-import groovy.lang.Script;
+import groovy.lang.Binding;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObject;
-import groovy.lang.Binding;
 import groovy.lang.MissingMethodException;
 import groovy.lang.MissingPropertyException;
-import groovy.lang.GroovyShell;
-
-import java.io.InputStream;
-
-import org.codehaus.groovy.control.CompilerConfiguration;
+import groovy.lang.Script;
 
 /**
  * {@link Script} that performs method invocations and property access like {@link Closure} does.
