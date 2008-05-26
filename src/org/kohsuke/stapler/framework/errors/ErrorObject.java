@@ -5,7 +5,7 @@ package org.kohsuke.stapler.framework.errors;
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class AbstractErrorObject {
+public abstract class ErrorObject {
     /**
      * Gets the error message.
      */

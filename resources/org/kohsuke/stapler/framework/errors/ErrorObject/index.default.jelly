@@ -1,0 +1,8 @@
+<html>
+  <body>
+    <h1>Error</h1>
+    <p>
+      ${it.message}
+    </p>
+  </body>
+</html>

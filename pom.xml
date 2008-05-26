@@ -152,6 +152,9 @@
           <include>META-INF/taglib.tld</include>
         </includes>
       </resource>
+      <resource>
+        <directory>resources</directory>
+      </resource>
     </resources>
     
     <plugins>
