@@ -12,13 +12,13 @@ import org.codehaus.groovy.runtime.InvokerHelper;
  *
  * @author Kohsuke Kawaguchi
  */
-public class GroovyScript implements Script {
+public class GroovierJellyScript implements Script {
     /**
      * Compiled Groovy class.
      */
     private final Class clazz;
 
-    public GroovyScript(Class clazz) {
+    public GroovierJellyScript(Class clazz) {
         this.clazz = clazz;
     }
     

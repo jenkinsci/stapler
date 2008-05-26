@@ -51,6 +51,6 @@ public class GroovyClassLoaderTearOff {
     }
 
     public Script parse(URL script) throws IOException {
-        return new GroovyScript(gcl.parseClass(script.openStream(), script.toExternalForm()));
+        return new GroovierJellyScript(gcl.parseClass(script.openStream(), script.toExternalForm()));
     }
 }
