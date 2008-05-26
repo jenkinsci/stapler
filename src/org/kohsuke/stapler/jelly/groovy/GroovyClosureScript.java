@@ -24,7 +24,7 @@ import org.codehaus.groovy.control.CompilerConfiguration;
  * <pre>
  *
  * <p>
- * Using {@link ClosureScript} as the base class would run it as:
+ * Using {@link GroovyClosureScript} as the base class would run it as:
  *
  * <pre>
  * delegate.a = 1;
