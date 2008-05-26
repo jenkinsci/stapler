@@ -136,9 +136,9 @@
     </dependency>
     <!-- optional Groovy support -->
     <dependency>
-      <groupId>groovy</groupId>
-      <artifactId>groovy-all</artifactId>
-      <version>1.0-jsr-06</version>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy</artifactId>
+      <version>1.1-rc-2</version>
       <optional>true</optional>
     </dependency>
   </dependencies>

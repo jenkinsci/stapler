@@ -1,15 +1,13 @@
 package org.kohsuke.stapler.jelly.groovy;
 
-import org.kohsuke.stapler.MetaClassLoader;
+import groovy.lang.GroovyClassLoader;
 import org.apache.commons.jelly.Script;
 import org.codehaus.groovy.control.CompilerConfiguration;
-import groovy.lang.GroovyClassLoader;
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
+import org.kohsuke.stapler.MetaClass;
+import org.kohsuke.stapler.MetaClassLoader;
 
-import java.net.URL;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -22,11 +20,34 @@ public class GroovyClassLoaderTearOff {
     public GroovyClassLoaderTearOff(MetaClassLoader owner) {
         this.owner = owner;
 
+        gcl = createGroovyClassLoader();
+    }
+
+    private GroovyClassLoader createGroovyClassLoader() {
+        CompilerConfiguration cc = new CompilerConfiguration();
         // use GroovyClosureScript class as the base class of the compiled script,
         // so that we can set a delegate.
-        CompilerConfiguration cc = new CompilerConfiguration();
         cc.setScriptBaseClass(GroovyClosureScript.class.getName());
-        this.gcl = new GroovyClassLoader(owner.loader,cc);
+
+        // enable re-compilation support
+        cc.setRecompileGroovySource(MetaClass.NO_CACHE);
+        return new GroovyClassLoader(owner.loader,cc) {
+            /**
+             * Groovy calls this method to locate .groovy script files,
+             * so during the development it's important to check the
+             * resource path before target/classes.
+             */
+            @Override
+            public URL getResource(String name) {
+                // allow the resource path to take precedence when loading script
+                if(MetaClassLoader.debugLoader!=null) {
+                    URL res = MetaClassLoader.debugLoader.loader.getResource(name);
+                    if(res!=null)
+                        return res;
+                }
+                return super.getResource(name);
+            }
+        };
     }
 
     public Script parse(URL script) throws IOException {
