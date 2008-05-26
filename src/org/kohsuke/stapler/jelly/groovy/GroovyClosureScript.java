@@ -53,6 +53,10 @@ public abstract class GroovyClosureScript extends Script {
         this.delegate = delegate;
     }
 
+    public GroovyObject getDelegate() {
+        return delegate;
+    }
+
     public Object invokeMethod(String name, Object args) {
         try {
             return delegate.invokeMethod(name,args);

@@ -3,6 +3,7 @@ package org.kohsuke.stapler.jelly.groovy;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingMethodException;
+import groovy.lang.MissingPropertyException;
 import groovy.xml.QName;
 import org.apache.commons.beanutils.ConvertingWrapDynaBean;
 import org.apache.commons.beanutils.DynaBean;
@@ -23,10 +24,12 @@ import org.codehaus.groovy.runtime.InvokerHelper;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
+import org.kohsuke.stapler.jelly.JellyClassTearOff;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 /**
@@ -47,6 +50,8 @@ public final class JellyBuilder extends GroovyObjectSupport {
 
     private JellyContext context;
 
+    private final Map<Class,GroovyClosureScript> taglibs = new HashMap<Class,GroovyClosureScript>();
+
     public JellyBuilder(JellyContext context,XMLOutput output) {
         this.context = context;
         this.output = output;
@@ -61,6 +66,10 @@ public final class JellyBuilder extends GroovyObjectSupport {
 
     public Namespace namespace(String nsUri) {
         return namespace(nsUri,null);
+    }
+
+    public XMLOutput getOutput() {
+        return output;
     }
 
     @Override
@@ -293,6 +302,22 @@ public final class JellyBuilder extends GroovyObjectSupport {
     }
 
     /**
+     * Allows values from {@link JellyContext} to be read
+     * like global variables. These includes 'request', 'response', etc.
+     *
+     * @see JellyClassTearOff
+     */
+    public Object getProperty(String property) {
+        try {
+            return super.getProperty(property);
+        } catch (MissingPropertyException e) {
+            Object r = context.getVariable(property);
+            if(r!=null) return r;
+            throw e;
+        }
+    }
+
+    /**
      * {@link Script} that does nothing.
      */
     private static final Script NULL_SCRIPT = new Script() {
@@ -303,4 +328,17 @@ public final class JellyBuilder extends GroovyObjectSupport {
         public void run(JellyContext context, XMLOutput output) {
         }
     };
+
+    /**
+     * Loads a tag lib instance.
+     */
+    public Object taglib(Class type) throws IllegalAccessException, InstantiationException {
+        GroovyClosureScript o = taglibs.get(type);
+        if(o==null) {
+            o = (GroovyClosureScript) type.newInstance();
+            o.setDelegate(this);
+            taglibs.put(type,o);
+        }
+        return o;
+    }
 }

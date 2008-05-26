@@ -27,7 +27,7 @@ public class GroovyClassLoaderTearOff {
         CompilerConfiguration cc = new CompilerConfiguration();
         // use GroovyClosureScript class as the base class of the compiled script,
         // so that we can set a delegate.
-        cc.setScriptBaseClass(GroovyClosureScript.class.getName());
+        cc.setScriptBaseClass(GroovierViewScript.class.getName());
 
         // enable re-compilation support
         cc.setRecompileGroovySource(MetaClass.NO_CACHE);
