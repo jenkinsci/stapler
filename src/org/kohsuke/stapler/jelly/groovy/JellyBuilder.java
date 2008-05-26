@@ -143,9 +143,26 @@ public final class JellyBuilder extends GroovyObjectSupport {
             if (parent != null)
                 t.setParent(parent);
             t.setContext(context);
-            if(closure!=null)
-                t.setBody(new ClosureScript(this,closure));
-            else
+            if(closure!=null) {
+                final Closure theClosure = closure;
+                t.setBody(new Script() {
+                    public Script compile() throws JellyException {
+                        return this;
+                    }
+
+                    public void run(JellyContext context, XMLOutput output) throws JellyTagException {
+                        JellyContext oldc = setContext(context);
+                        XMLOutput oldo = setOutput(output);
+                        try {
+                            theClosure.setDelegate(JellyBuilder.this);
+                            theClosure.call();
+                        } finally {
+                            setContext(oldc);
+                            setOutput(oldo);
+                        }
+                    }
+                });
+            } else
             if(innerText!=null)
                 t.setBody(new TextScript(innerText));
             else
