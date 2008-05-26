@@ -49,6 +49,14 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> {
                 if(cl!=null) {
 
                     URL res = findResource(name, cl);
+                    if(res==null) {
+                        // look for 'defaults' file
+                        int dot = name.lastIndexOf('.');
+                        // foo/bar.groovy -> foo/bar.default.groovy
+                        // but don't do foo.bar/test -> foo.default.bar/test 
+                        if(name.lastIndexOf('/')<dot)
+                            res = findResource(name.substring(0,dot)+".default"+name.substring(dot),cl);
+                    }
                     if(res!=null) {
                         script = parseScript(res);
                         getScripts().put(name,script);
