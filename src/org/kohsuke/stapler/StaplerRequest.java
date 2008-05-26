@@ -107,6 +107,11 @@ public interface StaplerRequest extends HttpServletRequest {
     Ancestor findAncestor(Class type);
 
     /**
+     * Finds the nearest ancestor whose {@link Ancestor#getObject()} matches the given object.
+     */
+    Ancestor findAncestor(Object o);
+
+    /**
      * Short for {@code getParameter(name)!=nulll}
      */
     boolean hasParameter(String name);

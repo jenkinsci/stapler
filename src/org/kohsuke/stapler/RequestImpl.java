@@ -122,6 +122,17 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         return null;
     }
 
+    public Ancestor findAncestor(Object anc) {
+        for( int i = ancestors.size()-1; i>=0; i-- ) {
+            AncestorImpl a = ancestors.get(i);
+            Object o = a.getObject();
+            if (o==anc)
+                return a;
+        }
+
+        return null;
+    }
+
     public boolean hasParameter(String name) {
         return getParameter(name)!=null;
     }
