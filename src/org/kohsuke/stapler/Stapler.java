@@ -11,6 +11,7 @@ import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
+import org.kohsuke.stapler.jelly.groovy.GroovyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -420,6 +421,13 @@ public class Stapler extends HttpServlet {
                     jellyLinkageErrorReported = true;
                     getServletContext().log("Jelly not present. Skipped",e);
                 }
+            }
+
+            try {
+                if(metaClass.loadTearOff(GroovyClassTearOff.class).serveIndexGroovy(req,rsp,node))
+                    return;
+            } catch (LinkageError e) {
+                // groovy is not present.
             }
 
             URL indexHtml = getSideFileURL(node,"index.html");
