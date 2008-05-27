@@ -7,8 +7,10 @@ import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
+import org.kohsuke.stapler.jelly.JellyRequestDispatcher;
 
 import javax.servlet.ServletException;
+import javax.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Level;
@@ -28,6 +30,8 @@ public class GroovyClassTearOff extends AbstractTearOff<GroovyClassLoaderTearOff
         return script;
     }
 
+    // TODO: code duplication between JellyClassTearOff
+
     public boolean serveIndexGroovy(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
         try {
             Script script = findScript("index.groovy");
@@ -41,6 +45,16 @@ public class GroovyClassTearOff extends AbstractTearOff<GroovyClassLoaderTearOff
         } catch (JellyException e) {
             throw new ServletException(e);
         }
+    }
+
+    /**
+     * Creates a {@link RequestDispatcher} that forwards to the jelly view, if available.
+     */
+    public RequestDispatcher createDispatcher(Object it, String viewName) throws IOException {
+        Script script = findScript(viewName);
+        if(script!=null)
+            return new JellyRequestDispatcher(it,script);
+        return null;
     }
 
     private static final Logger LOGGER = Logger.getLogger(GroovyClassTearOff.class.getName());

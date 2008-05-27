@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * @author Kohsuke Kawaguchi
  */
-final class JellyRequestDispatcher implements RequestDispatcher {
+public final class JellyRequestDispatcher implements RequestDispatcher {
     private final Object it;
     private final Script script;
 

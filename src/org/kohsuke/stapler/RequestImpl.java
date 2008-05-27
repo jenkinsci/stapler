@@ -8,6 +8,7 @@ import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
+import org.kohsuke.stapler.jelly.groovy.GroovyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -77,6 +78,8 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
     }
 
     public RequestDispatcher getView(Object it,String viewName) throws IOException {
+        // TODO: this hard-coding totally sucks
+
         // check JSP view first
         RequestDispatcher rd = stapler.getResourceDispatcher(it, viewName);
         if(rd!=null)    return rd;
@@ -84,6 +87,15 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         // then Jelly view
         try {
             rd = MetaClass.get(it.getClass()).loadTearOff(JellyClassTearOff.class).createDispatcher(it,viewName);
+            if(rd!=null)
+                return rd;
+        } catch (LinkageError e) {
+            // jelly not present
+        }
+
+        // then Groovy view
+        try {
+            rd = MetaClass.get(it.getClass()).loadTearOff(GroovyClassTearOff.class).createDispatcher(it,viewName);
             if(rd!=null)
                 return rd;
         } catch (LinkageError e) {
