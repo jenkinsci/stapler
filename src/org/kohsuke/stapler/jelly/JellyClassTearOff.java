@@ -104,7 +104,13 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
      */
     public RequestDispatcher createDispatcher(Object it, String viewName) throws IOException {
         try {
+            // backward compatible behavior that expects full file name including ".jelly"
             Script script = findScript(viewName);
+            if(script!=null)
+                return new JellyRequestDispatcher(it,script);
+            
+            // this is what the look up was really supposed to be.
+            script = findScript(viewName+".jelly");
             if(script!=null)
                 return new JellyRequestDispatcher(it,script);
             return null;
