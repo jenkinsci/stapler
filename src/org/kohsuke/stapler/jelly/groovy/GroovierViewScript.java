@@ -2,9 +2,8 @@ package org.kohsuke.stapler.jelly.groovy;
 
 import groovy.lang.Binding;
 import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.StaplerRequest;
-import org.xml.sax.SAXException;
+import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * Base class for groovy script files used as stapler views and Groovy taglibs.
@@ -61,19 +60,5 @@ public abstract class GroovierViewScript extends GroovyClosureScript {
         if(rootURL==null)
             rootURL = getRequest().getContextPath();
         return rootURL;
-    }
-
-    @Override
-    public void println(Object value) {
-        try {
-            getDelegate().getOutput().write(value.toString());
-        } catch (SAXException e) {
-            throw new Error(e);
-        }
-    }
-
-    @Override
-    public void print(Object value) {
-        println(value);
     }
 }

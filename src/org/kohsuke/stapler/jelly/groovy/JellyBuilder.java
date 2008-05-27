@@ -316,6 +316,20 @@ public final class JellyBuilder extends GroovyObjectSupport {
             throw e;
         }
     }
+    
+    /**
+     * Gets the "it" object.
+     *
+     * In Groovy "it" is reserved word with a specific meaning,
+     * so instead use "that" as the word.
+     */
+    public Object getThat() {
+        return context.getVariable("it");
+    }
+
+    public void text(Object o) throws SAXException {
+        output.write(o.toString());
+    }
 
     /**
      * {@link Script} that does nothing.
