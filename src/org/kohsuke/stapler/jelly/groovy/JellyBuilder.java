@@ -25,12 +25,16 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
+import org.kohsuke.stapler.jelly.CustomTagLibrary;
+import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
+import org.kohsuke.stapler.MetaClassLoader;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.net.URL;
 
 /**
  * Drive Jelly scripts from Groovy markup.
@@ -72,8 +76,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
         return output;
     }
 
-    @Override
-    public Object invokeMethod(String name, Object args) {
+    public Object methodMissing(String name, Object args) {
         doInvokeMethod(new QName("",name), args);
         return null;
     }
@@ -344,7 +347,16 @@ public final class JellyBuilder extends GroovyObjectSupport {
     };
 
     /**
-     * Loads a tag lib instance.
+     * Loads a Groovy tag lib instance.
+     *
+     * <p>
+     * A groovy tag library is really just a script class with bunch of method definitions,
+     * without any explicit class definition. Such a class is loaded as a subtype of
+     * {@link GroovyClosureScript} so that it can use this builder as the delegation target.
+     *
+     * <p>
+     * This method instanciates the class (if not done so already for this request),
+     * and return it.
      */
     public Object taglib(Class type) throws IllegalAccessException, InstantiationException {
         GroovyClosureScript o = taglibs.get(type);
@@ -354,5 +366,38 @@ public final class JellyBuilder extends GroovyObjectSupport {
             taglibs.put(type,o);
         }
         return o;
+    }
+
+    /**
+     * Loads a jelly tag library.
+     *
+     * @param t
+     *      If this is a subtype of {@link TagLibrary}, then that tag library is loaded and bound to the
+     *      {@link Namespace} object, which you can later use to call tags.
+     *      Otherwise, t has to have 'taglib' file in the resource and sibling "*.jelly" files will be treated
+     *      as tag files. 
+     */
+    public Namespace jelly(Class t) {
+        String n = t.getName();
+
+        if(TagLibrary.class.isAssignableFrom(t)) {
+            // if the given class is a tag library itself, just record it
+            context.registerTagLibrary(n,n);
+        } else {
+            String path = n.replace('.', '/');
+            URL res = t.getClassLoader().getResource(path+"/taglib");
+            if(res!=null) {
+                // this class itself is not a tag library, but it contains Jelly side files that are tag files.
+                // (some of them might be views, but some of them are tag files, anyway.
+                JellyContext parseContext = MetaClassLoader.get(t.getClassLoader()).getTearOff(JellyClassLoaderTearOff.class).createContext();
+
+                context.registerTagLibrary(n,
+                    new CustomTagLibrary(parseContext, t.getClassLoader(), path));
+            } else {
+                throw new IllegalArgumentException("Cannot find taglib from "+t);
+            }
+        }
+
+        return new Namespace(this,n,"-"); // doesn't matter what the prefix is, since they are known to be taglibs
     }
 }
