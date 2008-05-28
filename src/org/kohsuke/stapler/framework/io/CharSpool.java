@@ -10,7 +10,7 @@ import java.util.LinkedList;
  *
  * @author Kohsuke Kawaguchi
  */
-final class CharSpool extends Writer {
+public /*for now, until Hudson migration completes*/ final class CharSpool extends Writer {
     private List<char[]> buf;
 
     private char[] last = new char[1024];

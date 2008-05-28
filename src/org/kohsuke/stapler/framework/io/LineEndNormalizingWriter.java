@@ -15,7 +15,7 @@ import java.io.IOException;
  *
  * @author Kohsuke Kawaguchi
  */
-class LineEndNormalizingWriter extends FilterWriter {
+public class LineEndNormalizingWriter extends FilterWriter {
 
     private boolean seenCR;
 
