@@ -31,7 +31,7 @@ public class GroovierJellyScript implements Script {
 
         JellyBinding binding = new JellyBinding(context,output);
         binding.setProperty("builder",builder);
-        GroovierViewScript gcs = (GroovierViewScript)InvokerHelper.createScript(clazz, binding);
+        GroovyClosureScript gcs = (GroovyClosureScript)InvokerHelper.createScript(clazz, binding);
         gcs.setDelegate(builder);
         gcs.run();
     }

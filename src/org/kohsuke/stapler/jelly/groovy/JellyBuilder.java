@@ -17,24 +17,30 @@ import org.apache.commons.jelly.Tag;
 import org.apache.commons.jelly.TagLibrary;
 import org.apache.commons.jelly.TagSupport;
 import org.apache.commons.jelly.XMLOutput;
-import org.apache.commons.jelly.expression.Expression;
 import org.apache.commons.jelly.expression.ConstantExpression;
+import org.apache.commons.jelly.expression.Expression;
 import org.apache.commons.jelly.impl.TextScript;
 import org.codehaus.groovy.runtime.InvokerHelper;
+import org.kohsuke.stapler.MetaClassLoader;
+import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.framework.adjunct.AdjunctManager;
+import org.kohsuke.stapler.jelly.CustomTagLibrary;
+import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
+import org.kohsuke.stapler.jelly.JellyClassTearOff;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
-import org.kohsuke.stapler.jelly.JellyClassTearOff;
-import org.kohsuke.stapler.jelly.CustomTagLibrary;
-import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
-import org.kohsuke.stapler.MetaClassLoader;
 
+import javax.servlet.ServletContext;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Map.Entry;
-import java.net.URL;
 
 /**
  * Drive Jelly scripts from Groovy markup.
@@ -56,9 +62,16 @@ public final class JellyBuilder extends GroovyObjectSupport {
 
     private final Map<Class,GroovyClosureScript> taglibs = new HashMap<Class,GroovyClosureScript>();
 
+    private final StaplerRequest request;
+    private StaplerResponse response;
+    private String rootURL;
+    private final AdjunctManager adjunctManager;
+
     public JellyBuilder(JellyContext context,XMLOutput output) {
         this.context = context;
         this.output = output;
+        this.request = Stapler.getCurrentRequest();
+        this.adjunctManager = AdjunctManager.get(request.getServletContext());
     }
 
     /**
@@ -399,5 +412,38 @@ public final class JellyBuilder extends GroovyObjectSupport {
         }
 
         return new Namespace(this,n,"-"); // doesn't matter what the prefix is, since they are known to be taglibs
+    }
+
+    public ServletContext getServletContext() {
+        return getRequest().getServletContext();
+    }
+
+    public StaplerRequest getRequest() {
+        return request;
+    }
+
+    public StaplerResponse getResponse() {
+        if(response==null)
+            response = Stapler.getCurrentResponse();
+        return response;
+    }
+
+    /**
+     * Gets the absolute URL to the top of the webapp.
+     *
+     * @see StaplerRequest#getContextPath()
+     */
+    public String getRootURL() {
+        if(rootURL==null)
+            rootURL = getRequest().getContextPath();
+        return rootURL;
+    }
+
+    /**
+     * Generates an &lt;IMG> tag to the resource.
+     */
+    public void img(Class base, String localName) throws SAXException {
+        output.write(
+            "<IMG src='"+adjunctManager.rootURL+'/'+base.getName().replace('.','/')+'/'+localName+"'>");
     }
 }
