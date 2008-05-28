@@ -8,7 +8,7 @@
 	<%@attribute name="spinner" required="false" description="ID of the HTML element in which the spinner is displayed" %>
 -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
-  <st:adjunct includes="org/kohsuke/stapler/framework/io/LargeText" />
+  <st:adjunct includes="org.kohsuke.stapler.framework.io.LargeText" />
   <script>
 	  $$("${idref}").fetchedBytes = 0;
     <j:choose>

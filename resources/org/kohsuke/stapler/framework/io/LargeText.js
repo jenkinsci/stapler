@@ -2,6 +2,7 @@
 // Auto-scroll support for progressive log output.
 //   See http://radio.javaranch.com/pascarello/2006/08/17/1155837038219.html
 //
+// @include org.kohsuke.stapler.framework.prototype.prototype
 
 function AutoScroller(scrollContainer) {
     // get the height of the viewport.

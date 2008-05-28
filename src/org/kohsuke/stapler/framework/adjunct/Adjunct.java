@@ -17,9 +17,14 @@ import java.util.regex.Pattern;
  */
 public class Adjunct {
     /**
-     * Fully qualified name of this adjunct.
+     * Fully qualified name of this adjunct that follows the dot notation.
      */
     public final String name;
+
+    /**
+     * The same as {@link #name} but uses '/' separator.
+     */
+    public final String slashedName;
 
     /**
      * List of fully qualified adjunct names that are required before this adjunct.
@@ -39,8 +44,9 @@ public class Adjunct {
      */
     public Adjunct(String name, final ClassLoader classLoader) throws IOException {
         this.name = name;
-        this.hasCss = parseOne(classLoader, name + ".css");
-        this.hasJavaScript = parseOne(classLoader,name +".js");
+        this.slashedName = name.replace('.','/');
+        this.hasCss = parseOne(classLoader, slashedName+".css");
+        this.hasJavaScript = parseOne(classLoader,slashedName+".js");
 
         if(!hasCss && !hasJavaScript)
             throw new IOException("Neither "+ name +".css nor "+ name +".js were found");
