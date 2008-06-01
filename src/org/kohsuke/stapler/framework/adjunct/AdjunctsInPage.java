@@ -1,12 +1,11 @@
 package org.kohsuke.stapler.framework.adjunct;
 
+import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
-import org.apache.commons.jelly.XMLOutput;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
