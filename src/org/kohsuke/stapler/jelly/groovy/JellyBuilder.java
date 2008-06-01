@@ -337,9 +337,9 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * Gets the "it" object.
      *
      * In Groovy "it" is reserved word with a specific meaning,
-     * so instead use "that" as the word.
+     * so instead use "my" as the word.
      */
-    public Object getThat() {
+    public Object getMy() {
         return context.getVariable("it");
     }
 
