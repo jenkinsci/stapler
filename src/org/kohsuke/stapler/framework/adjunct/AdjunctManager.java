@@ -119,6 +119,7 @@ public class AdjunctManager {
     protected boolean allowResourceToBeServed(String absolutePath) {
         return absolutePath.endsWith(".gif")
             || absolutePath.endsWith(".png")
+            || absolutePath.endsWith(".css")
             || absolutePath.endsWith(".js");
     }
 
