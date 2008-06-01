@@ -25,6 +25,7 @@ import org.kohsuke.stapler.MetaClassLoader;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.export.XMLDataWriter;
 import org.kohsuke.stapler.framework.adjunct.AdjunctManager;
 import org.kohsuke.stapler.jelly.CustomTagLibrary;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
@@ -344,8 +345,36 @@ public final class JellyBuilder extends GroovyObjectSupport {
         return context.getVariable("it");
     }
 
+    /**
+     * Writes PCDATA.
+     */
     public void text(Object o) throws SAXException {
+        output.write(escape(o.toString()));
+    }
+
+    /**
+     * Generates HTML fragment from string.
+     */
+    public void raw(Object o) throws SAXException {
         output.write(o.toString());
+    }
+
+    private String escape(String v) {
+        StringBuffer buf = new StringBuffer(v.length()+64);
+        for( int i=0; i<v.length(); i++ ) {
+            char ch = v.charAt(i);
+            if(ch=='<')
+                buf.append("&lt;");
+            else
+            if(ch=='>')
+                buf.append("&gt;");
+            else
+            if(ch=='&')
+                buf.append("&amp;");
+            else
+                buf.append(ch);
+        }
+        return buf.toString();
     }
 
     /**
