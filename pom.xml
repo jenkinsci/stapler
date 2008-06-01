@@ -178,22 +178,10 @@
         </executions>
       </plugin>
       <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
+        <artifactId>maven-release-plugin</artifactId>
         <configuration>
-          <descriptorRefs>
-            <descriptorRef>src</descriptorRef>
-            <descriptorRef>bin</descriptorRef>
-          </descriptorRefs>
+          <arguments>-P release</arguments>
         </configuration>
-        <executions>
-          <execution>
-            <!-- run after 'package' but before 'install' -->
-            <phase>verify</phase>
-            <goals>
-              <goal>attached</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
     
@@ -236,5 +224,33 @@
     -->
     <report>maven-linkcheck-plugin</report>
   </reports>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+              <descriptorRefs>
+                <descriptorRef>src</descriptorRef>
+                <descriptorRef>bin</descriptorRef>
+              </descriptorRefs>
+            </configuration>
+            <executions>
+              <execution>
+                <!-- run after 'package' but before 'install' -->
+                <phase>verify</phase>
+                <goals>
+                  <goal>attached</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
 
