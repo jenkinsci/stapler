@@ -512,6 +512,10 @@ public final class JellyBuilder extends GroovyObjectSupport {
         return response;
     }
 
+    public JellyBuilder getBuilder() {
+        return this;
+    }
+
     /**
      * Gets the absolute URL to the top of the webapp.
      *
