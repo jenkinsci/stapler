@@ -125,7 +125,8 @@ public final class JellyBuilder extends GroovyObjectSupport {
                 attributes = (Map) object1;
                 if (object2 instanceof Closure) {
                     closure = (Closure) object2;
-                } else {
+                } else
+                if(object2!=null) {
                     innerText = object2.toString();
                 }
             } else {
