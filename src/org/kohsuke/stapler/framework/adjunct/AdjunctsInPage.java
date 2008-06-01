@@ -23,6 +23,11 @@ public class AdjunctsInPage {
      */
     private final Set<String> included = new HashSet<String>();
 
+    /**
+     * {@link Adjunct}s that haven't written to HTML yet because &lt;head>
+     * tag hasn't been written yet.
+     */
+    private final List<Adjunct> pending = new ArrayList<Adjunct>();
 
     /**
      * Obtains the instance associated with the current request of the given {@link StaplerRequest}.
@@ -58,12 +63,26 @@ public class AdjunctsInPage {
         for (String include : includes)
             findNeeded(include,needed);
 
-        for (Adjunct adj : needed) {
-            if(adj.hasCss)
-                out.write("<link rel='stylesheet' href='"+manager.rootURL+'/'+adj.slashedName+".css' type='text/css' />");
-            if(adj.hasJavaScript)
-                out.write("<script src='"+manager.rootURL+'/'+adj.slashedName+".js' type='text/javascript'></script>");
-        }
+        for (Adjunct adj : needed)
+            adj.write(out);
+    }
+
+    /**
+     * Works like the {@link #generate(XMLOutput, String[])} method
+     * but just put the adjuncts to {@link #pending} without writing it.
+     */
+    public void spool(String... includes) throws IOException, SAXException {
+        for (String include : includes)
+            findNeeded(include,pending);
+    }
+
+    /**
+     * Writes out what's spooled by {@link #spool(String[])} method. 
+     */
+    public void writeSpooled(XMLOutput out) throws SAXException {
+        for (Adjunct adj : pending)
+            adj.write(out);
+        pending.clear();
     }
 
     /**

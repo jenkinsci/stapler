@@ -74,7 +74,7 @@ public class AdjunctManager {
         synchronized (this) {
             a = adjuncts.get(name);
             if(a!=null) return a;   // one more check before we start loading
-            a = new Adjunct(name,classLoader);
+            a = new Adjunct(this,name,classLoader);
             adjuncts.put(name,a);
             return a;
         }

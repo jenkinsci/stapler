@@ -51,6 +51,11 @@ import java.util.Map.Entry;
  */
 public final class JellyBuilder extends GroovyObjectSupport {
     /**
+     * Wrote the &lt;HEAD> tag?
+     */
+    private boolean wroteHEAD;
+
+    /**
      * Current {@link XMLOutput}.
      */
     private XMLOutput output;
@@ -68,6 +73,11 @@ public final class JellyBuilder extends GroovyObjectSupport {
     private StaplerResponse response;
     private String rootURL;
     private final AdjunctManager adjunctManager;
+
+    /**
+     * Cached {@Link AttributesImpl} instance.
+     */
+    private final AttributesImpl attributes = new AttributesImpl();
 
     public JellyBuilder(JellyContext context,XMLOutput output) {
         this.context = context;
@@ -166,44 +176,78 @@ public final class JellyBuilder extends GroovyObjectSupport {
 
         Tag parent = current;
 
-        try {
-            Tag t = createTag(name,attributes);
-            if (parent != null)
-                t.setParent(parent);
-            t.setContext(context);
-            if(closure!=null) {
-                final Closure theClosure = closure;
-                t.setBody(new Script() {
-                    public Script compile() throws JellyException {
-                        return this;
-                    }
-
-                    public void run(JellyContext context, XMLOutput output) throws JellyTagException {
-                        JellyContext oldc = setContext(context);
-                        XMLOutput oldo = setOutput(output);
-                        try {
-                            theClosure.setDelegate(JellyBuilder.this);
-                            theClosure.call();
-                        } finally {
-                            setContext(oldc);
-                            setOutput(oldo);
+        // TODO: do we really need Jelly interoperability?
+        if(!isTag(name)) {
+            this.attributes.clear();
+            for (Map.Entry e : ((Map<?,?>)attributes).entrySet()) {
+                Object v = e.getValue();
+                if(v==null) continue;
+                String attName = e.getKey().toString();
+                this.attributes.addAttribute("",attName,attName,"CDATA", v.toString());
+            }
+            try {
+                output.startElement(name.getNamespaceURI(),name.getLocalPart(),name.getQualifiedName(),this.attributes);
+                if(!wroteHEAD && name.getLocalPart().equalsIgnoreCase("HEAD")) {
+                    wroteHEAD = true;
+                    AdjunctsInPage.get().writeSpooled(output);
+                }
+                if(closure!=null) {
+                    closure.setDelegate(this);
+                    closure.call();
+                }
+                if(innerText!=null)
+                text(innerText);
+                output.endElement(name.getNamespaceURI(),name.getLocalPart(),name.getQualifiedName());
+            } catch (SAXException e) {
+                throw new RuntimeException(e);  // what's the proper way to handle exceptions in Groovy?
+            }
+        } else {// bridge to other Jelly tags
+            try {
+                Tag t = createTag(name,attributes);
+                if (parent != null)
+                    t.setParent(parent);
+                t.setContext(context);
+                if(closure!=null) {
+                    final Closure theClosure = closure;
+                    t.setBody(new Script() {
+                        public Script compile() throws JellyException {
+                            return this;
                         }
-                    }
-                });
-            } else
-            if(innerText!=null)
-                t.setBody(new TextScript(innerText));
-            else
-                t.setBody(NULL_SCRIPT);
 
-            current = t;
+                        public void run(JellyContext context, XMLOutput output) throws JellyTagException {
+                            JellyContext oldc = setContext(context);
+                            XMLOutput oldo = setOutput(output);
+                            try {
+                                theClosure.setDelegate(JellyBuilder.this);
+                                theClosure.call();
+                            } finally {
+                                setContext(oldc);
+                                setOutput(oldo);
+                            }
+                        }
+                    });
+                } else
+                if(innerText!=null)
+                    t.setBody(new TextScript(innerText));
+                else
+                    t.setBody(NULL_SCRIPT);
 
-            t.doTag(output);
-        } catch(JellyException e) {
-            throw new RuntimeException(e);  // what's the proper way to handle exceptions in Groovy?
-        } finally {
-            current = parent;
+                current = t;
+
+                t.doTag(output);
+            } catch(JellyException e) {
+            } finally {
+                current = parent;
+            }
         }
+    }
+
+    /**
+     * Is this a static XML tag that we just generate, or
+     * a jelly tag that needs evaluation?
+     */
+    private boolean isTag(QName name) {
+        return name.getNamespaceURI().length()>0;
     }
 
     private Tag createTag(final QName n, final Map attributes) throws JellyException {
@@ -410,7 +454,10 @@ public final class JellyBuilder extends GroovyObjectSupport {
             taglibs.put(type,o);
 
             try {
-                AdjunctsInPage.get().generate(output,type.getName());
+                if(wroteHEAD)
+                    AdjunctsInPage.get().generate(output,type.getName());
+                else
+                    AdjunctsInPage.get().spool(type.getName());
             } catch (NoSuchAdjunctException e) {
                 // that's OK.
             }

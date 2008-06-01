@@ -1,5 +1,8 @@
 package org.kohsuke.stapler.framework.adjunct;
 
+import org.apache.commons.jelly.XMLOutput;
+import org.xml.sax.SAXException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +19,9 @@ import java.util.regex.Pattern;
  * @author Kohsuke Kawaguchi
  */
 public class Adjunct {
+
+    public final AdjunctManager manager;
+
     /**
      * Fully qualified name of this adjunct that follows the dot notation.
      */
@@ -42,7 +48,8 @@ public class Adjunct {
      * @param classLoader
      *      This is where adjucts are loaded.
      */
-    public Adjunct(String name, final ClassLoader classLoader) throws IOException {
+    public Adjunct(AdjunctManager manager, String name, final ClassLoader classLoader) throws IOException {
+        this.manager = manager;
         this.name = name;
         this.slashedName = name.replace('.','/');
         this.hasCss = parseOne(classLoader, slashedName+".css");
@@ -73,6 +80,13 @@ public class Adjunct {
         case JS:    return hasJavaScript;
         }
         throw new AssertionError(k);
+    }
+
+    public void write(XMLOutput out) throws SAXException {
+        if(hasCss)
+            out.write("<link rel='stylesheet' href='"+manager.rootURL+'/'+slashedName+".css' type='text/css' />");
+        if(hasJavaScript)
+            out.write("<script src='"+manager.rootURL+'/'+slashedName+".js' type='text/javascript'></script>");
     }
 
     public enum Kind { CSS, JS }
