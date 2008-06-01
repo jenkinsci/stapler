@@ -18,4 +18,8 @@ public class IOException2 extends IOException {
         super(message);
         initCause(cause);
     }
+
+    public IOException2(Throwable cause) {
+        this(cause.toString(),cause);
+    }
 }
