@@ -25,8 +25,8 @@ import org.kohsuke.stapler.MetaClassLoader;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.export.XMLDataWriter;
 import org.kohsuke.stapler.framework.adjunct.AdjunctManager;
+import org.kohsuke.stapler.framework.adjunct.AdjunctsInPage;
 import org.kohsuke.stapler.jelly.CustomTagLibrary;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
@@ -401,12 +401,14 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * This method instanciates the class (if not done so already for this request),
      * and return it.
      */
-    public Object taglib(Class type) throws IllegalAccessException, InstantiationException {
+    public Object taglib(Class type) throws IllegalAccessException, InstantiationException, IOException, SAXException {
         GroovyClosureScript o = taglibs.get(type);
         if(o==null) {
             o = (GroovyClosureScript) type.newInstance();
             o.setDelegate(this);
             taglibs.put(type,o);
+
+            AdjunctsInPage.get().generate(output,type.getName());
         }
         return o;
     }

@@ -2,6 +2,8 @@ package org.kohsuke.stapler.framework.adjunct;
 
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
+import org.apache.commons.jelly.XMLOutput;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -52,7 +54,7 @@ public class AdjunctsInPage {
      * and records the fact that those adjuncts are already included in the page,
      * so that it won't be loaded again.
      */
-    public void generate(Writer out, String[] includes) throws IOException {
+    public void generate(XMLOutput out, String... includes) throws IOException, SAXException {
         List<Adjunct> needed = new ArrayList<Adjunct>();
         for (String include : includes)
             findNeeded(include,needed);

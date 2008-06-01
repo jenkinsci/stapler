@@ -32,11 +32,7 @@ public class AdjunctTag extends AbstractStaplerTag {
             throw new IllegalStateException("AdjunctManager is not installed for this application");
 
         try {
-            StringWriter sw = new StringWriter();
-            AdjunctsInPage aip = AdjunctsInPage.get();
-
-            aip.generate(sw,includes);
-            out.write(sw.toString());
+            AdjunctsInPage.get().generate(out,includes);
         } catch (IOException e) {
             throw new JellyTagException(e);
         } catch (SAXException e) {
