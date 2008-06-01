@@ -19,15 +19,13 @@ import java.util.logging.Logger;
 /**
  * @author Kohsuke Kawaguchi
  */
-public class GroovyClassTearOff extends AbstractTearOff<GroovyClassLoaderTearOff,Script,IOException> {
+public class GroovyClassTearOff extends AbstractTearOff<GroovyClassLoaderTearOff,GroovierJellyScript,IOException> {
     public GroovyClassTearOff(MetaClass owner) {
         super(owner,GroovyClassLoaderTearOff.class);
     }
 
-    protected Script parseScript(URL res) throws IOException {
-        Script script;
-        script = classLoader.parse(res);
-        return script;
+    public GroovierJellyScript parseScript(URL res) throws IOException {
+        return classLoader.parse(res);
     }
 
     // TODO: code duplication between JellyClassTearOff

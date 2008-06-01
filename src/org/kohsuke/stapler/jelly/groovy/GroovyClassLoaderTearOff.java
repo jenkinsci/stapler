@@ -1,7 +1,6 @@
 package org.kohsuke.stapler.jelly.groovy;
 
 import groovy.lang.GroovyClassLoader;
-import org.apache.commons.jelly.Script;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.MetaClassLoader;
@@ -50,7 +49,7 @@ public class GroovyClassLoaderTearOff {
         };
     }
 
-    public Script parse(URL script) throws IOException {
+    public GroovierJellyScript parse(URL script) throws IOException {
         return new GroovierJellyScript(gcl.parseClass(script.openStream(), script.toExternalForm()));
     }
 }

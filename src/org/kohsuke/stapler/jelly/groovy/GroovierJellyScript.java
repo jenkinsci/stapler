@@ -5,6 +5,7 @@ import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.XMLOutput;
 import org.codehaus.groovy.runtime.InvokerHelper;
+import groovy.lang.Binding;
 
 /**
  * Wraps a Groovy-driven Jelly script into {@link Script}
@@ -31,7 +32,11 @@ public class GroovierJellyScript implements Script {
 
         JellyBinding binding = new JellyBinding(context,output);
         binding.setProperty("builder",builder);
-        GroovyClosureScript gcs = (GroovyClosureScript)InvokerHelper.createScript(clazz, binding);
+        run(builder);
+    }
+
+    public void run(JellyBuilder builder) {
+        GroovyClosureScript gcs = (GroovyClosureScript) InvokerHelper.createScript(clazz, new Binding());
         gcs.setDelegate(builder);
         gcs.run();
     }
