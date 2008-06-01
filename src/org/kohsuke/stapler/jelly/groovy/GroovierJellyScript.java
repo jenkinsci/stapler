@@ -28,11 +28,7 @@ public class GroovierJellyScript implements Script {
     }
 
     public void run(JellyContext context, XMLOutput output) throws JellyTagException {
-        final JellyBuilder builder = new JellyBuilder(context, output);
-
-        JellyBinding binding = new JellyBinding(context,output);
-        binding.setProperty("builder",builder);
-        run(builder);
+        run(new JellyBuilder(context, output));
     }
 
     public void run(JellyBuilder builder) {
