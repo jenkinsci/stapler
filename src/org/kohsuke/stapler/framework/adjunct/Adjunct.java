@@ -49,7 +49,7 @@ public class Adjunct {
         this.hasJavaScript = parseOne(classLoader,slashedName+".js");
 
         if(!hasCss && !hasJavaScript)
-            throw new IOException("Neither "+ name +".css nor "+ name +".js were found");
+            throw new NoSuchAdjunctException("Neither "+ name +".css nor "+ name +".js were found");
     }
 
     private boolean parseOne(ClassLoader classLoader, String resName) throws IOException {
