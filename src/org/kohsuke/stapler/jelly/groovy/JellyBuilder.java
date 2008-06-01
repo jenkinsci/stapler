@@ -27,6 +27,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.framework.adjunct.AdjunctManager;
 import org.kohsuke.stapler.framework.adjunct.AdjunctsInPage;
+import org.kohsuke.stapler.framework.adjunct.NoSuchAdjunctException;
 import org.kohsuke.stapler.jelly.CustomTagLibrary;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
@@ -408,7 +409,11 @@ public final class JellyBuilder extends GroovyObjectSupport {
             o.setDelegate(this);
             taglibs.put(type,o);
 
-            AdjunctsInPage.get().generate(output,type.getName());
+            try {
+                AdjunctsInPage.get().generate(output,type.getName());
+            } catch (NoSuchAdjunctException e) {
+                // that's OK.
+            }
         }
         return o;
     }
