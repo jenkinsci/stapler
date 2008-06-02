@@ -554,7 +554,13 @@ public final class JellyBuilder extends GroovyObjectSupport {
     }
 
     /**
-     * Yields a URL to the given resource. 
+     * Yields a URL to the given resource.
+     *
+     * @param base
+     *      The base class/object for which the 'localName' parameter
+     *      is resolved from. If this is class, 'localName' is assumed
+     *      to be a resource of this class. If it's other objects,
+     *      'localName' is assumed to be a resource of the class of this object.
      */
     public String res(Object base, String localName) {
         Class c;
