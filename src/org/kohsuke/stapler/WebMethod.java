@@ -27,7 +27,10 @@ public @interface WebMethod {
      * <p>
      * Normally, for <tt>doXyz</tt> method, the name is <tt>xyz</tt>,
      * but you can use this to assign multiple names or non-default names.
-     * Often useful for using names that contain non-identifier characters. 
+     * Often useful for using names that contain non-identifier characters.
+     *
+     * <p>
+     * The same applies to <tt>getXyz</tt> methods. 
      */
     String[] name();
 }

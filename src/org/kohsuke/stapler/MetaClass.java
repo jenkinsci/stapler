@@ -213,15 +213,24 @@ public class MetaClass extends TearOffSupport {
         for( final Function f : getMethods.signature() ) {
             if(f.getName().length()<=3)
                 continue;
-            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
-            dispatchers.add(new NameBasedDispatcher(name) {
-                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    if(LOGGER.isLoggable(Level.FINE))
-                        LOGGER.fine("Calling "+f.getName()+"() on "+node+" for "+req.tokens);
 
-                    req.getStapler().invoke(req,rsp,f.invoke(req, node));
-                }
-            });
+            WebMethod a = f.getAnnotation(WebMethod.class);
+
+            String[] names;
+            if(a!=null && a.name().length>0)   names=a.name();
+            else    names=new String[]{camelize(f.getName().substring(3))}; // 'getFoo' -> 'foo'
+
+
+            for (String name : names) {
+                dispatchers.add(new NameBasedDispatcher(name) {
+                    public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                        if(LOGGER.isLoggable(Level.FINE))
+                            LOGGER.fine("Calling "+f.getName()+"() on "+node+" for "+req.tokens);
+
+                        req.getStapler().invoke(req,rsp,f.invoke(req, node));
+                    }
+                });
+            }
         }
 
         // check public selector methods of the form static NODE.getTOKEN(StaplerRequest)
