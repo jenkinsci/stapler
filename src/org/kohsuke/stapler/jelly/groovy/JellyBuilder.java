@@ -548,8 +548,20 @@ public final class JellyBuilder extends GroovyObjectSupport {
     /**
      * Generates an &lt;IMG> tag to the resource.
      */
-    public void img(Class base, String localName) throws SAXException {
+    public void img(Object base, String localName) throws SAXException {
         output.write(
-            "<IMG src='"+adjunctManager.rootURL+'/'+base.getName().replace('.','/')+'/'+localName+"'>");
+            "<IMG src='"+res(base,localName)+"'>");
+    }
+
+    /**
+     * Yields a URL to the given resource. 
+     */
+    public String res(Object base, String localName) {
+        Class c;
+        if (base instanceof Class)
+            c = (Class) base;
+        else
+            c = base.getClass();
+        return adjunctManager.rootURL+'/'+c.getName().replace('.','/')+'/'+localName;
     }
 }
