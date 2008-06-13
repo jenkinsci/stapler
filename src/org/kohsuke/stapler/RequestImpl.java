@@ -407,7 +407,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         if(s==null)
             throw new NoStaplerConstructorException(
                 "Unable to find "+resourceName+". "+
-                "Have you put @stapler-constructor javadoc tag on a constructor?");
+                "Have you put @DataBoundConstructor javadoc tag on a constructor?");
 
         try {
             Properties p = new Properties();
