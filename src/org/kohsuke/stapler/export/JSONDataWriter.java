@@ -24,7 +24,7 @@ final class JSONDataWriter implements DataWriter {
 
     public void name(String name) throws IOException {
         comma();
-        out.write(name+':');
+        out.write('"'+name+"\":");
         needComma = false;
     }
 
