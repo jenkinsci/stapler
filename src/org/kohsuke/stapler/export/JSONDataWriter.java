@@ -10,7 +10,7 @@ import java.io.Writer;
  *
  * @author Kohsuke Kawaguchi
  */
-final class JSONDataWriter implements DataWriter {
+class JSONDataWriter implements DataWriter {
     private boolean needComma;
     private final Writer out;
 
@@ -28,7 +28,7 @@ final class JSONDataWriter implements DataWriter {
         needComma = false;
     }
 
-    private void data(String v) throws IOException {
+    protected void data(String v) throws IOException {
         comma();
         out.write(v);
     }
