@@ -403,7 +403,10 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
      */
     private String[] loadConstructorParamNames(Class<?> type) {
         String resourceName = type.getName().replace('.', '/').replace('$','/') + ".stapler";
-        InputStream s = type.getClassLoader().getResourceAsStream(resourceName);
+        ClassLoader cl = type.getClassLoader();
+        if(cl==null)
+            throw new NoStaplerConstructorException(type+" is a built-in type");
+        InputStream s = cl.getResourceAsStream(resourceName);
         if(s==null)
             throw new NoStaplerConstructorException(
                 "Unable to find "+resourceName+". "+
