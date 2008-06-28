@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import net.sf.json.JSONObject;
 
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * Tests the instantiation of nested objects.
@@ -36,9 +37,9 @@ public class NestedJsonTest extends TestCase {
     public void test1() {
         JSONObject bar = new JSONObject();
         bar.put("i",123);
-        bar.put("class",BarImpl.class.getName());
         JSONObject foo = new JSONObject();
         foo.put("bar",bar);
+        foo.getJSONObject("bar").put("class",BarImpl.class.getName());
 
         RequestImpl req = new RequestImpl(null,new MockRequest(),Collections.EMPTY_LIST,null);
         Foo o = req.bindJSON(Foo.class, foo);
