@@ -290,6 +290,22 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
     }
 
     public <T> T bindJSON(Class<T> type, JSONObject src) {
+        if(src.has("class")) {
+            // sub-type is specified in JSON.
+            // note that this can come from malicious clients, so we need to make sure we don't have seucrity issues.
+            
+            // TODO: we probably need to take this explicitly.
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            String className = src.getString("class");
+            try {
+                Class<?> subType = cl.loadClass(className);
+                if(!type.isAssignableFrom(subType))
+                    throw new IllegalArgumentException("Specified type "+subType+" is not assignable to th expected "+type);
+                type = (Class)subType; // I'm being lazy here
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException("Class "+className+" is specified in JSON, but no such class found in "+cl,e);
+            }
+        }
         String[] names = loadConstructorParamNames(type);
 
         // the actual arguments to invoke the constructor with.
