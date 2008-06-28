@@ -295,6 +295,25 @@ public interface StaplerRequest extends HttpServletRequest {
      * then, this method returns
      *
      * <pre>new Foo(null,"text",true,new Bar(1,2))</pre>
+     *
+     * <h3>Sub-typing</h3>
+     * <p>
+     * In the above example, a new instance of <tt>Bar</tt> was created,
+     * but you can also create a subtype of Bar by having the 'class' property in
+     * JSON like this:
+     *
+     * <pre>
+     * class BarEx extends Bar {
+     *   &#64;{@link DataBoundConstructor}
+     *   public BarEx(int a, int b, int c) {}
+     * }
+     *
+     * { y:"text", z:true, bar: { class:"p.k.g.BarEx", a:1, b:2, c:3 } }
+     * </pre>
+     *
+     * <p>
+     * The type that shows up in the constructor (<tt>Bar</tt> in this case)
+     * can be an interface or an abstract class.
      */
     <T>
     T bindJSON(Class<T> type, JSONObject src);
