@@ -27,4 +27,13 @@ final class PythonDataWriter extends JSONDataWriter {
     public void valueNull() throws IOException {
         data("None");
     }
+
+    public void valuePrimitive(Object v) throws IOException {
+        if(v instanceof Boolean) {
+            if((Boolean)v)  data("True");
+            else            data("False");
+            return;
+        }
+        super.valuePrimitive(v);
+    }
 }
