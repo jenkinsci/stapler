@@ -294,8 +294,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
             // sub-type is specified in JSON.
             // note that this can come from malicious clients, so we need to make sure we don't have seucrity issues.
             
-            // TODO: we probably need to take this explicitly.
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            ClassLoader cl = stapler.getClassLoader();
             String className = src.getString("stapler-class");
             try {
                 Class<?> subType = cl.loadClass(className);

@@ -530,6 +530,23 @@ public class Stapler extends HttpServlet {
     }
 
     /**
+     * Sets the classloader used by {@link StaplerRequest#bindJSON(Class, JSONObject)} and its sibling methods.
+     */
+    public static void setClassLoader( ServletContext context, ClassLoader classLoader ) {
+        context.setAttribute("stapler-classLoader",classLoader);
+    }
+
+    public static ClassLoader getClassLoader( ServletContext context ) {
+        ClassLoader cl = (ClassLoader) context.getAttribute("stapler-classLoader");
+        if(cl==null)    cl = Thread.currentThread().getContextClassLoader();
+        return cl;
+    }
+
+    public ClassLoader getClassLoader() {
+        return getClassLoader(context);
+    }
+
+    /**
      * Gets the current {@link StaplerRequest} that the calling thread is associated with.
      */
     public static StaplerRequest getCurrentRequest() {
