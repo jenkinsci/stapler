@@ -40,7 +40,7 @@ public class NestedJsonTest extends TestCase {
         foo.put("bar",bar);
         foo.getJSONObject("bar").put("stapler-class",BarImpl.class.getName());
 
-        RequestImpl req = new RequestImpl(null,new MockRequest(),Collections.EMPTY_LIST,null);
+        RequestImpl req = new RequestImpl(new Stapler(), new MockRequest(),Collections.EMPTY_LIST,null);
         Foo o = req.bindJSON(Foo.class, foo);
         assertTrue(o!=null);
         assertTrue(o.bar instanceof BarImpl);

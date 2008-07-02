@@ -537,8 +537,14 @@ public class Stapler extends HttpServlet {
     }
 
     public static ClassLoader getClassLoader( ServletContext context ) {
-        ClassLoader cl = (ClassLoader) context.getAttribute("stapler-classLoader");
-        if(cl==null)    cl = Thread.currentThread().getContextClassLoader();
+        ClassLoader cl=null;
+        if(context!=null)
+            // this shouldn't happen in the real execution, but during the testing it's useful to allow this to be null.
+            cl = (ClassLoader) context.getAttribute("stapler-classLoader");
+        if(cl==null)
+            cl = Thread.currentThread().getContextClassLoader();
+        if(cl==null)
+            cl = Stapler.class.getClassLoader();
         return cl;
     }
 
