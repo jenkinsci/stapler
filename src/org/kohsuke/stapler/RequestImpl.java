@@ -290,13 +290,13 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
     }
 
     public <T> T bindJSON(Class<T> type, JSONObject src) {
-        if(src.has("class")) {
+        if(src.has("stapler-class")) {
             // sub-type is specified in JSON.
             // note that this can come from malicious clients, so we need to make sure we don't have seucrity issues.
             
             // TODO: we probably need to take this explicitly.
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            String className = src.getString("class");
+            String className = src.getString("stapler-class");
             try {
                 Class<?> subType = cl.loadClass(className);
                 if(!type.isAssignableFrom(subType))
