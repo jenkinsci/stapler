@@ -122,7 +122,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
         GroovyClassTearOff t = MetaClass.get(clazz).getTearOff(GroovyClassTearOff.class);
         GroovierJellyScript s = t.findScript(view);
         if(s==null)
-            throw new IllegalArgumentException("No such view: "+view+" for "+it.getClass());
+            throw new IllegalArgumentException("No such view: "+view+" for "+clazz);
         s.run(this);
     }
 
