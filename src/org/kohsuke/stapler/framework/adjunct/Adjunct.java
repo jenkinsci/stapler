@@ -67,8 +67,8 @@ public class Adjunct {
         else
             inclusionFragment = null;
 
-        if(!hasCss && !hasJavaScript)
-            throw new NoSuchAdjunctException("Neither "+ name +".css nor "+ name +".js were found");
+        if(!hasCss && !hasJavaScript && inclusionFragment==null)
+            throw new NoSuchAdjunctException("Neither "+ name +".css nor "+ name +".js nor "+name+".html were found");
     }
 
     private boolean parseOne(ClassLoader classLoader, String resName) throws IOException {
