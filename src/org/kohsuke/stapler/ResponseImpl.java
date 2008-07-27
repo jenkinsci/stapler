@@ -129,7 +129,7 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
         return new OutputStreamWriter(new GZIPOutputStream(getOutputStream()),getCharacterEncoding());
     }
 
-    public void reverseProxyTo(URL url, StaplerRequest req) throws IOException {
+    public int reverseProxyTo(URL url, StaplerRequest req) throws IOException {
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setDoOutput(true);
 
@@ -148,7 +148,8 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
         copyAndClose(req.getInputStream(), con.getOutputStream());
 
         // copy the response
-        setStatus(con.getResponseCode(),con.getResponseMessage());
+        int code = con.getResponseCode();
+        setStatus(code,con.getResponseMessage());
         Map<String,List<String>> rspHeaders = con.getHeaderFields();
         for (Entry<String, List<String>> header : rspHeaders.entrySet()) {
             if(header.getKey()==null)   continue;   // response line
@@ -158,6 +159,8 @@ class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse
         }
 
         copyAndClose(con.getInputStream(), getOutputStream());
+
+        return code;
     }
 
     private void copyAndClose(InputStream in, OutputStream out) throws IOException {

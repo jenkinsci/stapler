@@ -20,7 +20,7 @@ final class PythonDataWriter extends JSONDataWriter {
     }
 
     public PythonDataWriter(StaplerResponse rsp) throws IOException {
-        super(rsp);
+        super(rsp); 
     }
 
     @Override

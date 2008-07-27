@@ -148,6 +148,9 @@ public interface StaplerResponse extends HttpServletResponse {
 
     /**
      * Performs the reverse proxy to the given URL.
+     *
+     * @return
+     *      The status code of the response.
      */
-    void reverseProxyTo(URL url, StaplerRequest req) throws IOException;
+    int reverseProxyTo(URL url, StaplerRequest req) throws IOException;
 }
