@@ -93,10 +93,14 @@ public class AdjunctsInPage {
             return; // alerady sent
 
         // list dependencies first
-        Adjunct a = manager.get(include);
-        for (String req : a.required)
-            findNeeded(req,needed);
-        needed.add(a);
+        try {
+            Adjunct a = manager.get(include);
+            for (String req : a.required)
+                findNeeded(req,needed);
+            needed.add(a);
+        } catch (NoSuchAdjunctException e) {
+            // ignore error
+        }
     }
 
     private static final String KEY = AdjunctsInPage.class.getName();
