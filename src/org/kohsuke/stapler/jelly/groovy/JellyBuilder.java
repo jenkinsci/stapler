@@ -106,18 +106,26 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * Includes another view.
      */
     public void include(Object it, String view) throws IOException {
-        GroovyClassTearOff t = MetaClass.get(it.getClass()).getTearOff(GroovyClassTearOff.class);
-        GroovierJellyScript s = t.findScript(view);
-        if(s==null)
-            throw new IllegalArgumentException("No such view: "+view+" for "+it.getClass());
         Object oldIt = context.getVariable("it");
         context.setVariable("it",it);
         try {
-            s.run(this);
+            include(it.getClass(),view);
         } finally {
             context.setVariable("it",oldIt);
         }
     }
+
+    /**
+     * Includes another view.
+     */
+    public void include(Class clazz, String view) throws IOException {
+        GroovyClassTearOff t = MetaClass.get(clazz).getTearOff(GroovyClassTearOff.class);
+        GroovierJellyScript s = t.findScript(view);
+        if(s==null)
+            throw new IllegalArgumentException("No such view: "+view+" for "+it.getClass());
+        s.run(this);
+    }
+
 
     public Object methodMissing(String name, Object args) {
         doInvokeMethod(new QName("",name), args);
