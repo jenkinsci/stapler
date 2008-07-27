@@ -1,7 +1,6 @@
 package org.kohsuke.stapler.framework.adjunct;
 
 import org.apache.commons.jelly.XMLOutput;
-import org.apache.commons.io.IOUtils;
 import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
@@ -62,10 +61,7 @@ public class Adjunct {
         this.slashedName = name.replace('.','/');
         this.hasCss = parseOne(classLoader, slashedName+".css");
         this.hasJavaScript = parseOne(classLoader,slashedName+".js");
-        if(parseOne(classLoader,slashedName+".html"))
-            inclusionFragment = IOUtils.toString(new InputStreamReader(classLoader.getResourceAsStream(slashedName+".html"),"UTF-8"));
-        else
-            inclusionFragment = null;
+        this.inclusionFragment = parseHtml(classLoader,slashedName+".html");
 
         if(!hasCss && !hasJavaScript && inclusionFragment==null)
             throw new NoSuchAdjunctException("Neither "+ name +".css nor "+ name +".js nor "+name+".html were found");
@@ -85,6 +81,25 @@ public class Adjunct {
         in.close();
         return true;
     }
+
+    private String parseHtml(ClassLoader classLoader, String resName) throws IOException {
+        InputStream is = classLoader.getResourceAsStream(resName);
+        if (is == null)     return null;
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(is,UTF8));
+        String line;
+        StringBuilder buf = new StringBuilder();
+        while((line=in.readLine())!=null) {
+            Matcher m = HTML_INCLUDE.matcher(line);
+            if(m.lookingAt())
+                required.add(m.group(1));
+            else
+                buf.append(line).append('\n');
+        }
+        in.close();
+        return buf.toString();
+    }
+
 
     public boolean has(Kind k) {
         switch (k) {
@@ -108,5 +123,6 @@ public class Adjunct {
     public enum Kind { CSS, JS }
 
     private static final Pattern INCLUDE = Pattern.compile("/[/*]\\s*@include (\\S+)");
+    private static final Pattern HTML_INCLUDE = Pattern.compile("<@include (\\S+)>");
     private static final Charset UTF8 = Charset.forName("UTF-8");
 }
