@@ -62,8 +62,8 @@ public class Adjunct {
         this.slashedName = name.replace('.','/');
         this.hasCss = parseOne(classLoader, slashedName+".css");
         this.hasJavaScript = parseOne(classLoader,slashedName+".js");
-        if(parseOne(classLoader,slashedName+".inc"))
-            inclusionFragment = IOUtils.toString(new InputStreamReader(classLoader.getResourceAsStream(slashedName+".inc"),"UTF-8"));
+        if(parseOne(classLoader,slashedName+".html"))
+            inclusionFragment = IOUtils.toString(new InputStreamReader(classLoader.getResourceAsStream(slashedName+".html"),"UTF-8"));
         else
             inclusionFragment = null;
 
