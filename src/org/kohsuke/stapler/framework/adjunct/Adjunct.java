@@ -1,6 +1,7 @@
 package org.kohsuke.stapler.framework.adjunct;
 
 import org.apache.commons.jelly.XMLOutput;
+import org.apache.commons.io.IOUtils;
 import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
@@ -37,8 +38,15 @@ public class Adjunct {
      */
     public final List<String> required = new ArrayList<String>();
 
-    public final boolean hasCss;
-    public final boolean hasJavaScript;
+    private final boolean hasCss;
+    private final boolean hasJavaScript;
+
+    /**
+     * If the HTML that includes CSS/JavaScripts are provided
+     * by this adjunct, non-null. This allows external JavaScript/CSS
+     * resources to be handled in the adjunct mechanism.
+     */
+    private final String inclusionFragment;
 
     /**
      * Builds an adjunct.
@@ -54,6 +62,10 @@ public class Adjunct {
         this.slashedName = name.replace('.','/');
         this.hasCss = parseOne(classLoader, slashedName+".css");
         this.hasJavaScript = parseOne(classLoader,slashedName+".js");
+        if(parseOne(classLoader,slashedName+".inc"))
+            inclusionFragment = IOUtils.toString(new InputStreamReader(classLoader.getResourceAsStream(slashedName+".inc"),"UTF-8"));
+        else
+            inclusionFragment = null;
 
         if(!hasCss && !hasJavaScript)
             throw new NoSuchAdjunctException("Neither "+ name +".css nor "+ name +".js were found");
@@ -83,6 +95,10 @@ public class Adjunct {
     }
 
     public void write(XMLOutput out) throws SAXException {
+        if(inclusionFragment!=null) {
+            out.write(inclusionFragment);
+            return;
+        }
         if(hasCss)
             out.write("<link rel='stylesheet' href='"+manager.rootURL+'/'+slashedName+".css' type='text/css' />");
         if(hasJavaScript)
