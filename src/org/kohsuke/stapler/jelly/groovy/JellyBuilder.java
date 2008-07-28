@@ -479,16 +479,22 @@ public final class JellyBuilder extends GroovyObjectSupport {
             o.setDelegate(this);
             taglibs.put(type,o);
 
-            try {
-                if(wroteHEAD)
-                    AdjunctsInPage.get().generate(output,type.getName());
-                else
-                    AdjunctsInPage.get().spool(type.getName());
-            } catch (NoSuchAdjunctException e) {
-                // that's OK.
-            }
+            adjunct(type.getName());
         }
         return o;
+    }
+
+    /**
+     * Includes the specified adjunct.
+     */
+    public void adjunct(String name) throws IOException, SAXException {
+        try {
+            AdjunctsInPage aip = AdjunctsInPage.get();
+            if(wroteHEAD)   aip.generate(output,name);
+            else            aip.spool(name);
+        } catch (NoSuchAdjunctException e) {
+            // that's OK.
+        }
     }
 
     /**
