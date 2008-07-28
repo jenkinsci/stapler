@@ -299,7 +299,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * <h3>Sub-typing</h3>
      * <p>
      * In the above example, a new instance of <tt>Bar</tt> was created,
-     * but you can also create a subtype of Bar by having the 'class' property in
+     * but you can also create a subtype of Bar by having the 'stapler-class' property in
      * JSON like this:
      *
      * <pre>
@@ -308,7 +308,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *   public BarEx(int a, int b, int c) {}
      * }
      *
-     * { y:"text", z:true, bar: { class:"p.k.g.BarEx", a:1, b:2, c:3 } }
+     * { y:"text", z:true, bar: { stapler-class:"p.k.g.BarEx", a:1, b:2, c:3 } }
      * </pre>
      *
      * <p>
