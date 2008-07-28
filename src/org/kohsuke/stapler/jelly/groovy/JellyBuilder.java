@@ -486,6 +486,8 @@ public final class JellyBuilder extends GroovyObjectSupport {
 
     /**
      * Includes the specified adjunct.
+     *
+     * This method is useful for including adjunct dynamically on demand.
      */
     public void adjunct(String name) throws IOException, SAXException {
         try {
