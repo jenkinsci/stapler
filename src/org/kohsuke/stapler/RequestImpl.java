@@ -15,6 +15,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,6 +56,11 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
     private final Stapler stapler;
 
     private final String originalRequestURI;
+
+    /**
+     * Cached result of {@link #getSubmittedForm()}
+     */
+    private JSONObject structuredForm;
 
     public RequestImpl(Stapler stapler, HttpServletRequest request, List<AncestorImpl> ancestors, TokenList tokens) {
         super(request);
@@ -501,5 +507,24 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         } catch (NoSuchFieldException e) {
             // no such field
         }
+    }
+
+    public JSONObject getSubmittedForm() {
+        if(structuredForm==null) {
+            String p = getParameter("json");
+            if(p==null) {
+                // no data submitted
+                try {
+                    StaplerResponse rsp = Stapler.getCurrentResponse();
+                    rsp.sendError(SC_BAD_REQUEST,"This page expects a form submission");
+                    rsp.getWriter().close();
+                    throw new Error("This page expects a form submission");
+                } catch (IOException e) {
+                    throw new Error(e);
+                }
+            }
+            structuredForm = JSONObject.fromObject(p);
+        }
+        return structuredForm;
     }
 }

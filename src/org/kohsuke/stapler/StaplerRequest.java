@@ -329,4 +329,11 @@ public interface StaplerRequest extends HttpServletRequest {
      */
     <T>
     List<T> bindJSONToList(Class<T> type, Object src);
+
+    /**
+     * Gets the content of the structured form submission.
+     * 
+     * See http://hudson.gotdns.com/wiki/display/HUDSON/Structured+Form+Submission
+     */
+    JSONObject getSubmittedForm();
 }
