@@ -2,9 +2,11 @@ package org.kohsuke.stapler;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.fileupload.FileItem;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -332,8 +334,18 @@ public interface StaplerRequest extends HttpServletRequest {
 
     /**
      * Gets the content of the structured form submission.
-     * 
+     *
      * See http://hudson.gotdns.com/wiki/display/HUDSON/Structured+Form+Submission
      */
-    JSONObject getSubmittedForm();
+    JSONObject getSubmittedForm() throws ServletException;
+
+    /**
+     * Obtains a commons-fileupload object that represents an uploaded file.
+     *
+     * @return
+     *      null if a file of the given form field name doesn't exist.
+     *      This includes the case where the name corresponds to a simple
+     *      form field (like textbox, checkbox, etc.) 
+     */
+    FileItem getFileItem(String name) throws ServletException, IOException;
 }

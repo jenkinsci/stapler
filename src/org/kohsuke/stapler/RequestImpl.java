@@ -6,12 +6,17 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
 import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
 import org.kohsuke.stapler.jelly.groovy.GroovyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +38,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * {@link StaplerRequest} implementation.
@@ -61,6 +68,13 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
      * Cached result of {@link #getSubmittedForm()}
      */
     private JSONObject structuredForm;
+
+    /**
+     * If the request is "multipart/form-data", parsed result goes here.
+     *
+     * @see #parseMultipartFormData()
+     */
+    private Map<String, FileItem> parsedFormData;
 
     public RequestImpl(Stapler stapler, HttpServletRequest request, List<AncestorImpl> ancestors, TokenList tokens) {
         super(request);
@@ -509,9 +523,32 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         }
     }
 
-    public JSONObject getSubmittedForm() {
+    private void parseMultipartFormData() throws ServletException {
+        if(parsedFormData!=null)    return;
+
+        parsedFormData = new HashMap<String,FileItem>();
+        ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
+        try {
+            for( FileItem fi : (List<FileItem>)upload.parseRequest(this) )
+                parsedFormData.put(fi.getFieldName(),fi);
+        } catch (FileUploadException e) {
+            throw new ServletException(e);
+        }
+    }
+
+    public JSONObject getSubmittedForm() throws ServletException {
         if(structuredForm==null) {
-            String p = getParameter("json");
+            String ct = getContentType();
+            String p = null;
+
+            if(ct!=null && ct.startsWith("multipart/")) {
+                parseMultipartFormData();
+                FileItem item = parsedFormData.get("json");
+                if(item!=null)
+                    p = item.getString();
+            } else
+                p = getParameter("json");
+            
             if(p==null) {
                 // no data submitted
                 try {
@@ -526,5 +563,13 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
             structuredForm = JSONObject.fromObject(p);
         }
         return structuredForm;
+    }
+
+    public FileItem getFileItem(String name) throws ServletException, IOException {
+        parseMultipartFormData();
+        if(parsedFormData==null)    return null;
+        FileItem item = parsedFormData.get(name);
+        if(item==null || item.isFormField())    return null;
+        return item;
     }
 }
