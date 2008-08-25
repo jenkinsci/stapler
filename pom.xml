@@ -4,7 +4,7 @@
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler</artifactId>
   <packaging>jar</packaging>
-  <version>1.82-SNAPSHOT</version>
+  <version>1.82</version>
 
   <name>Stapler</name>
   <description>Stapler HTTP request handling engine</description>
@@ -37,6 +37,7 @@
     <connection>scm:cvs:pserver:guest@cvs.dev.java.net:/cvs:stapler/stapler</connection>
     <developerConnection>scm:cvs:pserver:kohsuke@cvs.dev.java.net:/cvs:stapler/stapler</developerConnection>
     <url>https://stapler.dev.java.net/source/browse/stapler/stapler</url>
+    <tag>stapler-1_82</tag>
   </scm>
 
   <distributionManagement>
