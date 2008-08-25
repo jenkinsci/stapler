@@ -321,6 +321,21 @@ public interface StaplerRequest extends HttpServletRequest {
     T bindJSON(Class<T> type, JSONObject src);
 
     /**
+     * Data-binds from {@link JSONObject} to the given object.
+     *
+     * <p>
+     * This method is bit like {@link #bindJSON(Class, JSONObject)}, except that this method
+     * populates an existing object, instead of creating a new instance.
+     *
+     * <p>
+     * This method is also bit like {@link #bindParameters(Object, String)}, in that it
+     * populates an existing object from a form submission, except that this method
+     * obtains data from {@link JSONObject} thus more structured, whereas {@link #bindParameters(Object, String)}
+     * uses the map structure of the form submission. 
+     */
+    void bindJSON( Object bean, JSONObject src );
+
+    /**
      * Data-bind from either {@link JSONObject} or {@link JSONArray} to a list,
      * by using {@link #bindJSON(Class, JSONObject)} as the lower-level mechanism.
      *

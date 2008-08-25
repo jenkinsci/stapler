@@ -12,7 +12,7 @@ import java.util.Collections;
  */
 public class NestedJsonTest extends TestCase {
     public static final class Foo {
-        public final Bar bar;
+        public Bar bar;
 
         // we test this with manual .stapler file
         // @DataBoundConstructor
@@ -33,17 +33,32 @@ public class NestedJsonTest extends TestCase {
         }
     }
 
-    public void test1() {
+    public void testCreateObject() {
+        Foo o = createRequest().bindJSON(Foo.class, createDataSet());
+
+        assertTrue(o!=null);
+        assertTrue(o.bar instanceof BarImpl);
+        assertEquals(123, ((BarImpl)o.bar).i);
+    }
+
+    public void testInstanceFill() {
+        Foo o = new Foo(null);
+        createRequest().bindJSON(o, createDataSet());
+        
+        assertTrue(o.bar instanceof BarImpl);
+        assertEquals(123, ((BarImpl)o.bar).i);
+    }
+
+    private RequestImpl createRequest() {
+        return new RequestImpl(new Stapler(), new MockRequest(), Collections.EMPTY_LIST,null);
+    }
+
+    private JSONObject createDataSet() {
         JSONObject bar = new JSONObject();
         bar.put("i",123);
         JSONObject foo = new JSONObject();
         foo.put("bar",bar);
-        foo.getJSONObject("bar").put("stapler-class",BarImpl.class.getName());
-
-        RequestImpl req = new RequestImpl(new Stapler(), new MockRequest(),Collections.EMPTY_LIST,null);
-        Foo o = req.bindJSON(Foo.class, foo);
-        assertTrue(o!=null);
-        assertTrue(o.bar instanceof BarImpl);
-        assertEquals(123, ((BarImpl)o.bar).i);
+        foo.getJSONObject("bar").put("stapler-class", BarImpl.class.getName());
+        return foo;
     }
 }

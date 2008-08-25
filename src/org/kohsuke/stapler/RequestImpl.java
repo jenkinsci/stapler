@@ -28,6 +28,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -337,10 +339,33 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
 
         // convert parameters
         for( int i=0; i<names.length; i++ ) {
-            args[i] = convertJSON(src.get(names[i]),types[i],genTypes[i]);
+            args[i] = new TypePair(genTypes[i],types[i]).convertJSON(src.get(names[i]));
         }
 
         return invokeConstructor(c, args);
+    }
+
+    public void bindJSON(Object bean, JSONObject src) {
+        try {
+            for( String key : (Set<String>)src.keySet() ) {
+                TypePair type = getPropertyType(bean, key);
+                if(type==null)
+                    continue;
+
+                fill(bean,key, type.convertJSON(src.get(key)));
+            }
+        } catch (IllegalAccessException e) {
+            IllegalAccessError x = new IllegalAccessError(e.getMessage());
+            x.initCause(e);
+            throw x;
+        } catch (InvocationTargetException x) {
+            Throwable e = x.getTargetException();
+            if(e instanceof RuntimeException)
+                throw (RuntimeException)e;
+            if(e instanceof Error)
+                throw (Error)e;
+            throw new RuntimeException(x);
+        }
     }
 
     public <T> List<T> bindJSONToList(Class<T> type, Object src) {
@@ -361,36 +386,6 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         return r;
     }
 
-    private Object convertJSON(Object o, Class target, Type genericType) {
-        if(o==null)     return null;
-
-        Lister l = Lister.create(target,genericType);
-
-        if (o instanceof JSONObject) {
-            JSONObject j = (JSONObject) o;
-
-            if(l==null) {
-                // single value conversion
-                return bindJSON(target,j);
-            } else {
-                // only one value given to the collection
-                l.add(convertJSON(j,l.itemType,l.itemGenericType));
-                return l.toCollection();
-            }
-        }
-        if (o instanceof JSONArray) {
-            JSONArray a = (JSONArray) o;
-            for (Object item : a)
-                l.add(convertJSON(item,l.itemType,l.itemGenericType));
-            return l.toCollection();
-        }
-
-        Converter converter = Stapler.lookupConverter(target);
-        if (converter==null)
-            throw new IllegalArgumentException("Unable to convert to "+target);
-
-        return converter.convert(target,o);
-    }
 
     private <T> T invokeConstructor(Constructor<T> c, Object[] args) {
         try {
@@ -460,7 +455,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         }
     }
 
-    private static void fill(Object bean, String key, String value) {
+    private static void fill(Object bean, String key, Object value) {
         StringTokenizer tokens = new StringTokenizer(key);
         while(tokens.hasMoreTokens()) {
             String token = tokens.nextToken();
@@ -487,6 +482,87 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
         }
     }
 
+    /**
+     * Information about the type.
+     */
+    private final class TypePair {
+        final Type genericType;
+        final Class type;
+
+        TypePair(Type genericType, Class type) {
+            this.genericType = genericType;
+            this.type = type;
+        }
+
+        TypePair(Field f) {
+            this(f.getGenericType(),f.getType());
+        }
+
+        /**
+         * Converts the given JSON object (either {@link JSONObject}, {@link JSONArray}, or other primitive types
+         * in JSON, to the type represented by the 'this' object.
+         */
+        public Object convertJSON(Object o) {
+            if(o==null)     return null;
+
+            Lister l = Lister.create(type,genericType);
+
+            if (o instanceof JSONObject) {
+                JSONObject j = (JSONObject) o;
+
+                if(l==null) {
+                    // single value conversion
+                    return bindJSON(type,j);
+                } else {
+                    // only one value given to the collection
+                    l.add(new TypePair(l.itemGenericType,l.itemType).convertJSON(j));
+                    return l.toCollection();
+                }
+            }
+            if (o instanceof JSONArray) {
+                JSONArray a = (JSONArray) o;
+                TypePair itemType = new TypePair(l.itemGenericType,l.itemType);
+                for (Object item : a)
+                    l.add(itemType.convertJSON(item));
+                return l.toCollection();
+            }
+
+            Converter converter = Stapler.lookupConverter(type);
+            if (converter==null)
+                throw new IllegalArgumentException("Unable to convert to "+type);
+
+            return converter.convert(type,o);
+        }
+    }
+
+    /**
+     * Gets the type of the field/property designate by the given name.
+     */
+    private TypePair getPropertyType(Object bean, String name) throws IllegalAccessException, InvocationTargetException {
+        try {
+            PropertyDescriptor propDescriptor = PropertyUtils.getPropertyDescriptor(bean, name);
+            if(propDescriptor!=null) {
+                Method m = propDescriptor.getWriteMethod();
+                if(m!=null)
+                    return new TypePair(m.getGenericParameterTypes()[0], m.getParameterTypes()[0]);
+            }
+        } catch (NoSuchMethodException e) {
+            // no such property
+        }
+
+        // try a field
+        try {
+            return new TypePair(bean.getClass().getField(name));
+        } catch (NoSuchFieldException e) {
+            // no such field
+        }
+
+        return null;
+    }
+
+    /**
+     * Sets the property/field value of the given name, by performing a value type conversion if necessary.
+     */
     private static void copyProperty(Object bean, String name, Object value) throws IllegalAccessException, InvocationTargetException {
         PropertyDescriptor propDescriptor;
         try {
