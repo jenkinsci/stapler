@@ -1,10 +1,5 @@
 package org.kohsuke.stapler;
 
-import org.apache.commons.jelly.Script;
-import org.kohsuke.stapler.jelly.JellyClassTearOff;
-import org.kohsuke.stapler.jelly.groovy.GroovyClassTearOff;
-
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -12,9 +7,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The stapler version of the {@link Class} object,
@@ -42,9 +36,15 @@ public class MetaClass extends TearOffSupport {
      */
     public final MetaClass baseClass;
 
-    private MetaClass(Class clazz) {
+    /**
+     * {@link WebApp} that owns this meta class.
+     */
+    public final WebApp webApp;
+
+    /*package*/ MetaClass(WebApp webApp, Class clazz) {
         this.clazz = clazz;
-        this.baseClass = get(clazz.getSuperclass());
+        this.webApp = webApp;
+        this.baseClass = webApp.getMetaClass(clazz.getSuperclass());
         this.classLoader = MetaClassLoader.get(clazz.getClassLoader());
 
         buildDispatchers(
@@ -78,99 +78,9 @@ public class MetaClass extends TearOffSupport {
             }
         }
         
-        dispatchers.add(new Dispatcher() {
-            public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
-                String next = req.tokens.peek();
-                if(next==null)  return false;
 
-                Stapler stapler = req.getStapler();
-
-                // check static resources
-                RequestDispatcher disp = stapler.getResourceDispatcher(node,next);
-                if(disp==null) {
-                    // check JSP views
-                    disp = stapler.getResourceDispatcher(node,next+".jsp");
-                    if(disp==null)  return false;
-                }
-
-                req.tokens.next();
-
-                if(LOGGER.isLoggable(Level.FINE))
-                    LOGGER.fine("Invoking "+next+".jsp"+" on "+node+" for "+req.tokens);
-
-                stapler.forward(disp,req,rsp);
-                return true;
-            }
-        });
-
-        try {
-            dispatchers.add(new Dispatcher() {
-                final JellyClassTearOff tearOff = loadTearOff(JellyClassTearOff.class);
-
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
-                    // check Jelly view
-                    String next = req.tokens.peek();
-                    if(next==null)  return false;
-
-                    try {
-                        Script script = tearOff.findScript(next+".jelly");
-
-                        if(script==null)        return false;   // no Jelly script found
-
-                        req.tokens.next();
-
-                        if(LOGGER.isLoggable(Level.FINE))
-                            LOGGER.fine("Invoking "+next+".jelly"+" on "+node+" for "+req.tokens);
-
-                        JellyClassTearOff.invokeScript(req, rsp, script, node);
-
-                        return true;
-                    } catch (RuntimeException e) {
-                        throw e;
-                    } catch (IOException e) {
-                        throw e;
-                    } catch (Exception e) {
-                        throw new ServletException(e);
-                    }
-                }
-            });
-        } catch (LinkageError e) {
-            // jelly not present. ignore
-        }
-
-        try {
-            dispatchers.add(new Dispatcher() {
-                final GroovyClassTearOff tearOff = loadTearOff(GroovyClassTearOff.class);
-
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
-                    // check Groovy view
-                    String next = req.tokens.peek();
-                    if(next==null)  return false;
-
-                    try {
-                        Script script = tearOff.findScript(next+".groovy");
-                        if(script==null)        return false;   // no Groovy script found
-
-                        req.tokens.next();
-
-                        if(LOGGER.isLoggable(Level.FINE))
-                            LOGGER.fine("Invoking "+next+".groovy"+" on "+node+" for "+req.tokens);
-
-                        JellyClassTearOff.invokeScript(req, rsp, script, node);
-
-                        return true;
-                    } catch (RuntimeException e) {
-                        throw e;
-                    } catch (IOException e) {
-                        throw e;
-                    } catch (Exception e) {
-                        throw new ServletException(e);
-                    }
-                }
-            });
-        } catch (LinkageError e) {
-            // groovy not present. ignore
-        }
+        for (Facet f : webApp.facets)
+            f.buildViewDispatchers(this, dispatchers);
 
         // check action <obj>.doIndex(req,rsp)
         for( final Function f : node.methods
@@ -414,27 +324,6 @@ public class MetaClass extends TearOffSupport {
             // ignore.
         }
     }
-
-
-
-    public static MetaClass get(Class c) {
-        if(c==null)     return null;
-        synchronized(classMap) {
-            MetaClass mc = classMap.get(c);
-            if(mc==null) {
-                mc = new MetaClass(c);
-                classMap.put(c,mc);
-            }
-            return mc;
-        }
-    }
-
-    /**
-     * All {@link MetaClass}es.
-     *
-     * Avoids class leaks by {@link WeakHashMap}.
-     */
-    private static final Map<Class,MetaClass> classMap = new WeakHashMap<Class,MetaClass>();
 
     private static final Logger LOGGER = Logger.getLogger(MetaClass.class.getName());
 }

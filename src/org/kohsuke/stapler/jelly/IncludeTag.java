@@ -6,6 +6,7 @@ import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.TagSupport;
 import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.MetaClass;
+import org.kohsuke.stapler.WebApp;
 
 /**
  * Tag that includes views of the object.
@@ -70,7 +71,7 @@ public class IncludeTag extends TagSupport {
         if(it==null)
             it = getContext().getVariable("it");
 
-        MetaClass c = MetaClass.get(getScriptClass(it));
+        MetaClass c = WebApp.getCurrent().getMetaClass(getScriptClass(it));
         Script script;
         try {
             script = c.loadTearOff(JellyClassTearOff.class).findScript(page);

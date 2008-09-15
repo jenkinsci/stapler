@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 /**
  * @author Kohsuke Kawaguchi
  */
-public class GroovyClassTearOff extends AbstractTearOff<GroovyClassLoaderTearOff,GroovierJellyScript,IOException> {
+final class GroovyClassTearOff extends AbstractTearOff<GroovyClassLoaderTearOff,GroovierJellyScript,IOException> {
     public GroovyClassTearOff(MetaClass owner) {
         super(owner,GroovyClassLoaderTearOff.class);
     }

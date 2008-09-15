@@ -29,7 +29,7 @@ import java.util.Map.Entry;
  * 
  * @author Kohsuke Kawaguchi
  */
-class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse {
+public class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse {
     private final Stapler stapler;
     private final HttpServletResponse response;
 

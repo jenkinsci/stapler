@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
  *
  * @author Kohsuke Kawaguchi
  */
-final class TokenList {
+public final class TokenList {
     public final String[] tokens;
     /**
      * Index of the next token.

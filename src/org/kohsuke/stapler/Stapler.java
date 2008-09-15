@@ -2,16 +2,14 @@ package org.kohsuke.stapler;
 
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.ConversionException;
+import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.Converter;
-import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DoubleConverter;
 import org.apache.commons.beanutils.converters.FloatConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
-import org.kohsuke.stapler.jelly.JellyClassTearOff;
-import org.kohsuke.stapler.jelly.groovy.GroovyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -37,10 +35,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -59,31 +55,25 @@ public class Stapler extends HttpServlet {
 
     private /*final*/ ServletContext context;
 
-    /**
-     * If non-null, static HTML resources in the war is served with this encoding.
-     */
-    private final Map<String,String> defaultEncodingForStaticResources = new HashMap<String, String>();
-
-    /**
-     * Duck-type wrappers for the given class.
-     */
-    private Map<Class,Class[]> wrappers;
+    private /*final*/ WebApp webApp;
 
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         this.context = servletConfig.getServletContext();
-        wrappers = (Map<Class,Class[]>) servletConfig.getServletContext().getAttribute("wrappers");
-        if(wrappers==null)
-            wrappers = new HashMap<Class,Class[]>();
+        this.webApp = WebApp.get(context);
         String defaultEncodings = servletConfig.getInitParameter("default-encodings");
         if(defaultEncodings!=null) {
             for(String t : defaultEncodings.split(";")) {
                 t=t.trim();
                 int idx=t.indexOf('=');
                 if(idx<0)   throw new ServletException("Invalid format: "+t);
-                defaultEncodingForStaticResources.put(t.substring(0,idx),t.substring(idx+1));
+                webApp.defaultEncodingForStaticResources.put(t.substring(0,idx),t.substring(idx+1));
             }
         }
+    }
+
+    public WebApp getWebApp() {
+        return webApp;
     }
 
     protected void service(HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
@@ -217,7 +207,7 @@ public class Stapler extends HttpServlet {
     private OpenConnection openURL(URL url) throws IOException {
         if(url==null)   return null;
 
-        // jetty reports directories as URLs, which isn't what this is intended for,
+        // jetty reports directories    as URLs, which isn't what this is intended for,
         // so check and reject.
         File f = toFile(url);
         if(f!=null && f.isDirectory())
@@ -293,8 +283,8 @@ public class Stapler extends HttpServlet {
             fileName = fileName.substring(idx+1);
             String mimeType = getServletContext().getMimeType(fileName);
             if(mimeType==null)  mimeType="application/octet-stream";
-            if(defaultEncodingForStaticResources.containsKey(mimeType))
-                mimeType += ";charset="+defaultEncodingForStaticResources.get(mimeType);
+            if(webApp.defaultEncodingForStaticResources.containsKey(mimeType))
+                mimeType += ";charset="+webApp.defaultEncodingForStaticResources.get(mimeType);
             rsp.setContentType(mimeType);
 
             idx = fileName.lastIndexOf('.');
@@ -350,11 +340,11 @@ public class Stapler extends HttpServlet {
      */
     public void invoke(HttpServletRequest req, HttpServletResponse rsp, Object root, String url) throws IOException, ServletException {
         RequestImpl sreq = new RequestImpl(this, req, new ArrayList<AncestorImpl>(), new TokenList(url));
-        StaplerRequest oreq = CURRENT_REQUEST.get();
+        RequestImpl oreq = CURRENT_REQUEST.get();
         CURRENT_REQUEST.set(sreq);
 
         ResponseImpl srsp = new ResponseImpl(this, rsp);
-        StaplerResponse orsp = CURRENT_RESPONSE.get();
+        ResponseImpl orsp = CURRENT_RESPONSE.get();
         CURRENT_RESPONSE.set(srsp);
 
         try {
@@ -384,7 +374,7 @@ public class Stapler extends HttpServlet {
             return;
         }
 
-        MetaClass metaClass = MetaClass.get(node.getClass());
+        MetaClass metaClass = webApp.getMetaClass(node.getClass());
 
         if(!req.tokens.hasMore()) {
             String servletPath = getServletPath(req);
@@ -403,31 +393,9 @@ public class Stapler extends HttpServlet {
                 }
             }
 
-            // TODO: find the list of welcome pages for this class by reading web.xml
-            RequestDispatcher indexJsp = getResourceDispatcher(node,"index.jsp");
-            if(indexJsp!=null) {
-                if(LOGGER.isLoggable(Level.FINE))
-                    LOGGER.fine("Invoking index.jsp on "+node);
-                forward(indexJsp,req,rsp);
-                return;
-            }
-
-            try {
-                if(metaClass.loadTearOff(JellyClassTearOff.class).serveIndexJelly(req,rsp,node))
+            for (Facet f : webApp.facets) {
+                if(f.handleIndexRequest(req,rsp,node,metaClass))
                     return;
-            } catch (LinkageError e) {
-                // jelly is not present.
-                if(!jellyLinkageErrorReported) {
-                    jellyLinkageErrorReported = true;
-                    getServletContext().log("Jelly not present. Skipped",e);
-                }
-            }
-
-            try {
-                if(metaClass.loadTearOff(GroovyClassTearOff.class).serveIndexGroovy(req,rsp,node))
-                    return;
-            } catch (LinkageError e) {
-                // groovy is not present.
             }
 
             URL indexHtml = getSideFileURL(node,"index.html");
@@ -453,11 +421,12 @@ public class Stapler extends HttpServlet {
         rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 
-    void forward(RequestDispatcher dispatcher, StaplerRequest req, HttpServletResponse rsp) throws ServletException, IOException {
+    public void forward(RequestDispatcher dispatcher, StaplerRequest req, HttpServletResponse rsp) throws ServletException, IOException {
         dispatcher.forward(req,new ResponseImpl(this,rsp));
     }
 
-    RequestDispatcher getResourceDispatcher(Object node, String fileName) throws MalformedURLException {
+    // TODO: move this to JSP package, then make it hiden
+    public RequestDispatcher getResourceDispatcher(Object node, String fileName) throws MalformedURLException {
         for( Class c = node.getClass(); c!=Object.class; c=c.getSuperclass() ) {
             String name = "/WEB-INF/side-files/"+c.getName().replace('.','/').replace('$','/')+'/'+fileName;
             if(getServletContext().getResource(name)!=null) {
@@ -531,25 +500,28 @@ public class Stapler extends HttpServlet {
 
     /**
      * Sets the classloader used by {@link StaplerRequest#bindJSON(Class, JSONObject)} and its sibling methods.
+     *
+     * @deprecated
+     *      Use {@link WebApp#setClassLoader(ClassLoader)}
      */
     public static void setClassLoader( ServletContext context, ClassLoader classLoader ) {
-        context.setAttribute("stapler-classLoader",classLoader);
+        WebApp.get(context).setClassLoader(classLoader);
     }
 
+    /**
+     * @deprecated
+     *      Use {@link WebApp#getClassLoader()}
+     */
     public static ClassLoader getClassLoader( ServletContext context ) {
-        ClassLoader cl=null;
-        if(context!=null)
-            // this shouldn't happen in the real execution, but during the testing it's useful to allow this to be null.
-            cl = (ClassLoader) context.getAttribute("stapler-classLoader");
-        if(cl==null)
-            cl = Thread.currentThread().getContextClassLoader();
-        if(cl==null)
-            cl = Stapler.class.getClassLoader();
-        return cl;
+        return WebApp.get(context).getClassLoader();
     }
 
+    /**
+     * @deprecated
+     *      Use {@link WebApp#getClassLoader()}
+     */
     public ClassLoader getClassLoader() {
-        return getClassLoader(context);
+        return webApp.getClassLoader();
     }
 
     /**
@@ -567,6 +539,13 @@ public class Stapler extends HttpServlet {
     }
 
     /**
+     * Gets the current {@link Stapler} that the calling thread is associated with.
+     */
+    public static Stapler getCurrent() {
+        return CURRENT_REQUEST.get().getStapler();
+    }
+
+    /**
      * HTTP date format. Notice that {@link SimpleDateFormat} is thread unsafe.
      */
     static final ThreadLocal<SimpleDateFormat> HTTP_DATE_FORMAT =
@@ -579,10 +558,8 @@ public class Stapler extends HttpServlet {
             }
         };
 
-    private static ThreadLocal<StaplerRequest> CURRENT_REQUEST = new ThreadLocal<StaplerRequest>();
-    private static ThreadLocal<StaplerResponse> CURRENT_RESPONSE = new ThreadLocal<StaplerResponse>();
-
-    private static boolean jellyLinkageErrorReported;
+    private static ThreadLocal<RequestImpl> CURRENT_REQUEST = new ThreadLocal<RequestImpl>();
+    private static ThreadLocal<ResponseImpl> CURRENT_RESPONSE = new ThreadLocal<ResponseImpl>();
 
     private static final Logger LOGGER = Logger.getLogger(Stapler.class.getName());
 

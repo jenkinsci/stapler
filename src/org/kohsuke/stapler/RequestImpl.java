@@ -6,13 +6,11 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.jvnet.tiger_types.Lister;
-import org.kohsuke.stapler.jelly.JellyClassTearOff;
-import org.kohsuke.stapler.jelly.groovy.GroovyClassTearOff;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -27,8 +25,8 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,19 +34,19 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.Set;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * {@link StaplerRequest} implementation.
  * 
  * @author Kohsuke Kawaguchi
  */
-class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
+public class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
     /**
      * Tokenized URLs and consumed tokens.
      * This object is modified by {@link Stapler} as we parse through the URL.
@@ -62,7 +60,7 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
 
     private final List<Ancestor> ancestorsView;
 
-    private final Stapler stapler;
+    public final Stapler stapler;
 
     private final String originalRequestURI;
 
@@ -100,28 +98,10 @@ class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
     }
 
     public RequestDispatcher getView(Object it,String viewName) throws IOException {
-        // TODO: this hard-coding totally sucks
-
-        // check JSP view first
-        RequestDispatcher rd = stapler.getResourceDispatcher(it, viewName);
-        if(rd!=null)    return rd;
-
-        // then Jelly view
-        try {
-            rd = MetaClass.get(it.getClass()).loadTearOff(JellyClassTearOff.class).createDispatcher(it,viewName);
+        for( Facet f : stapler.getWebApp().facets ) {
+            RequestDispatcher rd = f.createRequestDispatcher(this, it,viewName);
             if(rd!=null)
                 return rd;
-        } catch (LinkageError e) {
-            // jelly not present
-        }
-
-        // then Groovy view
-        try {
-            rd = MetaClass.get(it.getClass()).loadTearOff(GroovyClassTearOff.class).createDispatcher(it,viewName);
-            if(rd!=null)
-                return rd;
-        } catch (LinkageError e) {
-            // jelly not present
         }
 
         return null;

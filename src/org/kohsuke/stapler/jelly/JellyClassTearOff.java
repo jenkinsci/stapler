@@ -73,6 +73,9 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
                 // send out headers, making it impossible to set contentType from the script.
                 // so don't let Jelly flush.
             }
+            public void write(byte b[], int off, int len) throws IOException {
+                out.write(b, off, len);
+            }
         };
         XMLOutput xmlOutput = XMLOutput.createXMLOutput(output);
         script.run(context,xmlOutput);

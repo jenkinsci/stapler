@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 /**
+ * Controls the dispatching of incoming HTTP requests.
+ *
  * @author Kohsuke Kawaguchi
  */
-interface Dispatcher {
+public interface Dispatcher {
     /**
      * Trys to handle the given request and returns true
      * if it succeeds. Otherwise false.

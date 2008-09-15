@@ -3,6 +3,7 @@ package org.kohsuke.stapler;
 import junit.framework.TestCase;
 import net.sf.json.JSONObject;
 
+import javax.servlet.ServletException;
 import java.util.Collections;
 
 /**
@@ -33,7 +34,7 @@ public class NestedJsonTest extends TestCase {
         }
     }
 
-    public void testCreateObject() {
+    public void testCreateObject() throws Exception {
         Foo o = createRequest().bindJSON(Foo.class, createDataSet());
 
         assertTrue(o!=null);
@@ -41,7 +42,7 @@ public class NestedJsonTest extends TestCase {
         assertEquals(123, ((BarImpl)o.bar).i);
     }
 
-    public void testInstanceFill() {
+    public void testInstanceFill() throws Exception {
         Foo o = new Foo(null);
         createRequest().bindJSON(o, createDataSet());
         
@@ -49,8 +50,8 @@ public class NestedJsonTest extends TestCase {
         assertEquals(123, ((BarImpl)o.bar).i);
     }
 
-    private RequestImpl createRequest() {
-        return new RequestImpl(new Stapler(), new MockRequest(), Collections.EMPTY_LIST,null);
+    private RequestImpl createRequest() throws Exception {
+        return new RequestImpl(createStapler(), new MockRequest(), Collections.EMPTY_LIST,null);
     }
 
     private JSONObject createDataSet() {
@@ -60,5 +61,11 @@ public class NestedJsonTest extends TestCase {
         foo.put("bar",bar);
         foo.getJSONObject("bar").put("stapler-class", BarImpl.class.getName());
         return foo;
+    }
+
+    private Stapler createStapler() throws ServletException {
+        Stapler stapler = new Stapler();
+        stapler.init(new ServletConfigImpl());
+        return stapler;
     }
 }

@@ -26,6 +26,7 @@ import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.MetaClass;
+import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.framework.adjunct.AdjunctManager;
 import org.kohsuke.stapler.framework.adjunct.AdjunctsInPage;
 import org.kohsuke.stapler.framework.adjunct.NoSuchAdjunctException;
@@ -119,7 +120,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * Includes another view.
      */
     public void include(Class clazz, String view) throws IOException {
-        GroovyClassTearOff t = MetaClass.get(clazz).getTearOff(GroovyClassTearOff.class);
+        GroovyClassTearOff t = WebApp.getCurrent().getMetaClass(clazz).getTearOff(GroovyClassTearOff.class);
         GroovierJellyScript s = t.findScript(view);
         if(s==null)
             throw new IllegalArgumentException("No such view: "+view+" for "+clazz);
