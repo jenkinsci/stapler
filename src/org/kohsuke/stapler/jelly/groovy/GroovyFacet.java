@@ -6,7 +6,8 @@ import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.TearOffSupport;
-import org.kohsuke.stapler.jelly.JellyClassTearOff;
+import org.kohsuke.stapler.WebApp;
+import org.kohsuke.stapler.jelly.JellyFacet;
 import org.apache.commons.jelly.Script;
 
 import javax.servlet.ServletException;
@@ -39,7 +40,7 @@ public class GroovyFacet extends Facet {
                     if(LOGGER.isLoggable(Level.FINE))
                         LOGGER.fine("Invoking "+next+".groovy"+" on "+node+" for "+req.tokens);
 
-                    JellyClassTearOff.invokeScript(req, rsp, script, node);
+                    WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, rsp, script, node);
 
                     return true;
                 } catch (RuntimeException e) {

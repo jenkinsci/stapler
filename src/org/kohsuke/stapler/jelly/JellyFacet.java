@@ -20,6 +20,11 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  */
 public class JellyFacet extends Facet {
+    /**
+     * Used to invoke Jelly script. Can be replaced to the custom object.
+     */
+    public volatile ScriptInvoker scriptInvoker = new DefaultScriptInvoker();
+
     public void buildViewDispatchers(final MetaClass owner, List<Dispatcher> dispatchers) {
         dispatchers.add(new Dispatcher() {
             final JellyClassTearOff tearOff = owner.loadTearOff(JellyClassTearOff.class);
@@ -39,7 +44,7 @@ public class JellyFacet extends Facet {
                     if(LOGGER.isLoggable(Level.FINE))
                         LOGGER.fine("Invoking "+next+".jelly"+" on "+node+" for "+req.tokens);
 
-                    JellyClassTearOff.invokeScript(req, rsp, script, node);
+                    scriptInvoker.invokeScript(req, rsp, script, node);
 
                     return true;
                 } catch (RuntimeException e) {

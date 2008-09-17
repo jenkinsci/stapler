@@ -15,7 +15,7 @@ import org.kohsuke.stapler.StaplerResponse;
 public class CompressTag extends AbstractStaplerTag {
     /**
      * Doesn't particularly do anything as the actual processing
-     * happens at {@link JellyClassTearOff#invokeScript(StaplerRequest, StaplerResponse, Script, Object)} 
+     * happens at {@link DefaultScriptInvoker#invokeScript(StaplerRequest, StaplerResponse, Script, Object)} 
      */
     public void doTag(XMLOutput output) throws JellyTagException {
         getBody().run(getContext(),output);

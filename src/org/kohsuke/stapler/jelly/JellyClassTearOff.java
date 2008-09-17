@@ -1,25 +1,17 @@
 package org.kohsuke.stapler.jelly;
 
-import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
-import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
-import org.apache.commons.jelly.XMLOutput;
-import org.apache.commons.jelly.impl.TagScript;
 import org.kohsuke.stapler.AbstractTearOff;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.WebApp;
 
 import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.BufferedOutputStream;
 import java.net.URL;
-import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,61 +19,15 @@ import java.util.logging.Logger;
  * @author Kohsuke Kawaguchi
  */
 public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,Script,JellyException> {
+    private JellyFacet facet;
 
     public JellyClassTearOff(MetaClass owner) {
         super(owner,JellyClassLoaderTearOff.class);
+        facet = WebApp.getCurrent().getFacet(JellyFacet.class);
     }
 
     protected Script parseScript(URL res) throws JellyException {
         return classLoader.createContext().compileScript(res);
-    }
-
-    public static void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException, JellyTagException {
-        // invoke Jelly script to render result
-        JellyContext context = new CustomJellyContext();
-        Enumeration en = req.getAttributeNames();
-
-        // expose request attributes, just like JSP
-        while (en.hasMoreElements()) {
-            String name = (String) en.nextElement();
-            context.setVariable(name,req.getAttribute(name));
-        }
-        context.setVariable("request",req);
-        context.setVariable("response",rsp);
-        context.setVariable("it",it);
-        ServletContext servletContext = req.getServletContext();
-        context.setVariable("servletContext",servletContext);
-        context.setVariable("app",servletContext.getAttribute("app"));
-        // property bag to store request scope variables
-        context.setVariable("requestScope",context.getVariables());
-        // this variable is needed to make "jelly:fmt" taglib work correctly
-        context.setVariable("org.apache.commons.jelly.tags.fmt.locale",req.getLocale());
-
-        // do we want to do compression?
-        OutputStream output=null;
-        if (script instanceof TagScript) {
-            TagScript ts = (TagScript) script;
-            if(ts.getLocalName().equals("compress"))
-                output = rsp.getCompressedOutputStream(req);
-        }
-        if(output==null)    // nope
-            output = new BufferedOutputStream(rsp.getOutputStream());
-
-        output = new FilterOutputStream(output) {
-            public void flush() {
-                // flushing ServletOutputStream causes Tomcat to
-                // send out headers, making it impossible to set contentType from the script.
-                // so don't let Jelly flush.
-            }
-            public void write(byte b[], int off, int len) throws IOException {
-                out.write(b, off, len);
-            }
-        };
-        XMLOutput xmlOutput = XMLOutput.createXMLOutput(output);
-        script.run(context,xmlOutput);
-        xmlOutput.flush();
-        xmlOutput.close();
-        output.close();
     }
 
     /**
@@ -93,7 +39,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
             if(script!=null) {
                 if(LOGGER.isLoggable(Level.FINE))
                     LOGGER.fine("Invoking index.jelly on "+node);
-                invokeScript(req,rsp,script,node);
+                facet.scriptInvoker.invokeScript(req, rsp, script, node);
                 return true;
             }
             return false;

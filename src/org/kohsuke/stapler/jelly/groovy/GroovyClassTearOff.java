@@ -6,8 +6,9 @@ import org.kohsuke.stapler.AbstractTearOff;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.jelly.JellyClassTearOff;
+import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.jelly.JellyRequestDispatcher;
+import org.kohsuke.stapler.jelly.JellyFacet;
 
 import javax.servlet.ServletException;
 import javax.servlet.RequestDispatcher;
@@ -19,7 +20,7 @@ import java.util.logging.Logger;
 /**
  * @author Kohsuke Kawaguchi
  */
-final class GroovyClassTearOff extends AbstractTearOff<GroovyClassLoaderTearOff,GroovierJellyScript,IOException> {
+public final class GroovyClassTearOff extends AbstractTearOff<GroovyClassLoaderTearOff,GroovierJellyScript,IOException> {
     public GroovyClassTearOff(MetaClass owner) {
         super(owner,GroovyClassLoaderTearOff.class);
     }
@@ -36,7 +37,7 @@ final class GroovyClassTearOff extends AbstractTearOff<GroovyClassLoaderTearOff,
             if(script!=null) {
                 if(LOGGER.isLoggable(Level.FINE))
                     LOGGER.fine("Invoking index.jelly on "+node);
-                JellyClassTearOff.invokeScript(req,rsp,script,node);
+                WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, rsp, script, node);
                 return true;
             }
             return false;

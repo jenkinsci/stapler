@@ -5,6 +5,7 @@ import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.WebApp;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -18,15 +19,17 @@ import java.io.IOException;
 public final class JellyRequestDispatcher implements RequestDispatcher {
     private final Object it;
     private final Script script;
+    private final JellyFacet facet;
 
     public JellyRequestDispatcher(Object it, Script script) {
         this.it = it;
         this.script = script;
+        facet = WebApp.getCurrent().getFacet(JellyFacet.class);
     }
 
     public void forward(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
         try {
-            JellyClassTearOff.invokeScript(
+            facet.scriptInvoker.invokeScript(
                 (StaplerRequest)servletRequest,
                 (StaplerResponse)servletResponse,
                 script, it);

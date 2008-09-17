@@ -1,8 +1,8 @@
 package org.kohsuke.stapler;
 
-import org.apache.commons.discovery.ResourceClassIterator;
+import org.apache.commons.discovery.ResourceNameIterator;
 import org.apache.commons.discovery.resource.ClassLoaders;
-import org.apache.commons.discovery.resource.classes.DiscoverClasses;
+import org.apache.commons.discovery.resource.names.DiscoverServiceNames;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -32,10 +32,16 @@ public abstract class Facet {
 
         ClassLoaders classLoaders = new ClassLoaders();
         classLoaders.put(cl);
-        DiscoverClasses dc = new DiscoverClasses(classLoaders);
-        ResourceClassIterator itr = dc.findResourceClasses("/META-INF/services/" + Facet.class.getName());
+        DiscoverServiceNames dc = new DiscoverServiceNames(classLoaders);
+        ResourceNameIterator itr = dc.findResourceNames(Facet.class.getName());
         while(itr.hasNext()) {
-            Class c = itr.nextResourceClass().loadClass();
+            String name = itr.nextResourceName();
+            Class<?> c = null;
+            try {
+                c = cl.loadClass(name);
+            } catch (ClassNotFoundException e) {
+                LOGGER.log(Level.WARNING, "Failed to load "+name,e);
+            }
             try {
                 r.add((Facet)c.newInstance());
             } catch (InstantiationException e) {
