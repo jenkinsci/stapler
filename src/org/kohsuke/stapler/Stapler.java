@@ -9,6 +9,7 @@ import org.apache.commons.beanutils.converters.DoubleConverter;
 import org.apache.commons.beanutils.converters.FloatConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.jelly.expression.ExpressionFactory;
+import org.apache.commons.fileupload.FileItem;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 
 import javax.servlet.RequestDispatcher;
@@ -610,6 +611,19 @@ public class Stapler extends HttpServlet {
                 }
             }
         }, URL.class);
+
+        CONVERT_UTILS.register(new Converter() {
+            public FileItem convert(Class type, Object value) {
+                if(value==null) return null;
+                try {
+                    return Stapler.getCurrentRequest().getFileItem(value.toString());
+                } catch (ServletException e) {
+                    throw new ConversionException(e);
+                } catch (IOException e) {
+                    throw new ConversionException(e);
+                }
+            }
+        }, FileItem.class);
 
         // mapping for boxed types should map null to null, instead of null to zero.
         CONVERT_UTILS.register(new IntegerConverter(null),Integer.class);
