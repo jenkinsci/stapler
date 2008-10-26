@@ -24,11 +24,15 @@ public class WriterOutputStream extends OutputStream {
     private java.nio.ByteBuffer buf = ByteBuffer.allocate(1024);
     private CharBuffer out = CharBuffer.allocate(1024);
 
-    public WriterOutputStream(Writer out) {
+    public WriterOutputStream(Writer out, Charset charset) {
         this.writer = out;
-        decoder = DEFAULT_CHARSET.newDecoder();
+        decoder = charset.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPLACE);
         decoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
+    }
+
+    public WriterOutputStream(Writer out) {
+        this(out,DEFAULT_CHARSET);
     }
 
     public void write(int b) throws IOException {

@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.nio.charset.Charset;
 
 /**
  * Represents a large text data.
@@ -36,9 +37,16 @@ public class LargeText {
     }
     private final Source source;
 
+    private final Charset charset;
+
     private volatile boolean completed;
 
-    public LargeText(final File file, boolean completed) {
+    public LargeText(File file, boolean completed) {
+        this(file,Charset.defaultCharset(),completed);
+    }
+
+    public LargeText(final File file, Charset charset, boolean completed) {
+        this.charset = charset;
         this.source = new Source() {
             public Session open() throws IOException {
                 return new FileSession(file);
@@ -55,7 +63,12 @@ public class LargeText {
         this.completed = completed;
     }
 
-    public LargeText(final ByteBuffer memory, boolean completed) {
+    public LargeText(ByteBuffer memory, boolean completed) {
+        this(memory,Charset.defaultCharset(),completed);
+    }
+
+    public LargeText(final ByteBuffer memory, Charset charset, boolean completed) {
+        this.charset = charset;
         this.source = new Source() {
             public Session open() throws IOException {
                 return new BufferSession(memory);
@@ -100,7 +113,7 @@ public class LargeText {
             public void close() throws IOException {
                 session.close();
             }
-        });
+        },charset);
     }
 
     /**
@@ -118,7 +131,7 @@ public class LargeText {
      *      the next write operation.
      */
     public long writeLogTo(long start, Writer w) throws IOException {
-        CountingOutputStream os = new CountingOutputStream(new WriterOutputStream(w));
+        CountingOutputStream os = new CountingOutputStream(new WriterOutputStream(w,charset));
 
         Session f = source.open();
         f.skip(start);
