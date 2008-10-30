@@ -12,9 +12,9 @@ import java.util.Map;
  * @author Kohsuke Kawaguchi
  */
 abstract class AnnotationHandler<T extends Annotation> {
-    abstract String parse(HttpServletRequest request, T a) throws ServletException;
+    abstract String parse(HttpServletRequest request, T a, String parameterName) throws ServletException;
 
-    static Object handle(HttpServletRequest request, Annotation[] annotations, Class targetType) throws ServletException {
+    static Object handle(HttpServletRequest request, Annotation[] annotations, String parameterName, Class targetType) throws ServletException {
         for (Annotation a : annotations) {
             AnnotationHandler h = HANDLERS.get(a.annotationType());
             if(h==null)     continue;
@@ -23,7 +23,7 @@ abstract class AnnotationHandler<T extends Annotation> {
             if (converter==null)
                 throw new IllegalArgumentException("Unable to convert to "+targetType);
 
-            return converter.convert(targetType,h.parse(request,a));
+            return converter.convert(targetType,h.parse(request,a,parameterName));
         }
 
         return null; // probably we should report an error
@@ -34,8 +34,11 @@ abstract class AnnotationHandler<T extends Annotation> {
 
     static {
         HANDLERS.put(Header.class,new AnnotationHandler<Header>() {
-            String parse(HttpServletRequest request, Header a) throws ServletException {
-                String value = request.getHeader(a.value());
+            String parse(HttpServletRequest request, Header a, String parameterName) throws ServletException {
+                String name = a.value();
+                if(name.length()==0)    name=parameterName;
+
+                String value = request.getHeader(name);
                 if(a.required() && value!=null)
                     throw new ServletException("Required HTTP header "+a.value()+" is missing");
 
@@ -44,8 +47,11 @@ abstract class AnnotationHandler<T extends Annotation> {
         });
 
         HANDLERS.put(QueryParameter.class,new AnnotationHandler<QueryParameter>() {
-            String parse(HttpServletRequest request, QueryParameter a) throws ServletException {
-                String value = request.getParameter(a.value());
+            String parse(HttpServletRequest request, QueryParameter a, String parameterName) throws ServletException {
+                String name = a.value();
+                if(name.length()==0)    name=parameterName;
+                
+                String value = request.getParameter(name);
                 if(a.required() && value!=null)
                     throw new ServletException("Required Query parameter "+a.value()+" is missing");
 

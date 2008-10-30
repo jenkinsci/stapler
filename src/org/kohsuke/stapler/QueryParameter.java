@@ -16,9 +16,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface QueryParameter {
     /**
-     * query parameter name.
+     * query parameter name. By default, name of the parameter.
      */
-    String value();
+    String value() default "";
 
     /**
      * If true, request without this header will be rejected.

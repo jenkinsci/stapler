@@ -1,11 +1,17 @@
 package org.kohsuke.stapler;
 
+import org.apache.commons.io.IOUtils;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.io.IOException;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.net.URL;
 
 /**
  * Abstracts the difference between normal instance methods and
@@ -30,6 +36,11 @@ abstract class Function {
     abstract Annotation[][] getParameterAnnotatoins();
 
     /**
+     * Gets the list of parameter names.
+     */
+    abstract String[] getParameterNames();
+
+    /**
      * Use the given arguments as the first N arguments,
      * then figure out the rest of the arguments by looking at parameter annotations,
      * then finally call {@link #invoke}.
@@ -37,6 +48,7 @@ abstract class Function {
     Object bindAndinvoke(Object o, StaplerRequest req, StaplerResponse rsp) throws IllegalAccessException, InvocationTargetException, ServletException {
         Class[] types = getParameterTypes();
         Annotation[][] annotations = getParameterAnnotatoins();
+        String[] parameterNames = getParameterNames();
 
         Object[] arguments = new Object[types.length];
 
@@ -51,7 +63,9 @@ abstract class Function {
                 arguments[i] = rsp;
                 continue;
             }
-            arguments[i] = AnnotationHandler.handle(req,annotations[i], t);
+            arguments[i] = AnnotationHandler.handle(req,annotations[i],
+                i<parameterNames.length ? parameterNames[i] : null,
+                t);
         }
 
         return invoke(req,o,arguments);
@@ -77,18 +91,47 @@ abstract class Function {
 
     public abstract <A extends Annotation> A getAnnotation(Class<A> annotation);
 
-    /**
-     * Normal instance methods.
-     */
-    static final class InstanceFunction extends Function {
-        private final Method m;
+    private abstract static class MethodFunction extends Function {
+        protected final Method m;
+        private volatile String[] names;
 
-        public InstanceFunction(Method m) {
+        public MethodFunction(Method m) {
             this.m = m;
         }
 
-        public String getName() {
+        public final String getName() {
             return m.getName();
+        }
+
+        public final <A extends Annotation> A getAnnotation(Class<A> annotation) {
+            return m.getAnnotation(annotation);
+        }
+
+        final String[] getParameterNames() {
+            if(names==null)
+                names = loadParameterNames(m);
+            return names;
+        }
+
+        private String[] loadParameterNames(Method m) {
+                Class<?> c = m.getDeclaringClass();
+                URL url = c.getClassLoader().getResource(
+                        c.getName().replace('.', '/') + '/' + m.getName() + ".stapler");
+                if(url==null)    return EMPTY_ARRAY;
+            try {
+                return IOUtils.toString(url.openStream()).split(",");
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, "Failed to load "+url,e);
+                return EMPTY_ARRAY;
+            }
+        }
+    }
+    /**
+     * Normal instance methods.
+     */
+    static final class InstanceFunction extends MethodFunction {
+        public InstanceFunction(Method m) {
+            super(m);
         }
 
         public Class[] getParameterTypes() {
@@ -102,24 +145,14 @@ abstract class Function {
         public Object invoke(HttpServletRequest req, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
             return m.invoke(o,args);
         }
-
-        public <A extends Annotation> A getAnnotation(Class<A> annotation) {
-            return m.getAnnotation(annotation);
-        }
     }
 
     /**
      * Static methods on the wrapper type.
      */
-    static final class StaticFunction extends Function {
-        private final Method m;
-
+    static final class StaticFunction extends MethodFunction {
         public StaticFunction(Method m) {
-            this.m = m;
-        }
-
-        public String getName() {
-            return m.getName();
+            super(m);
         }
 
         public Class[] getParameterTypes() {
@@ -141,10 +174,6 @@ abstract class Function {
             r[0] = o;
             System.arraycopy(args,0,r,1,args.length);
             return m.invoke(null,r);
-        }
-
-        public <A extends Annotation> A getAnnotation(Class<A> annotation) {
-            return m.getAnnotation(annotation);
         }
     }
 
@@ -172,6 +201,10 @@ abstract class Function {
             return core.getParameterAnnotatoins();
         }
 
+        String[] getParameterNames() {
+            return core.getParameterNames();
+        }
+
         public Object invoke(HttpServletRequest req, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
             if(req.isUserInRole(role))
                 return core.invoke(req, o, args);
@@ -183,4 +216,7 @@ abstract class Function {
             return core.getAnnotation(annotation);
         }
     }
+
+    private static final String[] EMPTY_ARRAY = new String[0];
+    private static final Logger LOGGER = Logger.getLogger(Function.class.getName());
 }
