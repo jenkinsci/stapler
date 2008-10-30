@@ -507,6 +507,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 return l.toCollection();
             }
 
+            if(Enum.class.isAssignableFrom(type))
+                return Enum.valueOf(type,o.toString());
+
             Converter converter = Stapler.lookupConverter(type);
             if (converter==null)
                 throw new IllegalArgumentException("Unable to convert to "+type);
