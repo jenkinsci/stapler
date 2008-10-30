@@ -116,7 +116,7 @@ abstract class Function {
         private String[] loadParameterNames(Method m) {
                 Class<?> c = m.getDeclaringClass();
                 URL url = c.getClassLoader().getResource(
-                        c.getName().replace('.', '/') + '/' + m.getName() + ".stapler");
+                        c.getName().replace('.', '/').replace('$','/') + '/' + m.getName() + ".stapler");
                 if(url==null)    return EMPTY_ARRAY;
             try {
                 return IOUtils.toString(url.openStream()).split(",");
