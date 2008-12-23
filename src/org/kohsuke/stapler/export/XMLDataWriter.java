@@ -78,8 +78,9 @@ final class XMLDataWriter implements DataWriter {
 
     public void startObject() throws IOException {
         objectNames.push(name);
-        arrayState.push(isArray);
         out.write('<'+adjustName()+'>');
+        arrayState.push(isArray);
+        isArray = false;
     }
 
     public void endObject() throws IOException {
