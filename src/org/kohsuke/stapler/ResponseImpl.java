@@ -54,9 +54,11 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         // WebSphere doesn't apparently handle relative URLs, so
         // to be safe, always resolve relative URLs to absolute URLs by ourselves.
         // see http://www.nabble.com/Hudson%3A-1.262%3A-Broken-link-using-update-manager-to21067157.html
-        if(url.startsWith("http://") || url.startsWith("https://") || url.startsWith("/"))
+        if(url.startsWith("http://") || url.startsWith("https://") || url.startsWith("/")) {
             // absolute URLs
             super.sendRedirect(url);
+            return;
+        }
 
         // example: /foo/bar/zot + ../abc -> /foo/bar/../abc
         String base = Stapler.getCurrentRequest().getRequestURI();
