@@ -49,6 +49,23 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         sendRedirect(referer);
     }
 
+    @Override
+    public void sendRedirect(String url) throws IOException {
+        // WebSphere doesn't apparently handle relative URLs, so
+        // to be safe, always resolve relative URLs to absolute URLs by ourselves.
+        // see http://www.nabble.com/Hudson%3A-1.262%3A-Broken-link-using-update-manager-to21067157.html
+        if(url.startsWith("http://") || url.startsWith("https://") || url.startsWith("/"))
+            // absolute URLs
+            super.sendRedirect(url);
+
+        // example: /foo/bar/zot + ../abc -> /foo/bar/../abc
+        String base = Stapler.getCurrentRequest().getRequestURI();
+        base = base.substring(0,base.lastIndexOf('/')+1);
+        if(!url.equals("."))
+            base += url;
+        super.sendRedirect(url);
+    }
+
     public void sendRedirect2(String url) throws IOException {
         // Tomcat doesn't encode URL (servlet spec isn't very clear on it)
         // so do the encoding by ourselves
