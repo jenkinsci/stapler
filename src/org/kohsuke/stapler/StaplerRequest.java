@@ -109,6 +109,12 @@ public interface StaplerRequest extends HttpServletRequest {
     Ancestor findAncestor(Class type);
 
     /**
+     * Short for {@code findAncestor(type).getObject()}, with proper handling for null de-reference.
+     * This version is also type safe.
+     */
+    <T> T findAncestorObject(Class<T> type);
+
+    /**
      * Finds the nearest ancestor whose {@link Ancestor#getObject()} matches the given object.
      */
     Ancestor findAncestor(Object o);
