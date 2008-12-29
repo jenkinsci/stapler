@@ -423,10 +423,21 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         if(cl==null)
             throw new NoStaplerConstructorException(type+" is a built-in type");
         InputStream s = cl.getResourceAsStream(resourceName);
-        if(s==null)
+        if(s==null) {
+            Constructor<?>[] ctrs = type.getConstructors();
+            // one with DataBoundConstructor is the most reliable
+            for (Constructor c : ctrs) {
+                if(c.getAnnotation(DataBoundConstructor.class)!=null) {
+                    throw new NoStaplerConstructorException(
+                        "Unable to find "+resourceName+". "+
+                        "Run 'mvn clean compile' once to run the annotation processor.");
+                }
+            }
+
             throw new NoStaplerConstructorException(
                 "Unable to find "+resourceName+". "+
-                "Have you put @DataBoundConstructor javadoc tag on a constructor?");
+                "There's no @DataBoundConstructor on any constructor of "+type);
+        }
 
         try {
             Properties p = new Properties();
