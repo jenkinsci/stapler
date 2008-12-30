@@ -357,13 +357,18 @@ public class Stapler extends HttpServlet {
     }
 
     void invoke(RequestImpl req, ResponseImpl rsp, Object node ) throws IOException, ServletException {
-        while(node instanceof StaplerProxy) {
+        if(node instanceof StaplerProxy) {
             if(LOGGER.isLoggable(Level.FINE))
                 LOGGER.fine("Invoking StaplerProxy.getTarget() on "+node);
             Object n = ((StaplerProxy)node).getTarget();
-            if(n==node)
-                break;  // if the proxy returns itself, assume that it doesn't want to proxy
-            node = n;
+            if(n==node || n==null) {
+                // if the proxy returns itself, assume that it doesn't want to proxy.
+                // if null, no one will handle the request
+            } else {
+                // recursion helps debugging by leaving the trace in the stack.
+                invoke(req,rsp,n);
+                return;
+            }
         }
 
         // adds this node to ancestor list
@@ -406,8 +411,11 @@ public class Stapler extends HttpServlet {
 
         try {
             for( Dispatcher d : metaClass.dispatchers ) {
-                if(d.dispatch(req,rsp,node))
+                if(d.dispatch(req,rsp,node)) {
+                    if(LOGGER.isLoggable(Level.FINE))
+                        LOGGER.fine("Handled by "+d);
                     return;
+                }
             }
         } catch (IllegalAccessException e) {
             // this should never really happen
@@ -416,6 +424,17 @@ public class Stapler extends HttpServlet {
         } catch (InvocationTargetException e) {
             getServletContext().log("Error while serving "+req.getRequestURL(),e);
             throw new ServletException(e.getTargetException());
+        }
+
+        if(node instanceof StaplerFallback) {
+            if(LOGGER.isLoggable(Level.FINE))
+                LOGGER.fine("Invoking StaplerFallback.getStaplerFallback() on "+node);
+            Object n = ((StaplerFallback)node).getStaplerFallback();
+            if(n!=node && n!=null) {
+                // delegate to the fallback object
+                invoke(req,rsp,n);
+                return;
+            }
         }
 
         // we really run out of options.

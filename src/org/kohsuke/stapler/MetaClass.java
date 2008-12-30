@@ -291,8 +291,14 @@ public class MetaClass extends TearOffSupport {
                     if(LOGGER.isLoggable(Level.FINE))
                         LOGGER.fine("Invoking getDynamic(\""+token+"\") on "+node+" for "+req.tokens);
 
-                    req.getStapler().invoke(req,rsp,f.invoke(req,node,token,req,rsp));
-                    return true;
+                    Object target = f.invoke(req, node, token, req, rsp);
+                    if(target!=null) {
+                        req.getStapler().invoke(req,rsp, target);
+                        return true;
+                    } else {
+                        req.tokens.prev(); // cancel the next effect
+                        return false;
+                    }
                 }
             });
         }

@@ -5,7 +5,17 @@ package org.kohsuke.stapler;
  * it can implement this interface and return the designated object
  * from the {@link #getTarget()} method.
  *
+ * <p>
+ * Compared to {@link StaplerFallback}, stapler handles this interface at the very end,
+ * whereas {@link StaplerProxy} is handled at the very beginning.
+ *
+ * <p>
+ * By returning {@code this} from the {@link #getTarget()} method,
+ * {@link StaplerProxy} can be also used just as an interception hook (for example
+ * to perform authorization.) 
+ *
  * @author Kohsuke Kawaguchi
+ * @see StaplerFallback
  */
 public interface StaplerProxy {
     /**
