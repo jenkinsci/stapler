@@ -20,5 +20,6 @@ public class StaplerTagLibrary extends TagLibrary {
         registerTag("compress",CompressTag.class);
         registerTag("redirect",RedirectTag.class);
         registerTag("statusCode",StatusCodeTag.class);
+        registerTag("once",OnceTag.class);
     }
 }
