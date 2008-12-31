@@ -38,7 +38,9 @@ public class AdjunctManager {
      * Absolute URL of the {@link AdjunctManager} in the calling application where it is bound to.
      *
      * <p>
-     * This must not be relative, and ends without '/'. So it needs to be something like "/contextPath/adjuncts" 
+     * The path is treated relative from the context path of the application, and it
+     * needs to end without '/'. So it needs to be something like "foo/adjuncts" or more likely,
+     * just "adjuncts". 
      */
     public final String rootURL;
 

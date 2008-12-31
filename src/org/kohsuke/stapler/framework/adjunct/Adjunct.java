@@ -2,6 +2,7 @@ package org.kohsuke.stapler.framework.adjunct;
 
 import org.apache.commons.jelly.XMLOutput;
 import org.xml.sax.SAXException;
+import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -109,15 +110,15 @@ public class Adjunct {
         throw new AssertionError(k);
     }
 
-    public void write(XMLOutput out) throws SAXException {
+    public void write(StaplerRequest req, XMLOutput out) throws SAXException {
         if(inclusionFragment!=null) {
             out.write(inclusionFragment);
             return;
         }
         if(hasCss)
-            out.write("<link rel='stylesheet' href='"+manager.rootURL+'/'+slashedName+".css' type='text/css' />");
+            out.write("<link rel='stylesheet' href='"+req.getContextPath()+'/'+manager.rootURL+'/'+slashedName+".css' type='text/css' />");
         if(hasJavaScript)
-            out.write("<script src='"+manager.rootURL+'/'+slashedName+".js' type='text/javascript'></script>");
+            out.write("<script src='"+req.getContextPath()+'/'+manager.rootURL+'/'+slashedName+".js' type='text/javascript'></script>");
     }
 
     public enum Kind { CSS, JS }

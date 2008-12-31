@@ -28,6 +28,8 @@ public class AdjunctsInPage {
      * tag hasn't been written yet.
      */
     private final List<Adjunct> pending = new ArrayList<Adjunct>();
+    
+    private final StaplerRequest request;
 
     /**
      * Obtains the instance associated with the current request of the given {@link StaplerRequest}.
@@ -45,12 +47,13 @@ public class AdjunctsInPage {
     public static AdjunctsInPage get(StaplerRequest request) {
         AdjunctsInPage aip = (AdjunctsInPage) request.getAttribute(KEY);
         if(aip==null)
-            request.setAttribute(KEY,aip=new AdjunctsInPage(AdjunctManager.get(request.getServletContext())));
+            request.setAttribute(KEY,aip=new AdjunctsInPage(AdjunctManager.get(request.getServletContext()),request));
         return aip;
     }
 
-    private AdjunctsInPage(AdjunctManager manager) {
+    private AdjunctsInPage(AdjunctManager manager,StaplerRequest request) {
         this.manager = manager;
+        this.request = request;
     }
 
     /**
@@ -64,7 +67,7 @@ public class AdjunctsInPage {
             findNeeded(include,needed);
 
         for (Adjunct adj : needed)
-            adj.write(out);
+            adj.write(request,out);
     }
 
     /**
@@ -81,7 +84,7 @@ public class AdjunctsInPage {
      */
     public void writeSpooled(XMLOutput out) throws SAXException {
         for (Adjunct adj : pending)
-            adj.write(out);
+            adj.write(request,out);
         pending.clear();
     }
 
