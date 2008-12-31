@@ -302,7 +302,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             // sub-type is specified in JSON.
             // note that this can come from malicious clients, so we need to make sure we don't have seucrity issues.
             
-            ClassLoader cl = stapler.getClassLoader();
+            ClassLoader cl = stapler.getWebApp().getClassLoader();
             String className = src.getString("stapler-class");
             try {
                 Class<?> subType = cl.loadClass(className);
@@ -426,7 +426,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         if(s==null) {
             Constructor<?>[] ctrs = type.getConstructors();
             // one with DataBoundConstructor is the most reliable
-            for (Constructor c : ctrs) {
+            for (Constructor<?> c : ctrs) {
                 if(c.getAnnotation(DataBoundConstructor.class)!=null) {
                     throw new NoStaplerConstructorException(
                         "Unable to find "+resourceName+". "+
