@@ -72,7 +72,7 @@ public class MetaClass extends TearOffSupport {
                     public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException {
                         if(LOGGER.isLoggable(Level.FINE))
                             LOGGER.fine("Invoking "+f.getName()+" on "+node+" for "+req.tokens);
-                        f.bindAndinvoke(node,req,rsp);
+                        f.bindAndInvoke(node,req,rsp);
                     }
                 });
             }
@@ -322,6 +322,11 @@ public class MetaClass extends TearOffSupport {
      * will take effect instantly.
      */
     public static boolean NO_CACHE = false;
+
+    /**
+     * Trace option to show the parsing result in HTTP header.
+     */
+    public static boolean TRACE = Boolean.getBoolean("stapler.trace");
 
     static {
         try {

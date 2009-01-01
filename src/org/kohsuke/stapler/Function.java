@@ -45,7 +45,7 @@ abstract class Function {
      * then figure out the rest of the arguments by looking at parameter annotations,
      * then finally call {@link #invoke}.
      */
-    Object bindAndinvoke(Object o, StaplerRequest req, StaplerResponse rsp) throws IllegalAccessException, InvocationTargetException, ServletException {
+    Object bindAndInvoke(Object o, StaplerRequest req, StaplerResponse rsp) throws IllegalAccessException, InvocationTargetException, ServletException {
         Class[] types = getParameterTypes();
         Annotation[][] annotations = getParameterAnnotatoins();
         String[] parameterNames = getParameterNames();
