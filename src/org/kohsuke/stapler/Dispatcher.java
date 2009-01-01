@@ -30,6 +30,29 @@ public abstract class Dispatcher {
         return TRACE || LOGGER.isLoggable(Level.FINE);
     }
 
+    public static void traceEval(StaplerRequest req, StaplerResponse rsp, Object node) {
+        trace(req,rsp,String.format("-> evaluate(<%s>%s,\"%s\")",
+                node,
+                node==null?"":" :"+node.getClass().getName(),
+                ((RequestImpl)req).tokens.assembleRestOfPath()));
+    }
+
+    public static void traceEval(StaplerRequest req, StaplerResponse rsp, Object node, String prefix, String suffix) {
+        trace(req,rsp,String.format("-> evaluate(%s<%s>%s,\"%s\")",
+                prefix,node,suffix,
+                ((RequestImpl)req).tokens.assembleRestOfPath()));
+    }
+
+    public static void traceEval(StaplerRequest req, StaplerResponse rsp, Object node, String expression) {
+        trace(req,rsp,String.format("-> evaluate(<%s>.%s,\"%s\")",
+                node,expression,
+                ((RequestImpl)req).tokens.assembleRestOfPath()));
+    }
+
+    public static void trace(StaplerRequest req, StaplerResponse rsp, String msg, Object... args) {
+        trace(req,rsp,String.format(msg,args));
+    }
+
     public static void trace(StaplerRequest req, StaplerResponse rsp, String msg) {
         if(TRACE) {
             // Firefox Live HTTP header plugin cannot nicely render multiple headers

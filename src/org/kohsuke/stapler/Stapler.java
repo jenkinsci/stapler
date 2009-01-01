@@ -11,6 +11,8 @@ import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.apache.commons.fileupload.FileItem;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
+import static org.kohsuke.stapler.Dispatcher.traceable;
+import static org.kohsuke.stapler.Dispatcher.traceEval;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -357,9 +359,12 @@ public class Stapler extends HttpServlet {
     }
 
     void invoke(RequestImpl req, ResponseImpl rsp, Object node ) throws IOException, ServletException {
+        if(traceable())
+            traceEval(req,rsp,node);
+
         if(node instanceof StaplerProxy) {
-            if(LOGGER.isLoggable(Level.FINE))
-                LOGGER.fine("Invoking StaplerProxy.getTarget() on "+node);
+            if(traceable())
+                traceEval(req,rsp,node,"((StaplerProxy)",").getTarget()");
             Object n = ((StaplerProxy)node).getTarget();
             if(n==node || n==null) {
                 // if the proxy returns itself, assume that it doesn't want to proxy.
@@ -427,8 +432,8 @@ public class Stapler extends HttpServlet {
         }
 
         if(node instanceof StaplerFallback) {
-            if(LOGGER.isLoggable(Level.FINE))
-                LOGGER.fine("Invoking StaplerFallback.getStaplerFallback() on "+node);
+            if(traceable())
+                traceEval(req,rsp,node,"((StaplerFallback)",").getStaplerFallback()");
             Object n = ((StaplerFallback)node).getStaplerFallback();
             if(n!=node && n!=null) {
                 // delegate to the fallback object

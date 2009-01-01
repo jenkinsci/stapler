@@ -3,6 +3,8 @@ package org.kohsuke.stapler.jelly;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.AbstractTearOff;
+import static org.kohsuke.stapler.Dispatcher.trace;
+import static org.kohsuke.stapler.Dispatcher.traceable;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -12,7 +14,6 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -37,8 +38,8 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
         try {
             Script script = findScript("index.jelly");
             if(script!=null) {
-                if(LOGGER.isLoggable(Level.FINE))
-                    LOGGER.fine("Invoking index.jelly on "+node);
+                if(traceable())
+                    trace(req,rsp,"-> index.jelly on <%s>",node);
                 facet.scriptInvoker.invokeScript(req, rsp, script, node);
                 return true;
             }

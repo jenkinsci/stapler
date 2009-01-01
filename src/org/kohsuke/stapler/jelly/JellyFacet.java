@@ -1,18 +1,17 @@
 package org.kohsuke.stapler.jelly;
 
-import org.kohsuke.stapler.Facet;
+import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.Dispatcher;
+import org.kohsuke.stapler.Facet;
+import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
-import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.TearOffSupport;
-import org.apache.commons.jelly.Script;
 
-import javax.servlet.ServletException;
 import javax.servlet.RequestDispatcher;
-import java.util.List;
-import java.util.logging.Level;
+import javax.servlet.ServletException;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * {@link Facet} that adds Jelly as the view.
@@ -42,7 +41,7 @@ public class JellyFacet extends Facet {
                     req.tokens.next();
 
                     if(traceable())
-                        trace(req,rsp,"Invoking "+next+".jelly"+" on "+node+" for "+req.tokens);
+                        trace(req,rsp,"-> %s.jelly on <%s>",next,node);
 
                     scriptInvoker.invokeScript(req, rsp, script, node);
 
