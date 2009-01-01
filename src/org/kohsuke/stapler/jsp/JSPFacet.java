@@ -38,7 +38,7 @@ public class JSPFacet extends Facet {
                 req.tokens.next();
 
                 if(traceable())
-                    trace(rsp,"Invoking "+next+".jsp"+" on "+node+" for "+req.tokens);
+                    trace(req,rsp,"Invoking "+next+".jsp"+" on "+node+" for "+req.tokens);
 
                 stapler.forward(disp,req,rsp);
                 return true;

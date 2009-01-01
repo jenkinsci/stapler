@@ -37,7 +37,7 @@ public class GroovyFacet extends Facet {
                     req.tokens.next();
 
                     if(traceable())
-                        trace(rsp,"Invoking "+next+".groovy"+" on "+node+" for "+req.tokens);
+                        trace(req,rsp,"Invoking "+next+".groovy"+" on "+node+" for "+req.tokens);
 
                     WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, rsp, script, node);
 

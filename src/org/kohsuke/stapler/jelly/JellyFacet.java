@@ -42,7 +42,7 @@ public class JellyFacet extends Facet {
                     req.tokens.next();
 
                     if(traceable())
-                        trace(rsp,"Invoking "+next+".jelly"+" on "+node+" for "+req.tokens);
+                        trace(req,rsp,"Invoking "+next+".jelly"+" on "+node+" for "+req.tokens);
 
                     scriptInvoker.invokeScript(req, rsp, script, node);
 
