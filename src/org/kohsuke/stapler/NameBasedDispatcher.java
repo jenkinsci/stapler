@@ -7,7 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * @author Kohsuke Kawaguchi
  */
-abstract class NameBasedDispatcher implements Dispatcher {
+abstract class NameBasedDispatcher extends Dispatcher {
     private final String name;
     private final int argCount;
 

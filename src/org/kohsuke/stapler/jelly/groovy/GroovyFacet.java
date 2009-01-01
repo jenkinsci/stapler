@@ -1,20 +1,19 @@
 package org.kohsuke.stapler.jelly.groovy;
 
+import org.apache.commons.jelly.Script;
+import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.Facet;
 import org.kohsuke.stapler.MetaClass;
-import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.TearOffSupport;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.jelly.JellyFacet;
-import org.apache.commons.jelly.Script;
 
-import javax.servlet.ServletException;
 import javax.servlet.RequestDispatcher;
-import java.util.List;
-import java.util.logging.Level;
+import javax.servlet.ServletException;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * {@link Facet} that brings in Groovy support on top of Jelly.
@@ -37,8 +36,8 @@ public class GroovyFacet extends Facet {
 
                     req.tokens.next();
 
-                    if(LOGGER.isLoggable(Level.FINE))
-                        LOGGER.fine("Invoking "+next+".groovy"+" on "+node+" for "+req.tokens);
+                    if(traceable())
+                        trace(rsp,"Invoking "+next+".groovy"+" on "+node+" for "+req.tokens);
 
                     WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, rsp, script, node);
 

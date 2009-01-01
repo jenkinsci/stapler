@@ -41,8 +41,8 @@ public class JellyFacet extends Facet {
 
                     req.tokens.next();
 
-                    if(LOGGER.isLoggable(Level.FINE))
-                        LOGGER.fine("Invoking "+next+".jelly"+" on "+node+" for "+req.tokens);
+                    if(traceable())
+                        trace(rsp,"Invoking "+next+".jelly"+" on "+node+" for "+req.tokens);
 
                     scriptInvoker.invokeScript(req, rsp, script, node);
 
