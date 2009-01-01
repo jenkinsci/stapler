@@ -15,10 +15,7 @@ import java.net.URLConnection;
 /**
  * Defines additional operations made available by Stapler.
  *
- * <p>
- * Right now, there's none.
- *
- * @see Stapler#getCurrentResponse() 
+ * @see Stapler#getCurrentResponse()
  * @author Kohsuke Kawaguchi
  */
 public interface StaplerResponse extends HttpServletResponse {
