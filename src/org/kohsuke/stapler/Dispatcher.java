@@ -68,7 +68,10 @@ public abstract class Dispatcher {
     }
 
     /**
-     * Trace option to show the parsing result in HTTP header.
+     * This flag will activate the evaluation trace.
+     * It adds the evaluation process as HTTP headers,
+     * and when the evaluation failed, special diagnostic 404 page will be rendered.
+     * Useful for developer assistance.
      */
     public static boolean TRACE = Boolean.getBoolean("stapler.trace");
 
