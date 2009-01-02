@@ -5,8 +5,10 @@ import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.TagSupport;
 import org.apache.commons.jelly.XMLOutput;
+import org.apache.commons.jelly.impl.TagScript;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.WebApp;
+import org.xml.sax.SAXException;
 
 /**
  * Tag that includes views of the object.
@@ -94,7 +96,24 @@ public class IncludeTag extends TagSupport {
         ClassLoader old = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(c.classLoader.loader);
         try {
+            String source = null;
+            if(JellyFacet.TRACE) {
+                if (script instanceof TagScript) {
+                    TagScript ts = (TagScript) script;
+                    source = ts.getFileName();
+                } else
+                    source = page+" (exact source location unknown)";
+
+                String msg = "\nBegin " + source+'\n';
+                output.comment(msg.toCharArray(),0,msg.length());
+            }
             script.run(context,output);
+            if(source!=null) {
+                String msg = "\nEnd " + source+'\n';
+                output.comment(msg.toCharArray(),0,msg.length());
+            }
+        } catch (SAXException e) {
+            throw new JellyTagException(e);
         } finally {
             Thread.currentThread().setContextClassLoader(old);
         }

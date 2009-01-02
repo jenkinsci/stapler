@@ -69,4 +69,10 @@ public class JellyFacet extends Facet {
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
         return nodeMetaClass.loadTearOff(JellyClassTearOff.class).serveIndexJelly(req,rsp,node);
     }
+
+    /**
+     * This flag will activate the Jelly evaluation trace.
+     * It generates extra comments into HTML, indicating where the fragment was rendered.
+     */
+    public static boolean TRACE = Boolean.getBoolean("stapler.jelly.trace");
 }

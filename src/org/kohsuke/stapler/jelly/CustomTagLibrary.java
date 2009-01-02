@@ -5,6 +5,8 @@ import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.Tag;
 import org.apache.commons.jelly.TagLibrary;
+import org.apache.commons.jelly.XMLOutput;
+import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.impl.DynamicTag;
 import org.apache.commons.jelly.impl.TagFactory;
 import org.apache.commons.jelly.impl.TagScript;
@@ -12,6 +14,7 @@ import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.MetaClassLoader;
 import org.kohsuke.stapler.jelly.groovy.GroovyClassLoaderTearOff;
 import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.net.URL;
@@ -34,15 +37,17 @@ public final class CustomTagLibrary extends TagLibrary {
 
     private final ClassLoader classLoader;
     private final MetaClassLoader metaClassLoader;
+    private final String nsUri;
     private final String basePath;
     /**
      * Compiled tag files.
      */
     private final Map<String,Script> scripts = new Hashtable<String,Script>();
 
-    public CustomTagLibrary(JellyContext master, ClassLoader classLoader, String basePath) {
+    public CustomTagLibrary(JellyContext master, ClassLoader classLoader, String nsUri, String basePath) {
         this.master = master;
         this.classLoader = classLoader;
+        this.nsUri = nsUri;
         this.basePath = basePath;
         this.metaClassLoader = MetaClassLoader.get(classLoader);
     }
@@ -53,7 +58,7 @@ public final class CustomTagLibrary extends TagLibrary {
 
         return new TagScript(new TagFactory() {
             public Tag createTag(String name, Attributes attributes) {
-                return new DynamicTag(s);
+                return CustomTagLibrary.this.createTag(name,s);
             }
         });
     }
@@ -62,6 +67,30 @@ public final class CustomTagLibrary extends TagLibrary {
         Script s = load(name);
         if(s==null)
             return null;
+        return createTag(name,s);
+    }
+
+    /**
+     * Wraps a {@link Script} into a tag.
+     */
+    private Tag createTag(String tagName, Script s) {
+        if(JellyFacet.TRACE) {
+            // trace execution
+            final String source = "{jelly:"+nsUri+"}:"+tagName;
+            return new DynamicTag(s) {
+                public void doTag(XMLOutput output) throws JellyTagException {
+                    try {
+                        String msg = "<" + source+">";
+                        output.comment(msg.toCharArray(),0,msg.length());
+                        super.doTag(output);
+                        msg = "</" + source+">";
+                        output.comment(msg.toCharArray(),0,msg.length());
+                    } catch (SAXException e) {
+                        throw new JellyTagException(e);
+                    }
+                }
+            };
+        }
         return new DynamicTag(s);
     }
 

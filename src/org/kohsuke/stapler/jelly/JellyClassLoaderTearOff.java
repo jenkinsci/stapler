@@ -55,7 +55,7 @@ public class JellyClassLoaderTearOff {
             String taglibBasePath = trimHeadSlash(nsUri);
             URL res = owner.loader.getResource(taglibBasePath +"/taglib");
             if(res!=null) {
-                tl = new CustomTagLibrary(createContext(),owner.loader,taglibBasePath);
+                tl = new CustomTagLibrary(createContext(),owner.loader,nsUri,taglibBasePath);
                 m.put(nsUri,tl);
             }
         }

@@ -25,7 +25,6 @@ import org.kohsuke.stapler.MetaClassLoader;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.framework.adjunct.AdjunctManager;
 import org.kohsuke.stapler.framework.adjunct.AdjunctsInPage;
@@ -524,7 +523,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
                 JellyContext parseContext = MetaClassLoader.get(t.getClassLoader()).getTearOff(JellyClassLoaderTearOff.class).createContext();
 
                 context.registerTagLibrary(n,
-                    new CustomTagLibrary(parseContext, t.getClassLoader(), path));
+                    new CustomTagLibrary(parseContext, t.getClassLoader(), n, path));
             } else {
                 throw new IllegalArgumentException("Cannot find taglib from "+t);
             }
