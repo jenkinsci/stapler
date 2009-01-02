@@ -45,6 +45,9 @@
       <uniqueVersion>false</uniqueVersion>
       <url>java-net:/maven2-repository/trunk/www/repository/</url>
     </repository>
+    <site>
+      <url>file:../www</url>
+    </site>
   </distributionManagement>
 
   <developers>
@@ -206,6 +209,10 @@
           <arguments>-P release</arguments>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
+        <artifactId>maven-jellydoc-plugin</artifactId>
+      </plugin>
     </plugins>
     
     <extensions>
@@ -232,21 +239,20 @@
     </unitTest-->
   </build>
 
-  <reports>
-    <report>maven-license-plugin</report>
-    <report>maven-changelog-plugin</report>
-    <report>maven-changes-plugin</report>
-    <report>maven-developer-activity-plugin</report>
-    <report>maven-file-activity-plugin</report>
-    <report>maven-javadoc-plugin</report>
-    <report>maven-jellydoc-plugin</report>
-    <report>maven-junit-report-plugin</report>
-    <!--
-    <report>maven-jcoverage-plugin</report>
-    <report>maven-jxr-plugin</report>
-    -->
-    <report>maven-linkcheck-plugin</report>
-  </reports>
+  <reporting>
+    <plugins>
+      <plugin>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>license</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
 
   <profiles>
     <profile>
@@ -271,19 +277,17 @@
               </execution>
             </executions>
           </plugin>
+        </plugins>
+      </build>
+
+      <reporting>
+        <plugins>
           <plugin>
             <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
             <artifactId>maven-jellydoc-plugin</artifactId>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>jellydoc</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
-      </build>
+      </reporting>
     </profile>
   </profiles>
 </project>
