@@ -7,7 +7,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * The stapler version of the {@link Class} object,
@@ -73,6 +72,9 @@ public class MetaClass extends TearOffSupport {
                             trace(req,rsp,"-> <%s>.%s(...)",node,f.getName());
                         f.bindAndInvoke(node,req,rsp);
                     }
+                    public String toString() {
+                        return f.getQualifiedName()+"(...) for url=/"+name+"/...";
+                    }
                 });
             }
         }
@@ -97,6 +99,9 @@ public class MetaClass extends TearOffSupport {
                     f.invoke(req,node,req,rsp);
                     return true;
                 }
+                public String toString() {
+                    return f.getQualifiedName()+"(StaplerRequest,StaplerResponse) for url=/";
+                }
             });
         }
 
@@ -111,6 +116,9 @@ public class MetaClass extends TearOffSupport {
                     if(traceable())
                         traceEval(req,rsp,node,f.getName());
                     req.getStapler().invoke(req, rsp, f.get(node));
+                }
+                public String toString() {
+                    return String.format("%1$s.%2$s for url=/%2$s/...",f.getDeclaringClass().getName(),f.getName());
                 }
             });
         }
@@ -136,6 +144,9 @@ public class MetaClass extends TearOffSupport {
                             traceEval(req,rsp,node,f.getName()+"()");
                         req.getStapler().invoke(req,rsp, f.invoke(req, node));
                     }
+                    public String toString() {
+                        return String.format("%1$s() for url=/%2$s/...",f.getQualifiedName(),name);
+                    }
                 });
             }
         }
@@ -150,6 +161,9 @@ public class MetaClass extends TearOffSupport {
                     if(traceable())
                         traceEval(req,rsp,node,f.getName()+"(...)");
                     req.getStapler().invoke(req,rsp, f.invoke(req, node, req));
+                }
+                public String toString() {
+                    return String.format("%1$s(StaplerRequest) for url=/%2$s/...",f.getQualifiedName(),name);
                 }
             });
         }
@@ -166,6 +180,9 @@ public class MetaClass extends TearOffSupport {
                         traceEval(req,rsp,node,f.getName()+"(\""+token+"\")");
                     req.getStapler().invoke(req,rsp, f.invoke(req,node,token));
                 }
+                public String toString() {
+                    return String.format("%1$s(String) for url=/%2$s/TOKEN/...",f.getQualifiedName(),name);
+                }
             });
         }
 
@@ -180,6 +197,9 @@ public class MetaClass extends TearOffSupport {
                     if(traceable())
                         traceEval(req,rsp,node,f.getName()+"("+idx+")");
                     req.getStapler().invoke(req,rsp, f.invoke(req,node,idx));
+                }
+                public String toString() {
+                    return String.format("%1$s(int) for url=/%2$s/N/...",f.getQualifiedName(),name);
                 }
             });
         }
@@ -199,6 +219,9 @@ public class MetaClass extends TearOffSupport {
                         return false; // try next
                     }
                 }
+                public String toString() {
+                    return "Array look-up for url=/N/...";
+                }
             });
         }
 
@@ -216,6 +239,9 @@ public class MetaClass extends TearOffSupport {
                     } catch (NumberFormatException e) {
                         return false; // try next
                     }
+                }
+                public String toString() {
+                    return "List.get(int) look-up for url=/N/...";
                 }
             });
         }
@@ -245,6 +271,9 @@ public class MetaClass extends TearOffSupport {
                         return false; // try next
                     }
                 }
+                public String toString() {
+                    return "Map.get(String) look-up for url=/TOKEN/...";
+                }
             });
         }
 
@@ -260,9 +289,11 @@ public class MetaClass extends TearOffSupport {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException {
                     if(traceable())
                         trace(req,rsp,"-> <%s>.doDynamic(...)",node);
-
                     f.invoke(req,node,req,rsp);
                     return true;
+                }
+                public String toString() {
+                    return String.format("%s(StaplerRequest,StaplerResponse) for any URL",f.getQualifiedName());
                 }
             });
         }
@@ -287,6 +318,9 @@ public class MetaClass extends TearOffSupport {
                         req.tokens.prev(); // cancel the next effect
                         return false;
                     }
+                }
+                public String toString() {
+                    return String.format("%s(String,StaplerRequest,StaplerResponse) for url=/TOKEN/...",f.getQualifiedName());
                 }
             });
         }

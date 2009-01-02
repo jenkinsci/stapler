@@ -26,6 +26,12 @@ public abstract class Dispatcher {
     public abstract boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
         throws IOException, ServletException, IllegalAccessException, InvocationTargetException;
 
+    /**
+     * Diagnostic string that explains this dispatch rule.
+     */
+    public abstract String toString();
+
+
     public static boolean traceable() {
         return TRACE || LOGGER.isLoggable(Level.FINE);
     }
@@ -54,15 +60,8 @@ public abstract class Dispatcher {
     }
 
     public static void trace(StaplerRequest req, StaplerResponse rsp, String msg) {
-        if(TRACE) {
-            // Firefox Live HTTP header plugin cannot nicely render multiple headers
-            // with the same name, so give each one unique name.
-            Integer count = (Integer) req.getAttribute(TRACE_KEY);
-            if(count==null) count=1;
-            else            count+=1;
-            req.setAttribute(TRACE_KEY,count);
-            rsp.addHeader(String.format("Stapler-Trace-%03d",count),msg);
-        }
+        if(TRACE)
+            EvaluationTrace.get(req).trace(rsp,msg);
         if(LOGGER.isLoggable(Level.FINE))
             LOGGER.fine(msg);
     }
@@ -74,11 +73,6 @@ public abstract class Dispatcher {
      * Useful for developer assistance.
      */
     public static boolean TRACE = Boolean.getBoolean("stapler.trace");
-
-    /**
-     * Used for counting trace header.
-     */
-    private static final String TRACE_KEY = Dispatcher.class.getName() + ".trace-count";
 
     private static final Logger LOGGER = Logger.getLogger(Dispatcher.class.getName());
 }

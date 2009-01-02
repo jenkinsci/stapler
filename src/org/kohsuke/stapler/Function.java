@@ -26,6 +26,11 @@ abstract class Function {
     abstract String getName();
 
     /**
+     * Gets "className.methodName"
+     */
+    abstract String getQualifiedName();
+
+    /**
      * Gets the type of parameters in a single array.
      */
     abstract Class[] getParameterTypes();
@@ -101,6 +106,11 @@ abstract class Function {
 
         public final String getName() {
             return m.getName();
+        }
+
+        @Override
+        String getQualifiedName() {
+            return m.getDeclaringClass().getName()+'.'+getName();
         }
 
         public final <A extends Annotation> A getAnnotation(Class<A> annotation) {
@@ -191,6 +201,11 @@ abstract class Function {
 
         public String getName() {
             return core.getName();
+        }
+
+        @Override
+        String getQualifiedName() {
+            return core.getQualifiedName();
         }
 
         public Class[] getParameterTypes() {

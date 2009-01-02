@@ -50,6 +50,9 @@ public class GroovyFacet extends Facet {
                     throw new ServletException(e);
                 }
             }
+            public String toString() {
+                return "TOKEN.groovy for url=/TOKEN/...";
+            }
         });
     }
 

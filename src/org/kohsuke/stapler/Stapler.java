@@ -23,10 +23,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -381,7 +383,7 @@ public class Stapler extends HttpServlet {
         a.set(node,req);
 
         if(node==null) {
-            rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            rsp.sendError(SC_NOT_FOUND);
             return;
         }
 
@@ -443,7 +445,29 @@ public class Stapler extends HttpServlet {
         }
 
         // we really run out of options.
-        rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        if(!Dispatcher.TRACE) {
+            rsp.sendError(SC_NOT_FOUND);
+        } else {
+            // show error page
+            rsp.setStatus(SC_NOT_FOUND);
+            rsp.setContentType("text/html;charset=UTF-8");
+            PrintWriter w = rsp.getWriter();
+            w.println("<html><body>");
+            w.println("<h1>404 Not Found</h1>");
+            w.println("<p>Stapler processed this HTTP request as follows, but couldn't find the resource to consume the request");
+            w.println("<pre>");
+            EvaluationTrace.get(req).printHtml(w);
+            w.printf("<font color=red>-&gt; No matching rule was found on &lt;%s&gt; for \"%s\"</font>\n",node,req.tokens.assembleRestOfPath());
+            w.println("</pre>");
+            w.printf("<p>&lt;%s&gt; has the following URL mappings, in the order of preference:",node);
+            w.println("<ol>");
+            for (Dispatcher d : metaClass.dispatchers) {
+                w.println("<li>");
+                w.println(d.toString());
+            }
+            w.println("</ol>");
+            w.println("</body></html>");
+        }
     }
 
     public void forward(RequestDispatcher dispatcher, StaplerRequest req, HttpServletResponse rsp) throws ServletException, IOException {

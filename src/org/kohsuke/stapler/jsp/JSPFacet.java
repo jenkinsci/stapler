@@ -43,6 +43,9 @@ public class JSPFacet extends Facet {
                 stapler.forward(disp,req,rsp);
                 return true;
             }
+            public String toString() {
+                return "TOKEN.jsp for url=/TOKEN/...";
+            }
         });
     }
 

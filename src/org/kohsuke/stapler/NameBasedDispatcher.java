@@ -8,7 +8,7 @@ import java.lang.reflect.InvocationTargetException;
  * @author Kohsuke Kawaguchi
  */
 abstract class NameBasedDispatcher extends Dispatcher {
-    private final String name;
+    protected final String name;
     private final int argCount;
 
     protected NameBasedDispatcher(String name, int argCount) {

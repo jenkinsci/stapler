@@ -54,6 +54,10 @@ public class JellyFacet extends Facet {
                     throw new ServletException(e);
                 }
             }
+
+            public String toString() {
+                return "TOKEN.jelly for url=/TOKEN/...";
+            }
         });
     }
 
