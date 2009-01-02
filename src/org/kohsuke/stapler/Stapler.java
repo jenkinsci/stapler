@@ -383,7 +383,24 @@ public class Stapler extends HttpServlet {
         a.set(node,req);
 
         if(node==null) {
-            rsp.sendError(SC_NOT_FOUND);
+            // node is null
+            if(!Dispatcher.TRACE) {
+                rsp.sendError(SC_NOT_FOUND);
+            } else {
+                // show error page
+                rsp.setStatus(SC_NOT_FOUND);
+                rsp.setContentType("text/html;charset=UTF-8");
+                PrintWriter w = rsp.getWriter();
+                w.println("<html><body>");
+                w.println("<h1>404 Not Found</h1>");
+                w.println("<p>Stapler processed this HTTP request as follows, but couldn't find the resource to consume the request");
+                w.println("<pre>");
+                EvaluationTrace.get(req).printHtml(w);
+                w.println("<font color=red>-&gt; unexpected null!</font>");
+                w.println("</pre>");
+                w.println("<p>If this 404 is unexpected, double check the last part of the trace to see if it should have evaluated to null.");
+                w.println("</body></html>");
+            }
             return;
         }
 

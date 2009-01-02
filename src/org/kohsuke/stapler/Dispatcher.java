@@ -37,8 +37,8 @@ public abstract class Dispatcher {
     }
 
     public static void traceEval(StaplerRequest req, StaplerResponse rsp, Object node) {
-        trace(req,rsp,String.format("-> evaluate(<%s>%s,\"%s\")",
-                node,
+        trace(req,rsp,String.format("-> evaluate(%s%s,\"%s\")",
+                node==null?"null":'<'+node.toString()+'>',
                 node==null?"":" :"+node.getClass().getName(),
                 ((RequestImpl)req).tokens.assembleRestOfPath()));
     }
