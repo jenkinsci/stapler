@@ -277,6 +277,17 @@
               </execution>
             </executions>
           </plugin>
+          <plugin>
+            <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
+            <artifactId>maven-jellydoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>jellydoc</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
       </build>
 

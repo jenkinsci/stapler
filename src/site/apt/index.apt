@@ -18,7 +18,8 @@
           * {{{i18n.html}Internationalization support}}
           
           * {{{https://stapler.dev.java.net/nonav/javadoc/}Javadoc}}
-          
+
+          * {{{jelly-taglib-ref.html}Stapler jelly tag library reference}} (and XML Schema)
           []
           
     []
