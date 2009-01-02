@@ -6,6 +6,8 @@ import org.apache.commons.jelly.TagSupport;
 import org.apache.commons.jelly.XMLOutput;
 import org.apache.commons.jelly.expression.Expression;
 import org.xml.sax.SAXException;
+import org.jvnet.maven.jellydoc.annotation.NoContent;
+import org.jvnet.maven.jellydoc.annotation.Required;
 
 /**
  * Tag that outputs the specified value but with escaping,
@@ -14,9 +16,11 @@ import org.xml.sax.SAXException;
  *
  * @author Kohsuke Kawaguchi
  */
+@NoContent
 public class OutTag extends TagSupport {
     private Expression value;
 
+    @Required
     public void setValue(Expression value) {
         this.value = value;
     }

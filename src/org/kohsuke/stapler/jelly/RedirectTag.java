@@ -4,6 +4,8 @@ import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.TagSupport;
 import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.Stapler;
+import org.jvnet.maven.jellydoc.annotation.NoContent;
+import org.jvnet.maven.jellydoc.annotation.Required;
 
 import java.io.IOException;
 
@@ -12,12 +14,14 @@ import java.io.IOException;
  * 
  * @author Kohsuke Kawaguchi
  */
+@NoContent
 public class RedirectTag extends TagSupport {
     private String url;
 
     /**
      * Sets the target URL to redirect to.
      */
+    @Required
     public void setUrl(String url) {
         this.url = url;
     }

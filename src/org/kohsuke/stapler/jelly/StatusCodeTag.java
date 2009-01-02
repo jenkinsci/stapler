@@ -2,6 +2,8 @@ package org.kohsuke.stapler.jelly;
 
 import org.apache.commons.jelly.XMLOutput;
 import org.apache.commons.jelly.JellyTagException;
+import org.jvnet.maven.jellydoc.annotation.NoContent;
+import org.jvnet.maven.jellydoc.annotation.Required;
 
 /**
  * Sets HTTP status code.
@@ -11,9 +13,11 @@ import org.apache.commons.jelly.JellyTagException;
  *
  * @author Kohsuke Kawaguchi
  */
+@NoContent
 public class StatusCodeTag extends AbstractStaplerTag {
     private int code;
 
+    @Required
     public void setValue(int code) {
         this.code = code;
     }

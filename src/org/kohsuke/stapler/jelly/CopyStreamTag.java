@@ -3,6 +3,7 @@ package org.kohsuke.stapler.jelly;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.XMLOutput;
 import org.xml.sax.SAXException;
+import org.jvnet.maven.jellydoc.annotation.NoContent;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,6 +18,7 @@ import java.net.URL;
  * Copies a stream as text.
  * @author Kohsuke Kawaguchi
  */
+@NoContent
 public class CopyStreamTag extends AbstractStaplerTag {
     private Reader in;
 

@@ -113,6 +113,13 @@
       <artifactId>tiger-types</artifactId>
       <version>1.1</version>
     </dependency>
+    <dependency><!-- only needed for annotations, hence optional -->
+      <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
+      <artifactId>jellydoc-annotations</artifactId>
+      <version>1.0</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
     <dependency>
       <!-- perhaps mark this dependency optional? -->
       <groupId>commons-fileupload</groupId>
@@ -260,6 +267,17 @@
                 <phase>verify</phase>
                 <goals>
                   <goal>attached</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
+            <artifactId>maven-jellydoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>jellydoc</goal>
                 </goals>
               </execution>
             </executions>
