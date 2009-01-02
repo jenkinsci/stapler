@@ -314,7 +314,8 @@ public class MetaClass extends TearOffSupport {
                         return true;
                     } else {
                         if(traceable())
-                            traceEval(req,rsp,"getDynamic(\""+token+"\",...)==null. Back tracking.");
+                            // indent:    "-> evaluate(
+                            trace(req,rsp,"            %s.getDynamic(\"%s\",...)==null. Back tracking.",node,token);
                         req.tokens.prev(); // cancel the next effect
                         return false;
                     }
