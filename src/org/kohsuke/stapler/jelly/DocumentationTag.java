@@ -4,10 +4,12 @@ import org.apache.commons.jelly.TagSupport;
 import org.apache.commons.jelly.XMLOutput;
 
 /**
- * Documentation tag.
+ * Documentation for a Jelly tag file.
  *
  * <p>
- * At the runtime, this is no-op.
+ * This tag should be placed right inside the root element once,
+ * to describe the tag and its attributes. Maven-stapler-plugin
+ * picks up this tag and generate schemas and documentations.
  *
  * @author Kohsuke Kawaguchi
  */
