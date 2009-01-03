@@ -16,11 +16,17 @@ public class HeaderTag extends AbstractStaplerTag {
     private String name;
     private String value;
 
+    /**
+     * Header name.
+     */
     @Required
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Header value.
+     */
     @Required
     public void setValue(String value) {
         this.value = value;

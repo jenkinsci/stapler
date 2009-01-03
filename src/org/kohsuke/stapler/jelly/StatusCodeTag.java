@@ -17,6 +17,9 @@ import org.jvnet.maven.jellydoc.annotation.Required;
 public class StatusCodeTag extends AbstractStaplerTag {
     private int code;
 
+    /**
+     * HTTP status code to send back.
+     */
     @Required
     public void setValue(int code) {
         this.code = code;
