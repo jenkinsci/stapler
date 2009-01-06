@@ -41,5 +41,11 @@ public class AttributeTag extends TagSupport {
      * expects as values.
      */
     public void setType(String v) {}
+
+    /**
+     * If the attribute is deprecated, set to true.
+     * Use of the deprecated attribute will cause a warning.
+     */
+    public void setDeprecated(boolean v) {}
 }
 
