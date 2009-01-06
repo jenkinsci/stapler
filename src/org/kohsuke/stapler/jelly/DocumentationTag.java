@@ -11,6 +11,10 @@ import org.apache.commons.jelly.XMLOutput;
  * to describe the tag and its attributes. Maven-stapler-plugin
  * picks up this tag and generate schemas and documentations.
  *
+ * <p>
+ * The description text inside this tag can also use
+ * <a href="http://textile.thresholdstate.com/">Textile markup</a>
+ *
  * @author Kohsuke Kawaguchi
  */
 public class DocumentationTag extends TagSupport {

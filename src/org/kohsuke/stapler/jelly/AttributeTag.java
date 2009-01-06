@@ -11,6 +11,8 @@ import org.jvnet.maven.jellydoc.annotation.Required;
  * This tag should be placed right inside {@link DocumentationTag}
  * to describe attributes of a tag. The body would describe
  * the meaning of an attribute in a natural language.
+ * The description text can also use
+ * <a href="http://textile.thresholdstate.com/">Textile markup</a>
  *
  * @author Kohsuke Kawaguchi
  */
