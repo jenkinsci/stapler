@@ -3,7 +3,6 @@ package org.kohsuke.stapler.jelly;
 import org.apache.commons.jelly.TagSupport;
 import org.apache.commons.jelly.XMLOutput;
 import org.jvnet.maven.jellydoc.annotation.Required;
-import org.jvnet.maven.jellydoc.annotation.NoContent;
 
 /**
  * Documentation for an attribute of a Jelly tag file.
@@ -15,7 +14,6 @@ import org.jvnet.maven.jellydoc.annotation.NoContent;
  *
  * @author Kohsuke Kawaguchi
  */
-@NoContent
 public class AttributeTag extends TagSupport {
     public void doTag(XMLOutput output) {
         // noop
