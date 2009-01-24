@@ -39,7 +39,7 @@ abstract class AnnotationHandler<T extends Annotation> {
                 if(name.length()==0)    name=parameterName;
 
                 String value = request.getHeader(name);
-                if(a.required() && value!=null)
+                if(a.required() && value==null)
                     throw new ServletException("Required HTTP header "+name+" is missing");
 
                 return value;
@@ -52,7 +52,7 @@ abstract class AnnotationHandler<T extends Annotation> {
                 if(name.length()==0)    name=parameterName;
                 
                 String value = request.getParameter(name);
-                if(a.required() && value!=null)
+                if(a.required() && value==null)
                     throw new ServletException("Required Query parameter "+name+" is missing");
 
                 return value;
