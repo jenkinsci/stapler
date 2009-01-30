@@ -77,7 +77,7 @@ public final class CustomTagLibrary extends TagLibrary {
         if(JellyFacet.TRACE) {
             // trace execution
             final String source = "{jelly:"+nsUri+"}:"+tagName;
-            return new DynamicTag(s) {
+            return new StaplerDynamicTag(s) {
                 public void doTag(XMLOutput output) throws JellyTagException {
                     try {
                         String msg = "<" + source+">";
@@ -91,7 +91,58 @@ public final class CustomTagLibrary extends TagLibrary {
                 }
             };
         }
-        return new DynamicTag(s);
+        return new StaplerDynamicTag(s);
+    }
+
+    /**
+     * When &lt;d:invokeBody/> is used to call back into the calling script,
+     * the Jelly name resolution rule is in such that the body is evaluated with
+     * the variable scope of the &lt;d:invokeBody/> caller. This is very different
+     * from a typical closure name resolution mechanism, where the body is evaluated
+     * with the variable scope of where the body was created.
+     *
+     * <p>
+     * More concretely, in Jelly, this often shows up as a problem as inability to
+     * access the "attrs" variable from inside a body, because every {@link DynamicTag}
+     * invocation sets this variable in a new scope.
+     *
+     * <p>
+     * To couner this effect, this class temporarily restores the original "attrs"
+     * when the body is evaluated. This makes the name resolution of 'attrs' work
+     * like what programmers normally expect.
+     *
+     * <p>
+     * The same problem also shows up as a lack of local variables &mdash; when a tag
+     * calls into the body via &lt;d:invokeBody/>, the invoked body will see all the
+     * variables that are defined in the caller, which is again not what a normal programming language
+     * does. But unfortunately, changing this is too pervasive.
+     */
+    public static class StaplerDynamicTag extends DynamicTag {
+        public StaplerDynamicTag(Script template) {
+            super(template);
+        }
+
+        @Override
+        public Script getBody() {
+            final Script body = super.getBody();
+            return new Script() {
+                final JellyContext currentContext = getContext();
+
+                public Script compile() throws JellyException {
+                    return this;
+                }
+
+                public void run(JellyContext context, XMLOutput output) throws JellyTagException {
+                    Map m = context.getVariables();
+                    Object oldAttrs = m.put("attrs",currentContext.getVariable("attrs"));
+                    try {
+                        body.run(context,output);
+                    } finally {
+                        m.put("attrs",oldAttrs);
+                    }
+                }
+            };
+        }
     }
 
     /**
