@@ -312,7 +312,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             } catch (ClassNotFoundException e) {
                 throw new IllegalArgumentException("Class "+className+" is specified in JSON, but no such class found in "+cl,e);
             }
-        }
+        } else
         if(src.has("stapler-class-bag")) {
             // this object is a hash from class names to their parameters
             // build them into a collection via Lister
