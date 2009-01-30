@@ -312,32 +312,6 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             } catch (ClassNotFoundException e) {
                 throw new IllegalArgumentException("Class "+className+" is specified in JSON, but no such class found in "+cl,e);
             }
-        } else
-        if(src.has("stapler-class-bag")) {
-            // this object is a hash from class names to their parameters
-            // build them into a collection via Lister
-
-            Lister l = Lister.create(type);
-
-            ClassLoader cl = stapler.getWebApp().getClassLoader();
-            for (Map.Entry<String,Object> e : (Set<Map.Entry<String,Object>>)src.entrySet()) {
-                Object v = e.getValue();
-
-                String className = e.getKey().replace('-','.'); // decode JSON-safe class name escaping
-                try {
-                    Class<?> itemType = cl.loadClass(className);
-                    if (v instanceof JSONObject) {
-                        l.add(bindJSON(itemType, (JSONObject) v));
-                    }
-                    if (v instanceof JSONArray) {
-                        for(Object o : bindJSONToList(itemType, (JSONArray) v))
-                            l.add(o);
-                    }
-                } catch (ClassNotFoundException e1) {
-                    // ignore unrecognized element
-                }
-            }
-            return type.cast(l.toCollection());
         }
 
         String[] names = loadConstructorParamNames(type);
@@ -538,8 +512,32 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     // single value conversion
                     return bindJSON(type,j);
                 } else {
-                    // only one value given to the collection
-                    l.add(new TypePair(l.itemGenericType,l.itemType).convertJSON(j));
+                    if(j.has("stapler-class-bag")) {
+                        // this object is a hash from class names to their parameters
+                        // build them into a collection via Lister
+
+                        ClassLoader cl = stapler.getWebApp().getClassLoader();
+                        for (Map.Entry<String,Object> e : (Set<Map.Entry<String,Object>>)j.entrySet()) {
+                            Object v = e.getValue();
+
+                            String className = e.getKey().replace('-','.'); // decode JSON-safe class name escaping
+                            try {
+                                Class<?> itemType = cl.loadClass(className);
+                                if (v instanceof JSONObject) {
+                                    l.add(bindJSON(itemType, (JSONObject) v));
+                                }
+                                if (v instanceof JSONArray) {
+                                    for(Object i : bindJSONToList(itemType, (JSONArray) v))
+                                        l.add(i);
+                                }
+                            } catch (ClassNotFoundException e1) {
+                                // ignore unrecognized element
+                            }
+                        }
+                    } else {
+                        // only one value given to the collection
+                        l.add(new TypePair(l.itemGenericType,l.itemType).convertJSON(j));
+                    }
                     return l.toCollection();
                 }
             }
