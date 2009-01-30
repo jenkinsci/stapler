@@ -313,6 +313,33 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 throw new IllegalArgumentException("Class "+className+" is specified in JSON, but no such class found in "+cl,e);
             }
         }
+        if(src.has("stapler-class-bag")) {
+            // this object is a hash from class names to their parameters
+            // build them into a collection via Lister
+
+            Lister l = Lister.create(type);
+
+            ClassLoader cl = stapler.getWebApp().getClassLoader();
+            for (Map.Entry<String,Object> e : (Set<Map.Entry<String,Object>>)src.entrySet()) {
+                Object v = e.getValue();
+
+                String className = e.getKey().replace('-','.'); // decode JSON-safe class name escaping
+                try {
+                    Class<?> itemType = cl.loadClass(className);
+                    if (v instanceof JSONObject) {
+                        l.add(bindJSON(itemType, (JSONObject) v));
+                    }
+                    if (v instanceof JSONArray) {
+                        for(Object o : bindJSONToList(itemType, (JSONArray) v))
+                            l.add(o);
+                    }
+                } catch (ClassNotFoundException e1) {
+                    // ignore unrecognized element
+                }
+            }
+            return type.cast(l.toCollection());
+        }
+
         String[] names = loadConstructorParamNames(type);
 
         // the actual arguments to invoke the constructor with.
