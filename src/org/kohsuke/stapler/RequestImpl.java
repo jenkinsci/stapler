@@ -641,20 +641,27 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         if(structuredForm==null) {
             String ct = getContentType();
             String p = null;
+            boolean isSubmission; // for error diagnosis, if something is submitted, set to true
 
             if(ct!=null && ct.startsWith("multipart/")) {
+                isSubmission=true;
                 parseMultipartFormData();
                 FileItem item = parsedFormData.get("json");
                 if(item!=null)
                     p = item.getString();
-            } else
+            } else {
                 p = getParameter("json");
+                isSubmission = !getParameterMap().isEmpty();
+            }
             
             if(p==null) {
                 // no data submitted
                 try {
                     StaplerResponse rsp = Stapler.getCurrentResponse();
-                    rsp.sendError(SC_BAD_REQUEST,"This page expects a form submission");
+                    if(isSubmission)
+                        rsp.sendError(SC_BAD_REQUEST,"This page expects a form submission");
+                    else
+                        rsp.sendError(SC_BAD_REQUEST,"Nothing is submitted");
                     rsp.getWriter().close();
                     throw new Error("This page expects a form submission");
                 } catch (IOException e) {
