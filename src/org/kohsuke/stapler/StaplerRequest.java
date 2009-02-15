@@ -74,7 +74,9 @@ public interface StaplerRequest extends HttpServletRequest {
      *
      * <p>
      * Unlike {@link #getView(Object, String)}, calling this request dispatcher
-     * doesn't set the "it" variable.
+     * doesn't set the "it" variable, so
+     * {@code getView(it.getClass(),viewName)} and {@code getView(it,viewName)}
+     * aren't the same thing.
      */
     RequestDispatcher getView(Class clazz,String viewName) throws IOException;
 
