@@ -9,6 +9,7 @@ import org.kohsuke.stapler.Stapler;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
 import java.util.List;
 import java.util.logging.Level;
 import java.io.IOException;
@@ -28,10 +29,10 @@ public class JSPFacet extends Facet {
                 Stapler stapler = req.getStapler();
 
                 // check static resources
-                RequestDispatcher disp = stapler.getResourceDispatcher(node,next);
+                RequestDispatcher disp = createRequestDispatcher(req,node.getClass(),node,next);
                 if(disp==null) {
                     // check JSP views
-                    disp = stapler.getResourceDispatcher(node,next+".jsp");
+                    disp = createRequestDispatcher(req,node.getClass(),node,next+".jsp");
                     if(disp==null)  return false;
                 }
 
@@ -49,15 +50,29 @@ public class JSPFacet extends Facet {
         });
     }
 
-    public RequestDispatcher createRequestDispatcher(RequestImpl request, Object it, String viewName) throws IOException {
-        return request.stapler.getResourceDispatcher(it, viewName);
+    public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
+        ServletContext context = request.stapler.getServletContext();
+
+        for( Class c = type; c!=Object.class; c=c.getSuperclass() ) {
+            String name = "/WEB-INF/side-files/"+c.getName().replace('.','/').replace('$','/')+'/'+viewName;
+            if(context.getResource(name)!=null) {
+                // Tomcat returns a RequestDispatcher even if the JSP file doesn't exist.
+                // so check if the resource exists first.
+                RequestDispatcher disp = context.getRequestDispatcher(name);
+                if(disp!=null) {
+                    return new RequestDispatcherWrapper(disp,it);
+                }
+            }
+        }
+        return null;
     }
+
 
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
         Stapler stapler = req.stapler;
         
         // TODO: find the list of welcome pages for this class by reading web.xml
-        RequestDispatcher indexJsp = stapler.getResourceDispatcher(node,"index.jsp");
+        RequestDispatcher indexJsp = createRequestDispatcher(req,node.getClass(),node,"index.jsp");
         if(indexJsp!=null) {
             if(LOGGER.isLoggable(Level.FINE))
                 LOGGER.fine("Invoking index.jsp on "+node);

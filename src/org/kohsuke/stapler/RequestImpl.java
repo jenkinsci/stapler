@@ -98,8 +98,16 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     public RequestDispatcher getView(Object it,String viewName) throws IOException {
+        return getView(it.getClass(),it,viewName);
+    }
+
+    public RequestDispatcher getView(Class clazz, String viewName) throws IOException {
+        return getView(clazz,null,viewName);
+    }
+
+    public RequestDispatcher getView(Class clazz, Object it, String viewName) throws IOException {
         for( Facet f : stapler.getWebApp().facets ) {
-            RequestDispatcher rd = f.createRequestDispatcher(this, it,viewName);
+            RequestDispatcher rd = f.createRequestDispatcher(this,clazz,it,viewName);
             if(rd!=null)
                 return rd;
         }

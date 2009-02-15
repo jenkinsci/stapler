@@ -56,7 +56,15 @@ public abstract class Facet {
 
     public static final Logger LOGGER = Logger.getLogger(Facet.class.getName());
 
-    public abstract RequestDispatcher createRequestDispatcher(RequestImpl request, Object it, String viewName) throws IOException;
+    /**
+     * Creates a {@link RequestDispatcher} that handles the given view, or
+     * return null if no such view was found.
+     *
+     * @param type
+     *      If "it" is non-null, {@code it.getClass()}. Otherwise the class
+     *      from which the view is searched.
+     */
+    public abstract RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException;
 
     /**
      * Attempts to route the HTTP request to the 'index' page of the 'it' object.

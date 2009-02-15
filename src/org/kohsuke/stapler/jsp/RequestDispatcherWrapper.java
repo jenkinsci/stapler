@@ -1,4 +1,4 @@
-package org.kohsuke.stapler;
+package org.kohsuke.stapler.jsp;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;

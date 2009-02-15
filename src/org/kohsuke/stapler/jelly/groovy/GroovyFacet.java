@@ -56,8 +56,8 @@ public class GroovyFacet extends Facet {
         });
     }
 
-    public RequestDispatcher createRequestDispatcher(RequestImpl request, Object it, String viewName) throws IOException {
-        TearOffSupport mc = request.stapler.getWebApp().getMetaClass(it.getClass());
+    public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
+        TearOffSupport mc = request.stapler.getWebApp().getMetaClass(type);
         return mc.loadTearOff(GroovyClassTearOff.class).createDispatcher(it,viewName);
     }
 

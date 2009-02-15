@@ -69,6 +69,16 @@ public interface StaplerRequest extends HttpServletRequest {
     RequestDispatcher getView(Object it,String viewName) throws IOException;
 
     /**
+     * Gets the {@link RequestDispatcher} that represents a specific view
+     * for the given class.
+     *
+     * <p>
+     * Unlike {@link #getView(Object, String)}, calling this request dispatcher
+     * doesn't set the "it" variable.
+     */
+    RequestDispatcher getView(Class clazz,String viewName) throws IOException;
+
+    /**
      * Gets the part of the request URL from protocol up to the context path.
      * So typically it's something like <tt>http://foobar:8080/something</tt>
      */
