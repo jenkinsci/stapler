@@ -8,19 +8,20 @@ import org.apache.commons.jelly.TagLibrary;
 public class StaplerTagLibrary extends TagLibrary {
     public StaplerTagLibrary() {
         registerTag("adjunct",AdjunctTag.class);
+        registerTag("compress",CompressTag.class);
         registerTag("contentType",ContentTypeTag.class);
+        registerTag("copyStream",CopyStreamTag.class);
         registerTag("doctype",DoctypeTag.class);
+        registerTag("documentation",DocumentationTag.class);
+        registerTag("findAncestor",FindAncestorTag.class);
         registerTag("header",HeaderTag.class);
         registerTag("include",IncludeTag.class);
-        registerTag("nbsp",NbspTag.class);
         registerTag("isUserInRole",IsUserInRoleTag.class);
-        registerTag("parentScope",ParentScopeTag.class);
+        registerTag("nbsp",NbspTag.class);
+        registerTag("once",OnceTag.class);
         registerTag("out",OutTag.class);
-        registerTag("copyStream",CopyStreamTag.class);
-        registerTag("compress",CompressTag.class);
+        registerTag("parentScope",ParentScopeTag.class);
         registerTag("redirect",RedirectTag.class);
         registerTag("statusCode",StatusCodeTag.class);
-        registerTag("once",OnceTag.class);
-        registerTag("documentation",DocumentationTag.class);
     }
 }

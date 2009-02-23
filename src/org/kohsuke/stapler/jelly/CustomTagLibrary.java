@@ -77,7 +77,7 @@ public final class CustomTagLibrary extends TagLibrary {
         if(JellyFacet.TRACE) {
             // trace execution
             final String source = "{jelly:"+nsUri+"}:"+tagName;
-            return new StaplerDynamicTag(s) {
+            return new StaplerDynamicTag(nsUri,tagName,s) {
                 public void doTag(XMLOutput output) throws JellyTagException {
                     try {
                         String msg = "<" + source+">";
@@ -91,7 +91,7 @@ public final class CustomTagLibrary extends TagLibrary {
                 }
             };
         }
-        return new StaplerDynamicTag(s);
+        return new StaplerDynamicTag(nsUri,tagName,s);
     }
 
     /**
@@ -118,8 +118,13 @@ public final class CustomTagLibrary extends TagLibrary {
      * does. But unfortunately, changing this is too pervasive.
      */
     public static class StaplerDynamicTag extends DynamicTag {
-        public StaplerDynamicTag(Script template) {
+        private final String nsUri;
+        private final String localName;
+
+        public StaplerDynamicTag(String nsUri, String localName, Script template) {
             super(template);
+            this.nsUri = nsUri;
+            this.localName = localName;
         }
 
         @Override
@@ -142,6 +147,14 @@ public final class CustomTagLibrary extends TagLibrary {
                     }
                 }
             };
+        }
+
+        public String getNsUri() {
+            return nsUri;
+        }
+
+        public String getLocalName() {
+            return localName;
         }
     }
 
