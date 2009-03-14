@@ -1,77 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.kohsuke.stapler</groupId>
+    <artifactId>stapler-parent</artifactId>
+    <version>1.97-SNAPSHOT</version>
+  </parent>
   
-  <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler</artifactId>
-  <packaging>jar</packaging>
-  <version>1.97-SNAPSHOT</version>
-
   <name>Stapler</name>
   <description>Stapler HTTP request handling engine</description>
-
-  <organization>
-    <url>http://www.java.net/</url>
-  </organization>
-  <mailingLists>
-    <mailingList>
-      <name>Users List</name>
-      <subscribe>users-subscribe@${maven.javanet.project}.dev.java.net</subscribe>
-      <unsubscribe>users-unsubscribe@${maven.javanet.project}.dev.java.net</unsubscribe>
-      <archive>https://${maven.javanet.project}.dev.java.net/servlets/SummarizeList?listName=users</archive>
-    </mailingList>
-    <mailingList>
-      <name>Issues List</name>
-      <subscribe>issues-subscribe@${maven.javanet.project}.dev.java.net</subscribe>
-      <unsubscribe>issues-unsubscribe@${maven.javanet.project}.dev.java.net</unsubscribe>
-      <archive>https://${maven.javanet.project}.dev.java.net/servlets/SummarizeList?listName=issues</archive>
-    </mailingList>
-    <mailingList>
-      <name>CVS List</name>
-      <subscribe>cvs-subscribe@${maven.javanet.project}.dev.java.net</subscribe>
-      <unsubscribe>cvs-unsubscribe@${maven.javanet.project}.dev.java.net</unsubscribe>
-      <archive>https://${maven.javanet.project}.dev.java.net/servlets/SummarizeList?listName=cvs</archive>
-    </mailingList>
-  </mailingLists>
   
-  <scm>
-    <connection>scm:cvs:pserver:guest@cvs.dev.java.net:/cvs:stapler/stapler</connection>
-    <developerConnection>scm:cvs:pserver:kohsuke@cvs.dev.java.net:/cvs:stapler/stapler</developerConnection>
-    <url>https://stapler.dev.java.net/source/browse/stapler/stapler</url>
-  </scm>
-
-  <distributionManagement>
-    <repository>
-      <id>java.net</id>
-      <uniqueVersion>false</uniqueVersion>
-      <url>java-net:/maven2-repository/trunk/www/repository/</url>
-    </repository>
-    <site>
-      <url>file:../www</url>
-    </site>
-  </distributionManagement>
-
-  <developers>
-    <developer>
-      <name>Kohsuke Kawaguchi</name>
-      <id>kohsuke</id>
-      <email>kk@kohsuke.org</email>
-    </developer>
-  </developers>
-  
-  <repositories>
-    <repository>
-      <id>java.net2</id>
-      <url>http://download.java.net/maven/2/</url>
-    </repository>
-  </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>java.net2</id>
-      <url>http://download.java.net/maven/2/</url>
-    </pluginRepository>
-  </pluginRepositories>
-
   <dependencies>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -186,74 +124,12 @@
     
     <plugins>
       <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.jvnet.fix1600</groupId>
-        <artifactId>fix1600</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>fix</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-release-plugin</artifactId>
-        <configuration>
-          <arguments>-P release</arguments>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
         <artifactId>maven-jellydoc-plugin</artifactId>
         <version>1.2</version>
       </plugin>
     </plugins>
-    
-    <extensions>
-      <extension>
-        <groupId>org.jvnet.wagon-svn</groupId>
-        <artifactId>wagon-svn</artifactId>
-        <version>1.7</version>
-      </extension>
-    </extensions>
-    
-    <!--unitTestSourceDirectory>src/test</unitTestSourceDirectory>
-    <unitTest>
-      <includes>
-        <include>**/*Test.java</include>
-      </includes>
-      <excludes>
-        <exclude>**/Abstract*TestCase.java</exclude>
-      </excludes>
-      <resources>
-        <resource>
-          <directory>src/test</directory>
-        </resource>
-      </resources>
-    </unitTest-->
   </build>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>license</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-    </plugins>
-  </reporting>
 
   <profiles>
     <profile>
