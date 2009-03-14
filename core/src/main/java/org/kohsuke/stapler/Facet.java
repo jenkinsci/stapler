@@ -28,12 +28,16 @@ public abstract class Facet {
      * Discovers all the facets in the classloader.
      */
     public static List<Facet> discover(ClassLoader cl) {
-        List<Facet> r = new ArrayList<Facet>();
+        return discoverExtensions(Facet.class, cl);
+    }
+
+    public static <T> List<T> discoverExtensions(Class<T> type, ClassLoader cl) {
+        List<T> r = new ArrayList<T>();
 
         ClassLoaders classLoaders = new ClassLoaders();
         classLoaders.put(cl);
         DiscoverServiceNames dc = new DiscoverServiceNames(classLoaders);
-        ResourceNameIterator itr = dc.findResourceNames(Facet.class.getName());
+        ResourceNameIterator itr = dc.findResourceNames(type.getName());
         while(itr.hasNext()) {
             String name = itr.nextResourceName();
             Class<?> c = null;
@@ -43,7 +47,7 @@ public abstract class Facet {
                 LOGGER.log(Level.WARNING, "Failed to load "+name,e);
             }
             try {
-                r.add((Facet)c.newInstance());
+                r.add((T)c.newInstance());
             } catch (InstantiationException e) {
                 LOGGER.log(Level.WARNING, "Failed to instanticate "+c,e);
             } catch (IllegalAccessException e) {
@@ -51,7 +55,6 @@ public abstract class Facet {
             }
         }
         return r;
-
     }
 
     public static final Logger LOGGER = Logger.getLogger(Facet.class.getName());

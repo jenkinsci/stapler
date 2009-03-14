@@ -1,6 +1,7 @@
 package org.kohsuke.stapler.jelly;
 
 import org.apache.commons.jelly.Script;
+import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.Facet;
 import org.kohsuke.stapler.MetaClass;
@@ -10,6 +11,8 @@ import org.kohsuke.stapler.TearOffSupport;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.ServletContextListener;
+import javax.servlet.ServletContextEvent;
 import java.io.IOException;
 import java.util.List;
 
@@ -68,6 +71,25 @@ public class JellyFacet extends Facet {
 
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
         return nodeMetaClass.loadTearOff(JellyClassTearOff.class).serveIndexJelly(req,rsp,node);
+    }
+
+    /**
+     * Sets the Jelly {@link ExpressionFactory} to be used to parse views.
+     *
+     * <p>
+     * This method should be invoked from your implementation of
+     * {@link ServletContextListener#contextInitialized(ServletContextEvent)}.
+     *
+     * <p>
+     * Once views are parsed, they won't be re-parsed just because you called
+     * this method to override the expression factory.
+     *
+     * <p>
+     * The primary use case of this feature is to customize the behavior
+     * of JEXL evaluation.
+     */
+    public static void setExpressionFactory( ServletContextEvent event, ExpressionFactory factory ) {
+        JellyClassLoaderTearOff.EXPRESSION_FACTORY = factory;
     }
 
     /**

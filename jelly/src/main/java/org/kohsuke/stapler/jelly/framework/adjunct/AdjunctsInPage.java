@@ -1,4 +1,4 @@
-package org.kohsuke.stapler.framework.adjunct;
+package org.kohsuke.stapler.jelly.framework.adjunct;
 
 import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.Stapler;

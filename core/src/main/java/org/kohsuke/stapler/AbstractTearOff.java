@@ -1,9 +1,5 @@
 package org.kohsuke.stapler;
 
-import org.apache.commons.jelly.JellyContext;
-import org.apache.commons.jelly.Script;
-import org.apache.commons.jelly.Tag;
-
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.HashMap;
@@ -80,14 +76,15 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> {
     protected abstract S parseScript(URL res) throws E;
 
     /**
-     * Compiled jelly script views of this class.
+     * Compiled scripts of this class.
      * Access needs to be synchronized.
+     *
      * <p>
-     * Jelly leaks memory (because {@link Script}s hold on to {@link Tag})
-     * which usually holds on to {@link JellyContext} that was last used to run it,
+     * Jelly leaks memory (because Scripts hold on to Tag)
+     * which usually holds on to JellyContext that was last used to run it,
      * which often holds on to some big/heavy objects.)
      *
-     * So it's important to allow {@link Script}s to be garbage collected.
+     * So it's important to allow Scripts to be garbage collected.
      * This is not an ideal fix, but it works.
      */
     private volatile WeakReference<Map<String,S>> scripts;

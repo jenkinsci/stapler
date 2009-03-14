@@ -8,9 +8,7 @@ import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.converters.DoubleConverter;
 import org.apache.commons.beanutils.converters.FloatConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
-import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.apache.commons.fileupload.FileItem;
-import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 import static org.kohsuke.stapler.Dispatcher.traceable;
 import static org.kohsuke.stapler.Dispatcher.traceEval;
 
@@ -527,25 +525,6 @@ public class Stapler extends HttpServlet {
      */
     public static void setRoot( ServletContextEvent event, Object rootApp ) {
         event.getServletContext().setAttribute("app",rootApp);
-    }
-
-    /**
-     * Sets the Jelly {@link ExpressionFactory} to be used to parse views.
-     *
-     * <p>
-     * This method should be invoked from your implementation of
-     * {@link ServletContextListener#contextInitialized(ServletContextEvent)}.
-     *
-     * <p>
-     * Once views are parsed, they won't be re-parsed just because you called
-     * this method to override the expression factory.
-     *
-     * <p>
-     * The primary use case of this feature is to customize the behavior
-     * of JEXL evaluation. 
-     */
-    public static void setExpressionFactory( ServletContextEvent event, ExpressionFactory factory ) {
-        JellyClassLoaderTearOff.EXPRESSION_FACTORY = factory;
     }
 
     /**

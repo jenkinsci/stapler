@@ -1,4 +1,4 @@
-package org.kohsuke.stapler.framework.adjunct;
+package org.kohsuke.stapler.jelly.framework.adjunct;
 
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;

@@ -2,23 +2,22 @@ package org.kohsuke.stapler.jelly;
 
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
+import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.Tag;
 import org.apache.commons.jelly.TagLibrary;
 import org.apache.commons.jelly.XMLOutput;
-import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.impl.DynamicTag;
 import org.apache.commons.jelly.impl.TagFactory;
 import org.apache.commons.jelly.impl.TagScript;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.MetaClassLoader;
-import org.kohsuke.stapler.jelly.groovy.GroovyClassLoaderTearOff;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,13 +35,16 @@ public final class CustomTagLibrary extends TagLibrary {
     private final JellyContext master;
 
     private final ClassLoader classLoader;
-    private final MetaClassLoader metaClassLoader;
-    private final String nsUri;
-    private final String basePath;
+    public final MetaClassLoader metaClassLoader;
+    public final String nsUri;
+    public final String basePath;
+
     /**
      * Compiled tag files.
      */
     private final Map<String,Script> scripts = new Hashtable<String,Script>();
+
+    private final List<JellyTagFileLoader> loaders;
 
     public CustomTagLibrary(JellyContext master, ClassLoader classLoader, String nsUri, String basePath) {
         this.master = master;
@@ -50,6 +52,7 @@ public final class CustomTagLibrary extends TagLibrary {
         this.nsUri = nsUri;
         this.basePath = basePath;
         this.metaClassLoader = MetaClassLoader.get(classLoader);
+        this.loaders = JellyTagFileLoader.discover(classLoader);
     }
 
     public TagScript createTagScript(String name, Attributes attributes) throws JellyException {
@@ -192,17 +195,11 @@ public final class CustomTagLibrary extends TagLibrary {
             return script;
         }
 
-        res = classLoader.getResource(basePath + '/' + name + ".groovy");
-        if(res!=null) {
-            try {
-                GroovyClassLoaderTearOff gcl = metaClassLoader.getTearOff(GroovyClassLoaderTearOff.class);
-                script = gcl.parse(res);
-                scripts.put(name,script);
-                return script;
-            } catch (LinkageError e) {
-                // no groovy. ignore
-            } catch (IOException e) {
-                throw new JellyException(e);
+        for (JellyTagFileLoader loader : loaders) {
+            Script s = loader.load(this, name, classLoader);
+            if(s!=null) {
+                scripts.put(name,s);
+                return s;
             }
         }
 

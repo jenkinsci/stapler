@@ -20,18 +20,22 @@
       <groupId>commons-jelly</groupId>
       <artifactId>commons-jelly</artifactId>
       <version>1.0</version>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>dom4j</groupId>
       <artifactId>dom4j</artifactId>
       <version>1.6.1</version>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>commons-jexl</groupId>
       <artifactId>commons-jexl</artifactId>
       <version>1.0</version>
+    </dependency>
+    <dependency><!-- only needed for annotations, hence optional -->
+      <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
+      <artifactId>jellydoc-annotations</artifactId>
+      <version>1.2</version>
+      <scope>compile</scope>
       <optional>true</optional>
     </dependency>
   </dependencies>
