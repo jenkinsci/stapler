@@ -12,7 +12,7 @@
       <item name="Download" href="https://stapler.dev.java.net/servlets/ProjectDocumentList" />
 
       <item name="Mailing lists" href="https://stapler.dev.java.net/servlets/ProjectMailingListList"/>
-      <item name="Source code" href="https://stapler.dev.java.net/source/browse/trunk/wagon-svn/"/>
+      <item name="Source code" href="https://stapler.dev.java.net/source/browse/trunk/stapler/"/>
       <item name="Issues" href="https://stapler.dev.java.net/servlets/ProjectIssues"/>
     </menu>
     ${reports}
