@@ -1,5 +1,1 @@
-# TODO: move this to separate modules
-# but that requires moving code around in CVS.
-org.kohsuke.stapler.jsp.JSPFacet
-org.kohsuke.stapler.jelly.JellyFacet
 org.kohsuke.stapler.jelly.groovy.GroovyFacet
