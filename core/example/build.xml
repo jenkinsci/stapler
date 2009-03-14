@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<project name="stapler-sample" default="war">
+	
+	<path id="classpath">
+		<fileset dir="WEB-INF/lib" includes="*.jar"/>
+		<fileset dir="../build" includes="stapler.jar"/>
+		<fileset dir="../lib" includes="*.jar"/>
+	</path>
+	
+	<target name="clean">
+		<ant dir="example" target="clean" />
+		<delete dir="build"/>
+	</target>
+	
+	<target name="compile">
+		<mkdir dir="build/classes" />
+		<javac srcdir="src" destdir="build/classes" debug="on">
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+	
+	<target name="war" depends="compile">
+		<tstamp/>
+		<war destfile="build/stapler-example.war"
+			webxml="WEB-INF/web.xml">
+			<webinf dir="WEB-INF" />
+			<classes dir="build/classes" />
+			<fileset dir="resources" />
+			<lib dir="../build" includes="stapler.jar"/>
+		</war>
+	</target>
+</project>

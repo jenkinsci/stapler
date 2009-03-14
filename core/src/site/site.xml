@@ -1,0 +1,20 @@
+<project name="Stapler">
+  <skin>
+    <groupId>org.jvnet.maven-javanet-skin</groupId>
+    <artifactId>maven-javanet-skin</artifactId>
+    <version>1.1</version>
+  </skin>
+
+  <body>
+    <menu name="Stapler">
+      <item name="Overview" href="index.html"/>
+      
+      <item name="Download" href="https://stapler.dev.java.net/servlets/ProjectDocumentList" />
+
+      <item name="Mailing lists" href="https://stapler.dev.java.net/servlets/ProjectMailingListList"/>
+      <item name="Source code" href="https://stapler.dev.java.net/source/browse/trunk/wagon-svn/"/>
+      <item name="Issues" href="https://stapler.dev.java.net/servlets/ProjectIssues"/>
+    </menu>
+    ${reports}
+  </body>
+</project>

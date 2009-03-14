@@ -1,0 +1,10 @@
+- need to redesign duck-typing
+- document duck-typing.
+
+- embed jasper to allow multiple class loader system.
+  generate servlets from jsps/tags.
+  (needs a ServletContext that can load from hierarchy of webapps)
+
+- generated servlets need to be wrapped into ResourceDispatcher.
+
+- if we create child class loaders we have to be careful cleaning them up

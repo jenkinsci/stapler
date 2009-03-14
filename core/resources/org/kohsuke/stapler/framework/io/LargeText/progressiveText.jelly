@@ -1,0 +1,23 @@
+<!--
+  Use AJAX to load text data progressively.
+  This is used to achieve the effect of "tail -f"
+  without relying on full page reload.
+
+	<%@attribute name="href" required="true" description="URL that returns text data" %>
+	<%@attribute name="idref" required="true" description="ID of the HTML element in which the result is displayed" %>
+	<%@attribute name="spinner" required="false" description="ID of the HTML element in which the spinner is displayed" %>
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
+  <st:adjunct includes="org.kohsuke.stapler.framework.io.LargeText" />
+  <script>
+	  $$("${idref}").fetchedBytes = 0;
+    <j:choose>
+      <j:when test="${spinner!=null}">
+        fetchNext($$("${idref}"),$$("${spinner}"), "${href}", new AutoScroller(document.body));
+      </j:when>
+      <j:otherwise>
+        fetchNext($$("${idref}"), null, "${href}", new AutoScroller(document.body));
+      </j:otherwise>
+    </j:choose>
+	</script>
+</j:jelly>
