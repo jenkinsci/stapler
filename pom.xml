@@ -11,6 +11,9 @@
   
   <modules>
     <module>core</module>
+    <module>jsp</module>
+    <module>jelly</module>
+    <module>groovy</module>
   </modules>
 
   <organization>
