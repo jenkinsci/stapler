@@ -74,7 +74,7 @@ public class MetaClass extends TearOffSupport {
                         if (o instanceof HttpResponse) {
                             // let the result render the response
                             HttpResponse response = (HttpResponse) o;
-                            response.generateResponse(req,rsp);
+                            response.generateResponse(req,rsp,node);
                         }
                     }
                     public String toString() {

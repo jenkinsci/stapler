@@ -1,4 +1,4 @@
-package org.kohsuke.stapler.jelly.framework.adjunct;
+package org.kohsuke.stapler.framework.adjunct;
 
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Kohsuke Kawaguchi
  */
 public class AdjunctManager {
-    private final ConcurrentHashMap<String,Adjunct> adjuncts = new ConcurrentHashMap<String,Adjunct>();
+    private final ConcurrentHashMap<String, Adjunct> adjuncts = new ConcurrentHashMap<String,Adjunct>();
 
     /**
      * Map used as a set to remember which resources can be served.

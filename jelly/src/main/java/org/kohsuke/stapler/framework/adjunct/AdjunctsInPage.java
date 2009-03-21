@@ -1,8 +1,10 @@
-package org.kohsuke.stapler.jelly.framework.adjunct;
+package org.kohsuke.stapler.framework.adjunct;
 
 import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.framework.adjunct.AdjunctManager;
+import org.kohsuke.stapler.framework.adjunct.Adjunct;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;

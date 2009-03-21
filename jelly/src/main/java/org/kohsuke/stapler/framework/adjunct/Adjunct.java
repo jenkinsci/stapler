@@ -1,4 +1,4 @@
-package org.kohsuke.stapler.jelly.framework.adjunct;
+package org.kohsuke.stapler.framework.adjunct;
 
 import org.xml.sax.SAXException;
 import org.kohsuke.stapler.StaplerRequest;

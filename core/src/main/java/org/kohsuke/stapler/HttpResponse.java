@@ -16,5 +16,9 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  */
 public interface HttpResponse {
-    void generateResponse(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException;
+    /**
+     * @param node
+     *      The object whose "doXyz" method created this object.
+     */
+    void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException;
 }
