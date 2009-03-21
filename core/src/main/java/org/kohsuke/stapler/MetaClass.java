@@ -67,10 +67,15 @@ public class MetaClass extends TearOffSupport {
 
             for (String name : names) {
                 dispatchers.add(new NameBasedDispatcher(name,0) {
-                    public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException {
+                    public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
                         if(traceable())
                             trace(req,rsp,"-> <%s>.%s(...)",node,f.getName());
-                        f.bindAndInvoke(node,req,rsp);
+                        Object o = f.bindAndInvoke(node, req, rsp);
+                        if (o instanceof HttpResponse) {
+                            // let the result render the response
+                            HttpResponse response = (HttpResponse) o;
+                            response.generateResponse(req,rsp);
+                        }
                     }
                     public String toString() {
                         return f.getQualifiedName()+"(...) for url=/"+name+"/...";
