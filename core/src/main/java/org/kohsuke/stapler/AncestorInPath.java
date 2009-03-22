@@ -7,21 +7,13 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Indicates that this parameter is injected from HTTP query parameter.
+ * Indicates that this parameter is injected by evaluating
+ * {@link StaplerRequest#findAncestorObject(Class)} with the parameter type.
  *
  * @author Kohsuke Kawaguchi
  */
 @Retention(RUNTIME)
 @Target(PARAMETER)
 @Documented
-public @interface QueryParameter {
-    /**
-     * query parameter name. By default, name of the parameter.
-     */
-    String value() default "";
-
-    /**
-     * If true, request without this header will be rejected.
-     */
-    boolean required() default false;
+public @interface AncestorInPath {
 }
