@@ -31,11 +31,6 @@ abstract class AnnotationHandler<T extends Annotation> {
         for (Annotation a : annotations) {
             AnnotationHandler h = HANDLERS.get(a.annotationType());
             if(h==null)     continue;
-
-            Converter converter = Stapler.lookupConverter(targetType);
-            if (converter==null)
-                throw new IllegalArgumentException("Unable to convert to "+targetType);
-
             return h.parse(request,a,targetType,parameterName);
         }
 
