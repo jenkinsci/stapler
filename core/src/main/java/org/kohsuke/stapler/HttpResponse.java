@@ -11,7 +11,7 @@ import java.io.IOException;
  * it's asked to produce HTTP response.
  *
  * <p>
- * This is useful to make <tt>doXyz</tt> look like a real project.
+ * This is useful to make <tt>doXyz</tt> look like a real function, and decouple it further from HTTP.
  *
  * @author Kohsuke Kawaguchi
  */
