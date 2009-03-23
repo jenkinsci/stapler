@@ -4,7 +4,7 @@
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.98-SNAPSHOT</version>
+  <version>1.98</version>
 
   <name>Stapler POM</name>
   <description>Stapler HTTP request handling engine</description>
@@ -42,9 +42,9 @@
   </mailingLists>
   
   <scm>
-    <connection>scm:svn:https://svn.dev.java.net/svn/stapler/trunk/stapler</connection>
-    <developerConnection>scm:svn:https://svn.dev.java.net/svn/stapler/trunk/stapler</developerConnection>
-    <url>https://stapler.dev.java.net/source/browse/stapler/trunk/stapler/</url>
+    <connection>scm:svn:https://svn.dev.java.net/svn/stapler/tags/stapler-parent-1.98</connection>
+    <developerConnection>scm:svn:https://svn.dev.java.net/svn/stapler/tags/stapler-parent-1.98</developerConnection>
+    <url>https://stapler.dev.java.net/source/browse/stapler/tags/stapler-parent-1.98</url>
   </scm>
 
   <distributionManagement>
