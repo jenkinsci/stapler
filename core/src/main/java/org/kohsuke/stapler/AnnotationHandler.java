@@ -66,7 +66,7 @@ abstract class AnnotationHandler<T extends Annotation> {
                 String value = request.getParameter(name);
                 if(a.required() && value==null)
                     throw new ServletException("Required Query parameter "+name+" is missing");
-                if(a.fixEmpty() && value.length()==0)
+                if(a.fixEmpty() && value!=null && value.length()==0)
                     value = null;
                 return convert(type,value);
             }
