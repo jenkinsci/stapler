@@ -24,4 +24,11 @@ public @interface QueryParameter {
      * If true, request without this header will be rejected.
      */
     boolean required() default false;
+
+    /**
+     * If true, and the actual value of this parameter is "",
+     * null is passed instead. This is useful to unify the treatment of
+     * the absence of the value vs the empty value.
+     */
+    boolean fixEmpty() default false;
 }
