@@ -20,7 +20,7 @@
     <dependency>
       <groupId>commons-discovery</groupId>
       <artifactId>commons-discovery</artifactId>
-      <version>20040218.194635</version>
+      <version>0.4</version>
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>
