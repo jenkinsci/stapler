@@ -40,11 +40,12 @@ public abstract class Facet {
         ResourceNameIterator itr = dc.findResourceNames(type.getName());
         while(itr.hasNext()) {
             String name = itr.nextResourceName();
-            Class<?> c = null;
+            Class<?> c;
             try {
                 c = cl.loadClass(name);
             } catch (ClassNotFoundException e) {
                 LOGGER.log(Level.WARNING, "Failed to load "+name,e);
+                continue;
             }
             try {
                 r.add((T)c.newInstance());
