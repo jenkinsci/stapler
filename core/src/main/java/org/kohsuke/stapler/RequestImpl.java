@@ -424,7 +424,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     /**
-     * Loads the property file and determines the constructor parameter names.
+     * Determines the constructor parameter names.
+     *
+     * <p>
+     * If there's the .stapler file, load it as a property file and determines the constructor parameter names.
+     * Otherwise, look for {@link CapturedParameterNames} annotation.
      */
     private String[] loadConstructorParamNames(Class<?> type) {
         String resourceName = type.getName().replace('.', '/').replace('$','/') + ".stapler";
@@ -432,33 +436,37 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         if(cl==null)
             throw new NoStaplerConstructorException(type+" is a built-in type");
         InputStream s = cl.getResourceAsStream(resourceName);
-        if(s==null) {
-            Constructor<?>[] ctrs = type.getConstructors();
-            // one with DataBoundConstructor is the most reliable
-            for (Constructor<?> c : ctrs) {
-                if(c.getAnnotation(DataBoundConstructor.class)!=null) {
-                    throw new NoStaplerConstructorException(
-                        "Unable to find "+resourceName+". "+
-                        "Run 'mvn clean compile' once to run the annotation processor.");
-                }
+        if (s != null) {// load the property file and figure out parameter names
+            try {
+                Properties p = new Properties();
+                p.load(s);
+                s.close();
+
+                String v = p.getProperty("constructor");
+                if (v.length() == 0) return new String[0];
+                return v.split(",");
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Unable to load " + resourceName, e);
             }
-
-            throw new NoStaplerConstructorException(
-                "Unable to find "+resourceName+". "+
-                "There's no @DataBoundConstructor on any constructor of "+type);
         }
 
-        try {
-            Properties p = new Properties();
-            p.load(s);
-            s.close();
+        // look for the one with @DataBoundConstructor and @CapturedParameterNames
+        Constructor<?>[] ctrs = type.getConstructors();
+        for (Constructor<?> c : ctrs) {
+            if (c.getAnnotation(DataBoundConstructor.class) != null) {
+                CapturedParameterNames cpn = c.getAnnotation(CapturedParameterNames.class);
+                if (cpn != null) return cpn.value();
 
-            String v = p.getProperty("constructor");
-            if(v.length()==0)   return new String[0];
-            return v.split(",");
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Unable to load "+resourceName,e);
+                // neither was found
+                throw new NoStaplerConstructorException(
+                        "Unable to find " + resourceName + ". " +
+                                "Run 'mvn clean compile' once to run the annotation processor.");
+            }
         }
+
+        throw new NoStaplerConstructorException(
+                "Unable to find " + resourceName + ". " +
+                        "There's no @DataBoundConstructor on any constructor of " + type);
     }
 
     private static void fill(Object bean, String key, Object value) {
