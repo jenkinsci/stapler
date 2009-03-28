@@ -124,7 +124,11 @@ abstract class Function {
         }
 
         private String[] loadParameterNames(Method m) {
-                Class<?> c = m.getDeclaringClass();
+            CapturedParameterNames cpn = m.getAnnotation(CapturedParameterNames.class);
+            if(cpn!=null)   return cpn.value();
+
+            // otherwise check the .stapler file
+            Class<?> c = m.getDeclaringClass();
                 URL url = c.getClassLoader().getResource(
                         c.getName().replace('.', '/').replace('$','/') + '/' + m.getName() + ".stapler");
                 if(url==null)    return EMPTY_ARRAY;
