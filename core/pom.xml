@@ -49,6 +49,17 @@
       <version>1.1</version>
     </dependency>
     <dependency>
+      <!--
+        To allow stapler to be used from Groovy, code, we have a bit of tooling
+        inside the runtime jar to capture parameter names.
+        This isn't needed unless the user has a Groovy dependency, so marked as optional.
+       -->
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy</artifactId>
+      <version>1.6.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <!-- perhaps mark this dependency optional? -->
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
