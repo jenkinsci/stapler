@@ -2,6 +2,7 @@ package org.kohsuke.stapler.jelly.groovy;
 
 import org.kohsuke.stapler.jelly.JellyTagFileLoader;
 import org.kohsuke.stapler.jelly.CustomTagLibrary;
+import org.kohsuke.MetaInfServices;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.JellyException;
 
@@ -11,6 +12,7 @@ import java.net.URL;
 /**
  * @author Kohsuke Kawaguchi
  */
+@MetaInfServices
 public class GroovyTagFileLoader extends JellyTagFileLoader {
     public Script load(CustomTagLibrary taglib, String name, ClassLoader classLoader) throws JellyException {
         URL res = classLoader.getResource(taglib.basePath + '/' + name + ".groovy");

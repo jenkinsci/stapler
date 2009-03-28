@@ -8,6 +8,7 @@ import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.TearOffSupport;
+import org.kohsuke.MetaInfServices;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -21,6 +22,7 @@ import java.util.List;
  * 
  * @author Kohsuke Kawaguchi
  */
+@MetaInfServices
 public class JellyFacet extends Facet {
     /**
      * Used to invoke Jelly script. Can be replaced to the custom object.

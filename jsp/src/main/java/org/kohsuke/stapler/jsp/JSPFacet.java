@@ -6,6 +6,7 @@ import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.Stapler;
+import org.kohsuke.MetaInfServices;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -19,6 +20,7 @@ import java.io.IOException;
  *
  * @author Kohsuke Kawaguchi
  */
+@MetaInfServices
 public class JSPFacet extends Facet {
     public void buildViewDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
         dispatchers.add(new Dispatcher() {

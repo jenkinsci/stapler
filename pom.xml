@@ -112,6 +112,23 @@
         <artifactId>maven-jellydoc-plugin</artifactId>
         <version>1.2</version>
       </plugin>
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion><!-- require JDK6 for META-INF/services -->
+                  <version>[1.6.0,]</version>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
     
     <extensions>
@@ -137,5 +154,14 @@
       </plugin>
     </plugins>
   </reporting>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.kohsuke.metainf-services</groupId>
+      <artifactId>metainf-services</artifactId>
+      <version>1.1-SNAPSHOT</version>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
 </project>
 

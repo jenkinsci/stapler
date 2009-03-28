@@ -9,6 +9,7 @@ import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.TearOffSupport;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.jelly.JellyFacet;
+import org.kohsuke.MetaInfServices;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -20,6 +21,7 @@ import java.util.List;
  * 
  * @author Kohsuke Kawaguchi
  */
+@MetaInfServices
 public class GroovyFacet extends Facet {
     public void buildViewDispatchers(final MetaClass owner, List<Dispatcher> dispatchers) {
         dispatchers.add(new Dispatcher() {
