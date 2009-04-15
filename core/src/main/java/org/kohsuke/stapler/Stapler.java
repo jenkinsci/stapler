@@ -293,12 +293,18 @@ public class Stapler extends HttpServlet {
             idx = fileName.lastIndexOf('.');
             String ext = fileName.substring(idx+1);
 
-            OutputStream out;
-            if(mimeType.startsWith("text/") || TEXT_FILES.contains(ext))
-                // with gzip compression, Content-Length header needs to indicate the # of bytes after compression,
-                // so we can't compute it upfront.
-                out = rsp.getCompressedOutputStream(req);
-            else {
+            OutputStream out = null;
+            if(mimeType.startsWith("text/") || TEXT_FILES.contains(ext)) {
+                // Need to duplicate this logic from ResponseImpl.getCompressedOutputStream,
+                // since we want to set content length if we are not using encoding.
+                String acceptEncoding = req.getHeader("Accept-Encoding");
+                if (acceptEncoding != null && acceptEncoding.indexOf("gzip") != -1) {
+                    // with gzip compression, Content-Length header needs to indicate the # of bytes after compression,
+                    // so we can't compute it upfront.
+                    out = rsp.getCompressedOutputStream(req);
+                }
+            }
+            if (out == null) {
                 if(contentLength!=-1)
                     rsp.setContentLength(contentLength);
                 out = rsp.getOutputStream();
