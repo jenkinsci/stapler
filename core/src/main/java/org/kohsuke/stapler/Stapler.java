@@ -279,21 +279,10 @@ public class Stapler extends HttpServlet {
                 }
             }
 
-
-            int idx = fileName.lastIndexOf('/');
-            fileName = fileName.substring(idx+1);
-            idx = fileName.lastIndexOf('\\');
-            fileName = fileName.substring(idx+1);
-
-            String extension = fileName.substring(fileName.lastIndexOf('.')+1);
-            String mimeType = webApp.mimeTypes.get(extension);
-            if(mimeType==null)  mimeType = getServletContext().getMimeType(fileName);
-            if(mimeType==null)  mimeType="application/octet-stream";
-            if(webApp.defaultEncodingForStaticResources.containsKey(mimeType))
-                mimeType += ";charset="+webApp.defaultEncodingForStaticResources.get(mimeType);
+            String mimeType = getMimeType(fileName);
             rsp.setContentType(mimeType);
 
-            idx = fileName.lastIndexOf('.');
+            int idx = fileName.lastIndexOf('.');
             String ext = fileName.substring(idx+1);
 
             OutputStream out = null;
@@ -322,6 +311,24 @@ public class Stapler extends HttpServlet {
         } finally {
             in.close();
         }
+    }
+
+    private String getMimeType(String fileName) {
+        if(fileName.startsWith("mime-type:"))
+            return fileName.substring("mime-type:".length());
+
+        int idx = fileName.lastIndexOf('/');
+        fileName = fileName.substring(idx+1);
+        idx = fileName.lastIndexOf('\\');
+        fileName = fileName.substring(idx+1);
+
+        String extension = fileName.substring(fileName.lastIndexOf('.')+1);
+        String mimeType = webApp.mimeTypes.get(extension);
+        if(mimeType==null)  mimeType = getServletContext().getMimeType(fileName);
+        if(mimeType==null)  mimeType="application/octet-stream";
+        if(webApp.defaultEncodingForStaticResources.containsKey(mimeType))
+            mimeType += ";charset="+webApp.defaultEncodingForStaticResources.get(mimeType);
+        return mimeType;
     }
 
     /**

@@ -103,6 +103,9 @@ public interface StaplerResponse extends HttpServletResponse {
      *      Since the only important portion is the file extension, this could be just a file name,
      *      or a full path name, or even a pseudo file name that doesn't actually exist.
      *      It supports both '/' and '\\' as the path separator.
+     *
+     *      If this string starts with "mime-type:", like "mime-type:foo/bar", then "foo/bar" will
+     *      be used as a MIME type without consulting the servlet container.
      */
     void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, int contentLength, String fileName) throws ServletException, IOException;
 
