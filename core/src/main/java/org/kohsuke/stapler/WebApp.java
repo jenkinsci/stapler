@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.WeakHashMap;
+import java.util.Hashtable;
 
 /**
  * Object scoped to the entire webapp. Mostly used for configuring behavior of Stapler.
@@ -57,6 +58,14 @@ public class WebApp {
      * TODO: is this really mutable?
      */
     public final List<Facet> facets = new Vector<Facet>();
+
+    /**
+     * MIME type mapping from extensions (like "txt" or "jpg") to MIME types ("foo/bar").
+     *
+     * This overrides whatever mappings given in the servlet as far as stapler is concerned.
+     * This is case insensitive, and should be normalized to lower case.
+     */
+    public final Map<String,String> mimeTypes = new Hashtable<String,String>();
 
     private volatile ClassLoader classLoader;
 

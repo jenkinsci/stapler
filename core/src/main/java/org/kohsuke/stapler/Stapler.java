@@ -284,7 +284,10 @@ public class Stapler extends HttpServlet {
             fileName = fileName.substring(idx+1);
             idx = fileName.lastIndexOf('\\');
             fileName = fileName.substring(idx+1);
-            String mimeType = getServletContext().getMimeType(fileName);
+
+            String extension = fileName.substring(fileName.lastIndexOf('.')+1);
+            String mimeType = webApp.mimeTypes.get(extension);
+            if(mimeType==null)  mimeType = getServletContext().getMimeType(fileName);
             if(mimeType==null)  mimeType="application/octet-stream";
             if(webApp.defaultEncodingForStaticResources.containsKey(mimeType))
                 mimeType += ";charset="+webApp.defaultEncodingForStaticResources.get(mimeType);
