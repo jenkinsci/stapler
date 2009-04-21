@@ -6,6 +6,7 @@ import org.kohsuke.stapler.export.ModelBuilder;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.http.HttpServletRequest;
@@ -33,10 +34,37 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     private final Stapler stapler;
     private final HttpServletResponse response;
 
+    enum OutputMode { BYTE, CHAR }
+
+    private OutputMode mode=null;
+    private Throwable origin;
+
     public ResponseImpl(Stapler stapler, HttpServletResponse response) {
         super(response);
         this.stapler = stapler;
         this.response = response;
+    }
+
+    @Override
+    public ServletOutputStream getOutputStream() throws IOException {
+        if(mode==OutputMode.CHAR)
+            throw new IllegalStateException("getWriter has already been called. Its call site is in the nested exception",origin);
+        if(mode==null) {
+            mode = OutputMode.BYTE;
+            origin = new Throwable();
+        }
+        return super.getOutputStream();
+    }
+
+    @Override
+    public PrintWriter getWriter() throws IOException {
+        if(mode==OutputMode.BYTE)
+            throw new IllegalStateException("getOutputStream has already been called. Its call site is in the nested exception",origin);
+        if(mode==null) {
+            mode = OutputMode.CHAR;
+            origin = new Throwable();
+        }
+        return super.getWriter();
     }
 
     public void forward(Object it, String url, StaplerRequest request) throws ServletException, IOException {
