@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.DataInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -42,6 +43,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -296,6 +299,32 @@ public class Stapler extends HttpServlet {
                     out = rsp.getCompressedOutputStream(req);
                 }
             }
+
+            // somewhat limited implementation of the partial GET
+            String range = req.getHeader("Range");
+            if(range!=null && contentLength!=-1) {// I'm lazy and only implementing this for known content length case
+                if(range.startsWith("bytes=")) {
+                    range = range.substring(6);
+                    Matcher m = RANGE_SPEC.matcher(range);
+                    if(m.matches()) {
+                        int s = Integer.valueOf(m.group(1));
+                        int e = Integer.valueOf(m.group(2))+1; // range set is inclusive
+                        e = Math.min(e,contentLength);
+
+                        // ritual for responding to a partial GET
+                        rsp.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+                        rsp.setHeader("Content-Range",s+"-"+e+'/'+contentLength);
+
+                        // prepare to send the partial content
+                        new DataInputStream(in).skipBytes(s);
+                        in = new TruncatedInputStream(in,e-s);
+                        contentLength = Math.min(e-s,contentLength);
+                    }
+                    // if the Range header doesn't look like what we can handle,
+                    // pretend as if we didn't understand it, instead of doing a proper error reporting
+                }
+            }
+
             if (out == null) {
                 if(contentLength!=-1)
                     rsp.setContentLength(contentLength);
@@ -312,6 +341,11 @@ public class Stapler extends HttpServlet {
             in.close();
         }
     }
+
+    /**
+     * Strings like "5-300" or "0-900"
+     */
+    private static final Pattern RANGE_SPEC = Pattern.compile("([\\d]+)-([\\d]+)");
 
     private String getMimeType(String fileName) {
         if(fileName.startsWith("mime-type:"))
