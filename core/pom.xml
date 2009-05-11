@@ -40,8 +40,7 @@
     <dependency>
       <groupId>org.kohsuke.stapler</groupId>
       <artifactId>json-lib</artifactId>
-      <version>2.1</version>
-      <classifier>jdk15</classifier>
+      <version>2.1-rev2</version>
     </dependency>
     <dependency>
       <groupId>org.jvnet</groupId>
