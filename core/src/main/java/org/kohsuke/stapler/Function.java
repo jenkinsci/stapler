@@ -46,19 +46,35 @@ abstract class Function {
     abstract String[] getParameterNames();
 
     /**
+     * Calls {@link #bindAndInvoke(Object, StaplerRequest, StaplerResponse, Object[])} and then
+     * optionally serve the response object.
+     */
+    void bindAndInvokeAndServeResponse(Object node, StaplerRequest req, StaplerResponse rsp, Object... headArgs) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+        Object ret = bindAndInvoke(node, req, rsp, headArgs);
+        if (ret instanceof HttpResponse) {
+            // let the result render the response
+            HttpResponse response = (HttpResponse) ret;
+            response.generateResponse(req,rsp,node);
+        }
+    }
+
+    /**
      * Use the given arguments as the first N arguments,
      * then figure out the rest of the arguments by looking at parameter annotations,
      * then finally call {@link #invoke}.
      */
-    Object bindAndInvoke(Object o, StaplerRequest req, StaplerResponse rsp) throws IllegalAccessException, InvocationTargetException, ServletException {
+    Object bindAndInvoke(Object o, StaplerRequest req, StaplerResponse rsp, Object... headArgs) throws IllegalAccessException, InvocationTargetException, ServletException {
         Class[] types = getParameterTypes();
         Annotation[][] annotations = getParameterAnnotatoins();
         String[] parameterNames = getParameterNames();
 
         Object[] arguments = new Object[types.length];
 
-        // find arguments. either known types, or with annotations
-        for( int i=0; i<types.length; i++ ) {
+        // fill in the first N arguments
+        System.arraycopy(headArgs,0,arguments,0,headArgs.length);
+
+        // find the rest of the arguments. either known types, or with annotations
+        for( int i=headArgs.length; i<types.length; i++ ) {
             Class t = types[i];
             if(t==StaplerRequest.class || t==HttpServletRequest.class) {
                 arguments[i] = req;

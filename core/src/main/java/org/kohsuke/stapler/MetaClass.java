@@ -70,12 +70,7 @@ public class MetaClass extends TearOffSupport {
                     public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
                         if(traceable())
                             trace(req,rsp,"-> <%s>.%s(...)",node,f.getName());
-                        Object o = f.bindAndInvoke(node, req, rsp);
-                        if (o instanceof HttpResponse) {
-                            // let the result render the response
-                            HttpResponse response = (HttpResponse) o;
-                            response.generateResponse(req,rsp,node);
-                        }
+                        f.bindAndInvokeAndServeResponse(node, req, rsp);
                     }
                     public String toString() {
                         return f.getQualifiedName()+"(...) for url=/"+name+"/...";
@@ -88,20 +83,18 @@ public class MetaClass extends TearOffSupport {
         for (Facet f : webApp.facets)
             f.buildViewDispatchers(this, dispatchers);
 
-        // check action <obj>.doIndex(req,rsp)
-        for( final Function f : node.methods
-            .signature(StaplerRequest.class,StaplerResponse.class)
-            .name("doIndex") ) {
+        // check action <obj>.doIndex(...)
+        for( final Function f : node.methods.name("doIndex") ) {
 
             dispatchers.add(new Dispatcher() {
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
                     if(req.tokens.hasMore())
                         return false;   // applicable only when there's no more token
 
                     if(traceable())
                         trace(req,rsp,"-> <%s>.doIndex(...)",node);
 
-                    f.invoke(req,node,req,rsp);
+                    f.bindAndInvokeAndServeResponse(node,req,rsp);
                     return true;
                 }
                 public String toString() {
@@ -285,16 +278,14 @@ public class MetaClass extends TearOffSupport {
         // TODO: check if we can route to static resources
         // which directory shall we look up a resource from?
 
-        // check action <obj>.doDynamic(req,rsp)
-        for( final Function f : node.methods
-            .signature(StaplerRequest.class,StaplerResponse.class)
-            .name("doDynamic") ) {
+        // check action <obj>.doDynamic(...)
+        for( final Function f : node.methods.name("doDynamic") ) {
 
             dispatchers.add(new Dispatcher() {
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
                     if(traceable())
                         trace(req,rsp,"-> <%s>.doDynamic(...)",node);
-                    f.invoke(req,node,req,rsp);
+                    f.bindAndInvokeAndServeResponse(node,req,rsp);
                     return true;
                 }
                 public String toString() {
@@ -303,7 +294,7 @@ public class MetaClass extends TearOffSupport {
             });
         }
 
-        // check public selector methods <obj>.getDynamic(<token>,req,rsp)
+        // check public selector methods <obj>.getDynamic(<token>,...)
         for( final Function f : getMethods.signature(String.class,StaplerRequest.class,StaplerResponse.class).name("getDynamic")) {
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, IOException, ServletException {
@@ -313,7 +304,7 @@ public class MetaClass extends TearOffSupport {
                     if(traceable())
                         traceEval(req,rsp,node,"getDynamic(\""+token+"\",...)");
 
-                    Object target = f.invoke(req, node, token, req, rsp);
+                    Object target = f.bindAndInvoke(node, req,rsp, token);
                     if(target!=null) {
                         req.getStapler().invoke(req,rsp, target);
                         return true;
