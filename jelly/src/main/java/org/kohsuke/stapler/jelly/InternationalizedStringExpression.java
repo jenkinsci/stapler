@@ -5,10 +5,13 @@ import org.apache.commons.jelly.expression.ExpressionSupport;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyContext;
 import org.jvnet.localizer.LocaleProvider;
+import org.kohsuke.stapler.Stapler;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Collections;
+import java.util.Arrays;
 
 /**
  * Expression of the form "%messageName(arg1,arg2,...)" that represents
@@ -27,10 +30,10 @@ import java.util.Locale;
  * @author Kohsuke Kawaguchi
  */
 public class InternationalizedStringExpression extends ExpressionSupport {
-    private final ResourceBundle resourceBundle;
+    public final ResourceBundle resourceBundle;
     private final Expression[] arguments;
-    private final String key;
-    private final String expressionText;
+    public final String key;
+    public final String expressionText;
 
     public InternationalizedStringExpression(ResourceBundle resourceBundle, String text) throws JellyException {
         this.resourceBundle = resourceBundle;
@@ -57,6 +60,10 @@ public class InternationalizedStringExpression extends ExpressionSupport {
         }
 
         this.arguments = args.toArray(new Expression[args.size()]);
+    }
+    
+    public List<Expression> getArguments() {
+        return Collections.unmodifiableList(Arrays.asList(arguments));
     }
 
     /**
@@ -106,8 +113,15 @@ public class InternationalizedStringExpression extends ExpressionSupport {
         Object[] args = new Object[arguments.length];
         for (int i = 0; i < args.length; i++)
             args[i] = arguments[i].evaluate(jellyContext);
+
+        // notify the listener if set
+        InternationalizedStringExpressionListener listener = (InternationalizedStringExpressionListener)Stapler.getCurrentRequest().getAttribute(LISTENER_NAME);
+        if(listener!=null)
+            listener.onUsed(this,args);
+
         return resourceBundle.format(LocaleProvider.getLocale(),key,args);
     }
 
     private static final Expression[] EMPTY_ARGUMENTS = new Expression[0];
+    private static final String LISTENER_NAME = InternationalizedStringExpressionListener.class.getName();
 }
