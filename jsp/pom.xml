@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.kohsuke.stapler</groupId>
     <artifactId>stapler-parent</artifactId>
-    <version>1.105</version>
+    <version>1.106-SNAPSHOT</version>
   </parent>
   
   <artifactId>stapler-jsp</artifactId>
