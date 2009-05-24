@@ -96,4 +96,18 @@ public class ResourceBundle {
         resources.put(key,props);
         return props;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ResourceBundle that = (ResourceBundle) o;
+        return baseName.equals(that.baseName);
+    }
+
+    @Override
+    public int hashCode() {
+        return baseName.hashCode();
+    }
 }
