@@ -295,7 +295,7 @@ public class MetaClass extends TearOffSupport {
         }
 
         // check public selector methods <obj>.getDynamic(<token>,...)
-        for( final Function f : getMethods.signature(String.class,StaplerRequest.class,StaplerResponse.class).name("getDynamic")) {
+        for( final Function f : getMethods.signatureStartsWith(String.class).name("getDynamic")) {
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, IOException, ServletException {
                     if(!req.tokens.hasMore())
