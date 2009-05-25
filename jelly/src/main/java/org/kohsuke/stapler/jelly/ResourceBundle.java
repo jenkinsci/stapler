@@ -129,14 +129,14 @@ public class ResourceBundle {
             }
         }
 
-        resources.put(key,wrapUp(props));
+        resources.put(key,wrapUp(key.substring(1),props));
         return props;
     }
 
     /**
      * Interception point for property loading.
      */
-    protected Properties wrapUp(Properties props) {
+    protected Properties wrapUp(String locale, Properties props) {
         return props;
     }
 
