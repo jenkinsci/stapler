@@ -33,7 +33,27 @@ public class ResourceBundle {
         this.baseName = baseName;
     }
 
+    public String getBaseName() {
+        return baseName;
+    }
+
     public String format(Locale locale, String key, Object... args) {
+        String str = getFormatString(locale, key);
+        if(str==null)
+            // see http://www.nabble.com/i18n-and-l10n-problems-td16004047.html for more discussion
+            // return MessageFormat.format(key,args);
+            return key;
+
+        return MessageFormat.format(str,args);
+    }
+
+    /**
+     * Gets the format string for the given key.
+     * <p>
+     * This method performs a search so that a look up for "pt_BR" would delegate
+     * to "pt" then "" (the no-locale locale.)
+     */
+    public String getFormatString(Locale locale, String key) {
         StringBuilder buf = new StringBuilder();
         buf.append('_').append(locale.getLanguage());
         buf.append('_').append(locale.getCountry());
@@ -45,16 +65,24 @@ public class ResourceBundle {
             if(msg!=null && msg.length()>0)
                 // ignore a definition without value, because stapler:i18n generates
                 // value-less definitions
-                return MessageFormat.format(msg,args);
+                return msg;
 
             int idx = suffix.lastIndexOf('_');
             if(idx<0)   // failed to find
-                // see http://www.nabble.com/i18n-and-l10n-problems-td16004047.html for more discussion
-                //
-                // return MessageFormat.format(key,args);
-                return key;
+                return null;
             suffix = suffix.substring(0,idx);
         }
+    }
+
+    /**
+     * Works like {@link #getFormatString(Locale, String)} except there's no
+     * searching up the delegation chain.
+     */
+    public String getFormatStringWithoutDefaulting(Locale locale, String key) {
+        String msg = get('_'+locale.toString()).getProperty(key);
+        if(msg!=null && msg.length()>0)
+            return msg;
+        return null;
     }
 
     private Properties get(String key) {
