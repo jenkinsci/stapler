@@ -29,11 +29,6 @@ public class ResourceBundle {
      */
     private final Map<String,Properties> resources = new ConcurrentHashMap<String,Properties>();
 
-    /**
-     * see {@link #reloadModCount}.
-     */
-    private int modCount;
-
     public ResourceBundle(String baseName) {
         this.baseName = baseName;
     }
@@ -90,14 +85,12 @@ public class ResourceBundle {
         return null;
     }
 
+    protected void clearCache() {
+        resources.clear();
+    }
+
     protected Properties get(String key) {
         Properties props;
-
-        int mc = reloadModCount;
-        if (modCount!=mc) {
-            resources.clear();
-            modCount = mc;
-        }
 
         if(!MetaClass.NO_CACHE) {
             props = resources.get(key);
@@ -129,7 +122,7 @@ public class ResourceBundle {
             }
         }
 
-        resources.put(key,wrapUp(key.substring(1),props));
+        resources.put(key,wrapUp(key.length()>0 ? key.substring(1) : "",props));
         return props;
     }
 
@@ -152,18 +145,5 @@ public class ResourceBundle {
     @Override
     public int hashCode() {
         return baseName.hashCode();
-    }
-
-    /**
-     * {@link ResourceBundle}s use this counter to decide when it needs to
-     * invalidate its cache contents.
-     */
-    private static volatile int reloadModCount = 0;
-
-    /**
-     * Invalidates all the caches of loaded resources and force them be reloaded from the disk.
-     */
-    public static void reload() {
-        reloadModCount++;
     }
 }
