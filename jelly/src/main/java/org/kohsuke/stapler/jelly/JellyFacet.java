@@ -29,6 +29,11 @@ public class JellyFacet extends Facet {
      */
     public volatile ScriptInvoker scriptInvoker = new DefaultScriptInvoker();
 
+    /**
+     * Used to load {@link ResourceBundle}s.
+     */
+    public volatile ResourceBundleFactory resourceBundleFactory = ResourceBundleFactory.INSTANCE;
+
     public void buildViewDispatchers(final MetaClass owner, List<Dispatcher> dispatchers) {
         dispatchers.add(new Dispatcher() {
             final JellyClassTearOff tearOff = owner.loadTearOff(JellyClassTearOff.class);

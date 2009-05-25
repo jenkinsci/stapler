@@ -29,6 +29,11 @@ public class ResourceBundle {
      */
     private final Map<String,Properties> resources = new ConcurrentHashMap<String,Properties>();
 
+    /**
+     * see {@link #reloadModCount}.
+     */
+    private int modCount;
+
     public ResourceBundle(String baseName) {
         this.baseName = baseName;
     }
@@ -85,8 +90,15 @@ public class ResourceBundle {
         return null;
     }
 
-    private Properties get(String key) {
+    protected Properties get(String key) {
         Properties props;
+
+        int mc = reloadModCount;
+        if (modCount!=mc) {
+            resources.clear();
+            modCount = mc;
+        }
+
         if(!MetaClass.NO_CACHE) {
             props = resources.get(key);
             if(props!=null)     return props;
@@ -105,23 +117,26 @@ public class ResourceBundle {
             // failed.
         }
 
-        if(in==null) {
-            // no such resources, so put an empty value
-            resources.put(key,props);
-            return props;
-        }
-
-        try {
+        if(in!=null) {
             try {
-                props.load(in);
-            } finally {
-                in.close();
+                try {
+                    props.load(in);
+                } finally {
+                    in.close();
+                }
+            } catch (IOException e) {
+                throw new Error("Failed to load "+url,e);
             }
-        } catch (IOException e) {
-            throw new Error("Failed to load "+url,e);
         }
 
-        resources.put(key,props);
+        resources.put(key,wrapUp(props));
+        return props;
+    }
+
+    /**
+     * Interception point for property loading.
+     */
+    protected Properties wrapUp(Properties props) {
         return props;
     }
 
@@ -137,5 +152,18 @@ public class ResourceBundle {
     @Override
     public int hashCode() {
         return baseName.hashCode();
+    }
+
+    /**
+     * {@link ResourceBundle}s use this counter to decide when it needs to
+     * invalidate its cache contents.
+     */
+    private static volatile int reloadModCount = 0;
+
+    /**
+     * Invalidates all the caches of loaded resources and force them be reloaded from the disk.
+     */
+    public static void reload() {
+        reloadModCount++;
     }
 }

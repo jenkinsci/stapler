@@ -6,6 +6,7 @@ import org.apache.commons.jelly.expression.Expression;
 import org.apache.commons.jelly.expression.ExpressionSupport;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
+import org.kohsuke.stapler.WebApp;
 
 import java.net.URL;
 import java.util.regex.Pattern;
@@ -50,7 +51,6 @@ class CustomJellyContext extends JellyContext {
 
     private static class CustomXMLParser extends XMLParser implements ExpressionFactory {
         private ResourceBundle resourceBundle;
-
         @Override
         protected ExpressionFactory createExpressionFactory() {
             return this;
@@ -114,7 +114,9 @@ class CustomJellyContext extends JellyContext {
                 String scriptUrl = locator.getSystemId();
                 if(scriptUrl.endsWith(".jelly"))    // cut the trailing .jelly
                     scriptUrl = scriptUrl.substring(0,scriptUrl.length()-".jelly".length());
-                resourceBundle = new ResourceBundle(scriptUrl);
+
+                JellyFacet facet = WebApp.getCurrent().getFacet(JellyFacet.class);
+                resourceBundle =  facet.resourceBundleFactory.create(scriptUrl);
             }
             return resourceBundle;
         }
