@@ -432,7 +432,7 @@ public class Stapler extends HttpServlet {
 
         if(node==null) {
             // node is null
-            if(!Dispatcher.TRACE) {
+            if(!Dispatcher.isTraceEnabled(req)) {
                 rsp.sendError(SC_NOT_FOUND);
             } else {
                 // show error page
@@ -510,7 +510,7 @@ public class Stapler extends HttpServlet {
         }
 
         // we really run out of options.
-        if(!Dispatcher.TRACE) {
+        if(!Dispatcher.isTraceEnabled(req)) {
             rsp.sendError(SC_NOT_FOUND);
         } else {
             // show error page

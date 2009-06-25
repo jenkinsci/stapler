@@ -33,7 +33,7 @@ public abstract class Dispatcher {
 
 
     public static boolean traceable() {
-        return TRACE || LOGGER.isLoggable(Level.FINE);
+        return TRACE || TRACE_PER_REQUEST || LOGGER.isLoggable(Level.FINE);
     }
 
     public static void traceEval(StaplerRequest req, StaplerResponse rsp, Object node) {
@@ -60,10 +60,26 @@ public abstract class Dispatcher {
     }
 
     public static void trace(StaplerRequest req, StaplerResponse rsp, String msg) {
-        if(TRACE)
+        if(isTraceEnabled(req))
             EvaluationTrace.get(req).trace(rsp,msg);
         if(LOGGER.isLoggable(Level.FINE))
             LOGGER.fine(msg);
+    }
+
+    /**
+     * Checks if tracing is enabled for the given request. Tracing can be
+     * enabled globally with the "stapler.trace=true" system property. Tracing
+     * can be enabled per-request by setting "stapler.trace.per-request=true"
+     * and sending an "X-Stapler-Trace" header set to "true" with the request.
+     */
+    public static boolean isTraceEnabled(StaplerRequest req) {
+        if (TRACE)
+            return true;
+
+        if (TRACE_PER_REQUEST && "true".equals(req.getHeader("X-Stapler-Trace")))
+            return true;
+
+        return false;
     }
 
     /**
@@ -73,6 +89,15 @@ public abstract class Dispatcher {
      * Useful for developer assistance.
      */
     public static boolean TRACE = Boolean.getBoolean("stapler.trace");
+
+    /**
+     * This flag will activate the per-request evaluation trace for requests
+     * that have X-Stapler-Trace set to "true".
+     * It adds the evaluation process as HTTP headers,
+     * and when the evaluation failed, special diagnostic 404 page will be rendered.
+     * Useful for developer assistance.
+     */
+    public static boolean TRACE_PER_REQUEST = Boolean.getBoolean("stapler.trace.per-request");
 
     private static final Logger LOGGER = Logger.getLogger(Dispatcher.class.getName());
 }
