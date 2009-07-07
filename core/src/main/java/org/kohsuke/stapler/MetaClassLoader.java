@@ -53,7 +53,7 @@ public class MetaClassLoader extends TearOffSupport {
             String path = System.getProperty("stapler.resourcePath");
             if(path!=null) {
                 debugLoader = new MetaClassLoader(
-                    new URLClassLoader(new URL[]{new File(path).toURL()}));
+                    new URLClassLoader(new URL[]{new File(path).toURI().toURL()}));
             }
         } catch (MalformedURLException e) {
             throw new Error(e);
