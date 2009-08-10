@@ -1,6 +1,5 @@
 package org.kohsuke.stapler;
 
-import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.ConvertUtilsBean;
@@ -374,7 +373,7 @@ public class Stapler extends HttpServlet {
             return null;
         try {
             //when URL contains escapes like %20, this does the conversion correctly
-            return new File(url.toURI().getPath());
+            return new File(url.toURI());
         } catch (URISyntaxException e) {
             try {
                 // some containers, such as Winstone, doesn't escape ' ', and for those
