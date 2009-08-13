@@ -31,4 +31,14 @@ public final class HttpRedirect implements HttpResponse {
             }
         };
     }
+
+    /**
+     * Redirect to "."
+     */
+    public static HttpRedirect DOT = new HttpRedirect(".");
+
+    /**
+     * Redirect to the context root
+     */
+    public static HttpResponse CONTEXT_ROOT = fromContextPath("");
 }
