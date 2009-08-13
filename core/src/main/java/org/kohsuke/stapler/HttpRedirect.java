@@ -18,4 +18,17 @@ public final class HttpRedirect implements HttpResponse {
     public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
         rsp.sendRedirect2(url);
     }
+
+    /**
+     * @param relative
+     *      The path relative to the context path. The context path + this value
+     *      is sent to the user.
+     */
+    public static HttpResponse fromContextPath(final String relative) {
+        return new HttpResponse() {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                rsp.sendRedirect2(req.getContextPath()+relative);
+            }
+        };
+    }
 }
