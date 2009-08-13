@@ -62,6 +62,8 @@ abstract class Function {
             Throwable te = e.getTargetException();
             if(te instanceof HttpResponse)
                 ((HttpResponse)te).generateResponse(req,rsp,node);
+            else
+                throw e;
         }
     }
 
