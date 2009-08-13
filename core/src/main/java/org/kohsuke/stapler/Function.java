@@ -50,11 +50,18 @@ abstract class Function {
      * optionally serve the response object.
      */
     void bindAndInvokeAndServeResponse(Object node, StaplerRequest req, StaplerResponse rsp, Object... headArgs) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
-        Object ret = bindAndInvoke(node, req, rsp, headArgs);
-        if (ret instanceof HttpResponse) {
-            // let the result render the response
-            HttpResponse response = (HttpResponse) ret;
-            response.generateResponse(req,rsp,node);
+        try {
+            Object ret = bindAndInvoke(node, req, rsp, headArgs);
+            if (ret instanceof HttpResponse) {
+                // let the result render the response
+                HttpResponse response = (HttpResponse) ret;
+                response.generateResponse(req,rsp,node);
+            }
+        } catch (InvocationTargetException e) {
+            // exception as an HttpResponse
+            Throwable te = e.getTargetException();
+            if(te instanceof HttpResponse)
+                ((HttpResponse)te).generateResponse(req,rsp,node);
         }
     }
 

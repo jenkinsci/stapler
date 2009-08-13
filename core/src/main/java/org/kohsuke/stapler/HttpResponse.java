@@ -7,8 +7,8 @@ import java.io.IOException;
  * Object that represents the HTTP response, which is defined as a capability to produce the response.
  *
  * <p>
- * <tt>doXyz(...)</tt> method could return an object of this type, and if it does so,
- * it's asked to produce HTTP response.
+ * <tt>doXyz(...)</tt> method could return an object of this type or throw an exception of this type, and if it does so,
+ * the object is asked to produce HTTP response.
  *
  * <p>
  * This is useful to make <tt>doXyz</tt> look like a real function, and decouple it further from HTTP.
