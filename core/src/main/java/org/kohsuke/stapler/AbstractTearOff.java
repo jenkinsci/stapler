@@ -71,6 +71,13 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> {
     }
 
     /**
+     * Discards the cached script.
+     */
+    public synchronized void clearScripts() {
+        getScripts().clear();
+    }
+
+    /**
      * Compiles a script into the compiled form.
      */
     protected abstract S parseScript(URL res) throws E;

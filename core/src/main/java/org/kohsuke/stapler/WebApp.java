@@ -121,6 +121,25 @@ public class WebApp {
     }
 
     /**
+     * Convenience maintenance method to clear all the cached scripts for the given tearoff type.
+     *
+     * <p>
+     * This is useful when you want to have the scripts reloaded into the live system without
+     * the performance penalty of {@link MetaClass#NO_CACHE}.
+     *
+     * @see MetaClass#NO_CACHE
+     */
+    public void clearScripts(Class<? extends AbstractTearOff> clazz) {
+        synchronized (classMap) {
+            for (MetaClass v : classMap.values()) {
+                AbstractTearOff t = v.getTearOff(clazz);
+                if (t!=null)
+                    t.clearScripts();
+            }
+        }
+    }
+
+    /**
      * Gets the current {@link WebApp} that the calling thread is associated with.
      */
     public static WebApp getCurrent() {
