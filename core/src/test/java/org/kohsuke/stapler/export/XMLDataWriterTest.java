@@ -2,7 +2,12 @@ package org.kohsuke.stapler.export;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.StringReader;
+
 import junit.framework.TestCase;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
 
 public class XMLDataWriterTest extends TestCase {
 
@@ -43,6 +48,20 @@ public class XMLDataWriterTest extends TestCase {
         assertEquals("<container><polymorph><basic>super</basic><generic>sub</generic>" +
                 "<specific>sub</specific></polymorph></container>",
                 serialize(new Container(), Container.class));
+    }
+
+    private void assertValidXML(String s) throws Exception {
+        XMLStreamReader r = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(s));
+        while (r.hasNext())
+            r.next();
+        r.close();
+    }
+
+    /**
+     * Can we write out anonymous classes as the root object?
+     */
+    public void testAnonymousClass() throws Exception {
+        assertValidXML(serialize(new X() {},X.class));
     }
 
 }
