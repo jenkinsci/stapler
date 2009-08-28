@@ -21,7 +21,10 @@ final class XMLDataWriter implements DataWriter {
     public boolean isArray;
 
     XMLDataWriter(Object bean, Writer out) throws IOException {
-        name = Introspector.decapitalize(bean.getClass().getSimpleName());
+        Class c=bean.getClass();
+        while (c.isAnonymousClass())
+            c = c.getSuperclass();
+        name = Introspector.decapitalize(c.getSimpleName());
         this.out = out;
     }
 
