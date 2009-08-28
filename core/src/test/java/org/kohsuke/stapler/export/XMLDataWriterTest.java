@@ -64,4 +64,12 @@ public class XMLDataWriterTest extends TestCase {
         assertValidXML(serialize(new X() {},X.class));
     }
 
+    @ExportedBean
+    public static class PA {
+        @Exported public int[] v = new int[]{1,2,3};
+    }
+
+    public void testPrimitiveArrays() throws Exception {
+        assertEquals("<PA><v>1</v><v>2</v><v>3</v></PA>",serialize(new PA(),PA.class));
+    }
 }
