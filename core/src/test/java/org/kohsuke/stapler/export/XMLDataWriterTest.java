@@ -1,13 +1,14 @@
 package org.kohsuke.stapler.export;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.StringReader;
-
 import junit.framework.TestCase;
+import org.xml.sax.InputSource;
+import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 public class XMLDataWriterTest extends TestCase {
 
@@ -51,10 +52,8 @@ public class XMLDataWriterTest extends TestCase {
     }
 
     private void assertValidXML(String s) throws Exception {
-        XMLStreamReader r = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(s));
-        while (r.hasNext())
-            r.next();
-        r.close();
+        SAXParser p = SAXParserFactory.newInstance().newSAXParser();
+        p.parse(new InputSource(new StringReader(s)),new DefaultHandler());
     }
 
     /**
