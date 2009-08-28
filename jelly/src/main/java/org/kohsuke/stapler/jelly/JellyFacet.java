@@ -43,6 +43,9 @@ public class JellyFacet extends Facet {
                 String next = req.tokens.peek();
                 if(next==null)  return false;
 
+                // only match the end of the URL
+                if (req.tokens.countRemainingTokens()>1)    return false;
+
                 try {
                     Script script = tearOff.findScript(next+".jelly");
 
