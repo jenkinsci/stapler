@@ -649,17 +649,10 @@ public class Stapler extends HttpServlet {
     ));
 
     /**
-     * IBM JDK workaround, which reports incorrect getServletPath when stapler
-     * is bound to '/'.
-     *
-     * See http://www.nabble.com/WAS---Hudson-tt16026561.html for more details
+     * Get raw servlet path (decoded in TokenList).
      */
     private String getServletPath(HttpServletRequest req) {
-    	String servletPath = req.getServletPath();
-    	String pathInfo = req.getPathInfo();
-    	if (pathInfo != null)
-            servletPath += pathInfo;
-    	return servletPath;
+        return req.getRequestURI().substring(req.getContextPath().length());
     }
 
 

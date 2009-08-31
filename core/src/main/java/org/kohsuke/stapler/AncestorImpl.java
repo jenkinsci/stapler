@@ -24,7 +24,7 @@ class AncestorImpl implements Ancestor {
 
     public void set(Object object, RequestImpl req ) {
         this.object = object;
-        this.tokens = req.tokens.tokens;
+        this.tokens = req.tokens.rawTokens;
         this.index = req.tokens.idx;
         this.contextPath = req.getContextPath();
     }
@@ -40,14 +40,7 @@ class AncestorImpl implements Ancestor {
             buf.append(tokens[i]);
         }
         
-        try {
-            // 3 arg version accepts illegal character. 1-arg version doesn't
-            return new URI(null,buf.toString(),null).toASCIIString();
-        } catch (URISyntaxException e) {
-            IllegalArgumentException y = new IllegalArgumentException();
-            y.initCause(e);
-            throw y;
-        }
+        return buf.toString();
     }
 
     public String getFullUrl() {

@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
  * @author Kohsuke Kawaguchi
  */
 public final class TokenList {
-    public final String[] tokens;
+    public final String[] tokens, rawTokens;
     /**
      * Index of the next token.
      */
@@ -17,9 +17,11 @@ public final class TokenList {
     TokenList(String url) {
         StringTokenizer tknzr = new StringTokenizer(url,"/");
         tokens = new String[tknzr.countTokens()];
-        int i=0;
-        while(tknzr.hasMoreTokens())
-            tokens[i++] = tknzr.nextToken();
+        rawTokens = new String[tknzr.countTokens()];
+        for(int i=0; tknzr.hasMoreTokens(); i++) {
+            rawTokens[i] = tknzr.nextToken();
+            tokens[i] = decode(rawTokens[i]);
+        }
     }
 
     public boolean hasMore() {
@@ -75,7 +77,25 @@ public final class TokenList {
         StringBuilder buf = new StringBuilder();
         for( int i=idx; i<length(); i++ ) {
             buf.append('/');
-            buf.append(tokens[i]);
+            buf.append(rawTokens[i]);
+        }
+        return buf.toString();
+    }
+
+    public static String decode(String s) {
+        int i = s.indexOf('%');
+        if (i < 0) return s;
+        StringBuilder buf = new StringBuilder(s.substring(0, i));
+        char c, upper, lower;
+        for (int m = s.length(); i < m; i++) {
+            c = s.charAt(i);
+            if (c == '%') try {
+                upper = s.charAt(++i);
+                lower = s.charAt(++i);
+                c = (char)(((upper & 0xF) + ((upper & 0x40) != 0 ? 9 : 0)) * 16
+                           + ((lower & 0xF) + ((lower & 0x40) != 0 ? 9 : 0)));
+            } catch (IndexOutOfBoundsException ignore) { }
+            buf.append(c);
         }
         return buf.toString();
     }
