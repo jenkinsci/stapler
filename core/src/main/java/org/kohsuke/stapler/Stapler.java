@@ -457,6 +457,8 @@ public class Stapler extends HttpServlet {
             String servletPath = getServletPath(req);
             if(!servletPath.endsWith("/")) {
                 String target = req.getContextPath() + servletPath + '/';
+                if(req.getQueryString()!=null)
+                    target += '?' + req.getQueryString();
                 if(LOGGER.isLoggable(Level.FINE))
                     LOGGER.fine("Redirecting to "+target);
                 rsp.sendRedirect2(target);
