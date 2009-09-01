@@ -1,6 +1,11 @@
 package org.kohsuke.stapler;
 
+import org.apache.commons.lang.CharSet;
+
 import java.util.StringTokenizer;
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 /**
  * Tokenized strings.
@@ -93,18 +98,39 @@ public final class TokenList {
     public static String decode(String s) {
         int i = s.indexOf('%');
         if (i < 0) return s;
-        StringBuilder buf = new StringBuilder(s.substring(0, i));
-        char c, upper, lower;
-        for (int m = s.length(); i < m; i++) {
-            c = s.charAt(i);
-            if (c == '%') try {
-                upper = s.charAt(++i);
-                lower = s.charAt(++i);
-                c = (char)(((upper & 0xF) + ((upper & 0x40) != 0 ? 9 : 0)) * 16
-                           + ((lower & 0xF) + ((lower & 0x40) != 0 ? 9 : 0)));
-            } catch (IndexOutOfBoundsException ignore) { }
-            buf.append(c);
+
+        try {
+            // to properly handle non-ASCII characters, decoded bytes need to be stored and translated in bulk.
+            // this complex set up is necessary for us to work gracefully if 's' already contains decoded non-ASCII chars.
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            StringBuilder buf = new StringBuilder(s.substring(0, i));
+            char c, upper, lower;
+            for (int m = s.length(); i < m; i++) {
+                c = s.charAt(i);
+                if (c == '%') {
+                    try {
+                        upper = s.charAt(++i);
+                        lower = s.charAt(++i);
+                        baos.write(fromHex(upper) * 16 + fromHex(lower));
+                    } catch (IndexOutOfBoundsException ignore) {
+                        // malformed %HH.
+                    }
+                } else {
+                    if (baos.size()>0) {
+                        buf.append(new String(baos.toByteArray(),"UTF-8"));
+                        baos.reset();
+                    }
+                    buf.append(c);
+                }
+            }
+            return buf.toString();
+        } catch (UnsupportedEncodingException e) {
+            throw new AssertionError(e); // UTF-8 is mandatory encoding
         }
-        return buf.toString();
+    }
+
+    private static int fromHex(char upper) {
+        return ((upper & 0xF) + ((upper & 0x40) != 0 ? 9 : 0));
     }
 }
