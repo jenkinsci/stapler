@@ -73,13 +73,21 @@ public final class TokenList {
         return buf.toString();
     }
 
-    public String assembleRestOfPath() {
+    private String assembleRestOfPath(String[] tokens) {
         StringBuilder buf = new StringBuilder();
         for( int i=idx; i<length(); i++ ) {
             buf.append('/');
-            buf.append(rawTokens[i]);
+            buf.append(tokens[i]);
         }
         return buf.toString();
+    }
+
+    public String assembleRestOfPath() {
+        return assembleRestOfPath(tokens);
+    }
+
+    public String assembleOriginalRestOfPath() {
+        return assembleRestOfPath(rawTokens);
     }
 
     public static String decode(String s) {

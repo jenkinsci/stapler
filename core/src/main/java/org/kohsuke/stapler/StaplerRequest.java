@@ -44,6 +44,12 @@ public interface StaplerRequest extends HttpServletRequest {
     String getRestOfPath();
 
     /**
+     * Returns the same thing as {@link #getRestOfPath()} but in the pre-decoded form,
+     * so all "%HH"s as present in the request URL is intact.
+     */
+    String getOriginalRestOfPath();
+
+    /**
      * Returns the {@link ServletContext} object given to the stapler
      * dispatcher servlet.
      */

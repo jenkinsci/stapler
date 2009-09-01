@@ -93,6 +93,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return tokens.assembleRestOfPath();
     }
 
+    public String getOriginalRestOfPath() {
+        return tokens.assembleOriginalRestOfPath();
+    }
+
     public ServletContext getServletContext() {
         return stapler.getServletContext();
     }
