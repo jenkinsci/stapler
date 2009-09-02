@@ -69,7 +69,7 @@ public final class TokenList {
 
 
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for( int i=0; i<tokens.length; i++) {
             if(buf.length()>0)  buf.append('/');
             if(i==idx)  buf.append('!');
