@@ -7,7 +7,6 @@ import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.WebApp;
-import org.kohsuke.stapler.ServletException2;
 import org.kohsuke.stapler.jelly.JellyRequestDispatcher;
 import org.kohsuke.stapler.jelly.JellyFacet;
 
@@ -43,7 +42,7 @@ public final class GroovyClassTearOff extends AbstractTearOff<GroovyClassLoaderT
             }
             return false;
         } catch (JellyException e) {
-            throw new ServletException2(e);
+            throw new ServletException(e);
         }
     }
 

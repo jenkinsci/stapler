@@ -6,7 +6,6 @@ import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.WebApp;
-import org.kohsuke.stapler.ServletException2;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -35,7 +34,7 @@ public final class JellyRequestDispatcher implements RequestDispatcher {
                 (StaplerResponse)servletResponse,
                 script, it);
         } catch (JellyTagException e) {
-            throw new ServletException2(e);
+            throw new ServletException(e);
         }
     }
 
