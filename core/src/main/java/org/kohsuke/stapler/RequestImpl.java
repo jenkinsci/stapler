@@ -653,7 +653,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             for( FileItem fi : (List<FileItem>)upload.parseRequest(this) )
                 parsedFormData.put(fi.getFieldName(),fi);
         } catch (FileUploadException e) {
-            throw new ServletException(e);
+            throw new ServletException2(e);
         }
     }
 

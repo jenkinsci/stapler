@@ -493,10 +493,10 @@ public class Stapler extends HttpServlet {
         } catch (IllegalAccessException e) {
             // this should never really happen
             getServletContext().log("Error while serving "+req.getRequestURL(),e);
-            throw new ServletException(e);
+            throw new ServletException2(e);
         } catch (InvocationTargetException e) {
             getServletContext().log("Error while serving "+req.getRequestURL(),e);
-            throw new ServletException(e.getTargetException());
+            throw new ServletException2(e.getTargetException());
         }
 
         if(node instanceof StaplerFallback) {

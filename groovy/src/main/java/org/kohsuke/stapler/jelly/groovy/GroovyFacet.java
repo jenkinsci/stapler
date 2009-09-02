@@ -8,6 +8,7 @@ import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.TearOffSupport;
 import org.kohsuke.stapler.WebApp;
+import org.kohsuke.stapler.ServletException2;
 import org.kohsuke.stapler.jelly.JellyFacet;
 import org.kohsuke.MetaInfServices;
 
@@ -49,7 +50,7 @@ public class GroovyFacet extends Facet {
                 } catch (IOException e) {
                     throw e;
                 } catch (Exception e) {
-                    throw new ServletException(e);
+                    throw new ServletException2(e);
                 }
             }
             public String toString() {

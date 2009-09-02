@@ -8,6 +8,7 @@ import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.TearOffSupport;
+import org.kohsuke.stapler.ServletException2;
 import org.kohsuke.MetaInfServices;
 
 import javax.servlet.RequestDispatcher;
@@ -64,7 +65,7 @@ public class JellyFacet extends Facet {
                 } catch (IOException e) {
                     throw e;
                 } catch (Exception e) {
-                    throw new ServletException(e);
+                    throw new ServletException2(e);
                 }
             }
 
