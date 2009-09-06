@@ -1,11 +1,8 @@
 package org.kohsuke.stapler;
 
-import org.apache.commons.lang.CharSet;
-
 import java.util.StringTokenizer;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 
 /**
  * Tokenized strings.
@@ -124,6 +121,8 @@ public final class TokenList {
                     buf.append(c);
                 }
             }
+            if (baos.size()>0)
+                buf.append(new String(baos.toByteArray(),"UTF-8"));
             return buf.toString();
         } catch (UnsupportedEncodingException e) {
             throw new AssertionError(e); // UTF-8 is mandatory encoding
