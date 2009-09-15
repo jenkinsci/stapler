@@ -15,6 +15,16 @@ import java.lang.annotation.Target;
  * {@link StaplerRequest#bindParameters(Class, String)}.
  *
  * <p>
+ * Stapler will invoke the designated constructor by using arguments from the corresponding
+ * {@link JSONObject} (in case of {@link StaplerRequest#bindJSON(Class, JSONObject)}) or request parameters
+ * (in case of {@link StaplerRequest#bindParameters(Class, String)}).
+ *
+ * <p>
+ * The matching is done by using the constructor parameter name. Since this information is not available
+ * at the runtime, annotation processing runs during the compilation to capture them in separate "*.stapler" files.
+ *
+ *
+ * <p>
  * This replaces "@stapler-constructor" annotation.
  *
  * @author Kohsuke Kawaguchi
