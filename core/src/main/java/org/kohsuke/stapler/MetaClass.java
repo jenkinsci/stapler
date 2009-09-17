@@ -1,6 +1,7 @@
 package org.kohsuke.stapler;
 
 import javax.servlet.ServletException;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -232,7 +233,15 @@ public class MetaClass extends TearOffSupport {
                         int index = req.tokens.nextAsInt();
                         if(traceable())
                             traceEval(req,rsp,node,"((List)",").get("+index+")");
-                        req.getStapler().invoke(req,rsp, ((List) node).get(index));
+                        List list = (List) node;
+                        if (0<=index && index<list.size())
+                            req.getStapler().invoke(req,rsp, list.get(index));
+                        else {
+                            if(traceable())
+                                trace(req,rsp,"-> IndexOutOfRange [0,%d)",list.size());
+                            rsp.sendError(SC_NOT_FOUND);
+                        }
+
                         return true;
                     } catch (NumberFormatException e) {
                         return false; // try next
