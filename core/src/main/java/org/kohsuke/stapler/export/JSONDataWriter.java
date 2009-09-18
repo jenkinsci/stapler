@@ -11,8 +11,8 @@ import java.io.Writer;
  * @author Kohsuke Kawaguchi
  */
 class JSONDataWriter implements DataWriter {
-    private boolean needComma;
-    private final Writer out;
+    protected boolean needComma;
+    protected final Writer out;
 
     JSONDataWriter(Writer out) throws IOException {
         this.out = out;
@@ -33,7 +33,7 @@ class JSONDataWriter implements DataWriter {
         out.write(v);
     }
 
-    private void comma() throws IOException {
+    protected void comma() throws IOException {
         if(needComma) out.write(',');
         needComma = true;
     }

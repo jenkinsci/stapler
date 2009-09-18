@@ -41,6 +41,20 @@ public enum Flavor {
             return new PythonDataWriter(w);
         }
     },
+    RUBY("text/x-ruby;charset=UTF-8") {
+        public DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException {
+            return new RubyDataWriter(rsp);
+        }
+        public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
+            return new RubyDataWriter(w);
+        }
+        public DataWriter createDataWriter(StaplerResponse rsp) throws IOException {
+            return new RubyDataWriter(rsp);
+        }
+        public DataWriter createDataWriter(Writer w) throws IOException {
+            return new RubyDataWriter(w);
+        }
+    },
     XML("application/xml;charset=UTF-8") {
         public DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException {
             return new XMLDataWriter(bean,rsp);
