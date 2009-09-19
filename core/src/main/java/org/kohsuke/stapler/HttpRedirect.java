@@ -23,13 +23,11 @@ public final class HttpRedirect implements HttpResponse {
      * @param relative
      *      The path relative to the context path. The context path + this value
      *      is sent to the user.
+     * @deprecated
+     *      Use {@link HttpResponses#redirectViaContextPath(String)}.
      */
     public static HttpResponse fromContextPath(final String relative) {
-        return new HttpResponse() {
-            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
-                rsp.sendRedirect2(req.getContextPath()+relative);
-            }
-        };
+        return HttpResponses.redirectViaContextPath(relative);
     }
 
     /**
