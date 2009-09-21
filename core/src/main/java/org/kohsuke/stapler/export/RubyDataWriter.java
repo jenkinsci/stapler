@@ -34,4 +34,17 @@ final class RubyDataWriter extends JSONDataWriter {
     public void valueNull() throws IOException {
         data("nil");
     }
+
+    @Override
+    public void startObject() throws IOException {
+        comma();
+        out.write("OpenStruct.new({");
+        needComma=false;
+    }
+
+    @Override
+    public void endObject() throws IOException {
+        out.write("})");
+        needComma=true;
+    }
 }
