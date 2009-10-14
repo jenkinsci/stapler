@@ -307,7 +307,9 @@ public class Stapler extends HttpServlet {
                     Matcher m = RANGE_SPEC.matcher(range);
                     if(m.matches()) {
                         int s = Integer.valueOf(m.group(1));
-                        int e = Integer.valueOf(m.group(2))+1; // range set is inclusive
+                        int e = m.group(2).length()>0
+                                ? Integer.valueOf(m.group(2))+1 //range set is inclusive
+                                : contentLength; // unspecified value means "all the way to the end 
                         e = Math.min(e,contentLength);
 
                         // ritual for responding to a partial GET
@@ -342,9 +344,9 @@ public class Stapler extends HttpServlet {
     }
 
     /**
-     * Strings like "5-300" or "0-900"
+     * Strings like "5-300", "0-900", or "100-"
      */
-    private static final Pattern RANGE_SPEC = Pattern.compile("([\\d]+)-([\\d]+)");
+    private static final Pattern RANGE_SPEC = Pattern.compile("([\\d]+)-([\\d]*)");
 
     private String getMimeType(String fileName) {
         if(fileName.startsWith("mime-type:"))
