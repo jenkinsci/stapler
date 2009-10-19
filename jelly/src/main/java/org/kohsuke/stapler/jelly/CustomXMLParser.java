@@ -110,14 +110,8 @@ class CustomJellyContext extends JellyContext {
         }
 
         private ResourceBundle getResourceBundle() {
-            if(resourceBundle==null) {
-                String scriptUrl = locator.getSystemId();
-                if(scriptUrl.endsWith(".jelly"))    // cut the trailing .jelly
-                    scriptUrl = scriptUrl.substring(0,scriptUrl.length()-".jelly".length());
-
-                JellyFacet facet = WebApp.getCurrent().getFacet(JellyFacet.class);
-                resourceBundle =  facet.resourceBundleFactory.create(scriptUrl);
-            }
+            if(resourceBundle==null)
+                resourceBundle = ResourceBundle.load(locator.getSystemId());
             return resourceBundle;
         }
     }

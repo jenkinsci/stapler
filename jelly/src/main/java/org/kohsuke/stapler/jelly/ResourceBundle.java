@@ -1,6 +1,7 @@
 package org.kohsuke.stapler.jelly;
 
 import org.kohsuke.stapler.MetaClass;
+import org.kohsuke.stapler.WebApp;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -145,5 +146,20 @@ public class ResourceBundle {
     @Override
     public int hashCode() {
         return baseName.hashCode();
+    }
+
+    public static ResourceBundle load(URL jellyUrl) {
+        return load(jellyUrl.toExternalForm());
+    }
+
+    /**
+     * Loads the resource bundle associated with the Jelly script.
+     */
+    public static ResourceBundle load(String jellyUrl) {
+        if(jellyUrl.endsWith(".jelly"))    // cut the trailing .jelly
+            jellyUrl = jellyUrl.substring(0,jellyUrl.length()-".jelly".length());
+
+        JellyFacet facet = WebApp.getCurrent().getFacet(JellyFacet.class);
+        return facet.resourceBundleFactory.create(jellyUrl);
     }
 }

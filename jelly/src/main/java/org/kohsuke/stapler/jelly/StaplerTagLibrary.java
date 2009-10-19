@@ -23,5 +23,7 @@ public class StaplerTagLibrary extends TagLibrary {
         registerTag("parentScope",ParentScopeTag.class);
         registerTag("redirect",RedirectTag.class);
         registerTag("statusCode",StatusCodeTag.class);
+        registerTag("structuredMessageArgument",StructuredMessageArgumentTag.class);
+        registerTag("structuredMessageFormat",StructuredMessageFormatTag.class);
     }
 }
