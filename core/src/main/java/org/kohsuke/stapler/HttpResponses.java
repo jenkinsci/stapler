@@ -73,4 +73,17 @@ public class HttpResponses {
     public static HttpResponseException redirectToContextRoot() {
         return redirectViaContextPath("");
     }
+
+    /**
+     * Redirects the user back to where he came from.
+     */
+    public static HttpResponseException forwardToPreviousPage() {
+        return FORWARD_TO_PREVIOUS_PAGE;
+    }
+
+    private static final HttpResponseException FORWARD_TO_PREVIOUS_PAGE = new HttpResponseException() {
+        public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+            rsp.forwardToPreviousPage(req);
+        }
+    };
 }
