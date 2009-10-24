@@ -4,7 +4,6 @@ import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.TagLibrary;
 import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.apache.commons.jelly.expression.jexl.JexlExpressionFactory;
-import org.apache.commons.jelly.parser.XMLParser;
 import org.kohsuke.stapler.MetaClassLoader;
 
 import java.lang.ref.WeakReference;
@@ -75,19 +74,8 @@ public class JellyClassLoaderTearOff {
      * for classes in this classloader.
      */
     public JellyContext createContext() {
-        JellyContext context = new CustomJellyContext(ROOT_CONTEXT) {
-            @Override
-            public TagLibrary getTagLibrary(String namespaceURI) {
-                TagLibrary tl = super.getTagLibrary(namespaceURI);
-                // attempt to resolve nsUri from taglibs
-                if(tl==null) {
-                    tl = JellyClassLoaderTearOff.this.getTagLibrary(namespaceURI);
-                    if(tl!=null)
-                        registerTagLibrary(namespaceURI,tl);
-                }
-                return tl;
-            }
-        };
+        JellyContext context = new CustomJellyContext(ROOT_CONTEXT);
+        context.setClassLoader(owner.loader);
         context.setExportLibraries(false);
         return context;
     }

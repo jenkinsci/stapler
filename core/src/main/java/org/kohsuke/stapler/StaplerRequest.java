@@ -25,6 +25,11 @@ import net.sf.json.JSONArray;
  */
 public interface StaplerRequest extends HttpServletRequest {
     /**
+     * Gets the {@link Stapler} instance that this belongs to.
+     */
+    Stapler getStapler();
+
+    /**
      * Returns the additional URL portion that wasn't used by the stapler,
      * excluding the query string.
      *

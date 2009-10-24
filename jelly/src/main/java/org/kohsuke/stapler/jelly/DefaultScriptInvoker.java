@@ -81,7 +81,10 @@ public class DefaultScriptInvoker implements ScriptInvoker {
         context.setVariable("org.apache.commons.jelly.tags.fmt.locale",req.getLocale());
     }
 
-    protected JellyContext createContext(StaplerRequest req, StaplerResponse rsp, Script script, Object it) {
-        return new CustomJellyContext();
+    protected JellyContext createContext(final StaplerRequest req, StaplerResponse rsp, Script script, Object it) {
+        CustomJellyContext context = new CustomJellyContext();
+        // let Jelly see the whole classes
+        context.setClassLoader(req.getStapler().getWebApp().getClassLoader());
+        return context;
     }
 }

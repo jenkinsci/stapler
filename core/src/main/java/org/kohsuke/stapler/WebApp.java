@@ -6,7 +6,6 @@ import javax.servlet.ServletContext;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Vector;
 import java.util.WeakHashMap;
 import java.util.Hashtable;
@@ -18,6 +17,9 @@ import java.util.Hashtable;
  * In contrast, {@link Stapler} is a servlet, so there can be multiple instances per webapp.
  *
  * @author Kohsuke Kawaguchi
+ * @see WebApp#get(ServletContext)
+ * @see WebApp#getCurrent()  
+ * @see Stapler#getWebApp()
  */
 public class WebApp {
     /**

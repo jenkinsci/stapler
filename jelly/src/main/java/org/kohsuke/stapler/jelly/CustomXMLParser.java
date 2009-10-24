@@ -6,7 +6,8 @@ import org.apache.commons.jelly.expression.Expression;
 import org.apache.commons.jelly.expression.ExpressionSupport;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
-import org.kohsuke.stapler.WebApp;
+import org.apache.commons.jelly.TagLibrary;
+import org.kohsuke.stapler.MetaClassLoader;
 
 import java.net.URL;
 import java.util.regex.Pattern;
@@ -21,6 +22,8 @@ import java.util.HashMap;
  * @author Kohsuke Kawaguchi
 */
 class CustomJellyContext extends JellyContext {
+    private JellyClassLoaderTearOff jclt;
+
     CustomJellyContext() {
     }
 
@@ -47,6 +50,25 @@ class CustomJellyContext extends JellyContext {
     @Override
     protected XMLParser createXMLParser() {
         return new CustomXMLParser();
+    }
+
+    @Override
+    public void setClassLoader(ClassLoader classLoader) {
+        super.setClassLoader(classLoader);
+        jclt = MetaClassLoader.get(classLoader).loadTearOff(JellyClassLoaderTearOff.class);
+    }
+
+    @Override
+    public TagLibrary getTagLibrary(String namespaceURI) {
+        TagLibrary tl = super.getTagLibrary(namespaceURI);
+
+        // delegate to JellyClassLoaderTearOff for taglib handling
+        if(tl==null && jclt!=null) {
+            tl = jclt.getTagLibrary(namespaceURI);
+            if (tl!=null)
+                registerTagLibrary(namespaceURI,tl);
+        }
+        return tl;
     }
 
     private static class CustomXMLParser extends XMLParser implements ExpressionFactory {
