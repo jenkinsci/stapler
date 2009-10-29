@@ -281,6 +281,8 @@ public class Stapler extends HttpServlet {
                 }
             }
 
+            rsp.setHeader("Accept-Ranges","bytes"); // advertize that we support the range header
+
             String mimeType = getMimeType(fileName);
             rsp.setContentType(mimeType);
 
