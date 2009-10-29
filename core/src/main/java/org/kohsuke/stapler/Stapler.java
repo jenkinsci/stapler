@@ -47,6 +47,8 @@ import java.util.regex.Matcher;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sf.json.JSONObject;
+
 /**
  * Maps an HTTP request to a method call / JSP invocation against a model object
  * by evaluating the request URL in a EL-ish way.
