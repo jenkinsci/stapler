@@ -2,9 +2,15 @@ package org.kohsuke.stapler.jelly;
 
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.TagLibrary;
+import org.apache.commons.jelly.JellyException;
+import org.apache.commons.jelly.Tag;
+import org.apache.commons.jelly.impl.TagScript;
+import org.apache.commons.jelly.impl.TagFactory;
 import org.apache.commons.jelly.expression.ExpressionFactory;
+import org.apache.commons.jelly.expression.Expression;
 import org.apache.commons.jelly.expression.jexl.JexlExpressionFactory;
 import org.kohsuke.stapler.MetaClassLoader;
+import org.xml.sax.Attributes;
 
 import java.lang.ref.WeakReference;
 import java.net.URL;
@@ -50,13 +56,15 @@ public class JellyClassLoaderTearOff {
                     if(res!=null)
                         return new CustomTagLibrary(createContext(),owner.loader,nsUri,taglibBasePath);
 
-                    return null;    // "not found" is also cached.
+                    return NO_SUCH_TAGLIBRARY;    // "not found" is also cached.
                 }
             });
             taglibs = new WeakReference<Map<String,TagLibrary>>(m);
         }
 
-        return m.get(nsUri);
+        TagLibrary tl = m.get(nsUri);
+        if (tl==NO_SUCH_TAGLIBRARY)     return null;
+        return tl;
     }
 
     private String trimHeadSlash(String nsUri) {
@@ -85,5 +93,10 @@ public class JellyClassLoaderTearOff {
     static {
         ROOT_CONTEXT.registerTagLibrary("jelly:stapler",new StaplerTagLibrary());
     }
+
+    /**
+     * Place holder in the cache to indicate "no such taglib"
+     */
+    private static final TagLibrary NO_SUCH_TAGLIBRARY = new TagLibrary() {};
 
 }
