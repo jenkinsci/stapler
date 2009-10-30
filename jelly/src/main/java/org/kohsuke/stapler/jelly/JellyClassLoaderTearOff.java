@@ -8,8 +8,10 @@ import org.kohsuke.stapler.MetaClassLoader;
 
 import java.lang.ref.WeakReference;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
+
+import com.google.common.collect.MapMaker;
+import com.google.common.base.Function;
 
 /**
  * {@link MetaClassLoader} tear-off for Jelly support.
@@ -30,36 +32,31 @@ public class JellyClassLoaderTearOff {
         this.owner = owner;
     }
 
-    public synchronized TagLibrary getTagLibrary(String nsUri) {
-        TagLibrary tl=null;
-
-        if(owner.parent!=null)        // parent first
-            tl = owner.parent.loadTearOff(JellyClassLoaderTearOff.class).getTagLibrary(nsUri);
-
-        if(tl!=null)
-            return tl;
-
+    public TagLibrary getTagLibrary(String nsUri) {
         Map<String,TagLibrary> m=null;
         if(taglibs!=null)
             m = taglibs.get();
         if(m==null) {
-            m = new HashMap<String, TagLibrary>();
+            m = new MapMaker().makeComputingMap(new Function<String,TagLibrary>() {
+                public TagLibrary apply(String nsUri) {
+                    if(owner.parent!=null) {
+                        // parent first
+                        TagLibrary tl = owner.parent.loadTearOff(JellyClassLoaderTearOff.class).getTagLibrary(nsUri);
+                        if(tl!=null)    return tl;
+                    }
+
+                    String taglibBasePath = trimHeadSlash(nsUri);
+                    URL res = owner.loader.getResource(taglibBasePath +"/taglib");
+                    if(res!=null)
+                        return new CustomTagLibrary(createContext(),owner.loader,nsUri,taglibBasePath);
+
+                    return null;    // "not found" is also cached.
+                }
+            });
             taglibs = new WeakReference<Map<String,TagLibrary>>(m);
         }
 
-        // then see if it's cached
-        tl = m.get(nsUri);
-
-        if(tl==null) { // can we load them here?
-            String taglibBasePath = trimHeadSlash(nsUri);
-            URL res = owner.loader.getResource(taglibBasePath +"/taglib");
-            if(res!=null) {
-                tl = new CustomTagLibrary(createContext(),owner.loader,nsUri,taglibBasePath);
-                m.put(nsUri,tl);
-            }
-        }
-
-        return tl;
+        return m.get(nsUri);
     }
 
     private String trimHeadSlash(String nsUri) {
