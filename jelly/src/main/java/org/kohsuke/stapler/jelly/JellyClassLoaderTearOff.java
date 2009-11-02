@@ -52,9 +52,14 @@ public class JellyClassLoaderTearOff {
                     }
 
                     String taglibBasePath = trimHeadSlash(nsUri);
-                    URL res = owner.loader.getResource(taglibBasePath +"/taglib");
-                    if(res!=null)
+                    try {
+                        URL res = owner.loader.getResource(taglibBasePath +"/taglib");
+                        if(res!=null)
                         return new CustomTagLibrary(createContext(),owner.loader,nsUri,taglibBasePath);
+                    } catch (IllegalArgumentException e) {
+                        // if taglibBasePath doesn't even look like an URL, getResource throws IllegalArgumentException.
+                        // see http://old.nabble.com/bug-1.331-to26145963.html
+                    }
 
                     return NO_SUCH_TAGLIBRARY;    // "not found" is also cached.
                 }
