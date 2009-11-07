@@ -1,6 +1,7 @@
 package org.kohsuke.stapler;
 
 import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -94,7 +95,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> {
      * So it's important to allow Scripts to be garbage collected.
      * This is not an ideal fix, but it works.
      */
-    private volatile WeakReference<Map<String,S>> scripts;
+    private volatile SoftReference<Map<String,S>> scripts;
 
     private Map<String,S> getScripts() {
         Map<String,S> r=null;
@@ -105,7 +106,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> {
             return r;
 
         r = new HashMap<String,S>();
-        scripts = new WeakReference<Map<String,S>>(r);
+        scripts = new SoftReference<Map<String,S>>(r);
         return r;
     }
 
