@@ -1,9 +1,8 @@
 package org.kohsuke.stapler;
 
-import java.lang.ref.WeakReference;
-import java.lang.ref.SoftReference;
+import com.google.common.collect.MapMaker;
+
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -37,32 +36,27 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> {
      *      to do mix-in.
      */
     public S findScript(String name) throws E {
-        S script;
+        if (MetaClass.NO_CACHE)
+            return loadScript(name);
+        else
+            return scripts.get(name).get();
+    }
 
-        synchronized(this) {
-            script = getScripts().get(name);
-            if(script==null || MetaClass.NO_CACHE) {
-                ClassLoader cl = owner.clazz.getClassLoader();
-                if(cl!=null) {
-
-                    URL res = findResource(name, cl);
-                    if(res==null) {
-                        // look for 'defaults' file
-                        int dot = name.lastIndexOf('.');
-                        // foo/bar.groovy -> foo/bar.default.groovy
-                        // but don't do foo.bar/test -> foo.default.bar/test 
-                        if(name.lastIndexOf('/')<dot)
-                            res = findResource(name.substring(0,dot)+".default"+name.substring(dot),cl);
-                    }
-                    if(res!=null) {
-                        script = parseScript(res);
-                        getScripts().put(name,script);
-                    }
-                }
+    private S loadScript(String name) throws E {
+        ClassLoader cl = owner.clazz.getClassLoader();
+        if(cl!=null) {
+            URL res = findResource(name, cl);
+            if(res==null) {
+                // look for 'defaults' file
+                int dot = name.lastIndexOf('.');
+                // foo/bar.groovy -> foo/bar.default.groovy
+                // but don't do foo.bar/test -> foo.default.bar/test
+                if(name.lastIndexOf('/')<dot)
+                    res = findResource(name.substring(0,dot)+".default"+name.substring(dot),cl);
             }
+            if(res!=null)
+                return parseScript(res);
         }
-        if(script!=null)
-            return script;
 
         // not found on this class, delegate to the parent
         if(owner.baseClass!=null)
@@ -75,7 +69,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> {
      * Discards the cached script.
      */
     public synchronized void clearScripts() {
-        getScripts().clear();
+        scripts.clear();
     }
 
     /**
@@ -94,21 +88,20 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> {
      *
      * So it's important to allow Scripts to be garbage collected.
      * This is not an ideal fix, but it works.
+     *
+     * {@link Optional} is used as Google Collection doesn't allow null values in a map.
      */
-    private volatile SoftReference<Map<String,S>> scripts;
-
-    private Map<String,S> getScripts() {
-        Map<String,S> r=null;
-        if(scripts!=null)
-            r = scripts.get();
-
-        if(r!=null)
-            return r;
-
-        r = new HashMap<String,S>();
-        scripts = new SoftReference<Map<String,S>>(r);
-        return r;
-    }
+    private final Map<String,Optional<S>> scripts = new MapMaker().softValues().makeComputingMap(new com.google.common.base.Function<String, Optional<S>>() {
+        public Optional<S> apply(String from) {
+            try {
+                return Optional.create(loadScript(from));
+            } catch (RuntimeException e) {
+                throw e;    // pass through
+            } catch (Exception e) {
+                throw new ScriptLoadException(e);
+            }
+        }
+    });
 
     protected final URL findResource(String name, ClassLoader cl) {
         URL res = null;

@@ -59,6 +59,11 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>com.google.collections</groupId>
+      <artifactId>google-collections</artifactId>
+      <version>1.0-rc3</version>
+    </dependency>
+    <dependency>
       <!-- perhaps mark this dependency optional? -->
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
