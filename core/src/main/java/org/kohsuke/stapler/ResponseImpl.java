@@ -93,7 +93,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         base = base.substring(0,base.lastIndexOf('/')+1);
         if(!url.equals("."))
             base += url;
-        super.sendRedirect(url);
+        super.sendRedirect(base);
     }
 
     public void sendRedirect2(String url) throws IOException {
