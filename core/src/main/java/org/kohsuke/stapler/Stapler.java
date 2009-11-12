@@ -47,7 +47,6 @@ import java.util.regex.Matcher;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.json.JSONObject;
 
 /**
  * Maps an HTTP request to a method call / JSP invocation against a model object
@@ -64,7 +63,7 @@ public class Stapler extends HttpServlet {
 
     private /*final*/ WebApp webApp;
 
-    public void init(ServletConfig servletConfig) throws ServletException {
+    public @Override void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         this.context = servletConfig.getServletContext();
         this.webApp = WebApp.get(context);
@@ -83,7 +82,7 @@ public class Stapler extends HttpServlet {
         return webApp;
     }
 
-    protected void service(HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
+    protected @Override void service(HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
     	String servletPath = getServletPath(req);
         
         if(LOGGER.isLoggable(Level.FINE))
@@ -501,8 +500,31 @@ public class Stapler extends HttpServlet {
             getServletContext().log("Error while serving "+req.getRequestURL(),e);
             throw new ServletException(e);
         } catch (InvocationTargetException e) {
-            getServletContext().log("Error while serving "+req.getRequestURL(),e);
-            throw new ServletException(e.getTargetException());
+            Throwable cause = e.getCause();
+            if (cause == null) { // ???
+                getServletContext().log("Error while serving " + req.getRequestURL(), e);
+                throw new ServletException();
+            }
+            StringBuffer url = req.getRequestURL();
+            if (cause instanceof IOException) {
+                getServletContext().log("Error while serving " + url, e);
+                throw (IOException) cause;
+            }
+            if (cause instanceof ServletException) {
+                getServletContext().log("Error while serving " + url, e);
+                throw (ServletException) cause;
+            }
+            for (Class<?> c = cause.getClass(); c != null; c = c.getSuperclass()) {
+                if (c == Object.class) {
+                    getServletContext().log("Error while serving " + url, e);
+                } else if (c.getName().equals("org.acegisecurity.AccessDeniedException")) {
+                    // [HUDSON-4834] A stack trace is too noisy for this; could just need to log in.
+                    // (Could consider doing this for all AcegiSecurityException's.)
+                    getServletContext().log("While serving " + url + ": " + cause);
+                    break;
+                }
+            }
+            throw new ServletException(cause);
         }
 
         if(node instanceof StaplerFallback) {
@@ -636,7 +658,7 @@ public class Stapler extends HttpServlet {
      */
     static final ThreadLocal<SimpleDateFormat> HTTP_DATE_FORMAT =
         new ThreadLocal<SimpleDateFormat>() {
-            protected SimpleDateFormat initialValue() {
+            protected @Override SimpleDateFormat initialValue() {
                 // RFC1945 section 3.3 Date/Time Formats states that timezones must be in GMT
                 SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
                 format.setTimeZone(TimeZone.getTimeZone("GMT"));
