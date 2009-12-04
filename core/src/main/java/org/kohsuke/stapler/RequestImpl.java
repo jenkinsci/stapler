@@ -554,6 +554,15 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                                 // ignore unrecognized element
                             }
                         }
+                    } else if (Enum.class.isAssignableFrom(l.itemType)) {
+                        // this is a hash of element names as enum constant names
+                        for (Map.Entry<String,Object> e : (Set<Map.Entry<String,Object>>)j.entrySet()) {
+                            Object v = e.getValue();
+                            if (v==null || (v instanceof Boolean && !(Boolean)v))
+                                continue;       // skip if the value is null or false
+
+                            l.add(Enum.valueOf(l.itemType,e.getKey()));
+                        }
                     } else {
                         // only one value given to the collection
                         l.add(new TypePair(l.itemGenericType,l.itemType).convertJSON(j));
