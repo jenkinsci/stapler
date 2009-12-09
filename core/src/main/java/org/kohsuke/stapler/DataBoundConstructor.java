@@ -9,7 +9,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Target;
 
 /**
- * Desginates the constructor to be created
+ * Designates the constructor to be created
  * from methods like
  * {@link StaplerRequest#bindJSON(Class, JSONObject)} and
  * {@link StaplerRequest#bindParameters(Class, String)}.
