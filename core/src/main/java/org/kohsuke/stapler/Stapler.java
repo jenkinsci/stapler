@@ -83,38 +83,46 @@ public class Stapler extends HttpServlet {
     }
 
     protected @Override void service(HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
-    	String servletPath = getServletPath(req);
-        
-        if(LOGGER.isLoggable(Level.FINE))
-            LOGGER.fine("Processing request for "+servletPath);
+        Thread t = Thread.currentThread();
+        final String oldName = t.getName();
+        try {
+            t.setName("Handling "+req.getMethod()+' '+req.getRequestURI()+" : "+oldName);
 
-        boolean staticLink = false;
+            String servletPath = getServletPath(req);
 
-        if(servletPath.startsWith("/static/")) {
-            // skip "/static/..../ portion
-            int idx = servletPath.indexOf('/',8);
-            servletPath=servletPath.substring(idx);
-            staticLink = true;
-        }
+            if(LOGGER.isLoggable(Level.FINE))
+                LOGGER.fine("Processing request for "+servletPath);
 
-        if(servletPath.length()!=0) {
-            // getResource requires '/' prefix (and resin insists on that, too) but servletPath can be empty string (hudson #879)
-            OpenConnection con = openResourcePathByLocale(req,servletPath);
-            if(con!=null) {
-                long expires = MetaClass.NO_CACHE ? 0 : 24L * 60 * 60 * 1000; /*1 day*/
-                if(staticLink)
-                    expires*=365;   // static resources are unique, so we can set a long expiration date
-                if(serveStaticResource(req, new ResponseImpl(this, rsp), con, expires))
-                    return; // done
+            boolean staticLink = false;
+
+            if(servletPath.startsWith("/static/")) {
+                // skip "/static/..../ portion
+                int idx = servletPath.indexOf('/',8);
+                servletPath=servletPath.substring(idx);
+                staticLink = true;
             }
+
+            if(servletPath.length()!=0) {
+                // getResource requires '/' prefix (and resin insists on that, too) but servletPath can be empty string (hudson #879)
+                OpenConnection con = openResourcePathByLocale(req,servletPath);
+                if(con!=null) {
+                    long expires = MetaClass.NO_CACHE ? 0 : 24L * 60 * 60 * 1000; /*1 day*/
+                    if(staticLink)
+                        expires*=365;   // static resources are unique, so we can set a long expiration date
+                    if(serveStaticResource(req, new ResponseImpl(this, rsp), con, expires))
+                        return; // done
+                }
+            }
+
+            Object root = context.getAttribute("app");
+            if(root==null)
+                throw new ServletException("there's no \"app\" attribute in the application context.");
+
+            // consider reusing this ArrayList.
+            invoke( req, rsp, root, servletPath);
+        } finally {
+            t.setName(oldName);
         }
-
-        Object root = context.getAttribute("app");
-        if(root==null)
-            throw new ServletException("there's no \"app\" attribute in the application context.");
-
-        // consider reusing this ArrayList.
-        invoke( req, rsp, root, servletPath);
     }
 
     /**
