@@ -30,6 +30,7 @@ import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -412,6 +413,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             if(x instanceof RuntimeException)
                 throw (RuntimeException)x;
             throw new IllegalArgumentException(x);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Failed to invoke "+c+" with "+ Arrays.asList(args),e);
         }
     }
 
