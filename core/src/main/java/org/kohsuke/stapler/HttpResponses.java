@@ -3,6 +3,7 @@ package org.kohsuke.stapler;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * Factory for {@link HttpResponse}.
@@ -43,6 +44,19 @@ public class HttpResponses {
         return new HttpResponseException() {
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                 rsp.setStatus(code);
+            }
+        };
+    }
+
+    public static HttpResponseException error(final int code, final Throwable cause) {
+        return new HttpResponseException(cause) {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                rsp.setStatus(code);
+
+                rsp.setContentType("text/plain;charset=UTF-8");
+                PrintWriter w = new PrintWriter(rsp.getWriter());
+                cause.printStackTrace(w);
+                w.close();
             }
         };
     }

@@ -1,5 +1,6 @@
 package org.kohsuke.stapler.framework.adjunct;
 
+import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -98,7 +99,7 @@ public class AdjunctManager {
 
         URL res = classLoader.getResource(path);
         if(res==null) {
-            rsp.sendError(SC_NOT_FOUND);
+            throw HttpResponses.error(SC_NOT_FOUND,new IllegalArgumentException("No such adjunct found: "+path));
         } else {
             long expires = MetaClass.NO_CACHE ? 0 : 24L * 60 * 60 * 1000; /*1 day*/
             rsp.serveFile(req,res,expires);

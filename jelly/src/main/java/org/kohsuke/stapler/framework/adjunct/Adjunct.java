@@ -44,6 +44,11 @@ public class Adjunct {
     public final String slashedName;
 
     /**
+     * Just the package name portion of {@link #slashedName}. No trailing '/'.
+     */
+    public final String packageName;
+
+    /**
      * List of fully qualified adjunct names that are required before this adjunct.
      */
     public final List<String> required = new ArrayList<String>();
@@ -77,6 +82,8 @@ public class Adjunct {
         this.manager = manager;
         this.name = name;
         this.slashedName = name.replace('.','/');
+        this.packageName = slashedName.substring(0, Math.max(0,slashedName.lastIndexOf('/')));
+
         this.hasCss = parseOne(classLoader, slashedName+".css");
         this.hasJavaScript = parseOne(classLoader,slashedName+".js");
         this.inclusionFragment = parseHtml(classLoader,slashedName+".html");
@@ -94,6 +101,22 @@ public class Adjunct {
 
         if(!hasCss && !hasJavaScript && inclusionFragment==null && script==null)
             throw new NoSuchAdjunctException("Neither "+ name +".css, .js, .html, nor .jelly were found");
+    }
+
+    /**
+     * Obtains the absolute URL that points to the package of this adjunct.
+     * Useful as a basis to refer to other resources.
+     */
+    public String getPackageUrl() {
+        return getPackageUrl(Stapler.getCurrentRequest());
+    }
+
+    private String getPackageUrl(StaplerRequest req) {
+        return req.getContextPath() + '/' + manager.rootURL + '/' + packageName;
+    }
+
+    private String getBaseName(StaplerRequest req) {
+        return req.getContextPath() + '/' + manager.rootURL + '/' + slashedName;
     }
 
     /**
@@ -157,9 +180,9 @@ public class Adjunct {
             }
         
         if(hasCss)
-            out.write("<link rel='stylesheet' href='"+req.getContextPath()+'/'+manager.rootURL+'/'+slashedName+".css' type='text/css' />");
+            out.write("<link rel='stylesheet' href='" + getBaseName(req)+".css' type='text/css' />");
         if(hasJavaScript)
-            out.write("<script src='"+req.getContextPath()+'/'+manager.rootURL+'/'+slashedName+".js' type='text/javascript'></script>");
+            out.write("<script src='" + getBaseName(req) +".js' type='text/javascript'></script>");
     }
 
     public enum Kind { CSS, JS }
