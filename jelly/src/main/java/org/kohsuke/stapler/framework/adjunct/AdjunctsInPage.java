@@ -3,8 +3,6 @@ package org.kohsuke.stapler.framework.adjunct;
 import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.framework.adjunct.AdjunctManager;
-import org.kohsuke.stapler.framework.adjunct.Adjunct;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -73,7 +71,7 @@ public class AdjunctsInPage {
     }
 
     /**
-     * Works like the {@link #generate(XMLOutput, String[])} method
+     * Works like the {@link #generate(XMLOutput, String...)} method
      * but just put the adjuncts to {@link #pending} without writing it.
      */
     public void spool(String... includes) throws IOException, SAXException {
@@ -82,9 +80,9 @@ public class AdjunctsInPage {
     }
 
     /**
-     * Writes out what's spooled by {@link #spool(String[])} method. 
+     * Writes out what's spooled by {@link #spool(String...)} method.
      */
-    public void writeSpooled(XMLOutput out) throws SAXException {
+    public void writeSpooled(XMLOutput out) throws SAXException, IOException {
         for (Adjunct adj : pending)
             adj.write(request,out);
         pending.clear();
@@ -95,7 +93,7 @@ public class AdjunctsInPage {
      */
     private void findNeeded(String include, List<Adjunct> needed) throws IOException {
         if(!included.add(include))
-            return; // alerady sent
+            return; // already sent
 
         // list dependencies first
         try {

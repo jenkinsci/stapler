@@ -22,14 +22,19 @@ import java.util.Enumeration;
  */
 public class DefaultScriptInvoker implements ScriptInvoker {
     public void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException, JellyTagException {
-        JellyContext context = createContext(req,rsp,script,it);
-        exportVariables(req, rsp, script, it, context);
-
         XMLOutput xmlOutput = createXMLOutput(req, rsp, script, it);
-        script.run(context,xmlOutput);
+
+        invokeScript(req,rsp,script,it,xmlOutput);
         
         xmlOutput.flush();
         xmlOutput.close();
+    }
+
+    public void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it, XMLOutput out) throws IOException, JellyTagException {
+        JellyContext context = createContext(req,rsp,script,it);
+        exportVariables(req, rsp, script, it, context);
+
+        script.run(context,out);
     }
 
     protected XMLOutput createXMLOutput(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException {

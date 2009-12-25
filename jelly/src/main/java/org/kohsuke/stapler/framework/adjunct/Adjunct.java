@@ -1,5 +1,14 @@
 package org.kohsuke.stapler.framework.adjunct;
 
+import org.apache.commons.jelly.JellyException;
+import org.apache.commons.jelly.JellyTagException;
+import org.apache.commons.jelly.Script;
+import org.kohsuke.stapler.MetaClassLoader;
+import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.WebApp;
+import org.kohsuke.stapler.framework.io.IOException2;
+import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
+import org.kohsuke.stapler.jelly.JellyFacet;
 import org.xml.sax.SAXException;
 import org.kohsuke.stapler.StaplerRequest;
 import org.apache.commons.jelly.XMLOutput;
@@ -8,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +59,13 @@ public class Adjunct {
     private final String inclusionFragment;
 
     /**
+     * If the adjunct includes a Jelly script, set to that script.
+     * This allows a Jelly script to generate the inclusion fragment.
+     * Think of this as a programmable version of the {@link #inclusionFragment}.
+     */
+    private final Script script;
+
+    /**
      * Builds an adjunct.
      *
      * @param name
@@ -64,10 +81,24 @@ public class Adjunct {
         this.hasJavaScript = parseOne(classLoader,slashedName+".js");
         this.inclusionFragment = parseHtml(classLoader,slashedName+".html");
 
-        if(!hasCss && !hasJavaScript && inclusionFragment==null)
-            throw new NoSuchAdjunctException("Neither "+ name +".css nor "+ name +".js nor "+name+".html were found");
+        URL jelly = classLoader.getResource(slashedName + ".jelly");
+        if (jelly!=null) {
+            try {
+                script = MetaClassLoader.get(classLoader).loadTearOff(JellyClassLoaderTearOff.class).createContext().compileScript(jelly);
+            } catch (JellyException e) {
+                throw new IOException2("Failed to load "+jelly,e);
+            }
+        } else {
+            script = null;
+        }
+
+        if(!hasCss && !hasJavaScript && inclusionFragment==null && script==null)
+            throw new NoSuchAdjunctException("Neither "+ name +".css, .js, .html, nor .jelly were found");
     }
 
+    /**
+     * Parses CSS or JavaScript files and extract dependencies.
+     */
     private boolean parseOne(ClassLoader classLoader, String resName) throws IOException {
         InputStream is = classLoader.getResourceAsStream(resName);
         if (is == null)     return false;
@@ -83,6 +114,9 @@ public class Adjunct {
         return true;
     }
 
+    /**
+     * Parses HTML files and extract dependencies.
+     */
     private String parseHtml(ClassLoader classLoader, String resName) throws IOException {
         InputStream is = classLoader.getResourceAsStream(resName);
         if (is == null)     return null;
@@ -110,11 +144,18 @@ public class Adjunct {
         throw new AssertionError(k);
     }
 
-    public void write(StaplerRequest req, XMLOutput out) throws SAXException {
+    public void write(StaplerRequest req, XMLOutput out) throws SAXException, IOException {
         if(inclusionFragment!=null) {
             out.write(inclusionFragment);
             return;
         }
+        if (script!=null)
+            try {
+                WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, Stapler.getCurrentResponse(), script, this, out);
+            } catch (JellyTagException e) {
+                throw new IOException2("Failed to execute Jelly script for adjunct "+name,e);
+            }
+        
         if(hasCss)
             out.write("<link rel='stylesheet' href='"+req.getContextPath()+'/'+manager.rootURL+'/'+slashedName+".css' type='text/css' />");
         if(hasJavaScript)
