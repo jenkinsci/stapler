@@ -224,6 +224,8 @@ public final class JellyBuilder extends GroovyObjectSupport {
                 if(innerText!=null)
                 text(innerText);
                 output.endElement(name.getNamespaceURI(),name.getLocalPart(),name.getQualifiedName());
+            } catch (IOException e) {
+                throw new RuntimeException(e);  // what's the proper way to handle exceptions in Groovy?
             } catch (SAXException e) {
                 throw new RuntimeException(e);  // what's the proper way to handle exceptions in Groovy?
             }
