@@ -54,7 +54,7 @@ public class Adjunct {
      * @param name
      *      Fully qualified name of the adjunct.
      * @param classLoader
-     *      This is where adjucts are loaded.
+     *      This is where adjuncts are loaded from.
      */
     public Adjunct(AdjunctManager manager, String name, final ClassLoader classLoader) throws IOException {
         this.manager = manager;

@@ -109,7 +109,7 @@ public class AdjunctManager {
      * Controls whether the given resource can be served to browsers.
      *
      * <p>
-     * This method can be overrided by the sub classes to change the access control behavior.
+     * This method can be overridden by the sub classes to change the access control behavior.
      *
      * <p>
      * {@link AdjunctManager} is capable of serving all the resources visible
