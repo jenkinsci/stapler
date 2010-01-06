@@ -143,7 +143,7 @@ public interface StaplerRequest extends HttpServletRequest {
     Ancestor findAncestor(Object o);
 
     /**
-     * Short for {@code getParameter(name)!=nulll}
+     * Short for {@code getParameter(name)!=null}
      */
     boolean hasParameter(String name);
 
