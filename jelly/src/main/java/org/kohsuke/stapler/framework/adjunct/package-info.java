@@ -69,7 +69,7 @@
  * <p>
  * HTML file can have the following line to indicate a dependency.
  * <pre>
- * <@include fully.qualified.adjunct.name>
+ * &lt;@include fully.qualified.adjunct.name>
  * </pre>
  *
  * <h3>Page injection</h3>
