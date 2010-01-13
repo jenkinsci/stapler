@@ -131,14 +131,14 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
     public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException, IOException {
         String pad=null;
-        PrintWriter w=null;
+        Writer w=null;
 
         setContentType(flavor.contentType);
 
         if(flavor== Flavor.JSON) {
             pad = req.getParameter("jsonp");
-            w = getWriter();
-            if(pad!=null) w.print(pad+'(');
+            w = getCompressedWriter(req);
+            if(pad!=null) w.write(pad+'(');
         }
 
         // use the depth query parameter to control the amount of data we send.
@@ -155,7 +155,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         p.writeTo(exposedBean,depth,flavor.createDataWriter(exposedBean,this));
 
 
-        if(pad!=null) w.print(')');
+        if(pad!=null) w.write(')');
     }
 
     public OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException {
