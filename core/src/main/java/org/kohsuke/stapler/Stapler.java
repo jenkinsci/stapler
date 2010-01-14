@@ -1,5 +1,6 @@
 package org.kohsuke.stapler;
 
+import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.ConvertUtilsBean;
@@ -217,8 +218,13 @@ public class Stapler extends HttpServlet {
     
     /**
      * Opens URL, with error handling to absorb container differences.
+     * <p>
+     * This method returns null if the resource pointed by URL doesn't exist. The initial attempt was to
+     * distinguish "resource exists but failed to load" vs "resource doesn't exist", but as more reports
+     * from the field come in, we discovered that it's impossible to make such a distinction and work with
+     * many environments both at the same time.
      */
-    private OpenConnection openURL(URL url) throws IOException {
+    private OpenConnection openURL(URL url) {
         if(url==null)   return null;
 
         // jetty reports directories    as URLs, which isn't what this is intended for,
@@ -227,10 +233,23 @@ public class Stapler extends HttpServlet {
         if(f!=null && f.isDirectory())
             return null;
 
-        URLConnection con = url.openConnection();
-
         try {
-            return new OpenConnection(con);
+            // in normal protocol handlers like http/file, openConnection doesn't actually open a connection
+            // (that's deferred until URLConnection.connect()), so this method doesn't result in an error,
+            // even if URL points to something that doesn't exist.
+            //
+            // but we've heard a report from http://github.com/adreghiciu that some URLS backed by custom
+            // protocol handlers can throw an exception as early as here. So treat this IOException
+            // as "the resource pointed by URL is missing".
+            URLConnection con = url.openConnection();
+
+            OpenConnection c = new OpenConnection(con);
+            // Some URLs backed by custom broken protocol handler can return null from getInputStream(),
+            // so let's be defensive here. An example of that is an OSGi container --- unfortunately
+            // we don't have more details than that.
+            if(c.stream==null)
+                return null;
+            return c;
         } catch (IOException e) {
             // Tomcat only reports a missing resource error here, from URLConnection.getInputStream()
             return null;
