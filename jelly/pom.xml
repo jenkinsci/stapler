@@ -20,6 +20,12 @@
       <groupId>commons-jelly</groupId>
       <artifactId>commons-jelly</artifactId>
       <version>1.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>dom4j</groupId>
+          <artifactId>dom4j</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>dom4j</groupId>
