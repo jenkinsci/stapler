@@ -7,6 +7,9 @@ import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.XMLOutput;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.impl.TagScript;
+import org.dom4j.io.HTMLWriter;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 
 import javax.servlet.ServletContext;
 import java.io.IOException;
@@ -39,7 +42,11 @@ public class DefaultScriptInvoker implements ScriptInvoker {
 
     protected XMLOutput createXMLOutput(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException {
         // TODO: make XMLOutput auto-close OutputStream to avoid leak
-        return XMLOutput.createXMLOutput(createOutputStream(req, rsp, script, it));
+        HTMLWriterOutput hwo = HTMLWriterOutput.create(createOutputStream(req, rsp, script, it));
+        String ct = rsp.getContentType();
+        if (ct != null && !ct.startsWith("text/html"))
+            hwo.useHTML(false);
+        return hwo;
     }
 
     protected OutputStream createOutputStream(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException {

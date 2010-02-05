@@ -32,7 +32,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
     }
 
     /**
-     * Serves <tt>indx.jelly</tt> if it's available, and returns true.
+     * Serves <tt>index.jelly</tt> if it's available, and returns true.
      */
     public boolean serveIndexJelly(StaplerRequest req, StaplerResponse rsp, Object node) throws ServletException, IOException {
         try {

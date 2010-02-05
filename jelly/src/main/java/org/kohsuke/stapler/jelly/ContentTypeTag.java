@@ -25,5 +25,7 @@ public class ContentTypeTag extends AbstractStaplerTag {
 
     public void doTag(XMLOutput output) throws MissingAttributeException, JellyTagException {
         getResponse().setContentType(contentType);
+        if (output instanceof HTMLWriterOutput)
+            ((HTMLWriterOutput)output).useHTML(contentType.startsWith("text/html"));
     }
 }
