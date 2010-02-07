@@ -119,9 +119,6 @@ public class LargeText {
     /**
      * Writes the tail portion of the file to the {@link Writer}.
      *
-     * <p>
-     * The text file is assumed to be in the system default encoding.
-     *
      * @param start
      *      The byte offset in the input file where the write operation starts.
      *
