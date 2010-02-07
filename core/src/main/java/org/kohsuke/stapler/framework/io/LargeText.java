@@ -264,6 +264,9 @@ public class LargeText {
         }
     }
 
+    /**
+     * Variable length byte buffer implemented as a linked list of fixed length buffer.
+     */
     private static final class ByteBuf {
         private final byte[] buf = new byte[1024];
         private int size = 0;
