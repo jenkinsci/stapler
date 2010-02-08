@@ -186,15 +186,18 @@ public class LargeText {
         if(!completed)
             rsp.addHeader("X-More-Data","true");
 
-        // when sending big text, try compression. don't bother if it's small
-        Writer w;
-        if(r-start>4096)
-            w = rsp.getCompressedWriter(req);
-        else
-            w = rsp.getWriter();
+        Writer w = createWriter(req, rsp, r - start);
         spool.writeTo(new LineEndNormalizingWriter(w));
         w.close();
 
+    }
+
+    protected Writer createWriter(StaplerRequest req, StaplerResponse rsp, long size) throws IOException {
+        // when sending big text, try compression. don't bother if it's small
+        if(size >4096)
+            return rsp.getCompressedWriter(req);
+        else
+            return rsp.getWriter();
     }
 
     /**
