@@ -25,26 +25,38 @@ class CustomJellyContext extends JellyContext {
     private JellyClassLoaderTearOff jclt;
 
     CustomJellyContext() {
+        init();
     }
 
     CustomJellyContext(URL url) {
         super(url);
+        init();
     }
 
     CustomJellyContext(URL url, URL url1) {
         super(url, url1);
+        init();
     }
 
     CustomJellyContext(JellyContext jellyContext) {
         super(jellyContext);
+        init();
     }
 
     CustomJellyContext(JellyContext jellyContext, URL url) {
         super(jellyContext, url);
+        init();
     }
 
     CustomJellyContext(JellyContext jellyContext, URL url, URL url1) {
         super(jellyContext, url, url1);
+        init();
+    }
+
+    private void init() {
+        // by not allowing the empty namespace URI "" to be handled as dynamic tags,
+        // we achieve substantial performance improvement.
+        registerTagLibrary("",ReallyStaticTagLibrary.INSTANCE);
     }
 
     @Override
