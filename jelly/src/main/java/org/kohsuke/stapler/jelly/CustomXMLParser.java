@@ -1,5 +1,6 @@
 package org.kohsuke.stapler.jelly;
 
+import org.apache.commons.jelly.impl.TagScript;
 import org.apache.commons.jelly.parser.XMLParser;
 import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.apache.commons.jelly.expression.Expression;
@@ -8,6 +9,8 @@ import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.TagLibrary;
 import org.kohsuke.stapler.MetaClassLoader;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
 import java.net.URL;
 import java.util.regex.Pattern;
@@ -132,6 +135,21 @@ class CustomJellyContext extends JellyContext {
                 }
 
                 return JellyClassLoaderTearOff.EXPRESSION_FACTORY.createExpression(text);
+            }
+        }
+
+        /**
+         * Creates a really static tag library that's more efficient than the default implementation in Jelly.
+         */
+        @Override
+        protected TagScript createStaticTag(String namespaceURI, String localName, String qName, Attributes list) throws SAXException {
+            try {
+                TagScript script = ReallyStaticTagLibrary.createTagScript();
+                configureTagScript(script);
+                configureStaticTagAttributes(script,list);
+                return script;
+            } catch (JellyException e) {
+                throw createSAXException(e);
             }
         }
 
