@@ -16,8 +16,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
-import java.util.Map;
-
 /**
  * Jelly tag library for static tags.
  *
@@ -44,13 +42,20 @@ public class ReallyStaticTagLibrary extends TagLibrary {
 
     @Override
     public TagScript createTagScript(String tagName, Attributes atts) throws JellyException {
+        return createTagScript();
+    }
+
+    /**
+     * Creates a new instance of {@link TagScript} that generates a literal element.
+     */
+    public static TagScript createTagScript() {
         return new TagScript() {
             /**
              * If all the attributes are constant, as is often the case with literal tags,
              * then we can skip the attribute expression evaluation altogether.
              */
             private boolean allAttributesAreConstant = true;
-            
+
             @Override
             public void addAttribute(String name, Expression expression) {
                 allAttributesAreConstant &= expression instanceof ConstantExpression;
@@ -67,9 +72,9 @@ public class ReallyStaticTagLibrary extends TagLibrary {
                 Attributes actual = allAttributesAreConstant ? getSaxAttributes() : buildAttributes(context);
 
                 try {
-                    output.startElement(getLocalName(),actual);
+                    output.startElement(getNsUri(),getLocalName(),getElementName(),actual);
                     getTagBody().run(context,output);
-                    output.endElement(getLocalName());
+                    output.endElement(getNsUri(),getLocalName(),getElementName());
                 } catch (SAXException x) {
                     throw new JellyTagException(x);
                 }
@@ -78,17 +83,18 @@ public class ReallyStaticTagLibrary extends TagLibrary {
             private AttributesImpl buildAttributes(JellyContext context) {
                 AttributesImpl actual = new AttributesImpl();
 
-                for (Map.Entry<String, ExpressionAttribute> e : attributes.entrySet()) {
-                    String name = e.getKey();
-                    Expression expression = e.getValue().exp;
+                for (ExpressionAttribute att : attributes.values()) {
+                    Expression expression = att.exp;
                     String v = expression.evaluateAsString(context);
                     if (v==null)    continue; // treat null as no attribute
-                    actual.addAttribute("",name,name,"CDATA", v);
+                    actual.addAttribute(att.nsURI, att.name, att.qname(),"CDATA", v);
                 }
                 return actual;
             }
         };
     }
-
+    /**
+     * Reusable instance.
+     */
     public static final TagLibrary INSTANCE = new ReallyStaticTagLibrary();
 }
