@@ -10,7 +10,6 @@ import org.apache.commons.jelly.XMLOutput;
 import org.apache.commons.jelly.expression.Expression;
 import org.apache.commons.jelly.impl.DynamicTag;
 import org.apache.commons.jelly.impl.ExpressionAttribute;
-import org.apache.commons.jelly.impl.TagFactory;
 import org.apache.commons.jelly.impl.TagScript;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.MetaClassLoader;
@@ -20,7 +19,6 @@ import org.xml.sax.SAXException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
