@@ -67,7 +67,7 @@ public final class CustomTagLibrary extends TagLibrary {
             @Override
             public void run(final JellyContext context, XMLOutput output) throws JellyTagException {
                 // evaluated values of the attributes
-                Map args = new HashMap(attributes.size()+2);
+                Map args = new HashMap(attributes.size());
 
                 for (Map.Entry<String, ExpressionAttribute> e : attributes.entrySet()) {
                     Expression expression = e.getValue().exp;
