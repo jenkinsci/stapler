@@ -7,7 +7,9 @@ import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.Tag;
 import org.apache.commons.jelly.TagLibrary;
 import org.apache.commons.jelly.XMLOutput;
+import org.apache.commons.jelly.expression.Expression;
 import org.apache.commons.jelly.impl.DynamicTag;
+import org.apache.commons.jelly.impl.ExpressionAttribute;
 import org.apache.commons.jelly.impl.TagFactory;
 import org.apache.commons.jelly.impl.TagScript;
 import org.kohsuke.stapler.MetaClass;
@@ -16,7 +18,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -56,109 +60,91 @@ public final class CustomTagLibrary extends TagLibrary {
     }
 
     public TagScript createTagScript(String name, Attributes attributes) throws JellyException {
-        final Script s = load(name);
-        if(s==null) return null;
+        final Script def = load(name);
+        if(def==null) return null;
 
-        return new TagScript(new TagFactory() {
-            public Tag createTag(String name, Attributes attributes) {
-                return CustomTagLibrary.this.createTag(name,s);
-            }
-        });
-    }
+        return new TagScript() {
+            @Override
+            public void run(final JellyContext context, XMLOutput output) throws JellyTagException {
+                // evaluated values of the attributes
+                Map args = new HashMap(attributes.size()+2);
 
-    public Tag createTag(String name, Attributes attributes) throws JellyException {
-        Script s = load(name);
-        if(s==null)
-            return null;
-        return createTag(name,s);
-    }
+                for (Map.Entry<String, ExpressionAttribute> e : attributes.entrySet()) {
+                    Expression expression = e.getValue().exp;
+                    args.put(e.getKey(),expression.evaluate(context));
+                }
 
-    /**
-     * Wraps a {@link Script} into a tag.
-     */
-    private Tag createTag(String tagName, Script s) {
-        if(JellyFacet.TRACE) {
-            // trace execution
-            final String source = "{jelly:"+nsUri+"}:"+tagName;
-            return new StaplerDynamicTag(nsUri,tagName,s) {
-                public void doTag(XMLOutput output) throws JellyTagException {
+                // create new context based on current attributes
+                JellyContext newJellyContext = context.newJellyContext(args);
+                newJellyContext.setVariable( "attrs", args );
+
+                // <d:invokeBody> uses this to discover what to invoke
+                newJellyContext.setVariable("org.apache.commons.jelly.body", new Script() {
+                    public Script compile() throws JellyException {
+                        return this;
+                    }
+
+                    /**
+                     * When &lt;d:invokeBody/> is used to call back into the calling script,
+                     * the Jelly name resolution rule is in such that the body is evaluated with
+                     * the variable scope of the &lt;d:invokeBody/> caller. This is very different
+                     * from a typical closure name resolution mechanism, where the body is evaluated
+                     * with the variable scope of where the body was created.
+                     *
+                     * <p>
+                     * More concretely, in Jelly, this often shows up as a problem as inability to
+                     * access the "attrs" variable from inside a body, because every {@link DynamicTag}
+                     * invocation sets this variable in a new scope.
+                     *
+                     * <p>
+                     * To counter this effect, this class temporarily restores the original "attrs"
+                     * when the body is evaluated. This makes the name resolution of 'attrs' work
+                     * like what programmers normally expect.
+                     *
+                     * <p>
+                     * The same problem also shows up as a lack of local variables &mdash; when a tag
+                     * calls into the body via &lt;d:invokeBody/>, the invoked body will see all the
+                     * variables that are defined in the caller, which is again not what a normal programming language
+                     * does. But unfortunately, changing this is too pervasive.
+                     */
+                    public void run(JellyContext nestedContext, XMLOutput output) throws JellyTagException {
+                        Map m = nestedContext.getVariables();
+                        Object oldAttrs = m.put("attrs",context.getVariable("attrs"));
+                        try {
+                            getTagBody().run(nestedContext,output);
+                        } finally {
+                            m.put("attrs",oldAttrs);
+                        }
+                    }
+                });
+                newJellyContext.setVariable("org.apache.commons.jelly.body.scope", context);
+
+                if(JellyFacet.TRACE) {
                     try {
+                        String source = "{jelly:"+nsUri+"}:"+getLocalName();
                         String msg = "<" + source+">";
                         output.comment(msg.toCharArray(),0,msg.length());
-                        super.doTag(output);
+                        def.run(newJellyContext, output);
                         msg = "</" + source+">";
                         output.comment(msg.toCharArray(),0,msg.length());
                     } catch (SAXException e) {
                         throw new JellyTagException(e);
                     }
+                } else {
+                    def.run(newJellyContext, output);
                 }
-            };
-        }
-        return new StaplerDynamicTag(nsUri,tagName,s);
+            }
+        };
     }
 
-    /**
-     * When &lt;d:invokeBody/> is used to call back into the calling script,
-     * the Jelly name resolution rule is in such that the body is evaluated with
-     * the variable scope of the &lt;d:invokeBody/> caller. This is very different
-     * from a typical closure name resolution mechanism, where the body is evaluated
-     * with the variable scope of where the body was created.
-     *
-     * <p>
-     * More concretely, in Jelly, this often shows up as a problem as inability to
-     * access the "attrs" variable from inside a body, because every {@link DynamicTag}
-     * invocation sets this variable in a new scope.
-     *
-     * <p>
-     * To couner this effect, this class temporarily restores the original "attrs"
-     * when the body is evaluated. This makes the name resolution of 'attrs' work
-     * like what programmers normally expect.
-     *
-     * <p>
-     * The same problem also shows up as a lack of local variables &mdash; when a tag
-     * calls into the body via &lt;d:invokeBody/>, the invoked body will see all the
-     * variables that are defined in the caller, which is again not what a normal programming language
-     * does. But unfortunately, changing this is too pervasive.
-     */
-    public static class StaplerDynamicTag extends DynamicTag {
-        private final String nsUri;
-        private final String localName;
+    public Tag createTag(String name, Attributes attributes) throws JellyException {
+        // IIUC, this method is only used by static tag to discover the correct tag at runtime,
+        // and since stapler taglibs are always resolved statically, we shouldn't have to implement this method
+        // at all.
 
-        public StaplerDynamicTag(String nsUri, String localName, Script template) {
-            super(template);
-            this.nsUri = nsUri;
-            this.localName = localName;
-        }
-
-        @Override
-        public Script getBody() {
-            final Script body = super.getBody();
-            return new Script() {
-                final JellyContext currentContext = getContext();
-
-                public Script compile() throws JellyException {
-                    return this;
-                }
-
-                public void run(JellyContext context, XMLOutput output) throws JellyTagException {
-                    Map m = context.getVariables();
-                    Object oldAttrs = m.put("attrs",currentContext.getVariable("attrs"));
-                    try {
-                        body.run(context,output);
-                    } finally {
-                        m.put("attrs",oldAttrs);
-                    }
-                }
-            };
-        }
-
-        public String getNsUri() {
-            return nsUri;
-        }
-
-        public String getLocalName() {
-            return localName;
-        }
+        // by not implementing this method, we can put all the login in the TagScript-subtype, which eliminates
+        // the need of stateful Tag instances and their overheads.
+        return null;
     }
 
     /**
