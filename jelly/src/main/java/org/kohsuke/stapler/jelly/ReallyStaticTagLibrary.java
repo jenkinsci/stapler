@@ -81,7 +81,9 @@ public class ReallyStaticTagLibrary extends TagLibrary {
                 for (Map.Entry<String, ExpressionAttribute> e : attributes.entrySet()) {
                     String name = e.getKey();
                     Expression expression = e.getValue().exp;
-                    actual.addAttribute("",name,name,"CDATA",expression.evaluateAsString(context));
+                    String v = expression.evaluateAsString(context);
+                    if (v==null)    continue; // treat null as no attribute
+                    actual.addAttribute("",name,name,"CDATA", v);
                 }
                 return actual;
             }
