@@ -5,7 +5,6 @@ import org.apache.commons.jelly.NamespaceAwareTag;
 import org.apache.commons.jelly.Tag;
 import org.apache.commons.jelly.XMLOutput;
 import org.jvnet.maven.jellydoc.annotation.NoContent;
-import org.kohsuke.stapler.jelly.CustomTagLibrary.StaplerDynamicTag;
 
 import java.util.Map;
 
@@ -38,19 +37,23 @@ public class FindAncestorTag extends AbstractStaplerTag implements NamespaceAwar
     }
 
     public void doTag(XMLOutput output) throws JellyTagException {
-        int idx = tag.indexOf(':');
-        String prefix = tag.substring(0,idx);
-        String localName = tag.substring(idx+1);
+        // I don't think anyone is using this, but if we need to resurrect this,
+        // we need to tweak CustomTagLibrary class and build up the stack of elements being processed.
+        throw new UnsupportedOperationException();
 
-        String uri = (String) nsMap.get(prefix);
-
-        Tag tag = this;
-        while((tag=findAncestorWithClass(tag,StaplerDynamicTag.class))!=null) {
-            StaplerDynamicTag t = (StaplerDynamicTag)tag;
-            if(t.getLocalName().equals(localName) && t.getNsUri().equals(uri))
-                break;
-        }
-        getContext().setVariable(var,tag);
+//        int idx = tag.indexOf(':');
+//        String prefix = tag.substring(0,idx);
+//        String localName = tag.substring(idx+1);
+//
+//        String uri = (String) nsMap.get(prefix);
+//
+//        Tag tag = this;
+//        while((tag=findAncestorWithClass(tag,StaplerDynamicTag.class))!=null) {
+//            StaplerDynamicTag t = (StaplerDynamicTag)tag;
+//            if(t.getLocalName().equals(localName) && t.getNsUri().equals(uri))
+//                break;
+//        }
+//        getContext().setVariable(var,tag);
     }
 
     public void setNamespaceContext(Map prefixToUriMap) {
