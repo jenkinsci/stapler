@@ -1,6 +1,5 @@
 package org.kohsuke.stapler.jelly;
 
-import org.apache.commons.jelly.impl.TagScript;
 import org.apache.commons.jelly.parser.XMLParser;
 import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.apache.commons.jelly.expression.Expression;
@@ -9,9 +8,6 @@ import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.TagLibrary;
 import org.kohsuke.stapler.MetaClassLoader;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributesImpl;
 
 import java.net.URL;
 import java.util.regex.Pattern;
@@ -121,18 +117,7 @@ class CustomJellyContext extends JellyContext {
 
                     buf.append(text.substring(e));
 
-                    return new ExpressionSupport() {
-                        final Expression innerExpression = JellyClassLoaderTearOff.EXPRESSION_FACTORY.createExpression(buf.toString());
-                        public String getExpressionText() {
-                            return text;
-                        }
-
-                        public Object evaluate(JellyContext context) {
-                            context = new CustomJellyContext(context);
-                            context.setVariables(resourceLiterals);
-                            return innerExpression.evaluate(context);
-                        }
-                    };
+                    return new I18nExpWithArgsExpression(text, resourceLiterals, buf.toString());
                 }
 
                 return JellyClassLoaderTearOff.EXPRESSION_FACTORY.createExpression(text);
@@ -151,6 +136,31 @@ class CustomJellyContext extends JellyContext {
             if(resourceBundle==null)
                 resourceBundle = ResourceBundle.load(locator.getSystemId());
             return resourceBundle;
+        }
+
+        /**
+         * {@link Expression} that handles things like "%foo(a,b,c)"
+         */
+        private static class I18nExpWithArgsExpression extends ExpressionSupport {
+            final Expression innerExpression;
+            private final String text;
+            private final Map<String, InternationalizedStringExpression> resourceLiterals;
+
+            public I18nExpWithArgsExpression(String text, Map<String, InternationalizedStringExpression> resourceLiterals, String exp) throws JellyException {
+                this.text = text;
+                this.resourceLiterals = resourceLiterals;
+                innerExpression = JellyClassLoaderTearOff.EXPRESSION_FACTORY.createExpression(exp);
+            }
+
+            public String getExpressionText() {
+                return text;
+            }
+
+            public Object evaluate(JellyContext context) {
+                context = new CustomJellyContext(context);
+                context.setVariables(resourceLiterals);
+                return innerExpression.evaluate(context);
+            }
         }
     }
 
