@@ -1,6 +1,11 @@
 package org.kohsuke.stapler;
 
 import org.apache.commons.io.IOUtils;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.EmptyVisitor;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -9,8 +14,10 @@ import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.WARNING;
 
 /**
  * Reflection information of a {@link Class}.
@@ -70,15 +77,56 @@ public final class ClassDescriptor {
 
         // otherwise check the .stapler file
         Class<?> c = m.getDeclaringClass();
-            URL url = c.getClassLoader().getResource(
+        URL url = c.getClassLoader().getResource(
                     c.getName().replace('.', '/').replace('$','/') + '/' + m.getName() + ".stapler");
-            if(url==null)    return EMPTY_ARRAY;
+        if(url!=null) {
+            try {
+                return IOUtils.toString(url.openStream()).split(",");
+            } catch (IOException e) {
+                LOGGER.log(WARNING, "Failed to load "+url,e);
+                return EMPTY_ARRAY;
+            }
+        }
+
         try {
-            return IOUtils.toString(url.openStream()).split(",");
+            return loadParametersFromAsm(m);
+        } catch (LinkageError e) {
+            LOGGER.log(FINE, "Incompatible ASM", e);
+            return EMPTY_ARRAY;
         } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Failed to load "+url,e);
+            LOGGER.log(WARNING, "Failed to load a class file", e);
             return EMPTY_ARRAY;
         }
+    }
+
+    /**
+     * Try to load parameter names from the debug info by using ASM. 
+     */
+    private static String[] loadParametersFromAsm(final Method m) throws IOException {
+        Class<?> c = m.getDeclaringClass();
+        URL clazz = c.getClassLoader().getResource(c.getName().replace('.', '/').replace('$', '/') + ".class");
+        if (clazz==null)    return EMPTY_ARRAY;
+
+        final String[] paramNames = new String[m.getParameterTypes().length];
+
+        ClassReader r = new ClassReader(clazz.openStream());
+        r.accept(new EmptyVisitor() {
+            final String md = Type.getMethodDescriptor(m);
+            public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
+                if (methodName.equals(m.getName())  && desc.equals(md))
+                    return new EmptyVisitor() {
+                        public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+                            if (index!=0 && index<=paramNames.length) {
+                                paramNames[index-1] = name;
+                            }
+                        }
+                    };
+                else
+                    return this; // ignore this method
+            }
+        }, false);
+
+        return paramNames;
     }
 
     private static final Logger LOGGER = Logger.getLogger(ClassDescriptor.class.getName());
