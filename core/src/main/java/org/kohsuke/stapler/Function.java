@@ -144,26 +144,10 @@ abstract class Function {
 
         final String[] getParameterNames() {
             if(names==null)
-                names = loadParameterNames(m);
+                names = ClassDescriptor.loadParameterNames(m);
             return names;
         }
 
-        private String[] loadParameterNames(Method m) {
-            CapturedParameterNames cpn = m.getAnnotation(CapturedParameterNames.class);
-            if(cpn!=null)   return cpn.value();
-
-            // otherwise check the .stapler file
-            Class<?> c = m.getDeclaringClass();
-                URL url = c.getClassLoader().getResource(
-                        c.getName().replace('.', '/').replace('$','/') + '/' + m.getName() + ".stapler");
-                if(url==null)    return EMPTY_ARRAY;
-            try {
-                return IOUtils.toString(url.openStream()).split(",");
-            } catch (IOException e) {
-                LOGGER.log(Level.WARNING, "Failed to load "+url,e);
-                return EMPTY_ARRAY;
-            }
-        }
     }
     /**
      * Normal instance methods.
@@ -260,7 +244,4 @@ abstract class Function {
             return core.getAnnotation(annotation);
         }
     }
-
-    private static final String[] EMPTY_ARRAY = new String[0];
-    private static final Logger LOGGER = Logger.getLogger(Function.class.getName());
 }
