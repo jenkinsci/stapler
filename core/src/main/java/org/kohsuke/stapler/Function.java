@@ -38,7 +38,7 @@ abstract class Function {
     /**
      * Gets the annotations on parameters.
      */
-    abstract Annotation[][] getParameterAnnotatoins();
+    abstract Annotation[][] getParameterAnnotations();
 
     /**
      * Gets the list of parameter names.
@@ -74,7 +74,7 @@ abstract class Function {
      */
     Object bindAndInvoke(Object o, StaplerRequest req, StaplerResponse rsp, Object... headArgs) throws IllegalAccessException, InvocationTargetException, ServletException {
         Class[] types = getParameterTypes();
-        Annotation[][] annotations = getParameterAnnotatoins();
+        Annotation[][] annotations = getParameterAnnotations();
         String[] parameterNames = getParameterNames();
 
         Object[] arguments = new Object[types.length];
@@ -177,7 +177,7 @@ abstract class Function {
             return m.getParameterTypes();
         }
 
-        Annotation[][] getParameterAnnotatoins() {
+        Annotation[][] getParameterAnnotations() {
             return m.getParameterAnnotations();
         }
 
@@ -201,7 +201,7 @@ abstract class Function {
             return r;
         }
 
-        Annotation[][] getParameterAnnotatoins() {
+        Annotation[][] getParameterAnnotations() {
             Annotation[][] a = m.getParameterAnnotations();
             Annotation[][] r = new Annotation[a.length-1][];
             System.arraycopy(a,1,r,0,r.length);
@@ -241,8 +241,8 @@ abstract class Function {
             return core.getParameterTypes();
         }
 
-        Annotation[][] getParameterAnnotatoins() {
-            return core.getParameterAnnotatoins();
+        Annotation[][] getParameterAnnotations() {
+            return core.getParameterAnnotations();
         }
 
         String[] getParameterNames() {
