@@ -75,6 +75,15 @@ public final class ClassDescriptor {
         CapturedParameterNames cpn = m.getAnnotation(CapturedParameterNames.class);
         if(cpn!=null)   return cpn.value();
 
+        // debug information, if present, is more trustworthy
+        try {
+            return ASM.loadParametersFromAsm(m);
+        } catch (LinkageError e) {
+            LOGGER.log(FINE, "Incompatible ASM", e);
+        } catch (IOException e) {
+            LOGGER.log(WARNING, "Failed to load a class file", e);
+        }
+
         // otherwise check the .stapler file
         Class<?> c = m.getDeclaringClass();
         URL url = c.getClassLoader().getResource(
@@ -88,45 +97,43 @@ public final class ClassDescriptor {
             }
         }
 
-        try {
-            return loadParametersFromAsm(m);
-        } catch (LinkageError e) {
-            LOGGER.log(FINE, "Incompatible ASM", e);
-            return EMPTY_ARRAY;
-        } catch (IOException e) {
-            LOGGER.log(WARNING, "Failed to load a class file", e);
-            return EMPTY_ARRAY;
-        }
+        // couldn't find it
+        return EMPTY_ARRAY;
     }
 
     /**
-     * Try to load parameter names from the debug info by using ASM. 
+     * 
      */
-    private static String[] loadParametersFromAsm(final Method m) throws IOException {
-        Class<?> c = m.getDeclaringClass();
-        URL clazz = c.getClassLoader().getResource(c.getName().replace('.', '/').replace('$', '/') + ".class");
-        if (clazz==null)    return EMPTY_ARRAY;
+    private static class ASM {
+        /**
+         * Try to load parameter names from the debug info by using ASM.
+         */
+        private static String[] loadParametersFromAsm(final Method m) throws IOException {
+            Class<?> c = m.getDeclaringClass();
+            URL clazz = c.getClassLoader().getResource(c.getName().replace('.', '/').replace('$', '/') + ".class");
+            if (clazz==null)    return EMPTY_ARRAY;
 
-        final String[] paramNames = new String[m.getParameterTypes().length];
+            final String[] paramNames = new String[m.getParameterTypes().length];
 
-        ClassReader r = new ClassReader(clazz.openStream());
-        r.accept(new EmptyVisitor() {
-            final String md = Type.getMethodDescriptor(m);
-            public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
-                if (methodName.equals(m.getName())  && desc.equals(md))
-                    return new EmptyVisitor() {
-                        public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
-                            if (index!=0 && index<=paramNames.length) {
-                                paramNames[index-1] = name;
+            ClassReader r = new ClassReader(clazz.openStream());
+            r.accept(new EmptyVisitor() {
+                final String md = Type.getMethodDescriptor(m);
+                public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
+                    if (methodName.equals(m.getName())  && desc.equals(md))
+                        return new EmptyVisitor() {
+                            public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+                                if (index!=0 && index<=paramNames.length) {
+                                    paramNames[index-1] = name;
+                                }
                             }
-                        }
-                    };
-                else
-                    return this; // ignore this method
-            }
-        }, false);
+                        };
+                    else
+                        return this; // ignore this method
+                }
+            }, false);
 
-        return paramNames;
+            return paramNames;
+        }
     }
 
     private static final Logger LOGGER = Logger.getLogger(ClassDescriptor.class.getName());
