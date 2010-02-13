@@ -77,7 +77,8 @@ public final class ClassDescriptor {
 
         // debug information, if present, is more trustworthy
         try {
-            return ASM.loadParametersFromAsm(m);
+            String[] n = ASM.loadParametersFromAsm(m);
+            if (n!=null)    return n;
         } catch (LinkageError e) {
             LOGGER.log(FINE, "Incompatible ASM", e);
         } catch (IOException e) {
@@ -102,7 +103,7 @@ public final class ClassDescriptor {
     }
 
     /**
-     * 
+     * Isolate the ASM dependency to its own class, as otherwise this seems to cause linkage error on the whole {@link ClassDescriptor}.
      */
     private static class ASM {
         /**
@@ -110,10 +111,11 @@ public final class ClassDescriptor {
          */
         private static String[] loadParametersFromAsm(final Method m) throws IOException {
             Class<?> c = m.getDeclaringClass();
-            URL clazz = c.getClassLoader().getResource(c.getName().replace('.', '/').replace('$', '/') + ".class");
-            if (clazz==null)    return EMPTY_ARRAY;
+            URL clazz = c.getClassLoader().getResource(c.getName().replace('.', '/') + ".class");
+            if (clazz==null)    return null;
 
             final String[] paramNames = new String[m.getParameterTypes().length];
+            final boolean[] found = new boolean[1];
 
             ClassReader r = new ClassReader(clazz.openStream());
             r.accept(new EmptyVisitor() {
@@ -124,6 +126,7 @@ public final class ClassDescriptor {
                             public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
                                 if (index!=0 && index<=paramNames.length) {
                                     paramNames[index-1] = name;
+                                    found[0] = true;
                                 }
                             }
                         };
@@ -132,7 +135,7 @@ public final class ClassDescriptor {
                 }
             }, false);
 
-            return paramNames;
+            return found[0] ? paramNames : null;
         }
     }
 
