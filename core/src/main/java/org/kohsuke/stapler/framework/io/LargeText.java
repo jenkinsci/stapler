@@ -37,7 +37,7 @@ public class LargeText {
     }
     private final Source source;
 
-    private final Charset charset;
+    protected final Charset charset;
 
     private volatile boolean completed;
 
