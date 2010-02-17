@@ -131,7 +131,7 @@ public class LargeText {
      *      until the last newline character and returns the offset to start
      *      the next write operation.
      */
-    public long writeLogTo(long start, WriterOutputStream out) throws IOException {
+    public long writeLogTo(long start, OutputStream out) throws IOException {
         CountingOutputStream os = new CountingOutputStream(out);
 
         Session f = source.open();
