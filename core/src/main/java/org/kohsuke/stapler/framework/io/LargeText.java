@@ -193,7 +193,6 @@ public class LargeText {
         Writer w = createWriter(req, rsp, r - start);
         spool.writeTo(new LineEndNormalizingWriter(w));
         w.close();
-
     }
 
     protected Writer createWriter(StaplerRequest req, StaplerResponse rsp, long size) throws IOException {

@@ -36,7 +36,7 @@ public class StaplerTagLibrary extends TagLibrary {
 
     @Override
     public TagScript createTagScript(String name, Attributes attributes) throws JellyException {
-        // performace optimization
+        // performance optimization
         if (name.equals("documentation"))
             return new TagScript() {
                 public void run(JellyContext context, XMLOutput output) throws JellyTagException {
@@ -46,6 +46,16 @@ public class StaplerTagLibrary extends TagLibrary {
                 @Override
                 public void setTagBody(Script tagBody) {
                     // noop, we don't evaluate the body, so don't even keep it in memory.
+                }
+            };
+
+        if (name.equals("getOutput"))
+            return new TagScript() {
+                /**
+                 * Adds {@link XMLOutput} to the context.
+                 */
+                public void run(JellyContext context, XMLOutput output) throws JellyTagException {
+                    context.setVariable(getAttribute("var").evaluateAsString(context),output);
                 }
             };
 

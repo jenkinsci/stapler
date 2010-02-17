@@ -19,7 +19,7 @@
     <dependency>
       <groupId>org.jvnet.hudson</groupId>
       <artifactId>commons-jelly</artifactId>
-      <version>1.1-hudson-20100211</version>
+      <version>1.1-hudson-20100217</version>
       <exclusions>
         <exclusion>
           <groupId>dom4j</groupId>
