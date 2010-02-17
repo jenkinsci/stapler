@@ -116,8 +116,12 @@ public class LargeText {
         },charset);
     }
 
+    public long writeLogTo(long start, Writer w) throws IOException {
+        return writeLogTo(start, new WriterOutputStream(w, charset));
+    }
+
     /**
-     * Writes the tail portion of the file to the {@link Writer}.
+     * Writes the tail portion of the file to the {@link OutputStream}.
      *
      * @param start
      *      The byte offset in the input file where the write operation starts.
@@ -127,8 +131,8 @@ public class LargeText {
      *      until the last newline character and returns the offset to start
      *      the next write operation.
      */
-    public long writeLogTo(long start, Writer w) throws IOException {
-        CountingOutputStream os = new CountingOutputStream(new WriterOutputStream(w,charset));
+    public long writeLogTo(long start, WriterOutputStream out) throws IOException {
+        CountingOutputStream os = new CountingOutputStream(out);
 
         Session f = source.open();
         f.skip(start);
@@ -348,7 +352,8 @@ public class LargeText {
         }
 
         public void skip(long start) throws IOException {
-            in.skip(start);
+            while (start>0)
+                start -= in.skip(start);
         }
 
         public int read(byte[] buf) throws IOException {
