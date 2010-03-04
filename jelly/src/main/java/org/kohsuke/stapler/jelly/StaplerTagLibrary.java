@@ -9,6 +9,10 @@ import org.apache.commons.jelly.XMLOutput;
 import org.apache.commons.jelly.impl.TagScript;
 import org.xml.sax.Attributes;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Kohsuke Kawaguchi
  */
@@ -19,13 +23,11 @@ public class StaplerTagLibrary extends TagLibrary {
         registerTag("contentType",ContentTypeTag.class);
         registerTag("copyStream",CopyStreamTag.class);
         registerTag("doctype",DoctypeTag.class);
-        registerTag("documentation",DocumentationTag.class);
         registerTag("findAncestor",FindAncestorTag.class);
         registerTag("header",HeaderTag.class);
         registerTag("include",IncludeTag.class);
         registerTag("isUserInRole",IsUserInRoleTag.class);
         registerTag("nbsp",NbspTag.class);
-        registerTag("once",OnceTag.class);
         registerTag("out",OutTag.class);
         registerTag("parentScope",ParentScopeTag.class);
         registerTag("redirect",RedirectTag.class);
@@ -59,6 +61,26 @@ public class StaplerTagLibrary extends TagLibrary {
                 }
             };
 
+        if (name.equals("once"))
+            return new TagScript() {
+                /**
+                 * Adds {@link XMLOutput} to the context.
+                 */
+                public void run(JellyContext context, XMLOutput output) throws JellyTagException {
+                    HttpServletRequest request = (HttpServletRequest)context.getVariable("request");
+                    Set<String> executedScripts = (Set<String>) request.getAttribute(ONCE_TAG_KEY);
+                    if(executedScripts==null)
+                        request.setAttribute(ONCE_TAG_KEY,executedScripts=new HashSet<String>());
+
+                    String key = getFileName()+':'+getLineNumber()+':'+getColumnNumber();
+
+                    if(executedScripts.add(key)) // run it just for the first time
+                        getTagBody().run(context,output);
+                }
+            };
+
         return super.createTagScript(name, attributes);
     }
+
+    private static final String ONCE_TAG_KEY = "stapler.once";
 }
