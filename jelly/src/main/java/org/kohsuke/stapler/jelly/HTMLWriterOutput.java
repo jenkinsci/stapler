@@ -3,10 +3,10 @@ package org.kohsuke.stapler.jelly;
 import org.apache.commons.jelly.XMLOutput;
 import org.dom4j.io.HTMLWriter;
 import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 
 /**
  * Wrapper for XMLOutput using HTMLWriter that can turn off its HTML handling
@@ -19,16 +19,26 @@ public class HTMLWriterOutput extends XMLOutput {
     private OutputFormat format;
 
     public static HTMLWriterOutput create(OutputStream out) throws UnsupportedEncodingException {
+        OutputFormat format = createFormat();
+        return new HTMLWriterOutput(new HTMLWriter(out, format), format, false);
+    }
+
+    public static HTMLWriterOutput create(Writer out, boolean escapeText) {
+        OutputFormat format = createFormat();
+        return new HTMLWriterOutput(new HTMLWriter(out, format), format, escapeText);
+    }
+
+    private static OutputFormat createFormat() {
         OutputFormat format = new OutputFormat();
         format.setXHTML(true);
         // Only use short close for tags identified by HTMLWriter:
         format.setExpandEmptyElements(true);
-        return new HTMLWriterOutput(new HTMLWriter(out, format), format);
+        return format;
     }
 
-    private HTMLWriterOutput(HTMLWriter hw, OutputFormat fmt) {
+    private HTMLWriterOutput(HTMLWriter hw, OutputFormat fmt, boolean escapeText) {
         super(hw);
-        hw.setEscapeText(false);
+        hw.setEscapeText(escapeText);
         this.htmlWriter = hw;
         this.format = fmt;
     }

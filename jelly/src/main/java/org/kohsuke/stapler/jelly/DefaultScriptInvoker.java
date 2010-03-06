@@ -1,21 +1,21 @@
 package org.kohsuke.stapler.jelly;
 
+import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.XMLOutput;
+import org.apache.commons.jelly.XMLOutputFactory;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.impl.TagScript;
-import org.dom4j.io.HTMLWriter;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
 
 import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.BufferedOutputStream;
 import java.io.FilterOutputStream;
+import java.io.Writer;
 import java.util.Enumeration;
 
 /**
@@ -23,7 +23,7 @@ import java.util.Enumeration;
  * 
  * @author Kohsuke Kawaguchi
  */
-public class DefaultScriptInvoker implements ScriptInvoker {
+public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
     public void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException, JellyTagException {
         XMLOutput xmlOutput = createXMLOutput(req, rsp, script, it);
 
@@ -97,6 +97,16 @@ public class DefaultScriptInvoker implements ScriptInvoker {
         CustomJellyContext context = new CustomJellyContext();
         // let Jelly see the whole classes
         context.setClassLoader(req.getStapler().getWebApp().getClassLoader());
+        // so TagScript.getBodyText() will use HTMLWriterOutput
+        context.setVariable(XMLOutputFactory.class.getName(), this);
         return context;
+    }
+
+    public XMLOutput createXMLOutput(Writer writer, boolean escapeText) {
+        StaplerResponse rsp = Stapler.getCurrentResponse();
+        String ct = rsp!=null ? rsp.getContentType() : "?";
+        if (ct != null && !ct.startsWith("text/html"))
+            return XMLOutput.createXMLOutput(writer, escapeText);
+        return HTMLWriterOutput.create(writer, escapeText);
     }
 }
