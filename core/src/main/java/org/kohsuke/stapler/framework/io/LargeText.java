@@ -1,18 +1,18 @@
 package org.kohsuke.stapler.framework.io;
 
+import org.apache.commons.io.output.CountingOutputStream;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.apache.commons.io.output.CountingOutputStream;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.File;
-import java.io.Reader;
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.Writer;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.Charset;
 
 /**
@@ -165,7 +165,7 @@ public class LargeText {
      * This method is used as a "web method" with progressiveText.jelly.
      */
     public void doProgressText(StaplerRequest req, StaplerResponse rsp) throws IOException {
-        rsp.setContentType("text/plain;charset=UTF-8");
+        setContentType(rsp);
         rsp.setStatus(HttpServletResponse.SC_OK);
 
         if(!source.exists()) {
@@ -193,6 +193,10 @@ public class LargeText {
         Writer w = createWriter(req, rsp, r - start);
         spool.writeTo(new LineEndNormalizingWriter(w));
         w.close();
+    }
+
+    protected void setContentType(StaplerResponse rsp) {
+        rsp.setContentType("text/plain;charset=UTF-8");
     }
 
     protected Writer createWriter(StaplerRequest req, StaplerResponse rsp, long size) throws IOException {
