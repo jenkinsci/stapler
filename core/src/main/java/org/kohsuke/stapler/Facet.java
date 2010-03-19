@@ -3,6 +3,7 @@ package org.kohsuke.stapler;
 import org.apache.commons.discovery.ResourceNameIterator;
 import org.apache.commons.discovery.resource.ClassLoaders;
 import org.apache.commons.discovery.resource.names.DiscoverServiceNames;
+import org.kohsuke.MetaInfServices;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -14,6 +15,8 @@ import java.util.logging.Logger;
 
 /**
  * Aspect of stapler that brings in an optional language binding.
+ *
+ * Put {@link MetaInfServices} on subtypes so that Stapler can discover them.
  *
  * @author Kohsuke Kawaguchi
  */
