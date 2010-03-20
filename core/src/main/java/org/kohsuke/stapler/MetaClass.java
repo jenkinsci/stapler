@@ -14,6 +14,7 @@ import java.util.Map;
  * that retains some useful cache about a class and its view.
  *
  * @author Kohsuke Kawaguchi
+ * @see WebApp#getMetaClass(Class)
  */
 public class MetaClass extends TearOffSupport {
     /**
