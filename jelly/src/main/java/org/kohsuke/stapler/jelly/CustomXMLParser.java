@@ -57,6 +57,7 @@ class CustomJellyContext extends JellyContext {
         // by not allowing the empty namespace URI "" to be handled as dynamic tags,
         // we achieve substantial performance improvement.
         registerTagLibrary("",ReallyStaticTagLibrary.INSTANCE);
+        registerTagLibrary("this",ThisTagLibrary.INSTANCE);
     }
 
     @Override
