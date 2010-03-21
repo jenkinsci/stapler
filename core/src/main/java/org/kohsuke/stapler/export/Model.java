@@ -1,5 +1,7 @@
 package org.kohsuke.stapler.export;
 
+import org.kohsuke.stapler.export.TreePruner.ByDepth;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -119,6 +121,18 @@ public class Model<T> {
     /**
      * Writes the property values of the given object to the writer.
      *
+     * @param pruner
+     *      Controls which portion of the object graph will be sent to the writer.
+     */
+    public void writeTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
+        writer.startObject();
+        writeNestedObjectTo(object,pruner,writer);
+        writer.endObject();
+    }
+
+    /**
+     * Writes the property values of the given object to the writer.
+     *
      * @param baseVisibility
      *      This parameters controls how much data we'd be writing,
      *      by adding bias to the sub tree cutting.
@@ -127,18 +141,18 @@ public class Model<T> {
      *
      *      0 is the normal value. Positive value means writing bigger tree,
      *      and negative value means writing smaller trees.
+     *
+     * @deprecated as of 1.139
      */
     public void writeTo(T object, int baseVisibility, DataWriter writer) throws IOException {
-        writer.startObject();
-        writeNestedObjectTo(object,1-baseVisibility,writer);
-        writer.endObject();
+        writeTo(object,new ByDepth(1-baseVisibility),writer);
     }
 
-    void writeNestedObjectTo(T object, int depth, DataWriter writer) throws IOException {
+    void writeNestedObjectTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
         if(superModel !=null)
-            superModel.writeNestedObjectTo(object,depth,writer);
+            superModel.writeNestedObjectTo(object,pruner,writer);
 
         for (Property p : properties)
-            p.writeTo(object,depth,writer);
+            p.writeTo(object,pruner,writer);
     }
 }

@@ -1,5 +1,7 @@
 package org.kohsuke.stapler.export;
 
+import org.kohsuke.stapler.export.TreePruner.ByDepth;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
@@ -41,7 +43,7 @@ public abstract class Property implements Comparable<Property> {
     /**
      * @see Exported#inline()
      */
-    private final boolean inline;
+    public final boolean inline;
 
     Property(Model parent, String name, Exported exported) {
         this.parent = parent;
@@ -69,17 +71,16 @@ public abstract class Property implements Comparable<Property> {
     /**
      * Writes one property of the given object to {@link DataWriter}.
      *
-     * @param depth
-     *      The current level of object nesting that the writer is in.
-     *      If it's beyond a certain cut-off, the property won't be written
-     *      and this method becomes no-op.
+     * @param pruner
+     *      Determines how to prune the object graph tree.
      */
-    public void writeTo(Object object, int depth, DataWriter writer) throws IOException {
-        if(visibility<depth)    return; // not visible
+    public void writeTo(Object object, TreePruner pruner, DataWriter writer) throws IOException {
+        TreePruner child = pruner.accept(object, this);
+        if (child==null)        return;
 
         try {
             writer.name(name);
-            writeValue(getValue(object),depth-(inline?1:0),writer);
+            writeValue(getValue(object),child,writer);
         } catch (IllegalAccessException e) {
             IOException x = new IOException("Failed to write " + name);
             x.initCause(e);
@@ -92,23 +93,30 @@ public abstract class Property implements Comparable<Property> {
     }
 
     /**
-     * Writes one value of the property to {@link DataWriter}.
+     * @deprecated as of 1.139
      */
-    private void writeValue(Object value, int depth, DataWriter writer) throws IOException {
-        writeValue(value,depth,writer,false);
+    public void writeTo(Object object, int depth, DataWriter writer) throws IOException {
+        writeTo(object,new ByDepth(depth),writer);
     }
 
     /**
      * Writes one value of the property to {@link DataWriter}.
      */
-    private void writeValue(Object value, int depth, DataWriter writer, boolean skipIfFail) throws IOException {
+    private void writeValue(Object value, TreePruner pruner, DataWriter writer) throws IOException {
+        writeValue(value,pruner,writer,false);
+    }
+
+    /**
+     * Writes one value of the property to {@link DataWriter}.
+     */
+    private void writeValue(Object value, TreePruner pruner, DataWriter writer, boolean skipIfFail) throws IOException {
         if(value==null) {
             writer.valueNull();
             return;
         }
 
         if(value instanceof CustomExportedBean) {
-            writeValue(((CustomExportedBean)value).toExportedObject(),depth,writer);
+            writeValue(((CustomExportedBean)value).toExportedObject(),pruner,writer);
             return;
         }
 
@@ -127,12 +135,12 @@ public abstract class Property implements Comparable<Property> {
             if (value instanceof Object[]) {
                 // typical case
                 for (Object item : (Object[]) value)
-                    writeValue(item,depth,writer,true);
+                    writeValue(item,pruner,writer,true);
             } else {
                 // more generic case
                 int len = Array.getLength(value);
                 for (int i=0; i<len; i++)
-                    writeValue(Array.get(value,i),depth,writer,true);
+                    writeValue(Array.get(value,i),pruner,writer,true);
             }
             writer.endArray();
             return;
@@ -140,7 +148,7 @@ public abstract class Property implements Comparable<Property> {
         if(value instanceof Collection) {
             writer.startArray();
             for (Object item : (Collection) value)
-                writeValue(item,depth,writer,true);
+                writeValue(item,pruner,writer,true);
             writer.endArray();
             return;
         }
@@ -148,7 +156,7 @@ public abstract class Property implements Comparable<Property> {
             writer.startObject();
             for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
                 writer.name(e.getKey().toString());
-                writeValue(e.getValue(),depth,writer);
+                writeValue(e.getValue(),pruner,writer);
             }
             writer.endObject();
             return;
@@ -177,7 +185,7 @@ public abstract class Property implements Comparable<Property> {
             // otherwise ignore this error by writing empty object
         }
         if(model!=null)
-            model.writeNestedObjectTo(value,depth+1,writer);
+            model.writeNestedObjectTo(value,pruner,writer);
         writer.endObject();
     }
 
