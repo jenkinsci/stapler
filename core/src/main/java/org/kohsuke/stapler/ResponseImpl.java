@@ -131,9 +131,8 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
     public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException, IOException {
         String pad=null;
-        Writer w = getCompressedWriter(req);
-
         setContentType(flavor.contentType);
+        Writer w = getCompressedWriter(req);
 
         if(flavor== Flavor.JSON) {
             pad = req.getParameter("jsonp");
