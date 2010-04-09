@@ -321,7 +321,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 try {
                     Class<?> subType = cl.loadClass(className);
                     if(!type.isAssignableFrom(subType))
-                        throw new IllegalArgumentException("Specified type "+subType+" is not assignable to th expected "+type);
+                        throw new IllegalArgumentException("Specified type "+subType+" is not assignable to the expected "+type);
                     type = (Class)subType; // I'm being lazy here
                 } catch (ClassNotFoundException e) {
                     throw new IllegalArgumentException("Class "+className+" is specified in JSON, but no such class found in "+cl,e);
