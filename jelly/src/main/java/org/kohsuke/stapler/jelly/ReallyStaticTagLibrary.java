@@ -69,7 +69,7 @@ public class ReallyStaticTagLibrary extends TagLibrary {
             }
 
             public void run(JellyContext context, XMLOutput output) throws JellyTagException {
-                Attributes actual = allAttributesAreConstant ? getSaxAttributes() : buildAttributes(context);
+                Attributes actual = (allAttributesAreConstant && !EMIT_LOCATION) ? getSaxAttributes() : buildAttributes(context);
 
                 try {
                     output.startElement(getNsUri(),getLocalName(),getElementName(),actual);
@@ -89,6 +89,12 @@ public class ReallyStaticTagLibrary extends TagLibrary {
                     if (v==null)    continue; // treat null as no attribute
                     actual.addAttribute(att.nsURI, att.name, att.qname(),"CDATA", v);
                 }
+
+                if (EMIT_LOCATION) {
+                    actual.addAttribute("","file","file","CDATA",String.valueOf(getFileName()));
+                    actual.addAttribute("","line","line","CDATA",String.valueOf(getLineNumber()));
+                }
+
                 return actual;
             }
         };
@@ -97,4 +103,9 @@ public class ReallyStaticTagLibrary extends TagLibrary {
      * Reusable instance.
      */
     public static final TagLibrary INSTANCE = new ReallyStaticTagLibrary();
+
+    /**
+     * If true, emit the location information.
+     */
+    public static boolean EMIT_LOCATION = false;
 }
