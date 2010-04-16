@@ -101,8 +101,6 @@ public class ReallyStaticTagLibrary extends TagLibrary {
                         int idx = form.lastIndexOf(suffix);
                         if (idx>0)  form=form.substring(idx+suffix.length());
                     }
-                    if (form.endsWith(".jelly"))    form=form.substring(0,form.length()-6);
-                    form = "jelly-"+form.replace('/','-');
 
                     int c = actual.getIndex("class");
                     if (c>=0)   actual.setValue(c, actual.getValue(c)+" "+form);
