@@ -93,6 +93,20 @@ public class ReallyStaticTagLibrary extends TagLibrary {
                 if (EMIT_LOCATION) {
                     actual.addAttribute("","file","file","CDATA",String.valueOf(getFileName()));
                     actual.addAttribute("","line","line","CDATA",String.valueOf(getLineNumber()));
+
+                    // try to obtain the meaningful part of the script and put it in CSS with a
+                    // class name like "jelly-foo-bar-xyz" given "file://path/to/src/tree/src/main/resources/foo/bar/xyz.jelly"
+                    String form = getFileName().replace('\\','/');
+                    for (String suffix : SUFFIX) {
+                        int idx = form.lastIndexOf(suffix);
+                        if (idx>0)  form=form.substring(idx+suffix.length());
+                    }
+                    if (form.endsWith(".jelly"))    form=form.substring(0,form.length()-6);
+                    form = "jelly-"+form.replace('/','-');
+
+                    int c = actual.getIndex("class");
+                    if (c>=0)   actual.setValue(c, actual.getValue(c)+" "+form);
+                    else        actual.addAttribute("","class","class","CDATA",form);
                 }
 
                 return actual;
@@ -108,4 +122,6 @@ public class ReallyStaticTagLibrary extends TagLibrary {
      * If true, emit the location information.
      */
     public static boolean EMIT_LOCATION = false;
+
+    private static final String[] SUFFIX = {"src/main/resources/","src/test/resources/"};
 }
