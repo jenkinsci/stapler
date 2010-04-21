@@ -97,6 +97,7 @@ public class AdjunctManager {
             allowedResources.put(path,path);
         }
 
+        if (path.charAt(0)=='/') path = path.substring(1);
         URL res = classLoader.getResource(path);
         if(res==null) {
             throw HttpResponses.error(SC_NOT_FOUND,new IllegalArgumentException("No such adjunct found: "+path));
