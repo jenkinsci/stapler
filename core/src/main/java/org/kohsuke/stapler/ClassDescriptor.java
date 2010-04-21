@@ -133,7 +133,7 @@ public final class ClassDescriptor {
                 }
             }, false);
 
-            // ASM sometimes skips an index so some data may be missing
+            // ASM sometimes skips an index (eg. for "long" param) so some data may be missing
             for (int i = 0; i < paramNames.length; i++) if (paramNames[i]==null) return null;
             return paramNames;
         }
