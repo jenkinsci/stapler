@@ -116,6 +116,8 @@ public final class ClassDescriptor {
 
             final String[] paramNames = new String[m.getParameterTypes().length];
             if (paramNames.length==0) return paramNames;
+            // First localVariable is "this" for non-static method
+            final int offset = (m.getModifiers() & Modifier.STATIC) != 0 ? 0 : 1;
 
             ClassReader r = new ClassReader(clazz.openStream());
             r.accept(new EmptyVisitor() {
@@ -124,8 +126,9 @@ public final class ClassDescriptor {
                     if (methodName.equals(m.getName())  && desc.equals(md))
                         return new EmptyVisitor() {
                             @Override public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
-                                if (index!=0 && index<=paramNames.length)
-                                    paramNames[index-1] = name;
+                                index -= offset;
+                                if (index>=0 && index<paramNames.length)
+                                    paramNames[index] = name;
                             }
                         };
                     else
