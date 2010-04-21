@@ -115,27 +115,27 @@ public final class ClassDescriptor {
             if (clazz==null)    return null;
 
             final String[] paramNames = new String[m.getParameterTypes().length];
-            final boolean[] found = new boolean[1];
+            if (paramNames.length==0) return paramNames;
 
             ClassReader r = new ClassReader(clazz.openStream());
             r.accept(new EmptyVisitor() {
                 final String md = Type.getMethodDescriptor(m);
-                public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
+                @Override public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
                     if (methodName.equals(m.getName())  && desc.equals(md))
                         return new EmptyVisitor() {
-                            public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
-                                if (index!=0 && index<=paramNames.length) {
+                            @Override public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+                                if (index!=0 && index<=paramNames.length)
                                     paramNames[index-1] = name;
-                                    found[0] = true;
-                                }
                             }
                         };
                     else
-                        return this; // ignore this method
+                        return null; // ignore this method
                 }
             }, false);
 
-            return found[0] ? paramNames : null;
+            // ASM sometimes skips an index so some data may be missing
+            for (int i = 0; i < paramNames.length; i++) if (paramNames[i]==null) return null;
+            return paramNames;
         }
     }
 
