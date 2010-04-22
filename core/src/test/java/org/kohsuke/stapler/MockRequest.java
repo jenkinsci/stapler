@@ -6,6 +6,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.ServletInputStream;
 import javax.servlet.RequestDispatcher;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Locale;
 import java.security.Principal;
@@ -176,9 +177,10 @@ public class MockRequest implements HttpServletRequest {
         throw new UnsupportedOperationException();
     }
 
+    public Map<String,String> parameters = new HashMap<String,String>();
+
     public String getParameter(String name) {
-        // TODO
-        throw new UnsupportedOperationException();
+        return parameters.get(name);
     }
 
     public Enumeration getParameterNames() {
@@ -187,13 +189,13 @@ public class MockRequest implements HttpServletRequest {
     }
 
     public String[] getParameterValues(String name) {
-        // TODO
-        throw new UnsupportedOperationException();
+        String v = getParameter(name);
+        if (v==null)    return new String[0];
+        return new String[]{v};
     }
 
     public Map getParameterMap() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return parameters;
     }
 
     public String getProtocol() {
