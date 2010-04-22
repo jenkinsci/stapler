@@ -1,5 +1,7 @@
 package org.kohsuke.stapler;
 
+import com.google.common.collect.MapMaker;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -7,6 +9,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * Abstracts the difference between normal instance methods and
@@ -94,6 +97,14 @@ abstract class Function {
                     arguments[i] = rsp;
                     continue;
                 }
+
+                // if the databinding method is provided, call that
+                Function binder = PARSE_METHODS.get(t);
+                if (binder!=RETURN_NULL) {
+                    arguments[i] = binder.bindAndInvoke(null,req,rsp);
+                    continue;
+                }
+                
                 arguments[i] = AnnotationHandler.handle(req,annotations[i],
                     i<parameterNames.length ? parameterNames[i] : null,
                     t);
@@ -104,6 +115,53 @@ abstract class Function {
 
         return invoke(req,o,arguments);
     }
+
+    /**
+     * Computing map that discovers the static 'fromStapler' method from a class.
+     * The discovered method will be returned as a Function so that the invocation can do parameter injections.
+     */
+    private static final Map<Class,Function> PARSE_METHODS;
+    private static final Function RETURN_NULL;
+
+    static {
+        try {
+            RETURN_NULL = new StaticFunction(Function.class.getMethod("returnNull"));
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError(e);    // impossible
+        }
+
+        PARSE_METHODS = new MapMaker().weakKeys().makeComputingMap(new com.google.common.base.Function<Class,Function>() {
+            public Function apply(Class from) {
+                // MethdFunction for invoking a static method as a static method
+                FunctionList methods = new ClassDescriptor(from).methods.name("fromStapler");
+                switch (methods.size()) {
+                case 0: return RETURN_NULL;
+                default:
+                    throw new IllegalArgumentException("Too many 'fromStapler' methods on "+from);
+                case 1:
+                    Method m = ((MethodFunction)methods.get(0)).m;
+                    return new MethodFunction(m) {
+                        @Override
+                        Class[] getParameterTypes() {
+                            return m.getParameterTypes();
+                        }
+
+                        @Override
+                        Annotation[][] getParameterAnnotations() {
+                            return m.getParameterAnnotations();
+                        }
+
+                        @Override
+                        Object invoke(HttpServletRequest req, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
+                            return m.invoke(null,args);
+                        }
+                    };
+                }
+            }
+        });
+    }
+
+    public static Object returnNull() { return null; }
 
     /**
      * Invokes the method.
