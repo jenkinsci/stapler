@@ -1,17 +1,12 @@
 package org.kohsuke.stapler;
 
-import org.apache.commons.io.IOUtils;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.io.IOException;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.net.URL;
 
 /**
  * Abstracts the difference between normal instance methods and
@@ -24,6 +19,11 @@ abstract class Function {
      * Gets the method name.
      */
     abstract String getName();
+
+    /**
+     * Gets the human readable name of this function. Used to assist debugging.
+     */
+    abstract String getDisplayName();
 
     /**
      * Gets "className.methodName"
@@ -46,7 +46,7 @@ abstract class Function {
     abstract String[] getParameterNames();
 
     /**
-     * Calls {@link #bindAndInvoke(Object, StaplerRequest, StaplerResponse, Object[])} and then
+     * Calls {@link #bindAndInvoke(Object, StaplerRequest, StaplerResponse, Object...)} and then
      * optionally serve the response object.
      */
     void bindAndInvokeAndServeResponse(Object node, StaplerRequest req, StaplerResponse rsp, Object... headArgs) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
@@ -82,20 +82,24 @@ abstract class Function {
         // fill in the first N arguments
         System.arraycopy(headArgs,0,arguments,0,headArgs.length);
 
-        // find the rest of the arguments. either known types, or with annotations
-        for( int i=headArgs.length; i<types.length; i++ ) {
-            Class t = types[i];
-            if(t==StaplerRequest.class || t==HttpServletRequest.class) {
-                arguments[i] = req;
-                continue;
+        try {
+            // find the rest of the arguments. either known types, or with annotations
+            for( int i=headArgs.length; i<types.length; i++ ) {
+                Class t = types[i];
+                if(t==StaplerRequest.class || t==HttpServletRequest.class) {
+                    arguments[i] = req;
+                    continue;
+                }
+                if(t==StaplerResponse.class || t==HttpServletResponse.class) {
+                    arguments[i] = rsp;
+                    continue;
+                }
+                arguments[i] = AnnotationHandler.handle(req,annotations[i],
+                    i<parameterNames.length ? parameterNames[i] : null,
+                    t);
             }
-            if(t==StaplerResponse.class || t==HttpServletResponse.class) {
-                arguments[i] = rsp;
-                continue;
-            }
-            arguments[i] = AnnotationHandler.handle(req,annotations[i],
-                i<parameterNames.length ? parameterNames[i] : null,
-                t);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Failed to invoke "+getDisplayName(),e);
         }
 
         return invoke(req,o,arguments);
@@ -131,6 +135,10 @@ abstract class Function {
 
         public final String getName() {
             return m.getName();
+        }
+
+        final String getDisplayName() {
+            return m.toGenericString();
         }
 
         @Override
@@ -201,7 +209,7 @@ abstract class Function {
     }
 
     /**
-     * Function that's protected by
+     * Function that's protected by the role access check.
      */
     static final class ProtectedFunction extends Function {
         private final String role;
@@ -214,6 +222,10 @@ abstract class Function {
 
         public String getName() {
             return core.getName();
+        }
+
+        String getDisplayName() {
+            return core.getDisplayName();
         }
 
         @Override
