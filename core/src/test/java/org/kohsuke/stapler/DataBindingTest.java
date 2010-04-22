@@ -54,4 +54,33 @@ public class DataBindingTest extends TestCase {
         req.bindJSON(bean,json);
         return bean;
     }
+
+    public void testFromStaplerMethod() throws Exception {
+        MockRequest mr = new MockRequest();
+        mr.getParameterMap().put("a","123");
+        mr.getParameterMap().put("b","string");
+        RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.<AncestorImpl>emptyList(), null);
+        new Function.InstanceFunction(getClass().getMethod("doFromStaplerMethod",StaplerRequest.class,int.class,Binder.class))
+                .bindAndInvoke(this,req,null);
+    }
+
+    public void doFromStaplerMethod(StaplerRequest req, @QueryParameter int a, Binder b) {
+        assertEquals(123,a);
+        assertSame(req,b.req);
+        assertEquals("string",b.b);
+
+    }
+
+    public static class Binder {
+        StaplerRequest req;
+        String b;
+
+        @CapturedParameterNames({"req","b"})
+        public static Binder fromStapler(StaplerRequest req, @QueryParameter String b) {
+            Binder r = new Binder();
+            r.req = req;
+            r.b = b;
+            return r;
+        }
+    }
 }

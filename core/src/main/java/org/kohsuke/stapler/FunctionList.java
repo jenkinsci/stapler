@@ -1,17 +1,13 @@
 package org.kohsuke.stapler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Immutable list of {@link Function}s.
  *
  * @author Kohsuke Kawaguchi
  */
-final class FunctionList implements Iterable<Function> {
+final class FunctionList extends AbstractList<Function> {
     private final Function[] functions;
 
     public FunctionList(Function... functions) {
@@ -30,8 +26,13 @@ final class FunctionList implements Iterable<Function> {
         return new FunctionList(r.toArray(new Function[0]));
     }
 
-    public Iterator<Function> iterator() {
-        return Arrays.asList(functions).iterator();
+    @Override
+    public Function get(int index) {
+        return functions[index];
+    }
+
+    public int size() {
+        return functions.length;
     }
 
     //public int length() {
