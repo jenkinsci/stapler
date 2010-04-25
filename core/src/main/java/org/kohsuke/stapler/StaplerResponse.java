@@ -107,6 +107,11 @@ public interface StaplerResponse extends HttpServletResponse {
      *      If this string starts with "mime-type:", like "mime-type:foo/bar", then "foo/bar" will
      *      be used as a MIME type without consulting the servlet container.
      */
+    void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, long contentLength, String fileName) throws ServletException, IOException;
+
+    /**
+     * @Deprecated use form with long contentLength
+     */
     void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, int contentLength, String fileName) throws ServletException, IOException;
 
     /**
@@ -116,6 +121,11 @@ public interface StaplerResponse extends HttpServletResponse {
      * for all resources.
      *
      * @see #serveFile(StaplerRequest, InputStream, long, long, int, String)
+     */
+    void serveFile(StaplerRequest req, InputStream data, long lastModified, long contentLength, String fileName) throws ServletException, IOException;
+
+    /**
+     * @Deprecated use form with long contentLength
      */
     void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName) throws ServletException, IOException;
 

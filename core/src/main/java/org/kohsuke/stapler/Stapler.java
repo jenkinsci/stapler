@@ -277,7 +277,7 @@ public class Stapler extends HttpServlet {
      * @return false
      *      if the resource doesn't exist.
      */
-    boolean serveStaticResource(HttpServletRequest req, StaplerResponse rsp, InputStream in, long lastModified, long expiration, int contentLength, String fileName) throws IOException {
+    boolean serveStaticResource(HttpServletRequest req, StaplerResponse rsp, InputStream in, long lastModified, long expiration, long contentLength, String fileName) throws IOException {
         try {
             {// send out Last-Modified, or check If-Modified-Since
                 if(lastModified!=0) {
@@ -336,10 +336,10 @@ public class Stapler extends HttpServlet {
                     range = range.substring(6);
                     Matcher m = RANGE_SPEC.matcher(range);
                     if(m.matches()) {
-                        int s = Integer.valueOf(m.group(1));
-                        int e = m.group(2).length()>0
-                                ? Integer.valueOf(m.group(2))+1 //range set is inclusive
-                                : contentLength; // unspecified value means "all the way to the end 
+                        long s = Long.valueOf(m.group(1));
+                        long e = m.group(2).length()>0
+                                ? Long.valueOf(m.group(2))+1 //range set is inclusive
+                                : contentLength; // unspecified value means "all the way to the end"
                         e = Math.min(e,contentLength);
 
                         // ritual for responding to a partial GET
@@ -347,7 +347,13 @@ public class Stapler extends HttpServlet {
                         rsp.setHeader("Content-Range",s+"-"+e+'/'+contentLength);
 
                         // prepare to send the partial content
-                        new DataInputStream(in).skipBytes(s);
+                        DataInputStream dis = new DataInputStream(in);
+                        long toSkip = s, thisSkip;
+                        while (toSkip > 0 && (thisSkip = dis.skipBytes((int)Math.min(toSkip, Integer.MAX_VALUE))) > 0)
+                            toSkip -= thisSkip;
+                        if (toSkip > 0)
+                            throw new IOException(
+                                "skipBytes failure (" + toSkip + " of " + s + " bytes unskipped)");
                         in = new TruncatedInputStream(in,e-s);
                         contentLength = Math.min(e-s,contentLength);
                     }
@@ -358,7 +364,7 @@ public class Stapler extends HttpServlet {
 
             if (out == null) {
                 if(contentLength!=-1)
-                    rsp.setContentLength(contentLength);
+                    rsp.setHeader("Content-Length", Long.toString(contentLength));
                 out = rsp.getOutputStream();
             }
 

@@ -120,13 +120,21 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
             sendError(SC_NOT_FOUND);
     }
 
-    public void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, int contentLength, String fileName) throws ServletException, IOException {
+    public void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, long contentLength, String fileName) throws ServletException, IOException {
         if(!stapler.serveStaticResource(req,this,data,lastModified,expiration,contentLength,fileName))
             sendError(SC_NOT_FOUND);        
     }
 
-    public void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName) throws ServletException, IOException {
+    public void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, int contentLength, String fileName) throws ServletException, IOException {
+        serveFile(req,data,lastModified,expiration,(long)contentLength,fileName);
+    }
+
+    public void serveFile(StaplerRequest req, InputStream data, long lastModified, long contentLength, String fileName) throws ServletException, IOException {
         serveFile(req,data,lastModified,-1,contentLength,fileName);
+    }
+
+    public void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName) throws ServletException, IOException {
+        serveFile(req,data,lastModified,(long)contentLength,fileName);
     }
 
     public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException, IOException {
