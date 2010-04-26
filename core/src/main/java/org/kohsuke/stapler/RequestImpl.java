@@ -314,7 +314,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         try {
             if(src.has("stapler-class")) {
                 // sub-type is specified in JSON.
-                // note that this can come from malicious clients, so we need to make sure we don't have seucrity issues.
+                // note that this can come from malicious clients, so we need to make sure we don't have security issues.
 
                 ClassLoader cl = stapler.getWebApp().getClassLoader();
                 String className = src.getString("stapler-class");
