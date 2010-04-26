@@ -14,6 +14,7 @@ import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.FINE;
@@ -110,25 +111,24 @@ public final class ClassDescriptor {
          * Try to load parameter names from the debug info by using ASM.
          */
         private static String[] loadParametersFromAsm(final Method m) throws IOException {
+            final String[] paramNames = new String[m.getParameterTypes().length];
+            if (paramNames.length==0) return paramNames;
             Class<?> c = m.getDeclaringClass();
             URL clazz = c.getClassLoader().getResource(c.getName().replace('.', '/') + ".class");
             if (clazz==null)    return null;
 
-            final String[] paramNames = new String[m.getParameterTypes().length];
-            if (paramNames.length==0) return paramNames;
-            // First localVariable is "this" for non-static method
-            final int offset = (m.getModifiers() & Modifier.STATIC) != 0 ? 0 : 1;
-
+            final TreeMap<Integer,String> localVars = new TreeMap<Integer,String>();
             ClassReader r = new ClassReader(clazz.openStream());
             r.accept(new EmptyVisitor() {
                 final String md = Type.getMethodDescriptor(m);
+                // First localVariable is "this" for non-static method
+                final int limit = (m.getModifiers() & Modifier.STATIC) != 0 ? 0 : 1;
                 @Override public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
-                    if (methodName.equals(m.getName())  && desc.equals(md))
+                    if (methodName.equals(m.getName()) && desc.equals(md))
                         return new EmptyVisitor() {
                             @Override public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
-                                index -= offset;
-                                if (index>=0 && index<paramNames.length)
-                                    paramNames[index] = name;
+                                if (index >= limit)
+                                    localVars.put(index, name);
                             }
                         };
                     else
@@ -136,9 +136,13 @@ public final class ClassDescriptor {
                 }
             }, false);
 
-            // ASM sometimes skips an index (eg. for "long" param) so some data may be missing
-            for (int i = 0; i < paramNames.length; i++) if (paramNames[i]==null) return null;
-            return paramNames;
+            // Indexes may not be sequential, but first set of local variables are method params
+            int i = 0;
+            for (String s : localVars.values()) {
+                paramNames[i] = s;
+                if (++i == paramNames.length) return paramNames;
+            }
+            return null; // Not enough data found to fill array
         }
     }
 
