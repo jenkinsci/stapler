@@ -1,10 +1,12 @@
 package org.kohsuke.stapler;
 
 import junit.framework.TestCase;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import javax.servlet.ServletException;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Tests the instantiation of nested objects.
@@ -37,7 +39,7 @@ public class NestedJsonTest extends TestCase {
     public void testCreateObject() throws Exception {
         Foo o = createRequest().bindJSON(Foo.class, createDataSet());
 
-        assertTrue(o!=null);
+        assertNotNull(o);
         assertTrue(o.bar instanceof BarImpl);
         assertEquals(123, ((BarImpl)o.bar).i);
     }
@@ -48,6 +50,25 @@ public class NestedJsonTest extends TestCase {
         
         assertTrue(o.bar instanceof BarImpl);
         assertEquals(123, ((BarImpl)o.bar).i);
+    }
+
+    public void testCreateList() throws Exception {
+        // Just one
+        List<Foo> list = createRequest().bindJSONToList(Foo.class, createDataSet());
+        assertNotNull(list);
+        assertEquals(1, list.size());
+        assertTrue(list.get(0).bar instanceof BarImpl);
+        assertEquals(123, ((BarImpl)list.get(0).bar).i);
+
+        // Longer list
+        JSONArray data = new JSONArray();
+        data.add(createDataSet());
+        data.add(createDataSet());
+        data.add(createDataSet());
+        list = createRequest().bindJSONToList(Foo.class, data);
+        assertNotNull(list);
+        assertEquals(3, list.size());
+        assertEquals(123, ((BarImpl)list.get(2).bar).i);
     }
 
     private RequestImpl createRequest() throws Exception {
