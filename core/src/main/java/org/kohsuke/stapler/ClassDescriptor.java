@@ -1,6 +1,7 @@
 package org.kohsuke.stapler;
 
 import org.apache.commons.io.IOUtils;
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -8,12 +9,15 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.EmptyVisitor;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
@@ -104,6 +108,30 @@ public final class ClassDescriptor {
     }
 
     /**
+     * Loads the list of parameter names of the given method, by using a stapler-specific way of getting it.
+     *
+     * <p>
+     * This is not the best place to expose this, but for now this would do.
+     */
+    public static String[] loadParameterNames(Constructor<?> m) {
+        CapturedParameterNames cpn = m.getAnnotation(CapturedParameterNames.class);
+        if(cpn!=null)   return cpn.value();
+
+        // debug information, if present, is more trustworthy
+        try {
+            String[] n = ASM.loadParametersFromAsm(m);
+            if (n!=null)    return n;
+        } catch (LinkageError e) {
+            LOGGER.log(FINE, "Incompatible ASM", e);
+        } catch (IOException e) {
+            LOGGER.log(WARNING, "Failed to load a class file", e);
+        }
+
+        // couldn't find it
+        return EMPTY_ARRAY;
+    }
+
+    /**
      * Isolate the ASM dependency to its own class, as otherwise this seems to cause linkage error on the whole {@link ClassDescriptor}.
      */
     private static class ASM {
@@ -143,6 +171,49 @@ public final class ClassDescriptor {
                 if (++i == paramNames.length) return paramNames;
             }
             return null; // Not enough data found to fill array
+        }
+
+        /**
+         * Try to load parameter names from the debug info by using ASM.
+         */
+        private static String[] loadParametersFromAsm(final Constructor m) throws IOException {
+            final String[] paramNames = new String[m.getParameterTypes().length];
+            if (paramNames.length==0) return paramNames;
+            Class<?> c = m.getDeclaringClass();
+            URL clazz = c.getClassLoader().getResource(c.getName().replace('.', '/') + ".class");
+            if (clazz==null)    return null;
+
+            final TreeMap<Integer,String> localVars = new TreeMap<Integer,String>();
+            ClassReader r = new ClassReader(clazz.openStream());
+            r.accept(new EmptyVisitor() {
+                final String md = getConstructorDescriptor(m);
+                public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
+                    if (methodName.equals("<init>") && desc.equals(md))
+                        return new EmptyVisitor() {
+                            @Override public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+                                if (index>0)   // 0 is 'this'
+                                    localVars.put(index, name);
+                            }
+                        };
+                    else
+                        return null; // ignore this method
+                }
+            }, false);
+
+            // Indexes may not be sequential, but first set of local variables are method params
+            int i = 0;
+            for (String s : localVars.values()) {
+                paramNames[i] = s;
+                if (++i == paramNames.length) return paramNames;
+            }
+            return null; // Not enough data found to fill array
+        }
+
+        private static String getConstructorDescriptor(Constructor c) {
+            StringBuilder buf = new StringBuilder("(");
+            for (Class p : c.getParameterTypes())
+                buf.append(Type.getDescriptor(p));
+            return buf.append(")V").toString();
         }
     }
 

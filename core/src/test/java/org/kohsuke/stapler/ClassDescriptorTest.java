@@ -10,6 +10,18 @@ import junit.framework.TestCase;
  * @author Alan Harder
  */
 public class ClassDescriptorTest extends TestCase {
+    public ClassDescriptorTest() {
+    }
+
+    public ClassDescriptorTest(int a, int b, String x) {
+    }
+
+    public void testLoadConstructorParam() throws Exception {
+        assertEquals(0,ClassDescriptor.loadParameterNames(getClass().getConstructor()).length);
+        String[] names = ClassDescriptor.loadParameterNames(getClass().getConstructor(int.class, int.class, String.class));
+        assertEquals("[a, b, x]",Arrays.asList(names).toString());
+    }
+
     public void testLoadParametersFromAsm() throws Exception {
         // get private method that is being tested
         Method lpfa = ClassDescriptor.class.getDeclaredClasses()[0].getDeclaredMethod(
