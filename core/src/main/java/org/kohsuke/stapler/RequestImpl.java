@@ -442,10 +442,28 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
      * Determines the constructor parameter names.
      *
      * <p>
-     * If there's the .stapler file, load it as a property file and determines the constructor parameter names.
+     * First, try to load names from the debug information. Otherwise
+     * if there's the .stapler file, load it as a property file and determines the constructor parameter names.
      * Otherwise, look for {@link CapturedParameterNames} annotation.
      */
     private String[] loadConstructorParamNames(Class<?> type) {
+        Constructor<?>[] ctrs = type.getConstructors();
+        // which constructor was data bound?
+        Constructor<?> dbc = null;
+        for (Constructor<?> c : ctrs) {
+            if (c.getAnnotation(DataBoundConstructor.class) != null) {
+                dbc = c;
+                break;
+            }
+        }
+
+        if (dbc==null)
+            throw new NoStaplerConstructorException("There's no @DataBoundConstructor on any constructor of " + type);
+
+        String[] names = ClassDescriptor.loadParameterNames(dbc);
+        if (names.length==dbc.getParameterTypes().length)
+            return names;
+
         String resourceName = type.getName().replace('.', '/').replace('$','/') + ".stapler";
         ClassLoader cl = type.getClassLoader();
         if(cl==null)
@@ -465,23 +483,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             }
         }
 
-        // look for the one with @DataBoundConstructor and @CapturedParameterNames
-        Constructor<?>[] ctrs = type.getConstructors();
-        for (Constructor<?> c : ctrs) {
-            if (c.getAnnotation(DataBoundConstructor.class) != null) {
-                CapturedParameterNames cpn = c.getAnnotation(CapturedParameterNames.class);
-                if (cpn != null) return cpn.value();
-
-                // neither was found
-                throw new NoStaplerConstructorException(
-                        "Unable to find " + resourceName + ". " +
-                                "Run 'mvn clean compile' once to run the annotation processor.");
-            }
-        }
-
+        // no debug info and no stapler file
         throw new NoStaplerConstructorException(
                 "Unable to find " + resourceName + ". " +
-                        "There's no @DataBoundConstructor on any constructor of " + type);
+                        "Run 'mvn clean compile' once to run the annotation processor.");
     }
 
     private static void fill(Object bean, String key, Object value) {
