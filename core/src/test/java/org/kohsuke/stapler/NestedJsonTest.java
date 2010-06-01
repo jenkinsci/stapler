@@ -17,8 +17,7 @@ public class NestedJsonTest extends TestCase {
     public static final class Foo {
         public Bar bar;
 
-        // we test this with manual .stapler file
-        // @DataBoundConstructor
+        @DataBoundConstructor
         public Foo(Bar bar) {
             this.bar = bar;
         }
@@ -29,8 +28,7 @@ public class NestedJsonTest extends TestCase {
     public static final class BarImpl implements Bar {
         public final int i;
 
-        // we test this with manual .stapler file
-        // @DataBoundConstructor
+        @DataBoundConstructor
         public BarImpl(int i) {
             this.i = i;
         }
