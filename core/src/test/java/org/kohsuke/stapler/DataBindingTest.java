@@ -83,4 +83,20 @@ public class DataBindingTest extends TestCase {
             return r;
         }
     }
+
+    public void testCustomConverter() throws Exception {
+        RequestImpl req = new RequestImpl(new Stapler(), new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
+        ReferToObjectWithCustomConverter r = req.bindJSON(ReferToObjectWithCustomConverter.class,JSONObject.fromObject("{data:'1,2'}"));
+        assertEquals(r.data.x,1);
+        assertEquals(r.data.y,2);
+    }
+
+    public static class ReferToObjectWithCustomConverter {
+        final ObjectWithCustomConverter data;
+
+        @DataBoundConstructor
+        public ReferToObjectWithCustomConverter(ObjectWithCustomConverter data) {
+            this.data = data;
+        }
+    }
 }

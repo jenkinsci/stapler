@@ -728,9 +728,30 @@ public class Stapler extends HttpServlet {
 
     public static Converter lookupConverter(Class type) {
         Converter c = CONVERT_UTILS.lookup(type);
-        if(c!=null) return c;
+        if (c!=null) return c;
         // fall back to compatibility behavior
-        return ConvertUtils.lookup(type);
+        c = ConvertUtils.lookup(type);
+        if (c!=null)    return c;
+
+        // look for the associated converter
+        try {
+            if(type.getClassLoader()==null)
+                return null;
+            Class<?> cl = type.getClassLoader().loadClass(type.getName() + "$StaplerConverterImpl");
+            c = (Converter)cl.newInstance();
+            CONVERT_UTILS.register(c,type);
+            return c;
+        } catch (ClassNotFoundException e) {
+            return null;
+        } catch (IllegalAccessException e) {
+            IllegalAccessError x = new IllegalAccessError();
+            x.initCause(e);
+            throw x;
+        } catch (InstantiationException e) {
+            InstantiationError x = new InstantiationError();
+            x.initCause(e);
+            throw x;
+        }
     }
 
     static {
