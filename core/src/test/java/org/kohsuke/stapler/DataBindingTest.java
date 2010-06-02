@@ -99,4 +99,21 @@ public class DataBindingTest extends TestCase {
             this.data = data;
         }
     }
+
+    public void testNullToFalse() throws Exception {
+        RequestImpl req = new RequestImpl(new Stapler(), new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
+        TwoBooleans r = req.bindJSON(TwoBooleans.class,JSONObject.fromObject("{a:false}"));
+        assertFalse(r.a);
+        assertFalse(r.b);
+    }
+
+    public static class TwoBooleans {
+        private boolean a,b;
+
+        @DataBoundConstructor
+        public TwoBooleans(boolean a, boolean b) {
+            this.a = a;
+            this.b = b;
+        }
+    }
 }

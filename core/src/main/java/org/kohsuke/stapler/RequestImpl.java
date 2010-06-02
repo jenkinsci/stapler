@@ -537,7 +537,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
          * in JSON, to the type represented by the 'this' object.
          */
         public Object convertJSON(Object o) {
-            if(o==null)     return null;
+            if(o==null) {
+                // this method returns null if the type is not primitive, which works.
+                return ReflectionUtils.getVmDefaultValueFor(type);
+            }
 
             Lister l = Lister.create(type,genericType);
 
