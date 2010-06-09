@@ -98,7 +98,10 @@ public final class CustomTagLibrary extends TagLibrary {
 
     private Script load(String name, ClassLoader classLoader) throws JellyException {
         Script script;
-        URL res = classLoader.getResource(basePath + '/' + name + ".jelly");
+        // prefer 'foo.jellytag' but for backward compatibility, support the plain .jelly extention as well.
+        URL res = classLoader.getResource(basePath + '/' + name + ".jellytag");
+        if (res==null)
+            res = classLoader.getResource(basePath + '/' + name + ".jelly");
         if(res!=null) {
             script = loadJellyScript(res);
             scripts.put(name,script);

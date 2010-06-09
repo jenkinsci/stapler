@@ -37,7 +37,12 @@ public class ThisTagLibrary extends TagLibrary {
                     throw new JellyTagException("'it' was not defined");
                 try {
                     MetaClass c = WebApp.getCurrent().getMetaClass(it.getClass());
-                    return c.loadTearOff(JellyClassTearOff.class).findScript(tagName+".jelly");
+                    // prefer 'foo.jellytag' to avoid tags from showing up as views,
+                    // but for backward compatibility, support the plain .jelly extention as well.
+                    Script tag = c.loadTearOff(JellyClassTearOff.class).findScript(tagName+".jellytag");
+                    if (tag==null)
+                        tag = c.loadTearOff(JellyClassTearOff.class).findScript(tagName+".jelly");
+                    return tag;
                 } catch (JellyException e) {
                     throw new JellyTagException("Failed to load "+tagName+".jelly from "+it,e);
                 }
