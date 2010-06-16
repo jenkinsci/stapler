@@ -12,8 +12,8 @@
   <dependencies>
     <dependency>
       <groupId>org.kohsuke.stapler</groupId>
-      <artifactId>stapler</artifactId>
-      <version>1.57</version>
+      <artifactId>stapler-jsp</artifactId>
+      <version>1.144</version>
     </dependency>
 
     <dependency>
