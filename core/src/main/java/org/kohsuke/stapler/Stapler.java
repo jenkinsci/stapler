@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
@@ -715,7 +716,45 @@ public class Stapler extends HttpServlet {
      * Get raw servlet path (decoded in TokenList).
      */
     private String getServletPath(HttpServletRequest req) {
-        return req.getRequestURI().substring(req.getContextPath().length());
+        return canonicalPath(req.getRequestURI().substring(req.getContextPath().length()));
+    }
+
+    /**
+     * Some web containers (e.g., Winstone) leaves ".." and "." in the request URL,
+     * which is a security risk. Fix that by normalizing them.
+     */
+    static String canonicalPath(String path) {
+        List<String> r = new ArrayList<String>(Arrays.asList(path.split("/+")));
+        for (int i=0; i<r.size(); ) {
+            if (r.get(i).length()==0 || r.get(i).equals(".")) {
+                // empty token occurs for example, "".split("/+") is [""]
+                r.remove(i);
+            } else
+            if (r.get(i).equals("..")) {
+                // i==0 means this is a broken URI.
+                r.remove(i);
+                if (i>0) {
+                    r.remove(i-1);
+                    i--;
+                }
+            } else {
+                i++;
+            }
+        }
+
+        StringBuilder buf = new StringBuilder();
+        if (path.startsWith("/"))
+            buf.append('/');
+        boolean first = true;
+        for (String token : r) {
+            if (!first)     buf.append('/');
+            else            first = false;
+            buf.append(token);
+        }
+        // translation: if (path.endsWith("/") && !buf.endsWith("/"))
+        if (path.endsWith("/") && (buf.length()==0 || buf.charAt(buf.length()-1)!='/'))
+            buf.append('/');
+        return buf.toString();
     }
 
 
