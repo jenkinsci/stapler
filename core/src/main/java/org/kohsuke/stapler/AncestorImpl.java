@@ -1,8 +1,6 @@
 package org.kohsuke.stapler;
 
 import java.util.List;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -43,6 +41,16 @@ class AncestorImpl implements Ancestor {
         return buf.toString();
     }
 
+    public String getRestOfUrl() {
+        StringBuilder buf = new StringBuilder(contextPath);
+        for( int i=index; i<tokens.length; i++ ) {
+            if (buf.length()>0) buf.append('/');
+            buf.append(tokens[i]);
+        }
+
+        return buf.toString();
+    }
+
     public String getFullUrl() {
         StringBuilder buf = new StringBuilder();
         StaplerRequest req = Stapler.getCurrentRequest();
@@ -64,6 +72,10 @@ class AncestorImpl implements Ancestor {
         }
         if(buf.length()==0) buf.append('.');
         return buf.toString();
+    }
+
+    public String getNextToken(int n) {
+        return tokens[index+n];
     }
 
     public Ancestor getPrev() {

@@ -34,6 +34,26 @@ public interface Ancestor {
     String getUrl();
 
     /**
+     * Gets the reaming URL after this ancestor.
+     *
+     * <p>
+     * The returned string represents the portion of the request URL
+     * that follows this ancestor. It starts and ends without '/'.
+     * So, for example, if the request URL is "foo/bar/3" and this ancestor object is
+     * obtained from the app root object by <tt>getFoo()</tt>,
+     * then this string will be <tt>bar/3</tt>
+     */
+    String getRestOfUrl();
+
+    /**
+     * Of the tokens that constitute {@link #getRestOfUrl()},
+     * return the n-th token. So in the example described in {@link #getRestOfUrl()},
+     * {@code getNextToken(0).equals("bar")} and
+     * {@code getNextToken(1).equals("3")}
+     */
+    String getNextToken(int n);
+
+    /**
      * Gets the complete URL to this ancestor.
      *
      * <p>
