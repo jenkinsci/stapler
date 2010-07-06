@@ -34,7 +34,7 @@ public interface Ancestor {
     String getUrl();
 
     /**
-     * Gets the reaming URL after this ancestor.
+     * Gets the remaining URL after this ancestor.
      *
      * <p>
      * The returned string represents the portion of the request URL
