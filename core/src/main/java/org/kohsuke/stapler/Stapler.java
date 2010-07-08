@@ -9,6 +9,8 @@ import org.apache.commons.beanutils.converters.DoubleConverter;
 import org.apache.commons.beanutils.converters.FloatConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.fileupload.FileItem;
+import org.kohsuke.stapler.framework.ExportedObjectTable;
+
 import static org.kohsuke.stapler.Dispatcher.traceable;
 import static org.kohsuke.stapler.Dispatcher.traceEval;
 
@@ -95,6 +97,12 @@ public class Stapler extends HttpServlet {
             if(LOGGER.isLoggable(Level.FINE))
                 LOGGER.fine("Processing request for "+servletPath);
 
+            if (servletPath.startsWith(ExportedObjectTable.PREFIX)) {
+                // serving exported objects
+                invoke( req, rsp, webApp.exportedObjectTable, servletPath.substring(ExportedObjectTable.PREFIX.length()));
+                return;
+            }
+
             boolean staticLink = false;
 
             if(servletPath.startsWith("/static/")) {
@@ -116,7 +124,7 @@ public class Stapler extends HttpServlet {
                 }
             }
 
-            Object root = context.getAttribute("app");
+            Object root = webApp.getApp();
             if(root==null)
                 throw new ServletException("there's no \"app\" attribute in the application context.");
 

@@ -1,6 +1,7 @@
 package org.kohsuke.stapler;
 
 import net.sf.json.JSONObject;
+import org.kohsuke.stapler.framework.ExportedObjectTable;
 
 import javax.servlet.ServletContext;
 import java.util.Map;
@@ -78,10 +79,27 @@ public class WebApp {
      */
     private final Map<Class,MetaClass> classMap = new WeakHashMap<Class,MetaClass>();
 
+    /**
+     * Handles objects that are exported.
+     */
+    public ExportedObjectTable exportedObjectTable = new ExportedObjectTable();
+
     public WebApp(ServletContext context) {
         this.context = context;
         // TODO: allow classloader to be given?
         facets.addAll(Facet.discover(Thread.currentThread().getContextClassLoader()));
+    }
+
+    /**
+     * Returns the 'app' object, which is the user-specified object that
+     * sits at the root of the URL hierarchy and handles the request to '/'.
+     */
+    public Object getApp() {
+        return context.getAttribute("app");
+    }
+
+    public void setApp(Object app) {
+        context.setAttribute("app",app);
     }
 
     public ClassLoader getClassLoader() {
