@@ -1,4 +1,4 @@
-package org.kohsuke.stapler.framework;
+package org.kohsuke.stapler.bind;
 
 import com.gargoylesoftware.htmlunit.TextPage;
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -12,17 +12,17 @@ import java.net.URL;
 /**
  * @author Kohsuke Kawaguchi
  */
-public class ExportedObjectTableTest extends JettyTestCase {
+public class BoundObjectTableTest extends JettyTestCase {
     /**
      * Exports an object and see if it can be reached.
      */
     public void testExport() throws Exception {
-        TextPage page = new WebClient().getPage(new URL(url, "/export"));
+        TextPage page = new WebClient().getPage(new URL(url, "/bind"));
         assertEquals("hello world",page.getContent());
     }
 
-    public HttpResponse doExport() throws IOException {
-        ExportHandle h = webApp.exportedObjectTable.export(new HelloWorld("hello world"));
+    public HttpResponse doBind() throws IOException {
+        Bound h = webApp.boundObjectTable.bind(new HelloWorld("hello world"));
         System.out.println(h.getURL());
         return h;
     }

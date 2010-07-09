@@ -1,4 +1,4 @@
-package org.kohsuke.stapler.framework;
+package org.kohsuke.stapler.bind;
 
 import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.Stapler;
@@ -21,38 +21,38 @@ import java.util.UUID;
  *
  * @author Kohsuke Kawaguchi
  */
-public class ExportedObjectTable {
+public class BoundObjectTable {
     public Object getDynamic(String id) {
         Table t = resolve(false);
         if (t == null) return null;
         return t.resolve(id);
     }
 
-    private ExportHandle export(Ref ref) {
+    private Bound bind(Ref ref) {
         return resolve(true).add(ref);
     }
 
     /**
-     * Exports an object temporarily and returns its URL.
+     * Binds an object temporarily and returns its URL.
      */
-    public ExportHandle export(Object o) {
-        return export(strongRef(o));
+    public Bound bind(Object o) {
+        return bind(strongRef(o));
     }
 
     /**
-     * Exports an object temporarily and returns its URL.
+     * Binds an object temporarily and returns its URL.
      */
-    public ExportHandle exportWeak(Object o) {
-        return export(new WeakRef(o));
+    public Bound bindWeak(Object o) {
+        return bind(new WeakRef(o));
     }
 
     /**
-     * Called from within the request handling of an exported object, to release the object explicitly.
+     * Called from within the request handling of a bound object, to release the object explicitly.
      */
     public void releaseMe() {
-        Ancestor eot = Stapler.getCurrentRequest().findAncestor(ExportedObjectTable.class);
+        Ancestor eot = Stapler.getCurrentRequest().findAncestor(BoundObjectTable.class);
         if (eot==null)
-            throw new IllegalStateException("The thread is not handling a request to an exported object");
+            throw new IllegalStateException("The thread is not handling a request to a abound object");
         String id = eot.getNextToken(0);
 
         resolve(false).release(id); // resolve(false) can't fail because we are processing this request now.
@@ -73,22 +73,22 @@ public class ExportedObjectTable {
     }
 
     /**
-     * Per-session table that remembers all the exported instances.
+     * Per-session table that remembers all the bound instances.
      */
     private static class Table {
         private final Map<String,Ref> entries = new HashMap<String,Ref>();
 
-        private synchronized ExportHandle add(Ref ref) {
+        private synchronized Bound add(Ref ref) {
             Object target = ref.get();
             if (target instanceof WithWellKnownURL) {
                 WithWellKnownURL w = (WithWellKnownURL) target;
-                return new WellKnownExportHandle(w.getWellKnownUrl());
+                return new WellKnownObjectHandle(w.getWellKnownUrl());
             }
 
             final String id = UUID.randomUUID().toString();
             entries.put(id,ref);
 
-            return new ExportHandle() {
+            return new Bound() {
                 public void release() {
                    Table.this.release(id);
                 }
@@ -117,10 +117,10 @@ public class ExportedObjectTable {
         }
     }
 
-    private static final class WellKnownExportHandle implements ExportHandle {
+    private static final class WellKnownObjectHandle implements Bound {
         private final String url;
 
-        public WellKnownExportHandle(String url) {
+        public WellKnownObjectHandle(String url) {
             this.url = url;
         }
 
@@ -162,5 +162,5 @@ public class ExportedObjectTable {
         }
     }
 
-    public static final String PREFIX = "/$stapler/exported/";
+    public static final String PREFIX = "/$stapler/bound/";
 }

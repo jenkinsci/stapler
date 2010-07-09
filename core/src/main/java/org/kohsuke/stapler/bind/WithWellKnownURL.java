@@ -1,4 +1,4 @@
-package org.kohsuke.stapler.framework;
+package org.kohsuke.stapler.bind;
 
 /**
  * Marker interface for objects that have known URLs.

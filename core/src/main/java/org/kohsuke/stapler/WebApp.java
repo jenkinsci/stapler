@@ -1,7 +1,7 @@
 package org.kohsuke.stapler;
 
 import net.sf.json.JSONObject;
-import org.kohsuke.stapler.framework.ExportedObjectTable;
+import org.kohsuke.stapler.bind.BoundObjectTable;
 
 import javax.servlet.ServletContext;
 import java.util.Map;
@@ -82,7 +82,7 @@ public class WebApp {
     /**
      * Handles objects that are exported.
      */
-    public ExportedObjectTable exportedObjectTable = new ExportedObjectTable();
+    public BoundObjectTable boundObjectTable = new BoundObjectTable();
 
     public WebApp(ServletContext context) {
         this.context = context;

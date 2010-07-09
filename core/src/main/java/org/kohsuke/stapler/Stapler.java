@@ -9,7 +9,7 @@ import org.apache.commons.beanutils.converters.DoubleConverter;
 import org.apache.commons.beanutils.converters.FloatConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.fileupload.FileItem;
-import org.kohsuke.stapler.framework.ExportedObjectTable;
+import org.kohsuke.stapler.bind.BoundObjectTable;
 
 import static org.kohsuke.stapler.Dispatcher.traceable;
 import static org.kohsuke.stapler.Dispatcher.traceEval;
@@ -97,9 +97,9 @@ public class Stapler extends HttpServlet {
             if(LOGGER.isLoggable(Level.FINE))
                 LOGGER.fine("Processing request for "+servletPath);
 
-            if (servletPath.startsWith(ExportedObjectTable.PREFIX)) {
+            if (servletPath.startsWith(BoundObjectTable.PREFIX)) {
                 // serving exported objects
-                invoke( req, rsp, webApp.exportedObjectTable, servletPath.substring(ExportedObjectTable.PREFIX.length()));
+                invoke( req, rsp, webApp.boundObjectTable, servletPath.substring(BoundObjectTable.PREFIX.length()));
                 return;
             }
 
