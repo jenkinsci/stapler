@@ -4,6 +4,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 
 /**
  * Factory for {@link HttpResponse}.
@@ -100,4 +101,33 @@ public class HttpResponses {
             rsp.forwardToPreviousPage(req);
         }
     };
+
+    /**
+     * Serves a static resource specified by the URL.
+     * Short for {@code staticResource(resource,0)}
+     */
+    public static HttpResponse staticResource(URL resource) {
+        return staticResource(resource,0);
+    }
+
+    /**
+     * Serves a static resource specified by the URL.
+     *
+     * @param resource
+     *      The static resource to be served.
+     * @param expiration
+     *      The number of milliseconds until the resource will "expire".
+     *      Until it expires the browser will be allowed to cache it
+     *      and serve it without checking back with the server.
+     *      After it expires, the client will send conditional GET to
+     *      check if the resource is actually modified or not.
+     *      If 0, it will immediately expire.
+     */
+    public static HttpResponse staticResource(final URL resource, final long expiration) {
+        return new HttpResponse() {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                Stapler.getCurrent().serveStaticResource(req,rsp,resource,expiration);
+            }
+        };
+    }
 }
