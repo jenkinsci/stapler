@@ -18,13 +18,6 @@ public enum Flavor {
         public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
             return new JSONDataWriter(w);
         }
-        // JSON can be written without a specific root object given. 
-        public DataWriter createDataWriter(StaplerResponse rsp) throws IOException {
-            return new JSONDataWriter(rsp);
-        }
-        public DataWriter createDataWriter(Writer w) throws IOException {
-            return new JSONDataWriter(w);
-        }
     },
     PYTHON("text/x-python;charset=UTF-8") {
         public DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException {
@@ -33,25 +26,12 @@ public enum Flavor {
         public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
             return new PythonDataWriter(w);
         }
-        // JSON can be written without a specific root object given.
-        public DataWriter createDataWriter(StaplerResponse rsp) throws IOException {
-            return new PythonDataWriter(rsp);
-        }
-        public DataWriter createDataWriter(Writer w) throws IOException {
-            return new PythonDataWriter(w);
-        }
     },
     RUBY("text/x-ruby;charset=UTF-8") {
         public DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException {
             return new RubyDataWriter(rsp);
         }
         public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
-            return new RubyDataWriter(w);
-        }
-        public DataWriter createDataWriter(StaplerResponse rsp) throws IOException {
-            return new RubyDataWriter(rsp);
-        }
-        public DataWriter createDataWriter(Writer w) throws IOException {
             return new RubyDataWriter(w);
         }
     },
