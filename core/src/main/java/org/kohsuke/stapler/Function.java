@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
@@ -38,6 +39,8 @@ abstract class Function {
      */
     abstract Class[] getParameterTypes();
 
+    abstract Type[] getGenericParameterTypes();
+
     /**
      * Gets the annotations on parameters.
      */
@@ -49,25 +52,32 @@ abstract class Function {
     abstract String[] getParameterNames();
 
     /**
+     * Return type of the method.
+     */
+    abstract Class getReturnType();
+
+    /**
      * Calls {@link #bindAndInvoke(Object, StaplerRequest, StaplerResponse, Object...)} and then
      * optionally serve the response object.
      */
-    void bindAndInvokeAndServeResponse(Object node, StaplerRequest req, StaplerResponse rsp, Object... headArgs) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+    void bindAndInvokeAndServeResponse(Object node, RequestImpl req, ResponseImpl rsp, Object... headArgs) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
         try {
-            Object ret = bindAndInvoke(node, req, rsp, headArgs);
-            if (ret instanceof HttpResponse) {
-                // let the result render the response
-                HttpResponse response = (HttpResponse) ret;
-                response.generateResponse(req,rsp,node);
-            }
+            Object r = bindAndInvoke(node, req, rsp, headArgs);
+            if (getReturnType()!=Void.class)
+                renderResponse(req,rsp,node, r);
         } catch (InvocationTargetException e) {
             // exception as an HttpResponse
             Throwable te = e.getTargetException();
-            if(te instanceof HttpResponse)
-                ((HttpResponse)te).generateResponse(req,rsp,node);
-            else
-                throw e;
+            if (!renderResponse(req,rsp,node,te))
+                throw e;    // unprocessed excception
         }
+    }
+
+    private boolean renderResponse(RequestImpl req, ResponseImpl rsp, Object node, Object ret) throws IOException, ServletException {
+        for (HttpResponseRenderer r : req.stapler.getWebApp().getResponseRenderers())
+            if (r.generateResponse(req,rsp,node,ret))
+                return true;
+        return false;
     }
 
     /**
@@ -147,6 +157,11 @@ abstract class Function {
                         }
 
                         @Override
+                        Type[] getGenericParameterTypes() {
+                            return m.getGenericParameterTypes();
+                        }
+
+                        @Override
                         Annotation[][] getParameterAnnotations() {
                             return m.getParameterAnnotations();
                         }
@@ -214,6 +229,10 @@ abstract class Function {
             return names;
         }
 
+        @Override
+        Class getReturnType() {
+            return m.getReturnType();
+        }
     }
     /**
      * Normal instance methods.
@@ -225,6 +244,11 @@ abstract class Function {
 
         public Class[] getParameterTypes() {
             return m.getParameterTypes();
+        }
+
+        @Override
+        Type[] getGenericParameterTypes() {
+            return m.getGenericParameterTypes();
         }
 
         Annotation[][] getParameterAnnotations() {
@@ -247,6 +271,14 @@ abstract class Function {
         public Class[] getParameterTypes() {
             Class[] p = m.getParameterTypes();
             Class[] r = new Class[p.length-1];
+            System.arraycopy(p,1,r,0,r.length);
+            return r;
+        }
+
+        @Override
+        Type[] getGenericParameterTypes() {
+            Type[] p = m.getGenericParameterTypes();
+            Type[] r = new Type[p.length-1];
             System.arraycopy(p,1,r,0,r.length);
             return r;
         }
@@ -293,6 +325,16 @@ abstract class Function {
 
         public Class[] getParameterTypes() {
             return core.getParameterTypes();
+        }
+
+        @Override
+        Class getReturnType() {
+            return core.getReturnType();
+        }
+
+        @Override
+        Type[] getGenericParameterTypes() {
+            return core.getGenericParameterTypes();
         }
 
         Annotation[][] getParameterAnnotations() {

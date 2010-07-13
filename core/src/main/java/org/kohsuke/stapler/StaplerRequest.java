@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -350,6 +351,19 @@ public interface StaplerRequest extends HttpServletRequest {
     T bindJSON(Class<T> type, JSONObject src);
 
     /**
+     * Data-bind from one of the JSON object types ({@link JSONObject}, {@link JSONArray},
+     * {@link String}, {@link Integer}, and so on) to the expected type given as an argument.
+     *
+     * @param genericType
+     *      The generic type of the 'erasure' parameter.
+     * @param erasure
+     *      The expected type to convert the JSON argument to.
+     * @param json
+     *      One of the JSON value type.
+     */
+    <T> T bindJSON(Type genericType, Class<T> erasure, Object json);
+
+    /**
      * Data-binds from {@link JSONObject} to the given object.
      *
      * <p>
@@ -392,4 +406,9 @@ public interface StaplerRequest extends HttpServletRequest {
      *      form field (like textbox, checkbox, etc.) 
      */
     FileItem getFileItem(String name) throws ServletException, IOException;
+
+    /**
+     * Returns true if this request represents a server method call to a JavaScript proxy object.
+     */
+    boolean isJavaScriptProxyCall();
 }

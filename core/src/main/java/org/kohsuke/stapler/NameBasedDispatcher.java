@@ -27,10 +27,9 @@ abstract class NameBasedDispatcher extends Dispatcher {
         if(req.tokens.countRemainingTokens()<=argCount)
             return false;
         req.tokens.next();
-        doDispatch(req,rsp,node);
-        return true;
+        return doDispatch(req,rsp,node);
     }
 
-    protected abstract void doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
+    protected abstract boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
         throws IOException, ServletException, IllegalAccessException, InvocationTargetException;
 }

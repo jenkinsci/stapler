@@ -1,10 +1,14 @@
 package org.kohsuke.stapler;
 
+import net.sf.json.JSONArray;
+import org.apache.commons.io.IOUtils;
+
 import javax.servlet.ServletException;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -69,10 +73,11 @@ public class MetaClass extends TearOffSupport {
 
             for (String name : names) {
                 dispatchers.add(new NameBasedDispatcher(name,0) {
-                    public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+                    public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
                         if(traceable())
                             trace(req,rsp,"-> <%s>.%s(...)",node,f.getName());
                         f.bindAndInvokeAndServeResponse(node, req, rsp);
+                        return true;
                     }
                     public String toString() {
                         return f.getQualifiedName()+"(...) for url=/"+name+"/...";
@@ -80,7 +85,37 @@ public class MetaClass extends TearOffSupport {
                 });
             }
         }
-        
+
+        // JavaScript proxy method invocations for <obj>js<token>
+        // reacts only to a specific content type
+        for( final Function f : node.methods.prefix("js") ) {
+            String name = camelize(f.getName().substring(2)); // jsXyz -> xyz
+
+            dispatchers.add(new NameBasedDispatcher(name,0) {
+                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+                    if (!req.isJavaScriptProxyCall())
+                        return false;
+
+                    if(traceable())
+                        trace(req,rsp,"-> <%s>.%s(...)",node,f.getName());
+
+                    JSONArray jsargs = JSONArray.fromObject(IOUtils.toString(req.getReader()));
+                    Object[] args = new Object[jsargs.size()];
+                    Class[] types = f.getParameterTypes();
+                    Type[] genericTypes = f.getParameterTypes();
+
+                    for (int i=0; i<args.length; i++)
+                        args[i] = req.bindJSON(genericTypes[i],types[i],jsargs.get(i));
+
+                    f.bindAndInvokeAndServeResponse(node,req,rsp,args);
+                    return true;
+                }
+
+                public String toString() {
+                    return f.getQualifiedName()+"(...) for url=/"+name+"/...";
+                }
+            });
+        }
 
         for (Facet f : webApp.facets)
             f.buildViewDispatchers(this, dispatchers);
@@ -109,13 +144,14 @@ public class MetaClass extends TearOffSupport {
         for (final Field f : node.fields) {
             dispatchers.add(new NameBasedDispatcher(f.getName()) {
                 final String role = getProtectedRole(f);
-                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException {
+                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException {
                     if(role!=null && !req.isUserInRole(role))
                         throw new IllegalAccessException("Needs to be in role "+role);
 
                     if(traceable())
                         traceEval(req,rsp,node,f.getName());
                     req.getStapler().invoke(req, rsp, f.get(node));
+                    return true;
                 }
                 public String toString() {
                     return String.format("%1$s.%2$s for url=/%2$s/...",f.getDeclaringClass().getName(),f.getName());
@@ -139,10 +175,11 @@ public class MetaClass extends TearOffSupport {
 
             for (String name : names) {
                 dispatchers.add(new NameBasedDispatcher(name) {
-                    public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                         if(traceable())
                             traceEval(req,rsp,node,f.getName()+"()");
                         req.getStapler().invoke(req,rsp, f.invoke(req, node));
+                        return true;
                     }
                     public String toString() {
                         return String.format("%1$s() for url=/%2$s/...",f.getQualifiedName(),name);
@@ -157,10 +194,11 @@ public class MetaClass extends TearOffSupport {
                 continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name) {
-                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     if(traceable())
                         traceEval(req,rsp,node,f.getName()+"(...)");
                     req.getStapler().invoke(req,rsp, f.invoke(req, node, req));
+                    return true;
                 }
                 public String toString() {
                     return String.format("%1$s(StaplerRequest) for url=/%2$s/...",f.getQualifiedName(),name);
@@ -174,11 +212,12 @@ public class MetaClass extends TearOffSupport {
                 continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name,1) {
-                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     String token = req.tokens.next();
                     if(traceable())
                         traceEval(req,rsp,node,f.getName()+"(\""+token+"\")");
                     req.getStapler().invoke(req,rsp, f.invoke(req,node,token));
+                    return true;
                 }
                 public String toString() {
                     return String.format("%1$s(String) for url=/%2$s/TOKEN/...",f.getQualifiedName(),name);
@@ -192,11 +231,12 @@ public class MetaClass extends TearOffSupport {
                 continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             dispatchers.add(new NameBasedDispatcher(name,1) {
-                public void doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     int idx = req.tokens.nextAsInt();
                     if(traceable())
                         traceEval(req,rsp,node,f.getName()+"("+idx+")");
                     req.getStapler().invoke(req,rsp, f.invoke(req,node,idx));
+                    return true;
                 }
                 public String toString() {
                     return String.format("%1$s(int) for url=/%2$s/N/...",f.getQualifiedName(),name);

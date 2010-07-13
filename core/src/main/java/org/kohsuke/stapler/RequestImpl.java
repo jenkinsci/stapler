@@ -86,6 +86,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         this.originalRequestURI = request.getRequestURI();
     }
 
+    public boolean isJavaScriptProxyCall() {
+        String ct = getContentType();
+        return ct!=null && ct.startsWith("application/x-stapler-method-invocation");
+    }
+
     public Stapler getStapler() {
         return stapler;
     }
@@ -341,7 +346,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             // convert parameters
             for( int i=0; i<names.length; i++ ) {
                 try {
-                    args[i] = new TypePair(genTypes[i],types[i]).convertJSON(src.get(names[i]));
+                    args[i] = bindJSON(genTypes[i],types[i],src.get(names[i]));
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException("Failed to convert the "+names[i]+" parameter of the constructor "+c,e);
                 }
@@ -351,6 +356,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Failed to instantiate "+type+" from "+src,e);
         }
+    }
+
+    public Object bindJSON(Type type, Class erasure, Object json) {
+        return new TypePair(type,erasure).convertJSON(json);
     }
 
     public void bindJSON(Object bean, JSONObject src) {
@@ -546,6 +555,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
             if (o instanceof JSONObject) {
                 JSONObject j = (JSONObject) o;
+
+                if (j.isNullObject())   // another flavor of null. json-lib sucks.
+                    return ReflectionUtils.getVmDefaultValueFor(type);
 
                 if(l==null) {
                     // single value conversion

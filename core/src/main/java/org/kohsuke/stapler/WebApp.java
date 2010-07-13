@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.WeakHashMap;
 import java.util.Hashtable;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Object scoped to the entire webapp. Mostly used for configuring behavior of Stapler.
@@ -84,10 +85,13 @@ public class WebApp {
      */
     public BoundObjectTable boundObjectTable = new BoundObjectTable();
 
+    private final CopyOnWriteArrayList<HttpResponseRenderer> responseRenderers = new CopyOnWriteArrayList<HttpResponseRenderer>();
+
     public WebApp(ServletContext context) {
         this.context = context;
         // TODO: allow classloader to be given?
         facets.addAll(Facet.discover(Thread.currentThread().getContextClassLoader()));
+        responseRenderers.add(new HttpResponseRenderer.Default());
     }
 
     /**
@@ -100,6 +104,10 @@ public class WebApp {
 
     public void setApp(Object app) {
         context.setAttribute("app",app);
+    }
+
+    public CopyOnWriteArrayList<HttpResponseRenderer> getResponseRenderers() {
+        return responseRenderers;
     }
 
     public ClassLoader getClassLoader() {
