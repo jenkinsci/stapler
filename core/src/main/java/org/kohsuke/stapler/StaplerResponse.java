@@ -11,6 +11,8 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
+import org.kohsuke.stapler.export.Model;
+import org.kohsuke.stapler.export.NamedPathPruner;
 
 /**
  * Defines additional operations made available by Stapler.
@@ -134,7 +136,13 @@ public interface StaplerResponse extends HttpServletResponse {
      *
      * <p>
      * This method performs the complete output from the header to the response body.
-     * If the flavor is JSON, this method also supports JSONP via the 'jsonp' query parameter.
+     * If the flavor is JSON, this method also supports JSONP via the {@code jsonp} query parameter.
+     * 
+     * <p>The {@code depth} parameter may be used to specify a recursion depth
+     * as in {@link Model#writeTo(Object,int,DataWriter)}.
+     * 
+     * <p>As of 1.146, the {@code tree} parameter may be used to control the output
+     * in detail; see {@link NamedPathPruner#NamedPathPruner(String)} for details.
      */
     void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException,IOException;
 

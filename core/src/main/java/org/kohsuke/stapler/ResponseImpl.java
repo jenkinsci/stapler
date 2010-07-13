@@ -1,5 +1,6 @@
 package org.kohsuke.stapler;
 
+import org.kohsuke.stapler.export.NamedPathPruner;
 import org.kohsuke.stapler.export.Flavor;
 import org.kohsuke.stapler.export.Model;
 import org.kohsuke.stapler.export.ModelBuilder;
@@ -24,6 +25,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.kohsuke.stapler.export.TreePruner;
+import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 /**
  * {@link StaplerResponse} implementation.
@@ -137,6 +140,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         serveFile(req,data,lastModified,(long)contentLength,fileName);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"}) // API design flaw prevents this from type-checking
     public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException, IOException {
         String pad=null;
         setContentType(flavor.contentType);
@@ -146,19 +150,30 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
             pad = req.getParameter("jsonp");
             if(pad!=null) w.write(pad+'(');
         }
-
-        // use the depth query parameter to control the amount of data we send.
-        int depth=0;
-        try {
-            String s = req.getParameter("depth");
-            if(s!=null)
-                depth = Integer.parseInt(s);
-        } catch(NumberFormatException e) {
-            throw new ServletException("Depth parameter must be a number");
+        
+        TreePruner pruner;
+        String tree = req.getParameter("tree");
+        if (tree != null) {
+            try {
+                pruner = new NamedPathPruner(tree);
+            } catch (IllegalArgumentException x) {
+                throw new ServletException("Malformed tree expression: " + x, x);
+            }
+        } else {
+            int depth = 0;
+            try {
+                String s = req.getParameter("depth");
+                if (s != null) {
+                    depth = Integer.parseInt(s);
+                }
+            } catch (NumberFormatException e) {
+                throw new ServletException("Depth parameter must be a number");
+            }
+            pruner = new ByDepth(1 - depth);;
         }
 
         Model p = MODEL_BUILDER.get(exposedBean.getClass());
-        p.writeTo(exposedBean,depth,flavor.createDataWriter(exposedBean,w));
+        p.writeTo(exposedBean, pruner, flavor.createDataWriter(exposedBean,w));
 
 
         if(pad!=null) w.write(')');
