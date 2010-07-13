@@ -187,7 +187,13 @@ public class Adjunct {
 
     public enum Kind { CSS, JS }
 
+    /**
+     * "@include fully.qualified.name" in a block or line comment.
+     */
     private static final Pattern INCLUDE = Pattern.compile("/[/*]\\s*@include (\\S+)");
+    /**
+     * <@include fully.qualified.name>
+     */
     private static final Pattern HTML_INCLUDE = Pattern.compile("<@include (\\S+)>");
     private static final Charset UTF8 = Charset.forName("UTF-8");
 }
