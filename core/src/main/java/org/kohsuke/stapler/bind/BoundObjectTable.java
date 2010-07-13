@@ -79,10 +79,10 @@ public class BoundObjectTable {
         private final Map<String,Ref> entries = new HashMap<String,Ref>();
 
         private synchronized Bound add(Ref ref) {
-            Object target = ref.get();
+            final Object target = ref.get();
             if (target instanceof WithWellKnownURL) {
                 WithWellKnownURL w = (WithWellKnownURL) target;
-                return new WellKnownObjectHandle(w.getWellKnownUrl());
+                return new WellKnownObjectHandle(w.getWellKnownUrl(),w);
             }
 
             final String id = UUID.randomUUID().toString();
@@ -95,6 +95,10 @@ public class BoundObjectTable {
 
                 public String getURL() {
                     return Stapler.getCurrentRequest().getContextPath()+PREFIX+id;
+                }
+
+                public Object getTarget() {
+                    return target;
                 }
 
                 public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
@@ -117,11 +121,13 @@ public class BoundObjectTable {
         }
     }
 
-    private static final class WellKnownObjectHandle implements Bound {
+    private static final class WellKnownObjectHandle extends Bound {
         private final String url;
+        private final Object target;
 
-        public WellKnownObjectHandle(String url) {
+        public WellKnownObjectHandle(String url, Object target) {
             this.url = url;
+            this.target = target;
         }
 
         /**
@@ -133,6 +139,11 @@ public class BoundObjectTable {
 
         public String getURL() {
             return Stapler.getCurrentRequest().getContextPath()+url;
+        }
+
+        @Override
+        public Object getTarget() {
+            return target;
         }
 
         public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {

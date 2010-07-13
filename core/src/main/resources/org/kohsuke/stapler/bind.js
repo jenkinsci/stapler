@@ -1,4 +1,5 @@
 // included into the page as an adjunct
+// @include org.kohsuke.stapler.framework.prototype.prototype
 
 function makeStaplerProxy(url,methods) {
     if (!url.endsWith('/')) url+='/';

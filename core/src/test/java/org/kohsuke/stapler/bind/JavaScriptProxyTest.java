@@ -7,6 +7,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.test.JettyTestCase;
 
 import java.io.IOException;
@@ -17,10 +18,13 @@ import java.net.URL;
  * @author Kohsuke Kawaguchi
  */
 public class JavaScriptProxyTest extends JettyTestCase {
+    private String anonymousValue;
+    private Object anonymous = new MyObject();
+    
     /**
      * Exports an object and see if it can be reached.
      */
-    public void testExport() throws Exception {
+    public void testBind() throws Exception {
         final String[] msg = new String[1];
 
         // for interactive debugging
@@ -38,8 +42,19 @@ public class JavaScriptProxyTest extends JettyTestCase {
         page.executeJavaScript("v.foo(3,'test',callback);");
         assertEquals("string:test3",msg[0]);
 
+        // test null unmarshalling and marshalling
         page.executeJavaScript("v.foo(0,null,callback);");
         assertEquals("object:null",msg[0]);
+    }
+
+    /**
+     * Tests that an anonymous object can be bound.
+     */
+    public void testAnonymousBind() throws Exception {
+        WebClient wc = new WebClient();
+        HtmlPage page = wc.getPage(new URL(url, "/bindAnonymous"));
+        page.executeJavaScript("v.xyz('hello');");
+        assertEquals("hello",anonymousValue);
     }
 
     public String jsFoo(int x, String y) {
@@ -55,11 +70,25 @@ public class JavaScriptProxyTest extends JettyTestCase {
         w.println("</body></html>");
     }
 
+    public void doBindAnonymous(StaplerResponse rsp) throws IOException {
+        rsp.setContentType("text/html");
+        PrintWriter w = rsp.getWriter();
+        w.println("<html><body><script src='prototype'></script><script src='script'></script>");
+        w.println("<script>var v = "+ WebApp.getCurrent().boundObjectTable.bind(anonymous).getProxyScript()+";</script>");
+        w.println("</body></html>");
+    }
+
     public HttpResponse doPrototype() {
         return HttpResponses.staticResource(getClass().getResource("/org/kohsuke/stapler/framework/prototype/prototype.js"));
     }
 
     public HttpResponse doScript() {
         return HttpResponses.staticResource(getClass().getResource("/org/kohsuke/stapler/bind.js"));
+    }
+
+    public class MyObject {
+        public void jsXyz(String s) {
+            anonymousValue = s;
+        }
     }
 }
