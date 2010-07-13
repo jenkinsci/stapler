@@ -50,6 +50,15 @@
       <version>2.4</version>
       <scope>provided</scope>
     </dependency>
+
+    <!-- test dependencies -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>stapler</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

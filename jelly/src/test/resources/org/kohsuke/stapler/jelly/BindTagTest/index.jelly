@@ -1,0 +1,7 @@
+<j:jelly xmlns:st="jelly:stapler" xmlns:j="jelly:core">
+  <html>
+    <body>
+      <st:bind var="v" value="${it}"/>
+    </body>
+  </html>
+</j:jelly>

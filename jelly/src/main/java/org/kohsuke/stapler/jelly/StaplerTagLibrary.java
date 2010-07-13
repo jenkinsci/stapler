@@ -19,6 +19,7 @@ import java.util.Set;
 public class StaplerTagLibrary extends TagLibrary {
     public StaplerTagLibrary() {
         registerTag("adjunct",AdjunctTag.class);
+        registerTag("bind",BindTag.class);
         registerTag("compress",CompressTag.class);
         registerTag("contentType",ContentTypeTag.class);
         registerTag("copyStream",CopyStreamTag.class);
