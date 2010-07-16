@@ -61,9 +61,9 @@ public abstract class HttpResponseRenderer {
                     // last fall back
                     JSONObject.fromObject(response).write(w);
                 }
+                return true;
             }
-
-            return true;
+            return false;
         }
 
         protected boolean handlePrimitive(StaplerResponse rsp, Object response) throws IOException {
