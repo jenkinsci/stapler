@@ -49,7 +49,7 @@ public class SchemaGenerator {
         written.clear();
 
         // element decl for the root element
-        s.element().name(getXmlElementName(top.type)).type(getXmlTypeName(top.type));
+        s.element().name(top.type.getSimpleName()).type(getXmlTypeName(top.type));
 
         // write all beans
         while(!queue.isEmpty())
