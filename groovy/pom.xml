@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.kohsuke.stapler</groupId>
     <artifactId>stapler-parent</artifactId>
-    <version>1.148</version>
+    <version>1.149-SNAPSHOT</version>
   </parent>
   
   <artifactId>stapler-groovy</artifactId>
