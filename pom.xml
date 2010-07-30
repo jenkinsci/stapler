@@ -171,6 +171,12 @@
       <artifactId>jetty</artifactId>
       <version>6.1.11</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>servlet-api-2.5</artifactId>
+          <groupId>org.mortbay.jetty</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jvnet.hudson</groupId>
