@@ -612,11 +612,20 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             if(Enum.class.isAssignableFrom(type))
                 return Enum.valueOf(type,o.toString());
 
-            Converter converter = Stapler.lookupConverter(type);
-            if (converter==null)
-                throw new IllegalArgumentException("Unable to convert to "+type);
+            if (l==null) {// single value conversion
+                Converter converter = Stapler.lookupConverter(type);
+                if (converter==null)
+                    throw new IllegalArgumentException("Unable to convert to "+type);
 
-            return converter.convert(type,o);
+                return converter.convert(type,o);
+            } else {// single value in a collection
+                Converter converter = Stapler.lookupConverter(l.itemType);
+                if (converter==null)
+                    throw new IllegalArgumentException("Unable to convert to "+type);
+
+                l.add(converter.convert(type,o));
+                return l.toCollection();
+            }
         }
     }
 

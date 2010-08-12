@@ -6,6 +6,7 @@ import net.sf.json.JSONObject;
 import java.net.Proxy;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -49,12 +50,6 @@ public class DataBindingTest extends TestCase {
 
     }
 
-    private <T> T bind(JSONObject json, T bean) {
-        RequestImpl req = new RequestImpl(new Stapler(), new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
-        req.bindJSON(bean,json);
-        return bean;
-    }
-
     public void testFromStaplerMethod() throws Exception {
         MockRequest mr = new MockRequest();
         mr.getParameterMap().put("a","123");
@@ -85,8 +80,7 @@ public class DataBindingTest extends TestCase {
     }
 
     public void testCustomConverter() throws Exception {
-        RequestImpl req = new RequestImpl(new Stapler(), new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
-        ReferToObjectWithCustomConverter r = req.bindJSON(ReferToObjectWithCustomConverter.class,JSONObject.fromObject("{data:'1,2'}"));
+        ReferToObjectWithCustomConverter r = bind("{data:'1,2'}", ReferToObjectWithCustomConverter.class);
         assertEquals(r.data.x,1);
         assertEquals(r.data.y,2);
     }
@@ -101,8 +95,7 @@ public class DataBindingTest extends TestCase {
     }
 
     public void testNullToFalse() throws Exception {
-        RequestImpl req = new RequestImpl(new Stapler(), new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
-        TwoBooleans r = req.bindJSON(TwoBooleans.class,JSONObject.fromObject("{a:false}"));
+        TwoBooleans r = bind("{a:false}", TwoBooleans.class);
         assertFalse(r.a);
         assertFalse(r.b);
     }
@@ -115,5 +108,39 @@ public class DataBindingTest extends TestCase {
             this.a = a;
             this.b = b;
         }
+    }
+
+    public void testScalarToArray() throws Exception {
+        ScalarToArray r = bind("{a:'x',b:'y',c:5,d:6}", ScalarToArray.class);
+        assertEquals("x",r.a[0]);
+        assertEquals("y",r.b.get(0));
+        assertEquals(5,(int)r.c[0]);
+        assertEquals(6,(int)r.d.get(0));
+    }
+
+    public static class ScalarToArray {
+        private String[] a;
+        private List<String> b;
+        private Integer[] c;
+        private List<Integer> d;
+
+        @DataBoundConstructor
+        public ScalarToArray(String[] a, List<String> b, Integer[] c, List<Integer> d) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+            this.d = d;
+        }
+    }
+
+    private <T> T bind(String json, Class<T> type) {
+        RequestImpl req = new RequestImpl(new Stapler(), new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
+        return req.bindJSON(type, JSONObject.fromObject(json));
+    }
+
+    private <T> T bind(JSONObject json, T bean) {
+        RequestImpl req = new RequestImpl(new Stapler(), new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
+        req.bindJSON(bean,json);
+        return bean;
     }
 }
