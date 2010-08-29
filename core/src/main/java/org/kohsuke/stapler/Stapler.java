@@ -506,8 +506,8 @@ public class Stapler extends HttpServlet {
                 String target = req.getContextPath() + servletPath + '/';
                 if(req.getQueryString()!=null)
                     target += '?' + req.getQueryString();
-                if(LOGGER.isLoggable(Level.FINE))
-                    LOGGER.fine("Redirecting to "+target);
+                if(LOGGER.isLoggable(Level.FINER))
+                    LOGGER.finer("Redirecting to "+target);
                 rsp.sendRedirect2(target);
                 return;
             }
@@ -532,8 +532,8 @@ public class Stapler extends HttpServlet {
         try {
             for( Dispatcher d : metaClass.dispatchers ) {
                 if(d.dispatch(req,rsp,node)) {
-                    if(LOGGER.isLoggable(Level.FINE))
-                        LOGGER.fine("Handled by "+d);
+                    if(LOGGER.isLoggable(Level.FINER))
+                        LOGGER.finer("Handled by "+d);
                     return;
                 }
             }
