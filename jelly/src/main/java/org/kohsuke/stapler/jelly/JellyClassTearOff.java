@@ -38,8 +38,14 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
         try {
             Script script = findScript("index.jelly");
             if(script!=null) {
-                if(traceable())
-                    trace(req,rsp,"-> index.jelly on <%s>",node);
+                if(traceable()) {
+                    String src = "index.jelly";
+                    if (script instanceof JellyViewScript) {
+                        JellyViewScript jvs = (JellyViewScript) script;
+                        src = jvs.getName();
+                    }
+                    trace(req,rsp,"-> %s on <%s>",src,node);
+                }
                 facet.scriptInvoker.invokeScript(req, rsp, script, node);
                 return true;
             }
