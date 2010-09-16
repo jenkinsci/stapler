@@ -28,7 +28,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
     }
 
     protected Script parseScript(URL res) throws JellyException {
-        return classLoader.createContext().compileScript(res);
+        return new JellyViewScript(owner.clazz, res, classLoader.createContext().compileScript(res));
     }
 
     /**

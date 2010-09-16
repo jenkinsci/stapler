@@ -15,6 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletContextEvent;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -53,8 +54,15 @@ public class JellyFacet extends Facet {
 
                     req.tokens.next();
 
-                    if(traceable())
-                        trace(req,rsp,"-> %s.jelly on <%s>",next,node);
+                    if (traceable()) {
+                        // Null not expected here
+                        String src = next+".jelly";
+                        if (script instanceof JellyViewScript) {
+                            JellyViewScript jvs = (JellyViewScript) script;
+                            src = jvs.getName();
+                        }
+                        trace(req,rsp,"-> %s on <%s>", src, node);
+                    }
 
                     scriptInvoker.invokeScript(req, rsp, script, node);
 
