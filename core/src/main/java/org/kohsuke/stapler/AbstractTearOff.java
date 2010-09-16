@@ -51,6 +51,8 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> {
                 int dot = name.lastIndexOf('.');
                 // foo/bar.groovy -> foo/bar.default.groovy
                 // but don't do foo.bar/test -> foo.default.bar/test
+                // as of 2010/9, this behaviour is considered deprecated, but left here for backward compatibility.
+                // we need a better way to refer to the resource of the same name in the base type.
                 if(name.lastIndexOf('/')<dot)
                     res = findResource(name.substring(0,dot)+".default"+name.substring(dot),cl);
             }
