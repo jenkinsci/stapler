@@ -1,6 +1,5 @@
 package org.kohsuke.stapler;
 
-import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.ConvertUtilsBean;
@@ -148,7 +147,7 @@ public class Stapler extends HttpServlet {
      * even the one for the file:// URLs.
      *
      * <p>
-     * In Tomcat (and most likely in GlassFish, although this is not verifid), resource look up on
+     * In Tomcat (and most likely in GlassFish, although this is not verified), resource look up on
      * {@link ServletContext#getResource(String)} successfully returns non-existent URL, and
      * the failure can be only detected by {@link IOException} from {@link URLConnection#getInputStream()}.
      *

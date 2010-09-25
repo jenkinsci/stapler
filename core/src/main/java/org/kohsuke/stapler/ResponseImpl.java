@@ -169,7 +169,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
             } catch (NumberFormatException e) {
                 throw new ServletException("Depth parameter must be a number");
             }
-            pruner = new ByDepth(1 - depth);;
+            pruner = new ByDepth(1 - depth);
         }
 
         Model p = MODEL_BUILDER.get(exposedBean.getClass());
@@ -245,7 +245,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         try {
             boolean escaped = false;
 
-            StringBuffer out = new StringBuffer(s.length());
+            StringBuilder out = new StringBuilder(s.length());
 
             ByteArrayOutputStream buf = new ByteArrayOutputStream();
             OutputStreamWriter w = new OutputStreamWriter(buf,"UTF-8");

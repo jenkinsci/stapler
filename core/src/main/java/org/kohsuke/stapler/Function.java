@@ -69,7 +69,7 @@ abstract class Function {
             // exception as an HttpResponse
             Throwable te = e.getTargetException();
             if (!renderResponse(req,rsp,node,te))
-                throw e;    // unprocessed excception
+                throw e;    // unprocessed exception
         }
     }
 

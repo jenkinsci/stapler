@@ -92,6 +92,7 @@ class AncestorImpl implements Ancestor {
             return owner.get(listIndex+1);
     }
 
+    @Override
     public String toString() {
         return object.toString();
     }
