@@ -65,6 +65,7 @@ public class IncludeTag extends TagSupport {
 
     /**
      * If true, not finding the page is not an error.
+     * (And in such a case, the body of the include tag is evaluated instead.)
      */
     public void setOptional(boolean optional) {
         this.optional = optional;
@@ -74,7 +75,10 @@ public class IncludeTag extends TagSupport {
         if(page==null) {
             // this makes it convenient when the caller wants to gracefully the expression for @page
             // otherwise this results in http://pastie.org/601828
-            if (optional)   return;
+            if (optional) {
+                invokeBody(output);
+                return;
+            }
             throw new JellyTagException("The page attribute is not specified");
         }
         Object it = this.it;
@@ -92,7 +96,10 @@ public class IncludeTag extends TagSupport {
         }
 
         if(script==null) {
-            if(optional)    return;
+            if(optional) {
+                invokeBody(output);
+                return;
+            }
             throw new JellyTagException("No page found '"+page+"' for "+c.clazz);
         }
 
