@@ -10,14 +10,12 @@ import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.WebApp;
 import org.xml.sax.SAXException;
 import org.jvnet.maven.jellydoc.annotation.Required;
-import org.jvnet.maven.jellydoc.annotation.NoContent;
 
 /**
  * Tag that includes views of the object.
  *
  * @author Kohsuke Kawaguchi
  */
-@NoContent
 public class IncludeTag extends TagSupport {
     private Object it;
 
