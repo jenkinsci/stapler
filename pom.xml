@@ -19,6 +19,14 @@
   <organization>
     <url>http://www.java.net/</url>
   </organization>
+
+  <licenses>
+    <license>
+      <name>2-clause BSD license</name>
+      <distribution>repo</distribution>
+      <url>http://www.opensource.org/licenses/bsd-license.php</url>
+    </license>
+  </licenses>
   
   <mailingLists>
     <mailingList>
