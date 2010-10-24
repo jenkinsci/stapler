@@ -29,8 +29,8 @@ package org.kohsuke.stapler;
  * from the {@link #getTarget()} method.
  *
  * <p>
- * Compared to {@link StaplerFallback}, stapler handles this interface at the very end,
- * whereas {@link StaplerProxy} is handled at the very beginning.
+ * Compared to {@link StaplerFallback}, stapler handles this interface at the very beginning,
+ * whereas {@link StaplerFallback} is handled at the very end.
  *
  * <p>
  * By returning {@code this} from the {@link #getTarget()} method,
