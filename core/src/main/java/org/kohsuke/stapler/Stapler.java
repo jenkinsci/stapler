@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.ConvertUtilsBean;
@@ -62,6 +63,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -480,7 +482,12 @@ public class Stapler extends HttpServlet {
         }
     }
 
-    void invoke(RequestImpl req, ResponseImpl rsp, Object node ) throws IOException, ServletException {
+    /**
+     * Try to dispatch the request against the given node, and if it fails, return false.
+     *
+     * @see #invoke(RequestImpl, ResponseImpl, Object)
+     */
+    boolean tryInvoke(RequestImpl req, ResponseImpl rsp, Object node ) throws IOException, ServletException {
         if(traceable())
             traceEval(req,rsp,node);
 
@@ -494,7 +501,7 @@ public class Stapler extends HttpServlet {
             } else {
                 // recursion helps debugging by leaving the trace in the stack.
                 invoke(req,rsp,n);
-                return;
+                return true;
             }
         }
 
@@ -502,26 +509,21 @@ public class Stapler extends HttpServlet {
         AncestorImpl a = new AncestorImpl(req.ancestors);
         a.set(node,req);
 
-        if(node==null) {
-            // node is null
-            if(!Dispatcher.isTraceEnabled(req)) {
-                rsp.sendError(SC_NOT_FOUND);
-            } else {
-                // show error page
-                rsp.setStatus(SC_NOT_FOUND);
-                rsp.setContentType("text/html;charset=UTF-8");
-                PrintWriter w = rsp.getWriter();
-                w.println("<html><body>");
-                w.println("<h1>404 Not Found</h1>");
-                w.println("<p>Stapler processed this HTTP request as follows, but couldn't find the resource to consume the request");
-                w.println("<pre>");
-                EvaluationTrace.get(req).printHtml(w);
-                w.println("<font color=red>-&gt; unexpected null!</font>");
-                w.println("</pre>");
-                w.println("<p>If this 404 is unexpected, double check the last part of the trace to see if it should have evaluated to null.");
-                w.println("</body></html>");
+        // try overrides
+        if (node instanceof StaplerOverridable) {
+            StaplerOverridable o = (StaplerOverridable) node;
+            Collection<?> list = o.getOverrides();
+            if (list!=null) {
+                int count = 0;
+                for (Object subject : list) {
+                    if (subject==null)  continue;
+                    if(traceable())
+                        traceEval(req,rsp,node,"((StaplerOverridable)",").getOverrides()["+(count++)+']');
+
+                    if (tryInvoke(req,rsp,subject))
+                        return true;
+                }
             }
-            return;
         }
 
         MetaClass metaClass = webApp.getMetaClass(node.getClass());
@@ -535,24 +537,24 @@ public class Stapler extends HttpServlet {
                 if(LOGGER.isLoggable(Level.FINER))
                     LOGGER.finer("Redirecting to "+target);
                 rsp.sendRedirect2(target);
-                return;
+                return true;
             }
-            
+
             if(req.getMethod().equals("DELETE")) {
                 if(node instanceof HttpDeletable) {
                     ((HttpDeletable)node).delete(req,rsp);
-                    return;
+                    return true;
                 }
             }
 
             for (Facet f : webApp.facets) {
                 if(f.handleIndexRequest(req,rsp,node,metaClass))
-                    return;
+                    return true;
             }
 
             URL indexHtml = getSideFileURL(node,"index.html");
             if(indexHtml!=null && serveStaticResource(req,rsp,indexHtml,0))
-                return; // done
+                return true; // done
         }
 
         try {
@@ -560,7 +562,7 @@ public class Stapler extends HttpServlet {
                 if(d.dispatch(req,rsp,node)) {
                     if(LOGGER.isLoggable(Level.FINER))
                         LOGGER.finer("Handled by "+d);
-                    return;
+                    return true;
                 }
             }
         } catch (IllegalAccessException e) {
@@ -602,9 +604,41 @@ public class Stapler extends HttpServlet {
             if(n!=node && n!=null) {
                 // delegate to the fallback object
                 invoke(req,rsp,n);
-                return;
+                return true;
             }
         }
+
+        return false;
+    }
+
+    /**
+     * Try to dispatch the request against the given node, and if it fails, report an error to the client.
+     */
+    void invoke(RequestImpl req, ResponseImpl rsp, Object node ) throws IOException, ServletException {
+        if(node==null) {
+            // node is null
+            if(!Dispatcher.isTraceEnabled(req)) {
+                rsp.sendError(SC_NOT_FOUND);
+            } else {
+                // show error page
+                rsp.setStatus(SC_NOT_FOUND);
+                rsp.setContentType("text/html;charset=UTF-8");
+                PrintWriter w = rsp.getWriter();
+                w.println("<html><body>");
+                w.println("<h1>404 Not Found</h1>");
+                w.println("<p>Stapler processed this HTTP request as follows, but couldn't find the resource to consume the request");
+                w.println("<pre>");
+                EvaluationTrace.get(req).printHtml(w);
+                w.println("<font color=red>-&gt; unexpected null!</font>");
+                w.println("</pre>");
+                w.println("<p>If this 404 is unexpected, double check the last part of the trace to see if it should have evaluated to null.");
+                w.println("</body></html>");
+            }
+            return;
+        }
+
+        if (tryInvoke(req,rsp,node))
+            return; // done
 
         // we really run out of options.
         if(!Dispatcher.isTraceEnabled(req)) {
@@ -623,6 +657,7 @@ public class Stapler extends HttpServlet {
             w.println("</pre>");
             w.printf("<p>&lt;%s&gt; has the following URL mappings, in the order of preference:",node);
             w.println("<ol>");
+            MetaClass metaClass = webApp.getMetaClass(node.getClass());
             for (Dispatcher d : metaClass.dispatchers) {
                 w.println("<li>");
                 w.println(d.toString());
