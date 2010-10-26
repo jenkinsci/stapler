@@ -1,6 +1,7 @@
 package org.kohsuke.stapler;
 
 import junit.framework.TestCase;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import java.net.Proxy;
@@ -142,5 +143,28 @@ public class DataBindingTest extends TestCase {
         RequestImpl req = new RequestImpl(new Stapler(), new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
         req.bindJSON(bean,json);
         return bean;
+    }
+
+    public static class RawBinding {
+        JSONObject x;
+        JSONArray y;
+        @DataBoundConstructor
+        public RawBinding(JSONObject x, JSONArray y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    public void testRaw() {
+        RawBinding r = bind("{x:{a:true,b:1},y:[1,2,3]}", RawBinding.class);
+
+        // array coersion on y
+        RawBinding r2 = bind("{x:{a:true,b:1},y:{p:true}}", RawBinding.class);
+        JSONObject o = (JSONObject)r2.y.get(0);
+        assertTrue(o.getBoolean("p"));
+
+        // array coersion on y
+        RawBinding r3 = bind("{x:{a:true,b:1},y:true}", RawBinding.class);
+        assertTrue((Boolean)r3.y.get(0));
     }
 }

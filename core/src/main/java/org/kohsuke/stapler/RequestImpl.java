@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.BeanUtils;
@@ -356,6 +357,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 }
             }
 
+            if (type==JSONObject.class || type==JSON.class) return type.cast(src);
+
             String[] names = loadConstructorParamNames(type);
 
             // the actual arguments to invoke the constructor with.
@@ -572,6 +575,14 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             if(o==null) {
                 // this method returns null if the type is not primitive, which works.
                 return ReflectionUtils.getVmDefaultValueFor(type);
+            }
+
+            if (type==JSONArray.class) {
+                if (o instanceof JSONArray) return o;
+
+                JSONArray a = new JSONArray();
+                a.add(o);
+                return a;
             }
 
             Lister l = Lister.create(type,genericType);
