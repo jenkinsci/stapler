@@ -162,6 +162,9 @@
           </reportSet>
         </reportSets>
       </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
     </plugins>
   </reporting>
 
