@@ -93,7 +93,11 @@ public class HttpResponses {
     public static HttpResponseException redirectViaContextPath(final String relative) {
         return new HttpResponseException() {
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
-                rsp.sendRedirect2(req.getContextPath()+relative);
+                StringBuilder sb = new StringBuilder(req.getContextPath());
+                if (!relative.startsWith("/"))  sb.append('/');
+                sb.append(relative);
+
+                rsp.sendRedirect2(sb.toString());
             }
         };
     }
