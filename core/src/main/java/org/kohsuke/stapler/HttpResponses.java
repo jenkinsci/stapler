@@ -169,4 +169,28 @@ public class HttpResponses {
             }
         };
     }
+
+    /**
+     * Serves the literal HTML.
+     */
+    public static HttpResponse html(final String literalHtml) {
+        return new HttpResponse() {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                rsp.setContentType("text/html;charset=UTF-8");
+                rsp.getWriter().println(literalHtml);
+            }
+        };
+    }
+
+    /**
+     * Serves the plain text.
+     */
+    public static HttpResponse plainText(final String plainText) {
+        return new HttpResponse() {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                rsp.setContentType("text/plain;charset=UTF-8");
+                rsp.getWriter().println(plainText);
+            }
+        };
+    }
 }
