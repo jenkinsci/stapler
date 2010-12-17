@@ -103,6 +103,18 @@ public class HttpResponses {
     }
 
     /**
+     * @param url
+     *      The URL to redirect to. If relative, relative to the page currently being served.
+     */
+    public static HttpResponseException redirectTo(final String url) {
+        return new HttpResponseException() {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                rsp.sendRedirect2(url);
+            }
+        };
+    }
+
+    /**
      * Redirect to "."
      */
     public static HttpResponse redirectToDot() {
