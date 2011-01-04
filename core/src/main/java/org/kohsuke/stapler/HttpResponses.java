@@ -106,12 +106,8 @@ public class HttpResponses {
      * @param url
      *      The URL to redirect to. If relative, relative to the page currently being served.
      */
-    public static HttpResponseException redirectTo(final String url) {
-        return new HttpResponseException() {
-            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
-                rsp.sendRedirect2(url);
-            }
-        };
+    public static HttpRedirect redirectTo(String url) {
+        return new HttpRedirect(url);
     }
 
     /**
@@ -192,5 +188,13 @@ public class HttpResponses {
                 rsp.getWriter().println(plainText);
             }
         };
+    }
+
+    public static ForwardToView forwardToView(Object it, String view) {
+        return new ForwardToView(it,view);
+    }
+
+    public static ForwardToView forwardToView(Class clazz, String view) {
+        return new ForwardToView(clazz,view);
     }
 }
