@@ -72,6 +72,11 @@ public class HttpResponses {
         };
     }
 
+    @SuppressWarnings({"ThrowableInstanceNeverThrown"})
+    public static HttpResponseException error(int code, String errorMessage) {
+        return error(code,new Exception(errorMessage));
+    }
+
     public static HttpResponseException error(final int code, final Throwable cause) {
         return new HttpResponseException(cause) {
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
