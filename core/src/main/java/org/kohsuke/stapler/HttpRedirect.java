@@ -28,10 +28,11 @@ import java.io.IOException;
 
 /**
  * {@link HttpResponse} that dose HTTP 302 redirect.
+ * Extends from {@link RuntimeException} so that you can throw it.
  *
  * @author Kohsuke Kawaguchi
  */
-public final class HttpRedirect implements HttpResponse {
+public final class HttpRedirect extends RuntimeException implements HttpResponse {
     private final String url;
 
     public HttpRedirect(String url) {

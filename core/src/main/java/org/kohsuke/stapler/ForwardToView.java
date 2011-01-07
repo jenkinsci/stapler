@@ -29,9 +29,11 @@ import java.io.IOException;
 
 /**
  * {@link HttpResponse} that forwards to a {@link RequestDispatcher}, such as a view.
+ * Extends from {@link RuntimeException} so that you can throw it.
+ *
  * @author Kohsuke Kawaguchi
  */
-public class ForwardToView implements HttpResponse {
+public class ForwardToView extends RuntimeException implements HttpResponse {
     private final DispatcherFactory factory;
 
     private interface DispatcherFactory {
