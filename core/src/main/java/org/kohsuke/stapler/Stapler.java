@@ -34,9 +34,6 @@ import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.fileupload.FileItem;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 
-import static org.kohsuke.stapler.Dispatcher.traceable;
-import static org.kohsuke.stapler.Dispatcher.traceEval;
-
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -46,13 +43,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.DataInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -70,10 +66,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static javax.servlet.http.HttpServletResponse.*;
+import static org.kohsuke.stapler.Dispatcher.*;
 
 
 /**
@@ -575,6 +574,13 @@ public class Stapler extends HttpServlet {
                 getServletContext().log("Error while serving " + req.getRequestURL(), e);
                 throw new ServletException();
             }
+
+            // allow the exception from the dispatch to be handled. This is handy to throw HttpResponse as an exception
+            // from the getXyz method.
+            for (HttpResponseRenderer r : webApp.getResponseRenderers())
+                if (r.generateResponse(req,rsp,node,cause))
+                    return true;
+
             StringBuffer url = req.getRequestURL();
             if (cause instanceof IOException) {
                 getServletContext().log("Error while serving " + url, e);
