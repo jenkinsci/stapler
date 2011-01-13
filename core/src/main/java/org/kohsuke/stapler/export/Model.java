@@ -69,8 +69,6 @@ public class Model<T> {
             throw new NotExportableException(type);
         this.defaultVisibility = eb.defaultVisibility();
         
-        parent.models.put(type,this);
-
         Class<? super T> sc = type.getSuperclass();
         if(sc!=null && sc.getAnnotation(ExportedBean.class)!=null)
             superModel = parent.get(sc);
@@ -96,6 +94,8 @@ public class Model<T> {
 
         this.properties = properties.toArray(new Property[properties.size()]);
         Arrays.sort(this.properties);
+
+        parent.models.put(type,this);
     }
 
     /**
