@@ -57,9 +57,8 @@
 
   <distributionManagement>
     <repository>
-      <id>java.net</id>
-      <uniqueVersion>false</uniqueVersion>
-      <url>java-net:/maven2-repository/trunk/repository/</url>
+      <id>java.net-m2-repository</id>
+      <url>http://maven.hudson-labs.org:8081/content/repositories/releases/</url>
     </repository>
     <site>
       <id>stapler-www</id>
