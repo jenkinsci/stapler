@@ -116,6 +116,10 @@ public class LargeText {
         return completed;
     }
 
+    public long length() {
+        return source.length();
+    }
+
     /**
      * Returns {@link Reader} for reading the raw bytes.
      */
