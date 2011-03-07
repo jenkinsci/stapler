@@ -100,7 +100,7 @@ public class JellyFacet extends Facet {
             }
 
             public String toString() {
-                return "TOKEN.jelly for url=/TOKEN/...";
+                return "VIEW.jelly for url=/VIEW";
             }
         });
     }
