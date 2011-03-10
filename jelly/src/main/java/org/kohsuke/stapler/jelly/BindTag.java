@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler.jelly;
 
-import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.XMLOutput;
 import org.jvnet.maven.jellydoc.annotation.NoContent;
@@ -44,9 +43,12 @@ public class BindTag extends AbstractStaplerTag {
     private Object javaObject;
 
     /**
-     * Receives the JavaScript expression as a value in the current {@link JellyContext} by setting a variable name.
+     * JavaScript variable name to set the proxy to.
+     * <p>
+     * This name can be arbitrary left hand side expression,
+     * such as "a[0]" or "a.b.c".
      *
-     * If this value is unspecified, the tag generates a JavaScript expression to create a proxy to output.
+     * If this value is unspecified, the tag generates a JavaScript expression to create a proxy.
      */
     public void setVar(String varName) {
         this.varName = varName;
@@ -73,10 +75,13 @@ public class BindTag extends AbstractStaplerTag {
                 expr = h.getProxyScript();
             }
 
-            if (varName==null)
+            if (varName==null) {
                 out.write(expr);
-            else
-                getContext().setVariable(varName,expr);
+            } else {
+                out.startElement("script");
+                out.write(varName + "=" + expr + ";");
+                out.endElement("script");
+            }
         } catch (SAXException e) {
             throw new JellyTagException(e);
         }
