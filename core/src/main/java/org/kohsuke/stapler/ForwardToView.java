@@ -26,6 +26,8 @@ package org.kohsuke.stapler;
 import javax.servlet.ServletException;
 import javax.servlet.RequestDispatcher;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * {@link HttpResponse} that forwards to a {@link RequestDispatcher}, such as a view.
@@ -35,6 +37,8 @@ import java.io.IOException;
  */
 public class ForwardToView extends RuntimeException implements HttpResponse {
     private final DispatcherFactory factory;
+
+    private final Map<String,Object> attributes = new HashMap<String, Object>();
 
     private interface DispatcherFactory {
         RequestDispatcher get(StaplerRequest req) throws IOException;
@@ -62,6 +66,19 @@ public class ForwardToView extends RuntimeException implements HttpResponse {
                 return req.getView(c,view);
             }
         };
+    }
+
+    /**
+     * Forwards to the view with specified attributes exposed as a variable binding.
+     */
+    public ForwardToView with(String varName, Object value) {
+        attributes.put(varName,value);
+        return this;
+    }
+
+    public ForwardToView with(Map<String,?> attributes) {
+        attributes.putAll(attributes);
+        return this;
     }
 
     public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
