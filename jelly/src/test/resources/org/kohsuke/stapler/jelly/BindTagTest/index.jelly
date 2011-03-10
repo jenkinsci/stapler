@@ -1,7 +1,7 @@
 <j:jelly xmlns:st="jelly:stapler" xmlns:j="jelly:core">
   <html>
     <body>
-      <st:bind var="v" value="${it}"/>
+      <script>var v=<st:bind value="${it}"/></script>
     </body>
   </html>
 </j:jelly>

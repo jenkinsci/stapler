@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
+import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.XMLOutput;
 import org.jvnet.maven.jellydoc.annotation.NoContent;
@@ -43,12 +44,9 @@ public class BindTag extends AbstractStaplerTag {
     private Object javaObject;
 
     /**
-     * JavaScript variable name to set the proxy to.
-     * <p>
-     * This name can be arbitrary left hand side expression,
-     * such as "a[0]" or "a.b.c".
+     * Receives the JavaScript expression as a value in the current {@link JellyContext} by setting a variable name.
      *
-     * If this value is unspecified, the tag generates a JavaScript expression to create a proxy.
+     * If this value is unspecified, the tag generates a JavaScript expression to create a proxy to output.
      */
     public void setVar(String varName) {
         this.varName = varName;
@@ -67,23 +65,18 @@ public class BindTag extends AbstractStaplerTag {
         a.doTag(out);
 
         try {
-            if (varName==null) {
-                if (javaObject==null) {
-                    out.write("null");
-                } else {
-                    Bound h = WebApp.getCurrent().boundObjectTable.bind(javaObject);
-                    out.write(h.getProxyScript());
-                }
+            String expr;
+            if (javaObject==null) {
+                expr = "null";
             } else {
-                out.startElement("script");
-                if (javaObject==null) {
-                    out.write(varName+"=null;");
-                } else {
-                    Bound h = WebApp.getCurrent().boundObjectTable.bind(javaObject);
-                    out.write(varName+'='+h.getProxyScript()+';');
-                }
-                out.endElement("script");
+                Bound h = WebApp.getCurrent().boundObjectTable.bind(javaObject);
+                expr = h.getProxyScript();
             }
+
+            if (varName==null)
+                out.write(expr);
+            else
+                getContext().setVariable(varName,expr);
         } catch (SAXException e) {
             throw new JellyTagException(e);
         }
