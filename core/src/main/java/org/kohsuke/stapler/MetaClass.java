@@ -25,6 +25,7 @@ package org.kohsuke.stapler;
 
 import net.sf.json.JSONArray;
 import org.apache.commons.io.IOUtils;
+import org.kohsuke.stapler.bind.JavaScriptMethod;
 
 import javax.servlet.ServletException;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
@@ -114,30 +115,20 @@ public class MetaClass extends TearOffSupport {
         for( final Function f : node.methods.prefix("js") ) {
             String name = camelize(f.getName().substring(2)); // jsXyz -> xyz
 
-            dispatchers.add(new NameBasedDispatcher(name,0) {
-                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
-                    if (!req.isJavaScriptProxyCall())
-                        return false;
+            dispatchers.add(new JavaScriptProxyMethodDispatcher(name, f));
+        }
 
-                    if(traceable())
-                        trace(req,rsp,"-> <%s>.%s(...)",node,f.getName());
+        // JavaScript proxy method with @JavaScriptMethod
+        // reacts only to a specific content type
+        for( final Function f : node.methods.annotated(JavaScriptMethod.class) ) {
+            JavaScriptMethod a = f.getAnnotation(JavaScriptMethod.class);
 
-                    JSONArray jsargs = JSONArray.fromObject(IOUtils.toString(req.getReader()));
-                    Object[] args = new Object[jsargs.size()];
-                    Class[] types = f.getParameterTypes();
-                    Type[] genericTypes = f.getParameterTypes();
+            String[] names;
+            if(a!=null && a.name().length>0)   names=a.name();
+            else    names=new String[]{f.getName()};
 
-                    for (int i=0; i<args.length; i++)
-                        args[i] = req.bindJSON(genericTypes[i],types[i],jsargs.get(i));
-
-                    f.bindAndInvokeAndServeResponse(node,req,rsp,args);
-                    return true;
-                }
-
-                public String toString() {
-                    return f.getQualifiedName()+"(...) for url=/"+name+"/...";
-                }
-            });
+            for (String name : names)
+                dispatchers.add(new JavaScriptProxyMethodDispatcher(name,f));
         }
 
         for (Facet f : webApp.facets)
@@ -408,7 +399,39 @@ public class MetaClass extends TearOffSupport {
     private static String camelize(String name) {
         return Character.toLowerCase(name.charAt(0))+name.substring(1);
     }
-    
+
+    private static class JavaScriptProxyMethodDispatcher extends NameBasedDispatcher {
+        private final Function f;
+
+        public JavaScriptProxyMethodDispatcher(String name, Function f) {
+            super(name, 0);
+            this.f = f;
+        }
+
+        public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+            if (!req.isJavaScriptProxyCall())
+                return false;
+
+            if(traceable())
+                trace(req,rsp,"-> <%s>.%s(...)",node, f.getName());
+
+            JSONArray jsargs = JSONArray.fromObject(IOUtils.toString(req.getReader()));
+            Object[] args = new Object[jsargs.size()];
+            Class[] types = f.getParameterTypes();
+            Type[] genericTypes = f.getParameterTypes();
+
+            for (int i=0; i<args.length; i++)
+                args[i] = req.bindJSON(genericTypes[i],types[i],jsargs.get(i));
+
+            f.bindAndInvokeAndServeResponse(node,req,rsp,args);
+            return true;
+        }
+
+        public String toString() {
+            return f.getQualifiedName()+"(...) for url=/"+name+"/...";
+        }
+    }
+
     /**
      * Don't cache anything in memory, so that any change
      * will take effect instantly.

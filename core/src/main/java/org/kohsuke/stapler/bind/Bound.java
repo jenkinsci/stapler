@@ -23,9 +23,14 @@
 
 package org.kohsuke.stapler.bind;
 
+import org.kohsuke.stapler.ClassDescriptor;
 import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.MetaClass;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Handles to the object bound via {@link BoundObjectTable}.
@@ -33,6 +38,7 @@ import java.lang.reflect.Method;
  * As {@link HttpResponse}, this object generates a redirect to the URL that it points to.
  *
  * @author Kohsuke Kawaguchi
+ * @see MetaClass#buildDispatchers(ClassDescriptor)
  */
 public abstract class Bound implements HttpResponse {
     /**
@@ -61,11 +67,22 @@ public abstract class Bound implements HttpResponse {
 
         boolean first=true;
         for (Method m : getTarget().getClass().getMethods()) {
-            if (!m.getName().startsWith("js"))   continue;  // not a JavaScript method
+            Collection<String> names;
+            if (m.getName().startsWith("js")) {
+                names = Collections.singleton(camelize(m.getName().substring(2)));
+            } else {
+                JavaScriptMethod a = m.getAnnotation(JavaScriptMethod.class);
+                if (a!=null)
+                    names = Arrays.asList(a.name());
+                else
+                    continue;
+            }
 
-            if (first)  first = false;
-            else        buf.append(',');
-            buf.append('\'').append(camelize(m.getName().substring(2))).append('\'');
+            for (String n : names) {
+                if (first)  first = false;
+                else        buf.append(',');
+                buf.append('\'').append(n).append('\'');
+            }
         }
         buf.append("])");
         

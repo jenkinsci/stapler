@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
@@ -77,6 +78,17 @@ final class FunctionList extends AbstractList<Function> {
         return filter(new Filter() {
             public boolean keep(Function m) {
                 return m.getName().startsWith(prefix);
+            }
+        });
+    }
+
+    /**
+     * Returns {@link Function}s that are annotated with the given annotation.
+     */
+    public FunctionList annotated(final Class<? extends Annotation> ann) {
+        return filter(new Filter() {
+            public boolean keep(Function m) {
+                return m.getAnnotation(ann)!=null;
             }
         });
     }
