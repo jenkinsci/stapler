@@ -6,7 +6,7 @@
   <packaging>pom</packaging>
   <version>1.157-SNAPSHOT</version>
 
-  <name>Stapler POM</name>
+  <name>Stapler</name>
   <description>Stapler HTTP request handling engine</description>
   
   <modules>
@@ -50,19 +50,19 @@
   </mailingLists>
   
   <scm>
-    <connection>scm:svn:https://svn.dev.java.net/svn/stapler/trunk/stapler</connection>
-    <developerConnection>scm:svn:https://svn.dev.java.net/svn/stapler/trunk/stapler</developerConnection>
-    <url>https://stapler.dev.java.net/source/browse/stapler/trunk/stapler/</url>
+    <connection>scm:svn:https://svn.java.net/svn/stapler~svn/trunk/stapler</connection>
+    <developerConnection>scm:svn:https://svn.java.net/svn/stapler~svn/trunk/stapler</developerConnection>
+    <url>http://java.net/projects/stapler/sources/svn/show</url>
   </scm>
 
   <distributionManagement>
     <repository>
-      <id>java.net-m2-repository</id>
-      <url>http://maven.hudson-labs.org:8081/content/repositories/releases/</url>
+      <id>maven.jenkins-ci.org</id>
+      <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
     </repository>
     <site>
-      <id>stapler-www</id>
-      <url>java-net:/stapler/trunk/www/</url>
+      <id>java.net</id>
+      <url>dav:https://java.net/website/stapler/</url>
     </site>
   </distributionManagement>
 
@@ -144,9 +144,8 @@
     
     <extensions>
       <extension>
-        <groupId>org.jvnet.wagon-svn</groupId>
-        <artifactId>wagon-svn</artifactId>
-        <version>1.9</version>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-webdav</artifactId>
       </extension>
     </extensions>
   </build>
@@ -165,6 +164,9 @@
       </plugin>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <aggregate>true</aggregate>
+        </configuration>
       </plugin>
     </plugins>
   </reporting>
