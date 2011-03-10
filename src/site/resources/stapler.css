@@ -1,0 +1,27 @@
+pre.cmd {
+	background-color: black;
+	color: white;
+	font-weight: bold;
+	margin-left: 2em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
+
+pre.code {
+	border: black solid 1px;
+	background-color: rgb(240,240,255);
+	color: navy;
+	font-weight: bold;
+	margin-left: 2em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
+pre.code .annotation {
+	color: gray;
+}
+
+.note {
+	font-size: smaller;
+	margin-left: 5em;
+	color: gray;
+}

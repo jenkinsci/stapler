@@ -1,0 +1,6 @@
+org.kohsuke.stapler
+org.kohsuke.stapler.bind
+org.kohsuke.stapler.test
+org.kohsuke.stapler.export
+org.kohsuke.stapler.framework.io
+org.kohsuke.stapler.jelly

@@ -1,0 +1,263 @@
+<html>
+<head>
+	<title>Reference</title>
+	<link rel="stylesheet" type="text/css" href="stapler.css" />
+</head>
+<body>
+
+
+
+<h1>Reference</h1>
+<p>
+	This document explains the details of how Stapler "staples" your objects to URLs.
+<p>
+	The way Stapler works is some what like <a href="http://www-106.ibm.com/developerworks/java/library/j-jstl0211.html">Expression Language</a>; <b>it takes an object and URL, then evaluate the URL against the object. It repeats this process until it hits either a static resource, a view (such as JSP, Jelly, Groovy, etc.), or an action method.</b>
+<p>
+  This process can be best understood as a recursively defined mathematical function <tt>evaluate(node,url)</tt>. For example, <a href="stapler.png">the hypothetical application</a> depicted in <a href="what-is.html">the "getting started" document</a> could have an evaluation process like the following: 
+<blockquote><pre><xmp>
+Scenario: browser sends "POST /project/jaxb/docsAndFiles/upload HTTP/1.1"
+
+   evaluate(<root object>, "/project/jaxb/docsAndFiles/upload")
+-> evaluate(<root object>.getProject("jaxb"), "/docsAndFiles/upload")
+-> evaluate(<jaxb project object>, "/docsAndFiles/upload")
+-> evaluate(<jaxb project object>.getDocsAndFiles(), "/upload")
+-> evaluate(<docs-and-files-section-object for jaxb>, "/upload")
+-> <docs-and-files-section-object for jaxb>.doUpload(...)
+</xmp></pre></blockquote>
+<p>
+  The exact manner of recursion depends on the signature of the type of the <tt>node</tt> parameter, and the following sections describe them in detail. Also see <a href="http://hudson.gotdns.com/wiki/display/HUDSON/Figuring+out+URL+binding+of+Stapler">a document in Hudson</a> that explains how you can see the actual evaluation process unfold in your own application by monitoring HTTP headers.
+
+<!--
+<h2>Before Evaluation Starts</h2>
+<p>
+	Before Stapler processes a request, the servlet container tests the following possibilities.
+<ol>
+	<li>If your web application defines other servlets or JSPs, they take precedence and they get executed.
+	<li>If the URL matches a static resource in your web application, it will be served normally.
+</ol>
+<p>
+	If the above conditions match, the servlet container handles the request, and Stapler won't even notice. Otherwise, Stapler gets the control. It takes the application root object and begin evaluation against the entire URL.
+-->
+
+<h2>Evaluation of URL: Reference</h2>
+
+<p>
+This section defines the <tt>evaluate(node,url)</tt> function. Possible branches are listed in the order of preference, so when the given <tt>node</tt> and <tt>url</tt> matches to multiple branches, earlier ones take precedence.
+
+<blockquote style="background-color: #ccc; padding:1em">
+<h3>Notation</h3>
+
+<p>
+We often use the notation <tt>url[0], url[1], ...</tt> to indicate the tokens of <tt>url</tt> separated by '/', and <tt>url.size</tt> to denote the number of such tokens. For example, if <tt>url="/abc/def/"</tt>, then <tt>url[0]="abc", url[1]="def", url.size=2</tt>. Similarly if <tt>url="xyz"</tt>, then <tt>url[0]="xyz", url.size=1</tt>
+
+<p>
+List notation <tt>[a,b,c,...]</tt> is also used to describe <tt>url</tt>. Lower-case variables represent a single token, while upper-case variables represent variable-length tokens. For example, if we say <tt>url=[a,W]</tt> and the actual URL was "/abc/def/ghi", then <tt>a="abc"</tt> and <tt>W="/def/ghi"</tt>. If the actual URL was "/abc", then <tt>a="abc"</tt> and <tt>W=""</tt>.
+</blockquote>
+
+
+<h3>Stapler Proxy</h3>
+<p>
+  <tt>node</tt> can implement <a href="https://stapler.dev.java.net/nonav/javadoc/index.html?org/kohsuke/stapler/StaplerProxy.html">the <tt>StaplerProxy</tt> interface</a> to delegate the UI processing to another object. There's also a provision for selectively doing this, so that <tt>node</tt> can intelligently decide if it wants to delegate to another object.
+  
+<p>
+  Formally,
+
+<blockquote><pre>
+evaluate(node,url) := evaluate(target,url)   &mdash; if target instanceof StaplerProxy, target=node.getTarget(), and target!=null
+</pre></blockquote>
+
+
+<h3>Index View</h3>
+<p>
+	If there's no remaining URL, then a welcome page for the current object is served. A welcome page is a side-file of the <tt>node</tt> named <tt>index.*</tt> (such as <tt>index.jsp</tt>, <tt>index.jelly</tt>, etc.
+
+<p>Formally,
+
+<blockquote><pre>
+evaluate(node,[]) := renderView(node,"index")
+</pre></blockquote>
+
+<!--
+<h3>Static Resources</h3>
+<p>
+	If the remaining URL is "/xxxx.yyy" (), then the side file of the current object by the name "xxxx.yyy" will be looked for and returned. This allows you to put static resources as side files to group them together.
+<p>
+	Note that this <b>cannot</b> be used to invoke JSPs.
+-->
+
+<h3>Action Method</h3>
+<p>
+	If <tt>url</tt> is of the form "/fooBar/...." and <tt>node</tt> has a public "action" method named <tt>doFooBar(...)</tt>, then this method is invoked.
+<p>
+	The action method is the final consumer of the request. This is is convenient for form submission handling, and/or implementing URLs that have side effects. Formally,
+
+<blockquote><pre>
+evaluate(node,[x,W]) := node.doX(...)
+</pre></blockquote>
+
+<p>
+  Stapler performs <a href="parameter-injection.html">parameter injections</a> on calling action methods.
+
+
+<h3>View</h3>
+<p>
+	If the remaining URL is "/xxxx/...." and a side file of the node named <tt>xxxx</tt> exists, then this view gets executed. Views normally have their view-specific extensions, like <tt>xxxx.jelly</tt> or <tt>xxxx.groovy</tt>.
+
+<p>Formally,
+
+<blockquote><pre>
+evaluate(node,[x,W]) := renderView(node,x)
+</pre></blockquote>
+
+
+<h3>Index Action Method</h3>
+<p>
+  This is a slight variation of above. If there's no remaining URL and there's an action method called "doIndex", this method will be invoked. Formally,
+
+<blockquote><pre>
+evaluate(node,[]) := node.doIndex(...)
+</pre></blockquote>
+
+
+<h3>Public Field</h3>
+<p>
+	If <tt>url</tt> is "/fooBar/..." and <tt>node</tt> has a public field named "fooBar", then the object stored in <tt>node.fooBar</tt> will be evaluated against the rest of the URL. Formally,
+	
+<blockquote><pre>
+evaluate(node,[x,W]) := evaluate(node.x,W)
+</pre></blockquote>
+	
+
+
+<h3>Public Getter Method</h3>
+<p>
+	If <tt>url</tt> is "/fooBar/..." and <tt>node</tt> has a public getter method named "getFooBar()", then the object returned from <tt>node.getFooBar()</tt> will be evaluated against the rest of the URL.
+<p>
+	Stapler also looks for the public getter of the form "getXxxx(StaplerRequest)". If such a method exists, then this getter method is invoked in a similar way. This version allows the get method to take sophisticated action based on the current request (such as returning the object specific to the current user, or returning null if the user is not authenticated.)
+
+<p>
+  Formally,
+
+<blockquote><pre>
+evaluate(node,[x,W]) := evaluate(node.getX(...),W)
+</pre></blockquote>
+
+
+
+
+<h3>Public Getter Method with a String Argument</h3>
+<p>
+	If <tt>url</tt> is "/xxxx/yyyy/..." and <tt>node</tt> has a public method named "getXxxx(String arg)", then the object returned from <tt>currentObject.getXxxx("yyyy")</tt> will be evaluated against the rest of the URL "/...." recursively.
+<p>
+	Stapler also looks for the public getter of the form "getXxxx(StaplerRequest,String)".
+
+<p>
+Formally,
+
+<blockquote><pre>
+evaluate(node,[x,y,W]) := evaluate(node.getX(y),W)
+</pre></blockquote>
+
+
+<h3>Public Getter Method with an int Argument</h3>
+<p>
+  Really the same as above, except it takes <tt>int</tt> instead of <tt>String</tt>.
+
+<blockquote><pre>
+evaluate(node,[x,y,W]) := evaluate(node.getX(y),W)   &mdash; if y is an integer
+</pre></blockquote>
+
+
+
+<h3>Array</h3>
+<p>
+	If <tt>node</tt> is an array and <tt>url</tt> is "/nnnn/...." where nnnn is a number, then the object returned from <tt>node[nnnn]</tt> will be evaluated against the rest of the URL "/...." recursively.
+
+<p>
+Formally,
+
+<blockquote><pre>
+evaluate(node,[x,W]) := evaluate(node[x],W)   &mdash; if node instanceof Object[]
+</pre></blockquote>
+
+
+<h3>List</h3>
+<p>
+	If <tt>node</tt> implements <tt>java.util.List</tt> and the URL is "/nnnn/...." where nnnn is a number, then the object returned from <tt>node.get(nnnn)</tt> will be evaluated against the rest of the URL "/...." recursively.
+
+<p>
+Formally,
+
+<blockquote><pre>
+evaluate(node,[x,W]) := evaluate(node.get(x),W)   &mdash; if node instanceof List
+</pre></blockquote>
+
+
+<h3>Map</h3>
+<p>
+	If <tt>node</tt> implements <tt>java.util.Map</tt> and the URL is "/xxxx/....", then the object returned from <tt>node.get("xxxx")</tt> will be evaluated against the rest of the URL "/...." recursively.
+
+<blockquote><pre>
+evaluate(node,[x,W]) := evaluate(node.get(x),W)   &mdash; if node instanceof Map
+</pre></blockquote>
+
+
+<h3>Dynamic Action Method</h3>
+<p>
+	If the current object has a public "action" method <tt>doDynamic(StaplerRequest,StaplerResponse)</tt>, then this method is invoked. From within this method, the rest of the URL can be accessed by <tt>StaplerRequest.getRestOfPath()</tt>. This is convenient for an object that wants to control the URL mapping entirely on its own.
+<p>
+	The action method is the final consumer of the request.
+
+<p>
+Formally,
+
+<blockquote><pre>
+evaluate(node,url) := node.doDynamic(request,response)
+</pre></blockquote>
+
+
+
+<h3>Dynamic Getter Method</h3>
+<p>
+	If the current object has a public method <tt>getDynamic(String,StaplerRequest,StaplerResponse)</tt>, and the URL is "/xxxx/..." and then this method is invoked with "xxxx" as the first parameter. The object returned from this method will be evaluated against the rest of the URL "/...." recursively.
+<p>
+  This is convenient for a reason similar to above, except that this doesn't terminate the URL mapping.
+
+<p>
+Formally,
+
+<blockquote><pre>
+evaluate(node,[x,W]) := evaluate(node.getDynamic(x,request,response),W)
+</pre></blockquote>
+
+
+<h3>If None of the Above Works</h3>
+<p>
+	... then the client receives 404 NOT FOUND error.
+
+
+
+
+<h1>Views</h1>
+<!-- TODO: move to another place -->
+<p>
+	A Java class can have associated "views", which are the inputs to template engines mainly used to render HTML.
+	Views are placed as resources, organized by their class names.
+	For example, views for the class <tt>org.acme.foo.Bar</tt> would be in the
+	<tt>/org/acme/foo/Bar/</tt> folder, like <tt>/org/acme/foo/Bar/index.jelly</tt> or <tt>/org/acme/foo/Bar/test.jelly</tt>.
+	This structure emphasizes the close tie between model objects and views. 
+<p>
+	Views are inherited from base classes to subclasses.
+
+<h3>Jelly</h3>
+<p>
+	Jelly script can be used as view files. When they are executed, the variable "it" is set to the object for which the view is invoked. (The idea is that "it" works like "this" in Java.)
+<p>
+	For example, if your Jelly looks like the following, then it prints the name property of the current object.
+<pre class=code
+>&lt;html>&lt;body>
+  My name is ${it.name}
+&lt;/body>&lt;/html></pre>
+
+</body>
+</html>

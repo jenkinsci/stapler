@@ -1,0 +1,172 @@
+<html>
+<head>
+	<title>Getting Started</title>
+	<link rel="stylesheet" type="text/css" href="stapler.css" />
+</head>
+<body>
+
+
+
+<h1>Getting Started</h1>
+<p>
+	Distribution packages of Stapler comes with a sample application that illustrates how to use Stapler.
+	This document explains the basic usage of Stapler by using this sample application.
+
+
+
+<h3>Setting up your web app</h3>
+<p>
+	First, put <tt>stapler.jar</tt> into your application's <tt>WEB-INF/lib</tt> directory. Then put the following XML into your <tt>WEB-INF/web.xml</tt> so that the stapler will be recognized by the container.
+<pre class=code><xmp
+><servlet>
+  <servlet-name>Stapler</servlet-name>
+  <servlet-class>org.kohsuke.stapler.Stapler</servlet-class>
+</servlet>
+
+<servlet-mapping>
+  <servlet-name>Stapler</servlet-name>
+  <url-pattern>/</url-pattern>
+</servlet-mapping>
+</xmp></pre>
+
+
+
+<h3>Registering the root object</h3>
+<p>
+	Stapler needs to know the root object of your application. It does that by <tt>SerlvetContext.getAttribute("app")</tt>, so your application needs to set the root object into a ServletContext. The easiest to do that is to write a <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/ServletContextListener.html"><tt>ServletContextListener</tt></a> and use the helper method from <tt>Stapler</tt>.
+<p>
+	Specifically, you write the following class:
+<pre class=code><xmp
+>package example;
+import org.kohsuke.stapler.Stapler;
+
+public class WebAppMain implements ServletContextListener {
+    public void contextInitialized(ServletContextEvent event) {
+        // BookStore.theStore is the singleton instance of the application
+        Stapler.setRoot(event,BookStore.theStore);
+    }
+
+    public void contextDestroyed(ServletContextEvent event) {
+    }
+}
+</xmp></pre>
+<p>
+	You also have to put the following XML in <tt>WEB-INF/web.xml</tt> so that the container recognizes this class.
+<pre class=code><xmp
+><listener>
+  <listener-class>example.WebAppMain</listener-class>
+</listener>
+</xmp></pre>
+<p>
+	In this way, the <tt>WebAppMain.contextInitialized</tt> method is executed as soon as the web app starts, and you get a chance to initialize your web application.
+
+
+
+<h3>Root BookStore class</h3>
+<p>
+	In this tutorial, we are going to write a very simple book store that sells books and CDs.
+<p>
+	We first introduce the root <tt>BookStore</tt> class. Because this web application is about a book store, an object that represents the whole book store would be suitable as the root object.
+<p>
+	By setting an object of <tt>BookStore</tt> as the root object, the root URL '/' and its immediate subordinates will be served by this object. First, to serve the root URL '/' by using JSP, let's put <tt>index.jsp</tt> into <tt>WEB-INF/side-files/example/BookStore/index.jsp</tt>. 
+	
+	These JSP files are called side files. They are somewhat like methods, in the sense that they are used to display objects of a particular class. Side files are organized according to the class they are associated with.
+
+<p>
+	Here is a part of this index.jsp:
+<pre class=code><xmp
+><html>...<body>
+  <%-- side files can include static resources. --%>
+  <img src="logo.png">
+
+  <h2>Inventory</h2>
+  <c:forEach var="i" items="${it.items}">
+    <a href="items/${i.key}">${i.value.title}</a><br>
+  </c:forEach>
+  ...
+</xmp></pre>
+<p>
+	Side files can contain resources other than JSPs. In the example, <tt>logo.png</tt> is also placed as a side file for <tt>BookStore</tt>, allowing <tt>index.jsp</tt> to refer to <tt>logo.png</tt> by using this simple relative URL.
+<p>
+	Side JSP files can access their target object by the implicit "it" variable. For example, the EL expression <tt>${it.items}</tt> refers to the <tt>getItems</tt> method defined on the <tt>BookStore</tt> class. The "it" variable makes it easy for side JSPs to access the target object.
+
+
+
+<h4>More on side files</h4>
+<p>
+	<tt>index.jsp</tt> is a special JSP used to serve the '.../' address, but you can have more JSP files. For example, you can write <tt>count.jsp</tt> and refer to it by '.../count'. Note that it doesn't have the .jsp extension --- this is necessary to work around the short-coming of the servlet specification.
+
+
+<h3>Delegating to descendants</h3>
+<p>
+	Stapler uses public get methods of application objects reflexively to bind reachable child objects to URLs.
+<p>
+	In our example, a BookStore has a map from the stock keeping unit (SKU) number to the corresponding Item object. The corresponding Java class looks like this:
+<pre class=code><xmp
+>public class BookStore {
+    public Map/*<String,Item>*/ getItems() {
+        return items;
+    }
+    ...
+}
+</xmp></pre>
+<p>
+	When a client requests an URL "/items/b1", Stapler takes the following steps to decide how to serve this request.
+<ol>
+	<li>Stapler knows '/' is mapped to the singleton instance of the <tt>BookStore</tt> class.
+	<li>Stapler takes the next portion 'items' and notice that the <tt>BookStore</tt> class has a method <tt>getItems</tt>, so Stapler evaluates <tt>x=bookStore.getItems()</tt>.
+	<li>Stapler takes the next portion 'b1' from the URL and notice that <tt>x</tt> is a <tt>Map</tt>, so Stapler evaluates <tt>y=x.get("b1")</tt>.
+	<li>Finally, because the whole URL is processed, Stapler looks for the <tt>index.jsp</tt> for <tt>y</tt>.
+</ol>
+<p>
+	In the example, <tt>bookStore.getItems().get("b1")</tt> returns a <tt>Book</tt> object, so the side file <tt>/WEB-INF/side-files/example/Book/index.jsp</tt> is used to serve this request, with the "it" object being set to this <tt>Book</tt> instance.
+
+<p>
+	As you see, in this way, you can define the URL hierarchy just by defining get methods.
+
+
+
+<h3>Polymorphism</h3>
+<!--p>
+	In our example, a <tt>BookStore</tt> has <tt>Item</tt>s, and an <tt>Item</tt> can be either <tt>Book</tt> or <tt>CD</tt>. Thus when a request is made to the URL '/items/xyz/', depending on whether <tt>bookStore.getItems().get("xyz")</tt> returns a <tt>Book</tt> or <tt>CD</tt>, the request is served differently.
+-->
+<p>
+	When you got two classes <tt>Book</tt> and <tt>CD</tt> that both derives from <tt>Item</tt>, you often want to have some commonality between the ways those two classes are served. There are ways to do this.
+<p>
+	When a side file is searched for a particular object, all of its implementation hierarchy are checked. Fore example, if the "it" object is an instance of the <tt>Book</tt> class and Stapler is looking for <tt>footer.jsp</tt>, then first it looks for <tt>/WEB-INF/side-files/example/Book/footer.jsp</tt>, then <tt>/WEB-INF/side-files/example/Item/footer.jsp</tt>.
+<p>
+	In a sense, it is as if the side files of the derived class would override those of the base class.
+<p>
+	You can also use this semantics when you include one JSP from another JSP. <tt>Book/index.jsp</tt> and <tt>CD/index.jsp</tt> uses this mechanism to refer to the common footer defined in <tt>Item/footer.jsp</tt>.
+
+
+
+<h3>Action methods</h3>
+<p>
+	Sometimes you want to perform some operations when a particular URL is requested. Normally, you'd use servlets to do so, but with Stapler, you can define a whole servlet as a method on your application object. We call these methods "action methods".
+<p>
+	Action methods take the following signature:
+<pre class=code><xmp
+>public void do[Name]( StaplerRequest request, StaplerResponse response ) {
+    ...
+}
+</xmp></pre>
+<p>
+	Action methods can throw any exception. Unlike servlets where you are discouraged to use instance variables, action methods are invoked on the "it" object, allowing you to access the "it" object quickly.
+<p>
+	In our example, we define an action method called "hello" in <tt>BookStore</tt>. To invoke this action method, access <tt>/hello</tt>. Again, just like servlets, you can serve the request from this action method (perhaps by sending the contents out or redirecting clients) in exactly the same way as you'd do in servlets. In the following example, we use a method on <tt>StaplerResponse</tt> to forward to another side JSP file to generate the response.
+<pre class=code><xmp
+>public void doHello( StaplerRequest request, StaplerResponse response ) {
+    ...
+    response.forward(this,"helloJSP",request);
+}
+</xmp></pre>
+
+
+<h3>Conclusion</h3>
+<p>
+	Hopefully, the basic concept of Stapler is easy to grasp. For the exact rules of how URLs are evaluated against your application objects, see <a href="reference.html">the reference guide</a>.
+<p>
+	If you have any suggestions on how to improve this documentation, please <a href="mailto:kk@kohsuke.org">let me know</a>.
+</body>
+</html>
