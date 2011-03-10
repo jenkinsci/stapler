@@ -94,6 +94,17 @@ public class AdjunctsInPage {
     }
 
     /**
+     * When you include your version of the adjunct externally, you can use
+     * this method to inform {@link AdjunctsInPage} that those adjuncts are
+     * already included in the page.
+     */
+    public void assumeIncluded(String... includes) throws IOException, SAXException {
+        List<Adjunct> needed = new ArrayList<Adjunct>();
+        for (String include : includes)
+            findNeeded(include,needed);
+    }
+
+    /**
      * Works like the {@link #generate(XMLOutput, String...)} method
      * but just put the adjuncts to {@link #pending} without writing it.
      */
