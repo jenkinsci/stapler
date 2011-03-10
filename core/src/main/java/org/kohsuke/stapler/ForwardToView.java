@@ -28,6 +28,7 @@ import javax.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * {@link HttpResponse} that forwards to a {@link RequestDispatcher}, such as a view.
@@ -77,11 +78,13 @@ public class ForwardToView extends RuntimeException implements HttpResponse {
     }
 
     public ForwardToView with(Map<String,?> attributes) {
-        attributes.putAll(attributes);
+        this.attributes.putAll(attributes);
         return this;
     }
 
     public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+        for (Entry<String, Object> e : attributes.entrySet())
+            req.setAttribute(e.getKey(),e.getValue());
         factory.get(req).forward(req,rsp);
     }
 }
