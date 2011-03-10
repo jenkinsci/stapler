@@ -72,9 +72,11 @@ public abstract class Bound implements HttpResponse {
                 names = Collections.singleton(camelize(m.getName().substring(2)));
             } else {
                 JavaScriptMethod a = m.getAnnotation(JavaScriptMethod.class);
-                if (a!=null)
+                if (a!=null) {
                     names = Arrays.asList(a.name());
-                else
+                    if (names.isEmpty())
+                        names = Collections.singleton(m.getName());
+                } else
                     continue;
             }
 
