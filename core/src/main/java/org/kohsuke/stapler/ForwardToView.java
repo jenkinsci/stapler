@@ -38,7 +38,7 @@ import java.util.Map.Entry;
  */
 public class ForwardToView extends RuntimeException implements HttpResponse {
     private final DispatcherFactory factory;
-
+    private boolean optional;
     private final Map<String,Object> attributes = new HashMap<String, Object>();
 
     private interface DispatcherFactory {
@@ -82,9 +82,20 @@ public class ForwardToView extends RuntimeException implements HttpResponse {
         return this;
     }
 
+    /**
+     * Make this forwarding optional. Render nothing if a view doesn't exist.
+     */
+    public ForwardToView optional() {
+        optional = true;
+        return this;
+    }
+
     public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
         for (Entry<String, Object> e : attributes.entrySet())
             req.setAttribute(e.getKey(),e.getValue());
-        factory.get(req).forward(req,rsp);
+        RequestDispatcher rd = factory.get(req);
+        if (rd==null && optional)
+            return;
+        rd.forward(req, rsp);
     }
 }
