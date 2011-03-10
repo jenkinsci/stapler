@@ -5,7 +5,7 @@
 
     * {{{what-is.html}What is Stapler?}}
     
-    * {{{https://stapler.dev.java.net/servlets/ProjectDocumentList}Download}}
+    * {{{http://java.net/projects/stapler/downloads}Download}}
     
     * {{{getting-started.html}Getting Started}}
     
@@ -17,7 +17,7 @@
           
           * {{{i18n.html}Internationalization support}}
           
-          * {{{https://stapler.dev.java.net/nonav/apidocs/}Javadoc}}
+          * {{{apidocs/}Javadoc}}
 
           * {{{jelly-taglib-ref.html}Stapler jelly tag library reference}} (and XML Schema)
           []
