@@ -73,10 +73,10 @@ public class AdjunctTag extends AbstractStaplerTag {
 
         try {
             AdjunctsInPage a = AdjunctsInPage.get();
-            if (includes!=null)
-                a.generate(out, includes);
             if (assumes!=null)
                 a.assumeIncluded(assumes);
+            if (includes!=null)
+                a.generate(out, includes);
         } catch (IOException e) {
             throw new JellyTagException(e);
         } catch (SAXException e) {
