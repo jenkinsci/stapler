@@ -76,6 +76,8 @@ public class BindTag extends AbstractStaplerTag {
             }
 
             if (varName==null) {
+                // this mode (of writing just the expression) needs to be used with caution because
+                // the adjunct tag above might produce <script> tag.
                 out.write(expr);
             } else {
                 out.startElement("script");
