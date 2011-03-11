@@ -81,6 +81,9 @@ public class BoundObjectTable {
         resolve(false).release(id); // resolve(false) can't fail because we are processing this request now.
     }
 
+    /**
+     * Obtains a {@link Table} associated with this session.
+     */
     private Table resolve(boolean createIfNotExist) {
         HttpSession session = Stapler.getCurrentRequest().getSession(createIfNotExist);
         if (session==null) return null;
