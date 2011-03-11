@@ -55,6 +55,11 @@ public interface StaplerRequest extends HttpServletRequest {
     Stapler getStapler();
 
     /**
+     * Short for {@code getStapler().getWebApp()}
+     */
+    WebApp getWebApp();
+
+    /**
      * Returns the additional URL portion that wasn't used by the stapler,
      * excluding the query string.
      *

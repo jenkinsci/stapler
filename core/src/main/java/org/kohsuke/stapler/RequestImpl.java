@@ -129,6 +129,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return stapler;
     }
 
+    public WebApp getWebApp() {
+        return stapler.getWebApp();
+    }
+
     public String getRestOfPath() {
         return tokens.assembleRestOfPath();
     }
