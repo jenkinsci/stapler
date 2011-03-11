@@ -6,6 +6,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
+import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.test.JettyTestCase;
@@ -62,11 +63,12 @@ public class JavaScriptProxyTest extends JettyTestCase {
         return y+x;
     }
     
-    public void doIndex(StaplerResponse rsp) throws IOException {
+    public void doIndex(StaplerRequest req,StaplerResponse rsp) throws IOException {
         rsp.setContentType("text/html");
+        String crumb = req.getWebApp().getCrumbIssuer().issueCrumb();
         PrintWriter w = rsp.getWriter();
         w.println("<html><body><script src='prototype'></script><script src='script'></script>");
-        w.println("<script>var v = makeStaplerProxy('/',['foo','bar']);var callback = function(t){var x=t.responseObject();alert(typeof(x)+':'+x)};</script>");
+        w.println("<script>var v = makeStaplerProxy('/','"+crumb+"',['foo','bar']);var callback = function(t){var x=t.responseObject();alert(typeof(x)+':'+x)};</script>");
         w.println("</body></html>");
     }
 
