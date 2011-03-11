@@ -119,7 +119,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
     protected JellyContext createContext(final StaplerRequest req, StaplerResponse rsp, Script script, Object it) {
         CustomJellyContext context = new CustomJellyContext();
         // let Jelly see the whole classes
-        context.setClassLoader(req.getStapler().getWebApp().getClassLoader());
+        context.setClassLoader(req.getWebApp().getClassLoader());
         // so TagScript.getBodyText() will use HTMLWriterOutput
         context.setVariable(XMLOutputFactory.class.getName(), this);
         return context;
