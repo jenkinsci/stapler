@@ -106,9 +106,11 @@ public class WebApp {
     /**
      * Handles objects that are exported.
      */
-    public BoundObjectTable boundObjectTable = new BoundObjectTable();
+    public final BoundObjectTable boundObjectTable = new BoundObjectTable();
 
     private final CopyOnWriteArrayList<HttpResponseRenderer> responseRenderers = new CopyOnWriteArrayList<HttpResponseRenderer>();
+
+    private CrumbIssuer crumbIssuer = CrumbIssuer.DEFAULT;
 
     public WebApp(ServletContext context) {
         this.context = context;
@@ -127,6 +129,14 @@ public class WebApp {
 
     public void setApp(Object app) {
         context.setAttribute("app",app);
+    }
+
+    public CrumbIssuer getCrumbIssuer() {
+        return crumbIssuer;
+    }
+
+    public void setCrumbIssuer(CrumbIssuer crumbIssuer) {
+        this.crumbIssuer = crumbIssuer;
     }
 
     public CopyOnWriteArrayList<HttpResponseRenderer> getResponseRenderers() {

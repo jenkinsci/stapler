@@ -26,6 +26,7 @@ package org.kohsuke.stapler.bind;
 import org.kohsuke.stapler.ClassDescriptor;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.MetaClass;
+import org.kohsuke.stapler.WebApp;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -63,7 +64,9 @@ public abstract class Bound implements HttpResponse {
      * talks back to the bound object that this handle represents.
      */
     public final String getProxyScript() {
-        StringBuilder buf = new StringBuilder("makeStaplerProxy('").append(getURL()).append("',[");
+        StringBuilder buf = new StringBuilder("makeStaplerProxy('").append(getURL()).append("','").append(
+                WebApp.getCurrent().getCrumbIssuer().issueCrumb()
+        ).append("',[");
 
         boolean first=true;
         for (Method m : getTarget().getClass().getMethods()) {

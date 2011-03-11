@@ -1,7 +1,7 @@
 // included into the page as an adjunct
 // @include org.kohsuke.stapler.framework.prototype.prototype
 
-function makeStaplerProxy(url,methods) {
+function makeStaplerProxy(url,crumb,methods) {
     if (!url.endsWith('/')) url+='/';
     var proxy = {};
 
@@ -23,7 +23,7 @@ function makeStaplerProxy(url,methods) {
 
             new Ajax.Request(url+methodName, {
                 method: 'post',
-                requestHeaders: {'Content-type':'application/x-stapler-method-invocation;charset=UTF-8'},
+                requestHeaders: {'Content-type':'application/x-stapler-method-invocation;charset=UTF-8','Crumb':crumb},
                 postBody: a.toJSON(),
                 onSuccess: function(t) {
                     if (callback!=null) {

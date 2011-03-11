@@ -412,6 +412,8 @@ public class MetaClass extends TearOffSupport {
             if (!req.isJavaScriptProxyCall())
                 return false;
 
+            req.stapler.getWebApp().getCrumbIssuer().validateCrumb(req,req.getHeader("Crumb"));
+
             if(traceable())
                 trace(req,rsp,"-> <%s>.%s(...)",node, f.getName());
 
