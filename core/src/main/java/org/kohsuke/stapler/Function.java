@@ -86,7 +86,7 @@ abstract class Function {
     void bindAndInvokeAndServeResponse(Object node, RequestImpl req, ResponseImpl rsp, Object... headArgs) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
         try {
             Object r = bindAndInvoke(node, req, rsp, headArgs);
-            if (getReturnType()!=Void.class)
+            if (getReturnType()!=void.class)
                 renderResponse(req,rsp,node, r);
         } catch (InvocationTargetException e) {
             // exception as an HttpResponse
