@@ -86,4 +86,21 @@ public @interface Exported {
      * returned to the client.
      */
     boolean inline() default false;
+
+    /**
+     * If a string value "key/value" is given, produce a map in more verbose following form:
+     * "[{key:KEY1, value:VALUE1}, {key:KEY2, value:VALUE2}, ...]
+     * (whereas normally it produces more compact {KEY1:VALUE1, KEY2:VALUE2, ...}
+     *
+     * <p>
+     * So for example, if you say "name/value", you might see something like
+     * "[{name:"kohsuke", value:"abc"], ...}
+     *
+     * <p>
+     * The verboose form is useful/necessary when you use complex data structure as a key,
+     * or if the string representation of the key can contain letters that are unsafe in some flavours
+     * (such as XML, which prohibits a number of characters to be used as tag names.)
+     *
+     */
+    String verboseMap() default "";
 }

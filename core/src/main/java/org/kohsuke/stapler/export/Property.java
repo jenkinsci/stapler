@@ -68,6 +68,8 @@ public abstract class Property implements Comparable<Property> {
      */
     public final boolean inline;
 
+    private String[] verboseMap;
+
     Property(Model parent, String name, Exported exported) {
         this.parent = parent;
         this.owner = parent.parent;
@@ -77,6 +79,11 @@ public abstract class Property implements Comparable<Property> {
             v = parent.defaultVisibility;
         this.visibility = v;
         this.inline = exported.inline();
+        String[] s = exported.verboseMap().split("/");
+        if (s.length<2)
+            this.verboseMap = null;
+        else
+            this.verboseMap = s;
     }
 
     public int compareTo(Property that) {
@@ -176,12 +183,25 @@ public abstract class Property implements Comparable<Property> {
             return;
         }
         if(value instanceof Map) {
-            writer.startObject();
-            for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
-                writer.name(e.getKey().toString());
-                writeValue(e.getValue(),pruner,writer);
+            if (verboseMap!=null) {// verbose form
+                writer.startArray();
+                for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
+                    writer.startObject();
+                    writer.name(verboseMap[0]);
+                    writeValue(e.getKey(),pruner,writer);
+                    writer.name(verboseMap[1]);
+                    writeValue(e.getValue(),pruner,writer);
+                    writer.endObject();
+                }
+                writer.endArray();
+            } else {// compact form
+                writer.startObject();
+                for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
+                    writer.name(e.getKey().toString());
+                    writeValue(e.getValue(),pruner,writer);
+                }
+                writer.endObject();
             }
-            writer.endObject();
             return;
         }
         if(value instanceof Date) {
