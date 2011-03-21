@@ -71,4 +71,11 @@ public class XMLDataWriterTest extends TestCase {
     public void testPrimitiveArrays() throws Exception {
         assertEquals("<PA><v>1</v><v>2</v><v>3</v></PA>",serialize(new PA(),PA.class));
     }
+
+    public void testMakeXmlName() {
+        assertEquals("_",   XMLDataWriter.makeXmlName(""));
+        assertEquals("abc", XMLDataWriter.makeXmlName("abc"));
+        assertEquals("abc", XMLDataWriter.makeXmlName("/abc"));
+        assertEquals("abc", XMLDataWriter.makeXmlName("/a/b/c/"));
+    }
 }

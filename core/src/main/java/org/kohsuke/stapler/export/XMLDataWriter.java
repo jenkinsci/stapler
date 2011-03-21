@@ -120,13 +120,35 @@ final class XMLDataWriter implements DataWriter {
      * by considering {@link #isArray}
      */
     private String adjustName() {
-        if(isArray) return toSingular(name);
-        return name;
+        String escaped = makeXmlName(name);
+        if(isArray) return toSingular(escaped);
+        return escaped;
     }
 
     /*package*/ static String toSingular(String name) {
         if(name.endsWith("s"))
             return name.substring(0,name.length()-1);
+        return name;
+    }
+
+    /*package*/ static String makeXmlName(String name) {
+        if (name.length()==0)   name="_";
+
+        if (!XmlChars.isNameStart(name.charAt(0))) {
+            if (name.length()>1 && XmlChars.isNameStart(name.charAt(1)))
+                name = name.substring(1);
+            else
+                name = '_'+name;
+        }
+
+        int i=1;
+        while (i<name.length()) {
+            if (XmlChars.isNameChar(name.charAt(i)))
+                i++;
+            else
+                name = name.substring(0,i)+name.substring(i+1);
+        }
+
         return name;
     }
 }
