@@ -1,0 +1,7 @@
+<j:jelly xmlns:j="jelly:core">
+  <b>Hello from Jelly to ${attrs.name}</b>
+  <i>
+    <j:set var="secret" value="${47}"/>
+    <d:invokeBody xmlns:d="jelly:define"/>
+  </i>
+</j:jelly>
