@@ -13,6 +13,7 @@
     <module>core</module>
     <module>jsp</module>
     <module>jelly</module>
+    <module>jruby</module>
     <module>groovy</module>
   </modules>
 

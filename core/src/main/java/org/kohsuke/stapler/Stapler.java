@@ -775,8 +775,8 @@ public class Stapler extends HttpServlet {
             }
         };
 
-    private static ThreadLocal<RequestImpl> CURRENT_REQUEST = new ThreadLocal<RequestImpl>();
-    private static ThreadLocal<ResponseImpl> CURRENT_RESPONSE = new ThreadLocal<ResponseImpl>();
+    /*package*/ static ThreadLocal<RequestImpl> CURRENT_REQUEST = new ThreadLocal<RequestImpl>();
+    /*package*/ static ThreadLocal<ResponseImpl> CURRENT_RESPONSE = new ThreadLocal<ResponseImpl>();
 
     private static final Logger LOGGER = Logger.getLogger(Stapler.class.getName());
 
