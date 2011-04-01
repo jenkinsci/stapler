@@ -51,9 +51,9 @@
   </mailingLists>
   
   <scm>
-    <connection>scm:svn:https://svn.java.net/svn/stapler~svn/trunk/stapler</connection>
-    <developerConnection>scm:svn:https://svn.java.net/svn/stapler~svn/trunk/stapler</developerConnection>
-    <url>http://java.net/projects/stapler/sources/svn/show</url>
+    <connection>scm:git:git://github.com/stapler/stapler.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/stapler/stapler.git</developerConnection>
+    <url>https://github.com/stapler/stapler</url>
   </scm>
 
   <distributionManagement>
