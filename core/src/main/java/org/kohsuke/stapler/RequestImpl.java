@@ -354,48 +354,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     public <T> T bindJSON(Class<T> type, JSONObject src) {
-        try {
-            if(src.has("stapler-class")) {
-                // sub-type is specified in JSON.
-                // note that this can come from malicious clients, so we need to make sure we don't have security issues.
-
-                ClassLoader cl = stapler.getWebApp().getClassLoader();
-                String className = src.getString("stapler-class");
-                try {
-                    Class<?> subType = cl.loadClass(className);
-                    if(!type.isAssignableFrom(subType))
-                        throw new IllegalArgumentException("Specified type "+subType+" is not assignable to the expected "+type);
-                    type = (Class)subType; // I'm being lazy here
-                } catch (ClassNotFoundException e) {
-                    throw new IllegalArgumentException("Class "+className+" is specified in JSON, but no such class found in "+cl,e);
-                }
-            }
-
-            if (type==JSONObject.class || type==JSON.class) return type.cast(src);
-
-            String[] names = loadConstructorParamNames(type);
-
-            // the actual arguments to invoke the constructor with.
-            Object[] args = new Object[names.length];
-
-            // constructor
-            Constructor<T> c = findConstructor(type, names.length);
-            Class[] types = c.getParameterTypes();
-            Type[] genTypes = c.getGenericParameterTypes();
-
-            // convert parameters
-            for( int i=0; i<names.length; i++ ) {
-                try {
-                    args[i] = bindJSON(genTypes[i],types[i],src.get(names[i]));
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("Failed to convert the "+names[i]+" parameter of the constructor "+c,e);
-                }
-            }
-
-            return invokeConstructor(c, args);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Failed to instantiate "+type+" from "+src,e);
-        }
+        return type.cast(bindJSON(type,type,src));
     }
 
     public Object bindJSON(Type type, Class erasure, Object json) {
@@ -607,10 +566,51 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 if (j.isNullObject())   // another flavor of null. json-lib sucks.
                     return ReflectionUtils.getVmDefaultValueFor(type);
 
-                if(l==null) {
-                    // single value conversion
-                    return bindJSON(type,j);
-                } else {
+                if(l==null) {// single value conversion
+                    try {
+                        Class actualType = type;
+                        if(j.has("stapler-class")) {
+                            // sub-type is specified in JSON.
+                            // note that this can come from malicious clients, so we need to make sure we don't have security issues.
+
+                            ClassLoader cl = stapler.getWebApp().getClassLoader();
+                            String className = j.getString("stapler-class");
+                            try {
+                                Class<?> subType = cl.loadClass(className);
+                                if(!actualType.isAssignableFrom(subType))
+                                    throw new IllegalArgumentException("Specified type "+subType+" is not assignable to the expected "+actualType);
+                                actualType = (Class)subType; // I'm being lazy here
+                            } catch (ClassNotFoundException e) {
+                                throw new IllegalArgumentException("Class "+className+" is specified in JSON, but no such class found in "+cl,e);
+                            }
+                        }
+
+                        if (actualType==JSONObject.class || actualType==JSON.class) return actualType.cast(j);
+
+                        String[] names = loadConstructorParamNames(actualType);
+
+                        // the actual arguments to invoke the constructor with.
+                        Object[] args = new Object[names.length];
+
+                        // constructor
+                        Constructor c = findConstructor(actualType, names.length);
+                        Class[] types = c.getParameterTypes();
+                        Type[] genTypes = c.getGenericParameterTypes();
+
+                        // convert parameters
+                        for( int i=0; i<names.length; i++ ) {
+                            try {
+                                args[i] = bindJSON(genTypes[i],types[i],j.get(names[i]));
+                            } catch (IllegalArgumentException e) {
+                                throw new IllegalArgumentException("Failed to convert the "+names[i]+" parameter of the constructor "+c,e);
+                            }
+                        }
+
+                        return invokeConstructor(c, args);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("Failed to instantiate "+type+" from "+j,e);
+                    }
+                } else {// collection conversion
                     if(j.has("stapler-class-bag")) {
                         // this object is a hash from class names to their parameters
                         // build them into a collection via Lister
