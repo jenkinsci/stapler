@@ -420,6 +420,13 @@ public interface StaplerRequest extends HttpServletRequest {
     List<T> bindJSONToList(Class<T> type, Object src);
 
     /**
+     * Gets the {@link BindInterceptor} set for this request.
+     */
+    BindInterceptor getBindInterceptor();
+
+    BindInterceptor setBindListener(BindInterceptor bindListener);
+
+    /**
      * Gets the content of the structured form submission.
      *
      * @see <a href="http://hudson.gotdns.com/wiki/display/HUDSON/Structured+Form+Submission">Structured Form Submission</a>

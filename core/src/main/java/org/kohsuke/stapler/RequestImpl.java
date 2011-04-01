@@ -35,7 +35,6 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.jvnet.tiger_types.Lister;
-import org.kohsuke.stapler.bind.Bound;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 
 import javax.servlet.RequestDispatcher;
@@ -102,6 +101,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
      * @see #parseMultipartFormData()
      */
     private Map<String, FileItem> parsedFormData;
+
+    private BindInterceptor bindInterceptor = BindInterceptor.NOOP;
 
     public RequestImpl(Stapler stapler, HttpServletRequest request, List<AncestorImpl> ancestors, TokenList tokens) {
         super(request);
@@ -262,6 +263,16 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return checkIfModified(timestampOfResource.getTimeInMillis(),rsp);
     }
 
+    public BindInterceptor getBindInterceptor() {
+        return bindInterceptor;
+    }
+
+    public BindInterceptor setBindListener(BindInterceptor bindListener) {
+        BindInterceptor o = this.bindInterceptor;
+        this.bindInterceptor = bindListener;
+        return o;
+    }
+
     public void bindParameters(Object bean) {
         bindParameters(bean,"");
     }
@@ -354,7 +365,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     public <T> T bindJSON(Class<T> type, JSONObject src) {
-        return type.cast(bindJSON(type,type,src));
+        return type.cast(bindJSON(type, type, src));
     }
 
     public Object bindJSON(Type type, Class erasure, Object json) {
@@ -548,6 +559,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
          * in JSON, to the type represented by the 'this' object.
          */
         public Object convertJSON(Object o) {
+            Object r = bindInterceptor.onConvert(genericType, type, o);
+            if (r!= BindInterceptor.DEFAULT)    return r; // taken over by the listener
+
             if(o==null) {
                 // this method returns null if the type is not primitive, which works.
                 return ReflectionUtils.getVmDefaultValueFor(type);
