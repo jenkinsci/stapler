@@ -66,8 +66,7 @@ class JRubyJellyScriptImpl < org::kohsuke::stapler::jelly::jruby::JRubyJellyScri
       v = context.getVariable(name.to_s)
       return v if v!=nil
 
-      # TODO: how do I report an error that we didn't understand this?
-      nil
+      super # make it fail
     end
 
     # load taglib
