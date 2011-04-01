@@ -55,9 +55,14 @@ public abstract class JRubyJellyScript implements Script {
             throw new Error("Undefined tag library namespace URI: "+uri);
 
         TagScript tagScript = lib.createTagScript(localName, null/*this parameter appears to be unused.*/);
-        for (Entry<RubySymbol, ?> e : attributes.entrySet()) {
-            tagScript.addAttribute(e.getKey().asJavaString(), new ConstantExpression(e.getValue()));
+        if (tagScript==null)    tagScript = lib.createTagScript(localName.replace('_','-'), null);
+
+        if (attributes!=null) {
+            for (Entry<RubySymbol, ?> e : attributes.entrySet()) {
+                tagScript.addAttribute(e.getKey().asJavaString(), new ConstantExpression(e.getValue()));
+            }
         }
+        
         if (proc!=null) {
             final Ruby runtime = ((IRubyObject)rcon).getRuntime();
 

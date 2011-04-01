@@ -12,7 +12,7 @@ import java.util.ArrayList;
 /**
  * @author Kohsuke Kawaguchi
  */
-public class StaplerTestCase extends TestCase {
+public abstract class StaplerTestCase extends TestCase {
 
     protected WebApp webApp;
     protected RequestImpl request;
