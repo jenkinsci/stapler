@@ -529,6 +529,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
      */
     private final class TypePair {
         final Type genericType;
+        /**
+         * Erasure of {@link #genericType}
+         */
         final Class type;
 
         TypePair(Type genericType, Class type) {
