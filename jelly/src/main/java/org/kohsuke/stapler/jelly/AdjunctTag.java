@@ -33,6 +33,8 @@ import org.jvnet.maven.jellydoc.annotation.Required;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Writes out links to adjunct CSS and JavaScript, if not done so already.
@@ -68,8 +70,10 @@ public class AdjunctTag extends AbstractStaplerTag {
 
     public void doTag(XMLOutput out) throws JellyTagException {
         AdjunctManager m = AdjunctManager.get(getServletContext());
-        if(m==null)
-            throw new IllegalStateException("AdjunctManager is not installed for this application");
+        if(m==null) {
+            LOGGER.log(Level.WARNING,"AdjunctManager is not installed for this application. Skipping <adjunct> tags", new Exception());
+            return;
+        }
 
         try {
             AdjunctsInPage a = AdjunctsInPage.get();
@@ -83,4 +87,6 @@ public class AdjunctTag extends AbstractStaplerTag {
             throw new JellyTagException(e);
         }
     }
+
+    private static final Logger LOGGER = Logger.getLogger(AdjunctTag.class.getName());
 }
