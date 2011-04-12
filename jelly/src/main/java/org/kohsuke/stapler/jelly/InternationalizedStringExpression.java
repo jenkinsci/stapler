@@ -32,7 +32,6 @@ import org.kohsuke.stapler.Stapler;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Locale;
 import java.util.Collections;
 import java.util.Arrays;
 
@@ -132,17 +131,90 @@ public class InternationalizedStringExpression extends ExpressionSupport {
         return expressionText;
     }
 
-    public Object evaluate(JellyContext jellyContext) {
+    public Object evaluate(JellyContext context) {
+        return format(evaluateArguments(context));
+    }
+
+    private Object format(Object[] args) {
+        // notify the listener if set
+        InternationalizedStringExpressionListener listener = (InternationalizedStringExpressionListener) Stapler.getCurrentRequest().getAttribute(LISTENER_NAME);
+        if(listener!=null)
+            listener.onUsed(this, args);
+
+        return resourceBundle.format(LocaleProvider.getLocale(),key, args);
+    }
+
+    private Object[] evaluateArguments(JellyContext jellyContext) {
         Object[] args = new Object[arguments.length];
         for (int i = 0; i < args.length; i++)
             args[i] = arguments[i].evaluate(jellyContext);
+        return args;
+    }
 
-        // notify the listener if set
-        InternationalizedStringExpressionListener listener = (InternationalizedStringExpressionListener)Stapler.getCurrentRequest().getAttribute(LISTENER_NAME);
-        if(listener!=null)
-            listener.onUsed(this,args);
+    /**
+     * Creates a new {@link Expression} that performs proper HTML escaping.
+     */
+    public Expression makeEscapingExpression() {
+        return new ExpressionSupport() {
+            public String getExpressionText() {
+                return expressionText;
+            }
 
-        return resourceBundle.format(LocaleProvider.getLocale(),key,args);
+            public Object evaluate(JellyContext context) {
+                Object[] args = evaluateArguments(context);
+                for (int i=0; i<args.length; i++) {
+                    if (args[i] instanceof RawHtmlArgument)
+                        args[i] = ((RawHtmlArgument)args[i]).value;
+                    else
+                        args[i] = args[i]==null ? null : escape(args[i].toString());
+                }
+                return format(args);
+            }
+
+            private String escape(String text) {
+                int len = text.length();
+                StringBuilder buf = new StringBuilder(len);
+                boolean escaped = false;
+
+                for (int i=0; i< len; i++) {
+                    char ch = text.charAt(i);
+                    switch (ch) {
+                        case '<':
+                            buf.append("&lt;");
+                            escaped = true;
+                            continue;
+                        case '&':
+                            buf.append("&amp;");
+                            escaped = true;
+                            continue;
+                        default:
+                            buf.append(ch);
+                    }
+                }
+
+                if (!escaped)   return text;    // nothing to escape. no need to create a new string
+
+                return buf.toString();
+
+            }
+        };
+    }
+
+    /**
+     * Argument to {@link InternationalizedStringExpression} that indicates this value is raw HTML
+     * and therefore should not be further escaped.
+     */
+    public static final class RawHtmlArgument {
+        private final Object value;
+
+        public RawHtmlArgument(Object value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value==null?"null":value.toString();
+        }
     }
 
     private static final Expression[] EMPTY_ARGUMENTS = new Expression[0];

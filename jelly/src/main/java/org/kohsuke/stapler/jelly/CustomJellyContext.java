@@ -152,6 +152,15 @@ class CustomJellyContext extends JellyContext {
             return new InternationalizedStringExpression(getResourceBundle(),text);
         }
 
+        @Override
+        protected Expression createEscapingExpression(Expression exp) {
+            if ( exp instanceof InternationalizedStringExpression) {
+                InternationalizedStringExpression i18nexp = (InternationalizedStringExpression) exp;
+                return i18nexp.makeEscapingExpression();
+            }
+            return super.createEscapingExpression(exp);
+        }
+
         private String unquote(String s) {
             return s.substring(1,s.length()-1);
         }
