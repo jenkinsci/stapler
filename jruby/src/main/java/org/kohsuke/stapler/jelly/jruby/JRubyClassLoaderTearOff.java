@@ -10,6 +10,5 @@ public class JRubyClassLoaderTearOff {
 
     public JRubyClassLoaderTearOff(MetaClassLoader owner) {
         this.owner = owner;
-
     }
 }

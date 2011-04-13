@@ -3,13 +3,17 @@ package org.kohsuke.stapler.jelly.jruby;
 import org.apache.commons.jelly.Script;
 import org.jruby.RubyClass;
 import org.kohsuke.stapler.CachingScriptLoader;
+import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.WebApp;
 
 import java.io.IOException;
 import java.net.URL;
 
 /**
+ * {@link MetaClass}-equivalent for {@link RubyClass}
+ *
  * @author Kohsuke Kawaguchi
+ * @see JRubyFacet#getClassInfo(RubyClass)
  */
 public class JRubyClassInfo extends CachingScriptLoader<Script,IOException> {
     /**
@@ -19,7 +23,7 @@ public class JRubyClassInfo extends CachingScriptLoader<Script,IOException> {
 
     public final RubyClass clazz;
 
-    public JRubyClassInfo(JRubyFacet facet, RubyClass clazz) {
+    JRubyClassInfo(JRubyFacet facet, RubyClass clazz) {
         this.facet = facet;
         this.clazz = clazz;
     }
@@ -46,6 +50,7 @@ public class JRubyClassInfo extends CachingScriptLoader<Script,IOException> {
         return null;
     }
 
+    @Override
     protected URL getResource(String name, ClassLoader cl) {
         URL res;
         if(name.startsWith("/")) {

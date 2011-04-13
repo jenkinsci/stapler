@@ -39,6 +39,9 @@ public class JRubyFacet extends Facet {
 
     public Script parse(URL script) throws IOException {
         if (jruby==null) {
+            // lazily create interpreter, in the hope that by the time we have this executed
+            // the app has set the proper classloader. This isn't really reliable, but then
+            // I suspect JRuby interpreter starts behaving funny if we setClassLoader in the middle of the operation.
             synchronized (this) {
                 if (jruby==null) {
                     this.jruby = new ScriptingContainer();
