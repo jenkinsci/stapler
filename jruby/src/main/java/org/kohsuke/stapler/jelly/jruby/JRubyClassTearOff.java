@@ -26,7 +26,7 @@ public class JRubyClassTearOff extends AbstractTearOff<JRubyClassLoaderTearOff,S
     }
 
     public Script parseScript(URL res) throws IOException {
-        return classLoader.parse(res);
+        return WebApp.getCurrent().getFacet(JRubyFacet.class).parse(res);
     }
 
     public boolean serveIndexErb(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
