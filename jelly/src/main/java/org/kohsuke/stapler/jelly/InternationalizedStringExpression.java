@@ -30,6 +30,8 @@ import org.apache.commons.jelly.JellyContext;
 import org.jvnet.localizer.LocaleProvider;
 import org.kohsuke.stapler.Stapler;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -141,7 +143,7 @@ public class InternationalizedStringExpression extends ExpressionSupport {
         if(listener!=null)
             listener.onUsed(this, args);
 
-        return resourceBundle.format(LocaleProvider.getLocale(),key, args);
+        return resourceBundle.format(LocaleProvider.getLocale(), key, args);
     }
 
     private Object[] evaluateArguments(JellyContext jellyContext) {
@@ -165,6 +167,9 @@ public class InternationalizedStringExpression extends ExpressionSupport {
                 for (int i=0; i<args.length; i++) {
                     if (args[i] instanceof RawHtmlArgument)
                         args[i] = ((RawHtmlArgument)args[i]).value;
+                    else
+                    if (args[i] instanceof Number || args[i] instanceof Calendar || args[i] instanceof Date)
+                        ;   // formatting numbers and date often requires that they be kept intact
                     else
                         args[i] = args[i]==null ? null : escape(args[i].toString());
                 }
