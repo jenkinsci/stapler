@@ -1,6 +1,7 @@
 package org.kohsuke.stapler.jelly.jruby;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
@@ -129,6 +130,18 @@ public class JRubyFacet extends Facet {
     }
 
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
+        if (node instanceof RubyObject) {
+            JRubyClassInfo info = getClassInfo(((RubyObject) node).getMetaClass());
+            Script script = info.findScript("index.erb");
+            if (script!=null) {
+                try {
+                    WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, rsp, script, node);
+                    return true;
+                } catch (JellyTagException e) {
+                    throw new ServletException(e);
+                }
+            }
+        }
         return nodeMetaClass.loadTearOff(JRubyClassTearOff.class).serveIndexErb(req, rsp, node);
     }
 }
