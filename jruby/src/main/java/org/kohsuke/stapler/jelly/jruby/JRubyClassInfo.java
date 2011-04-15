@@ -8,6 +8,8 @@ import org.kohsuke.stapler.WebApp;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * {@link MetaClass}-equivalent for {@link RubyClass}
@@ -58,8 +60,17 @@ public class JRubyClassInfo extends CachingScriptLoader<Script,IOException> {
             res = cl.getResource(name.substring(1));
         } else {
             // assume that it's a view of this class
-            res = cl.getResource(clazz.getName().replace("::","/")+'/'+name);
+            res = cl.getResource(decamelize(clazz.getName().replace("::","/"))+'/'+name);
         }
         return res;
+    }
+
+    /**
+     * Converts "FooBarZot" to "foo_bar_zot"
+     */
+    static String decamelize(String s) {
+        return s.replaceAll("(.)(\\p{javaUpperCase}\\p{javaLowerCase})","$1_$2")
+                .replaceAll("(\\p{javaLowerCase})(\\p{javaUpperCase})","$1_$2")
+                .toLowerCase(Locale.ENGLISH);
     }
 }
