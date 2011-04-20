@@ -29,6 +29,8 @@ import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.Tag;
 import org.apache.commons.jelly.TagLibrary;
+import org.apache.commons.jelly.expression.Expression;
+import org.apache.commons.jelly.expression.ExpressionSupport;
 import org.apache.commons.jelly.impl.TagScript;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.WebApp;
@@ -40,7 +42,15 @@ import org.xml.sax.Attributes;
  * @author Kohsuke Kawaguchi
  */
 public class ThisTagLibrary extends TagLibrary {
-    private ThisTagLibrary() {}
+    private final Expression expr;
+
+    /**
+     * @param expr
+     *      Expression that evaluates to {@link Class} to resolve scripts from.
+     */
+    public ThisTagLibrary(Expression expr) {
+        this.expr = expr;
+    }
 
     /**
      * IIUC, this method will never be invoked.
@@ -55,11 +65,11 @@ public class ThisTagLibrary extends TagLibrary {
         return new CallTagLibScript() {
             @Override
             protected Script resolveDefinition(JellyContext context) throws JellyTagException {
-                Object it = context.getVariable("it");
+                Object it = expr.evaluate(context);
                 if (it==null)
-                    throw new JellyTagException("'it' was not defined");
+                    throw new JellyTagException("'"+ expr.getExpressionText() +"' evaluated to null");
                 try {
-                    MetaClass c = WebApp.getCurrent().getMetaClass(it.getClass());
+                    MetaClass c = WebApp.getCurrent().getMetaClass(it instanceof Class? (Class)it : it.getClass());
                     // prefer 'foo.jellytag' to avoid tags from showing up as views,
                     // but for backward compatibility, support the plain .jelly extention as well.
                     Script tag = c.loadTearOff(JellyClassTearOff.class).findScript(tagName+".jellytag");
@@ -73,5 +83,13 @@ public class ThisTagLibrary extends TagLibrary {
         };
     }
 
-    public static final ThisTagLibrary INSTANCE = new ThisTagLibrary();
+    public static final ThisTagLibrary INSTANCE = new ThisTagLibrary(new ExpressionSupport() {
+        public String getExpressionText() {
+            return "it";
+        }
+
+        public Object evaluate(JellyContext context) {
+            return context.getVariable("it");
+        }
+    });
 }

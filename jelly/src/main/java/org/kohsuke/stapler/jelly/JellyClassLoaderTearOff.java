@@ -84,6 +84,14 @@ public class JellyClassLoaderTearOff {
                         // see http://old.nabble.com/bug-1.331-to26145963.html
                     }
 
+                    // support URIs like "this:it" or "this:instance". Note that "this" URI itself is registered elsewhere
+                    if (nsUri.startsWith("this:"))
+                        try {
+                            return new ThisTagLibrary(EXPRESSION_FACTORY.createExpression(nsUri.substring(5)));
+                        } catch (JellyException e) {
+                            throw new IllegalArgumentException("Illegal expression in the URI: "+nsUri,e);
+                        }
+
                     return NO_SUCH_TAGLIBRARY;    // "not found" is also cached.
                 }
             });
