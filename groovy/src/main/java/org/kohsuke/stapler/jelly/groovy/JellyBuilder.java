@@ -38,10 +38,10 @@ import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.Tag;
 import org.apache.commons.jelly.TagLibrary;
-import org.apache.commons.jelly.TagSupport;
 import org.apache.commons.jelly.XMLOutput;
 import org.apache.commons.jelly.expression.ConstantExpression;
 import org.apache.commons.jelly.expression.Expression;
+import org.apache.commons.jelly.impl.TagScript;
 import org.apache.commons.jelly.impl.TextScript;
 import org.codehaus.groovy.runtime.InvokerHelper;
 import org.kohsuke.stapler.MetaClassLoader;
@@ -225,71 +225,70 @@ public final class JellyBuilder extends GroovyObjectSupport {
 
         Tag parent = current;
 
-        // TODO: do we really need Jelly interoperability?
-        if(!isTag(name)) {
-            this.attributes.clear();
-            for (Map.Entry e : ((Map<?,?>)attributes).entrySet()) {
-                Object v = e.getValue();
-                if(v==null) continue;
-                String attName = e.getKey().toString();
-                this.attributes.addAttribute("",attName,attName,"CDATA", v.toString());
-            }
+        if (isTag(name)) {// bridge to other Jelly tags
             try {
-                output.startElement(name.getNamespaceURI(),name.getLocalPart(),name.getQualifiedName(),this.attributes);
-                if(!wroteHEAD && name.getLocalPart().equalsIgnoreCase("HEAD")) {
-                    wroteHEAD = true;
-                    AdjunctsInPage.get().writeSpooled(output);
-                }
-                if(closure!=null) {
-                    closure.setDelegate(this);
-                    closure.call();
-                }
-                if(innerText!=null)
-                text(innerText);
-                output.endElement(name.getNamespaceURI(),name.getLocalPart(),name.getQualifiedName());
-            } catch (IOException e) {
-                throw new RuntimeException(e);  // what's the proper way to handle exceptions in Groovy?
-            } catch (SAXException e) {
-                throw new RuntimeException(e);  // what's the proper way to handle exceptions in Groovy?
-            }
-        } else {// bridge to other Jelly tags
-            try {
-                Tag t = createTag(name,attributes);
-                if (parent != null)
-                    t.setParent(parent);
-                t.setContext(context);
-                if(closure!=null) {
-                    final Closure theClosure = closure;
-                    t.setBody(new Script() {
-                        public Script compile() throws JellyException {
-                            return this;
-                        }
+               TagScript tagScript = createTagScript(name, attributes);
+                if (tagScript!=null) {
+                    Script body = NULL_SCRIPT;
 
-                        public void run(JellyContext context, XMLOutput output) throws JellyTagException {
-                            JellyContext oldc = setContext(context);
-                            XMLOutput oldo = setOutput(output);
-                            try {
-                                theClosure.setDelegate(JellyBuilder.this);
-                                theClosure.call();
-                            } finally {
-                                setContext(oldc);
-                                setOutput(oldo);
+                    if(closure!=null) {
+                        final Closure theClosure = closure;
+                        body = new Script() {
+                            public Script compile() throws JellyException {
+                                return this;
                             }
-                        }
-                    });
-                } else
-                if(innerText!=null)
-                    t.setBody(new TextScript(innerText));
-                else
-                    t.setBody(NULL_SCRIPT);
 
-                current = t;
+                            public void run(JellyContext context, XMLOutput output) throws JellyTagException {
+                                JellyContext oldc = setContext(context);
+                                XMLOutput oldo = setOutput(output);
+                                try {
+                                    theClosure.setDelegate(JellyBuilder.this);
+                                    theClosure.call();
+                                } finally {
+                                    setContext(oldc);
+                                    setOutput(oldo);
+                                }
+                            }
+                        };
+                    } else
+                    if(innerText!=null)
+                        body = new TextScript(innerText);
 
-                t.doTag(output);
+                    tagScript.setTagBody(body);
+                    tagScript.run(context,output);
+                    return;
+                }
             } catch(JellyException e) {
             } finally {
                 current = parent;
             }
+        }
+
+        // static tag
+        this.attributes.clear();
+        for (Entry e : ((Map<?,?>)attributes).entrySet()) {
+            Object v = e.getValue();
+            if(v==null) continue;
+            String attName = e.getKey().toString();
+            this.attributes.addAttribute("",attName,attName,"CDATA", v.toString());
+        }
+        try {
+            output.startElement(name.getNamespaceURI(),name.getLocalPart(),name.getQualifiedName(),this.attributes);
+            if(!wroteHEAD && name.getLocalPart().equalsIgnoreCase("HEAD")) {
+                wroteHEAD = true;
+                AdjunctsInPage.get().writeSpooled(output);
+            }
+            if(closure!=null) {
+                closure.setDelegate(this);
+                closure.call();
+            }
+            if(innerText!=null)
+            text(innerText);
+            output.endElement(name.getNamespaceURI(),name.getLocalPart(),name.getQualifiedName());
+        } catch (IOException e) {
+            throw new RuntimeException(e);  // what's the proper way to handle exceptions in Groovy?
+        } catch (SAXException e) {
+            throw new RuntimeException(e);  // what's the proper way to handle exceptions in Groovy?
         }
     }
 
@@ -301,39 +300,33 @@ public final class JellyBuilder extends GroovyObjectSupport {
         return name.getNamespaceURI().length()>0;
     }
 
-    private Tag createTag(final QName n, final Map attributes) throws JellyException {
+    /**
+     * Create a tag script if the given QName is a taglib invocation, or return null
+     * to handle it like a literal static tag.
+     */
+    private TagScript createTagScript(QName n, Map<?, ?> attributes) throws JellyException {
         TagLibrary lib = context.getTagLibrary(n.getNamespaceURI());
         if(lib!=null) {
-            Tag t = lib.createTag(n.getLocalPart(), toAttributes(attributes));
-            if(t!=null) {
-                configureTag(t,attributes);
-                return t;
+            String localName = n.getLocalPart();
+
+            TagScript tagScript = lib.createTagScript(localName, null/*this parameter appears to be unused.*/);
+            if (tagScript==null)    tagScript = lib.createTagScript(localName.replace('_','-'), null);
+
+            if (tagScript!=null) {
+                if (attributes != null) {
+                    for (Entry e : attributes.entrySet()) {
+                        Object v = e.getValue();
+                        if (v!=null)
+                            tagScript.addAttribute(e.getKey().toString(), new ConstantExpression(v));
+                    }
+                }
+
+                return tagScript;
             }
         }
 
         // otherwise treat it as a literal.
-        return new TagSupport() {
-            public void doTag(XMLOutput output) throws JellyTagException {
-                try {
-                    List<Namespace> nsList = (List<Namespace>)InvokerHelper.asList(attributes.get("xmlns"));
-                    if(nsList!=null) {
-                        for (Namespace ns : nsList)
-                            ns.startPrefixMapping(output);
-                    }
-
-                    output.startElement(n.getNamespaceURI(), n.getLocalPart(), n.getQualifiedName(), toAttributes(attributes));
-                    invokeBody(output);
-                    output.endElement(n.getNamespaceURI(), n.getLocalPart(), n.getQualifiedName());
-
-                    if(nsList!=null) {
-                        for (Namespace ns : nsList)
-                            ns.endPrefixMapping(output);
-                    }
-                } catch (SAXException e) {
-                    throw new JellyTagException(e);
-                }
-            }
-        };
+        return null;
     }
 
     /*
