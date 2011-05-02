@@ -437,14 +437,16 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * Writes PCDATA.
      */
     public void text(Object o) throws SAXException {
-        output.write(escape(o.toString()));
+        if (o!=null)
+            output.write(escape(o.toString()));
     }
 
     /**
      * Generates HTML fragment from string.
      */
     public void raw(Object o) throws SAXException {
-        output.write(o.toString());
+        if (o!=null)
+            output.write(o.toString());
     }
 
     private String escape(String v) {
