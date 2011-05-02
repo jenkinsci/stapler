@@ -30,6 +30,8 @@ import org.apache.commons.jelly.XMLOutput;
 import org.codehaus.groovy.runtime.InvokerHelper;
 import groovy.lang.Binding;
 
+import java.net.URL;
+
 /**
  * Wraps a Groovy-driven Jelly script into {@link Script}
  * (so that it can be called from other Jelly scripts.) 
@@ -42,8 +44,11 @@ public class GroovierJellyScript implements Script {
      */
     private final Class clazz;
 
-    public GroovierJellyScript(Class clazz) {
+    private final URL scriptURL;
+
+    public GroovierJellyScript(Class clazz, URL scriptURL) {
         this.clazz = clazz;
+        this.scriptURL = scriptURL;
     }
     
     public Script compile() {
@@ -55,8 +60,9 @@ public class GroovierJellyScript implements Script {
     }
 
     public void run(JellyBuilder builder) {
-        GroovyClosureScript gcs = (GroovyClosureScript) InvokerHelper.createScript(clazz, new Binding());
+        StaplerClosureScript gcs = (StaplerClosureScript) InvokerHelper.createScript(clazz, new Binding());
         gcs.setDelegate(builder);
+        gcs.scriptURL = scriptURL;
         gcs.run();
     }
 }

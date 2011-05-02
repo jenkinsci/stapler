@@ -49,7 +49,7 @@ public class GroovyClassLoaderTearOff {
         CompilerConfiguration cc = new CompilerConfiguration();
         // use GroovyClosureScript class as the base class of the compiled script,
         // so that we can set a delegate.
-        cc.setScriptBaseClass(GroovyClosureScript.class.getName());
+        cc.setScriptBaseClass(StaplerClosureScript.class.getName());
 
         // enable re-compilation support
         cc.setRecompileGroovySource(MetaClass.NO_CACHE);
@@ -73,6 +73,6 @@ public class GroovyClassLoaderTearOff {
     }
 
     public GroovierJellyScript parse(URL script) throws IOException {
-        return new GroovierJellyScript(gcl.parseClass(script.openStream(), script.toExternalForm()));
+        return new GroovierJellyScript(gcl.parseClass(script.openStream(), script.toExternalForm()),script);
     }
 }

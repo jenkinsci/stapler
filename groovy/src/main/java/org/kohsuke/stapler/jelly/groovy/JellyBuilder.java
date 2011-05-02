@@ -43,6 +43,7 @@ import org.apache.commons.jelly.expression.ConstantExpression;
 import org.apache.commons.jelly.expression.Expression;
 import org.apache.commons.jelly.impl.TagScript;
 import org.apache.commons.jelly.impl.TextScript;
+import org.apache.tools.ant.taskdefs.WhichResource;
 import org.codehaus.groovy.runtime.InvokerHelper;
 import org.kohsuke.stapler.MetaClassLoader;
 import org.kohsuke.stapler.Stapler;
@@ -55,6 +56,7 @@ import org.kohsuke.stapler.framework.adjunct.NoSuchAdjunctException;
 import org.kohsuke.stapler.jelly.CustomTagLibrary;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
+import org.kohsuke.stapler.jelly.ResourceBundle;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -223,8 +225,6 @@ public final class JellyBuilder extends GroovyObjectSupport {
             throw new MissingMethodException(name.toString(), getClass(), list.toArray());
         }
 
-        Tag parent = current;
-
         if (isTag(name)) {// bridge to other Jelly tags
             try {
                TagScript tagScript = createTagScript(name, attributes);
@@ -259,8 +259,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
                     return;
                 }
             } catch(JellyException e) {
-            } finally {
-                current = parent;
+                throw new RuntimeException(e);
             }
         }
 
