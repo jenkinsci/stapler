@@ -23,24 +23,18 @@
 
 package org.kohsuke.stapler.jelly;
 
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 import org.apache.commons.jelly.JellyContext;
-import org.apache.commons.jelly.TagLibrary;
 import org.apache.commons.jelly.JellyException;
-import org.apache.commons.jelly.Tag;
-import org.apache.commons.jelly.impl.TagScript;
-import org.apache.commons.jelly.impl.TagFactory;
+import org.apache.commons.jelly.TagLibrary;
 import org.apache.commons.jelly.expression.ExpressionFactory;
-import org.apache.commons.jelly.expression.Expression;
 import org.apache.commons.jelly.expression.jexl.JexlExpressionFactory;
 import org.kohsuke.stapler.MetaClassLoader;
-import org.xml.sax.Attributes;
 
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.Map;
-
-import com.google.common.collect.MapMaker;
-import com.google.common.base.Function;
 
 /**
  * {@link MetaClassLoader} tear-off for Jelly support.
@@ -92,6 +86,9 @@ public class JellyClassLoaderTearOff {
                             throw new IllegalArgumentException("Illegal expression in the URI: "+nsUri,e);
                         }
 
+                    if (nsUri.equals("jelly:stapler"))
+                        return new StaplerTagLibrary();
+
                     return NO_SUCH_TAGLIBRARY;    // "not found" is also cached.
                 }
             });
@@ -125,10 +122,6 @@ public class JellyClassLoaderTearOff {
      * Used as the root context for compiling scripts.
      */
     private static final JellyContext ROOT_CONTEXT = new CustomJellyContext();
-
-    static {
-        ROOT_CONTEXT.registerTagLibrary("jelly:stapler",new StaplerTagLibrary());
-    }
 
     /**
      * Place holder in the cache to indicate "no such taglib"
