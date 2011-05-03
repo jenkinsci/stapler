@@ -23,12 +23,15 @@
 
 package org.kohsuke.stapler.jelly.groovy;
 
+import groovy.lang.GroovyObject;
 import groovy.lang.GroovyObjectSupport;
 import groovy.xml.QName;
 import org.apache.commons.jelly.XMLOutput;
+import org.codehaus.groovy.runtime.InvokerHelper;
 import org.xml.sax.SAXException;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
@@ -66,15 +69,33 @@ public class Namespace extends GroovyObjectSupport {
      * Creates a type-safe invoker for calling taglibs.
      */
     public <T extends TypedTagLibrary> T createInvoker(Class<T> type) {
-        return type.cast(Proxy.newProxyInstance(type.getClassLoader(),new Class[]{type},new InvocationHandler() {
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                if (method.getDeclaringClass()==Object.class)
-                    return method.invoke(this,args);
+        ProxyImpl handler = new ProxyImpl();
+        Object proxy = Proxy.newProxyInstance(type.getClassLoader(), new Class[]{type}, handler);
+        handler.setMetaClass(InvokerHelper.getMetaClass(proxy.getClass()));
+        return type.cast(proxy);
+    }
 
-                // invoke methods
-                builder.doInvokeMethod(new QName(nsUri,method.getName(),prefix),args);
-                return null;
-            }
-        }));
+    private class ProxyImpl extends GroovyObjectSupport implements InvocationHandler {
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            Class<?> decl = method.getDeclaringClass();
+            if (decl==Object.class || decl==GroovyObject.class)
+                try {
+                    return method.invoke(this,args);
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
+
+            // invoke methods
+            builder.doInvokeMethod(new QName(nsUri,method.getName(),prefix),args);
+            return null;
+        }
+
+        /**
+         * Also accepts arbitrary type-unsafe invocations.
+         */
+        @Override
+        public Object invokeMethod(String name, Object args) {
+            return Namespace.this.invokeMethod(name,args);
+        }
     }
 }
