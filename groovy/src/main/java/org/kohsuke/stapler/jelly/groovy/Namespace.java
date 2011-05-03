@@ -28,6 +28,10 @@ import groovy.xml.QName;
 import org.apache.commons.jelly.XMLOutput;
 import org.xml.sax.SAXException;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
 /**
  * @author Kohsuke Kawaguchi
  */
@@ -56,6 +60,21 @@ public class Namespace extends GroovyObjectSupport {
 
     public void endPrefixMapping(XMLOutput output) throws SAXException {
         output.endPrefixMapping(prefix);
+    }
 
+    /**
+     * Creates a type-safe invoker for calling taglibs.
+     */
+    public <T extends TypedTagLibrary> T createInvoker(Class<T> type) {
+        return type.cast(Proxy.newProxyInstance(type.getClassLoader(),new Class[]{type},new InvocationHandler() {
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                if (method.getDeclaringClass()==Object.class)
+                    return method.invoke(this,args);
+
+                // invoke methods
+                builder.doInvokeMethod(new QName(nsUri,method.getName(),prefix),args);
+                return null;
+            }
+        }));
     }
 }

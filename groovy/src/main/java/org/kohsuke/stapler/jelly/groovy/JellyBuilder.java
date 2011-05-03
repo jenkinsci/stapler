@@ -123,6 +123,13 @@ public final class JellyBuilder extends GroovyObjectSupport {
         return namespace(nsUri,null);
     }
 
+    public <T extends TypedTagLibrary> T namespace(Class<T> type) {
+        TagLibraryUri a = type.getAnnotation(TagLibraryUri.class);
+        if (a==null)    throw new IllegalArgumentException(type+" doesn't have @TagLibraryUri annotation");
+
+        return namespace(a.value(),null).createInvoker(type);
+    }
+
     public XMLOutput getOutput() {
         return output;
     }
