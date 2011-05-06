@@ -45,6 +45,10 @@ public abstract class CachingScriptLoader<S, E extends Exception> {
      *      "org/acme/MyClass/foo.jelly" or "org/acme/MyClass/foo/bar.groovy"
      *      will be searched.
      *      <p>
+     *      If the extension is omitted, the default extension will be appended.
+     *      This is useful for some loaders that support loading multiple file extension types
+     *      (such as Jelly support.)
+     *      <p>
      *      If this starts with "/", then it is assumed to be absolute,
      *      and that name is searched from the classloader. This is useful
      *      to do mix-in.
@@ -56,6 +60,9 @@ public abstract class CachingScriptLoader<S, E extends Exception> {
             return scripts.get(name).get();
     }
 
+    /**
+     * Cache-less version of the {@link #findScript(String)} that provides the actual logic.
+     */
     protected abstract S loadScript(String name) throws E;
 
     /**

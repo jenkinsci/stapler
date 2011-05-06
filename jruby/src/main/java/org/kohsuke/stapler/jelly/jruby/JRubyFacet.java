@@ -14,6 +14,7 @@ import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.TearOffSupport;
 import org.kohsuke.stapler.WebApp;
+import org.kohsuke.stapler.jelly.JellyCompatibleFacet;
 import org.kohsuke.stapler.jelly.JellyFacet;
 
 import javax.servlet.RequestDispatcher;
@@ -28,8 +29,8 @@ import java.util.WeakHashMap;
 /**
  * @author Kohsuke Kawaguchi
  */
-@MetaInfServices
-public class JRubyFacet extends Facet {
+@MetaInfServices(Facet.class)
+public class JRubyFacet extends Facet implements JellyCompatibleFacet {
     private final Map<RubyClass,JRubyClassInfo> classMap = new WeakHashMap<RubyClass,JRubyClassInfo>();
 
     private volatile ScriptingContainer jruby;
@@ -122,6 +123,10 @@ public class JRubyFacet extends Facet {
         public String toString() {
             return "TOKEN.erb for url=/TOKEN/...";
         }
+    }
+
+    public Class<JRubyClassTearOff> getClassTearOffType() {
+        return JRubyClassTearOff.class;
     }
 
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {

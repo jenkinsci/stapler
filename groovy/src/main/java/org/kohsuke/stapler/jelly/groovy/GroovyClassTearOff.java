@@ -48,6 +48,11 @@ public final class GroovyClassTearOff extends AbstractTearOff<GroovyClassLoaderT
         super(owner,GroovyClassLoaderTearOff.class);
     }
 
+    @Override
+    protected String getDefaultScriptExtension() {
+        return ".groovy";
+    }
+
     public GroovierJellyScript parseScript(URL res) throws IOException {
         return classLoader.parse(res);
     }

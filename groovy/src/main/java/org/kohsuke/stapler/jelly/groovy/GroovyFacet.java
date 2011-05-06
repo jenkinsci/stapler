@@ -24,6 +24,7 @@
 package org.kohsuke.stapler.jelly.groovy;
 
 import org.apache.commons.jelly.Script;
+import org.kohsuke.stapler.AbstractTearOff;
 import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.Facet;
 import org.kohsuke.stapler.MetaClass;
@@ -31,6 +32,7 @@ import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.TearOffSupport;
 import org.kohsuke.stapler.WebApp;
+import org.kohsuke.stapler.jelly.JellyCompatibleFacet;
 import org.kohsuke.stapler.jelly.JellyFacet;
 import org.kohsuke.MetaInfServices;
 
@@ -44,8 +46,8 @@ import java.util.List;
  * 
  * @author Kohsuke Kawaguchi
  */
-@MetaInfServices
-public class GroovyFacet extends Facet {
+@MetaInfServices(Facet.class)
+public class GroovyFacet extends Facet implements JellyCompatibleFacet {
     public void buildViewDispatchers(final MetaClass owner, List<Dispatcher> dispatchers) {
         dispatchers.add(new Dispatcher() {
             final GroovyClassTearOff tearOff = owner.loadTearOff(GroovyClassTearOff.class);
@@ -79,6 +81,10 @@ public class GroovyFacet extends Facet {
                 return "TOKEN.groovy for url=/TOKEN/...";
             }
         });
+    }
+
+    public Class<GroovyClassTearOff> getClassTearOffType() {
+        return GroovyClassTearOff.class;
     }
 
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {

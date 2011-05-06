@@ -28,6 +28,8 @@ import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.AbstractTearOff;
 import static org.kohsuke.stapler.Dispatcher.trace;
 import static org.kohsuke.stapler.Dispatcher.traceable;
+
+import org.kohsuke.stapler.Facet;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -52,6 +54,34 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
 
     protected Script parseScript(URL res) throws JellyException {
         return new JellyViewScript(owner.clazz, res, classLoader.createContext().compileScript(res));
+    }
+
+    @Override
+    protected String getDefaultScriptExtension() {
+        return ".jelly";
+    }
+
+    /**
+     * Aside from looking into our own, consult other facets that can handle Jelly-compatible scripts.
+     */
+    @Override
+    public Script resolveScript(String name) throws JellyException {
+        Script s = super.resolveScript(name);
+        if (s!=null)    return s;
+
+        for (Facet f : owner.webApp.facets) {
+            if (f instanceof JellyCompatibleFacet && !(f instanceof JellyFacet)) {
+                JellyCompatibleFacet jcf = (JellyCompatibleFacet) f;
+                try {
+                    s = owner.loadTearOff(jcf.getClassTearOffType()).resolveScript(name);
+                    if (s!=null)    return s;
+                } catch (Exception e) {
+                    throw new JellyException("Failed to load "+name+" from "+jcf,e);
+                }
+            }
+        }
+
+        return null;
     }
 
     /**

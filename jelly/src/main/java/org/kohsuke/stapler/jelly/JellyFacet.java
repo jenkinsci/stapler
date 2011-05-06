@@ -25,20 +25,19 @@ package org.kohsuke.stapler.jelly;
 
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.expression.ExpressionFactory;
+import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.Facet;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.TearOffSupport;
-import org.kohsuke.MetaInfServices;
 
 import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletContextListener;
 import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 /**
@@ -46,8 +45,8 @@ import java.util.List;
  * 
  * @author Kohsuke Kawaguchi
  */
-@MetaInfServices
-public class JellyFacet extends Facet {
+@MetaInfServices(Facet.class)
+public class JellyFacet extends Facet implements JellyCompatibleFacet {
     /**
      * Used to invoke Jelly script. Can be replaced to the custom object.
      */
@@ -103,6 +102,10 @@ public class JellyFacet extends Facet {
                 return "VIEW.jelly for url=/VIEW";
             }
         });
+    }
+
+    public Class<JellyClassTearOff> getClassTearOffType() {
+        return JellyClassTearOff.class;
     }
 
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {

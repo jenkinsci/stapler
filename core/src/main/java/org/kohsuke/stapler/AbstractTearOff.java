@@ -28,6 +28,8 @@ import java.net.URL;
 /**
  * Partial default implementation of tear-off class, for convenience of derived classes.
  *
+ * @param <CLT>
+ *      ClassLoader tear-off.
  * @author Kohsuke Kawaguchi
  */
 public abstract class AbstractTearOff<CLT,S,E extends Exception> extends CachingScriptLoader<S,E> {
@@ -42,7 +44,19 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
             classLoader = null;
     }
 
-    protected S loadScript(String name) throws E {
+    /**
+     * Default file extension of this kind of scripts, such as ".jelly"
+     */
+    protected abstract String getDefaultScriptExtension();
+
+    /**
+     * Loads the script just from the target class without considering inherited scripts
+     * from its base types.
+     */
+    public S resolveScript(String name) throws E {
+        if (name.lastIndexOf('.')<=name.lastIndexOf('/'))   // no file extension provided
+            name += getDefaultScriptExtension();
+
         ClassLoader cl = owner.clazz.getClassLoader();
         if(cl!=null) {
             URL res = findResource(name, cl);
@@ -59,6 +73,12 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
             if(res!=null)
                 return parseScript(res);
         }
+        return null;
+    }
+
+    protected final S loadScript(String name) throws E {
+        S s = resolveScript(name);
+        if (s!=null)    return s;
 
         // not found on this class, delegate to the parent
         if(owner.baseClass!=null)

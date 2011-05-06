@@ -25,6 +25,11 @@ public class JRubyClassTearOff extends AbstractTearOff<JRubyClassLoaderTearOff,S
         super(owner,JRubyClassLoaderTearOff.class);
     }
 
+    @Override
+    protected String getDefaultScriptExtension() {
+        return ".erb";
+    }
+
     public Script parseScript(URL res) throws IOException {
         return WebApp.getCurrent().getFacet(JRubyFacet.class).parse(res);
     }
