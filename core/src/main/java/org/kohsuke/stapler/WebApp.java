@@ -115,7 +115,7 @@ public class WebApp {
     public WebApp(ServletContext context) {
         this.context = context;
         // TODO: allow classloader to be given?
-        facets.addAll(Facet.discover(Thread.currentThread().getContextClassLoader()));
+        facets.addAll(Facet.discoverExtensions(Facet.class, Thread.currentThread().getContextClassLoader(), getClass().getClassLoader()));
         responseRenderers.add(new HttpResponseRenderer.Default());
     }
 

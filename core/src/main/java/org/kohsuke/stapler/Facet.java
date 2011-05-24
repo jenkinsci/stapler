@@ -32,7 +32,9 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,28 +59,33 @@ public abstract class Facet {
         return discoverExtensions(Facet.class, cl);
     }
 
-    public static <T> List<T> discoverExtensions(Class<T> type, ClassLoader cl) {
+    public static <T> List<T> discoverExtensions(Class<T> type, ClassLoader... cls) {
         List<T> r = new ArrayList<T>();
+        Set<String> classNames = new HashSet<String>();
 
-        ClassLoaders classLoaders = new ClassLoaders();
-        classLoaders.put(cl);
-        DiscoverServiceNames dc = new DiscoverServiceNames(classLoaders);
-        ResourceNameIterator itr = dc.findResourceNames(type.getName());
-        while(itr.hasNext()) {
-            String name = itr.nextResourceName();
-            Class<?> c;
-            try {
-                c = cl.loadClass(name);
-            } catch (ClassNotFoundException e) {
-                LOGGER.log(Level.WARNING, "Failed to load "+name,e);
-                continue;
-            }
-            try {
-                r.add((T)c.newInstance());
-            } catch (InstantiationException e) {
-                LOGGER.log(Level.WARNING, "Failed to instanticate "+c,e);
-            } catch (IllegalAccessException e) {
-                LOGGER.log(Level.WARNING, "Failed to instanticate "+c,e);
+        for (ClassLoader cl : cls) {
+            ClassLoaders classLoaders = new ClassLoaders();
+            classLoaders.put(cl);
+            DiscoverServiceNames dc = new DiscoverServiceNames(classLoaders);
+            ResourceNameIterator itr = dc.findResourceNames(type.getName());
+            while(itr.hasNext()) {
+                String name = itr.nextResourceName();
+                if (!classNames.add(name))  continue;   // avoid duplication
+                
+                Class<?> c;
+                try {
+                    c = cl.loadClass(name);
+                } catch (ClassNotFoundException e) {
+                    LOGGER.log(Level.WARNING, "Failed to load "+name,e);
+                    continue;
+                }
+                try {
+                    r.add((T)c.newInstance());
+                } catch (InstantiationException e) {
+                    LOGGER.log(Level.WARNING, "Failed to instanticate "+c,e);
+                } catch (IllegalAccessException e) {
+                    LOGGER.log(Level.WARNING, "Failed to instanticate "+c,e);
+                }
             }
         }
         return r;
