@@ -79,7 +79,7 @@ public class JRubyJellyScriptTest extends StaplerTestCase {
         ruby.put("template", getTemplate(fixture));
         return (Script) ruby.runScriptlet(
                 "require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'\n" +
-                        "JRubyJellyScriptImpl.new(template)");
+                        "JRubyJellyScriptImpl::JRubyJellyERbScript.new(template)");
 
     }
 

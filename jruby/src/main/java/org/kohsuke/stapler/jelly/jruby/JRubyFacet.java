@@ -48,7 +48,7 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
                 if (jruby==null) {
                     this.jruby = new ScriptingContainer();
                     jruby.setClassLoader(WebApp.getCurrent().getClassLoader());
-                    scriptImpl = (RubyClass)jruby.runScriptlet("require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'; JRubyJellyScriptImpl");
+                    scriptImpl = (RubyClass)jruby.runScriptlet("require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'; JRubyJellyScriptImpl::JRubyJellyERbScript");
                 }
             }
         }
