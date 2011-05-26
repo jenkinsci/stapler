@@ -27,7 +27,7 @@ class JRubyJellyScriptImpl < org::kohsuke::stapler::jelly::jruby::JRubyJellyScri
     end
 
     def evaluate_template(erb)
-      erb.run(WriterBinding.new(self).instance_eval{binding})
+      erb.result(WriterBinding.new(self).instance_eval{binding})
     end
 
     def getJellyContext()
