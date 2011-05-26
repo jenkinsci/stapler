@@ -50,12 +50,7 @@ public abstract class JRubyJellyScript implements Script {
     public abstract void run(JellyContext context, XMLOutput output) throws JellyTagException;
 
     public void invokeTaglib(final IJRubyContext rcon, JellyContext context, XMLOutput output, String uri, String localName, Map<RubySymbol,?> attributes, final RubyProc proc) throws JellyException {
-        TagLibrary lib = context.getTagLibrary(uri);
-        if (lib==null)
-            throw new Error("Undefined tag library namespace URI: "+uri);
-
-        TagScript tagScript = lib.createTagScript(localName, null/*this parameter appears to be unused.*/);
-        if (tagScript==null)    tagScript = lib.createTagScript(localName.replace('_','-'), null);
+        TagScript tagScript = createTagScript(context, uri, localName);
 
         if (attributes!=null) {
             for (Entry<RubySymbol, ?> e : attributes.entrySet()) {
@@ -86,5 +81,16 @@ public abstract class JRubyJellyScript implements Script {
             });
         }
         tagScript.run(context, output);
+    }
+
+    private TagScript createTagScript(JellyContext context, String uri, String name) throws JellyException {
+        TagLibrary lib = context.getTagLibrary(uri);
+        if (lib==null)
+            throw new JellyException("Undefined tag library namespace URI: "+uri);
+        TagScript tagScript = lib.createTagScript(name, null/*this parameter appears to be unused.*/);
+        if (tagScript!=null) return tagScript;
+        tagScript = lib.createTagScript(name.replace('_','-'), null);
+        if (tagScript!=null) return tagScript;
+        throw new JellyException(String.format("name '%s' not found for '%s'", name, uri));
     }
 }

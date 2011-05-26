@@ -8,7 +8,11 @@ class JRubyJellyScriptImpl < org::kohsuke::stapler::jelly::jruby::JRubyJellyScri
   end
 
   def run(jelly_context,xml_output)
-    JRubyContext.new(self,jelly_context,xml_output).evaluate_template(@template)
+    begin
+      JRubyContext.new(self,jelly_context,xml_output).evaluate_template(@template)
+    rescue Exception => ex
+      raise org.apache.commons.jelly.JellyTagException.new(ex.message)
+    end
   end
 
   class JRubyContext
@@ -60,7 +64,7 @@ class JRubyJellyScriptImpl < org::kohsuke::stapler::jelly::jruby::JRubyJellyScri
       @context.context
     end
 
-      # this is where we handle all the variable references
+    # this is where we handle all the variable references
     def method_missing(name,*args)
       # variables defined in the current context
       v = context.getVariable(name.to_s)
