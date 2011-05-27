@@ -48,14 +48,16 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
                 if (jruby==null) {
                     this.jruby = new ScriptingContainer();
                     jruby.setClassLoader(WebApp.getCurrent().getClassLoader());
-                    scriptImpl = (RubyClass)jruby.runScriptlet("require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'; JRubyJellyScriptImpl::JRubyJellyERbScript");
+                    scriptImpl = (RubyClass)jruby.runScriptlet(
+                            "require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'\n" +
+                                    "JRubyJellyScriptImpl::JRubyJellyERbScript");
                 }
             }
         }
 
         try {
-            String erb = IOUtils.toString(script.openStream(), "UTF-8");
-            Object o = jruby.callMethod(scriptImpl, "new", erb);
+            String template = IOUtils.toString(script.openStream(), "UTF-8");
+            Object o = jruby.callMethod(scriptImpl, "new", template);
             return (Script) o;
         } catch (Exception e) {
             throw (IOException)new IOException().initCause(e);
