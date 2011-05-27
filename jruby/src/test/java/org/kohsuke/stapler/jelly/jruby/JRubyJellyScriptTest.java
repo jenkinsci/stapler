@@ -31,7 +31,7 @@ public class JRubyJellyScriptTest extends StaplerTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        MetaClass mc = webApp.getMetaClass(SanityTest.class);
+        MetaClass mc = webApp.getMetaClass(JRubyJellyScriptTest.class);
         context = mc.classLoader.getTearOff(JellyClassLoaderTearOff.class).createContext();
     }
 
@@ -51,6 +51,45 @@ public class JRubyJellyScriptTest extends StaplerTestCase {
         assertEquals("<b>Hello from Jelly to ERB</b><i>\n" +
                 "  47\n" +
                 "</i>", out.toString());
+    }
+
+    public void testThreadSafety() throws Exception {
+        Script script = getScript("test_taglib.erb");
+        int num = 100;
+        EvaluatorThread[] threads = new EvaluatorThread[num];
+        for (int idx = 0; idx < num; ++idx) {
+            threads[idx] = new EvaluatorThread(script, idx);
+            threads[idx].start();
+        }
+        for (int idx = 0; idx < num; ++idx) {
+            threads[idx].join();
+            System.out.println(threads[idx].result);
+        }
+    }
+
+    private class EvaluatorThread extends Thread {
+        private final Script script;
+        private final int idx;
+        private String result = null;
+
+        private EvaluatorThread(Script script, int idx) {
+            this.script = script;
+            this.idx = idx;
+        }
+
+        public void run() {
+            try {
+                MetaClass mc = webApp.getMetaClass(JRubyJellyScriptTest.class);
+                JellyContext context = mc.classLoader.getTearOff(JellyClassLoaderTearOff.class).createContext();
+                context.setVariable("name", "ERB" + idx);
+
+                StringWriter out = new StringWriter();
+                script.run(context, XMLOutput.createXMLOutput(out));
+                result = out.toString();
+            } catch (Exception e) {
+                result = e.getMessage();
+            }
+        }
     }
 
     public void testNoSuchTaglib() throws Exception {
