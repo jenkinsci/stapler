@@ -5,6 +5,8 @@ import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
+import org.jruby.embed.LocalContextScope;
+import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.Dispatcher;
@@ -46,7 +48,7 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
             // I suspect JRuby interpreter starts behaving funny if we setClassLoader in the middle of the operation.
             synchronized (this) {
                 if (jruby==null) {
-                    this.jruby = new ScriptingContainer();
+                    this.jruby = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.TRANSIENT);
                     jruby.setClassLoader(WebApp.getCurrent().getClassLoader());
                     scriptImpl = (RubyClass)jruby.runScriptlet(
                             "require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'\n" +
