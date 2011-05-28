@@ -66,22 +66,25 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
      */
     @Override
     public Script resolveScript(String name) throws JellyException {
-        Script s = super.resolveScript(name);
-        if (s!=null)    return s;
+        // cut off the extension so that we can search all the extensions
+        String shortName;
+        int dot = name.lastIndexOf('.');
+        if (dot>name.lastIndexOf('/'))      shortName = name.substring(0, dot);
+        else                                shortName = name;
 
         for (Facet f : owner.webApp.facets) {
             if (f instanceof JellyCompatibleFacet && !(f instanceof JellyFacet)) {
                 JellyCompatibleFacet jcf = (JellyCompatibleFacet) f;
                 try {
-                    s = owner.loadTearOff(jcf.getClassTearOffType()).resolveScript(name);
+                    Script s = owner.loadTearOff(jcf.getClassTearOffType()).resolveScript(shortName);
                     if (s!=null)    return s;
                 } catch (Exception e) {
-                    throw new JellyException("Failed to load "+name+" from "+jcf,e);
+                    throw new JellyException("Failed to load "+shortName+" from "+jcf,e);
                 }
             }
         }
 
-        return null;
+        return super.resolveScript(name);
     }
 
     /**
