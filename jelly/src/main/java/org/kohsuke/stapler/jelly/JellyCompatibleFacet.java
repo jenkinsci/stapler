@@ -14,4 +14,9 @@ public interface JellyCompatibleFacet {
      *
      */
     Class<? extends AbstractTearOff<?,? extends Script,?>> getClassTearOffType();
+
+    /**
+     * Default file extension of this kind of scripts, such as ".jelly"
+     */
+    String getDefaultScriptExtension();
 }

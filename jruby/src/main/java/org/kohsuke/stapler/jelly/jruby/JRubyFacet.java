@@ -129,6 +129,10 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
         return JRubyClassTearOff.class;
     }
 
+    public String getDefaultScriptExtension() {
+        return ".erb";
+    }
+
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
         TearOffSupport mc = request.stapler.getWebApp().getMetaClass(type);
         return mc.loadTearOff(JRubyClassTearOff.class).createDispatcher(it,viewName);
