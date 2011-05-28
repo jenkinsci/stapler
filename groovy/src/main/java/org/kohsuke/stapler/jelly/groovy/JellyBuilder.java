@@ -424,9 +424,9 @@ public final class JellyBuilder extends GroovyObjectSupport {
         try {
             return super.getProperty(property);
         } catch (MissingPropertyException e) {
-            Object r = context.getVariable(property);
-            if(r!=null) return r;
-            throw e;
+            Object r = context.getVariableWithDefaultValue(property,MISSING);
+            if (r==MISSING) throw e;
+            return r;
         }
     }
     
@@ -612,4 +612,6 @@ public final class JellyBuilder extends GroovyObjectSupport {
             c = base.getClass();
         return adjunctManager.rootURL+'/'+c.getName().replace('.','/')+'/'+localName;
     }
+
+    private static final Object MISSING = new Object();
 }
