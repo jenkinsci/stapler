@@ -130,7 +130,6 @@ module JRubyJellyScriptImpl
   class JRubyJellyHamlScript < org::kohsuke::stapler::jelly::jruby::JRubyJellyScript
     def initialize(template)
       super()
-      str = "- _hamlout.buffer = stream\n" + template
       @engine = Haml::Engine.new("- _hamlout.buffer = stream\n" + template)
     end
 
