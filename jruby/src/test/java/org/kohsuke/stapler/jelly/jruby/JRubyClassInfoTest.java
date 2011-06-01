@@ -13,4 +13,8 @@ public class JRubyClassInfoTest extends TestCase {
         assertEquals("managed_jdk15_listener",JRubyClassInfo.decamelize("ManagedJDK15Listener"));
         assertEquals("abc000thunder",JRubyClassInfo.decamelize("Abc000thunder"));
     }
+
+    public void testGetResource() throws Exception {
+
+    }
 }

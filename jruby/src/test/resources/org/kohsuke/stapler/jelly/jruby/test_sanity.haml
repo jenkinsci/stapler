@@ -1,0 +1,5 @@
+%html
+  %body
+    == Hello #{name}!
+    - taglib('/lib/form').abc(:name => name) do
+      == Nested in Haml (#{secret})

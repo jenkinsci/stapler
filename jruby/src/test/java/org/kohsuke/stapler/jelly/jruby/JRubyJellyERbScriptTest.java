@@ -16,22 +16,23 @@ import java.io.StringWriter;
 /**
  * @author Hiroshi Nakamura
  */
-public class JRubyJellyScriptTest extends StaplerTestCase {
+public class JRubyJellyERbScriptTest extends StaplerTestCase {
     private ScriptingContainer ruby;
     private JellyContext context;
 
-    public JRubyJellyScriptTest() {
+    public JRubyJellyERbScriptTest() {
         ruby = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.TRANSIENT);
         ruby.setClassLoader(getClass().getClassLoader());
-        ruby.getProvider().getRubyInstanceConfig().setTraceType(TraceType.traceTypeFor("raw"));
-        ruby.setOutput(System.out);
-        ruby.setError(System.err);
+        ruby.put("gem_path", getClass().getClassLoader().getResource("gem").getPath());
+        ruby.runScriptlet("ENV['GEM_PATH'] = gem_path\n" +
+                "require 'rubygems'\n" +
+                "require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'");
     }
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        MetaClass mc = webApp.getMetaClass(JRubyJellyScriptTest.class);
+        MetaClass mc = webApp.getMetaClass(JRubyJellyERbScriptTest.class);
         context = mc.classLoader.getTearOff(JellyClassLoaderTearOff.class).createContext();
     }
 
@@ -83,7 +84,7 @@ public class JRubyJellyScriptTest extends StaplerTestCase {
 
         public void run() {
             try {
-                MetaClass mc = webApp.getMetaClass(JRubyJellyScriptTest.class);
+                MetaClass mc = webApp.getMetaClass(JRubyJellyERbScriptTest.class);
                 JellyContext context = mc.classLoader.getTearOff(JellyClassLoaderTearOff.class).createContext();
                 context.setVariable("name", "ERB" + idx);
 
@@ -121,8 +122,7 @@ public class JRubyJellyScriptTest extends StaplerTestCase {
     private Script getScript(String fixture) throws IOException {
         ruby.put("template", getTemplate(fixture));
         return (Script) ruby.runScriptlet(
-                "require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'\n" +
-                        "JRubyJellyScriptImpl::JRubyJellyERbScript.new(template)");
+                "JRubyJellyScriptImpl::JRubyJellyERbScript.new(template)");
 
     }
 

@@ -36,8 +36,6 @@ import java.util.Map.Entry;
  * @author Kohsuke Kawaguchi
  */
 public abstract class JRubyJellyScript implements Script {
-//    private final ScriptingContainer jruby;
-
 
     protected JRubyJellyScript() {
     }

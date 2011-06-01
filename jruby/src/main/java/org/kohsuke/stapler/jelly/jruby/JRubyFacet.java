@@ -24,6 +24,7 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -36,34 +37,51 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
     private final Map<RubyClass,JRubyClassInfo> classMap = new WeakHashMap<RubyClass,JRubyClassInfo>();
 
     private volatile ScriptingContainer jruby;
-    private RubyClass scriptImpl;
+
+    private Map<String, String> scripts = new HashMap<String, String>();
+
+    private String defaultScript;
 
     public JRubyFacet() {
+        scripts.put("erb", "JRubyJellyScriptImpl::JRubyJellyERbScript");
+        scripts.put("haml", "JRubyJellyScriptImpl::JRubyJellyHamlScript");
+        defaultScript = scripts.get("erb");
     }
 
-    public Script parse(URL script) throws IOException {
+    public Script parse(URL template) throws IOException {
         if (jruby==null) {
             // lazily create interpreter, in the hope that by the time we have this executed
             // the app has set the proper classloader. This isn't really reliable, but then
             // I suspect JRuby interpreter starts behaving funny if we setClassLoader in the middle of the operation.
             synchronized (this) {
-                if (jruby==null) {
+                if(jruby==null) {
                     this.jruby = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.TRANSIENT);
                     jruby.setClassLoader(WebApp.getCurrent().getClassLoader());
-                    scriptImpl = (RubyClass)jruby.runScriptlet(
-                            "require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'\n" +
-                                    "JRubyJellyScriptImpl::JRubyJellyERbScript");
+                    jruby.put("gem_path", getClass().getClassLoader().getResource("gem").getPath());
+                    jruby.runScriptlet("ENV['GEM_PATH'] = gem_path\n" +
+                            "require 'rubygems'\n" +
+                            "require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'");
                 }
             }
         }
 
+        String script = getScript(template.getPath());
         try {
-            String template = IOUtils.toString(script.openStream(), "UTF-8");
-            Object o = jruby.callMethod(scriptImpl, "new", template);
-            return (Script) o;
+            jruby.put("template", IOUtils.toString(template.openStream(), "UTF-8"));
+            return (Script) jruby.runScriptlet(script + ".new(template)");
         } catch (Exception e) {
             throw (IOException)new IOException().initCause(e);
         }
+    }
+
+    private String getScript(String path) {
+        String script = null;
+        int lastIndex = path.lastIndexOf('.');
+        if(lastIndex >= 0) {
+            script = scripts.get(path.substring(lastIndex+1));
+        }
+        if(script!=null) return script;
+        return defaultScript;
     }
 
     public synchronized JRubyClassInfo getClassInfo(RubyClass r) {
