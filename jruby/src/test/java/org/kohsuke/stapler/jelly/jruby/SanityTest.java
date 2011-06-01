@@ -13,7 +13,7 @@ import java.io.StringWriter;
  * @author Kohsuke Kawaguchi
  */
 public class SanityTest extends StaplerTestCase {
-    public void testSanity() throws Exception {
+    public void testSanityERb() throws Exception {
         MetaClass mc = webApp.getMetaClass(SanityTest.class);
         JRubyClassTearOff jr = mc.getTearOff(JRubyClassTearOff.class);
         Script s = jr.parseScript(getClass().getResource("test_sanity.erb"));
@@ -24,9 +24,24 @@ public class SanityTest extends StaplerTestCase {
         StringWriter out = new StringWriter();
         s.run(context, XMLOutput.createXMLOutput(out));
 
-        System.out.println(out);
         assertTrue(out.toString().contains("Hello ERB!"));
         assertTrue(out.toString().contains("Hello from Jelly to ERB"));
         assertTrue(out.toString().contains("<i>Nested in ERB (47)</i>"));
+    }
+
+    public void testSanityHaml() throws Exception {
+        MetaClass mc = webApp.getMetaClass(SanityTest.class);
+        JRubyClassTearOff jr = mc.getTearOff(JRubyClassTearOff.class);
+        Script s = jr.parseScript(getClass().getResource("test_sanity.haml"));
+
+        JellyContext context = mc.classLoader.getTearOff(JellyClassLoaderTearOff.class).createContext();
+        context.setVariable("name","Haml");
+
+        StringWriter out = new StringWriter();
+        s.run(context, XMLOutput.createXMLOutput(out));
+
+        assertTrue(out.toString().contains("Hello Haml!"));
+        assertTrue(out.toString().contains("Hello from Jelly to Haml"));
+        assertTrue(out.toString().contains("Nested in Haml (47)"));
     }
 }

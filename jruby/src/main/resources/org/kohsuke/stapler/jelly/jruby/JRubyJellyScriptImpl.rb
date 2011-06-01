@@ -1,4 +1,5 @@
 require 'erb'
+require 'haml'
 require 'java'
 
 module JRubyJellyScriptImpl
@@ -43,7 +44,7 @@ module JRubyJellyScriptImpl
     end
   end
 
-  # variables exposed to ERB
+  # variables exposed to template engine
   class WriterBinding
     def initialize(context)
       @context = context
@@ -61,7 +62,7 @@ module JRubyJellyScriptImpl
     def method_missing(name, *args)
       # variables defined in the current context
       v = context.getVariable(name.to_s)
-      return v if v!=nil
+      return v if v
       super # make it fail
     end
 
@@ -126,5 +127,35 @@ module JRubyJellyScriptImpl
     end
   end
 
+  class JRubyJellyHamlScript < org::kohsuke::stapler::jelly::jruby::JRubyJellyScript
+    def initialize(template)
+      super()
+      str = "- _hamlout.buffer = stream\n" + template
+      @engine = Haml::Engine.new("- _hamlout.buffer = stream\n" + template)
+    end
+
+    def run(jelly_context,xml_output)
+      begin
+        ctx = JRubyContext.new(self, jelly_context, HamlOutputStream.new(xml_output))
+        ctx.evaluate { |b|
+          @engine.render(b)
+        }
+      rescue Exception => ex
+        raise org.apache.commons.jelly.JellyTagException.new(ex.message)
+      end
+    end
+
+    class HamlOutputStream < OutputStream
+      attr_accessor :output
+
+      def initialize(output)
+        super(output)
+      end
+
+      def <<(str)
+        output.write(str) if str
+      end
+    end
+  end
 end
 
