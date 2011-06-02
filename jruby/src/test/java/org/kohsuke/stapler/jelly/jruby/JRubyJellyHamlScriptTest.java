@@ -45,6 +45,44 @@ public class JRubyJellyHamlScriptTest extends StaplerJRubyTestCase {
                 "</i>", out.toString());
     }
 
+    public void testThreadSafety() throws Exception {
+        Script script = getScript("test_taglib.haml");
+        int num = 100;
+        EvaluatorThread[] threads = new EvaluatorThread[num];
+        for (int idx = 0; idx < num; ++idx) {
+            threads[idx] = new EvaluatorThread(script, idx);
+            threads[idx].start();
+        }
+        for (int idx = 0; idx < num; ++idx) {
+            threads[idx].join();
+            assertEquals("<b>Hello from Jelly to HAML" + idx + "</b><i>47\n</i>", threads[idx].result);
+        }
+    }
+
+    private class EvaluatorThread extends Thread {
+        private final Script script;
+        private final int idx;
+        private String result = null;
+
+        private EvaluatorThread(Script script, int idx) {
+            this.script = script;
+            this.idx = idx;
+        }
+
+        public void run() {
+            try {
+                MetaClass mc = webApp.getMetaClass(JRubyJellyHamlScriptTest.class);
+                JellyContext context = mc.classLoader.getTearOff(JellyClassLoaderTearOff.class).createContext();
+                context.setVariable("name", "HAML" + idx);
+                StringWriter out = new StringWriter();
+                script.run(context, XMLOutput.createXMLOutput(out));
+                result = out.toString();
+            } catch (Exception e) {
+                result = e.getMessage();
+            }
+        }
+    }
+
     public void testNoSuchTaglib() throws Exception {
         Script script = getScript("test_nosuch_taglib.haml");
         StringWriter out = new StringWriter();

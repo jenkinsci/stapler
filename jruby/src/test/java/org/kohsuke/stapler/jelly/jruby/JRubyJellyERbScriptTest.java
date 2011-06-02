@@ -41,21 +41,17 @@ public class JRubyJellyERbScriptTest extends StaplerJRubyTestCase {
                 "</i>", out.toString());
     }
 
-    public void testThreadSafetyNotRequired() throws Exception {
-        // WebApp is created per servletContext which means 1-1 to Thread.
-        // CustomTagLibrary is not threadsafe but it's OK by design.
-        if (false) {
-            Script script = getScript("test_taglib.erb");
-            int num = 100;
-            EvaluatorThread[] threads = new EvaluatorThread[num];
-            for (int idx = 0; idx < num; ++idx) {
-                threads[idx] = new EvaluatorThread(script, idx);
-                threads[idx].start();
-            }
-            for (int idx = 0; idx < num; ++idx) {
-                threads[idx].join();
-                assertEquals("<b>Hello from Jelly to ERB" + idx + "</b><i>\n  47\n</i>", threads[idx].result);
-            }
+    public void testThreadSafety() throws Exception {
+        Script script = getScript("test_taglib.erb");
+        int num = 100;
+        EvaluatorThread[] threads = new EvaluatorThread[num];
+        for (int idx = 0; idx < num; ++idx) {
+            threads[idx] = new EvaluatorThread(script, idx);
+            threads[idx].start();
+        }
+        for (int idx = 0; idx < num; ++idx) {
+            threads[idx].join();
+            assertEquals("<b>Hello from Jelly to ERB" + idx + "</b><i>\n  47\n</i>", threads[idx].result);
         }
     }
 
@@ -74,7 +70,6 @@ public class JRubyJellyERbScriptTest extends StaplerJRubyTestCase {
                 MetaClass mc = webApp.getMetaClass(JRubyJellyERbScriptTest.class);
                 JellyContext context = mc.classLoader.getTearOff(JellyClassLoaderTearOff.class).createContext();
                 context.setVariable("name", "ERB" + idx);
-
                 StringWriter out = new StringWriter();
                 script.run(context, XMLOutput.createXMLOutput(out));
                 result = out.toString();
