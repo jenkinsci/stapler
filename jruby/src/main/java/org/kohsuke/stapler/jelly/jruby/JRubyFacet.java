@@ -4,6 +4,7 @@ import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
+import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.Facet;
 import org.kohsuke.stapler.MetaClass;
