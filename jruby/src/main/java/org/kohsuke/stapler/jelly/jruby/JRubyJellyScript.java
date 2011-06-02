@@ -1,34 +1,18 @@
 package org.kohsuke.stapler.jelly.jruby;
 
-import org.apache.commons.beanutils.ConvertingWrapDynaBean;
-import org.apache.commons.beanutils.DynaBean;
-import org.apache.commons.beanutils.DynaProperty;
-import org.apache.commons.jelly.DynaTag;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
-import org.apache.commons.jelly.Tag;
 import org.apache.commons.jelly.TagLibrary;
-import org.apache.commons.jelly.TagSupport;
 import org.apache.commons.jelly.XMLOutput;
 import org.apache.commons.jelly.expression.ConstantExpression;
-import org.apache.commons.jelly.expression.Expression;
 import org.apache.commons.jelly.impl.TagScript;
 import org.jruby.Ruby;
-import org.jruby.RubyClass;
-import org.jruby.RubyObject;
 import org.jruby.RubyProc;
 import org.jruby.RubySymbol;
-import org.jruby.embed.ScriptingContainer;
-import org.jruby.runtime.Block;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributesImpl;
 
-import java.net.URL;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 

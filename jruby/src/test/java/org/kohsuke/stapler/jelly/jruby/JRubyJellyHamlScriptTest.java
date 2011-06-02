@@ -1,36 +1,23 @@
 package org.kohsuke.stapler.jelly.jruby;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.XMLOutput;
-import org.jruby.embed.LocalContextScope;
-import org.jruby.embed.LocalVariableBehavior;
-import org.jruby.embed.ScriptingContainer;
-import org.jruby.runtime.backtrace.TraceType;
 import org.kohsuke.stapler.MetaClass;
-import org.kohsuke.stapler.StaplerTestCase;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Map;
 
 /**
  * @author Hiroshi Nakamura
  */
-public class JRubyJellyHamlScriptTest extends StaplerTestCase {
-    private ScriptingContainer ruby;
+public class JRubyJellyHamlScriptTest extends StaplerJRubyTestCase {
+
     private JellyContext context;
 
     public JRubyJellyHamlScriptTest() {
-        ruby = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.TRANSIENT);
-        ruby.setClassLoader(getClass().getClassLoader());
-        ruby.put("gem_path", getClass().getClassLoader().getResource("gem").getPath());
-        ruby.runScriptlet("ENV['GEM_PATH'] = gem_path\n" +
-                "require 'rubygems'\n" +
-                "require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'");
     }
 
     @Override
@@ -81,13 +68,6 @@ public class JRubyJellyHamlScriptTest extends StaplerTestCase {
     }
 
     private Script getScript(String fixture) throws IOException {
-        ruby.put("template", getTemplate(fixture));
-        return (Script) ruby.runScriptlet(
-                "JRubyJellyScriptImpl::JRubyJellyHamlScript.new(template)");
-
-    }
-
-    private String getTemplate(String fixture) throws IOException {
-        return IOUtils.toString(getClass().getResource(fixture).openStream(), "UTF-8");
+        return getScriptProvider().getScript(getClass().getResource(fixture));
     }
 }
