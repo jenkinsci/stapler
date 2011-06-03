@@ -9,7 +9,7 @@ import org.kohsuke.stapler.WebApp;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -18,7 +18,7 @@ import java.util.Map;
 public class JRubyScriptProvider {
     private ScriptingContainer jruby = null;
 
-    private Map<String, Object> scriptClasses = new HashMap<String, Object>();
+    private Map<String, Object> scriptClasses = new LinkedHashMap<String, Object>();
 
     private Object defaultScriptClass = null;
 
@@ -34,6 +34,15 @@ public class JRubyScriptProvider {
         } catch (Exception e) {
             throw (IOException) new IOException().initCause(e);
         }
+    }
+
+    public String getDefaultScriptExtension() {
+        return "erb";
+    }
+
+    public String[] getSupportedExtensions() {
+        getScriptingContainer();
+        return scriptClasses.keySet().toArray(new String[0]);
     }
 
     private Object getScriptClass(String path) {
@@ -55,12 +64,16 @@ public class JRubyScriptProvider {
             jruby.runScriptlet("ENV['GEM_PATH'] = gem_path\n" +
                     "require 'rubygems'\n" +
                     "require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'");
-            Object erbScriptClass = jruby.runScriptlet("JRubyJellyScriptImpl::JRubyJellyERbScript");
-            Object hamlScriptClass = jruby.runScriptlet("JRubyJellyScriptImpl::JRubyJellyHamlScript");
-            scriptClasses.put("erb", erbScriptClass);
-            scriptClasses.put("haml", hamlScriptClass);
-            defaultScriptClass = scriptClasses.get("erb");
+
+            assignScriptClass("erb", "JRubyJellyScriptImpl::JRubyJellyERbScript");
+            assignScriptClass("haml", "JRubyJellyScriptImpl::JRubyJellyHamlScript");
+
+            defaultScriptClass = scriptClasses.get(getDefaultScriptExtension());
         }
         return jruby;
+    }
+
+    private void assignScriptClass(String extension, String className) {
+        scriptClasses.put(extension, jruby.runScriptlet(className));
     }
 }
