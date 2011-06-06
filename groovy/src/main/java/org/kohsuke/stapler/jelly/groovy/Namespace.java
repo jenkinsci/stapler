@@ -85,8 +85,11 @@ public class Namespace extends GroovyObjectSupport {
                     throw e.getCause();
                 }
 
+            TagFile a = method.getAnnotation(TagFile.class);
+            String tagName = a!=null ? a.value() : method.getName();
+
             // invoke methods
-            builder.doInvokeMethod(new QName(nsUri,method.getName(),prefix),args);
+            builder.doInvokeMethod(new QName(nsUri,tagName,prefix),args);
             return null;
         }
 
