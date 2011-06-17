@@ -75,9 +75,11 @@ public class ThisTagLibrary extends TagLibrary {
                     Script tag = c.loadTearOff(JellyClassTearOff.class).findScript(tagName+".jellytag");
                     if (tag==null)
                         tag = c.loadTearOff(JellyClassTearOff.class).findScript(tagName+".jelly");
+                    if (tag ==null)
+                        throw new JellyTagException("No such tag file "+tagName+".jellytag in "+c);
                     return tag;
                 } catch (JellyException e) {
-                    throw new JellyTagException("Failed to load "+tagName+".jelly from "+it,e);
+                    throw new JellyTagException("Failed to load "+tagName+".jellytag from "+it,e);
                 }
             }
         };
