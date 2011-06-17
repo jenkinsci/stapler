@@ -52,6 +52,7 @@ public abstract class CachingScriptLoader<S, E extends Exception> {
      *      If this starts with "/", then it is assumed to be absolute,
      *      and that name is searched from the classloader. This is useful
      *      to do mix-in.
+     * @return null if none was found.
      */
     public S findScript(String name) throws E {
         if (MetaClass.NO_CACHE)
