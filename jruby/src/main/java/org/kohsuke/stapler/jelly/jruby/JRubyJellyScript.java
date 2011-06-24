@@ -65,7 +65,7 @@ public abstract class JRubyJellyScript implements Script {
         tagScript.run(context, output);
     }
 
-    private synchronized TagScript createTagScript(JellyContext context, String uri, String name) throws JellyException {
+    private TagScript createTagScript(JellyContext context, String uri, String name) throws JellyException {
         TagLibrary lib = context.getTagLibrary(uri);
         if (lib==null)
             throw new JellyException("Undefined tag library namespace URI: "+uri);
