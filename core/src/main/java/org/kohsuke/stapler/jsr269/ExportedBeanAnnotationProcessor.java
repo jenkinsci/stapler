@@ -117,7 +117,7 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
             w.close();
 
         } catch (IOException x) {
-            error(x.toString());
+            error(x);
         }
         return false;
     }
@@ -125,8 +125,8 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
     private Set<String> scanExisting() throws IOException {
         Set<String> exposedBeanNames = new TreeSet<String>();
 
-        FileObject beans = getResource(STAPLER_BEAN_FILE);
         try {
+            FileObject beans = getResource(STAPLER_BEAN_FILE);
             BufferedReader in = new BufferedReader(new InputStreamReader(beans.openInputStream(),"UTF-8"));
             String line;
             while((line=in.readLine())!=null)

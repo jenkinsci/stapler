@@ -65,7 +65,7 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
             p.put("constructor",buf.toString());
             writePropertyFile(p, name);
         } catch (IOException x) {
-            error(x.toString());
+            error(x);
         }
     }
 }

@@ -40,7 +40,7 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
                 write(m);
             }
         } catch (IOException e) {
-            error(e.getMessage());
+            error(e);
         }
         return false;
     }

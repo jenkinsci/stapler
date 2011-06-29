@@ -27,6 +27,8 @@ import javax.lang.model.element.Element;
 import javax.tools.FileObject;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Properties;
 
 import static javax.tools.Diagnostic.Kind.*;
@@ -37,6 +39,16 @@ import static javax.tools.StandardLocation.*;
  */
 @SuppressWarnings({"Since15"})
 abstract class AbstractProcessorImpl extends AbstractProcessor {
+    protected String toString(Throwable t) {
+        StringWriter w = new StringWriter();
+        t.printStackTrace(new PrintWriter(w));
+        return w.toString();
+    }
+
+    protected void error(Throwable t) {
+        error(toString(t));
+    }
+
     protected void error(String msg) {
         processingEnv.getMessager().printMessage(ERROR, msg);
     }
