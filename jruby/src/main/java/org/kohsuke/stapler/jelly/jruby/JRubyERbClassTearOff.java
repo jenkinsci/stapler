@@ -18,10 +18,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Tear off that manages Ruby ERB views of Java objects (and not ruby objects.)
+ *
  * @author Kohsuke Kawaguchi
  */
-public class JRubyClassTearOff extends AbstractTearOff<JRubyClassLoaderTearOff,Script,IOException> {
-    public JRubyClassTearOff(MetaClass owner) {
+public class JRubyERbClassTearOff extends AbstractTearOff<JRubyClassLoaderTearOff,Script,IOException> {
+    public JRubyERbClassTearOff(MetaClass owner) {
         super(owner,JRubyClassLoaderTearOff.class);
     }
 
@@ -36,7 +38,7 @@ public class JRubyClassTearOff extends AbstractTearOff<JRubyClassLoaderTearOff,S
 
     public boolean serveIndexErb(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
         try {
-            Script script = findScript("index.erb");
+            Script script = findScript("index");
             if(script!=null) {
                 if(LOGGER.isLoggable(Level.FINE))
                     LOGGER.fine("Invoking index.erb on "+node);
@@ -53,11 +55,11 @@ public class JRubyClassTearOff extends AbstractTearOff<JRubyClassLoaderTearOff,S
      * Creates a {@link RequestDispatcher} that forwards to the jelly view, if available.
      */
     public RequestDispatcher createDispatcher(Object it, String viewName) throws IOException {
-        Script script = findScript(viewName+".erb");
+        Script script = findScript(viewName+getDefaultScriptExtension());
         if(script!=null)
             return new JellyRequestDispatcher(it,script);
         return null;
     }
 
-    private static final Logger LOGGER = Logger.getLogger(JRubyClassTearOff.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(JRubyERbClassTearOff.class.getName());
 }

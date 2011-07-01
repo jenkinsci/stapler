@@ -31,7 +31,7 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
     }
 
     public Script parse(URL template) throws IOException {
-        return jruby.getScript(template);
+        return jruby.parseScript(template);
     }
 
     public synchronized JRubyClassInfo getClassInfo(RubyClass r) {
@@ -57,7 +57,7 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
             });
         }
         dispatchers.add(new ScriptInvokingDispatcher() {
-            final JRubyClassTearOff tearOff = owner.loadTearOff(JRubyClassTearOff.class);
+            final JRubyERbClassTearOff tearOff = owner.loadTearOff(JRubyERbClassTearOff.class);
             @Override
             public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                 String next = req.tokens.peek();
@@ -95,17 +95,13 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
         }
     }
 
-    public Class<JRubyClassTearOff> getClassTearOffType() {
-        return JRubyClassTearOff.class;
-    }
-
-    public String getDefaultScriptExtension() {
-        return "."+jruby.getDefaultScriptExtension();
+    public Class<JRubyERbClassTearOff> getClassTearOffType() {
+        return JRubyERbClassTearOff.class;
     }
 
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
         TearOffSupport mc = request.stapler.getWebApp().getMetaClass(type);
-        return mc.loadTearOff(JRubyClassTearOff.class).createDispatcher(it,viewName);
+        return mc.loadTearOff(JRubyERbClassTearOff.class).createDispatcher(it,viewName);
     }
 
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
@@ -121,7 +117,7 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
                 }
             }
         }
-        return nodeMetaClass.loadTearOff(JRubyClassTearOff.class).serveIndexErb(req, rsp, node);
+        return nodeMetaClass.loadTearOff(JRubyERbClassTearOff.class).serveIndexErb(req, rsp, node);
     }
 
     private Script findScript(String next, CachingScriptLoader<Script, IOException> loader) throws IOException {

@@ -106,6 +106,6 @@ public class JRubyJellyHamlScriptTest extends StaplerJRubyTestCase {
     }
 
     private Script getScript(String fixture) throws IOException {
-        return getScriptProvider().getScript(getClass().getResource(fixture));
+        return getScriptProvider().parseScript(getClass().getResource(fixture));
     }
 }

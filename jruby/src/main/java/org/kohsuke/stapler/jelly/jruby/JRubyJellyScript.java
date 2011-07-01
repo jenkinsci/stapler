@@ -17,6 +17,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
+ * Exposes ERb/Haml scripts as {@link Script}.
+ *
+ * <p>
+ * This abstract class defines the Java half of it, and it is further subtyped in Ruby for different languages.
+ *
  * @author Kohsuke Kawaguchi
  */
 public abstract class JRubyJellyScript implements Script {
@@ -31,6 +36,9 @@ public abstract class JRubyJellyScript implements Script {
     // this method is implemented in Ruby
     public abstract void run(JellyContext context, XMLOutput output) throws JellyTagException;
 
+    /**
+     * Invokes other Jelly tag libaries.
+     */
     public void invokeTaglib(final IJRubyContext rcon, JellyContext context, XMLOutput output, String uri, String localName, Map<RubySymbol,?> attributes, final RubyProc proc) throws JellyException {
         TagScript tagScript = createTagScript(context, uri, localName);
 

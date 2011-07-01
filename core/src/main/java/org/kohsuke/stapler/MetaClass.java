@@ -39,7 +39,7 @@ import java.util.Map;
 
 /**
  * The stapler version of the {@link Class} object,
- * that retains some useful cache about a class and its view.
+ * that retains some useful cache about a class and its views.
  *
  * @author Kohsuke Kawaguchi
  * @see WebApp#getMetaClass(Class)

@@ -87,10 +87,6 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
         return GroovyClassTearOff.class;
     }
 
-    public String getDefaultScriptExtension() {
-        return ".groovy";
-    }
-
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
         TearOffSupport mc = request.stapler.getWebApp().getMetaClass(type);
         return mc.loadTearOff(GroovyClassTearOff.class).createDispatcher(it,viewName);

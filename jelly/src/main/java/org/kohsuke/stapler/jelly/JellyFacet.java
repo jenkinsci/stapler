@@ -108,10 +108,6 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
         return JellyClassTearOff.class;
     }
 
-    public String getDefaultScriptExtension() {
-        return ".jelly";
-    }
-
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
         TearOffSupport mc = request.stapler.getWebApp().getMetaClass(type);
         return mc.loadTearOff(JellyClassTearOff.class).createDispatcher(it,viewName);
