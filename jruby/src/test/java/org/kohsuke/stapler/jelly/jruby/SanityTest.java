@@ -6,6 +6,7 @@ import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerTestCase;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
+import org.kohsuke.stapler.jelly.jruby.erb.ERbClassTearOff;
 
 import java.io.StringWriter;
 
@@ -15,7 +16,7 @@ import java.io.StringWriter;
 public class SanityTest extends StaplerTestCase {
     public void testSanityERb() throws Exception {
         MetaClass mc = webApp.getMetaClass(SanityTest.class);
-        JRubyERbClassTearOff jr = mc.getTearOff(JRubyERbClassTearOff.class);
+        ERbClassTearOff jr = mc.getTearOff(ERbClassTearOff.class);
         Script s = jr.parseScript(getClass().getResource("test_sanity.erb"));
 
         JellyContext context = mc.classLoader.getTearOff(JellyClassLoaderTearOff.class).createContext();
@@ -31,7 +32,7 @@ public class SanityTest extends StaplerTestCase {
 
     public void testSanityHaml() throws Exception {
         MetaClass mc = webApp.getMetaClass(SanityTest.class);
-        JRubyERbClassTearOff jr = mc.getTearOff(JRubyERbClassTearOff.class);
+        ERbClassTearOff jr = mc.getTearOff(ERbClassTearOff.class);
         Script s = jr.parseScript(getClass().getResource("test_sanity.haml"));
 
         JellyContext context = mc.classLoader.getTearOff(JellyClassLoaderTearOff.class).createContext();

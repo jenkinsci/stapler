@@ -38,7 +38,10 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * {@link Facet} that adds Jelly as the view.
@@ -104,8 +107,8 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
         });
     }
 
-    public Class<JellyClassTearOff> getClassTearOffType() {
-        return JellyClassTearOff.class;
+    public Collection<Class<JellyClassTearOff>> getClassTearOffTypes() {
+        return TEAROFF_TYPES;
     }
 
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
@@ -141,4 +144,6 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
      * It generates extra comments into HTML, indicating where the fragment was rendered.
      */
     public static boolean TRACE = Boolean.getBoolean("stapler.jelly.trace");
+
+    private static final Set<Class<JellyClassTearOff>> TEAROFF_TYPES = Collections.singleton(JellyClassTearOff.class);
 }

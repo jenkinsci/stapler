@@ -4,6 +4,8 @@ import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.AbstractTearOff;
 import org.kohsuke.stapler.Facet;
 
+import java.util.Collection;
+
 /**
  * {@link Facet} subtype (although not captured in a type hierarchy) that loads Jelly-compatible scripts.
  *
@@ -13,5 +15,5 @@ public interface JellyCompatibleFacet {
     /**
      *
      */
-    Class<? extends AbstractTearOff<?,? extends Script,?>> getClassTearOffType();
+    Collection<? extends Class<? extends AbstractTearOff<?,? extends Script,?>>> getClassTearOffTypes();
 }

@@ -1,4 +1,4 @@
-package org.kohsuke.stapler.jelly.jruby;
+package org.kohsuke.stapler.jelly.jruby.haml;
 
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
@@ -6,6 +6,7 @@ import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
+import org.kohsuke.stapler.jelly.jruby.StaplerJRubyTestCase;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -106,6 +107,6 @@ public class JRubyJellyHamlScriptTest extends StaplerJRubyTestCase {
     }
 
     private Script getScript(String fixture) throws IOException {
-        return getScriptProvider().parseScript(getClass().getResource(fixture));
+        return facet.parseScript(getClass().getResource(fixture));
     }
 }

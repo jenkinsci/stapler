@@ -9,7 +9,6 @@ import org.kohsuke.stapler.WebApp;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Locale;
-import java.util.regex.Pattern;
 
 /**
  * {@link MetaClass}-equivalent for {@link RubyClass}
@@ -17,7 +16,7 @@ import java.util.regex.Pattern;
  * @author Kohsuke Kawaguchi
  * @see JRubyFacet#getClassInfo(RubyClass)
  */
-public class JRubyClassInfo extends CachingScriptLoader<Script,IOException> {
+public final class JRubyClassInfo extends CachingScriptLoader<Script,IOException> {
     /**
      * Facet that we belong to.
      */
@@ -39,9 +38,11 @@ public class JRubyClassInfo extends CachingScriptLoader<Script,IOException> {
         ClassLoader cl = WebApp.getCurrent().getClassLoader();
 
         if(cl!=null) {
-            URL res = findResource(name, cl);
-            if(res!=null)
-                return facet.parse(res);
+            for (RubyTemplateLanguage l : facet.languages) {
+                URL res = findResource(name+l.getScriptExtension(), cl);
+                if(res!=null)
+                    return facet.parseScript(res);
+            }
         }
 
         // not found on this class, delegate to the parent

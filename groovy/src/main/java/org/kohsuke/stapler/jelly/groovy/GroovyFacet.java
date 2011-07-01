@@ -39,7 +39,10 @@ import org.kohsuke.MetaInfServices;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * {@link Facet} that brings in Groovy support on top of Jelly.
@@ -83,8 +86,8 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
         });
     }
 
-    public Class<GroovyClassTearOff> getClassTearOffType() {
-        return GroovyClassTearOff.class;
+    public Collection<Class<GroovyClassTearOff>> getClassTearOffTypes() {
+        return TEAROFF_TYPES;
     }
 
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
@@ -95,4 +98,6 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
         return nodeMetaClass.loadTearOff(GroovyClassTearOff.class).serveIndexGroovy(req, rsp, node);
     }
+
+    private static final Set<Class<GroovyClassTearOff>> TEAROFF_TYPES = Collections.singleton(GroovyClassTearOff.class);
 }

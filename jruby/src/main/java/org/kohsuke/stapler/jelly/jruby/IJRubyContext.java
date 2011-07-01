@@ -2,7 +2,6 @@ package org.kohsuke.stapler.jelly.jruby;
 
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.XMLOutput;
-import org.jruby.runtime.builtin.IRubyObject;
 
 /**
  * @author Kohsuke Kawaguchi

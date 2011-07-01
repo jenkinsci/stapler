@@ -4,23 +4,14 @@ import org.kohsuke.stapler.*;
 
 /**
  * @author Kohsuke Kawaguchi
+ * @author Hiroshi Nakamura
  */
 public abstract class StaplerJRubyTestCase extends StaplerTestCase {
-    private static JRubyScriptProvider jruby = null;
+    protected JRubyFacet facet;
 
     @Override
     protected void setUp() throws Exception {
+        facet = new JRubyFacet();
         super.setUp();
-    }
-
-    protected JRubyScriptProvider getScriptProvider() {
-        initializeJRubyScriptProvider();
-        return jruby;
-    }
-
-    private static synchronized void initializeJRubyScriptProvider() {
-        if (jruby == null) {
-            jruby = new JRubyScriptProvider();
-        }
     }
 }
