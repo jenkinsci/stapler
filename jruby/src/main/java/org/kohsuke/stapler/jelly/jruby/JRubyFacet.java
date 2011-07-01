@@ -61,7 +61,7 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
         languages.addAll(Facet.discoverExtensions(RubyTemplateLanguage.class,
                 Thread.currentThread().getContextClassLoader(), getClass().getClassLoader()));
 
-        container = new ScriptingContainer(LocalContextScope.CONCURRENT);
+        container = new ScriptingContainer(LocalContextScope.SINGLETHREAD); // we don't want any funny multiplexing from ScriptingContainer.
         container.runScriptlet("require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'");
 
         for (RubyTemplateLanguage l : languages) {
