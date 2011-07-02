@@ -118,6 +118,13 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
 
         } catch (IOException x) {
             error(x);
+        } catch (RuntimeException e) {
+            // javac sucks at reporting errors in annotation processors
+            e.printStackTrace();
+            throw e;
+        } catch (Error e) {
+            e.printStackTrace();
+            throw e;
         }
         return false;
     }

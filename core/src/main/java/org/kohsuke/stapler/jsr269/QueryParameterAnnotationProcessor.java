@@ -41,6 +41,13 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
             }
         } catch (IOException e) {
             error(e);
+        } catch (RuntimeException e) {
+            // javac sucks at reporting errors in annotation processors
+            e.printStackTrace();
+            throw e;
+        } catch (Error e) {
+            e.printStackTrace();
+            throw e;
         }
         return false;
     }

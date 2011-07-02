@@ -27,26 +27,35 @@ import java.util.Set;
 public class ConstructorProcessor extends AbstractProcessorImpl {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        ElementScanner6<Void, Void> scanner = new ElementScanner6<Void, Void>() {
-            @Override
-            public Void visitExecutable(ExecutableElement e, Void aVoid) {
-                if(e.getAnnotation(DataBoundConstructor.class)!=null) {
-                    write(e);
-                } else {
-                    String javadoc = getJavadoc(e);
-                    if(javadoc!=null && javadoc.contains("@stapler-constructor")) {
+        try {
+            ElementScanner6<Void, Void> scanner = new ElementScanner6<Void, Void>() {
+                @Override
+                public Void visitExecutable(ExecutableElement e, Void aVoid) {
+                    if(e.getAnnotation(DataBoundConstructor.class)!=null) {
                         write(e);
+                    } else {
+                        String javadoc = getJavadoc(e);
+                        if(javadoc!=null && javadoc.contains("@stapler-constructor")) {
+                            write(e);
+                        }
                     }
+
+                    return super.visitExecutable(e, aVoid);
                 }
+            };
 
-                return super.visitExecutable(e, aVoid);
-            }
-        };
+            for( Element e : roundEnv.getRootElements() )
+                scanner.scan(e,null);
 
-        for( Element e : roundEnv.getRootElements() )
-            scanner.scan(e,null);
-
-        return false;
+            return false;
+        } catch (RuntimeException e) {
+            // javac sucks at reporting errors in annotation processors
+            e.printStackTrace();
+            throw e;
+        } catch (Error e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private void write(ExecutableElement c) {
