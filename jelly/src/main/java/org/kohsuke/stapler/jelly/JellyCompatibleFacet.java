@@ -16,4 +16,9 @@ public interface JellyCompatibleFacet {
      *
      */
     Collection<? extends Class<? extends AbstractTearOff<?,? extends Script,?>>> getClassTearOffTypes();
+
+    /**
+     * Gets the list of view script extensions, such as ".jelly".
+     */
+    Collection<String> getScriptExtensions();
 }

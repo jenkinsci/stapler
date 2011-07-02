@@ -23,6 +23,7 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -148,6 +149,12 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
         return tearOffTypes;
     }
 
+    public Collection<String> getScriptExtensions() {
+        List<String> r = new ArrayList<String>();
+        for (RubyTemplateLanguage l : languages)
+            r.add(l.getScriptExtension());
+        return r;
+    }
 
 
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {

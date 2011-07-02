@@ -111,6 +111,10 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
         return TEAROFF_TYPES;
     }
 
+    public Collection<String> getScriptExtensions() {
+        return EXTENSION;
+    }
+
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
         TearOffSupport mc = request.stapler.getWebApp().getMetaClass(type);
         return mc.loadTearOff(JellyClassTearOff.class).createDispatcher(it,viewName);
@@ -146,4 +150,6 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
     public static boolean TRACE = Boolean.getBoolean("stapler.jelly.trace");
 
     private static final Set<Class<JellyClassTearOff>> TEAROFF_TYPES = Collections.singleton(JellyClassTearOff.class);
+
+    private static final Set<String> EXTENSION = Collections.singleton(".jelly");
 }
