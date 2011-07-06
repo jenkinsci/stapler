@@ -58,7 +58,9 @@ abstract class AbstractProcessorImpl extends AbstractProcessor {
     }
 
     protected void notice(String msg, Element location) {
-        processingEnv.getMessager().printMessage(NOTE, msg, location);
+        // IntelliJ flags this as an error. So disabling it for now.
+        // See http://youtrack.jetbrains.net/issue/IDEA-71822
+        // processingEnv.getMessager().printMessage(NOTE, msg, location);
     }
 
     protected void writePropertyFile(Properties p, String name) throws IOException {
