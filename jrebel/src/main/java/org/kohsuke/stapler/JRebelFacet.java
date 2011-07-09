@@ -23,8 +23,8 @@ import static java.util.logging.Level.*;
 public class JRebelFacet extends Facet {
     private final Map<Class,MetaClass> metaClasses = new HashMap<Class, MetaClass>();
 
-    public JRebelFacet() {
-        try {
+    public class ReloaderHook implements Runnable {
+        public void run() {
             ReloaderFactory.getInstance().addClassReloadListener(new ClassEventListener() {
                 public void onClassEvent(int eventType, Class klass) {
                     synchronized (metaClasses) {
@@ -43,8 +43,16 @@ public class JRebelFacet extends Facet {
                     return PRIORITY_DEFAULT;
                 }
             });
-        } catch (LinkageError e) {
-            LOGGER.log(FINE,"JRebel support failed to load",e);
+        }
+    }
+
+    public JRebelFacet() {
+        try {
+            Runnable r = (Runnable)Class.forName(JRebelFacet.class.getName()+"$ReloaderHook")
+                    .getConstructor(JRebelFacet.class).newInstance(this);
+            r.run();
+        } catch (Throwable e) {
+            LOGGER.log(FINE, "JRebel support failed to load", e);
         }
     }
 
