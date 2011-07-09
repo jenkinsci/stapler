@@ -303,5 +303,5 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         return ch;
     }
 
-    private static final ModelBuilder MODEL_BUILDER = new ModelBuilder();
+    /*package*/ static ModelBuilder MODEL_BUILDER = new ModelBuilder();
 }

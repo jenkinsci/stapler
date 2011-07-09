@@ -74,9 +74,7 @@ public class MetaClass extends TearOffSupport {
         this.webApp = webApp;
         this.baseClass = webApp.getMetaClass(clazz.getSuperclass());
         this.classLoader = MetaClassLoader.get(clazz.getClassLoader());
-
-        buildDispatchers(
-            new ClassDescriptor(clazz,null/*support wrappers*/));
+        buildDispatchers();
     }
 
     /**
@@ -86,7 +84,10 @@ public class MetaClass extends TearOffSupport {
      * This is the meat of URL dispatching. It looks at the class
      * via reflection and figures out what URLs are handled by who. 
      */
-    private void buildDispatchers( ClassDescriptor node ) {
+    /*package*/ void buildDispatchers() {
+        this.dispatchers.clear();
+        ClassDescriptor node = new ClassDescriptor(clazz,null/*TODO:support wrappers*/);
+
         // check action <obj>.do<token>(...)
         for( final Function f : node.methods.prefix("do") ) {
             WebMethod a = f.getAnnotation(WebMethod.class);

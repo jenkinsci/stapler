@@ -15,6 +15,7 @@
     <module>jelly</module>
     <module>jruby</module>
     <module>groovy</module>
+    <module>jrebel</module>
   </modules>
 
   <organization>
