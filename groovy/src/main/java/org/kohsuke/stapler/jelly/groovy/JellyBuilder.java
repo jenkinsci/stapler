@@ -32,6 +32,7 @@ import org.apache.commons.beanutils.ConvertingWrapDynaBean;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaProperty;
 import org.apache.commons.jelly.DynaTag;
+import org.apache.commons.jelly.Jelly;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyTagException;
@@ -468,6 +469,13 @@ public final class JellyBuilder extends GroovyObjectSupport {
             if (r==MISSING) throw e;
             return r;
         }
+    }
+
+    /**
+     * Sets the value to {@link JellyContext} (typically as a pre-cursor to calling into Jelly tags.)
+     */
+    public void set(String var, Object value) {
+        context.setVariable(var,value);
     }
     
     /**
