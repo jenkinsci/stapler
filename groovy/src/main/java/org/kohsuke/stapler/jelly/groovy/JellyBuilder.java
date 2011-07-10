@@ -446,6 +446,12 @@ public final class JellyBuilder extends GroovyObjectSupport {
 
     /**
      * Writes PCDATA.
+     *
+     * <p>
+     * Any HTML unsafe characters in the string representation of the given object is
+     * properly escaped.
+     *
+     * @see #raw(Object) 
      */
     public void text(Object o) throws SAXException {
         if (o!=null)
@@ -454,6 +460,12 @@ public final class JellyBuilder extends GroovyObjectSupport {
 
     /**
      * Generates HTML fragment from string.
+     *
+     * <p>
+     * The string representation of the object is assumed to produce proper HTML.
+     * No further escaping is performed.
+     *
+     * @see #text(Object)
      */
     public void raw(Object o) throws SAXException {
         if (o!=null)
