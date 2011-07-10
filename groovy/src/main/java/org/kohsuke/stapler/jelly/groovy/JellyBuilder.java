@@ -134,6 +134,10 @@ public final class JellyBuilder extends GroovyObjectSupport {
         return output;
     }
 
+    public JellyContext getContext() {
+        return context;
+    }
+
     /**
      * Includes another view.
      */
