@@ -41,8 +41,9 @@ public final class TokenList {
 
     TokenList(String url) {
         StringTokenizer tknzr = new StringTokenizer(url,"/");
-        tokens = new String[tknzr.countTokens()];
-        rawTokens = new String[tknzr.countTokens()];
+        final int tokenCount = tknzr.countTokens();
+        tokens = new String[tokenCount];
+        rawTokens = new String[tokenCount];
         for(int i=0; tknzr.hasMoreTokens(); i++) {
             rawTokens[i] = tknzr.nextToken();
             tokens[i] = decode(rawTokens[i]);
