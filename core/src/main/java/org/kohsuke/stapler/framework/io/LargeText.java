@@ -260,12 +260,15 @@ public class LargeText {
          * to {@link OutputStream} if necessary.
          */
         void moveTo(Mark that, OutputStream os) throws IOException {
+        	ByteBuf previous = this.buf;
             while(this.buf!=that.buf) {
                 os.write(buf.buf,0,buf.size);
+                previous = buf;
                 buf = buf.next;
                 pos = 0;
             }
-
+            // don't want to keep already writen bits, can lead to OOM
+            previous.next = null;
             this.pos = that.pos;
         }
 
