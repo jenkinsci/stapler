@@ -530,6 +530,8 @@ public class Stapler extends HttpServlet {
         if(!req.tokens.hasMore()) {
             String servletPath = getServletPath(req);
             if(!servletPath.endsWith("/")) {
+                // if we are serving the index page, we demand that the URL be '/some/dir/' not '/some/dir'
+                // so that relative links in the page will resolve correctly. Apache does the same thing.
                 String target = req.getContextPath() + servletPath + '/';
                 if(req.getQueryString()!=null)
                     target += '?' + req.getQueryString();
