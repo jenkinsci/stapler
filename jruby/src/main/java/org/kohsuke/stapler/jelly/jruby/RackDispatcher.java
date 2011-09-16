@@ -58,6 +58,6 @@ public class RackDispatcher extends Dispatcher {
     }
 
     public String toString() {
-        return "call(env) for any URL";
+        return "call(env) to delegate to Rack-compatible Ruby objects";
     }
 }
