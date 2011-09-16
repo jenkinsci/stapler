@@ -1,5 +1,7 @@
 package org.kohsuke.stapler.jelly.jruby;
 
+import org.jruby.Ruby;
+import org.jruby.RubyModule;
 import org.jruby.RubyObject;
 import org.jruby.internal.runtime.methods.DynamicMethod;
 import org.jruby.rack.DefaultRackApplication;
@@ -26,6 +28,7 @@ public class RackDispatcher extends Dispatcher {
     @Override
     public boolean dispatch(final RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
         RubyObject x = (RubyObject) node;
+        Ruby runtime = x.getRuntime();
 
         DynamicMethod m = x.getMetaClass().searchMethod("call");
         if (m==null) // does this instance respond to the 'call' method?
@@ -43,7 +46,8 @@ public class RackDispatcher extends Dispatcher {
             }
         };
         // servletHandler = Rack::Handler::Servlet.new(node)
-        IRubyObject servletHandler = x.getRuntime().getClass("Rack::Handler::Servlet").callMethod("new", x);
+        runtime.getLoadService().require("rack/handler/servlet");
+        IRubyObject servletHandler = ((RubyModule)runtime.getModule("Rack").getConstantAt("Handler")).getClass("Servlet").callMethod("new", x);
 
         DefaultRackApplication dra = new DefaultRackApplication();
         dra.setApplication(servletHandler);
