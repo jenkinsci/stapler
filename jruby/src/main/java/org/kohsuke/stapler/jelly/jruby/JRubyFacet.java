@@ -118,30 +118,10 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
         }
     }
 
-    protected abstract class ScriptInvokingDispatcher extends Dispatcher {
-        protected boolean invokeScript(RequestImpl req, ResponseImpl rsp, Object node, String next, Script script) throws IOException, ServletException {
-            try {
-                if(script==null) return false;
-                
-                req.tokens.next();
-
-                if(traceable())
-                    trace(req,rsp,"Invoking "+next+" on "+node+" for "+req.tokens);
-
-                WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, rsp, script, node);
-
-                return true;
-            } catch (RuntimeException e) {
-                throw e;
-            } catch (IOException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new ServletException(e);
-            }
-        }
-
-        public String toString() {
-            return "TOKEN for url=/TOKEN/...";
+    @Override
+    public void buildFallbackDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
+        if (RubyObject.class.isAssignableFrom(owner.clazz)) {
+            dispatchers.add(new RackDispatcher());
         }
     }
 
@@ -193,5 +173,6 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
 
         return false;
     }
+
 }
 

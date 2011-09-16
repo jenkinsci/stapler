@@ -53,6 +53,11 @@ public abstract class Facet {
     public abstract void buildViewDispatchers(MetaClass owner, List<Dispatcher> dispatchers);
 
     /**
+     * Adds {@link Dispatcher}s that do catch-all behaviours like "doDispatch" does.
+     */
+    public void buildFallbackDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {}
+
+    /**
      * Discovers all the facets in the classloader.
      */
     public static List<Facet> discover(ClassLoader cl) {

@@ -343,6 +343,9 @@ public class MetaClass extends TearOffSupport {
         // TODO: check if we can route to static resources
         // which directory shall we look up a resource from?
 
+        for (Facet f : webApp.facets)
+            f.buildFallbackDispatchers(this, dispatchers);
+
         // check action <obj>.doDynamic(...)
         for( final Function f : node.methods.name("doDynamic") ) {
 
