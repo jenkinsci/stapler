@@ -2,8 +2,10 @@ package org.kohsuke.stapler.jelly.jruby;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.jelly.Script;
+import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.embed.ScriptingContainer;
+import org.jruby.javasupport.util.RuntimeHelpers;
 
 import java.io.IOException;
 import java.net.URL;
@@ -14,10 +16,6 @@ import java.net.URL;
  * <p>
  * One often needs to do some preparation work in every {@link ScriptingContainer} that it uses,
  * such as loading gem. Instance of this captures that context.
- *
- * <p>
- * Right now, we only use one {@link ScriptingContainer}, so this isn't serving any useful purpose,
- * but this is in anticipation of the future expansion to handle multiple {@link ScriptingContainer}s.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -35,18 +33,18 @@ public class RubyTemplateContainer {
     /**
      * This {@link RubyTemplateContainer} instance if scoped to this JRuby interpreter context.
      */
-    public final ScriptingContainer container;
+    public final Ruby runtime;
 
-    public RubyTemplateContainer(RubyClass scriptClass, RubyTemplateLanguage language, ScriptingContainer container) {
+    public RubyTemplateContainer(RubyClass scriptClass, RubyTemplateLanguage language, Ruby runtime) {
         this.scriptClass = scriptClass;
         this.language = language;
-        this.container = container;
+        this.runtime = runtime;
     }
 
     public Script parseScript(URL path) throws IOException {
         try {
             String template = IOUtils.toString(path.openStream(), "UTF-8");
-            return (Script) container.callMethod(scriptClass, "new", template);
+            return (Script) RuntimeHelpers.invoke(runtime.getCurrentContext(),scriptClass,"new",runtime.newString(template));
         } catch (Exception e) {
             throw (IOException) new IOException("Failed to parse "+path).initCause(e);
         }

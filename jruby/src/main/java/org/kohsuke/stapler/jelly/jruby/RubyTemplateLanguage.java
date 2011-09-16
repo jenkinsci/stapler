@@ -1,6 +1,6 @@
 package org.kohsuke.stapler.jelly.jruby;
 
-import org.jruby.embed.ScriptingContainer;
+import org.jruby.Ruby;
 
 /**
  * Ruby template language binding.
@@ -21,5 +21,5 @@ public abstract class RubyTemplateLanguage {
     /**
      * Called to set up this template language binding on the specified scripting container.
      */
-    protected abstract RubyTemplateContainer createContainer(ScriptingContainer container);
+    protected abstract RubyTemplateContainer createContainer(Ruby runtime);
 }

@@ -2,10 +2,15 @@ package org.kohsuke.stapler.jelly.jruby;
 
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
+import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.RubyKernel;
 import org.jruby.RubyObject;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.ScriptingContainer;
+import org.jruby.javasupport.Java;
+import org.jruby.runtime.Block;
+import org.jruby.runtime.builtin.IRubyObject;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.Facet;
@@ -45,15 +50,10 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
     /*package*/ final List<RubyTemplateLanguage> languages = new CopyOnWriteArrayList<RubyTemplateLanguage>();
 
     /**
-     * There are all kinds of downsides in doing this, but for the time being we just use one scripting container.
+     * When evaluating Ruby scripts for Java objects that have no associated Ruby runtime,
+     * we'll use this.
      */
-    private final ScriptingContainer container;
-
-    /**
-     * {@link RubyTemplateContainer}s keyed by their {@linkplain RubyTemplateLanguage#getScriptExtension() extensions}.
-     * (since {@link #container} is a singleton per {@link JRubyFacet}, this is also just one map.
-     */
-    private final Map<String,RubyTemplateContainer> templateContainers = new HashMap<String, RubyTemplateContainer>();
+    private final Ruby defaultRuntime;
 
     private final Collection<Class<? extends AbstractRubyTearOff>> tearOffTypes = new CopyOnWriteArrayList<Class<? extends AbstractRubyTearOff>>();
 
@@ -62,19 +62,37 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
         languages.addAll(Facet.discoverExtensions(RubyTemplateLanguage.class,
                 Thread.currentThread().getContextClassLoader(), getClass().getClassLoader()));
 
-        container = new ScriptingContainer(LocalContextScope.SINGLETHREAD); // we don't want any funny multiplexing from ScriptingContainer.
-        container.runScriptlet("require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'");
+        defaultRuntime = new ScriptingContainer(LocalContextScope.SINGLETHREAD).getRuntime(); // we don't want any funny multiplexing from ScriptingContainer.
 
         for (RubyTemplateLanguage l : languages) {
-            templateContainers.put(l.getScriptExtension(),l.createContainer(container));
             tearOffTypes.add(l.getTearOffClass());
         }
     }
 
-    private RubyTemplateContainer selectTemplateContainer(String path) {
+    private RubyTemplateContainer selectTemplateContainer(Ruby runtime, String path) {
+        IRubyObject containers = runtime.getGlobalVariables().get(TEMPLATE_CONTAINER);
+        if (containers==null) {
+            synchronized (this) {
+                containers = runtime.getGlobalVariables().get(TEMPLATE_CONTAINER);
+                if (containers==null) {
+                    // first time we see this runtime. inject out stuff
+
+                    runtime.getLoadService().require("org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl");
+
+                    HashMap<String, RubyTemplateContainer> tc = new HashMap<String, RubyTemplateContainer>();
+                    for (RubyTemplateLanguage l : languages) {
+                        tc.put(l.getScriptExtension(), l.createContainer(runtime));
+                    }
+                    runtime.getGlobalVariables().set(TEMPLATE_CONTAINER,Java.getInstance(runtime, tc));
+                }
+            }
+        }
+
+        HashMap<String, RubyTemplateContainer> tc = (HashMap)containers.toJava(HashMap.class);
+
         int idx = path.lastIndexOf('.');
         if (idx >= 0) {
-            RubyTemplateContainer t = templateContainers.get(path.substring(idx));
+            RubyTemplateContainer t = tc.get(path.substring(idx));
             if (t!=null)    return t;
         }
         throw new IllegalArgumentException("Unrecognized file extension: "+path);
@@ -193,5 +211,7 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
 
         return false;
     }
+
+    private static final String TEMPLATE_CONTAINER = "$STAPLER_TEMPLATE_CONTAINER";
 }
 

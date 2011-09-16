@@ -1,5 +1,6 @@
 package org.kohsuke.stapler.jelly.jruby.erb;
 
+import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.embed.ScriptingContainer;
 import org.kohsuke.MetaInfServices;
@@ -22,11 +23,10 @@ public class ERbLanguage extends RubyTemplateLanguage {
     }
 
     @Override
-    protected RubyTemplateContainer createContainer(ScriptingContainer jruby) {
+    protected RubyTemplateContainer createContainer(Ruby jruby) {
+        jruby.getLoadService().require("org/kohsuke/stapler/jelly/jruby/erb/JRubyJellyERbScript");
         return new RubyTemplateContainer(
-            (RubyClass)jruby.runScriptlet(
-                    "require 'org/kohsuke/stapler/jelly/jruby/erb/JRubyJellyERbScript'\n"+
-                    "JRubyJellyScriptImpl::JRubyJellyERbScript"),
+            jruby.getModule("JRubyJellyScriptImpl").getClass("JRubyJellyERbScript"),
             this, jruby);
     }
 }
