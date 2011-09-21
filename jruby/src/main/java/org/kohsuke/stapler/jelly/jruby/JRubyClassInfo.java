@@ -70,7 +70,7 @@ public final class JRubyClassInfo extends CachingScriptLoader<Script,IOException
      * Converts "FooBarZot" to "foo_bar_zot"
      */
     static String decamelize(String s) {
-        return s.replaceAll("(.)(\\p{javaUpperCase}\\p{javaLowerCase})","$1_$2")
+        return s.replaceAll("(\\p{javaLetterOrDigit})(\\p{javaUpperCase}\\p{javaLowerCase})","$1_$2")
                 .replaceAll("(\\p{javaLowerCase})(\\p{javaUpperCase})","$1_$2")
                 .toLowerCase(Locale.ENGLISH);
     }
