@@ -41,7 +41,7 @@ public final class JRubyClassInfo extends CachingScriptLoader<Script,IOException
             for (RubyTemplateLanguage l : facet.languages) {
                 URL res = findResource(name+l.getScriptExtension(), cl);
                 if(res!=null)
-                    return facet.parseScript(res);
+                    return facet.parseScript(clazz.getRuntime(),res);
             }
         }
 

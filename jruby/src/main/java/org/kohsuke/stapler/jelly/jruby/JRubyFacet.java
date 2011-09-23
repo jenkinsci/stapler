@@ -99,7 +99,15 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
     }
 
     public Script parseScript(URL template) throws IOException {
-        return selectTemplateContainer(template.getPath()).parseScript(template);
+        return parseScript(defaultRuntime,template);
+    }
+
+    /**
+     * Loads the template by using the specific ruby runtime, not by
+     * using the default implicit ruby container.
+     */
+    public Script parseScript(Ruby runtime, URL template) throws IOException {
+        return selectTemplateContainer(runtime,template.getPath()).parseScript(template);
     }
 
     public synchronized JRubyClassInfo getClassInfo(RubyClass r) {
