@@ -856,7 +856,7 @@ public class Stapler extends HttpServlet {
             CONVERT_UTILS.register(c,type);
             return c;
         } catch (ClassNotFoundException e) {
-            return null;
+            // fall through
         } catch (IllegalAccessException e) {
             IllegalAccessError x = new IllegalAccessError();
             x.initCause(e);
@@ -866,6 +866,14 @@ public class Stapler extends HttpServlet {
             x.initCause(e);
             throw x;
         }
+
+        // bean utils doesn't check the super type, so converters that apply to multiple types
+        // need to be handled outside its semantics
+        if (Enum.class.isAssignableFrom(type)) { // enum
+            return ENUM_CONVERTER;
+        }
+
+        return null;
     }
 
     static {
@@ -898,4 +906,10 @@ public class Stapler extends HttpServlet {
         CONVERT_UTILS.register(new FloatConverter(null),Float.class);
         CONVERT_UTILS.register(new DoubleConverter(null),Double.class);
     }
+
+    private static final Converter ENUM_CONVERTER = new Converter() {
+        public Object convert(Class type, Object value) {
+            return Enum.valueOf(type,value.toString());
+        }
+    };
 }
