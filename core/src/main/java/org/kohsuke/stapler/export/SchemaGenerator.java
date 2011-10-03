@@ -25,6 +25,7 @@ package org.kohsuke.stapler.export;
 
 import com.sun.xml.txw2.TXW;
 import com.sun.xml.txw2.output.ResultFactory;
+import java.beans.Introspector;
 import org.kohsuke.stapler.export.XSD.ComplexType;
 import org.kohsuke.stapler.export.XSD.ContentModel;
 import org.kohsuke.stapler.export.XSD.Element;
@@ -72,7 +73,7 @@ public class SchemaGenerator {
         written.clear();
 
         // element decl for the root element
-        s.element().name(top.type.getSimpleName()).type(getXmlTypeName(top.type));
+        s.element().name(Introspector.decapitalize(top.type.getSimpleName())).type(getXmlTypeName(top.type));
 
         // write all beans
         while(!queue.isEmpty())
