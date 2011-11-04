@@ -24,7 +24,7 @@ function makeStaplerProxy(url,crumb,methods) {
             new Ajax.Request(url+methodName, {
                 method: 'post',
                 requestHeaders: {'Content-type':'application/x-stapler-method-invocation;charset=UTF-8','Crumb':crumb},
-                postBody: a.toJSON(),
+                postBody: Object.toJSON(a),
                 onSuccess: function(t) {
                     if (callback!=null) {
                         t.responseObject = function() {
