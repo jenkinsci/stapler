@@ -44,7 +44,10 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
             Multimap<TypeElement, Element/*member decls*/> props = LinkedListMultimap.create();
 
             for (Element exported : roundEnv.getElementsAnnotatedWith(Exported.class)) {
-                props.put((TypeElement)exported.getEnclosingElement(), exported);
+                Element type = exported.getEnclosingElement();
+                if (type.getKind().isClass() || type.getKind().isInterface()) {
+                    props.put((TypeElement)type, exported);
+                }
             }
 
 
