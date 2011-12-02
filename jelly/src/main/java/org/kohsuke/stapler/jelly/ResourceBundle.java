@@ -28,8 +28,11 @@ import org.kohsuke.stapler.WebApp;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -78,23 +81,22 @@ public class ResourceBundle {
      * to "pt" then "" (the no-locale locale.)
      */
     public String getFormatString(Locale locale, String key) {
-        StringBuilder buf = new StringBuilder();
-        buf.append('_').append(locale.getLanguage());
-        buf.append('_').append(locale.getCountry());
-        buf.append('_').append(locale.getVariant());
-        String suffix = buf.toString();
+        String[] suffixes = toStrings(locale);
 
         while(true) {
-            String msg = get(suffix).getProperty(key);
-            if(msg!=null && msg.length()>0)
-                // ignore a definition without value, because stapler:i18n generates
-                // value-less definitions
-                return msg;
+            for (int i=0; i<suffixes.length; i++) {
+                String suffix = suffixes[i];
+                String msg = get(suffix).getProperty(key);
+                if(msg!=null && msg.length()>0)
+                    // ignore a definition without value, because stapler:i18n generates
+                    // value-less definitions
+                    return msg;
 
-            int idx = suffix.lastIndexOf('_');
-            if(idx<0)   // failed to find
-                return null;
-            suffix = suffix.substring(0,idx);
+                int idx = suffix.lastIndexOf('_');
+                if(idx<0)   // failed to find
+                    return null;
+                suffixes[i] = suffix.substring(0,idx);
+            }
         }
     }
 
@@ -103,10 +105,27 @@ public class ResourceBundle {
      * searching up the delegation chain.
      */
     public String getFormatStringWithoutDefaulting(Locale locale, String key) {
-        String msg = get('_'+locale.toString()).getProperty(key);
-        if(msg!=null && msg.length()>0)
-            return msg;
+        for (String s : toStrings(locale)) {
+            String msg = get(s).getProperty(key);
+            if(msg!=null && msg.length()>0)
+                return msg;
+        }
         return null;
+    }
+
+    /**
+     * Some language codes have changed over time, such as Hebrew from iw to he.
+     * This method returns all such variations in an array.
+     *
+     * @see Locale#getLanguage()
+     */
+    private String[] toStrings(Locale l) {
+        String v = ISO639_MAP.get(l.getLanguage());
+        if (v==null)
+            return new String[]{'_'+l.toString()};
+        else
+            return new String[]{'_'+l.toString(),
+                                '_'+v+l.toString().substring(2)};
     }
 
     protected void clearCache() {
@@ -184,5 +203,16 @@ public class ResourceBundle {
 
         JellyFacet facet = WebApp.getCurrent().getFacet(JellyFacet.class);
         return facet.resourceBundleFactory.create(jellyUrl);
+    }
+
+    /**
+     * JDK internally converts new ISO-639 code back to old code. This table provides reverse mapping.
+     */
+    private static final Map<String,String> ISO639_MAP = new HashMap<String, String>();
+
+    static {
+        ISO639_MAP.put("iw","he");
+        ISO639_MAP.put("ji","yi");
+        ISO639_MAP.put("in","id");
     }
 }
