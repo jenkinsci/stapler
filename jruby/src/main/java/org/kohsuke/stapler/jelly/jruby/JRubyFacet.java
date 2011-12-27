@@ -23,14 +23,12 @@ import org.kohsuke.stapler.lang.Klass;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 
@@ -42,8 +40,6 @@ import java.util.logging.Level;
  */
 @MetaInfServices(Facet.class)
 public class JRubyFacet extends Facet implements JellyCompatibleFacet {
-    private final Map<RubyClass,JRubyClassInfo> classMap = new WeakHashMap<RubyClass,JRubyClassInfo>();
-
     /*package*/ final List<RubyTemplateLanguage> languages = new CopyOnWriteArrayList<RubyTemplateLanguage>();
 
     /**
@@ -93,17 +89,16 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
     @Override
     public Klass<RubyModule> getKlass(Object o) {
         if (o instanceof RubyObject)
-            return  new Klass<RubyModule>(((RubyObject)o).getMetaClass(),navigator);
+            return makeKlass(((RubyObject) o).getMetaClass());
         return null;
     }
 
-    public synchronized JRubyClassInfo getClassInfo(RubyClass r) {
-        if (r==null)    return null;
+    private Klass<RubyModule> makeKlass(RubyModule o) {
+        return new Klass<RubyModule>(o,navigator);
+    }
 
-        JRubyClassInfo o = classMap.get(r);
-        if (o==null)
-            classMap.put(r,o=new JRubyClassInfo(this,r,navigator));
-        return o;
+    public synchronized MetaClass getClassInfo(RubyClass r) {
+        return WebApp.getCurrent().getMetaClass(makeKlass(r));
     }
 
     private boolean isRuby(MetaClass mc) {
@@ -111,17 +106,6 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
     }
 
     public void buildViewDispatchers(final MetaClass owner, List<Dispatcher> dispatchers) {
-        if (isRuby(owner)) {
-            dispatchers.add(new ScriptInvokingDispatcher() {
-                @Override
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    String next = req.tokens.peek();
-                    if(next==null) return false;
-                    JRubyClassInfo info = getClassInfo(((RubyObject) node).getMetaClass());
-                    return invokeScript(req, rsp, node, next, info.findScript(next));
-                }
-            });
-        }
         for (final Class<? extends AbstractRubyTearOff> t : getClassTearOffTypes()) {
             dispatchers.add(new ScriptInvokingDispatcher() {
                 final AbstractRubyTearOff tearOff = owner.loadTearOff(t);
@@ -159,22 +143,9 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
         return mc.loadTearOff(ERbClassTearOff.class).createDispatcher(it,viewName);
     }
 
-    public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
-        if (node instanceof RubyObject) {
-            JRubyClassInfo info = getClassInfo(((RubyObject) node).getMetaClass());
-            Script script = info.findScript("index");
-            if (script!=null) {
-                try {
-                    WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, rsp, script, node);
-                    return true;
-                } catch (JellyTagException e) {
-                    throw new ServletException(e);
-                }
-            }
-        }
-
+    public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass mc) throws IOException, ServletException {
         for (Class<? extends AbstractRubyTearOff> t : getClassTearOffTypes()) {
-            AbstractRubyTearOff rt = nodeMetaClass.loadTearOff(t);
+            AbstractRubyTearOff rt = mc.loadTearOff(t);
             Script script = rt.findScript("index");
             if(script!=null) {
                 try {

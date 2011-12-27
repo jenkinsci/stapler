@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The stapler version of the {@link Class} object,
+ * Created one instance each for a {@link Klass},
  * that retains some useful cache about a class and its views.
  *
  * @author Kohsuke Kawaguchi
