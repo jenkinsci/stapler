@@ -17,9 +17,23 @@ import java.util.List;
 public abstract class KlassNavigator<C> {
     /**
      * Loads the resources associated with this class.
-     * 
+     *
      * <p>
-     * Implementation must consult {@link MetaClassLoader#debugLoader} if it's available.
+     * In stapler, the convention is that the "associated" resources live in the directory named after
+     * the fully qualified class name (as opposed to the behavior of {@link Class#getResource(String)},
+     * that looks for resources in the same package as the class.)
+     *
+     * <p>
+     * But other languages can choose their own conventions if it makes more sense to do so.
+     * For example, stapler-jruby uses camelized class name.
+     *
+     * <p>
+     * Implementation must consult {@link MetaClassLoader#debugLoader} if it's available. Implementation
+     * must not look for resources in the base type. That operation is performed by the caller when
+     * needed.
+     *
+     * @return
+     *      non-null if the resource is found. Otherwise null.
      */
     public abstract URL getResource(C clazz, String resourceName);
 
@@ -30,14 +44,12 @@ public abstract class KlassNavigator<C> {
      */
     public abstract Iterable<Klass<?>> getAncestors(C clazz);
 
-    public URL lookupResourceFromInheritanceTree(C clazz, String resourceName) {
-        for (Klass<?> c : getAncestors(clazz)) {
-            URL url = c.getResource(resourceName);
-            if (url!=null)  return url;
-        }
-        return null;
-    }
-
+    /**
+     * Gets the super class.
+     *
+     * @return
+     *      Can be null.
+     */
     public abstract Klass<?> getSuperClass(C clazz);
 
     /**
@@ -49,6 +61,9 @@ public abstract class KlassNavigator<C> {
     public static final KlassNavigator<Class> JAVA = new KlassNavigator<Class>() {
         @Override
         public URL getResource(Class clazz, String resourceName) {
+            ClassLoader cl = clazz.getClassLoader();
+            if (cl==null)   return null;
+
             String fullName;
             if (resourceName.startsWith("/"))
                 fullName = resourceName.substring(1);
@@ -59,7 +74,7 @@ public abstract class KlassNavigator<C> {
                 URL res = MetaClassLoader.debugLoader.loader.getResource(fullName);
                 if (res!=null)  return res;
             }
-            return clazz.getClassLoader().getResource(fullName);
+            return cl.getResource(fullName);
         }
 
         @Override
