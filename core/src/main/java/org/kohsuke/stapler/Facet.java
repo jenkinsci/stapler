@@ -107,7 +107,9 @@ public abstract class Facet {
      *      If "it" is non-null, {@code it.getClass()}. Otherwise the class
      *      from which the view is searched.
      */
-    public abstract RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName) throws IOException;
+    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName) throws IOException {
+        return null;    // should be really abstract, but not
+    }
 
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
         return createRequestDispatcher(request,Klass.java(type),it,viewName);
