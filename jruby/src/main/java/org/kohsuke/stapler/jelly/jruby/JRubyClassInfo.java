@@ -23,10 +23,13 @@ public final class JRubyClassInfo extends CachingScriptLoader<Script,IOException
     private final JRubyFacet facet;
 
     public final RubyClass clazz;
+    
+    private final RubyKlassNavigator navigator;
 
-    JRubyClassInfo(JRubyFacet facet, RubyClass clazz) {
+    JRubyClassInfo(JRubyFacet facet, RubyClass clazz, RubyKlassNavigator navigator) {
         this.facet = facet;
         this.clazz = clazz;
+        this.navigator = navigator;
     }
 
     public JRubyClassInfo getSuperClass() {
@@ -39,7 +42,7 @@ public final class JRubyClassInfo extends CachingScriptLoader<Script,IOException
 
         if(cl!=null) {
             for (RubyTemplateLanguage l : facet.languages) {
-                URL res = findResource(name+l.getScriptExtension(), cl);
+                URL res = getResource(name + l.getScriptExtension());
                 if(res!=null)
                     return facet.parseScript(res);
             }
@@ -54,16 +57,8 @@ public final class JRubyClassInfo extends CachingScriptLoader<Script,IOException
     }
 
     @Override
-    protected URL getResource(String name, ClassLoader cl) {
-        URL res;
-        if(name.startsWith("/")) {
-            // try name as full path to the Jelly script
-            res = cl.getResource(name.substring(1));
-        } else {
-            // assume that it's a view of this class
-            res = cl.getResource(decamelize(clazz.getName().replace("::","/"))+'/'+name);
-        }
-        return res;
+    protected URL getResource(String name) {
+        return navigator.getResource(clazz,name);
     }
 
     /**

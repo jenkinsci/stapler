@@ -28,6 +28,7 @@ import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.XMLOutput;
+import org.kohsuke.stapler.lang.Klass;
 
 import java.net.URL;
 
@@ -39,8 +40,13 @@ import java.net.URL;
 public final class JellyViewScript implements Script {
     /**
      * Which class is this view loaded from?
+     * @deprecated as of 1.177 
+     *      Use {@link #fromKlass}
      */
     public final Class from;
+    
+    public final Klass<?> fromKlass;
+    
     /**
      * Full URL that points to the source of the script.
      */
@@ -48,8 +54,20 @@ public final class JellyViewScript implements Script {
 
     private Script base;
 
+    /**
+     * @deprecated as of 1.177
+     *      use {@link #JellyViewScript(Klass, URL, Script)}
+     */
     public JellyViewScript(Class from, URL source, Script base) {
         this.from = from;
+        this.fromKlass = Klass.java(from);
+        this.source = source;
+        this.base = base;
+    }
+    
+    public JellyViewScript(Klass from, URL source, Script base) {
+        this.from = from.toJavaClass();
+        this.fromKlass = from;
         this.source = source;
         this.base = base;
     }

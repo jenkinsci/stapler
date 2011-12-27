@@ -69,7 +69,8 @@ public class ThisTagLibrary extends TagLibrary {
                 if (it==null)
                     throw new JellyTagException("'"+ expr.getExpressionText() +"' evaluated to null");
                 try {
-                    MetaClass c = WebApp.getCurrent().getMetaClass(it instanceof Class? (Class)it : it.getClass());
+                    WebApp webApp = WebApp.getCurrent();
+                    MetaClass c = webApp.getMetaClass(it instanceof Class ? (Class) it :  webApp.getKlass(it));
                     // prefer 'foo.jellytag' to avoid tags from showing up as views,
                     // but for backward compatibility, support the plain .jelly extention as well.
                     Script tag = c.loadTearOff(JellyClassTearOff.class).findScript(tagName+".jellytag");

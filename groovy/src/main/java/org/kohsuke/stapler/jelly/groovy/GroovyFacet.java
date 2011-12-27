@@ -35,6 +35,7 @@ import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.jelly.JellyCompatibleFacet;
 import org.kohsuke.stapler.jelly.JellyFacet;
 import org.kohsuke.MetaInfServices;
+import org.kohsuke.stapler.lang.Klass;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -94,7 +95,7 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
         return EXTENSION;
     }
 
-    public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
+    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass type, Object it, String viewName) throws IOException {
         TearOffSupport mc = request.stapler.getWebApp().getMetaClass(type);
         return mc.loadTearOff(GroovyClassTearOff.class).createDispatcher(it,viewName);
     }

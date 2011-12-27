@@ -30,6 +30,7 @@ import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.MetaInfServices;
+import org.kohsuke.stapler.lang.Klass;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -75,10 +76,11 @@ public class JSPFacet extends Facet {
         });
     }
 
-    public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
+    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass type, Object it, String viewName) throws IOException {
         ServletContext context = request.stapler.getServletContext();
 
-        for( Class c = type; c!=Object.class; c=c.getSuperclass() ) {
+        // JSP support is deprecated, and this doesn't work with non-Java objects
+        for( Class c = type.toJavaClass(); c!=Object.class; c=c.getSuperclass() ) {
             String name = "/WEB-INF/side-files/"+c.getName().replace('.','/').replace('$','/')+'/'+viewName;
             if(context.getResource(name)!=null) {
                 // Tomcat returns a RequestDispatcher even if the JSP file doesn't exist.

@@ -36,6 +36,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.bind.BoundObjectTable;
+import org.kohsuke.stapler.lang.Klass;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -147,14 +148,18 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     public RequestDispatcher getView(Object it,String viewName) throws IOException {
-        return getView(it.getClass(),it,viewName);
+        return getView(Klass.java(it.getClass()),it,viewName);
     }
 
     public RequestDispatcher getView(Class clazz, String viewName) throws IOException {
+        return getView(Klass.java(clazz),null,viewName);
+    }
+
+    public RequestDispatcher getView(Klass<?> clazz, String viewName) throws IOException {
         return getView(clazz,null,viewName);
     }
 
-    public RequestDispatcher getView(Class clazz, Object it, String viewName) throws IOException {
+    public RequestDispatcher getView(Klass<?> clazz, Object it, String viewName) throws IOException {
         for( Facet f : stapler.getWebApp().facets ) {
             RequestDispatcher rd = f.createRequestDispatcher(this,clazz,it,viewName);
             if(rd!=null)

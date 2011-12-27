@@ -57,22 +57,20 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
         if (name.lastIndexOf('.')<=name.lastIndexOf('/'))   // no file extension provided
             name += getDefaultScriptExtension();
 
-        ClassLoader cl = owner.clazz.getClassLoader();
-        if(cl!=null) {
-            URL res = findResource(name, cl);
-            if(res==null) {
-                // look for 'defaults' file
-                int dot = name.lastIndexOf('.');
-                // foo/bar.groovy -> foo/bar.default.groovy
-                // but don't do foo.bar/test -> foo.default.bar/test
-                // as of 2010/9, this behaviour is considered deprecated, but left here for backward compatibility.
-                // we need a better way to refer to the resource of the same name in the base type.
-                if(name.lastIndexOf('/')<dot)
-                    res = findResource(name.substring(0,dot)+".default"+name.substring(dot),cl);
-            }
-            if(res!=null)
-                return parseScript(res);
+        URL res = getResource(name);
+        if(res==null) {
+            // look for 'defaults' file
+            int dot = name.lastIndexOf('.');
+            // foo/bar.groovy -> foo/bar.default.groovy
+            // but don't do foo.bar/test -> foo.default.bar/test
+            // as of 2010/9, this behaviour is considered deprecated, but left here for backward compatibility.
+            // we need a better way to refer to the resource of the same name in the base type.
+            if(name.lastIndexOf('/')<dot)
+                res = getResource(name.substring(0, dot) + ".default" + name.substring(dot));
         }
+        if(res!=null)
+            return parseScript(res);
+
         return null;
     }
 
@@ -92,15 +90,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
      */
     protected abstract S parseScript(URL res) throws E;
 
-    protected URL getResource(String name, ClassLoader cl) {
-        URL res;
-        if(name.startsWith("/")) {
-            // try name as full path to the Jelly script
-            res = cl.getResource(name.substring(1));
-        } else {
-            // assume that it's a view of this class
-            res = cl.getResource(owner.clazz.getName().replace('.','/').replace('$','/')+'/'+name);
-        }
-        return res;
+    protected URL getResource(String name) {
+        return owner.klass.getResource(name);
     }
 }

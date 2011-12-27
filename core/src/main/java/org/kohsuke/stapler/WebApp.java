@@ -25,6 +25,7 @@ package org.kohsuke.stapler;
 
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.bind.BoundObjectTable;
+import org.kohsuke.stapler.lang.Klass;
 
 import javax.servlet.ServletContext;
 import java.util.Map;
@@ -101,7 +102,7 @@ public class WebApp {
      *
      * Avoids class leaks by {@link WeakHashMap}.
      */
-    private final Map<Class,MetaClass> classMap = new WeakHashMap<Class,MetaClass>();
+    private final Map<Klass<?>,MetaClass> classMap = new WeakHashMap<Klass<?>,MetaClass>();
 
     /**
      * Handles objects that are exported.
@@ -170,6 +171,10 @@ public class WebApp {
     }
 
     public MetaClass getMetaClass(Class c) {
+        return getMetaClass(Klass.java(c));
+    }
+    
+    public MetaClass getMetaClass(Klass<?> c) {
         if(c==null)     return null;
         synchronized(classMap) {
             MetaClass mc = classMap.get(c);
@@ -181,6 +186,25 @@ public class WebApp {
         }
     }
 
+    /**
+     * Obtains a {@link MetaClass} that represents the type of the given object.
+     *
+     * <p>
+     * This code consults all facets to handle scripting language objects correctly.
+     */
+    public MetaClass getMetaClass(Object o) {
+        return getMetaClass(getKlass(o));
+    }
+
+    public Klass<?> getKlass(Object o) {
+        for (Facet f : facets) {
+            Klass<?> k = f.getKlass(o);
+            if (k!=null)
+                return k;
+        }
+        return Klass.java(o.getClass());
+    }
+    
     /**
      * Convenience maintenance method to clear all the cached scripts for the given tearoff type.
      *

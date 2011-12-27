@@ -58,6 +58,7 @@ import org.kohsuke.stapler.framework.adjunct.NoSuchAdjunctException;
 import org.kohsuke.stapler.jelly.CustomTagLibrary;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
+import org.kohsuke.stapler.lang.Klass;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -143,18 +144,18 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * Includes another view.
      */
     public void include(Object it, String view) throws IOException, JellyException {
-        _include(it,it.getClass(),view);
+        _include(it,request.getWebApp().getKlass(it),view);
     }
 
     /**
      * Includes another view.
      */
     public void include(Class clazz, String view) throws IOException, JellyException {
-        _include(null,clazz,view);
+        _include(null,Klass.java(clazz),view);
     }
 
-    private void _include(Object it, Class clazz, String view) throws IOException, JellyException {
-        JellyClassTearOff t = WebApp.getCurrent().getMetaClass(clazz).getTearOff(JellyClassTearOff.class);
+    private void _include(Object it, Klass clazz, String view) throws IOException, JellyException {
+        JellyClassTearOff t = request.getWebApp().getMetaClass(clazz).getTearOff(JellyClassTearOff.class);
         Script s = t.findScript(view);
         if(s==null)
             throw new IllegalArgumentException("No such view: "+view+" for "+clazz);
@@ -165,7 +166,8 @@ public final class JellyBuilder extends GroovyObjectSupport {
         context.setVariable("from", it);
 
         ClassLoader old = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
+        if (clazz.clazz instanceof Class)
+            Thread.currentThread().setContextClassLoader(((Class)clazz.clazz).getClassLoader());
         try {
             s.run(context,output);
         } finally {

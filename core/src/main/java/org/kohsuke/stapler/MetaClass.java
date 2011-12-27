@@ -26,6 +26,7 @@ package org.kohsuke.stapler;
 import net.sf.json.JSONArray;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
+import org.kohsuke.stapler.lang.Klass;
 
 import javax.servlet.ServletException;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
@@ -42,13 +43,18 @@ import java.util.Map;
  * that retains some useful cache about a class and its views.
  *
  * @author Kohsuke Kawaguchi
- * @see WebApp#getMetaClass(Class)
+ * @see WebApp#getMetaClass(Klass)
  */
 public class MetaClass extends TearOffSupport {
     /**
      * This meta class wraps this class
+     * 
+     * @deprecated as of 1.177
+     *      Use {@link #klass}. If you really want the Java class representation, use {@code klass.toJavaClass()}.
      */
     public final Class clazz;
+    
+    public final Klass<?> klass;
 
     /**
      * {@link MetaClassLoader} that wraps {@code clazz.getClassLoader()}.
@@ -69,10 +75,11 @@ public class MetaClass extends TearOffSupport {
      */
     public final WebApp webApp;
 
-    /*package*/ MetaClass(WebApp webApp, Class clazz) {
-        this.clazz = clazz;
+    /*package*/ MetaClass(WebApp webApp, Klass<?> klass) {
+        this.clazz = klass.toJavaClass();
+        this.klass = klass;
         this.webApp = webApp;
-        this.baseClass = webApp.getMetaClass(clazz.getSuperclass());
+        this.baseClass = webApp.getMetaClass(klass.getSuperClass());
         this.classLoader = MetaClassLoader.get(clazz.getClassLoader());
         buildDispatchers();
     }

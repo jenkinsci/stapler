@@ -53,7 +53,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
     }
 
     protected Script parseScript(URL res) throws JellyException {
-        return new JellyViewScript(owner.clazz, res, classLoader.createContext().compileScript(res));
+        return new JellyViewScript(owner.klass, res, classLoader.createContext().compileScript(res));
     }
 
     @Override

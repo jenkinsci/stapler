@@ -32,6 +32,7 @@ import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.TearOffSupport;
+import org.kohsuke.stapler.lang.Klass;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContextEvent;
@@ -115,7 +116,7 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
         return EXTENSION;
     }
 
-    public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
+    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName) throws IOException {
         TearOffSupport mc = request.stapler.getWebApp().getMetaClass(type);
         return mc.loadTearOff(JellyClassTearOff.class).createDispatcher(it,viewName);
     }

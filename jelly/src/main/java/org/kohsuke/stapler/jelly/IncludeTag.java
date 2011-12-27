@@ -113,7 +113,7 @@ public class IncludeTag extends TagSupport {
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new JellyTagException("Error loading '"+page+"' for "+c.clazz,e);
+            throw new JellyTagException("Error loading '"+page+"' for "+c.klass,e);
         }
 
         if(script==null) {
@@ -121,7 +121,7 @@ public class IncludeTag extends TagSupport {
                 invokeBody(output);
                 return;
             }
-            throw new JellyTagException("No page found '"+page+"' for "+c.clazz);
+            throw new JellyTagException("No page found '"+page+"' for "+c.klass);
         }
 
         context = new JellyContext(getContext());

@@ -27,6 +27,7 @@ import org.apache.commons.discovery.ResourceNameIterator;
 import org.apache.commons.discovery.resource.ClassLoaders;
 import org.apache.commons.discovery.resource.names.DiscoverServiceNames;
 import org.kohsuke.MetaInfServices;
+import org.kohsuke.stapler.lang.Klass;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -106,7 +107,11 @@ public abstract class Facet {
      *      If "it" is non-null, {@code it.getClass()}. Otherwise the class
      *      from which the view is searched.
      */
-    public abstract RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException;
+    public abstract RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName) throws IOException;
+
+    public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
+        return createRequestDispatcher(request,Klass.java(type),it,viewName);
+    }
 
     /**
      * Attempts to route the HTTP request to the 'index' page of the 'it' object.
@@ -115,4 +120,15 @@ public abstract class Facet {
      *      true if the processing succeeds. Otherwise false.
      */
     public abstract boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException;
+
+    /**
+     * Maps an instance to a {@link Klass}. This is the generalization of {@code o.getClass()}.
+     * 
+     * This is for those languages that use something other than {@link Class} to represent the concept of a class.
+     * Those facets that are fine with {@code o.getClass()} should return null so that it gives other facets a chance
+     * to map it better.
+     */
+    public Klass<?> getKlass(Object o) {
+        return null;
+    }
 }

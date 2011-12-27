@@ -525,7 +525,7 @@ public class Stapler extends HttpServlet {
             }
         }
 
-        MetaClass metaClass = webApp.getMetaClass(node.getClass());
+        MetaClass metaClass = webApp.getMetaClass(node);
 
         if(!req.tokens.hasMore()) {
             String servletPath = getServletPath(req);
@@ -665,7 +665,7 @@ public class Stapler extends HttpServlet {
             w.println("</pre>");
             w.printf("<p>&lt;%s&gt; has the following URL mappings, in the order of preference:",node);
             w.println("<ol>");
-            MetaClass metaClass = webApp.getMetaClass(node.getClass());
+            MetaClass metaClass = webApp.getMetaClass(node);
             for (Dispatcher d : metaClass.dispatchers) {
                 w.println("<li>");
                 w.println(d.toString());

@@ -3,6 +3,7 @@ package org.kohsuke.stapler.jelly.jruby;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.jruby.RubyClass;
+import org.jruby.RubyModule;
 import org.jruby.RubyObject;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.ScriptingContainer;
@@ -17,6 +18,7 @@ import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.jelly.JellyCompatibleFacet;
 import org.kohsuke.stapler.jelly.JellyFacet;
 import org.kohsuke.stapler.jelly.jruby.erb.ERbClassTearOff;
+import org.kohsuke.stapler.lang.Klass;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -49,6 +51,8 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
      */
     private final ScriptingContainer container;
 
+    private final RubyKlassNavigator navigator;
+
     /**
      * {@link RubyTemplateContainer}s keyed by their {@linkplain RubyTemplateLanguage#getScriptExtension() extensions}.
      * (since {@link #container} is a singleton per {@link JRubyFacet}, this is also just one map.
@@ -64,6 +68,8 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
 
         container = new ScriptingContainer(LocalContextScope.SINGLETHREAD); // we don't want any funny multiplexing from ScriptingContainer.
         container.runScriptlet("require 'org/kohsuke/stapler/jelly/jruby/JRubyJellyScriptImpl'");
+
+        navigator = new RubyKlassNavigator(container.getProvider().getRuntime(), getClass().getClassLoader());
 
         for (RubyTemplateLanguage l : languages) {
             templateContainers.put(l.getScriptExtension(),l.createContainer(container));
@@ -84,17 +90,28 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
         return selectTemplateContainer(template.getPath()).parseScript(template);
     }
 
+    @Override
+    public Klass<RubyModule> getKlass(Object o) {
+        if (o instanceof RubyObject)
+            return  new Klass<RubyModule>(((RubyObject)o).getMetaClass(),navigator);
+        return null;
+    }
+
     public synchronized JRubyClassInfo getClassInfo(RubyClass r) {
         if (r==null)    return null;
 
         JRubyClassInfo o = classMap.get(r);
         if (o==null)
-            classMap.put(r,o=new JRubyClassInfo(this,r));
+            classMap.put(r,o=new JRubyClassInfo(this,r,navigator));
         return o;
     }
 
+    private boolean isRuby(MetaClass mc) {
+        return mc.klass.clazz instanceof RubyModule;
+    }
+
     public void buildViewDispatchers(final MetaClass owner, List<Dispatcher> dispatchers) {
-        if (RubyObject.class.isAssignableFrom(owner.clazz)) {
+        if (isRuby(owner)) {
             dispatchers.add(new ScriptInvokingDispatcher() {
                 @Override
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
@@ -120,7 +137,7 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
 
     @Override
     public void buildFallbackDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
-        if (RubyObject.class.isAssignableFrom(owner.clazz)) {
+        if (isRuby(owner)) {
             dispatchers.add(new RackDispatcher());
         }
     }
@@ -137,7 +154,7 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
     }
 
 
-    public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
+    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName) throws IOException {
         TearOffSupport mc = request.stapler.getWebApp().getMetaClass(type);
         return mc.loadTearOff(ERbClassTearOff.class).createDispatcher(it,viewName);
     }

@@ -2,6 +2,7 @@ package org.kohsuke.stapler;
 
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.export.ModelBuilder;
+import org.kohsuke.stapler.lang.Klass;
 import org.zeroturnaround.javarebel.ClassEventListener;
 import org.zeroturnaround.javarebel.ReloaderFactory;
 
@@ -59,13 +60,15 @@ public class JRebelFacet extends Facet {
 
     @Override
     public void buildViewDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
-        synchronized (metaClasses) {
-            metaClasses.put(owner.clazz,owner);
+        if (owner.klass.clazz instanceof Class) {
+            synchronized (metaClasses) {
+                metaClasses.put((Class)owner.klass.clazz,owner);
+            }
         }
     }
 
     @Override
-    public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) {
+    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName) {
         return null;
     }
 

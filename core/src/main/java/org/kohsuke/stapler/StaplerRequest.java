@@ -41,6 +41,7 @@ import java.util.List;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
 import org.kohsuke.stapler.bind.BoundObjectTable;
+import org.kohsuke.stapler.lang.Klass;
 
 /**
  * Defines additional parameters/operations made available by Stapler.
@@ -110,6 +111,11 @@ public interface StaplerRequest extends HttpServletRequest {
     RequestDispatcher getView(Object it,String viewName) throws IOException;
 
     /**
+     * Convenience method to call {@link #getView(Klass, String)} with {@link Class}.
+     */
+    RequestDispatcher getView(Class clazz,String viewName) throws IOException;
+
+    /**
      * Gets the {@link RequestDispatcher} that represents a specific view
      * for the given class.
      *
@@ -119,7 +125,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * {@code getView(it.getClass(),viewName)} and {@code getView(it,viewName)}
      * aren't the same thing.
      */
-    RequestDispatcher getView(Class clazz,String viewName) throws IOException;
+    RequestDispatcher getView(Klass<?> clazz, String viewName) throws IOException;
 
     /**
      * Gets the part of the request URL from protocol up to the context path.

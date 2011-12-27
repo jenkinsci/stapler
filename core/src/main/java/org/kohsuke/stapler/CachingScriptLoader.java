@@ -73,17 +73,5 @@ public abstract class CachingScriptLoader<S, E extends Exception> {
         scripts.clear();
     }
 
-    /**
-     * Wraps the {@link #getResource(String, ClassLoader)} and make it support debug loader.
-     */
-    protected final URL findResource(String name, ClassLoader cl) {
-        URL res = null;
-        if (MetaClassLoader.debugLoader != null)
-            res = getResource(name, MetaClassLoader.debugLoader.loader);
-        if (res == null)
-            res = getResource(name, cl);
-        return res;
-    }
-
-    protected abstract URL getResource(String name, ClassLoader cl);
+    protected abstract URL getResource(String name);
 }
