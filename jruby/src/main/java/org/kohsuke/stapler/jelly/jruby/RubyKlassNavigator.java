@@ -55,6 +55,7 @@ public class RubyKlassNavigator extends KlassNavigator<RubyModule> {
 
     @Override
     public Klass<?> getSuperClass(RubyModule clazz) {
+        // TODO: what happens when a Ruby class extends from Java class?
         return wrap(clazz.getSuperClass());
     }
 
