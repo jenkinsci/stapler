@@ -201,7 +201,8 @@ public final class JellyBuilder extends GroovyObjectSupport {
                 closure = (Closure) object;
                 break;
             } else {
-                innerText = object.toString();
+                if (object!=null)
+                    innerText = object.toString();
             }
             break;
         }
@@ -300,7 +301,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
             if(!wroteHEAD && name.getLocalPart().equalsIgnoreCase("HEAD")) {
                 wroteHEAD = true;
                 AdjunctsInPage.get().writeSpooled(output);
-            }
+            }g
             if(closure!=null) {
                 closure.setDelegate(this);
                 closure.call();
