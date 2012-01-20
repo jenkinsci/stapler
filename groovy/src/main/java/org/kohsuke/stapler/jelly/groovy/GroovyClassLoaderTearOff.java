@@ -24,6 +24,7 @@
 package org.kohsuke.stapler.jelly.groovy;
 
 import groovy.lang.GroovyClassLoader;
+import groovy.lang.GroovyCodeSource;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.MetaClassLoader;
@@ -73,6 +74,11 @@ public class GroovyClassLoaderTearOff {
     }
 
     public GroovierJellyScript parse(URL script) throws IOException {
-        return new GroovierJellyScript(gcl.parseClass(script.openStream(), script.toExternalForm()),script);
+        // we do the caching on our own, so don't let GroovyClassLoader cache this. Or else
+        // dynamic reloading won't work
+        GroovyCodeSource gcs = new GroovyCodeSource(script);
+        gcs.setCachable(false);
+
+        return new GroovierJellyScript(gcl.parseClass(gcs),script);
     }
 }
