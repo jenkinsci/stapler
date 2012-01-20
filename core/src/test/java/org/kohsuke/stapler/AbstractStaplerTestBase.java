@@ -1,6 +1,7 @@
 package org.kohsuke.stapler;
 
 import junit.framework.TestCase;
+import org.kohsuke.stapler.test.AbstractStaplerTest;
 import org.mockito.Mockito;
 
 import javax.servlet.ServletConfig;
@@ -10,9 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 
 /**
+ * This class needs to be in this package to access package-protected stuff.
+ * You should extend from {@link AbstractStaplerTest}.
+ *
  * @author Kohsuke Kawaguchi
  */
-public abstract class StaplerTestCase extends TestCase {
+public abstract class AbstractStaplerTestBase extends TestCase {
 
     protected WebApp webApp;
     protected RequestImpl request;

@@ -4,16 +4,16 @@ import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.MetaClass;
-import org.kohsuke.stapler.StaplerTestCase;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 import org.kohsuke.stapler.jelly.jruby.erb.ERbClassTearOff;
+import org.kohsuke.stapler.test.AbstractStaplerTest;
 
 import java.io.StringWriter;
 
 /**
  * @author Kohsuke Kawaguchi
  */
-public class SanityTest extends StaplerTestCase {
+public class SanityTest extends AbstractStaplerTest {
     public void testSanityERb() throws Exception {
         MetaClass mc = webApp.getMetaClass(SanityTest.class);
         ERbClassTearOff jr = mc.getTearOff(ERbClassTearOff.class);
