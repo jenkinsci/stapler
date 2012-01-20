@@ -68,7 +68,7 @@
         This isn't needed unless the user has a Groovy dependency, so marked as optional.
        -->
       <groupId>org.codehaus.groovy</groupId>
-      <artifactId>groovy</artifactId>
+      <artifactId>groovy-all</artifactId>
       <version>1.8.3</version>
       <optional>true</optional>
     </dependency>
