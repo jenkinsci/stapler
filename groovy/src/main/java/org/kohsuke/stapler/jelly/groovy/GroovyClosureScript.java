@@ -56,6 +56,9 @@ import groovy.lang.Script;
  * ((Closure)binding.getProperty("b")).call(2);
  * </pre>
  *
+ * This is convenient for building DSL as you can use an external object to define
+ * methods and properties.
+ *
  * @author Kohsuke Kawaguchi
  */
 public abstract class GroovyClosureScript extends Script {
