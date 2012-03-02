@@ -24,12 +24,11 @@
 package org.kohsuke.stapler;
 
 import org.apache.commons.io.IOUtils;
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.EmptyVisitor;
+import org.kohsuke.asm3.ClassReader;
+import org.kohsuke.asm3.Label;
+import org.kohsuke.asm3.MethodVisitor;
+import org.kohsuke.asm3.Type;
+import org.kohsuke.asm3.commons.EmptyVisitor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -185,7 +184,7 @@ public final class ClassDescriptor {
                     else
                         return null; // ignore this method
                 }
-            }, false);
+            }, 0);
 
             // Indexes may not be sequential, but first set of local variables are method params
             int i = 0;
@@ -221,7 +220,7 @@ public final class ClassDescriptor {
                     else
                         return null; // ignore this method
                 }
-            }, false);
+            }, 0);
 
             // Indexes may not be sequential, but first set of local variables are method params
             int i = 0;

@@ -78,11 +78,9 @@
       <version>r06</version>
     </dependency>
     <dependency>
-      <!-- optionally read in parameter names from the debug info -->
-      <groupId>asm</groupId>
-      <artifactId>asm-commons</artifactId>
-      <version>2.2.3</version>
-      <optional>true</optional>
+      <groupId>org.kohsuke</groupId>
+      <artifactId>asm3</artifactId>
+      <version>3.3.0</version>
     </dependency>
     <dependency>
       <!-- perhaps mark this dependency optional? -->
