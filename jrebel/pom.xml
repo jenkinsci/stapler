@@ -25,15 +25,16 @@
     <dependency>
       <groupId>org.zeroturnaround</groupId>
       <artifactId>jr-sdk</artifactId>
-      <version>3.1.1</version>
+      <version>2.1.1</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
 
+  <!--
   <repositories>
     <repository>
       <id>zt-repo</id>
-      <url>http://repos.zeroturnaround.com/maven2</url>
+      <url>http://repos.zeroturnaround.com/nexus/content/groups/zt-public/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -43,5 +44,6 @@
       </releases>
     </repository>
   </repositories>
+  -->
 </project>
 
