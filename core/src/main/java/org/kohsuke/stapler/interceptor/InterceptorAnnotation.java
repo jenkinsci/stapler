@@ -18,6 +18,7 @@ import static java.lang.annotation.RetentionPolicy.*;
  *
  * @author Kohsuke Kawaguchi
  * @see Interceptor
+ * @see RequirePOST
  */
 @Target(ANNOTATION_TYPE)
 @Retention(RUNTIME)
