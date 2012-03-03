@@ -200,7 +200,7 @@ public class MetaClass extends TearOffSupport {
                     public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                         if(traceable())
                             traceEval(req,rsp,node,f.getName()+"()");
-                        req.getStapler().invoke(req,rsp, f.invoke(req, node));
+                        req.getStapler().invoke(req,rsp, f.invoke(req, rsp, node));
                         return true;
                     }
                     public String toString() {
@@ -219,7 +219,7 @@ public class MetaClass extends TearOffSupport {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     if(traceable())
                         traceEval(req,rsp,node,f.getName()+"(...)");
-                    req.getStapler().invoke(req,rsp, f.invoke(req, node, req));
+                    req.getStapler().invoke(req,rsp, f.invoke(req, rsp, node, req));
                     return true;
                 }
                 public String toString() {
@@ -238,7 +238,7 @@ public class MetaClass extends TearOffSupport {
                     String token = req.tokens.next();
                     if(traceable())
                         traceEval(req,rsp,node,f.getName()+"(\""+token+"\")");
-                    req.getStapler().invoke(req,rsp, f.invoke(req,node,token));
+                    req.getStapler().invoke(req,rsp, f.invoke(req, rsp, node,token));
                     return true;
                 }
                 public String toString() {
@@ -257,7 +257,7 @@ public class MetaClass extends TearOffSupport {
                     int idx = req.tokens.nextAsInt();
                     if(traceable())
                         traceEval(req,rsp,node,f.getName()+"("+idx+")");
-                    req.getStapler().invoke(req,rsp, f.invoke(req,node,idx));
+                    req.getStapler().invoke(req,rsp, f.invoke(req, rsp, node,idx));
                     return true;
                 }
                 public String toString() {

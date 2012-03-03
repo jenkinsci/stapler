@@ -23,11 +23,15 @@
 
 package org.kohsuke.stapler;
 
+import org.kohsuke.stapler.interceptor.Interceptor;
+import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
+
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Declares that methods are only available for requests that
@@ -41,6 +45,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RUNTIME)
 @Target({METHOD,FIELD})
+@InterceptorAnnotation(LimitedTo.Processor.class)
 public @interface LimitedTo {
     /**
      * The name of role.
@@ -48,4 +53,22 @@ public @interface LimitedTo {
      * to this role.
      */
     String value();
+    
+    public static class Processor extends Interceptor {
+        private String role;
+        @Override
+        public void setTarget(Function target) {
+            role = target.getAnnotation(LimitedTo.class).value();
+            super.setTarget(target);
+        }
+
+        @Override
+        public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
+                throws IllegalAccessException, InvocationTargetException {
+            if(request.isUserInRole(role))
+                return target.invoke(request, response, instance, arguments);
+            else
+                throw new IllegalAccessException("Needs to be in role "+role);
+        }
+    }
 }

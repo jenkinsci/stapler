@@ -31,7 +31,6 @@ import org.kohsuke.asm3.Type;
 import org.kohsuke.asm3.commons.EmptyVisitor;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -39,7 +38,6 @@ import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
@@ -73,7 +71,7 @@ public final class ClassDescriptor {
         // instance methods
         List<Function> functions = new ArrayList<Function>();
         for (Method m : clazz.getMethods()) {
-            functions.add(new Function.InstanceFunction(m).protectBy(m));
+            functions.add(new Function.InstanceFunction(m).wrapByInterceptors(m));
         }
         if(wrappers!=null) {
             for (Class w : wrappers) {
@@ -85,7 +83,7 @@ public final class ClassDescriptor {
                         continue;
                     if(p[0].isAssignableFrom(clazz))
                         continue;
-                    functions.add(new Function.StaticFunction(m).protectBy(m));
+                    functions.add(new Function.StaticFunction(m).wrapByInterceptors(m));
                 }
             }
         }
