@@ -113,6 +113,12 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                     String next = req.tokens.peek();
                     if(next==null) return false;
+
+                    // only match the end of the URL
+                    if (req.tokens.countRemainingTokens()>1)    return false;
+                    // and avoid serving both "foo" and "foo/" as relative URL semantics are drastically different
+                    if (req.getRequestURI().endsWith("/"))      return false;
+
                     return invokeScript(req, rsp, node, next, tearOff.findScript(next));
                 }
             });

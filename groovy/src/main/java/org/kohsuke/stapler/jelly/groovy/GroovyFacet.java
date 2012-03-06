@@ -61,6 +61,11 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
                 String next = req.tokens.peek();
                 if(next==null)  return false;
 
+                // only match the end of the URL
+                if (req.tokens.countRemainingTokens()>1)    return false;
+                // and avoid serving both "foo" and "foo/" as relative URL semantics are drastically different
+                if (req.getRequestURI().endsWith("/"))      return false;
+
                 try {
                     Script script = tearOff.findScript(next+".groovy");
                     if(script==null)        return false;   // no Groovy script found
