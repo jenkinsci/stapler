@@ -40,7 +40,7 @@ public class EvaluationTrace {
         traces.add(msg);
         // Firefox Live HTTP header plugin cannot nicely render multiple headers
         // with the same name, so give each one unique name.
-        rsp.addHeader(String.format("Stapler-Trace-%03d",traces.size()),msg);
+        rsp.addHeader(String.format("Stapler-Trace-%03d",traces.size()),msg.replace("\n","\\n").replace("\r","\\r"));
     }
     
     public void printHtml(PrintWriter w) {
