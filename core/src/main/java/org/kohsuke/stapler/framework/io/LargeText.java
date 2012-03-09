@@ -174,6 +174,7 @@ public class LargeText {
             ByteBuf buf = new ByteBuf(null,f);
             HeadMark head = new HeadMark(buf);
             TailMark tail = new TailMark(buf);
+            buf = null;
 
             int readLines = 0;
             while(tail.moveToNextLine(f) && readLines++ < MAX_LINES_READ) {
@@ -258,7 +259,7 @@ public class LargeText {
 
         /**
          * Moves this mark to 'that' mark, and writes the data
-         * to {@link OutputStream} if necessary.
+         * in between to {@link OutputStream} if necessary.
          */
         void moveTo(Mark that, OutputStream os) throws IOException {
             while(this.buf!=that.buf) {
