@@ -175,7 +175,8 @@ public class LargeText {
             HeadMark head = new HeadMark(buf);
             TailMark tail = new TailMark(buf);
 
-            while(tail.moveToNextLine(f)) {
+            int readLines = 0;
+            while(tail.moveToNextLine(f) && readLines++ < MAX_LINES_READ) {
                 head.moveTo(tail,os);
             }
             head.finish(os);
@@ -394,4 +395,9 @@ public class LargeText {
             return in.read(buf,offset,length);
         }
     }
+
+    /**
+     * We cap the # of lines read in one batch to avoid buffering too much in memory.
+     */
+    private static final int MAX_LINES_READ = 10000;
 }
