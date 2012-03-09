@@ -194,6 +194,10 @@ public class Stapler extends HttpServlet {
         private OpenConnection(URLConnection connection) throws IOException {
             this(connection,connection.getInputStream());
         }
+
+        private void close() throws IOException {
+            stream.close();
+        }
     }
 
     private OpenConnection openResourcePathByLocale(HttpServletRequest req,String resourcePath) throws IOException {
@@ -238,11 +242,15 @@ public class Stapler extends HttpServlet {
      */
     boolean serveStaticResource(HttpServletRequest req, StaplerResponse rsp, OpenConnection con, long expiration) throws IOException {
         if(con==null)   return false;
-        return serveStaticResource(req,rsp, con.stream,
-                con.connection.getLastModified(),
-                expiration,
-                con.connection.getContentLength(),
-                con.connection.getURL().toString());
+        try {
+            return serveStaticResource(req,rsp, con.stream,
+                    con.connection.getLastModified(),
+                    expiration,
+                    con.connection.getContentLength(),
+                    con.connection.getURL().toString());
+        } finally {
+            con.close();
+        }
     }
 
     /**
