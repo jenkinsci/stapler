@@ -72,14 +72,20 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         return hwo;
     }
 
-    protected OutputStream createOutputStream(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException {
-        // do we want to do compression?
-        OutputStream output=null;
+    private boolean doCompression(Script script) {
+        if (COMPRESS_BY_DEFAULT)    return true;
         if (script instanceof TagScript) {
             TagScript ts = (TagScript) script;
             if(ts.getLocalName().equals("compress"))
-                output = rsp.getCompressedOutputStream(req);
+                return true;
         }
+        return false;
+    }
+    protected OutputStream createOutputStream(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException {
+        // do we want to do compression?
+        OutputStream output=null;
+        if (doCompression(script))
+            output = rsp.getCompressedOutputStream(req);
         if(output==null)    // nope
             output = new BufferedOutputStream(rsp.getOutputStream());
 
@@ -132,4 +138,24 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
             return XMLOutput.createXMLOutput(writer, escapeText);
         return HTMLWriterOutput.create(writer, escapeText);
     }
+
+    /**
+     * Whether gzip compression of the dynamic content is enabled by default or not.
+     *
+     * <p>
+     * For non-trivial web applications, where the performance matters, it is normally a good trade-off to spend
+     * a bit of CPU cycles to compress data. This is because:
+     *
+     * <ul>
+     * <li>CPU is already 1 or 2 order of magnitude faster than RAM and network.
+     * <li>CPU is getting faster than any other components, such as RAM and network.
+     * <li>Because of the TCP window slow start, on a large latency network, compression makes difference in
+     *     the order of 100ms to 1sec to the completion of a request by saving multiple roundtrips.
+     * </ul>
+     *
+     * Stuff rendered by Jelly is predominantly text, so the compression would work well.
+     *
+     * @see http://www.slideshare.net/guest22d4179/latency-trumps-all
+     */
+    public static boolean COMPRESS_BY_DEFAULT = Boolean.parseBoolean(System.getProperty(DefaultScriptInvoker.class.getName()+".compress","true"));
 }
