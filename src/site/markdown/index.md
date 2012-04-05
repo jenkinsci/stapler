@@ -6,5 +6,5 @@
       * [URL binding reference](reference.html)
       * [HTTP compression](compression.html)
       * [Internationalization support](i18n.html)
-      * [Javadoc](apidoc/)
+      * [Javadoc](apidocs/)
       * [Stapler jelly tag library reference and XML Schema](jelly-taglib-ref.html)

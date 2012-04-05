@@ -9,11 +9,10 @@
     <menu name="Stapler">
       <item name="Overview" href="index.html"/>
 
-      <item name="Download" href="http://java.net/projects/stapler/downloads" />
+      <item name="Download" href="http://repo.jenkins-ci.org/public/org/kohsuke/stapler/" />
 
-      <item name="Mailing lists" href="http://java.net/projects/stapler/lists"/>
-      <item name="Source code" href="http://java.net/projects/stapler/sources"/>
-      <item name="Javadoc" href="http://stapler.java.net/apidocs/"/>
+      <item name="Source code" href="https://github.com/stapler/"/>
+      <item name="Javadoc" href="http://stapler.kohsuke.org/apidocs/"/>
       <item name="Issues" href="http://java.net/jira/browse/STAPLER"/>
     </menu>
     ${reports}
