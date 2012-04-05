@@ -63,8 +63,8 @@
       <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
     </repository>
     <site>
-      <id>java.net</id>
-      <url>dav:https://java.net/website/stapler/</url>
+      <id>github-pages</id>
+      <url>gitsite:git@github.com/stapler/stapler.git</url>
     </site>
   </distributionManagement>
 
@@ -117,15 +117,21 @@
         <configuration>
           <!-- work around for a bug in javadoc plugin that causes the release to fail. see MRELEASE-271 -->
           <preparationGoals>clean install</preparationGoals>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.0-beta-9</version>
-        <configuration>
           <arguments>-P release</arguments>
           <remoteTagging>true</remoteTagging>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.0-beta-3</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.kohsuke</groupId>
+            <artifactId>doxia-module-markdown</artifactId>
+            <version>1.0</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
@@ -157,6 +163,11 @@
         <groupId>org.apache.maven.wagon</groupId>
         <artifactId>wagon-webdav</artifactId>
         <version>1.0-beta-2</version>
+      </extension>
+      <extension>
+        <groupId>org.kathrynhuxtable.maven.wagon</groupId>
+        <artifactId>wagon-gitsite</artifactId>
+        <version>0.3.1</version>
       </extension>
     </extensions>
   </build>
