@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="jelly:stapler" elementFormDefault="qualified">
+    <xsd:annotation>
+<xsd:documentation>Optional Jelly support, to write views in Jelly.</xsd:documentation>
+</xsd:annotation>
+    <xsd:element name="statusCode">
+<xsd:annotation>
+<xsd:documentation>Sets HTTP status code.
+        <p>This is generally useful for programatically creating the error page.</p>
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:attribute name="value" use="required">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+    <xsd:element name="redirect">
+<xsd:annotation>
+<xsd:documentation>Sends HTTP redirect.
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:attribute name="url" use="required">
+<xsd:annotation>
+<xsd:documentation>Sets the target URL to redirect to.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+    <xsd:element name="parentScope">
+<xsd:annotation>
+<xsd:documentation>Executes the body in the parent scope.This is useful for creating a 'local' scope.
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:sequence>
+<xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+</xsd:sequence>
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+    <xsd:element name="out">
+<xsd:annotation>
+<xsd:documentation>Tag that outputs the specified value but with escaping,so that you can escape a portion even if the org.apache.commons.jelly.XMLOutputis not escaping.
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:attribute name="value" use="required">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+    <xsd:element name="once">
+<xsd:annotation>
+<xsd:documentation>Tag that only evaluates its body once during the entire request processing.
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:sequence>
+<xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+</xsd:sequence>
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+    <xsd:element name="nbsp">
+<xsd:annotation>
+<xsd:documentation>Writes out '&amp;nbsp;'.
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+    <xsd:element name="isUserInRole">
+<xsd:annotation>
+<xsd:documentation>
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:sequence>
+<xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+</xsd:sequence>
+<xsd:attribute name="role" use="required">
+<xsd:annotation>
+<xsd:documentation>The name of the role against which the user is checked.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+    <xsd:element name="include">
+<xsd:annotation>
+<xsd:documentation>Tag that includes views of the object.
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:attribute name="page" use="required">
+<xsd:annotation>
+<xsd:documentation>Specifies the name of the JSP to be included.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="it">
+<xsd:annotation>
+<xsd:documentation>Specifies the object for which JSP will be included.Defaults to the "it" object in the current context.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="from">
+<xsd:annotation>
+<xsd:documentation>When loading the script, use the classloader from this objectto locate the script. Otherwise defaults to "it" object.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="class">
+<xsd:annotation>
+<xsd:documentation>When loading script, load from this class.By default this is "from.getClass()". This takesprecedence over the org.kohsuke.stapler.jelly.IncludeTag.setFrom(Object)method.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="optional">
+<xsd:annotation>
+<xsd:documentation>If true, not finding the page is not an error.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+    <xsd:element name="header">
+<xsd:annotation>
+<xsd:documentation>Adds an HTTP header to the response.
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:attribute name="name" use="required">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="value" use="required">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+    <xsd:element name="documentation">
+<xsd:annotation>
+<xsd:documentation>Documentation tag.
+        <p>At the runtime, this is no-op.</p>
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:sequence>
+<xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+</xsd:sequence>
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+    <xsd:element name="doctype">
+<xsd:annotation>
+<xsd:documentation>Writes out DOCTYPE declaration.
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:attribute name="publicId" use="required">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="systemId" use="required">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+    <xsd:element name="copyStream">
+<xsd:annotation>
+<xsd:documentation>Copies a stream as text.
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:attribute name="reader">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="inputStream">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="file">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="url">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+    <xsd:element name="contentType">
+<xsd:annotation>
+<xsd:documentation>Set the HTTP Content-Type header of the page.
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:attribute name="value" use="required">
+<xsd:annotation>
+<xsd:documentation>The content-type value, such as "text/html".</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+    <xsd:element name="compress">
+<xsd:annotation>
+<xsd:documentation>Outer-most wrapper tag to indicate that the gzip compression is desirablefor this output.
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:sequence>
+<xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+</xsd:sequence>
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+    <xsd:element name="adjunct">
+<xsd:annotation>
+<xsd:documentation>Writes out links to adjunct CSS and JavaScript, if not done so already.
+        <authortag>Kohsuke Kawaguchi</authortag>
+      </xsd:documentation>
+</xsd:annotation>
+<xsd:complexType mixed="true">
+<xsd:attribute name="includes" use="required">
+<xsd:annotation>
+<xsd:documentation>Comma-separated adjunct names.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="trim">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="escapeText">
+<xsd:annotation>
+<xsd:documentation/>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:complexType>
+</xsd:element>
+  </xsd:schema>

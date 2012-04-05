@@ -1,0 +1,34 @@
+<html>
+<head>
+	<title>HTTP compression support</title>
+	<link rel="stylesheet" type="text/css" href="stapler.css" />
+</head>
+<body>
+<h1>Static resources are sent with gzip</h1>
+<p>
+	When clients request static resources, stapler will send it with gzip as the content encoding whenever it can, to minimize the size of the data to be transferred. This only happens when the MIME type of the resource is "text/*", or the file extension is one of the well-known text file type.
+<p>
+	This happens all transparently, so there's nothing you nor the browser have to do.
+
+<h1>Sending compressed stream from the <tt>doXXX</tt> methods</h1>
+<p>
+	If you are writing action methods that serve text content, and if you'd like to compress the stream, you can call <tt>StaplerResponse.getCompressedOutputStream</tt> (instead of <tt>StaplerResponse.getOutputStream</tt>) or
+	<tt>StaplerResponse.getCompressedWriter</tt> (instead of <tt>StaplerResponse.getWriter</tt>) and then write to them normally.
+<p>
+	If the client doesn't support HTTP compression, these methods will silently revert to the normal uncompressed streams.
+
+
+<h1>Using compression from Jelly view</h1>
+<p>
+	If your view script produces text content, and if you'd like to compress the stream, put <tt>&lt;st:compress xmlns:st="jelly:stapler"></tt> as the root element of your view, like this:
+<pre class=code><xmp>
+<st:compres xmlns:st="jelly:stapler" ... other ns decls ...>
+  <html>
+    <head>
+      ...
+</xmp></pre>
+<p>
+	If the client doesn't support HTTP compression, stapler will silently revert to the normal uncompressed stream.
+</body>
+</html>
+
