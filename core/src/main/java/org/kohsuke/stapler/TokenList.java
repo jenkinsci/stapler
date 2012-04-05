@@ -47,6 +47,8 @@ public final class TokenList {
         for(int i=0; tknzr.hasMoreTokens(); i++) {
             rawTokens[i] = tknzr.nextToken();
             tokens[i] = decode(rawTokens[i]);
+            if (tokens[i].equals(".."))
+                throw new IllegalArgumentException(url);
         }
     }
 
