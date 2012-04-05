@@ -64,6 +64,14 @@ module JRubyJellyScriptImpl
       super # make it fail
     end
 
+    def respond_to?(name)
+      if super
+        true
+      else
+        context.getVariableWithDefaultValue(name.to_s, UNDEFINED) != UNDEFINED
+      end
+    end
+
     # load taglib
     def taglib(uri)
       # TODO: cache
