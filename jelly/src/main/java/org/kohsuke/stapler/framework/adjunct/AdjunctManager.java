@@ -111,6 +111,8 @@ public class AdjunctManager {
      */
     public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         String path = req.getRestOfPath();
+        if (path.charAt(0)=='/') path = path.substring(1);
+
         if(!allowedResources.containsKey(path)) {
             if(!allowResourceToBeServed(path)) {
                 rsp.sendError(SC_FORBIDDEN);
@@ -120,7 +122,6 @@ public class AdjunctManager {
             allowedResources.put(path,path);
         }
 
-        if (path.charAt(0)=='/') path = path.substring(1);
         URL res = classLoader.getResource(path);
         if(res==null) {
             throw HttpResponses.error(SC_NOT_FOUND,new IllegalArgumentException("No such adjunct found: "+path));
@@ -144,6 +145,12 @@ public class AdjunctManager {
      * Otherwise return true, in which case the resource will be served.
      */
     protected boolean allowResourceToBeServed(String absolutePath) {
+        // does it have an adjunct directory marker?
+        int idx = absolutePath.lastIndexOf('/');
+        if (idx>0 && classLoader.getResource(absolutePath.substring(0,idx)+"/.adjunct")!=null)
+            return true;
+
+        // backward compatible behaviour
         return absolutePath.endsWith(".gif")
             || absolutePath.endsWith(".png")
             || absolutePath.endsWith(".css")
