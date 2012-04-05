@@ -1,4 +1,3 @@
-# Stapler: RESTful web framework
 
 * [What is Stapler?](what-is.html)
 * [Download](http://repo.jenkins-ci.org/public/org/kohsuke/stapler/)
