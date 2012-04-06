@@ -135,11 +135,14 @@ public class Stapler extends HttpServlet {
                 staticLink = true;
             }
 
-            if(servletPath.length()!=0 && !servletPath.startsWith("/WEB-INF/")) {
-                // getResource requires '/' prefix (and resin insists on that, too) but servletPath can be empty string (hudson #879)
+            String lowerPath = servletPath.toLowerCase(Locale.ENGLISH);
+            if(servletPath.length()!=0 && !lowerPath.startsWith("/web-inf") && !lowerPath.startsWith("/meta-inf")) {
+                // getResource requires '/' prefix (and resin insists on that, too) but servletPath can be empty string (JENKINS-879)
                 // so make sure servletPath is at least length 1 before calling getResource()
 
-                // WEB-INF is by convention hidden and not supposed to be rendered to clients (HUDSON-7457)
+                // WEB-INF and META-INF are by convention hidden and not supposed to be rendered to clients (JENKINS-7457/JENKINS-11538)
+                // also note that Windows allows "/WEB-INF./" to refer to refer to this directory.
+                // here we also reject that (by rejecting /WEB-INF*)
 
                 OpenConnection con = openResourcePathByLocale(req,servletPath);
                 if(con!=null) {
