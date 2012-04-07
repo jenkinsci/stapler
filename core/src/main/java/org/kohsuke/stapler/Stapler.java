@@ -140,7 +140,7 @@ public class Stapler extends HttpServlet {
                 // getResource requires '/' prefix (and resin insists on that, too) but servletPath can be empty string (hudson #879)
                 // so make sure servletPath is at least length 1 before calling getResource()
 
-                // WEB-INF and META-INF are convention hidden and not supposed to be rendered to clients (HUDSON-7457)
+                // WEB-INF and META-INF are by convention hidden and not supposed to be rendered to clients (HUDSON-7457)
 
                 OpenConnection con = openResourcePathByLocale(req,servletPath);
                 if(con!=null) {
