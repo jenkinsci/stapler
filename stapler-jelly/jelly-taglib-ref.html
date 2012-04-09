@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+
+
+
+
+
+
+
+
+<html>
+  <head>
+    <title>Stapler Jelly module - Jelly Taglib references</title>
+    <style type="text/css" media="all">
+      @import url("./css/maven-base.css");
+      @import url("./css/maven-theme.css");
+      @import url("./css/1024px.css");
+      @import url("./css/site.css");
+    </style>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      </head>
+  <body>
+    <div id="wrap2"><div id="wrap">
+    <div id="header">
+      <p id="toplinks">Skip to: <a href="#content">Content</a> | <a href="#sidebar">Navigation</a> | <a href="#footer">Footer</a></p>
+		
+            <h1 id="bannerLeft">
+    
+            Stapler Jelly module
+    
+        </h1>
+                
+      <p id="slogan">Jelly binding for Stapler</p>
+    </div>
+    <div id="breadcrumbs">
+      <div class="xright">  </div>
+      <div class="clear">
+        <hr/>
+      </div>
+    </div>
+
+    <div id="sidebar">
+      <div id="navcolumn">
+                </div>
+    </div>
+    <div id="content">
+      <div id="contentBox">
+        <p>The following Jelly tag libraries are defined in this project.</p><a name="jelly"></a><div class="section"><h2>jelly:stapler<a name="jelly:stapler"></a></h2><doc>Optional Jelly support, to write views in Jelly.</doc><p>This tag library is <a href='taglib-jelly.xsd'>also available as an XML Schema</a></p><table border="0" class="bodyTable"><tr class="a"><th>Tag Name</th><th>Description</th></tr><tr class="b"><td><a href='#jelly:structuredMessageFormat'>structuredMessageFormat</a></td><td><doc>Format message from a resource, but by using a nested children as arguments, instead of just using expressions.</doc></td></tr><tr class="a"><td><a href='#jelly:structuredMessageArgument'>structuredMessageArgument</a></td><td><doc>Body is evaluated and is used as an argument for the surrounding &lt;structuredMessageFormat&gt; element.</doc></td></tr><tr class="b"><td><a href='#jelly:statusCode'>statusCode</a></td><td><doc>Sets HTTP status code.
+
+ 
+        <p>
+ This is generally useful for programatically creating the error page.</p>
+      </doc></td></tr><tr class="a"><td><a href='#jelly:redirect'>redirect</a></td><td><doc>Sends HTTP redirect.</doc></td></tr><tr class="b"><td><a href='#jelly:parentScope'>parentScope</a></td><td><doc>Executes the body in the parent scope.
+ This is useful for creating a 'local' scope.</doc></td></tr><tr class="a"><td><a href='#jelly:out'>out</a></td><td><doc>Tag that outputs the specified value but with escaping,
+ so that you can escape a portion even if the
+ org.apache.commons.jelly.XMLOutput is not escaping.</doc></td></tr><tr class="b"><td><a href='#jelly:nbsp'>nbsp</a></td><td><doc>Writes out '&amp;nbsp;'.</doc></td></tr><tr class="a"><td><a href='#jelly:isUserInRole'>isUserInRole</a></td><td><doc/></td></tr><tr class="b"><td><a href='#jelly:include'>include</a></td><td><doc>Tag that includes views of the object.</doc></td></tr><tr class="a"><td><a href='#jelly:header'>header</a></td><td><doc>Adds an HTTP header to the response.</doc></td></tr><tr class="b"><td><a href='#jelly:findAncestor'>findAncestor</a></td><td><doc>Finds the nearest tag (in the call stack) that has the given tag name,
+ and sets that as a variable.</doc></td></tr><tr class="a"><td><a href='#jelly:doctype'>doctype</a></td><td><doc>Writes out DOCTYPE declaration.</doc></td></tr><tr class="b"><td><a href='#jelly:copyStream'>copyStream</a></td><td><doc>Copies a stream as text.</doc></td></tr><tr class="a"><td><a href='#jelly:contentType'>contentType</a></td><td><doc>Set the HTTP Content-Type header of the page.</doc></td></tr><tr class="b"><td><a href='#jelly:compress'>compress</a></td><td><doc>Outer-most wrapper tag to indicate that the gzip compression is desirable
+ for this output.</doc></td></tr><tr class="a"><td><a href='#jelly:bind'>bind</a></td><td><doc>Binds a server-side object to client side so that JavaScript can call into server.
+ This tag evaluates to a &lt;script&gt; tag.</doc></td></tr><tr class="b"><td><a href='#jelly:attribute'>attribute</a></td><td><doc>Documentation for an attribute of a Jelly tag file.
+
+ 
+        <p>
+ This tag should be placed right inside </p>DocumentationTag
+ to describe attributes of a tag. The body would describe
+ the meaning of an attribute in a natural language.
+ The description text can also use
+ 
+        <a>Textile markup</a>
+      </doc></td></tr><tr class="a"><td><a href='#jelly:attributeConstraints'>attributeConstraints</a></td><td><doc>DTD-like expression that specifies the consraints on attribute appearances.
+
+ 
+        <p>
+ This tag should be placed right inside </p>DocumentationTag
+ to describe attributes of a tag.</doc></td></tr><tr class="b"><td><a href='#jelly:adjunct'>adjunct</a></td><td><doc>Writes out links to adjunct CSS and JavaScript, if not done so already.</doc></td></tr></table><a name="jelly:structuredMessageFormat"></a><div class="section"><h3>structuredMessageFormat<a name="structuredMessageFormat"></a></h3><doc>Format message from a resource, but by using a nested children as arguments, instead of just using expressions.</doc><table border="0" class="bodyTable"><tr class="a"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="b"><td>key (required)</td><td>String</td><td><doc/></td></tr><tr class="a"><td>lineNumber</td><td>int</td><td><doc/></td></tr><tr class="b"><td>columnNumber</td><td>int</td><td><doc/></td></tr><tr class="a"><td>fileName</td><td>String</td><td><doc/></td></tr><tr class="b"><td>elementName</td><td>String</td><td><doc/></td></tr></table></div><a name="jelly:structuredMessageArgument"></a><div class="section"><h3>structuredMessageArgument<a name="structuredMessageArgument"></a></h3><doc>Body is evaluated and is used as an argument for the surrounding &lt;structuredMessageFormat&gt; element.</doc></div><a name="jelly:statusCode"></a><div class="section"><h3>statusCode<a name="statusCode"></a></h3><doc>Sets HTTP status code.
+
+ 
+        <p>
+ This is generally useful for programatically creating the error page.</p>
+      </doc><table border="0" class="bodyTable"><tr class="a"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="b"><td>value (required)</td><td>int</td><td><doc>HTTP status code to send back.</doc></td></tr></table><p>This tag does not accept any child elements/text.</p></div><a name="jelly:redirect"></a><div class="section"><h3>redirect<a name="redirect"></a></h3><doc>Sends HTTP redirect.</doc><table border="0" class="bodyTable"><tr class="a"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="b"><td>url (required)</td><td>String</td><td><doc>Sets the target URL to redirect to. This just gets passed
+ to org.kohsuke.stapler.StaplerResponse.sendRedirect2(String).</doc></td></tr></table><p>This tag does not accept any child elements/text.</p></div><a name="jelly:parentScope"></a><div class="section"><h3>parentScope<a name="parentScope"></a></h3><doc>Executes the body in the parent scope.
+ This is useful for creating a 'local' scope.</doc></div><a name="jelly:out"></a><div class="section"><h3>out<a name="out"></a></h3><doc>Tag that outputs the specified value but with escaping,
+ so that you can escape a portion even if the
+ org.apache.commons.jelly.XMLOutput is not escaping.</doc><table border="0" class="bodyTable"><tr class="a"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="b"><td>value (required)</td><td>Expression</td><td><doc/></td></tr></table><p>This tag does not accept any child elements/text.</p></div><a name="jelly:nbsp"></a><div class="section"><h3>nbsp<a name="nbsp"></a></h3><doc>Writes out '&amp;nbsp;'.</doc><p>This tag does not accept any child elements/text.</p></div><a name="jelly:isUserInRole"></a><div class="section"><h3>isUserInRole<a name="isUserInRole"></a></h3><doc/><table border="0" class="bodyTable"><tr class="a"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="b"><td>role (required)</td><td>String</td><td><doc>The name of the role against which the user is checked.</doc></td></tr></table></div><a name="jelly:include"></a><div class="section"><h3>include<a name="include"></a></h3><doc>Tag that includes views of the object.</doc><table border="0" class="bodyTable"><tr class="a"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="b"><td>page (required)</td><td>String</td><td><doc>Specifies the name of the JSP to be included.</doc></td></tr><tr class="a"><td>it</td><td>Object</td><td><doc>Specifies the object for which JSP will be included.
+ Defaults to the "it" object in the current context.</doc></td></tr><tr class="b"><td>from</td><td>Object</td><td><doc>When loading the script, use the classloader from this object
+ to locate the script. Otherwise defaults to "it" object.</doc></td></tr><tr class="a"><td>class</td><td>java.lang.Class</td><td><doc>When loading script, load from this class.
+
+ By default this is "from.getClass()". This takes
+ precedence over the org.kohsuke.stapler.jelly.IncludeTag.setFrom(Object) method.</doc></td></tr><tr class="b"><td>optional</td><td>boolean</td><td><doc>If true, not finding the page is not an error.
+ (And in such a case, the body of the include tag is evaluated instead.)</doc></td></tr></table></div><a name="jelly:header"></a><div class="section"><h3>header<a name="header"></a></h3><doc>Adds an HTTP header to the response.</doc><table border="0" class="bodyTable"><tr class="a"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="b"><td>name (required)</td><td>String</td><td><doc>Header name.</doc></td></tr><tr class="a"><td>value (required)</td><td>String</td><td><doc>Header value.</doc></td></tr></table><p>This tag does not accept any child elements/text.</p></div><a name="jelly:findAncestor"></a><div class="section"><h3>findAncestor<a name="findAncestor"></a></h3><doc>Finds the nearest tag (in the call stack) that has the given tag name,
+ and sets that as a variable.</doc><table border="0" class="bodyTable"><tr class="b"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="a"><td>var</td><td>String</td><td><doc>Variable name to set the discovered org.apache.commons.jelly.Tag object.</doc></td></tr><tr class="b"><td>tag</td><td>String</td><td><doc>QName of the tag to look for.</doc></td></tr><tr class="a"><td>namespaceContext</td><td>java.util.Map</td><td><doc/></td></tr></table><p>This tag does not accept any child elements/text.</p></div><a name="jelly:doctype"></a><div class="section"><h3>doctype<a name="doctype"></a></h3><doc>Writes out DOCTYPE declaration.</doc><table border="0" class="bodyTable"><tr class="b"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="a"><td>publicId (required)</td><td>String</td><td><doc/></td></tr><tr class="b"><td>systemId (required)</td><td>String</td><td><doc/></td></tr></table><p>This tag does not accept any child elements/text.</p></div><a name="jelly:copyStream"></a><div class="section"><h3>copyStream<a name="copyStream"></a></h3><doc>Copies a stream as text.</doc><table border="0" class="bodyTable"><tr class="a"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="b"><td>reader</td><td>Reader</td><td><doc/></td></tr><tr class="a"><td>inputStream</td><td>InputStream</td><td><doc/></td></tr><tr class="b"><td>file</td><td>File</td><td><doc/></td></tr><tr class="a"><td>url</td><td>URL</td><td><doc/></td></tr></table><p>This tag does not accept any child elements/text.</p></div><a name="jelly:contentType"></a><div class="section"><h3>contentType<a name="contentType"></a></h3><doc>Set the HTTP Content-Type header of the page.</doc><table border="0" class="bodyTable"><tr class="b"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="a"><td>value (required)</td><td>String</td><td><doc>The content-type value, such as "text/html".</doc></td></tr></table><p>This tag does not accept any child elements/text.</p></div><a name="jelly:compress"></a><div class="section"><h3>compress<a name="compress"></a></h3><doc>Outer-most wrapper tag to indicate that the gzip compression is desirable
+ for this output.</doc></div><a name="jelly:bind"></a><div class="section"><h3>bind<a name="bind"></a></h3><doc>Binds a server-side object to client side so that JavaScript can call into server.
+ This tag evaluates to a &lt;script&gt; tag.</doc><table border="0" class="bodyTable"><tr class="b"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="a"><td>var</td><td>String</td><td><doc>JavaScript variable name to set the proxy to.
+ 
+          <p>
+ This name can be arbitrary left hand side expression,
+ such as "a[0]" or "a.b.c".
+
+ If this value is unspecified, the tag generates a JavaScript expression to create a proxy.</p>
+        </doc></td></tr><tr class="b"><td>value (required)</td><td>Object</td><td><doc/></td></tr></table><p>This tag does not accept any child elements/text.</p></div><a name="jelly:attribute"></a><div class="section"><h3>attribute<a name="attribute"></a></h3><doc>Documentation for an attribute of a Jelly tag file.
+
+ 
+        <p>
+ This tag should be placed right inside </p>DocumentationTag
+ to describe attributes of a tag. The body would describe
+ the meaning of an attribute in a natural language.
+ The description text can also use
+ 
+        <a>Textile markup</a>
+      </doc><table border="0" class="bodyTable"><tr class="a"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="b"><td>name (required)</td><td>String</td><td><doc>Name of the attribute.</doc></td></tr><tr class="a"><td>use</td><td>String</td><td><doc>If the attribute is required, specify use="required".
+ (This is modeled after XML Schema attribute declaration.)
+
+ 
+          <p>
+ By default, use="optional" is assumed.</p>
+        </doc></td></tr><tr class="b"><td>type</td><td>String</td><td><doc>If it makes sense, describe the Java type that the attribute
+ expects as values.</doc></td></tr><tr class="a"><td>deprecated</td><td>boolean</td><td><doc>If the attribute is deprecated, set to true.
+ Use of the deprecated attribute will cause a warning.</doc></td></tr></table></div><a name="jelly:attributeConstraints"></a><div class="section"><h3>attributeConstraints<a name="attributeConstraints"></a></h3><doc>DTD-like expression that specifies the consraints on attribute appearances.
+
+ 
+        <p>
+ This tag should be placed right inside </p>DocumentationTag
+ to describe attributes of a tag.</doc><table border="0" class="bodyTable"><tr class="b"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="a"><td>expr (required)</td><td>String</td><td><doc>Constraint expression.</doc></td></tr></table></div><a name="jelly:adjunct"></a><div class="section"><h3>adjunct<a name="adjunct"></a></h3><doc>Writes out links to adjunct CSS and JavaScript, if not done so already.</doc><table border="0" class="bodyTable"><tr class="b"><th>Attribute Name</th><th>Type</th><th>Description</th></tr><tr class="a"><td>includes</td><td>String</td><td><doc>Comma-separated adjunct names.</doc></td></tr><tr class="b"><td>assumes</td><td>String</td><td><doc>Comma-separated adjunct names that are externally included in the page
+ and should be suppressed.</doc></td></tr></table><p>This tag does not accept any child elements/text.</p></div></div>
+      </div>
+    </div>
+    <div id="footer">
+      <div class="xright">&#169;  
+          2012
+    
+          
+  
+
+  
+  
+  &nbsp;| Last Published: 04/09/2012
+  &nbsp;| Version: 1.187
+</div>
+      <div class="clear">
+        <hr/>
+      </div>
+    </div>
+    </div></div>
+  </body>
+</html>
