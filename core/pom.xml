@@ -83,6 +83,12 @@
       <version>3.3.0</version>
     </dependency>
     <dependency>
+      <groupId>org.jvnet.hudson</groupId>
+      <artifactId>annotation-indexer</artifactId>
+      <version>1.2</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <!-- perhaps mark this dependency optional? -->
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>

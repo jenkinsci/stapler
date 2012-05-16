@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler.export;
 
+import org.jvnet.hudson.annotation_indexer.Indexed;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Documented;
@@ -45,6 +47,7 @@ import java.lang.annotation.ElementType;
 @Documented
 @Inherited
 @Target(ElementType.TYPE)
+@Indexed
 public @interface ExportedBean {
     /**
      * Controls the default visibility of all {@link Exported} properties
