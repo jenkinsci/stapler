@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import org.kohsuke.stapler.compression.CompressionFilter;
 import org.kohsuke.stapler.export.NamedPathPruner;
 import org.kohsuke.stapler.export.Flavor;
 import org.kohsuke.stapler.export.Model;
@@ -209,6 +210,8 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
             return getOutputStream();   // compression not available
 
         addHeader("Content-Encoding","gzip");
+        if (CompressionFilter.has(req))
+            return getOutputStream(); // CompressionFilter will set up compression. no need to do anything
         return new GZIPOutputStream(getOutputStream());
     }
 
@@ -218,6 +221,8 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
             return getWriter();   // compression not available
 
         addHeader("Content-Encoding","gzip");
+        if (CompressionFilter.has(req))
+            return getWriter(); // CompressionFilter will set up compression. no need to do anything
         return new OutputStreamWriter(new GZIPOutputStream(getOutputStream()),getCharacterEncoding());
     }
 

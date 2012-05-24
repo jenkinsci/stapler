@@ -925,4 +925,26 @@ public class Stapler extends HttpServlet {
             return Enum.valueOf(type,value.toString());
         }
     };
+
+    /**
+     * Escapes HTML/XML unsafe characters for the PCDATA section.
+     * This method does not handle whitespace-preserving escape, nor attribute escapes.
+     */
+    public static String escape(String v) {
+        StringBuffer buf = new StringBuffer(v.length()+64);
+        for( int i=0; i<v.length(); i++ ) {
+            char ch = v.charAt(i);
+            if(ch=='<')
+                buf.append("&lt;");
+            else
+            if(ch=='>')
+                buf.append("&gt;");
+            else
+            if(ch=='&')
+                buf.append("&amp;");
+            else
+                buf.append(ch);
+        }
+        return buf.toString();
+    }
 }
