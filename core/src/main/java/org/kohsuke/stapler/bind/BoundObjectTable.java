@@ -24,7 +24,10 @@
 package org.kohsuke.stapler.bind;
 
 import org.kohsuke.stapler.Ancestor;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerFallback;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -35,20 +38,19 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 /**
- *
+ * Objects exported and bound by JavaScript proxies.
  *
  * TODO: think about some kind of eviction strategy, beyond the session eviction.
  * Maybe it's not necessary, I don't know.
  *
  * @author Kohsuke Kawaguchi
  */
-public class BoundObjectTable {
-    public Object getDynamic(String id) {
-        Table t = resolve(false);
-        if (t == null) return null;
-        return t.resolve(id);
+public class BoundObjectTable implements StaplerFallback {
+    public Table getStaplerFallback() {
+        return resolve(false);
     }
 
     private Bound bind(Ref ref) {
@@ -99,10 +101,18 @@ public class BoundObjectTable {
     }
 
     /**
+     * Explicit call to create the table if one doesn't exist yet.
+     */
+    public Table getTable() {
+        return resolve(true);
+    }
+
+    /**
      * Per-session table that remembers all the bound instances.
      */
-    private static class Table {
+    public static class Table {
         private final Map<String,Ref> entries = new HashMap<String,Ref>();
+        private boolean logging;
 
         private synchronized Bound add(Ref ref) {
             final Object target = ref.get();
@@ -113,6 +123,7 @@ public class BoundObjectTable {
 
             final String id = UUID.randomUUID().toString();
             entries.put(id,ref);
+            if (logging)    LOGGER.info(String.format("%s binding %s for %s", toString(), target, id));
 
             return new Bound() {
                 public void release() {
@@ -133,17 +144,35 @@ public class BoundObjectTable {
             };
         }
 
+        public Object getDynamic(String id) {
+            return resolve(id);
+        }
+
         private synchronized Ref release(String id) {
             return entries.remove(id);
         }
 
         private synchronized Object resolve(String id) {
             Ref e = entries.get(id);
-            if (e==null)    return null;
+            if (e==null) {
+                if (logging)    LOGGER.info(toString()+" doesn't have binding for "+id);
+                return null;
+            }
             Object v = e.get();
-            if (v==null)
+            if (v==null) {
+                if (logging)    LOGGER.warning(toString() + " had binding for " + id + " but it got garbage collected");
                 entries.remove(id); // reference is already garbage collected.
+            }
             return v;
+        }
+
+        public HttpResponse doEnableLogging() {
+            if (DEBUG_LOGGING) {
+                this.logging = true;
+                return HttpResponses.plainText("Logging enabled for this session: "+toString());
+            } else {
+                return HttpResponses.forbidden();
+            }
         }
     }
 
@@ -200,4 +229,11 @@ public class BoundObjectTable {
     }
 
     public static final String PREFIX = "/$stapler/bound/";
+
+    /**
+     * True to activate debug logging of session fragments.
+     */
+    public static boolean DEBUG_LOGGING = Boolean.getBoolean(BoundObjectTable.class.getName()+".debugLog");
+
+    private static final Logger LOGGER = Logger.getLogger(BoundObjectTable.class.getName());
 }
