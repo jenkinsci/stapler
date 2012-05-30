@@ -33,8 +33,12 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
             Set<? extends Element> params = roundEnv.getElementsAnnotatedWith(QueryParameter.class);
             Set<ExecutableElement> methods = new HashSet<ExecutableElement>();
 
-            for (Element p : params)
-                methods.add((ExecutableElement)p.getEnclosingElement());
+            for (Element p : params) {
+                // at least in JDK7u3, if some of the annotation types doesn't resolve, they end up showing up
+                // in the result from the getElementsAnnotatedWith method. This check rejects those bogus matches
+                if (p.getAnnotation(QueryParameter.class)!=null)
+                    methods.add((ExecutableElement)p.getEnclosingElement());
+            }
 
             for (ExecutableElement m : methods) {
                 write(m);
