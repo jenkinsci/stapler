@@ -35,34 +35,23 @@ import java.io.Writer;
  */
 public enum Flavor {
     JSON("application/javascript;charset=UTF-8") {
-        public DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException {
-            return new JSONDataWriter(rsp);
-        }
-        public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
-            return new JSONDataWriter(w);
+        public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
+            return new JSONDataWriter(w,config);
         }
     },
     PYTHON("text/x-python;charset=UTF-8") {
-        public DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException {
-            return new PythonDataWriter(rsp);
-        }
-        public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
-            return new PythonDataWriter(w);
+        public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
+            return new PythonDataWriter(w,config);
         }
     },
     RUBY("text/x-ruby;charset=UTF-8") {
-        public DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException {
-            return new RubyDataWriter(rsp);
-        }
-        public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
-            return new RubyDataWriter(w);
+        public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
+            return new RubyDataWriter(w,config);
         }
     },
     XML("application/xml;charset=UTF-8") {
-        public DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException {
-            return new XMLDataWriter(bean,rsp);
-        }
-        public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
+        public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
+            // TODO: support pretty printing
             return new XMLDataWriter(bean,w);
         }
     };
@@ -76,6 +65,11 @@ public enum Flavor {
         this.contentType = contentType;
     }
 
-    public abstract DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException;
-    public abstract DataWriter createDataWriter(Object bean, Writer w) throws IOException;
+    public DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException {
+        return createDataWriter(bean,rsp.getWriter());
+    }
+    public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
+        return createDataWriter(bean,w,new ExportConfig());
+    }
+    public abstract DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException;
 }

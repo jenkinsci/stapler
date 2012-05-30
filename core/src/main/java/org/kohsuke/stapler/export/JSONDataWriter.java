@@ -23,8 +23,6 @@
 
 package org.kohsuke.stapler.export;
 
-import org.kohsuke.stapler.StaplerResponse;
-
 import java.io.IOException;
 import java.io.Writer;
 
@@ -37,17 +35,17 @@ class JSONDataWriter implements DataWriter {
     protected boolean needComma;
     protected final Writer out;
 
-    JSONDataWriter(Writer out) throws IOException {
-        this.out = out;
-    }
+    private int indent;
 
-    JSONDataWriter(StaplerResponse rsp) throws IOException {
-        out = rsp.getWriter();
+    JSONDataWriter(Writer out, ExportConfig config) throws IOException {
+        this.out = out;
+        indent = config.prettyPrint ? 0 : -1;
     }
 
     public void name(String name) throws IOException {
         comma();
-        out.write('"'+name+"\":");
+        if (indent<0)   out.write('"'+name+"\":");
+        else            out.write('"'+name+"\" : ");
         needComma = false;
     }
 
@@ -57,8 +55,35 @@ class JSONDataWriter implements DataWriter {
     }
 
     protected void comma() throws IOException {
-        if(needComma) out.write(',');
+        if(needComma) {
+            out.write(',');
+            indent();
+        }
         needComma = true;
+    }
+
+    /**
+     * Prints indentation.
+     */
+    private void indent() throws IOException {
+        if (indent>=0) {
+            out.write('\n');
+            for (int i=indent*2; i>0; ) {
+                int len = Math.min(i,INDENT.length);
+                out.write(INDENT,0,len);
+                i-=len;
+            }
+        }
+    }
+
+    private void inc() {
+        if (indent<0)   return; // no indentation
+        indent++;
+    }
+
+    private void dec() {
+        if (indent<0)   return;
+        indent--;
     }
 
     public void valuePrimitive(Object v) throws IOException {
@@ -87,25 +112,40 @@ class JSONDataWriter implements DataWriter {
         data("null");
     }
 
-    public void startArray() throws IOException {
+    private void open(char symbol) throws IOException {
         comma();
-        out.write('[');
+        out.write(symbol);
         needComma = false;
+        inc();
+        indent();
+    }
+
+    private void close(char symbol) throws IOException {
+        dec();
+        indent();
+        needComma = true;
+        out.write(symbol);
+    }
+
+    public void startArray() throws IOException {
+        open('[');
     }
 
     public void endArray() throws IOException {
-        out.write(']');
-        needComma = true;
+        close(']');
     }
 
     public void startObject() throws IOException {
-        comma();
-        out.write('{');
-        needComma=false;
+        open('{');
     }
 
     public void endObject() throws IOException {
-        out.write('}');
-        needComma=true;
+        close('}');
+    }
+
+    private static final char[] INDENT = new char[32];
+    static {
+        for (int i=0; i<INDENT.length; i++)
+            INDENT[i] = ' ';
     }
 }

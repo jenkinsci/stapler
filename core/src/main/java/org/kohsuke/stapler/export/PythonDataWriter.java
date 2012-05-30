@@ -38,12 +38,8 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  */
 final class PythonDataWriter extends JSONDataWriter {
-    public PythonDataWriter(Writer out) throws IOException {
-        super(out);
-    }
-
-    public PythonDataWriter(StaplerResponse rsp) throws IOException {
-        super(rsp); 
+    public PythonDataWriter(Writer out, ExportConfig config) throws IOException {
+        super(out, config);
     }
 
     @Override

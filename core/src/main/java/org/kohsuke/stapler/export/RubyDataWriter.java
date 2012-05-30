@@ -23,10 +23,8 @@
 
 package org.kohsuke.stapler.export;
 
-import org.kohsuke.stapler.StaplerResponse;
-
-import java.io.Writer;
 import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Writes out the format that can be <tt>eval</tt>-ed from Ruby.
@@ -39,12 +37,8 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi, Jim Meyer
  */
 final class RubyDataWriter extends JSONDataWriter {
-    public RubyDataWriter(Writer out) throws IOException {
-        super(out);
-    }
-
-    public RubyDataWriter(StaplerResponse rsp) throws IOException {
-        super(rsp);
+    public RubyDataWriter(Writer out, ExportConfig config) throws IOException {
+        super(out,config);
     }
 
     @Override
