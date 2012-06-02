@@ -78,15 +78,15 @@
   
   <repositories>
     <repository>
-      <id>m.g.o-public</id>
-      <url>http://maven.glassfish.org/content/groups/public/</url>
+      <id>r.m.a.o-maven2</id>
+      <url>http://repo1.maven.apache.org/maven2/</url>
     </repository>
   </repositories>
 
   <pluginRepositories>
     <pluginRepository>
-      <id>m.g.o-public</id>
-      <url>http://maven.glassfish.org/content/groups/public/</url>
+      <id>r.m.a.o-maven2</id>
+      <url>http://repo1.maven.apache.org/maven2/</url>
     </pluginRepository>
   </pluginRepositories>
 
