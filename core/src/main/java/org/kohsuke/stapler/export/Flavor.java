@@ -34,7 +34,7 @@ import java.io.Writer;
  * @author Kohsuke Kawaguchi
  */
 public enum Flavor {
-    JSON("application/javascript;charset=UTF-8") {
+    JSON("application/json;charset=UTF-8") {
         public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
             return new JSONDataWriter(w,config);
         }
