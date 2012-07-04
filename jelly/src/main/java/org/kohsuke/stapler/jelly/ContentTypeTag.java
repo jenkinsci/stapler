@@ -29,6 +29,8 @@ import org.apache.commons.jelly.XMLOutput;
 import org.jvnet.maven.jellydoc.annotation.Required;
 import org.jvnet.maven.jellydoc.annotation.NoContent;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * Set the HTTP Content-Type header of the page.
  *
@@ -47,7 +49,9 @@ public class ContentTypeTag extends AbstractStaplerTag {
     }
 
     public void doTag(XMLOutput output) throws MissingAttributeException, JellyTagException {
-        getResponse().setContentType(contentType);
+        HttpServletResponse rsp = getResponse();
+        if (rsp!=null)
+            rsp.setContentType(contentType);
         if (output instanceof HTMLWriterOutput)
             ((HTMLWriterOutput)output).useHTML(contentType.startsWith("text/html"));
     }
