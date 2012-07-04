@@ -69,6 +69,15 @@ public class AdjunctManager {
     public final String rootURL;
 
     /**
+     * Hint instructing adjuncts to load a debuggable non-minified version of the script,
+     * as opposed to the production version.
+     *
+     * This is only a hint, and so the semantics of it isn't very well defined. The intention
+     * is to assist JavaScript debugging.
+     */
+    public boolean debug = Boolean.getBoolean(AdjunctManager.class.getName()+".debug");
+
+    /**
      * @param classLoader
      *      ClassLoader to load adjuncts from.
      * @param rootURL
