@@ -435,7 +435,7 @@ public interface StaplerRequest extends HttpServletRequest {
     /**
      * Gets the content of the structured form submission.
      *
-     * @see <a href="http://hudson.gotdns.com/wiki/display/HUDSON/Structured+Form+Submission">Structured Form Submission</a>
+     * @see <a href="https://wiki.jenkins-ci.org/display/JENKINS/Structured+Form+Submission">Structured Form Submission</a>
      */
     JSONObject getSubmittedForm() throws ServletException;
 
