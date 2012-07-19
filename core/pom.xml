@@ -106,6 +106,12 @@
       <artifactId>junit</artifactId>
       <version>4.5</version>
     </dependency>
+    <dependency>
+      <groupId>com.jolira</groupId>
+      <artifactId>hickory</artifactId>
+      <version>1.0.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <profiles>

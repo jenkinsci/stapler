@@ -149,5 +149,5 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
         return exposedBeanNames;
     }
 
-    private static final String STAPLER_BEAN_FILE = "META-INF/exposed.stapler-beans";
+    static final String STAPLER_BEAN_FILE = "META-INF/exposed.stapler-beans";
 }
