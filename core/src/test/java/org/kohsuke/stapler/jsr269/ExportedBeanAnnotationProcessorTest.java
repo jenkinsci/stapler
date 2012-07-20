@@ -58,7 +58,7 @@ public class ExportedBeanAnnotationProcessorTest {
         assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
         assertEquals("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, "META-INF/annotations/org.kohsuke.stapler.export.ExportedBean"));
         // XXX is it intentional that these are not listed here? (example: hudson.plugins.mercurial.MercurialSCM)
-        assertEquals("", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
+        assertEquals(null, Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
         assertEquals(null, Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.javadoc")));
     }
 

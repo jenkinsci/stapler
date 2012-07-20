@@ -30,7 +30,7 @@ import java.util.TreeSet;
  */
 @SuppressWarnings({"Since15"})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
-@SupportedAnnotationTypes("*")
+@SupportedAnnotationTypes("org.kohsuke.stapler.export.Exported")
 @MetaInfServices(Processor.class)
 public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
     @Override
