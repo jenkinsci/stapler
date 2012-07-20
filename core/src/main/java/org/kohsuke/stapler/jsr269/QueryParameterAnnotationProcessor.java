@@ -24,7 +24,7 @@ import java.util.Set;
  */
 @SuppressWarnings({"Since15"})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
-@SupportedAnnotationTypes("*")
+@SupportedAnnotationTypes("org.kohsuke.stapler.QueryParameter")
 @MetaInfServices(Processor.class)
 public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
     @Override
