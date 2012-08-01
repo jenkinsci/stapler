@@ -9,6 +9,7 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -44,8 +45,12 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
                 }
             };
 
-            for( Element e : roundEnv.getRootElements() )
-                scanner.scan(e,null);
+            for (Element e : roundEnv.getRootElements()) {
+                if (e.getKind() == ElementKind.PACKAGE) { // JENKINS-11739
+                    continue;
+                }
+                scanner.scan(e, null);
+            }
 
             return false;
         } catch (RuntimeException e) {

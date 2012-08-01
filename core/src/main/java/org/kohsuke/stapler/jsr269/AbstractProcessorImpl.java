@@ -23,7 +23,6 @@
 package org.kohsuke.stapler.jsr269;
 
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.FilerException;
 import javax.lang.model.element.Element;
 import javax.tools.FileObject;
 import java.io.IOException;
@@ -65,19 +64,12 @@ abstract class AbstractProcessorImpl extends AbstractProcessor {
     }
 
     protected void writePropertyFile(Properties p, String name) throws IOException {
+        FileObject f = createResource(name);
+        OutputStream os = f.openOutputStream();
         try {
-            FileObject f = createResource(name);
-            OutputStream os = f.openOutputStream();
             p.store(os,null);
+        } finally {
             os.close();
-        } catch (FilerException e) {
-            if (e.getMessage().contains("Attempt to reopen")) {
-                StringWriter sw = new StringWriter();
-                e.printStackTrace(new PrintWriter(sw));
-                processingEnv.getMessager().printMessage(WARNING, "Failed to reopen, but this can't happen! See http://jenkins-ci.org/issue/11739\n"+sw);
-                return;
-            }
-            throw e;
         }
     }
 
