@@ -56,7 +56,7 @@ public class ExportedBeanAnnotationProcessorTest {
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
         assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
-        /* XXX currently broken in JDK 6 and org.jvnet.hudson:annotation-indexer:1.2:
+        /* #7188605: broken in JDK 6u33 + org.jvnet.hudson:annotation-indexer:1.2:
         assertEquals("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, "META-INF/annotations/org.kohsuke.stapler.export.ExportedBean"));
         */
         // XXX is it intentional that these are not listed here? (example: hudson.plugins.mercurial.MercurialSCM)
