@@ -194,6 +194,7 @@
   </reporting>
   
 
+  <dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.kohsuke.metainf-services</groupId>
@@ -228,6 +229,13 @@
       	</exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.10</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+  </dependencyManagement>
 </project>
 
