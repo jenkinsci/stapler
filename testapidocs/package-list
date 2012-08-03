@@ -7,4 +7,5 @@ org.kohsuke.stapler.jelly.groovy
 org.kohsuke.stapler.jelly.jruby
 org.kohsuke.stapler.jelly.jruby.erb
 org.kohsuke.stapler.jelly.jruby.haml
+org.kohsuke.stapler.jsr269
 org.kohsuke.stapler.test
