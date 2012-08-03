@@ -200,7 +200,6 @@
       <groupId>org.kohsuke.metainf-services</groupId>
       <artifactId>metainf-services</artifactId>
       <version>1.4</version>
-      <optional>true</optional>
     </dependency>
 
     <!-- test dependencies -->

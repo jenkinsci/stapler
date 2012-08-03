@@ -66,6 +66,7 @@
     <dependency>
       <groupId>org.kohsuke.metainf-services</groupId>
       <artifactId>metainf-services</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
