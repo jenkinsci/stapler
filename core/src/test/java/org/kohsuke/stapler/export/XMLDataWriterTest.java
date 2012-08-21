@@ -78,4 +78,15 @@ public class XMLDataWriterTest extends TestCase {
         assertEquals("abc", XMLDataWriter.makeXmlName("/abc"));
         assertEquals("abc", XMLDataWriter.makeXmlName("/a/b/c/"));
     }
+
+    @ExportedBean public static class Arrays {
+        @Exported public String[] categories = {"general", "specific"};
+        @Exported public String[] styles = {"ornate", "plain"};
+    }
+
+    public void testToSingular() throws Exception {
+        assertEquals("<arrays><category>general</category><category>specific</category><style>ornate</style><style>plain</style></arrays>",
+                serialize(new Arrays(), Arrays.class));
+    }
+
 }

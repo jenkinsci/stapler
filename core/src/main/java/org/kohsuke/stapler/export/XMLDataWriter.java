@@ -109,9 +109,7 @@ final class XMLDataWriter implements DataWriter {
     }
 
     /*package*/ static String toSingular(String name) {
-        if(name.endsWith("s"))
-            return name.substring(0,name.length()-1);
-        return name;
+        return name.replaceFirst("ies$", "y").replaceFirst("s$", "");
     }
 
     /*package*/ static String makeXmlName(String name) {
