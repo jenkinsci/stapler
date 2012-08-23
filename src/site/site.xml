@@ -11,9 +11,9 @@
 
       <item name="Download" href="http://repo.jenkins-ci.org/public/org/kohsuke/stapler/" />
 
-      <item name="Source code" href="https://github.com/stapler/"/>
+      <item name="Source code" href="https://github.com/stapler/stapler"/>
       <item name="Javadoc" href="http://stapler.kohsuke.org/apidocs/"/>
-      <item name="Issues" href="http://java.net/jira/browse/STAPLER"/>
+      <item name="Issues" href="https://github.com/stapler/stapler/issues"/>
     </menu>
     ${reports}
   </body>
