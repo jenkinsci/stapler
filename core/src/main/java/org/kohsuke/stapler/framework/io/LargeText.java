@@ -29,6 +29,7 @@ import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,6 +38,7 @@ import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Represents a large text data.
@@ -65,24 +67,48 @@ public class LargeText {
     private volatile boolean completed;
 
     public LargeText(File file, boolean completed) {
-        this(file,Charset.defaultCharset(),completed);
+        this(file, Charset.defaultCharset(), completed);
+    }
+    
+    public LargeText(File file, boolean completed, boolean transparentUnGZIP) {
+        this(file, Charset.defaultCharset(), completed, transparentUnGZIP);
     }
 
     public LargeText(final File file, Charset charset, boolean completed) {
+        this(file, charset, completed, false);
+    }
+    
+    public LargeText(final File file, Charset charset, boolean completed, boolean transparentUnGZIP) {
         this.charset = charset;
-        this.source = new Source() {
-            public Session open() throws IOException {
-                return new FileSession(file);
-            }
-
-            public long length() {
-                return file.length();
-            }
-
-            public boolean exists() {
-                return file.exists();
-            }
-        };
+        if (transparentUnGZIP) {
+            this.source = new Source() {
+                public Session open() throws IOException {
+                    return new GzipAwareSession(file);
+                }
+    
+                public long length() {
+                	return GzipAwareSession.getGzipStreamSize(file);
+                }
+    
+                public boolean exists() {
+                    return file.exists();
+                }
+            };
+        } else {
+            this.source = new Source() {
+                public Session open() throws IOException {
+                    return new FileSession(file);
+                }
+    
+                public long length() {
+                    return file.length();
+                }
+    
+                public boolean exists() {
+                    return file.exists();
+                }
+            };
+        }
         this.completed = completed;
     }
 
@@ -365,6 +391,125 @@ public class LargeText {
 
         public int read(byte[] buf, int offset, int length) throws IOException {
             return file.read(buf,offset,length);
+        }
+    }
+    
+    /**
+     * {@link Session} implementation over that checks if the file in question
+     * is GZIP compressed. If so, it uses {@link GZIPInputStream}, of not, it
+     * uses {@link RandomAccessFile} and behaves just like {@link FileSession}.
+     */
+    private static final class GzipAwareSession implements Session {
+        private final GZIPInputStream gz;
+        private final RandomAccessFile file;
+
+        public GzipAwareSession(File file) throws IOException {
+        	//Checking if the file is a GZIP-Stream
+        	if (isGzipStream(file)) {
+        		this.file = null;
+                this.gz = new GZIPInputStream(new FileInputStream(file));
+        	} else {
+        		this.file = new RandomAccessFile(file, "r");
+                this.gz = null;
+        	}
+        }
+
+        public void close() throws IOException {
+            if (file != null) {
+                file.close();
+            } else {
+                gz.close();
+            }
+        }
+
+        public void skip(long start) throws IOException {
+            if (file != null) {
+                file.seek(file.getFilePointer()+start);
+            } else {
+                while (start > 0)
+                    start -= gz.skip(start);
+            }
+        }
+
+        public int read(byte[] buf) throws IOException {
+            if (file != null) {
+                return file.read(buf);
+            } else {
+                return gz.read(buf);
+            }
+        }
+
+        public int read(byte[] buf, int offset, int length) throws IOException {
+            if (file != null) {
+                return file.read(buf,offset,length);
+            } else {
+                return gz.read(buf,offset,length);
+            }
+        }
+    
+        /**
+         * Checks the first two bytes of the target file and return true if
+         * they equal the GZIP magic number.
+         * @param file
+         * @return true, if the first two bytes are the GZIP magic number.
+         */
+        public static boolean isGzipStream(File file) {
+            try {
+                RandomAccessFile raf = new RandomAccessFile(file,"r");
+                if (raf != null && raf.length() >= 2) {
+                    int magic = raf.read() + (raf.read() << 8);
+                    if (magic == GZIPInputStream.GZIP_MAGIC) {
+                        raf.close();
+                        return true;
+                    }
+                }
+                if (raf != null) {
+                    raf.close();
+                }
+            } catch (IOException ex) {
+                return false;
+            }
+            return false;
+        }
+        
+        /**
+         * Returns the uncompressed size of the file in a quick, but unreliable
+         * manner. It will not report the correct size if:
+         * <ol>
+         * <li>The compressed size is larger than 2<sup>32</sup> bytes.</li>
+         * <li>The file is broken or truncated.</li>
+         * <li>The file has not been generated by a standard-conformant compressor.</li>
+         * <li>It is a multi-volume GZIP stream.</li>
+         * </ol>
+         * <p>
+         * The advantage of this approach is, that it only reads the first 2
+         * and last 4 bytes of the target file. If the first 2 bytes are not
+         * the GZIP magic number, the raw length of the file is returned.
+         * 
+         * @see #isGzipStream(File)
+         * @param file
+         * @return the size of the uncompressed file content.
+         */
+        public static long getGzipStreamSize(File file) {
+        	if (!isGzipStream(file)) {
+        		return file.length();
+        	}
+            try {
+                RandomAccessFile raf = new RandomAccessFile(file, "r");
+                if (raf.length() <= 4) {
+                    raf.close();
+                    return file.length();
+                }
+                raf.seek(raf.length() - 4);
+                int b4 = raf.read();
+                int b3 = raf.read();
+                int b2 = raf.read();
+                int b1 = raf.read();
+                raf.close();
+                return (b1 << 24) + (b2 << 16) + (b3 << 8) + b4;
+            } catch (IOException ex) {
+            	return file.length();
+            }
         }
     }
 
