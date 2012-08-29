@@ -1,6 +1,8 @@
 /*
  * Copyright (c) 2004-2010, Kohsuke Kawaguchi
  * All rights reserved.
+ * 
+ * Copyright (c) 2012, Martin Schroeder, Intel Mobile Communications GmbH
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided
  * that the following conditions are met:
@@ -67,27 +69,43 @@ public class LargeText {
     private volatile boolean completed;
 
     public LargeText(File file, boolean completed) {
-        this(file, Charset.defaultCharset(), completed);
+        this(file,Charset.defaultCharset(),completed);
     }
     
-    public LargeText(File file, boolean completed, boolean transparentUnGZIP) {
-        this(file, Charset.defaultCharset(), completed, transparentUnGZIP);
+    /**
+     * @since 1.196
+     * 
+     * @param transparentGunzip if set to true, this class will detect if the
+     * given file is compressed with GZIP. If so, it will transparently
+     * uncompress its content during read-access. Do note that the underlying
+     * file is not altered and remains compressed.
+     */
+    public LargeText(File file, boolean completed, boolean transparentGunzip) {
+        this(file, Charset.defaultCharset(), completed, transparentGunzip);
     }
 
     public LargeText(final File file, Charset charset, boolean completed) {
         this(file, charset, completed, false);
     }
     
+    /**
+     * @since 1.196
+     * 
+     * @param transparentGunzip if set to true, this class will detect if the
+     * given file is compressed with GZIP. If so, it will transparently
+     * uncompress its content during read-access. Do note that the underlying
+     * file is not altered and remains compressed.
+     */
     public LargeText(final File file, Charset charset, boolean completed, boolean transparentUnGZIP) {
         this.charset = charset;
-        if (transparentUnGZIP) {
+        if (transparentUnGZIP && GzipAwareSession.isGzipStream(file)) {
             this.source = new Source() {
                 public Session open() throws IOException {
                     return new GzipAwareSession(file);
                 }
     
                 public long length() {
-                	return GzipAwareSession.getGzipStreamSize(file);
+                    return GzipAwareSession.getGzipStreamSize(file);
                 }
     
                 public boolean exists() {
@@ -395,56 +413,35 @@ public class LargeText {
     }
     
     /**
-     * {@link Session} implementation over that checks if the file in question
-     * is GZIP compressed. If so, it uses {@link GZIPInputStream}, of not, it
-     * uses {@link RandomAccessFile} and behaves just like {@link FileSession}.
+     * {@link Session} implementation over {@link GZIPInputStream}.
+     * <p>
+     * Always use {@link GzipAwareSession#isGzipStream(File)} to check if you
+     * really deal with a GZIPed file before you invoke this class. Otherwise,
+     * {@link GZIPInputStream} might throw an exception.
      */
     private static final class GzipAwareSession implements Session {
         private final GZIPInputStream gz;
-        private final RandomAccessFile file;
 
         public GzipAwareSession(File file) throws IOException {
-        	//Checking if the file is a GZIP-Stream
-        	if (isGzipStream(file)) {
-        		this.file = null;
-                this.gz = new GZIPInputStream(new FileInputStream(file));
-        	} else {
-        		this.file = new RandomAccessFile(file, "r");
-                this.gz = null;
-        	}
+            this.gz = new GZIPInputStream(new FileInputStream(file));
         }
 
         public void close() throws IOException {
-            if (file != null) {
-                file.close();
-            } else {
-                gz.close();
-            }
+            gz.close();
         }
 
         public void skip(long start) throws IOException {
-            if (file != null) {
-                file.seek(file.getFilePointer()+start);
-            } else {
-                while (start > 0)
-                    start -= gz.skip(start);
+            while (start > 0) {
+                start -= gz.skip(start);
             }
         }
 
         public int read(byte[] buf) throws IOException {
-            if (file != null) {
-                return file.read(buf);
-            } else {
-                return gz.read(buf);
-            }
+            return gz.read(buf);
         }
 
         public int read(byte[] buf, int offset, int length) throws IOException {
-            if (file != null) {
-                return file.read(buf,offset,length);
-            } else {
-                return gz.read(buf,offset,length);
-            }
+            return gz.read(buf,offset,length);
         }
     
         /**
@@ -491,9 +488,9 @@ public class LargeText {
          * @return the size of the uncompressed file content.
          */
         public static long getGzipStreamSize(File file) {
-        	if (!isGzipStream(file)) {
-        		return file.length();
-        	}
+            if (!isGzipStream(file)) {
+                return file.length();
+            }
             try {
                 RandomAccessFile raf = new RandomAccessFile(file, "r");
                 if (raf.length() <= 4) {
@@ -508,7 +505,7 @@ public class LargeText {
                 raf.close();
                 return (b1 << 24) + (b2 << 16) + (b3 << 8) + b4;
             } catch (IOException ex) {
-            	return file.length();
+                return file.length();
             }
         }
     }
