@@ -25,11 +25,13 @@
 
 package org.kohsuke.stapler.framework.io;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -96,9 +98,9 @@ public class LargeText {
      * uncompress its content during read-access. Do note that the underlying
      * file is not altered and remains compressed.
      */
-    public LargeText(final File file, Charset charset, boolean completed, boolean transparentUnGZIP) {
+    public LargeText(final File file, Charset charset, boolean completed, boolean transparentGunzip) {
         this.charset = charset;
-        if (transparentUnGZIP && GzipAwareSession.isGzipStream(file)) {
+        if (transparentGunzip && GzipAwareSession.isGzipStream(file)) {
             this.source = new Source() {
                 public Session open() throws IOException {
                     return new GzipAwareSession(file);
@@ -451,22 +453,15 @@ public class LargeText {
          * @return true, if the first two bytes are the GZIP magic number.
          */
         public static boolean isGzipStream(File file) {
+            DataInputStream in = null;
             try {
-                RandomAccessFile raf = new RandomAccessFile(file,"r");
-                if (raf != null && raf.length() >= 2) {
-                    int magic = raf.read() + (raf.read() << 8);
-                    if (magic == GZIPInputStream.GZIP_MAGIC) {
-                        raf.close();
-                        return true;
-                    }
-                }
-                if (raf != null) {
-                    raf.close();
-                }
+                in = new DataInputStream(new FileInputStream(file));
+                return in.readShort()==0x1F8B;
             } catch (IOException ex) {
                 return false;
+            } finally {
+                IOUtils.closeQuietly(in);
             }
-            return false;
         }
         
         /**
@@ -491,8 +486,9 @@ public class LargeText {
             if (!isGzipStream(file)) {
                 return file.length();
             }
+            RandomAccessFile raf = null;
             try {
-                RandomAccessFile raf = new RandomAccessFile(file, "r");
+                raf = new RandomAccessFile(file, "r");
                 if (raf.length() <= 4) {
                     raf.close();
                     return file.length();
@@ -502,10 +498,16 @@ public class LargeText {
                 int b3 = raf.read();
                 int b2 = raf.read();
                 int b1 = raf.read();
-                raf.close();
                 return (b1 << 24) + (b2 << 16) + (b3 << 8) + b4;
             } catch (IOException ex) {
                 return file.length();
+            } finally {
+                if (raf!=null)
+                    try {
+                        raf.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
             }
         }
     }
