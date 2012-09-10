@@ -32,8 +32,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Writes all the property of one {@link ExportedBean} to {@link DataWriter}.
@@ -149,7 +151,7 @@ public class Model<T> {
      */
     public void writeTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
         writer.startObject();
-        writeNestedObjectTo(object,pruner,writer);
+        writeNestedObjectTo(object, pruner, writer, Collections.<String>emptySet());
         writer.endObject();
     }
 
@@ -171,11 +173,19 @@ public class Model<T> {
         writeTo(object,new ByDepth(1-baseVisibility),writer);
     }
 
-    void writeNestedObjectTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
-        if(superModel !=null)
-            superModel.writeNestedObjectTo(object,pruner,writer);
+    void writeNestedObjectTo(T object, TreePruner pruner, DataWriter writer, Set<? extends String> blacklist) throws IOException {
+        if (superModel != null) {
+            Set<String> superBlacklist = new HashSet<String>(blacklist);
+            for (Property p : properties) {
+                superBlacklist.add(p.name);
+            }
+            superModel.writeNestedObjectTo(object, pruner, writer, superBlacklist);
+        }
 
-        for (Property p : properties)
-            p.writeTo(object,pruner,writer);
+        for (Property p : properties) {
+            if (!blacklist.contains(p.name)) {
+                p.writeTo(object,pruner,writer);
+            }
+        }
     }
 }

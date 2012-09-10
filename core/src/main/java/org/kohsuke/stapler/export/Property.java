@@ -33,6 +33,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
@@ -228,7 +229,7 @@ public abstract class Property implements Comparable<Property> {
             // otherwise ignore this error by writing empty object
         }
         if(model!=null)
-            model.writeNestedObjectTo(value,pruner,writer);
+            model.writeNestedObjectTo(value, pruner, writer, Collections.<String>emptySet());
         writer.endObject();
     }
 

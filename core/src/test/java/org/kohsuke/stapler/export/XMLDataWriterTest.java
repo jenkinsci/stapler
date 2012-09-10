@@ -51,6 +51,14 @@ public class XMLDataWriterTest extends TestCase {
                 serialize(new Container(), Container.class));
     }
 
+    public static class Sub2 extends Super {
+        @Exported @Override public String generic() {return "sub2";}
+    }
+    public void testInheritance2() throws Exception { // JENKINS-13336
+        assertEquals("<sub2><basic>super</basic><generic>sub2</generic></sub2>",
+                serialize(new Sub2(), Sub2.class));
+    }
+
     private void assertValidXML(String s) throws Exception {
         SAXParser p = SAXParserFactory.newInstance().newSAXParser();
         p.parse(new InputSource(new StringReader(s)),new DefaultHandler());
