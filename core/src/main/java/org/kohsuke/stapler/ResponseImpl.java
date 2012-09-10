@@ -24,6 +24,7 @@
 package org.kohsuke.stapler;
 
 import org.kohsuke.stapler.compression.CompressionFilter;
+import org.kohsuke.stapler.compression.FilterServletOutputStream;
 import org.kohsuke.stapler.export.ExportConfig;
 import org.kohsuke.stapler.export.NamedPathPruner;
 import org.kohsuke.stapler.export.Flavor;
@@ -67,6 +68,11 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     private OutputMode mode=null;
     private Throwable origin;
 
+    /**
+     * {@link ServletOutputStream} or {@link PrintWriter}, set when {@link #mode} is set.
+     */
+    private Object output=null;
+
     public ResponseImpl(Stapler stapler, HttpServletResponse response) {
         super(response);
         this.stapler = stapler;
@@ -78,10 +84,9 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         if(mode==OutputMode.CHAR)
             throw new IllegalStateException("getWriter has already been called. Its call site is in the nested exception",origin);
         if(mode==null) {
-            mode = OutputMode.BYTE;
-            origin = new Throwable();
+            recordOutput(super.getOutputStream());
         }
-        return super.getOutputStream();
+        return (ServletOutputStream)output;
     }
 
     @Override
@@ -89,10 +94,23 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         if(mode==OutputMode.BYTE)
             throw new IllegalStateException("getOutputStream has already been called. Its call site is in the nested exception",origin);
         if(mode==null) {
-            mode = OutputMode.CHAR;
-            origin = new Throwable();
+            recordOutput(super.getWriter());
         }
-        return super.getWriter();
+        return (PrintWriter)output;
+    }
+
+    private <T extends ServletOutputStream> T recordOutput(T obj) {
+        this.output = obj;
+        this.mode = OutputMode.BYTE;
+        this.origin = new Throwable();
+        return obj;
+    }
+
+    private <T extends PrintWriter> T recordOutput(T obj) {
+        this.output = obj;
+        this.mode = OutputMode.CHAR;
+        this.origin = new Throwable();
+        return obj;
     }
 
     public void forward(Object it, String url, StaplerRequest request) throws ServletException, IOException {
@@ -215,7 +233,10 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         addHeader("Content-Encoding","gzip");
         if (CompressionFilter.has(req))
             return getOutputStream(); // CompressionFilter will set up compression. no need to do anything
-        return new GZIPOutputStream(getOutputStream());
+
+        if (mode!=null)
+            return getOutputStream();
+        return recordOutput(new FilterServletOutputStream(new GZIPOutputStream(super.getOutputStream())));
     }
 
     public Writer getCompressedWriter(HttpServletRequest req) throws IOException {
@@ -226,7 +247,10 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         addHeader("Content-Encoding","gzip");
         if (CompressionFilter.has(req))
             return getWriter(); // CompressionFilter will set up compression. no need to do anything
-        return new OutputStreamWriter(new GZIPOutputStream(getOutputStream()),getCharacterEncoding());
+
+        if (mode!=null)
+            return getWriter();
+        return recordOutput(new PrintWriter(new OutputStreamWriter(new GZIPOutputStream(super.getOutputStream()),getCharacterEncoding())));
     }
 
     public int reverseProxyTo(URL url, StaplerRequest req) throws IOException {
