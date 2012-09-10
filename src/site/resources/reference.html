@@ -148,8 +148,6 @@ evaluate(node,[x,W]) := evaluate(node.getX(...),W)
 <h3>Public Getter Method with a String Argument</h3>
 <p>
 	If <tt>url</tt> is "/xxxx/yyyy/..." and <tt>node</tt> has a public method named "getXxxx(String arg)", then the object returned from <tt>currentObject.getXxxx("yyyy")</tt> will be evaluated against the rest of the URL "/...." recursively.
-<p>
-	Stapler also looks for the public getter of the form "getXxxx(StaplerRequest,String)".
 
 <p>
 Formally,
