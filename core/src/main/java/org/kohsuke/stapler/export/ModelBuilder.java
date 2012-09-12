@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ModelBuilder {
     /**
-     * Instanciated {@link Model}s.
+     * Instantiated {@link Model}s.
      * Registration happens in {@link Model#Model(ModelBuilder,Class)} so that cyclic references
      * are handled correctly.
      */
