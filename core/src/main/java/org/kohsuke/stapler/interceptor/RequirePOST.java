@@ -14,6 +14,7 @@ import static java.lang.annotation.RetentionPolicy.*;
  * Requires the request to be a POST.
  *
  * @author Kohsuke Kawaguchi
+ * @since 1.180
  */
 @Retention(RUNTIME)
 @Target({METHOD,FIELD})
