@@ -9,10 +9,10 @@ import java.io.OutputStream;
  *
  * @author Kohsuke Kawaguchi
  */
-class FilterServletOutputStream extends ServletOutputStream {
+public class FilterServletOutputStream extends ServletOutputStream {
     private final OutputStream out;
 
-    FilterServletOutputStream(OutputStream out) {
+    public FilterServletOutputStream(OutputStream out) {
         this.out = out;
     }
 
