@@ -28,27 +28,6 @@
     </license>
   </licenses>
   
-  <mailingLists>
-    <mailingList>
-      <name>Users List</name>
-      <subscribe>users-subscribe@stapler.dev.java.net</subscribe>
-      <unsubscribe>users-unsubscribe@stapler.dev.java.net</unsubscribe>
-      <archive>https://stapler.dev.java.net/servlets/SummarizeList?listName=users</archive>
-    </mailingList>
-    <mailingList>
-      <name>Issues List</name>
-      <subscribe>issues-subscribe@stapler.dev.java.net</subscribe>
-      <unsubscribe>issues-unsubscribe@stapler.dev.java.net</unsubscribe>
-      <archive>https://stapler.dev.java.net/servlets/SummarizeList?listName=issues</archive>
-    </mailingList>
-    <mailingList>
-      <name>CVS List</name>
-      <subscribe>cvs-subscribe@stapler.dev.java.net</subscribe>
-      <unsubscribe>cvs-unsubscribe@stapler.dev.java.net</unsubscribe>
-      <archive>https://stapler.dev.java.net/servlets/SummarizeList?listName=cvs</archive>
-    </mailingList>
-  </mailingLists>
-  
   <scm>
     <connection>scm:git:git://github.com/stapler/stapler.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/stapler/stapler.git</developerConnection>
