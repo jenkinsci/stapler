@@ -31,6 +31,7 @@ import org.kohsuke.asm3.Type;
 import org.kohsuke.asm3.commons.EmptyVisitor;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -38,6 +39,7 @@ import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
@@ -150,6 +152,58 @@ public final class ClassDescriptor {
         // couldn't find it
         return EMPTY_ARRAY;
     }
+
+    /**
+     * Determines the constructor parameter names.
+     *
+     * <p>
+     * First, try to load names from the debug information. Otherwise
+     * if there's the .stapler file, load it as a property file and determines the constructor parameter names.
+     * Otherwise, look for {@link CapturedParameterNames} annotation.
+     */
+    public String[] loadConstructorParamNames() {
+        Constructor<?>[] ctrs = clazz.getConstructors();
+        // which constructor was data bound?
+        Constructor<?> dbc = null;
+        for (Constructor<?> c : ctrs) {
+            if (c.getAnnotation(DataBoundConstructor.class) != null) {
+                dbc = c;
+                break;
+            }
+        }
+
+        if (dbc==null)
+            throw new NoStaplerConstructorException("There's no @DataBoundConstructor on any constructor of " + clazz);
+
+        String[] names = ClassDescriptor.loadParameterNames(dbc);
+        if (names.length==dbc.getParameterTypes().length)
+            return names;
+
+        String resourceName = clazz.getName().replace('.', '/').replace('$','/') + ".stapler";
+        ClassLoader cl = clazz.getClassLoader();
+        if(cl==null)
+            throw new NoStaplerConstructorException(clazz+" is a built-in type");
+        InputStream s = cl.getResourceAsStream(resourceName);
+        if (s != null) {// load the property file and figure out parameter names
+            try {
+                Properties p = new Properties();
+                p.load(s);
+                s.close();
+
+                String v = p.getProperty("constructor");
+                if (v.length() == 0) return new String[0];
+                return v.split(",");
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Unable to load " + resourceName, e);
+            }
+        }
+
+        // no debug info and no stapler file
+        throw new NoStaplerConstructorException(
+                "Unable to find " + resourceName + ". " +
+                        "Run 'mvn clean compile' once to run the annotation processor.");
+    }
+
 
     /**
      * Isolate the ASM dependency to its own class, as otherwise this seems to cause linkage error on the whole {@link ClassDescriptor}.

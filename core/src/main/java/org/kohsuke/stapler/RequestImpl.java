@@ -308,7 +308,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             return r;   // nothing
 
         try {
-            loadConstructorParamNames(type);
+            new ClassDescriptor(type).loadConstructorParamNames();
             // use the designated constructor for databinding
             for( int i=0; i<len; i++ )
                 r.add(bindParameters(type,prefix,i));
@@ -341,7 +341,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     public <T> T bindParameters(Class<T> type, String prefix, int index) {
-        String[] names = loadConstructorParamNames(type);
+        String[] names = new ClassDescriptor(type).loadConstructorParamNames();
 
         // the actual arguments to invoke the constructor with.
         Object[] args = new Object[names.length];
@@ -462,57 +462,6 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         throw new IllegalArgumentException(type+" does not have a constructor with "+length+" arguments");
     }
 
-    /**
-     * Determines the constructor parameter names.
-     *
-     * <p>
-     * First, try to load names from the debug information. Otherwise
-     * if there's the .stapler file, load it as a property file and determines the constructor parameter names.
-     * Otherwise, look for {@link CapturedParameterNames} annotation.
-     */
-    private String[] loadConstructorParamNames(Class<?> type) {
-        Constructor<?>[] ctrs = type.getConstructors();
-        // which constructor was data bound?
-        Constructor<?> dbc = null;
-        for (Constructor<?> c : ctrs) {
-            if (c.getAnnotation(DataBoundConstructor.class) != null) {
-                dbc = c;
-                break;
-            }
-        }
-
-        if (dbc==null)
-            throw new NoStaplerConstructorException("There's no @DataBoundConstructor on any constructor of " + type);
-
-        String[] names = ClassDescriptor.loadParameterNames(dbc);
-        if (names.length==dbc.getParameterTypes().length)
-            return names;
-
-        String resourceName = type.getName().replace('.', '/').replace('$','/') + ".stapler";
-        ClassLoader cl = type.getClassLoader();
-        if(cl==null)
-            throw new NoStaplerConstructorException(type+" is a built-in type");
-        InputStream s = cl.getResourceAsStream(resourceName);
-        if (s != null) {// load the property file and figure out parameter names
-            try {
-                Properties p = new Properties();
-                p.load(s);
-                s.close();
-
-                String v = p.getProperty("constructor");
-                if (v.length() == 0) return new String[0];
-                return v.split(",");
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Unable to load " + resourceName, e);
-            }
-        }
-
-        // no debug info and no stapler file
-        throw new NoStaplerConstructorException(
-                "Unable to find " + resourceName + ". " +
-                        "Run 'mvn clean compile' once to run the annotation processor.");
-    }
-
     private static void fill(Object bean, String key, Object value) {
         StringTokenizer tokens = new StringTokenizer(key);
         while(tokens.hasMoreTokens()) {
@@ -609,7 +558,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
                         if (actualType==JSONObject.class || actualType==JSON.class) return actualType.cast(j);
 
-                        String[] names = loadConstructorParamNames(actualType);
+                        String[] names = new ClassDescriptor(actualType).loadConstructorParamNames();
 
                         // the actual arguments to invoke the constructor with.
                         Object[] args = new Object[names.length];
