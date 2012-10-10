@@ -25,6 +25,7 @@ package org.kohsuke.stapler;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -44,10 +45,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -64,9 +63,10 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import static javax.servlet.http.HttpServletResponse.*;
 
 /**
  * {@link StaplerRequest} implementation.
@@ -742,7 +742,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 isSubmission = !getParameterMap().isEmpty();
             }
             
-            if(p==null) {
+            if(p==null || p.equals("")) {
                 // no data submitted
                 try {
                     StaplerResponse rsp = Stapler.getCurrentResponse();
@@ -756,7 +756,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     throw new Error(e);
                 }
             }
-            structuredForm = JSONObject.fromObject(p);
+            try {
+                structuredForm = JSONObject.fromObject(p);
+            } catch (JSONException e) {
+                throw new JSONException("Failed to parse JSON:"+p,e);
+            }
         }
         return structuredForm;
     }
