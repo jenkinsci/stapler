@@ -30,6 +30,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -77,6 +78,17 @@ public class AdjunctsInPage {
     private AdjunctsInPage(AdjunctManager manager,StaplerRequest request) {
         this.manager = manager;
         this.request = request;
+    }
+
+    /**
+     * Gets what has been already included/assumed.
+     *
+     * This method returns a live unmodifiable view of what's included.
+     * So if at some later point more adjuncts are loaded, the view
+     * obtained earlier will reflect that.
+     */
+    public Set<String> getIncluded() {
+        return Collections.unmodifiableSet(included);
     }
 
     /**
