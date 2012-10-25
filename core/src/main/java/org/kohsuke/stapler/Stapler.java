@@ -468,7 +468,11 @@ public class Stapler extends HttpServlet {
             } catch (URISyntaxException _) {
                 // the whole thing could fail anyway.
                 return null;
+            } catch (IllegalArgumentException x) {
+                throw new IllegalArgumentException("Failed to convert "+url+" to file path",x);
             }
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Failed to convert "+url+" to file path",e);
         }
     }
 
