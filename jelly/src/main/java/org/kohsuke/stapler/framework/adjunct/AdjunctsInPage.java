@@ -30,6 +30,8 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -111,6 +113,10 @@ public class AdjunctsInPage {
      * already included in the page.
      */
     public void assumeIncluded(String... includes) throws IOException, SAXException {
+        assumeIncluded(Arrays.asList(includes));
+    }
+
+    public void assumeIncluded(Collection<String> includes) throws IOException, SAXException {
         List<Adjunct> needed = new ArrayList<Adjunct>();
         for (String include : includes)
             findNeeded(include,needed);
