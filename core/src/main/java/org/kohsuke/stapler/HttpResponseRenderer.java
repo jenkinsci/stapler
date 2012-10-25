@@ -26,6 +26,8 @@ package org.kohsuke.stapler;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import net.sf.json.util.JSONStringer;
+import net.sf.json.util.JSONUtils;
 import org.kohsuke.stapler.export.Flavor;
 
 import javax.servlet.ServletException;
@@ -72,7 +74,8 @@ public abstract class HttpResponseRenderer {
 
                 // handle other primitive types as JSON response
                 if (response instanceof String) {
-                    w.print('"'+response.toString().replace("\"","\\\"").replace("\n","\\\n")+'"');
+                    // TODO: switch to JSONUtils.quote()
+                    w.print('"'+response.toString().replace("\"","\\\"").replace("\n","\\\n").replace("\\","\\\\")+'"');
                 } else
                 if (response instanceof Number || response instanceof Boolean) {
                     w.print(response);
