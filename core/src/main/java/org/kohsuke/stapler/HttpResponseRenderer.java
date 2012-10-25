@@ -72,7 +72,7 @@ public abstract class HttpResponseRenderer {
 
                 // handle other primitive types as JSON response
                 if (response instanceof String) {
-                    w.print('"'+response.toString().replace("\"","\\\"")+'"');
+                    w.print('"'+response.toString().replace("\"","\\\"").replace("\n","\\\n")+'"');
                 } else
                 if (response instanceof Number || response instanceof Boolean) {
                     w.print(response);
