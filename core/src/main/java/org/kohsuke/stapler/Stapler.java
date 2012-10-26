@@ -49,12 +49,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -451,28 +453,21 @@ public class Stapler extends HttpServlet {
 
     /**
      * If the URL is "file://", return its file representation.
+     *
+     * See http://weblogs.java.net/blog/kohsuke/archive/2007/04/how_to_convert.html
      */
-    private File toFile(URL url) {
+    /*package for test*/ File toFile(URL url) {
         String urlstr = url.toExternalForm();
         if(!urlstr.startsWith("file:"))
             return null;
+
+        //  File(String) does fs.normalize, which is really forgiving in fixing up
+        // malformed stuff. I couldn't make the other URL.toURI() or File(URI) work
+        // in all the cases that we test
         try {
-            //when URL contains escapes like %20, this does the conversion correctly
-            return new File(url.toURI());
-        } catch (URISyntaxException e) {
-            try {
-                // some containers, such as Winstone, doesn't escape ' ', and for those
-                // we need to do this. This method doesn't fail when urlstr contains '%20',
-                // so toURI() has to be tried first.
-                return new File(new URI(null,urlstr,null).getPath());
-            } catch (URISyntaxException _) {
-                // the whole thing could fail anyway.
-                return null;
-            } catch (IllegalArgumentException x) {
-                throw new IllegalArgumentException("Failed to convert "+url+" to file path",x);
-            }
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Failed to convert "+url+" to file path",e);
+            return new File(URLDecoder.decode(urlstr.substring(5),"UTF-8"));
+        } catch (UnsupportedEncodingException x) {
+            throw new AssertionError(x);
         }
     }
 
