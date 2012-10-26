@@ -9,6 +9,10 @@ import org.kohsuke.stapler.export.ExportedBean;
 
 public class ExportedBeanAnnotationProcessorTest {
 
+    private void assertEqualsCRLF(String s1, String s2) {
+        assertEquals(s1.replace("\r\n","\n"), s2.replace("\r\n","\n"));
+    }
+
     @Test public void basicOutput() {
         Compilation compilation = new Compilation();
         compilation.addSource("some.pkg.Stuff").
@@ -22,8 +26,8 @@ public class ExportedBeanAnnotationProcessorTest {
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
         assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
-        assertEquals("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, "META-INF/annotations/org.kohsuke.stapler.export.ExportedBean"));
-        assertEquals("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
+        assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, "META-INF/annotations/org.kohsuke.stapler.export.ExportedBean"));
+        assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
         assertEquals("{getDisplayName=This gets the display name. }", Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.javadoc")));
     }
 
@@ -37,8 +41,8 @@ public class ExportedBeanAnnotationProcessorTest {
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
         assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
-        assertEquals("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, "META-INF/annotations/org.kohsuke.stapler.export.ExportedBean"));
-        assertEquals("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
+        assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, "META-INF/annotations/org.kohsuke.stapler.export.ExportedBean"));
+        assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
         // XXX should it be null, i.e. is it desired to create an empty *.javadoc file?
         assertEquals("{}", Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.javadoc")));
     }
