@@ -166,7 +166,7 @@ public class HttpResponses {
     public static HttpResponse staticResource(final URL resource, final long expiration) {
         return new HttpResponse() {
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
-                Stapler.getCurrent().serveStaticResource(req,rsp,resource,expiration);
+                rsp.serveFile(req,resource,expiration);
             }
         };
     }
