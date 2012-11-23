@@ -44,6 +44,10 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
             classLoader = null;
     }
 
+    protected final WebApp getWebApp() {
+        return owner.webApp;
+    }
+
     /**
      * Default file extension of this kind of scripts, such as ".jelly"
      */
