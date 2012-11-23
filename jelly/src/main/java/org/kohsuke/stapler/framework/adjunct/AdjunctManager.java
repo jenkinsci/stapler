@@ -37,16 +37,44 @@ import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This application-scoped object works like a factory for {@link Adjunct}s and provides caching.
+ * This application-scoped object that exposes djuncts to URL.
  *
  * <p>
- * This object can be UI-bound by stapler, and adjunct CSS and JavaScript can be accessed like
+ * Adjuncts are packaging of JavaScript, CSS, and other static assets in jar files with dependency
+ * information between them. This allows JavaScript libraries and other static assets to be reused
+ * across different projects through Maven/Ivy.
+ *
+ * <p>
+ * To use {@link AdjunctManager} in your application, create one instance, and bind it to URL
+ * (like you do any other objects.) The most typical way of doing this is to define it as a
+ * field in your top-level object.
  *
  * <pre>
- * &lt;link rel="stylesheet" href=".../css/org/example/style" type="text/css" />
- * &lt;script                href=".../js/org/example/style">&lt;/script>
+ * public class MyApplication {
+ *     public final AdjunctManager adjuncts = new AdjunctManager(context,getClass().getClassLoader(),"/adjuncts");
+ * }
  * </pre>
+ *
+ * <p>
+ * How you include an adjunct will depend on your template language, but for example in Jelly you do:
+ * <pre>
+ * &lt;st:adjunct includes="org.kohsuke.stapler.bootstrap"/>
+ * </pre>
+ *
+ * Or from Groovy you do:
+ * <pre>
+ * adjunct "org.kohsuke.stapler.bootstrap"
+ * </pre>
+ *
+ * <p>
+ * ... and this produces a series of <tt>style</tt> and <tt>script</tt> tags that include all the
+ * necessary JavaScript, CSS, and their dependencies.
+ *
+ * <p>
+ * Internally, this class provides caching for {@link Adjunct}s.
+ *
  * @author Kohsuke Kawaguchi
+ * @see Adjunct
  */
 public class AdjunctManager {
     private final ConcurrentHashMap<String, Adjunct> adjuncts = new ConcurrentHashMap<String,Adjunct>();

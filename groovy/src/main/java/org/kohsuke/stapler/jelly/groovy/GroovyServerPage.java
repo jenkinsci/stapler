@@ -29,6 +29,9 @@ public class GroovyServerPage {
         template.make(bindingOf(it,request,response)).writeTo(response.getWriter());
     }
 
+    /**
+     * Determines variables visible in GSP.
+     */
     protected Map bindingOf(Object it, HttpServletRequest request, HttpServletResponse response) {
         ServletBinding binding = new ServletBinding(request, response, webApp.context);
         binding.setVariable("my",it);
