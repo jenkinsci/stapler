@@ -100,8 +100,12 @@ class SimpleTemplateParser {
         return sw.toString();
     }
 
+    protected String printCommand() {
+        return "out.print";
+    }
+
     private void startScript(StringWriter sw) {
-        sw.write("out.print(\"\"\"");
+        sw.write(printCommand()+"(\"\"\"");
     }
 
     private void endScript(StringWriter sw) {
@@ -173,6 +177,6 @@ class SimpleTemplateParser {
             sw.write(c);
             //}
         }
-        sw.write(";\nout.print(\"\"\"");
+        sw.write(";\n"+printCommand()+"(\"\"\"");
     }
 }
