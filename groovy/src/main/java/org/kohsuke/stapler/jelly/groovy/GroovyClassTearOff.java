@@ -54,7 +54,7 @@ public final class GroovyClassTearOff extends AbstractTearOff<GroovyClassLoaderT
      * Creates a {@link RequestDispatcher} that forwards to the jelly view, if available.
      */
     public RequestDispatcher createDispatcher(Object it, String viewName) throws IOException {
-        Script script = findScript(viewName+".groovy");
+        Script script = findScript(viewName);
         if(script!=null)
             return new JellyRequestDispatcher(it,script);
         return null;
