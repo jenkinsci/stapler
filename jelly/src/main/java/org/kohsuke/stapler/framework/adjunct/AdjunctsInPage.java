@@ -36,6 +36,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This request-scope object keeps track of which {@link Adjunct}s are already included.
@@ -154,10 +156,11 @@ public class AdjunctsInPage {
                 findNeeded(req,needed);
             needed.add(a);
         } catch (NoSuchAdjunctException e) {
-            // ignore error
+            LOGGER.log(Level.WARNING, "No such adjunct found: "+include,e);
         }
     }
 
     private static final String KEY = AdjunctsInPage.class.getName();
 
+    private static final Logger LOGGER = Logger.getLogger(AdjunctsInPage.class.getName());
 }
