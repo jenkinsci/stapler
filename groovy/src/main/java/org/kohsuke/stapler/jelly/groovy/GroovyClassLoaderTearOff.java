@@ -23,8 +23,12 @@
 
 package org.kohsuke.stapler.jelly.groovy;
 
+import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyCodeSource;
+import groovy.lang.GroovyShell;
+import groovy.text.SimpleTemplateEngine;
+import groovy.text.Template;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.MetaClassLoader;
@@ -39,11 +43,17 @@ public class GroovyClassLoaderTearOff {
     private final MetaClassLoader owner;
 
     private final GroovyClassLoader gcl;
+    private final SimpleTemplateEngine gspEngine;
+    private final GroovyShell groovyShell;
 
     public GroovyClassLoaderTearOff(MetaClassLoader owner) {
         this.owner = owner;
 
         gcl = createGroovyClassLoader();
+        CompilerConfiguration cc = new CompilerConfiguration();
+        cc.setScriptBaseClass(GroovyServerPageScript.class.getName());
+        groovyShell = new GroovyShell(owner.loader,new Binding(),cc);
+        gspEngine = new SimpleTemplateEngine(groovyShell);
     }
 
     private GroovyClassLoader createGroovyClassLoader() {
@@ -80,5 +90,9 @@ public class GroovyClassLoaderTearOff {
         gcs.setCachable(false);
 
         return new GroovierJellyScript(gcl.parseClass(gcs),script);
+    }
+
+    public Template parseGSP(URL res) throws IOException, ClassNotFoundException {
+        return gspEngine.createTemplate(res);
     }
 }
