@@ -32,11 +32,6 @@
       <artifactId>dom4j</artifactId>
       <version>1.6.1-hudson-3</version>
     </dependency>
-    <dependency>
-      <groupId>commons-jexl</groupId>
-      <artifactId>commons-jexl</artifactId>
-      <version>1.0</version>
-    </dependency>
     <dependency><!-- only needed for annotations, hence optional -->
       <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
       <artifactId>jellydoc-annotations</artifactId>
