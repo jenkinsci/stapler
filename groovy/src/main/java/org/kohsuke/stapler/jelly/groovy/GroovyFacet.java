@@ -54,6 +54,7 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
     public void buildViewDispatchers(final MetaClass owner, List<Dispatcher> dispatchers) {
         dispatchers.add(new Dispatcher() {
             final GroovyClassTearOff tearOff = owner.loadTearOff(GroovyClassTearOff.class);
+            final GroovyServerPageTearOff gsp = owner.loadTearOff(GroovyServerPageTearOff.class);
 
             public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                 // check Groovy view
@@ -66,8 +67,11 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
                 if (req.getRequestURI().endsWith("/"))      return false;
 
                 try {
-                    Script script = tearOff.findScript(next+".groovy");
-                    if(script==null)        return false;   // no Groovy script found
+                    Script script = tearOff.findScript(next);
+                    if(script==null)
+                        script = gsp.findScript(next);
+                    if (script==null)
+                        return false;   // no Groovy script found
 
                     req.tokens.next();
 
@@ -87,37 +91,6 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
             }
             public String toString() {
                 return "TOKEN.groovy for url=/TOKEN";
-            }
-        });
-
-        // GSP
-        dispatchers.add(new Dispatcher() {
-            final GroovyServerPageTearOff tearOff = owner.loadTearOff(GroovyServerPageTearOff.class);
-
-            public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
-                // check Groovy view
-                String next = req.tokens.peek();
-                if(next==null)  return false;
-
-                // only match the end of the URL
-                if (req.tokens.countRemainingTokens()>1)    return false;
-                // and avoid serving both "foo" and "foo/" as relative URL semantics are drastically different
-                if (req.getRequestURI().endsWith("/"))      return false;
-
-                GroovyServerPage script = tearOff.findScript(next+".gsp");
-                if(script==null)        return false;   // no Groovy script found
-
-                req.tokens.next();
-
-                if(traceable())
-                    trace(req,rsp,"Invoking "+next+".gsp"+" on "+node+" for "+req.tokens);
-
-                script.invoke(node,req,rsp);
-
-                return true;
-            }
-            public String toString() {
-                return "TOKEN.gsp for url=/TOKEN";
             }
         });
     }

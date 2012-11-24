@@ -44,6 +44,9 @@ public class GroovierJellyScript implements Script {
      */
     private final Class clazz;
 
+    /**
+     * Where was this script loaded from? Used for diagnostics.
+     */
     private final URL scriptURL;
 
     public GroovierJellyScript(Class clazz, URL scriptURL) {

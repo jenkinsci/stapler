@@ -1,12 +1,7 @@
 package org.kohsuke.stapler.jelly.groovy;
 
-import groovy.lang.Binding;
-import groovy.lang.Script;
-import org.kohsuke.stapler.framework.adjunct.AdjunctsInPage;
-import org.kohsuke.stapler.framework.adjunct.NoSuchAdjunctException;
-import org.xml.sax.SAXException;
+import groovy.text.SimpleTemplateEngine;
 
-import java.io.IOException;
 import java.io.Writer;
 
 /**
@@ -14,24 +9,18 @@ import java.io.Writer;
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class GroovyServerPageScript extends Script {
+public abstract class GroovyServerPageScript extends StaplerClosureScript {
+    private Writer out;
     protected GroovyServerPageScript() {
     }
 
-    protected GroovyServerPageScript(Binding binding) {
-        super(binding);
-    }
-
+    /**
+     * {@link SimpleTemplateEngine} expects 'out' variable
+     */
     public Writer getOut() {
-        return (Writer)getProperty("out");
-    }
-
-    public void adjunct(String name) throws IOException, SAXException {
-        try {
-            AdjunctsInPage aip = AdjunctsInPage.get();
-            aip.generate(null,name);
-        } catch (NoSuchAdjunctException e) {
-            // that's OK.
+        if (out==null) {
+            out = ((JellyBuilder)getDelegate()).getOutput().asWriter();
         }
+        return out;
     }
 }
