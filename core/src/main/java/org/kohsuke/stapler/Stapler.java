@@ -503,7 +503,15 @@ public class Stapler extends HttpServlet {
         if(node instanceof StaplerProxy) {
             if(traceable())
                 traceEval(req,rsp,node,"((StaplerProxy)",").getTarget()");
-            Object n = ((StaplerProxy)node).getTarget();
+            Object n = null;
+            try {
+                n = ((StaplerProxy)node).getTarget();
+            } catch (RuntimeException e) {
+                if (Function.renderResponse(req,rsp,node,e))
+                    return true; // let the exception serve the request and we are done
+                else
+                    throw e;    // unprocessed exception
+            }
             if(n==node || n==null) {
                 // if the proxy returns itself, assume that it doesn't want to proxy.
                 // if null, no one will handle the request

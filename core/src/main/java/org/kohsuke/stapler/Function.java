@@ -98,7 +98,7 @@ public abstract class Function {
         }
     }
 
-    private boolean renderResponse(RequestImpl req, ResponseImpl rsp, Object node, Object ret) throws IOException, ServletException {
+    static boolean renderResponse(RequestImpl req, ResponseImpl rsp, Object node, Object ret) throws IOException, ServletException {
         for (HttpResponseRenderer r : req.stapler.getWebApp().getResponseRenderers())
             if (r.generateResponse(req,rsp,node,ret))
                 return true;
