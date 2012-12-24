@@ -23,10 +23,7 @@
 
 package org.kohsuke.stapler.framework.adjunct;
 
-import org.kohsuke.stapler.HttpResponses;
-import org.kohsuke.stapler.MetaClass;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletContext;
@@ -105,6 +102,8 @@ public class AdjunctManager {
      */
     public boolean debug = Boolean.getBoolean(AdjunctManager.class.getName()+".debug");
 
+    public final WebApp webApp;
+
     /**
      * @param classLoader
      *      ClassLoader to load adjuncts from.
@@ -114,6 +113,7 @@ public class AdjunctManager {
     public AdjunctManager(ServletContext context,ClassLoader classLoader, String rootURL) {
         this.classLoader = classLoader;
         this.rootURL = rootURL;
+        this.webApp = WebApp.get(context);
         // register this globally
         context.setAttribute(KEY,this);
     }
