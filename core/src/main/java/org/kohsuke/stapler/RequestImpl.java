@@ -147,6 +147,20 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return stapler.getServletContext();
     }
 
+    public String getRequestURIWithQueryString() {
+        String s = getRequestURI();
+        String q = getQueryString();
+        if (q!=null)    s+='?'+q;
+        return s;
+    }
+
+    public StringBuffer getRequestURLWithQueryString() {
+        StringBuffer s = getRequestURL();
+        String q = getQueryString();
+        if (q!=null)    s.append('?').append(q);
+        return s;
+    }
+
     public RequestDispatcher getView(Object it,String viewName) throws IOException {
         return getView(Klass.java(it.getClass()),it,viewName);
     }

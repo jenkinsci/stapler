@@ -92,6 +92,16 @@ public interface StaplerRequest extends HttpServletRequest {
     ServletContext getServletContext();
 
     /**
+     * {@link #getRequestURI()} plus additional query string part, if it exists.
+     */
+    String getRequestURIWithQueryString();
+
+    /**
+     * {@link #getRequestURL()} plus additional query string part, if it exists.
+     */
+    StringBuffer getRequestURLWithQueryString();
+
+    /**
      * Gets the {@link RequestDispatcher} that represents a specific view
      * for the given object.
      *
