@@ -626,7 +626,15 @@ public class Stapler extends HttpServlet {
         if(node instanceof StaplerFallback) {
             if(traceable())
                 traceEval(req,rsp,node,"((StaplerFallback)",").getStaplerFallback()");
-            Object n = ((StaplerFallback)node).getStaplerFallback();
+            Object n;
+            try {
+                n = ((StaplerFallback)node).getStaplerFallback();
+            } catch (RuntimeException e) {
+                if (Function.renderResponse(req,rsp,node,e))
+                    return true; // let the exception serve the request and we are done
+                else
+                    throw e;    // unprocessed exception
+            }
             if(n!=node && n!=null) {
                 // delegate to the fallback object
                 invoke(req,rsp,n);
