@@ -77,6 +77,10 @@ public class HttpResponses {
         return error(code,new Exception(errorMessage));
     }
 
+    public static HttpResponseException error(Throwable cause) {
+        return error(500,cause);
+    }
+
     public static HttpResponseException error(final int code, final Throwable cause) {
         return new HttpResponseException(cause) {
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
