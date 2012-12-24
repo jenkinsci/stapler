@@ -24,6 +24,13 @@ public abstract class CrumbIssuer {
     }
 
     /**
+     * Sends the crumb value in plain text, enabling retrieval through XmlHttpRequest.
+     */
+    public HttpResponse doCrumb() {
+        return HttpResponses.plainText(issueCrumb());
+    }
+
+    /**
      * Validates a crumb that was submitted along with the request.
      *
      * @param request
