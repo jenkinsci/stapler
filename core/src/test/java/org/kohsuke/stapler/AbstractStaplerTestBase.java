@@ -22,6 +22,8 @@ public abstract class AbstractStaplerTestBase extends TestCase {
     protected RequestImpl request;
     protected ResponseImpl response;
     protected Stapler stapler = new Stapler();
+    protected HttpServletRequest rawRequest;
+    protected HttpServletResponse rawResponse;
 
     @Override
     protected void setUp() throws Exception {
@@ -34,13 +36,13 @@ public abstract class AbstractStaplerTestBase extends TestCase {
         Mockito.when(servletConfig.getServletContext()).thenReturn(servletContext);
         stapler.init(servletConfig);
 
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        rawRequest = Mockito.mock(HttpServletRequest.class);
+        rawResponse = Mockito.mock(HttpServletResponse.class);
 
-        this.request = new RequestImpl(stapler,request,new ArrayList<AncestorImpl>(),new TokenList(""));
+        this.request = new RequestImpl(stapler, rawRequest,new ArrayList<AncestorImpl>(),new TokenList(""));
         Stapler.CURRENT_REQUEST.set(this.request);
 
-        this.response = new ResponseImpl(stapler,response);
+        this.response = new ResponseImpl(stapler, rawResponse);
         Stapler.CURRENT_RESPONSE.set(this.response);
     }
 }
