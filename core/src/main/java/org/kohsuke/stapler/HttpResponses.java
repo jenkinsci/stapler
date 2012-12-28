@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 
+import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
+
 /**
  * Factory for {@link HttpResponse}.
  *
@@ -94,19 +96,23 @@ public class HttpResponses {
         };
     }
 
+    public static HttpResponseException redirectViaContextPath(String relative) {
+        return redirectViaContextPath(SC_MOVED_TEMPORARILY,relative);
+    }
+
     /**
      * @param relative
      *      The path relative to the context path. The context path + this value
      *      is sent to the user.
      */
-    public static HttpResponseException redirectViaContextPath(final String relative) {
+    public static HttpResponseException redirectViaContextPath(final int statusCode, final String relative) {
         return new HttpResponseException() {
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                 StringBuilder sb = new StringBuilder(req.getContextPath());
                 if (!relative.startsWith("/"))  sb.append('/');
                 sb.append(relative);
 
-                rsp.sendRedirect2(sb.toString());
+                rsp.sendRedirect(statusCode,sb.toString());
             }
         };
     }
@@ -117,6 +123,10 @@ public class HttpResponses {
      */
     public static HttpRedirect redirectTo(String url) {
         return new HttpRedirect(url);
+    }
+
+    public static HttpRedirect redirectTo(int statusCode, String url) {
+        return new HttpRedirect(statusCode,url);
     }
 
     /**

@@ -26,6 +26,8 @@ package org.kohsuke.stapler;
 import javax.servlet.ServletException;
 import java.io.IOException;
 
+import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
+
 /**
  * {@link HttpResponse} that dose HTTP 302 redirect.
  * Extends from {@link RuntimeException} so that you can throw it.
@@ -33,14 +35,20 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  */
 public final class HttpRedirect extends RuntimeException implements HttpResponse {
+    private final int statusCode;
     private final String url;
 
     public HttpRedirect(String url) {
+        this(SC_MOVED_TEMPORARILY,url);
+    }
+
+    public HttpRedirect(int statusCode, String url) {
+        this.statusCode = statusCode;
         this.url = url;
     }
 
     public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
-        rsp.sendRedirect2(url);
+        rsp.sendRedirect(statusCode,url);
     }
 
     /**

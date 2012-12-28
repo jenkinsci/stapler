@@ -73,6 +73,11 @@ public interface StaplerResponse extends HttpServletResponse {
     void sendRedirect2(String url) throws IOException;
 
     /**
+     * Works like {@link #sendRedirect2(String)} but allows the caller to specify the HTTP status code.
+     */
+    void sendRedirect(int statusCore, String url) throws IOException;
+
+    /**
      * Serves a static resource.
      *
      * <p>

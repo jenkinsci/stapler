@@ -148,6 +148,47 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         sendRedirect(encode(url));
     }
 
+    public void sendRedirect(int statusCode, String url) throws IOException {
+        if (statusCode==SC_MOVED_TEMPORARILY) {
+            sendRedirect(url);  // to be safe, let the servlet container handles this default case
+            return;
+        }
+
+        if(url.startsWith("http://") || url.startsWith("https://")) {
+            // absolute URLs
+            url = encode(url);
+        } else {
+            StaplerRequest req = Stapler.getCurrentRequest();
+
+            if (!url.startsWith("/")) {
+                // WebSphere doesn't apparently handle relative URLs, so
+                // to be safe, always resolve relative URLs to absolute URLs by ourselves.
+                // see http://www.nabble.com/Hudson%3A-1.262%3A-Broken-link-using-update-manager-to21067157.html
+
+                // example: /foo/bar/zot + ../abc -> /foo/bar/../abc
+                String base = req.getRequestURI();
+                base = base.substring(0,base.lastIndexOf('/')+1);
+                if(!url.equals("."))
+                    url = base+encode(url);
+                else
+                    url = base;
+
+                assert url.startsWith("/");
+            }
+
+            StringBuilder buf = new StringBuilder(req.getScheme()).append("://").append(req.getServerName());
+            if ((req.getScheme().equals("http") && req.getServerPort()!=80)
+            || (req.getScheme().equals("https") && req.getServerPort()!=443))
+                buf.append(':').append(req.getServerPort());
+            url = buf.append(url).toString();
+        }
+
+        setStatus(statusCode);
+        setHeader("Location",url);
+        getOutputStream().close();
+    }
+
+
     public void serveFile(StaplerRequest req, URL resource, long expiration) throws ServletException, IOException {
         if(!stapler.serveStaticResource(req,this,resource,expiration))
             sendError(SC_NOT_FOUND);
