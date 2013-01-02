@@ -1,6 +1,7 @@
 org.kohsuke.stapler
 org.kohsuke.stapler.bind
 org.kohsuke.stapler.compression
+org.kohsuke.stapler.config
 org.kohsuke.stapler.export
 org.kohsuke.stapler.framework
 org.kohsuke.stapler.framework.adjunct
