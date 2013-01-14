@@ -61,7 +61,7 @@ public class BoundObjectTable implements StaplerFallback {
      * Binds an object temporarily and returns its URL.
      */
     public Bound bind(Object o) {
-        return bind(strongRef(o));
+        return bind(new StrongRef(o));
     }
 
     /**
@@ -213,13 +213,15 @@ public class BoundObjectTable implements StaplerFallback {
     interface Ref {
         Object get();
     }
-
-    private static Ref strongRef(final Object o) {
-        return new Ref() {
-            public Object get() {
-                return o;
-            }
-        };
+    
+    private static class StrongRef implements Ref {
+        private final Object o;
+        StrongRef(Object o) {
+            this.o = o;
+        }
+        public Object get() {
+            return o;
+        }
     }
     
     private static class WeakRef extends WeakReference implements Ref {
