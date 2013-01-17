@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.kohsuke.stapler.compression.CompressionFilter;
 import org.kohsuke.stapler.compression.FilterServletOutputStream;
 import org.kohsuke.stapler.export.ExportConfig;
@@ -124,7 +125,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     @Override
-    public void sendRedirect(String url) throws IOException {
+    public void sendRedirect(@NonNull String url) throws IOException {
         // WebSphere doesn't apparently handle relative URLs, so
         // to be safe, always resolve relative URLs to absolute URLs by ourselves.
         // see http://www.nabble.com/Hudson%3A-1.262%3A-Broken-link-using-update-manager-to21067157.html
@@ -142,13 +143,13 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         super.sendRedirect(base);
     }
 
-    public void sendRedirect2(String url) throws IOException {
+    public void sendRedirect2(@NonNull String url) throws IOException {
         // Tomcat doesn't encode URL (servlet spec isn't very clear on it)
         // so do the encoding by ourselves
         sendRedirect(encode(url));
     }
 
-    public void sendRedirect(int statusCode, String url) throws IOException {
+    public void sendRedirect(int statusCode, @NonNull String url) throws IOException {
         if (statusCode==SC_MOVED_TEMPORARILY) {
             sendRedirect(url);  // to be safe, let the servlet container handles this default case
             return;
@@ -337,7 +338,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     /**
      * Escapes non-ASCII characters.
      */
-    public static String encode(String s) {
+    public static @NonNull String encode(@NonNull String s) {
         try {
             boolean escaped = false;
 
