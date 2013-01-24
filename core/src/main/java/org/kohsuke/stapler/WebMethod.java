@@ -36,7 +36,7 @@ import java.lang.annotation.Target;
  * <p>
  * This annotation is assumed to be implicit on every public methods
  * that start with 'do', like 'doFoo' or 'doBar', but you can use this annotation
- * on those methods to assign different names.
+ * on methods starting with {@code do} to assign different names.
  *
  * @author Kohsuke Kawaguchi
  */
