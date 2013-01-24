@@ -1,7 +1,5 @@
 package org.kohsuke.stapler.jsr269;
 
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.Multimap;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.export.Exported;
 
@@ -41,7 +39,7 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
             }
 
             // collect all exposed properties
-            Multimap<TypeElement, Element/*member decls*/> props = LinkedListMultimap.create();
+            PoormansMultimap<TypeElement, Element/*member decls*/> props = new PoormansMultimap<TypeElement,Element>();
 
             for (Element exported : roundEnv.getElementsAnnotatedWith(Exported.class)) {
                 Element type = exported.getEnclosingElement();
