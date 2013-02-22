@@ -74,8 +74,7 @@ public abstract class HttpResponseRenderer {
 
                 // handle other primitive types as JSON response
                 if (response instanceof String) {
-                    // TODO: switch to JSONUtils.quote()
-                    w.print('"'+response.toString().replace("\"","\\\"").replace("\n","\\\n").replace("\\","\\\\")+'"');
+                    w.print(quote((String) response));
                 } else
                 if (response instanceof Number || response instanceof Boolean) {
                     w.print(response);
@@ -119,4 +118,10 @@ public abstract class HttpResponseRenderer {
             return false;
         }
     }
+
+    static String quote(String text) {
+        // TODO: switch to JSONUtils.quote()
+        return '"' + text.replace("\"", "\\\"").replace("\n", "\\\n").replace("\\", "\\\\") + '"';
+    }
+
 }
