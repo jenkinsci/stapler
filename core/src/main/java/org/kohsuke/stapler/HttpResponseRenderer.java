@@ -26,7 +26,6 @@ package org.kohsuke.stapler;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import net.sf.json.util.JSONStringer;
 import net.sf.json.util.JSONUtils;
 import org.kohsuke.stapler.export.Flavor;
 
@@ -120,8 +119,7 @@ public abstract class HttpResponseRenderer {
     }
 
     static String quote(String text) {
-        // TODO: switch to JSONUtils.quote()
-        return '"' + text.replace("\"", "\\\"").replace("\n", "\\\n").replace("\\", "\\\\") + '"';
+        return JSONUtils.quote(text);
     }
 
 }
