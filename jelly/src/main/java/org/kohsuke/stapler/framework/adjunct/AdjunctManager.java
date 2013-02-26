@@ -88,8 +88,8 @@ public class AdjunctManager {
      *
      * <p>
      * The path is treated relative from the context path of the application, and it
-     * needs to end without '/'. So it needs to be something like "foo/adjuncts" or more likely,
-     * just "adjuncts". 
+     * needs to end without '/'. So it needs to be something like "foo/adjuncts" or
+     * just "adjuncts". Can be e.g. {@code adjuncts/uNiQuEhAsH} to improve caching behavior.
      */
     public final String rootURL;
 
@@ -103,17 +103,28 @@ public class AdjunctManager {
     public boolean debug = Boolean.getBoolean(AdjunctManager.class.getName()+".debug");
 
     public final WebApp webApp;
+    private final long expiration;
+
+    @Deprecated
+    public AdjunctManager(ServletContext context,ClassLoader classLoader, String rootURL) {
+        this(context, classLoader, rootURL, /* one day */24L * 60 * 60 * 1000);
+    }
 
     /**
      * @param classLoader
      *      ClassLoader to load adjuncts from.
      * @param rootURL
      *      See {@link #rootURL} for the meaning of this parameter.
+     * @param expiration milliseconds from service time until expiration, for {@link #doDynamic}
+     *                    (as in {@link StaplerResponse#serveFile(StaplerRequest, URL, long)});
+     *                    if {@link #rootURL} is unique per session then this can be very long;
+     *                    otherwise a day might be reasonable
      */
-    public AdjunctManager(ServletContext context,ClassLoader classLoader, String rootURL) {
+    public AdjunctManager(ServletContext context, ClassLoader classLoader, String rootURL, long expiration) {
         this.classLoader = classLoader;
         this.rootURL = rootURL;
         this.webApp = WebApp.get(context);
+        this.expiration = expiration;
         // register this globally
         context.setAttribute(KEY,this);
     }
@@ -163,7 +174,7 @@ public class AdjunctManager {
         if(res==null) {
             throw HttpResponses.error(SC_NOT_FOUND,new IllegalArgumentException("No such adjunct found: "+path));
         } else {
-            long expires = MetaClass.NO_CACHE ? 0 : 24L * 60 * 60 * 1000; /*1 day*/
+            long expires = MetaClass.NO_CACHE ? 0 : expiration;
             rsp.serveFile(req,res,expires);
         }
     }
