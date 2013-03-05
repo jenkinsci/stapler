@@ -79,6 +79,15 @@
         <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
         <artifactId>maven-jellydoc-plugin</artifactId>
         <version>1.2</version>
+        <dependencies>
+          <dependency>
+            <groupId>com.sun</groupId>
+            <artifactId>tools</artifactId>
+            <scope>system</scope>
+            <version>1.6</version>
+            <systemPath>${toolsjar}</systemPath>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>
@@ -98,6 +107,15 @@
                 </goals>
               </execution>
             </executions>
+            <dependencies>
+              <dependency>
+                <groupId>com.sun</groupId>
+                <artifactId>tools</artifactId>
+                <scope>system</scope>
+                <version>1.6</version>
+                <systemPath>${toolsjar}</systemPath>
+              </dependency>
+            </dependencies>
           </plugin>
         </plugins>
       </build>
@@ -111,6 +129,28 @@
           </plugin>
         </plugins>
       </reporting>
+    </profile>
+    <profile>
+      <id>sane-jdk</id>
+      <activation>
+        <file>
+          <exists>${java.home}/../lib/tools.jar</exists>
+        </file>
+      </activation>
+      <properties>
+        <toolsjar>${java.home}/../lib/tools.jar</toolsjar>
+      </properties>
+    </profile>
+    <profile>
+      <id>osx-jdk</id>
+      <activation>
+        <file>
+          <exists>${java.home}/../Classes/classes.jar</exists>
+        </file>
+      </activation>
+      <properties>
+        <toolsjar>${java.home}/../Classes/classes.jar</toolsjar>
+      </properties>
     </profile>
   </profiles>
 </project>
