@@ -49,7 +49,11 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
     }
 
     /**
-     * Default file extension of this kind of scripts, such as ".jelly"
+     * The file extension of this kind of scripts, such as ".jelly"
+     *
+     * This is called "default" for historical reasons, but for disambiguation
+     * between different views and their facets, we don't support views other than
+     * their default extension.
      */
     protected abstract String getDefaultScriptExtension();
 
@@ -60,6 +64,10 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
     public S resolveScript(String name) throws E {
         if (name.lastIndexOf('.')<=name.lastIndexOf('/'))   // no file extension provided
             name += getDefaultScriptExtension();
+        else if (!name.endsWith(getDefaultScriptExtension()))
+            // for multiple Facets to co-exist peacefully, we need to be able to determine
+            // which Facet is responsible for a given view just from the file name
+            return null;
 
         URL res = getResource(name);
         if(res==null) {
