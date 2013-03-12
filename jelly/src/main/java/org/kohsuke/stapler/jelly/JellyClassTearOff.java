@@ -61,6 +61,11 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
         return ".jelly";
     }
 
+    @Override
+    protected boolean hasAllowedExtension(String name) {
+        return name.endsWith(".jelly") || name.endsWith(".jellytag");
+    }
+
     /**
      * Aside from looking into our own, consult other facets that can handle Jelly-compatible scripts.
      */

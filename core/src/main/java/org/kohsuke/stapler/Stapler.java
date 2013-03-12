@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import com.google.common.collect.ImmutableMap;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -52,8 +53,6 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
@@ -63,10 +62,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -92,6 +94,15 @@ public class Stapler extends HttpServlet {
 
     private /*final*/ WebApp webApp;
 
+    /**
+     * All the resources that exist in {@link ServletContext#getResource(String)},
+     * as a cache.
+     *
+     * If this field is null, no cache.
+     */
+    private volatile Map<String,URL> resourcePaths;
+
+
     public @Override void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         this.context = servletConfig.getServletContext();
@@ -104,6 +115,45 @@ public class Stapler extends HttpServlet {
                 if(idx<0)   throw new ServletException("Invalid format: "+t);
                 webApp.defaultEncodingForStaticResources.put(t.substring(0,idx),t.substring(idx+1));
             }
+        }
+        buildResourcePaths();
+    }
+
+    /**
+     * Rebuild the internal cache for static resources.
+     */
+    public void buildResourcePaths() {
+        try {
+            if (Boolean.getBoolean(Stapler.class.getName()+".noResourcePathCache")) {
+                resourcePaths = null;
+                return;
+            }
+
+            Map<String,URL> paths = new HashMap<String,URL>();
+            Stack<String> q = new Stack<String>();
+            q.push("/");
+            while (!q.isEmpty()) {
+                String dir = q.pop();
+                Set<String> children = context.getResourcePaths(dir);
+                if (children!=null) {
+                    for (String child : children) {
+                        if (child.endsWith("/"))
+                            q.push(child);
+                        else {
+                            URL v = context.getResource(child);
+                            if (v==null) {
+                                resourcePaths = null;
+                                return; // this can't happen. abort with no cache
+                            }
+                            paths.put(child, v);
+                        }
+                    }
+                }
+            }
+
+            resourcePaths = ImmutableMap.copyOf(paths);
+        } catch (MalformedURLException e) {
+            resourcePaths = null; // abort
         }
     }
 
@@ -205,41 +255,87 @@ public class Stapler extends HttpServlet {
         }
     }
 
+    /**
+     * Logic for performing locale driven resource selection.
+     *
+     * Different subtypes provide different meanings for the 'path' parameter.
+     */
+    private abstract class LocaleDrivenResourceSelector {
+        /**
+         * The 'path' is divided into the base part and the extension, and the locale-specific
+         * suffix is inserted to the base portion. {@link #map(String)} is used to convert
+         * the combined path into {@link URL}, until we find one that works.
+         *
+         * <p>
+         * The syntax of the locale specific resource is the same as property file localization.
+         * So Japanese resource for <tt>foo.html</tt> would be named <tt>foo_ja.html</tt>.
+         *
+         * @param path
+         *      path/URL-like string that represents the path of the base resource,
+         *      say "foo/bar/index.html" or "file:///a/b/c/d/efg.png"
+         * @param locale
+         *      The preferred locale
+         * @param fallback
+         *      The {@link URL} representation of the {@code path} parameter
+         *      Used as a fallback.
+         */
+        OpenConnection open(String path, Locale locale, URL fallback) throws IOException {
+            String s = path;
+            int idx = s.lastIndexOf('.');
+            if(idx<0)   // no file extension, so no locale switch available
+                return openURL(fallback);
+            String base = s.substring(0,idx);
+            String ext = s.substring(idx);
+            if(ext.indexOf('/')>=0) // the '.' we found was not an extension separator
+                return openURL(fallback);
+
+            OpenConnection con;
+
+            // try locale specific resources first.
+            con = openURL(map(base + '_' + locale.getLanguage() + '_' + locale.getCountry() + '_' + locale.getVariant() + ext));
+            if(con!=null)   return con;
+            con = openURL(map(base+'_'+ locale.getLanguage()+'_'+ locale.getCountry()+ext));
+            if(con!=null)   return con;
+            con = openURL(map(base+'_'+ locale.getLanguage()+ext));
+            if(con!=null)   return con;
+            // default
+            return openURL(fallback);
+        }
+
+        /**
+         * Maps the 'path' into {@link URL}.
+         */
+        abstract URL map(String path) throws IOException;
+    }
+
+    private final LocaleDrivenResourceSelector resourcePathLocaleSelector = new LocaleDrivenResourceSelector() {
+        @Override
+        URL map(String path) throws IOException {
+            return getResource(path);
+        }
+    };
+
     private OpenConnection openResourcePathByLocale(HttpServletRequest req,String resourcePath) throws IOException {
-        URL url = getServletContext().getResource(resourcePath);
+        URL url = getResource(resourcePath);
         if(url==null)   return null;
-        return selectResourceByLocale(url,req.getLocale());
+
+        // hopefully HotSpot would be able to inline all the virtual calls in here
+        return resourcePathLocaleSelector.open(resourcePath,req.getLocale(),url);
     }
 
     /**
-     * Basically works like {@link URL#openConnection()} but it uses the
-     * locale specific resource if available, by using the given locale.
-     *
-     * <p>
-     * The syntax of the locale specific resource is the same as property file localization.
-     * So Japanese resource for <tt>foo.html</tt> would be named <tt>foo_ja.html</tt>.
+     * {@link LocaleDrivenResourceSelector} that uses a complete URL as 'path'
      */
+    private final LocaleDrivenResourceSelector urlLocaleSelector = new LocaleDrivenResourceSelector() {
+        @Override
+        URL map(String url) throws IOException {
+            return new URL(url);
+        }
+    };
+
     OpenConnection selectResourceByLocale(URL url, Locale locale) throws IOException {
-        String s = url.toString();
-        int idx = s.lastIndexOf('.');
-        if(idx<0)   // no file extension, so no locale switch available
-            return openURL(url);
-        String base = s.substring(0,idx);
-        String ext = s.substring(idx);
-        if(ext.indexOf('/')>=0) // the '.' we found was not an extension separator
-            return openURL(url);
-
-        OpenConnection con;
-
-        // try locale specific resources first.
-        con = openURL(new URL(base+'_'+ locale.getLanguage()+'_'+ locale.getCountry()+'_'+ locale.getVariant()+ext));
-        if(con!=null)   return con;
-        con = openURL(new URL(base+'_'+ locale.getLanguage()+'_'+ locale.getCountry()+ext));
-        if(con!=null)   return con;
-        con = openURL(new URL(base+'_'+ locale.getLanguage()+ext));
-        if(con!=null)   return con;
-        // default
-        return openURL(url);
+        // hopefully HotSpot would be able to inline all the virtual calls in here
+        return urlLocaleSelector.open(url.toString(),locale,url);
     }
 
     /**
@@ -264,7 +360,7 @@ public class Stapler extends HttpServlet {
     boolean serveStaticResource(HttpServletRequest req, StaplerResponse rsp, URL url, long expiration) throws IOException {
         return serveStaticResource(req,rsp,openURL(url),expiration);
     }
-    
+
     /**
      * Opens URL, with error handling to absorb container differences.
      * <p>
@@ -708,12 +804,21 @@ public class Stapler extends HttpServlet {
     private URL getSideFileURL(Object node,String fileName) throws MalformedURLException {
         for( Class c = node.getClass(); c!=Object.class; c=c.getSuperclass() ) {
             String name = "/WEB-INF/side-files/"+c.getName().replace('.','/')+'/'+fileName;
-            URL url = getServletContext().getResource(name);
+            URL url = getResource(name);
             if(url!=null) return url;
         }
         return null;
     }
 
+    /**
+     * {@link ServletContext#getResource(String)} with caching.
+     */
+    private URL getResource(String name) throws MalformedURLException {
+        if (resourcePaths!=null)
+            return resourcePaths.get(name);
+        else
+            return context.getResource(name);
+    }
 
 
     /**
