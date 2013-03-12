@@ -756,7 +756,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 isSubmission = !getParameterMap().isEmpty();
             }
             
-            if(p==null || p.equals("")) {
+            if(p==null || p.length() == 0) {
                 // no data submitted
                 try {
                     StaplerResponse rsp = Stapler.getCurrentResponse();
