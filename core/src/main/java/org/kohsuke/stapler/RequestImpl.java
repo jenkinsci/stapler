@@ -765,7 +765,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     else
                         rsp.sendError(SC_BAD_REQUEST,"Nothing is submitted");
                     rsp.getWriter().close();
-                    throw new Error("This page expects a form submission");
+                    throw new Error("This page expects a form submission but had only " + getParameterMap());
                 } catch (IOException e) {
                     throw new Error(e);
                 }
