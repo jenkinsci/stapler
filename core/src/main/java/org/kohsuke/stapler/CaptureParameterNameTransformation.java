@@ -63,7 +63,7 @@ public class CaptureParameterNameTransformation implements ASTTransformation {
     private static final Set<String> HANDLER_ANN = new HashSet<String>();
 
     static {
-        for (Class c : AnnotationHandler.HANDLERS.keySet())
+        for (Class<?/* extends Annotation*/> c : /*AnnotationHandler.HANDLERS.keySet()*/new Class<?>[] {Header.class, QueryParameter.class, AncestorInPath.class})
             HANDLER_ANN.add(c.getName());
     }
 

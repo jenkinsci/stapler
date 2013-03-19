@@ -60,10 +60,10 @@ abstract class AnnotationHandler<T extends Annotation> {
         return null; // probably we should report an error
     }
 
-
-    static final Map<Class<? extends Annotation>,AnnotationHandler> HANDLERS = new HashMap<Class<? extends Annotation>, AnnotationHandler>();
+    private static final Map<Class<? extends Annotation>,AnnotationHandler> HANDLERS = new HashMap<Class<? extends Annotation>, AnnotationHandler>();
 
     static {
+        // synchronize with CaptureParameterNameTransformation.HANDLER_ANN
         HANDLERS.put(Header.class,new AnnotationHandler<Header>() {
             Object parse(StaplerRequest request, Header a, Class type, String parameterName) throws ServletException {
                 String name = a.value();
