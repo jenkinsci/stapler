@@ -23,6 +23,9 @@
 
 package org.kohsuke.stapler;
 
+import org.kohsuke.stapler.QueryParameter.HandlerImpl;
+
+import javax.servlet.ServletException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.annotation.Documented;
@@ -37,6 +40,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target(PARAMETER)
 @Documented
+@InjectedParameter(HandlerImpl.class)
 public @interface QueryParameter {
     /**
      * query parameter name. By default, name of the parameter.
@@ -54,4 +58,20 @@ public @interface QueryParameter {
      * the absence of the value vs the empty value.
      */
     boolean fixEmpty() default false;
+
+    class HandlerImpl extends AnnotationHandler<QueryParameter> {
+        public Object parse(StaplerRequest request, QueryParameter a, Class type, String parameterName) throws ServletException {
+            String name = a.value();
+            if(name.length()==0)    name=parameterName;
+            if(name==null)
+                throw new IllegalArgumentException("Parameter name unavailable neither in the code nor in annotation");
+
+            String value = request.getParameter(name);
+            if(a.required() && value==null)
+                throw new ServletException("Required Query parameter "+name+" is missing");
+            if(a.fixEmpty() && value!=null && value.length()==0)
+                value = null;
+            return convert(type,value);
+        }
+    }
 }
