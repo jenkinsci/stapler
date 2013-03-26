@@ -2,10 +2,10 @@
 // @include org.kohsuke.stapler.framework.prototype.prototype
 
 function makeStaplerProxy(url,crumb,methods) {
-    if (!url.endsWith('/')) url+='/';
+    if (url.substring(url.length - 1) !== '/') url+='/';
     var proxy = {};
 
-    methods.each(function(methodName) {
+    var genMethod = function(methodName) {
         proxy[methodName] = function() {
             var args = arguments;
 
@@ -29,13 +29,17 @@ function makeStaplerProxy(url,crumb,methods) {
                     if (callback!=null) {
                         t.responseObject = function() {
                             return eval('('+this.responseText+')');
-                        }
+                        };
                         callback(t);
                     }
                 }
             });
         }
-    });
+    };
+
+    for(var mi = 0; mi < methods.length; mi++) {
+        genMethod(methods[mi]);
+    }
 
     return proxy;
 }
