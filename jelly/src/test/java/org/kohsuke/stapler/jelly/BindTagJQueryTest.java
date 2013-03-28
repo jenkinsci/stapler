@@ -8,12 +8,15 @@ import org.kohsuke.stapler.test.JettyTestCase;
 import java.net.URL;
 
 /**
- * @author Kohsuke Kawaguchi
+ * Description
+ *
+ * @author Robert Sandell &lt;sandell.robert@gmail.com&gt;
  */
-public class BindTagTest extends JettyTestCase {
+public class BindTagJQueryTest extends JettyTestCase {
     private String value;
 
     public AdjunctManager am;
+    private int number;
 
     @Override
     protected void setUp() throws Exception {
@@ -28,12 +31,14 @@ public class BindTagTest extends JettyTestCase {
         String content = page.getWebResponse().getContentAsString();
         System.out.println(content);
         //Check that prototype is included in the page
-        assertTrue(content.contains("/am/org/kohsuke/stapler/framework/prototype/prototype.js"));
-        page.executeJavaScript("v.foo('hello world');");
+        assertFalse(content.contains("/am/org/kohsuke/stapler/framework/prototype/prototype.js"));
+        page.executeJavaScript("v.foo('hello world', 2);");
         assertEquals("hello world",value);
+        assertEquals(2, number);
     }
 
-    public void jsFoo(String arg) {
+    public void jsFoo(String arg, int arg2) {
         this.value = arg;
+        this.number = arg2;
     }
 }

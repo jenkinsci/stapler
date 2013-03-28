@@ -68,6 +68,12 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.kohsuke.stapler</groupId>
+      <artifactId>stapler-adjunct-jquery</artifactId>
+      <version>1.8.3-0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty</artifactId>
     </dependency>
