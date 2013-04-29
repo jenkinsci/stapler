@@ -5,10 +5,7 @@ import org.jruby.RubyModule;
 import org.jruby.RubyObject;
 import org.jruby.internal.runtime.methods.DynamicMethod;
 import org.jruby.rack.DefaultRackApplication;
-import org.jruby.rack.servlet.ServletRackConfig;
-import org.jruby.rack.servlet.ServletRackContext;
-import org.jruby.rack.servlet.ServletRackEnvironment;
-import org.jruby.rack.servlet.ServletRackResponseEnvironment;
+import org.jruby.rack.servlet.*;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.RequestImpl;
@@ -35,11 +32,11 @@ public class RackDispatcher extends Dispatcher {
             return false;
 
         // TODO: does the context need to live longer?
-        ServletRackContext rackContext = new ServletRackContext(new ServletRackConfig(req.getServletContext()));
+        ServletRackContext rackContext = new DefaultServletRackContext(new ServletRackConfig(req.getServletContext()));
 
         // we don't want the Rack app to consider the portion of the URL that was already consumed
         // to reach to the Rack app, so for PATH_INFO we use getRestOfPath(), not getPathInfo()
-        ServletRackEnvironment env = new ServletRackEnvironment(req, rackContext) {
+        ServletRackEnvironment env = new ServletRackEnvironment(req, rsp, rackContext) {
             @Override
             public String getPathInfo() {
                 return req.getRestOfPath();

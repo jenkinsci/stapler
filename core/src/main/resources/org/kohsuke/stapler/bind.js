@@ -1,11 +1,10 @@
-// included into the page as an adjunct
-// @include org.kohsuke.stapler.framework.prototype.prototype
+// bind tag takes care of the dependency as an adjunct
 
 function makeStaplerProxy(url,crumb,methods) {
-    if (!url.endsWith('/')) url+='/';
+    if (url.substring(url.length - 1) !== '/') url+='/';
     var proxy = {};
 
-    methods.each(function(methodName) {
+    var genMethod = function(methodName) {
         proxy[methodName] = function() {
             var args = arguments;
 
@@ -21,21 +20,45 @@ function makeStaplerProxy(url,crumb,methods) {
             for (var i=0; i<args.length-(callback!=null?1:0); i++)
                 a.push(args[i]);
 
-            new Ajax.Request(url+methodName, {
-                method: 'post',
-                requestHeaders: {'Content-type':'application/x-stapler-method-invocation;charset=UTF-8','Crumb':crumb},
-                postBody: Object.toJSON(a),
-                onSuccess: function(t) {
-                    if (callback!=null) {
-                        t.responseObject = function() {
-                            return eval('('+this.responseText+')');
+            if(window.jQuery === window.$) { //Is jQuery the active framework?
+                $.ajax({
+                    type: "POST",
+                    url: url+methodName,
+                    data: JSON.stringify(a),
+                    contentType: 'application/x-stapler-method-invocation;charset=UTF-8',
+                    headers: {'Crumb':crumb},
+                    dataType: "json",
+                    success: function(data, textStatus, jqXHR) {
+                        if (callback!=null) {
+                            var t = {};
+                            t.responseObject = function() {
+                                return data;
+                            };
+                            callback(t);
                         }
-                        callback(t);
                     }
-                }
-            });
+                });
+            } else { //Assume prototype should work
+                new Ajax.Request(url+methodName, {
+                    method: 'post',
+                    requestHeaders: {'Content-type':'application/x-stapler-method-invocation;charset=UTF-8','Crumb':crumb},
+                    postBody: Object.toJSON(a),
+                    onSuccess: function(t) {
+                        if (callback!=null) {
+                            t.responseObject = function() {
+                                return eval('('+this.responseText+')');
+                            };
+                            callback(t);
+                        }
+                    }
+                });
+            }
         }
-    });
+    };
+
+    for(var mi = 0; mi < methods.length; mi++) {
+        genMethod(methods[mi]);
+    }
 
     return proxy;
 }

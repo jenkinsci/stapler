@@ -23,6 +23,10 @@
 
 package org.kohsuke.stapler;
 
+import org.kohsuke.stapler.Header.HandlerImpl;
+
+import javax.servlet.ServletException;
+
 import static java.lang.annotation.ElementType.PARAMETER;
 import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -37,6 +41,7 @@ import java.lang.annotation.Documented;
 @Retention(RUNTIME)
 @Target(PARAMETER)
 @Documented
+@InjectedParameter(HandlerImpl.class)
 public @interface Header {
     /**
      * HTTP header name.
@@ -47,4 +52,19 @@ public @interface Header {
      * If true, request without this header will be rejected.
      */
     boolean required() default false;
+
+    class HandlerImpl extends AnnotationHandler<Header> {
+        public Object parse(StaplerRequest request, Header a, Class type, String parameterName) throws ServletException {
+            String name = a.value();
+            if(name.length()==0)    name=parameterName;
+            if(name==null)
+                throw new IllegalArgumentException("Parameter name unavailable neither in the code nor in annotation");
+
+            String value = request.getHeader(name);
+            if(a.required() && value==null)
+                throw new ServletException("Required HTTP header "+name+" is missing");
+
+            return convert(type,value);
+        }
+    }
 }
