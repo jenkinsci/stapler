@@ -183,8 +183,10 @@ public class Stapler extends HttpServlet {
             if(servletPath.startsWith("/static/")) {
                 // skip "/static/..../ portion
                 int idx = servletPath.indexOf('/',8);
-                servletPath=servletPath.substring(idx);
-                staticLink = true;
+                if (idx != -1) {
+                    servletPath=servletPath.substring(idx);
+                    staticLink = true;
+                }
             }
 
             String lowerPath = servletPath.toLowerCase(Locale.ENGLISH);
