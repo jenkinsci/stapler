@@ -913,6 +913,26 @@ public class Stapler extends HttpServlet {
     /*package*/ static ThreadLocal<RequestImpl> CURRENT_REQUEST = new ThreadLocal<RequestImpl>();
     /*package*/ static ThreadLocal<ResponseImpl> CURRENT_RESPONSE = new ThreadLocal<ResponseImpl>();
 
+    /**
+     * Set to indicate whether the currently running request was made by an administrator who should see stack traces.
+     * By default they cannot.
+     * @since 1.210
+     */
+    public static void setAdministrator(boolean admin) {
+        ADMINISTRATOR.set(admin);
+    }
+
+    /**
+     * Whether the current request is by an administrator.
+     * @since 1.210
+     */
+    public static boolean isAdministrator() {
+        Boolean b = ADMINISTRATOR.get();
+        return b != null ? b : false;
+    }
+
+    private static final ThreadLocal<Boolean> ADMINISTRATOR = new ThreadLocal<Boolean>();
+
     private static final Logger LOGGER = Logger.getLogger(Stapler.class.getName());
 
     /**
