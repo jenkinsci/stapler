@@ -22,7 +22,7 @@ import static java.util.logging.Level.*;
  */
 @MetaInfServices
 public class JRebelFacet extends Facet {
-    private final Map<Class,MetaClass> metaClasses = new HashMap<Class, MetaClass>();
+    private Map<Class,MetaClass> metaClasses;
 
     public class ReloaderHook implements Runnable {
         public void run() {
@@ -44,6 +44,7 @@ public class JRebelFacet extends Facet {
                     return PRIORITY_DEFAULT;
                 }
             });
+            metaClasses = new HashMap<Class, MetaClass>();
         }
     }
 
@@ -60,7 +61,7 @@ public class JRebelFacet extends Facet {
 
     @Override
     public void buildViewDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
-        if (owner.klass.clazz instanceof Class) {
+        if (metaClasses != null && owner.klass.clazz instanceof Class) {
             synchronized (metaClasses) {
                 metaClasses.put((Class)owner.klass.clazz,owner);
             }
