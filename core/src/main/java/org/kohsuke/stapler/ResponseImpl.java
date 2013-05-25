@@ -24,6 +24,7 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import net.sf.json.JsonConfig;
 import org.kohsuke.stapler.compression.CompressionFilter;
 import org.kohsuke.stapler.compression.FilterServletOutputStream;
 import org.kohsuke.stapler.export.ExportConfig;
@@ -68,6 +69,8 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
     private OutputMode mode=null;
     private Throwable origin;
+
+    private JsonConfig jsonConfig;
 
     /**
      * {@link ServletOutputStream} or {@link PrintWriter}, set when {@link #mode} is set.
@@ -327,6 +330,17 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         copyAndClose(con.getInputStream(), getOutputStream());
 
         return code;
+    }
+
+    public void setJsonConfig(JsonConfig config) {
+        jsonConfig = config;
+    }
+
+    public JsonConfig getJsonConfig() {
+        if (jsonConfig == null) {
+            jsonConfig = new JsonConfig();
+        }
+        return jsonConfig;
     }
 
     private void copyAndClose(InputStream in, OutputStream out) throws IOException {
