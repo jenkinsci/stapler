@@ -59,6 +59,20 @@ public @interface JsonOutputFilter {
      */
     String[] excludes() default {};
 
+    /**
+     * If transient fields should be ignored. Default true.
+     *
+     * @see JsonConfig#isIgnoreTransientFields()
+     */
+    boolean ignoreTransient() default true;
+
+    /**
+     * If {@link JsonConfig#DEFAULT_EXCLUDES} should be ignored. Default false
+     *
+     * @see JsonConfig#isIgnoreDefaultExcludes()
+     */
+    boolean ignoreDefaultExcludes() default false;
+
     public static class Processor extends Interceptor {
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
@@ -67,6 +81,8 @@ public @interface JsonOutputFilter {
             if (annotation != null) {
                 JsonConfig config = new JsonConfig();
                 config.setJsonPropertyFilter(new FilterPropertyFilter(annotation.includes(), annotation.excludes()));
+                config.setIgnoreTransientFields(annotation.ignoreTransient());
+                config.setIgnoreDefaultExcludes(annotation.ignoreDefaultExcludes());
                 response.setJsonConfig(config);
             }
             return target.invoke(request, response, instance, arguments);
