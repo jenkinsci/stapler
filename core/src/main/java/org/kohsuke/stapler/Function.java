@@ -84,17 +84,26 @@ public abstract class Function {
     /**
      * Calls {@link #bindAndInvoke(Object, StaplerRequest, StaplerResponse, Object...)} and then
      * optionally serve the response object.
+     *
+     * @return
+     *      true if the request was dispatched and processed. false if the dispatch was cancelled
+     *      and the search for the next request handler should continue. An exception is thrown
+     *      if the request was dispatched but the processing failed.
      */
-    void bindAndInvokeAndServeResponse(Object node, RequestImpl req, ResponseImpl rsp, Object... headArgs) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+    boolean bindAndInvokeAndServeResponse(Object node, RequestImpl req, ResponseImpl rsp, Object... headArgs) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
         try {
             Object r = bindAndInvoke(node, req, rsp, headArgs);
             if (getReturnType()!=void.class)
                 renderResponse(req,rsp,node, r);
+            return true;
         } catch (InvocationTargetException e) {
             // exception as an HttpResponse
             Throwable te = e.getTargetException();
-            if (!renderResponse(req,rsp,node,te))
-                throw e;    // unprocessed exception
+            if (te instanceof CancelRequestHandlingException)
+                return false;
+            if (renderResponse(req,rsp,node,te))
+                return true;    // exception rendered the response
+            throw e;    // unprocessed exception
         }
     }
 

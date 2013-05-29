@@ -50,7 +50,10 @@ abstract class NameBasedDispatcher extends Dispatcher {
         if(req.tokens.countRemainingTokens()<=argCount)
             return false;
         req.tokens.next();
-        return doDispatch(req,rsp,node);
+        boolean b = doDispatch(req, rsp, node);
+        if (!b)
+            req.tokens.prev(); // cancel the next effect
+        return b;
     }
 
     protected abstract boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
