@@ -590,7 +590,11 @@ public class Stapler extends HttpServlet {
     }
 
     /**
-     * Try to dispatch the request against the given node, and if it fails, return false.
+     * Try to dispatch the request against the given node, and if there's no route to deliver a request, return false.
+     *
+     * <p>
+     * If a route to deliver a request is found but it failed to handle the request, the request is considered
+     * handled and the method returns true.
      *
      * @see #invoke(RequestImpl, ResponseImpl, Object)
      */
