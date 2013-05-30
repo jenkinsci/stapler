@@ -30,10 +30,16 @@ import java.util.Collection;
  * URL mappings.
  *
  * <p>
- * If the designated override objects fail to handle the request, the host object (the one that's implementing
- * {@link StaplerOverridable}) will handle the request.
+ * If the designated override objects does not have a handler for the request,
+ * the host object (the one that's implementing {@link StaplerOverridable}) will handle the request.
+ *
+ * <p>
+ * In override objects, {@link CancelRequestHandlingException} is an useful mechanism to programmatically
+ * inspect a request and then selecctively return the request back to the original object (that implements
+ * {@link StaplerOverridable}.
  *
  * @author Kohsuke Kawaguchi
+ * @see CancelRequestHandlingException
  */
 public interface StaplerOverridable {
     /**

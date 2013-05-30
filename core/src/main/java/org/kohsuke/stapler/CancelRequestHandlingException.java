@@ -12,6 +12,7 @@ package org.kohsuke.stapler;
  * back to {@code getDynamic()} or anything else.
  *
  * @author Kohsuke Kawaguchi
+ * @since 1.210
  */
 public class CancelRequestHandlingException extends RuntimeException {
 }
