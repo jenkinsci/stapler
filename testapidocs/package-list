@@ -2,6 +2,7 @@ org.kohsuke.stapler
 org.kohsuke.stapler.bind
 org.kohsuke.stapler.export
 org.kohsuke.stapler.framework.io
+org.kohsuke.stapler.interceptor
 org.kohsuke.stapler.jelly
 org.kohsuke.stapler.jelly.groovy
 org.kohsuke.stapler.jelly.jruby
