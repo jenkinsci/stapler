@@ -4,7 +4,7 @@
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.207</version>
+  <version>1.207.JENKINS-14362-jzlib</version>
 
   <name>Stapler</name>
   <description>Stapler HTTP request handling engine</description>

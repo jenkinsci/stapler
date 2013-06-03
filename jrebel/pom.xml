@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.kohsuke.stapler</groupId>
     <artifactId>stapler-parent</artifactId>
-    <version>1.207</version>
+    <version>1.207.JENKINS-14362-jzlib</version>
   </parent>
   
   <artifactId>stapler-jrebel</artifactId>

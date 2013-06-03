@@ -42,7 +42,7 @@ import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.zip.GZIPInputStream;
+import com.jcraft.jzlib.GZIPInputStream;
 
 /**
  * Represents a large text data.

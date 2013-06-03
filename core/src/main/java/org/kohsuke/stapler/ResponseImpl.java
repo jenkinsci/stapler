@@ -47,7 +47,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URL;
 import java.net.HttpURLConnection;
-import java.util.zip.GZIPOutputStream;
+import com.jcraft.jzlib.GZIPOutputStream;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
