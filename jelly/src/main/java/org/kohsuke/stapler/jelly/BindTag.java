@@ -29,6 +29,7 @@ import org.jvnet.maven.jellydoc.annotation.NoContent;
 import org.jvnet.maven.jellydoc.annotation.Required;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.bind.Bound;
+import org.kohsuke.stapler.framework.adjunct.AdjunctsInPage;
 import org.xml.sax.SAXException;
 
 /**
@@ -61,6 +62,22 @@ public class BindTag extends AbstractStaplerTag {
 
     public void doTag(XMLOutput out) throws JellyTagException {
         // make sure we get the supporting script in place
+        AdjunctsInPage adjuncts = AdjunctsInPage.get();
+        if (!adjuncts.isIncluded("org.kohsuke.stapler.framework.prototype.prototype") &&
+                !adjuncts.isIncluded("org.kohsuke.stapler.jquery")) {
+            //We try to not include prototype if jQuery is already included, but default to prototype
+            AdjunctTag a = new AdjunctTag();
+            a.setContext(getContext());
+            a.setIncludes("org.kohsuke.stapler.framework.prototype.prototype");
+            a.doTag(out);
+        } else if (adjuncts.isIncluded("org.kohsuke.stapler.jquery")) {
+            //Old browsers (like htmlunit or <=IE7) doesn't support JSON.stringify needed to do the bind call via jQuery
+            //So to be on the safe side we include json2.js. See https://github.com/douglascrockford/JSON-js
+            AdjunctTag a = new AdjunctTag();
+            a.setContext(getContext());
+            a.setIncludes("org.kohsuke.stapler.json2");
+            a.doTag(out);
+        }
         AdjunctTag a = new AdjunctTag();
         a.setContext(getContext());
         a.setIncludes("org.kohsuke.stapler.bind");

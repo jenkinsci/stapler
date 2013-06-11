@@ -29,14 +29,30 @@ import javax.servlet.ServletException;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Handles stapler parameter annotations by determining what values to inject for a method call.
  *
  * @author Kohsuke Kawaguchi
+ * @see InjectedParameter
  */
-abstract class AnnotationHandler<T extends Annotation> {
-    abstract Object parse(StaplerRequest request, T a, Class type, String parameterName) throws ServletException;
+public abstract class AnnotationHandler<T extends Annotation> {
+    /**
+     *
+     * @param request
+     *      Current request being processed. Normally the parameter injection grabs some value from here and returns it.
+     *      Never null.
+     * @param a
+     *      The annotation object attached on the parameter for which this handler is configured. Never null
+     * @param type
+     *      The type of the parameter. Any value returned from this method must be assignable to this type.
+     *      Never null.
+     * @param parameterName
+     *      Name of the parameter.
+     */
+    public abstract Object parse(StaplerRequest request, T a, Class type, String parameterName) throws ServletException;
 
     /**
      * Helper method for {@link #parse(StaplerRequest, Annotation, Class, String)} to convert to the right type
@@ -52,53 +68,41 @@ abstract class AnnotationHandler<T extends Annotation> {
 
     static Object handle(StaplerRequest request, Annotation[] annotations, String parameterName, Class targetType) throws ServletException {
         for (Annotation a : annotations) {
-            AnnotationHandler h = HANDLERS.get(a.annotationType());
-            if(h==null)     continue;
+            Class<? extends Annotation> at = a.annotationType();
+            AnnotationHandler h = HANDLERS.get(at);
+            if(h==null) {
+                InjectedParameter ip = at.getAnnotation(InjectedParameter.class);
+                if (ip!=null) {
+                    try {
+                        h = ip.value().newInstance();
+                    } catch (InstantiationException e) {
+                        throw new ServletException("Failed to instantiate parameter injector for "+at,e);
+                    } catch (IllegalAccessException e) {
+                        throw new ServletException("Failed to instantiate parameter injector for "+at,e);
+                    }
+                } else {
+                    h = NOT_HANDLER;
+                }
+                AnnotationHandler prev = HANDLERS.putIfAbsent(at, h);
+                if (prev!=null) h=prev;
+            }
             return h.parse(request,a,targetType,parameterName);
         }
 
         return null; // probably we should report an error
     }
 
+    private static final ConcurrentMap<Class<? extends Annotation>,AnnotationHandler> HANDLERS = new ConcurrentHashMap<Class<? extends Annotation>, AnnotationHandler>();
 
-    static final Map<Class<? extends Annotation>,AnnotationHandler> HANDLERS = new HashMap<Class<? extends Annotation>, AnnotationHandler>();
+    private static final AnnotationHandler NOT_HANDLER = new AnnotationHandler() {
+        @Override
+        public Object parse(StaplerRequest request, Annotation a, Class type, String parameterName) throws ServletException {
+            return null;
+        }
+    };
 
     static {
-        HANDLERS.put(Header.class,new AnnotationHandler<Header>() {
-            Object parse(StaplerRequest request, Header a, Class type, String parameterName) throws ServletException {
-                String name = a.value();
-                if(name.length()==0)    name=parameterName;
-                if(name==null)
-                    throw new IllegalArgumentException("Parameter name unavailable neither in the code nor in annotation");
+        // synchronize with CaptureParameterNameTransformation.HANDLER_ANN
 
-                String value = request.getHeader(name);
-                if(a.required() && value==null)
-                    throw new ServletException("Required HTTP header "+name+" is missing");
-
-                return convert(type,value);
-            }
-        });
-
-        HANDLERS.put(QueryParameter.class,new AnnotationHandler<QueryParameter>() {
-            Object parse(StaplerRequest request, QueryParameter a, Class type, String parameterName) throws ServletException {
-                String name = a.value();
-                if(name.length()==0)    name=parameterName;
-                if(name==null)
-                    throw new IllegalArgumentException("Parameter name unavailable neither in the code nor in annotation");
-                
-                String value = request.getParameter(name);
-                if(a.required() && value==null)
-                    throw new ServletException("Required Query parameter "+name+" is missing");
-                if(a.fixEmpty() && value!=null && value.length()==0)
-                    value = null;
-                return convert(type,value);
-            }
-        });
-
-        HANDLERS.put(AncestorInPath.class,new AnnotationHandler<AncestorInPath>() {
-            Object parse(StaplerRequest request, AncestorInPath a, Class type, String parameterName) throws ServletException {
-                return request.findAncestorObject(type);
-            }
-        });
     }
 }

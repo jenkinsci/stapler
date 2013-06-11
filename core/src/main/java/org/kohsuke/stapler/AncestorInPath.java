@@ -23,6 +23,9 @@
 
 package org.kohsuke.stapler;
 
+import org.kohsuke.stapler.AncestorInPath.HandlerImpl;
+
+import javax.servlet.ServletException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.annotation.Documented;
@@ -38,5 +41,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target(PARAMETER)
 @Documented
+@InjectedParameter(HandlerImpl.class)
 public @interface AncestorInPath {
+    class HandlerImpl extends AnnotationHandler<AncestorInPath> {
+        public Object parse(StaplerRequest request, AncestorInPath a, Class type, String parameterName) throws ServletException {
+            return request.findAncestorObject(type);
+        }
+    }
 }

@@ -43,7 +43,7 @@ public abstract class CrumbIssuer {
      */
     public void validateCrumb(StaplerRequest request, String submittedCrumb) {
         if (!issueCrumb(request).equals(submittedCrumb)) {
-            throw new SecurityException("Request failed to pass the crumb test");
+            throw new SecurityException("Request failed to pass the crumb test (try clearing your cookies)");
         }
     }
 

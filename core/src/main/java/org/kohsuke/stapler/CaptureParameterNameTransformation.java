@@ -37,7 +37,6 @@ import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.kohsuke.MetaInfServices;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -50,7 +49,7 @@ import java.util.Set;
 @GroovyASTTransformation
 public class CaptureParameterNameTransformation implements ASTTransformation {
     public void visit(ASTNode[] nodes, SourceUnit source) {
-        handleClasses((List<ClassNode>) source.getAST().getClasses());
+        handleClasses(source.getAST().getClasses());
     }
 
     private void handleClasses(List<ClassNode> classNodes) {
@@ -60,12 +59,7 @@ public class CaptureParameterNameTransformation implements ASTTransformation {
 
     // set of annotation class names to capture
     private static final Set<String> CONSTRUCTOR_ANN = Collections.singleton(DataBoundConstructor.class.getName());
-    private static final Set<String> HANDLER_ANN = new HashSet<String>();
-
-    static {
-        for (Class c : AnnotationHandler.HANDLERS.keySet())
-            HANDLER_ANN.add(c.getName());
-    }
+    private static final Set<String> INJECTED_PARAMETER_ANN = Collections.singleton(InjectedParameter.class.getName());
 
     private void handleMethods(List<MethodNode> methods) {
         for (MethodNode m : methods)
@@ -76,16 +70,24 @@ public class CaptureParameterNameTransformation implements ASTTransformation {
 
     private boolean hasInjectionAnnotation(MethodNode m) {
         for (Parameter p : m.getParameters())
-            if(hasAnnotation(p,HANDLER_ANN))
+            if(hasInjectedParameterAnnotation(p))
                 return true;
         return false;
     }
 
 
     private boolean hasAnnotation(AnnotatedNode target, Set<String> annotationTypeNames) {
-        for (AnnotationNode a : (List<AnnotationNode>)target.getAnnotations())
+        for (AnnotationNode a : target.getAnnotations())
             if(annotationTypeNames.contains(a.getClassNode().getName()))
                 return true;
+        return false;
+    }
+
+    private boolean hasInjectedParameterAnnotation(Parameter p) {
+        for (AnnotationNode a : p.getAnnotations()) {
+            if (hasAnnotation(a.getClassNode(), INJECTED_PARAMETER_ANN))
+                return true;
+        }
         return false;
     }
 

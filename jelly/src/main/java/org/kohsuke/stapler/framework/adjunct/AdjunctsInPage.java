@@ -96,6 +96,13 @@ public class AdjunctsInPage {
     }
 
     /**
+     * Checks if something has already been included/assumed.
+     */
+    public boolean isIncluded(String include) {
+        return included.contains(include);
+    }
+
+    /**
      * Generates the script tag and CSS link tag to include necessary adjuncts,
      * and records the fact that those adjuncts are already included in the page,
      * so that it won't be loaded again.

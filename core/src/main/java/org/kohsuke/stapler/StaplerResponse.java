@@ -24,6 +24,7 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import net.sf.json.JsonConfig;
 import org.kohsuke.stapler.export.Flavor;
 
 import javax.servlet.ServletException;
@@ -200,4 +201,20 @@ public interface StaplerResponse extends HttpServletResponse {
      *      The status code of the response.
      */
     int reverseProxyTo(URL url, StaplerRequest req) throws IOException;
+
+    /**
+     * The JsonConfig to be used when serializing java beans from js bound methods to JSON.
+     * Setting this to null will make the default config to be used.
+     *
+     * @param config the config
+     */
+    void setJsonConfig(JsonConfig config);
+
+    /**
+     * The JsonConfig to be used when serializing java beans to JSON previously set by {@link #setJsonConfig(JsonConfig)}.
+     * Will return the default config if nothing has previously been set.
+     *
+     * @return the config
+     */
+    JsonConfig getJsonConfig();
 }

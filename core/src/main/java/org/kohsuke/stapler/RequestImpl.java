@@ -756,7 +756,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 isSubmission = !getParameterMap().isEmpty();
             }
             
-            if(p==null || p.equals("")) {
+            if(p==null || p.length() == 0) {
                 // no data submitted
                 try {
                     StaplerResponse rsp = Stapler.getCurrentResponse();
@@ -765,15 +765,15 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     else
                         rsp.sendError(SC_BAD_REQUEST,"Nothing is submitted");
                     rsp.getWriter().close();
-                    throw new Error("This page expects a form submission");
+                    throw new ServletException("This page expects a form submission but had only " + getParameterMap());
                 } catch (IOException e) {
-                    throw new Error(e);
+                    throw new ServletException(e);
                 }
             }
             try {
                 structuredForm = JSONObject.fromObject(p);
             } catch (JSONException e) {
-                throw new JSONException("Failed to parse JSON:"+p,e);
+                throw new ServletException("Failed to parse JSON:" + p, e);
             }
         }
         return structuredForm;

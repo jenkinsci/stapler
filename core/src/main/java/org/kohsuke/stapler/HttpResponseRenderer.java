@@ -79,10 +79,10 @@ public abstract class HttpResponseRenderer {
                     w.print(response);
                 } else
                 if (response instanceof Collection || (response!=null && response.getClass().isArray())) {
-                    JSONArray.fromObject(response).write(w);
+                    JSONArray.fromObject(response, rsp.getJsonConfig()).write(w);
                 } else {
                     // last fall back
-                    JSONObject.fromObject(response).write(w);
+                    JSONObject.fromObject(response, rsp.getJsonConfig()).write(w);
                 }
                 return true;
             }

@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  */
 public abstract class Dispatcher {
     /**
-     * Trys to handle the given request and returns true
+     * Tries to handle the given request and returns true
      * if it succeeds. Otherwise false.
      *
      * <p>

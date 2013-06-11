@@ -40,6 +40,11 @@ module JRubyJellyScriptImpl
       def concat(str)
         output.write(str) if str
       end
+
+      # ERB calls this during initialization
+      def force_encoding(enc)
+        self
+      end
     end
   end
 end

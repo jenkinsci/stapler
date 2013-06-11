@@ -183,8 +183,10 @@ public class Stapler extends HttpServlet {
             if(servletPath.startsWith("/static/")) {
                 // skip "/static/..../ portion
                 int idx = servletPath.indexOf('/',8);
-                servletPath=servletPath.substring(idx);
-                staticLink = true;
+                if (idx != -1) {
+                    servletPath=servletPath.substring(idx);
+                    staticLink = true;
+                }
             }
 
             String lowerPath = servletPath.toLowerCase(Locale.ENGLISH);
@@ -588,7 +590,11 @@ public class Stapler extends HttpServlet {
     }
 
     /**
-     * Try to dispatch the request against the given node, and if it fails, return false.
+     * Try to dispatch the request against the given node, and if there's no route to deliver a request, return false.
+     *
+     * <p>
+     * If a route to deliver a request is found but it failed to handle the request, the request is considered
+     * handled and the method returns true.
      *
      * @see #invoke(RequestImpl, ResponseImpl, Object)
      */

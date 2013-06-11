@@ -108,8 +108,7 @@ public class MetaClass extends TearOffSupport {
                     public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
                         if(traceable())
                             trace(req,rsp,"-> <%s>.%s(...)",node,f.getName());
-                        f.bindAndInvokeAndServeResponse(node, req, rsp);
-                        return true;
+                        return f.bindAndInvokeAndServeResponse(node, req, rsp);
                     }
                     public String toString() {
                         return f.getQualifiedName()+"(...) for url=/"+name+"/...";
@@ -153,8 +152,7 @@ public class MetaClass extends TearOffSupport {
                     if(traceable())
                         trace(req,rsp,"-> <%s>.doIndex(...)",node);
 
-                    f.bindAndInvokeAndServeResponse(node,req,rsp);
-                    return true;
+                    return f.bindAndInvokeAndServeResponse(node,req,rsp);
                 }
                 public String toString() {
                     return f.getQualifiedName()+"(StaplerRequest,StaplerResponse) for url=/";
@@ -360,8 +358,7 @@ public class MetaClass extends TearOffSupport {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
                     if(traceable())
                         trace(req,rsp,"-> <%s>.doDynamic(...)",node);
-                    f.bindAndInvokeAndServeResponse(node,req,rsp);
-                    return true;
+                    return f.bindAndInvokeAndServeResponse(node,req,rsp);
                 }
                 public String toString() {
                     return String.format("%s(StaplerRequest,StaplerResponse) for any URL",f.getQualifiedName());
@@ -436,8 +433,7 @@ public class MetaClass extends TearOffSupport {
             for (int i=0; i<args.length; i++)
                 args[i] = req.bindJSON(genericTypes[i],types[i],jsargs.get(i));
 
-            f.bindAndInvokeAndServeResponse(node,req,rsp,args);
-            return true;
+            return f.bindAndInvokeAndServeResponse(node,req,rsp,args);
         }
 
         public String toString() {
