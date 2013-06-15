@@ -102,7 +102,18 @@ public abstract class HttpResponseRenderer {
             if (response instanceof HttpResponse) {
                 // let the result render the response
                 HttpResponse r = (HttpResponse) response;
-                r.generateResponse(req,rsp,node);
+                try {
+                    r.generateResponse(req,rsp,node);
+                } catch (IOException e) {
+                    if (!handleHttpResponse(req,rsp,node,e))
+                        throw e;
+                } catch (RuntimeException e) {
+                    if (!handleHttpResponse(req,rsp,node,e))
+                        throw e;
+                } catch (ServletException e) {
+                    if (!handleHttpResponse(req,rsp,node,e))
+                        throw e;
+                }
                 return true;
             }
             return false;
