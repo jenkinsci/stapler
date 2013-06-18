@@ -28,18 +28,28 @@ import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
 /**
- * Tokenized strings.
+ * Tokenized path portion of the URL.
+ *
+ * For example "foo/bar/zot" is treated as ["foo","bar","zot"]
  *
  * @author Kohsuke Kawaguchi
  */
 public final class TokenList {
-    public final String[] tokens, rawTokens;
+    /**
+     * URL-decoded tokens.
+     */
+    public final String[] tokens;
+    /**
+     * Like {@link #tokens} but before decoding.
+     */
+    public final String[] rawTokens;
     /**
      * Index of the next token.
      */
     public int idx;
 
     TokenList(String url) {
+        // to avoid a directory traversal vulnerability in Windows, treat '\\' as a path separator just like '/'
         StringTokenizer tknzr = new StringTokenizer(url,"/\\");
         final int tokenCount = tknzr.countTokens();
         tokens = new String[tokenCount];
