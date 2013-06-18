@@ -14,7 +14,6 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.GZIPOutputStream;
 
 import static org.kohsuke.stapler.Stapler.*;
 
@@ -24,7 +23,7 @@ import static org.kohsuke.stapler.Stapler.*;
  * <p>
  * When exceptions are processed within web applications, different unrelated parts of the webapp can end up calling
  * {@link HttpServletResponse#getOutputStream()}. This fundamentally doesn't work with the notion that the application
- * needs to process "Content-Encoding:gzip" on its own. Such app has to maintain {@link GZIPOutputStream} on its own,
+ * needs to process "Content-Encoding:gzip" on its own. Such app has to maintain a GZIP output stream on its own,
  * since {@link HttpServletResponse} doesn't know that its output is written through a compressed stream.
  *
  * <p>

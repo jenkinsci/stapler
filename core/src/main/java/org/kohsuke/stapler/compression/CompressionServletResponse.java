@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.zip.GZIPOutputStream;
+import com.jcraft.jzlib.GZIPOutputStream;
 
 /**
  * {@link HttpServletResponse} that recognizes Content-Encoding: gzip in the response header
