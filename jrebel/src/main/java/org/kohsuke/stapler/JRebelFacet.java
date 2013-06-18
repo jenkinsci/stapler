@@ -1,19 +1,19 @@
 package org.kohsuke.stapler;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.export.ModelBuilder;
 import org.kohsuke.stapler.lang.Klass;
-import org.zeroturnaround.javarebel.ClassEventListener;
-import org.zeroturnaround.javarebel.ReloaderFactory;
 
 import javax.servlet.RequestDispatcher;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static java.util.logging.Level.*;
 
 /**
  * Adds JRebel reloading support.
@@ -24,10 +24,23 @@ import static java.util.logging.Level.*;
 public class JRebelFacet extends Facet {
     private final Map<Class,MetaClass> metaClasses = new HashMap<Class, MetaClass>();
 
-    public class ReloaderHook implements Runnable {
-        public void run() {
-            ReloaderFactory.getInstance().addClassReloadListener(new ClassEventListener() {
-                public void onClassEvent(int eventType, Class klass) {
+    public JRebelFacet() throws Exception {
+        Class<?> _ReloaderFactory;
+        try {
+            _ReloaderFactory = Class.forName("org.zeroturnaround.javarebel.ReloaderFactory");
+        } catch (ClassNotFoundException x) {
+            LOGGER.fine("JavaRebel not present");
+            return;
+        }
+        LOGGER.log(Level.FINE, "JavaRebel found at {0}", _ReloaderFactory.getProtectionDomain());
+        Class<?> _Reloader = Class.forName("org.zeroturnaround.javarebel.Reloader");
+        final Class<?> _ClassEventListener = Class.forName("org.zeroturnaround.javarebel.ClassEventListener");
+        /*Reloader*/Object instance = _ReloaderFactory.getMethod("getInstance").invoke(null);
+        /*ClassEventListener*/Object listener = Proxy.newProxyInstance(JRebelFacet.class.getClassLoader(), new Class<?>[] {_ClassEventListener}, new InvocationHandler() {
+            @Override public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                String name = method.getName();
+                if (name.equals("onClassEvent")) {
+                    Class<?> klass = (Class) args[1];
                     synchronized (metaClasses) {
                         for (Entry<Class, MetaClass> e : metaClasses.entrySet()) {
                             if (klass.isAssignableFrom(e.getKey())) {
@@ -38,25 +51,16 @@ public class JRebelFacet extends Facet {
                     }
                     // purge the model builder cache
                     ResponseImpl.MODEL_BUILDER = new ModelBuilder();
+                    return null;
+                } else if (name.equals("priority")) {
+                    return _ClassEventListener.getField("PRIORITY_DEFAULT").get(null);
+                } else {
+                    throw new AssertionError(name);
                 }
-
-                public int priority() {
-                    return PRIORITY_DEFAULT;
-                }
-            });
-        }
+            }
+        });
+        _Reloader.getMethod("addClassReloadListener", _ClassEventListener).invoke(instance, listener);
     }
-
-    public JRebelFacet() {
-        try {
-            Runnable r = (Runnable)Class.forName(JRebelFacet.class.getName()+"$ReloaderHook")
-                    .getConstructor(JRebelFacet.class).newInstance(this);
-            r.run();
-        } catch (Throwable e) {
-            LOGGER.log(FINE, "JRebel support failed to load", e);
-        }
-    }
-
 
     @Override
     public void buildViewDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
