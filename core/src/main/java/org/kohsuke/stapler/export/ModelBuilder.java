@@ -42,11 +42,7 @@ public class ModelBuilder {
     public <T> Model<T> get(Class<T> type) {
         Model m = models.get(type);
         if(m==null) {
-            synchronized(this) {
-                m = models.get(type);
-                if(m==null)
-                    m = new Model<T>(this,type);
-            }
+            m = new Model<T>(this,type);
         }
         return m;
     }
