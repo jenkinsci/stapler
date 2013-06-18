@@ -37,6 +37,11 @@ class AncestorImpl implements Ancestor {
     private int index;
     private String contextPath;
 
+    /**
+     * True if the request URL had '/' in the end.
+     */
+    private boolean endsWithSlash;
+
     public AncestorImpl(List<AncestorImpl> owner) {
         this.owner = owner;
         listIndex = owner.size();
@@ -47,6 +52,7 @@ class AncestorImpl implements Ancestor {
         this.object = object;
         this.tokens = req.tokens.rawTokens;
         this.index = req.tokens.idx;
+        this.endsWithSlash = req.tokens.endsWithSlash;
         this.contextPath = req.getContextPath();
     }
 
@@ -89,7 +95,7 @@ class AncestorImpl implements Ancestor {
 
     public String getRelativePath() {
         StringBuilder buf = new StringBuilder();
-        for( int i=index; i<tokens.length; i++ ) {
+        for( int i=index+(endsWithSlash?0:1); i<tokens.length; i++ ) {
             if(buf.length()>0)  buf.append('/');
             buf.append("..");
         }

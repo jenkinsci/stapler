@@ -48,6 +48,11 @@ public final class TokenList {
      */
     public int idx;
 
+    /**
+     * If the request URL ends with the path separator.
+     */
+    public final boolean endsWithSlash;
+
     TokenList(String url) {
         // to avoid a directory traversal vulnerability in Windows, treat '\\' as a path separator just like '/'
         StringTokenizer tknzr = new StringTokenizer(url,"/\\");
@@ -60,6 +65,7 @@ public final class TokenList {
             if (tokens[i].equals(".."))
                 throw new IllegalArgumentException(url);
         }
+        endsWithSlash = url.endsWith("/") || url.endsWith("\\");
     }
 
     public boolean hasMore() {
