@@ -118,7 +118,11 @@ public class BoundObjectTable implements StaplerFallback {
             final Object target = ref.get();
             if (target instanceof WithWellKnownURL) {
                 WithWellKnownURL w = (WithWellKnownURL) target;
-                return new WellKnownObjectHandle(w.getWellKnownUrl(),w);
+                String url = w.getWellKnownUrl();
+                if (!url.startsWith("/")) {
+                    throw new IllegalArgumentException("WithWellKnownURL.getWellKnownUrl must start with a slash: " + url);
+                }
+                return new WellKnownObjectHandle(url, w);
             }
 
             final String id = UUID.randomUUID().toString();

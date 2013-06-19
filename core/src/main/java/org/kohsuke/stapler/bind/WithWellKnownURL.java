@@ -35,5 +35,8 @@ package org.kohsuke.stapler.bind;
  * @author Kohsuke Kawaguchi
  */
 public interface WithWellKnownURL {
+    /**
+     * @return a URL appended to the context path, such as {@code /myWidget}
+     */
     String getWellKnownUrl();
 }
