@@ -120,7 +120,7 @@ public class BoundObjectTable implements StaplerFallback {
                 WithWellKnownURL w = (WithWellKnownURL) target;
                 String url = w.getWellKnownUrl();
                 if (!url.startsWith("/")) {
-                    throw new IllegalArgumentException("WithWellKnownURL.getWellKnownUrl must start with a slash: " + url);
+                    LOGGER.warning("WithWellKnownURL.getWellKnownUrl must start with a slash. But we got " + url + " from "+w);
                 }
                 return new WellKnownObjectHandle(url, w);
             }
