@@ -48,7 +48,9 @@ public class StaplerTagLibrary extends TagLibrary {
         registerTag("copyStream",CopyStreamTag.class);
         registerTag("doctype",DoctypeTag.class);
         registerTag("findAncestor",FindAncestorTag.class);
-        registerTag("header",HeaderTag.class);
+        registerTag("header",HeaderTag.class);   // deprecated. for compatibility
+        registerTag("addHeader",HeaderTag.class);
+        registerTag("setHeader",SetHeaderTag.class);
         registerTag("include",IncludeTag.class);
         registerTag("isUserInRole",IsUserInRoleTag.class);
         registerTag("nbsp",NbspTag.class);

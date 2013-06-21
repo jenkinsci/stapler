@@ -33,6 +33,7 @@ import org.jvnet.maven.jellydoc.annotation.Required;
  * Adds an HTTP header to the response.
  *
  * @author Kohsuke Kawaguchi
+ * @see SetHeaderTag
  */
 @NoContent
 public class HeaderTag extends AbstractStaplerTag {
