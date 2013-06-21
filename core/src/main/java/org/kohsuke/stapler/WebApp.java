@@ -27,6 +27,8 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.lang.Klass;
 
+import javax.servlet.Filter;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import java.util.Map;
 import java.util.HashMap;
@@ -34,6 +36,8 @@ import java.util.List;
 import java.util.Vector;
 import java.util.WeakHashMap;
 import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -112,6 +116,15 @@ public class WebApp {
     private final CopyOnWriteArrayList<HttpResponseRenderer> responseRenderers = new CopyOnWriteArrayList<HttpResponseRenderer>();
 
     private CrumbIssuer crumbIssuer = CrumbIssuer.DEFAULT;
+
+    /**
+     * Provides access to {@link Stapler} servlet instances. This is useful
+     * for sending a request over to stapler from a context outside Stapler,
+     * such as in {@link Filter}.
+     *
+     * Keyed by {@link ServletConfig#getServletName()}.
+     */
+    private final ConcurrentMap<String,Stapler> servlets = new ConcurrentHashMap<String,Stapler>();
 
     public WebApp(ServletContext context) {
         this.context = context;
@@ -222,6 +235,35 @@ public class WebApp {
                     t.clearScripts();
             }
         }
+    }
+
+    void addStaplerServlet(String servletName, Stapler servlet) {
+        servlets.put(servletName,servlet);
+    }
+
+    /**
+     * Gets a reference to some {@link Stapler} servlet in this webapp.
+     *
+     * <p>
+     * Most Stapler webapps will have one &lt;servlet> entry in web.xml
+     * and if that's the case, that'd be returned. In a fully general case,
+     * a webapp can have multiple servlets and more than one of them can be
+     * {@link Stapler}. This method returns one of those. Which one gets
+     * returned is unspecified.
+     *
+     * <p>
+     * This method is useful if you are in a {@link Filter} and using
+     * Stapler to handle the current request. For example,
+     *
+     * <pre>
+     * WebApp.get(servletContext).getSomeStapler().invoke(
+     *     request,response,
+     *     someJavaObject,
+     *     "/path/to/dispatch/request");
+     * </pre>
+     */
+    public Stapler getSomeStapler() {
+        return servlets.values().iterator().next();
     }
 
     /**

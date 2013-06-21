@@ -117,6 +117,7 @@ public class Stapler extends HttpServlet {
             }
         }
         buildResourcePaths();
+        webApp.addStaplerServlet(servletConfig.getServletName(),this);
     }
 
     /**
