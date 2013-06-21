@@ -11,7 +11,7 @@ public class ServletConfigImpl implements ServletConfig {
     ServletContext context = new MockServletContext();
 
     public String getServletName() {
-        return null;
+        return "";
     }
 
     public ServletContext getServletContext() {

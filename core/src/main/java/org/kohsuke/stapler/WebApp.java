@@ -238,6 +238,7 @@ public class WebApp {
     }
 
     void addStaplerServlet(String servletName, Stapler servlet) {
+        if (servletName==null)  servletName=""; // be defensive
         servlets.put(servletName,servlet);
     }
 
