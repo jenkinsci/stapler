@@ -275,7 +275,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         if(acceptEncoding==null || acceptEncoding.indexOf("gzip")==-1)
             return getOutputStream();   // compression not available
 
-        addHeader("Content-Encoding","gzip");
+        setHeader("Content-Encoding","gzip");
         if (CompressionFilter.has(req))
             return getOutputStream(); // CompressionFilter will set up compression. no need to do anything
 
@@ -289,7 +289,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         if(acceptEncoding==null || acceptEncoding.indexOf("gzip")==-1)
             return getWriter();   // compression not available
 
-        addHeader("Content-Encoding","gzip");
+        setHeader("Content-Encoding","gzip");
         if (CompressionFilter.has(req))
             return getWriter(); // CompressionFilter will set up compression. no need to do anything
 
