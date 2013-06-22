@@ -73,7 +73,7 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
                 // only match the end of the URL
                 if (req.tokens.countRemainingTokens()>1)    return false;
                 // and avoid serving both "foo" and "foo/" as relative URL semantics are drastically different
-                if (req.getRequestURI().endsWith("/"))      return false;
+                if (req.tokens.endsWithSlash)      return false;
 
                 try {
                     Script script = tearOff.findScript(next+".jelly");
