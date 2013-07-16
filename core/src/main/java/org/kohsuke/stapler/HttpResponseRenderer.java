@@ -25,6 +25,7 @@ package org.kohsuke.stapler;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
 import net.sf.json.util.JSONUtils;
 import org.kohsuke.stapler.export.Flavor;
@@ -80,6 +81,9 @@ public abstract class HttpResponseRenderer {
                 } else
                 if (response instanceof Collection || (response!=null && response.getClass().isArray())) {
                     JSONArray.fromObject(response, rsp.getJsonConfig()).write(w);
+                } else
+                if (response==null) {
+                    JSONNull.getInstance().write(w);
                 } else {
                     // last fall back
                     JSONObject.fromObject(response, rsp.getJsonConfig()).write(w);

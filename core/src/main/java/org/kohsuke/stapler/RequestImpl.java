@@ -26,6 +26,7 @@ package org.kohsuke.stapler;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
+import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -530,7 +531,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             Object r = bindInterceptor.onConvert(genericType, type, o);
             if (r!= BindInterceptor.DEFAULT)    return r; // taken over by the listener
 
-            if(o==null) {
+            if(o==null || o instanceof JSONNull) {
                 // this method returns null if the type is not primitive, which works.
                 return ReflectionUtils.getVmDefaultValueFor(type);
             }

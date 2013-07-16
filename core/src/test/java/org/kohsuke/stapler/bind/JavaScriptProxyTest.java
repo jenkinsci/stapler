@@ -42,6 +42,7 @@ public class JavaScriptProxyTest extends JettyTestCase {
 
         page.executeJavaScript("v.foo(3,'test',callback);");
         assertEquals("string:test3",msg[0]);
+        msg[0] = null;
 
         // test null unmarshalling and marshalling
         page.executeJavaScript("v.foo(0,null,callback);");
