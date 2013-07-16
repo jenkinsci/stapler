@@ -70,7 +70,7 @@ public abstract class AnnotationHandler<T extends Annotation> {
         for (Annotation a : annotations) {
             Class<? extends Annotation> at = a.annotationType();
             AnnotationHandler h = HANDLERS.get(at);
-            if(h==null) {
+            if (h==null) {
                 InjectedParameter ip = at.getAnnotation(InjectedParameter.class);
                 if (ip!=null) {
                     try {
@@ -86,6 +86,8 @@ public abstract class AnnotationHandler<T extends Annotation> {
                 AnnotationHandler prev = HANDLERS.putIfAbsent(at, h);
                 if (prev!=null) h=prev;
             }
+            if (h==NOT_HANDLER)
+                continue;
             return h.parse(request,a,targetType,parameterName);
         }
 
