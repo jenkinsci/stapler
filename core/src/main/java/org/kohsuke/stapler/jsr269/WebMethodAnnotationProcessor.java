@@ -46,10 +46,12 @@ public class WebMethodAnnotationProcessor extends AbstractProcessorImpl {
 
     @Override public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         for (Element e : roundEnv.getElementsAnnotatedWith(WebMethod.class)) {
-            ExecutableElement method = (ExecutableElement) e;
-            String name = method.getSimpleName().toString();
-            if (!name.startsWith("do")) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "@WebMethod cannot be used on " + name + "; name must start with 'do'", e);
+            if (e instanceof ExecutableElement) {// defensive against broken code
+                ExecutableElement method = (ExecutableElement) e;
+                String name = method.getSimpleName().toString();
+                if (!name.startsWith("do")) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "@WebMethod cannot be used on " + name + "; name must start with 'do'", e);
+                }
             }
         }
         return true;
