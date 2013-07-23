@@ -5,6 +5,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import java.lang.reflect.InvocationTargetException;
+import org.kohsuke.stapler.HttpResponses;
 
 /**
  * Intercepts the domain method call from Stapler.
@@ -43,6 +44,7 @@ public abstract class Interceptor {
      *
      * @return
      *      Return value from the method.
+     * @throws InvocationTargetException if you want to send e.g. something from {@link HttpResponses}
      */
     public abstract Object invoke(StaplerRequest request, StaplerResponse response,
                                   Object instance, Object[] arguments)

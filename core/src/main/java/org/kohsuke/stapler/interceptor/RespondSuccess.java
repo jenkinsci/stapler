@@ -27,6 +27,9 @@ public @interface RespondSuccess {
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException {
             target.invoke(request, response, instance, arguments);
+            // TODO does this actually do anything?
+            // Function.bindAndInvokeAndServeResponse ignores return value if the method is declared to return void.
+            // And it seems Stapler will send a 200 by default anyway.
             return HttpResponses.ok();
         }
     }

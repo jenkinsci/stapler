@@ -9,6 +9,8 @@ import java.lang.reflect.InvocationTargetException;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
+import javax.servlet.http.HttpServletResponse;
+import org.kohsuke.stapler.HttpResponses;
 
 /**
  * Requires the request to be a POST.
@@ -24,8 +26,9 @@ public @interface RequirePOST {
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException {
-            if(!request.getMethod().equals("POST"))
-                throw new IllegalAccessException("POST is required for "+target.getDisplayName());
+            if (!request.getMethod().equals("POST")) {
+                throw new InvocationTargetException(HttpResponses.errorWithoutStack(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "POST is required for " + target.getQualifiedName()));
+            }
             return target.invoke(request, response, instance, arguments);
         }
     }

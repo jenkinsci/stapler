@@ -74,6 +74,10 @@ public class HttpResponses {
         };
     }
 
+    /**
+     * Sends an error with a stack trace.
+     * @see #errorWithoutStack
+     */
     @SuppressWarnings({"ThrowableInstanceNeverThrown"})
     public static HttpResponseException error(int code, String errorMessage) {
         return error(code,new Exception(errorMessage));
@@ -92,6 +96,19 @@ public class HttpResponses {
                 PrintWriter w = new PrintWriter(rsp.getWriter());
                 cause.printStackTrace(w);
                 w.close();
+            }
+        };
+    }
+
+    /**
+     * Sends an error without a stack trace.
+     * @since 1.215
+     * @see #error(int, String)
+     */
+    public static HttpResponseException errorWithoutStack(final int code, final String errorMessage) {
+        return new HttpResponseException() {
+            @Override public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                rsp.sendError(code, errorMessage);
             }
         };
     }
