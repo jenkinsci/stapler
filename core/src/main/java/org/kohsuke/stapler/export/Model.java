@@ -89,6 +89,7 @@ public class Model<T> {
 
         for( Method m : type.getMethods() ) {
             if(m.getDeclaringClass()!=type) continue;
+            if(m.isBridge())                continue;
             Exported exported = m.getAnnotation(Exported.class);
             if(exported !=null)
                 properties.add(new MethodProperty(this,m, exported));
