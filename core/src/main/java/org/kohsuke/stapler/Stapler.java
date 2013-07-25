@@ -53,6 +53,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
@@ -689,7 +690,9 @@ public class Stapler extends HttpServlet {
             }
         } catch (IllegalAccessException e) {
             // this should never really happen
-            getServletContext().log("Error while serving "+req.getRequestURL(),e);
+            if (!isSocketException(e)) {
+                getServletContext().log("Error while serving "+req.getRequestURL(),e);
+            }
             throw new ServletException(e);
         } catch (InvocationTargetException e) {
             Throwable cause = e.getCause();
@@ -706,16 +709,22 @@ public class Stapler extends HttpServlet {
 
             StringBuffer url = req.getRequestURL();
             if (cause instanceof IOException) {
-                getServletContext().log("Error while serving " + url, e);
+                if (!isSocketException(e)) {
+                    getServletContext().log("Error while serving " + url, e);
+                }
                 throw (IOException) cause;
             }
             if (cause instanceof ServletException) {
-                getServletContext().log("Error while serving " + url, e);
+                if (!isSocketException(e)) {
+                    getServletContext().log("Error while serving " + url, e);
+                }
                 throw (ServletException) cause;
             }
             for (Class<?> c = cause.getClass(); c != null; c = c.getSuperclass()) {
                 if (c == Object.class) {
-                    getServletContext().log("Error while serving " + url, e);
+                    if (!isSocketException(e)) {
+                        getServletContext().log("Error while serving " + url, e);
+                    }
                 } else if (c.getName().equals("org.acegisecurity.AccessDeniedException")) {
                     // [HUDSON-4834] A stack trace is too noisy for this; could just need to log in.
                     // (Could consider doing this for all AcegiSecurityException's.)
@@ -746,6 +755,19 @@ public class Stapler extends HttpServlet {
         }
 
         return false;
+    }
+
+    private static boolean isSocketException(Throwable x) { // JENKINS-10524
+        if (x == null) {
+            return false;
+        }
+        if (x instanceof SocketException) {
+            return true;
+        }
+        if (String.valueOf(x.getMessage()).equals("Broken pipe")) { // TBD I18N
+            return true;
+        }
+        return isSocketException(x.getCause());
     }
 
     /**
