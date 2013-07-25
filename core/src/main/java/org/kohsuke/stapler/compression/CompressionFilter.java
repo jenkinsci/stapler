@@ -10,7 +10,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Pimps up {@link HttpServletResponse} so that it understands "Content-Encoding: gzip" and compress the response.
@@ -85,6 +84,4 @@ public class CompressionFilter implements Filter {
     }
     
     public static boolean DISABLED = Boolean.getBoolean(CompressionFilter.class.getName()+".disabled");
-
-    private static final Logger LOGGER = Logger.getLogger("UntrappedServletException");
 }
