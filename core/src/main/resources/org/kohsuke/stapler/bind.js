@@ -5,10 +5,10 @@ function makeStaplerProxy(url,crumb,methods) {
     var proxy = {};
 
     var stringify;
-    if (typeof(JSON)=="object" && JSON.stringify)
-        stringify = JSON.stringify; // standard
-    else if (Object.toJSON)
+    if (Object.toJSON) // needs to use Prototype.js if it's present. See commit comment for discussion
         stringify = Object.toJSON;  // from prototype
+    else if (typeof(JSON)=="object" && JSON.stringify)
+        stringify = JSON.stringify; // standard
 
     var genMethod = function(methodName) {
         proxy[methodName] = function() {
