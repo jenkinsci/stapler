@@ -70,50 +70,71 @@
 <span class="sourceLineNo">062</span><a name="line.62"></a>
 <span class="sourceLineNo">063</span>    public void doTag(XMLOutput out) throws JellyTagException {<a name="line.63"></a>
 <span class="sourceLineNo">064</span>        // make sure we get the supporting script in place<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        AdjunctsInPage adjuncts = AdjunctsInPage.get();<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        if (!adjuncts.isIncluded("org.kohsuke.stapler.framework.prototype.prototype") &amp;&amp;<a name="line.66"></a>
-<span class="sourceLineNo">067</span>                !adjuncts.isIncluded("org.kohsuke.stapler.jquery")) {<a name="line.67"></a>
-<span class="sourceLineNo">068</span>            //We try to not include prototype if jQuery is already included, but default to prototype<a name="line.68"></a>
-<span class="sourceLineNo">069</span>            AdjunctTag a = new AdjunctTag();<a name="line.69"></a>
-<span class="sourceLineNo">070</span>            a.setContext(getContext());<a name="line.70"></a>
-<span class="sourceLineNo">071</span>            a.setIncludes("org.kohsuke.stapler.framework.prototype.prototype");<a name="line.71"></a>
-<span class="sourceLineNo">072</span>            a.doTag(out);<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        } else if (adjuncts.isIncluded("org.kohsuke.stapler.jquery")) {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>            //Old browsers (like htmlunit or &lt;=IE7) doesn't support JSON.stringify needed to do the bind call via jQuery<a name="line.74"></a>
-<span class="sourceLineNo">075</span>            //So to be on the safe side we include json2.js. See https://github.com/douglascrockford/JSON-js<a name="line.75"></a>
-<span class="sourceLineNo">076</span>            AdjunctTag a = new AdjunctTag();<a name="line.76"></a>
-<span class="sourceLineNo">077</span>            a.setContext(getContext());<a name="line.77"></a>
-<span class="sourceLineNo">078</span>            a.setIncludes("org.kohsuke.stapler.json2");<a name="line.78"></a>
-<span class="sourceLineNo">079</span>            a.doTag(out);<a name="line.79"></a>
-<span class="sourceLineNo">080</span>        }<a name="line.80"></a>
-<span class="sourceLineNo">081</span>        AdjunctTag a = new AdjunctTag();<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        a.setContext(getContext());<a name="line.82"></a>
-<span class="sourceLineNo">083</span>        a.setIncludes("org.kohsuke.stapler.bind");<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        a.doTag(out);<a name="line.84"></a>
-<span class="sourceLineNo">085</span><a name="line.85"></a>
-<span class="sourceLineNo">086</span>        try {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>            String expr;<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            if (javaObject==null) {<a name="line.88"></a>
-<span class="sourceLineNo">089</span>                expr = "null";<a name="line.89"></a>
-<span class="sourceLineNo">090</span>            } else {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>                Bound h = WebApp.getCurrent().boundObjectTable.bind(javaObject);<a name="line.91"></a>
-<span class="sourceLineNo">092</span>                expr = h.getProxyScript();<a name="line.92"></a>
-<span class="sourceLineNo">093</span>            }<a name="line.93"></a>
-<span class="sourceLineNo">094</span><a name="line.94"></a>
-<span class="sourceLineNo">095</span>            if (varName==null) {<a name="line.95"></a>
-<span class="sourceLineNo">096</span>                // this mode (of writing just the expression) needs to be used with caution because<a name="line.96"></a>
-<span class="sourceLineNo">097</span>                // the adjunct tag above might produce &lt;script&gt; tag.<a name="line.97"></a>
-<span class="sourceLineNo">098</span>                out.write(expr);<a name="line.98"></a>
-<span class="sourceLineNo">099</span>            } else {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>                out.startElement("script");<a name="line.100"></a>
-<span class="sourceLineNo">101</span>                out.write(varName + "=" + expr + ";");<a name="line.101"></a>
-<span class="sourceLineNo">102</span>                out.endElement("script");<a name="line.102"></a>
-<span class="sourceLineNo">103</span>            }<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        } catch (SAXException e) {<a name="line.104"></a>
-<span class="sourceLineNo">105</span>            throw new JellyTagException(e);<a name="line.105"></a>
-<span class="sourceLineNo">106</span>        }<a name="line.106"></a>
-<span class="sourceLineNo">107</span>    }<a name="line.107"></a>
-<span class="sourceLineNo">108</span>}<a name="line.108"></a>
+<span class="sourceLineNo">065</span>        ensureDependencies(out);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        AdjunctTag a = new AdjunctTag();<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        a.setContext(getContext());<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        a.setIncludes("org.kohsuke.stapler.bind");<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        a.doTag(out);<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>        try {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>            String expr;<a name="line.72"></a>
+<span class="sourceLineNo">073</span>            if (javaObject==null) {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                expr = "null";<a name="line.74"></a>
+<span class="sourceLineNo">075</span>            } else {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>                Bound h = WebApp.getCurrent().boundObjectTable.bind(javaObject);<a name="line.76"></a>
+<span class="sourceLineNo">077</span>                expr = h.getProxyScript();<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            }<a name="line.78"></a>
+<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">080</span>            if (varName==null) {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                // this mode (of writing just the expression) needs to be used with caution because<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                // the adjunct tag above might produce &lt;script&gt; tag.<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                out.write(expr);<a name="line.83"></a>
+<span class="sourceLineNo">084</span>            } else {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>                out.startElement("script");<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                out.write(varName + "=" + expr + ";");<a name="line.86"></a>
+<span class="sourceLineNo">087</span>                out.endElement("script");<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            }<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        } catch (SAXException e) {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            throw new JellyTagException(e);<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        }<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>    /**<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * Ensures that we have the dependencies properly available to run bind.js.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     *<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * bind.js requires either prototype or jQuery. If we use jQuery, we use<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * {@code JSON.stringify()}, which isn't present in older browser, so we<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * will add it.<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     */<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    private void ensureDependencies(XMLOutput out) throws JellyTagException {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        AdjunctsInPage adjuncts = AdjunctsInPage.get();<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>        if (adjuncts.isIncluded("org.kohsuke.stapler.framework.prototype.prototype"))<a name="line.104"></a>
+<span class="sourceLineNo">105</span>            return; // all the dependencies met<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>        if (adjuncts.isIncluded("org.kohsuke.stapler.jquery")) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            // Old browsers (like htmlunit or &lt;=IE7) doesn't support JSON.stringify needed to do the bind call via jQuery<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            // So to be on the safe side we include json2.js. See https://github.com/douglascrockford/JSON-js<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            include(out, "org.kohsuke.stapler.json2");<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        } else {<a name="line.111"></a>
+<span class="sourceLineNo">112</span>            // supply a missing dependency (if we can)<a name="line.112"></a>
+<span class="sourceLineNo">113</span>            include(out, "org.kohsuke.stapler.framework.prototype.prototype");<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        }<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    }<a name="line.115"></a>
+<span class="sourceLineNo">116</span><a name="line.116"></a>
+<span class="sourceLineNo">117</span>    private void include(XMLOutput out, String adjunct) throws JellyTagException {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        if (varName==null) {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>            // since this will insert a &lt;script&gt; tag, we can only do this when &lt;st:bind&gt; is used in the block mode<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            // this can result in a missing dependency, but that's something the caller can fix by manually inserting<a name="line.120"></a>
+<span class="sourceLineNo">121</span>            // it to the page<a name="line.121"></a>
+<span class="sourceLineNo">122</span>            return;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        }<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        AdjunctTag a = new AdjunctTag();<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        a.setContext(getContext());<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        a.setIncludes(adjunct);<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        a.doTag(out);<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    }<a name="line.128"></a>
+<span class="sourceLineNo">129</span>}<a name="line.129"></a>
 
 
 
