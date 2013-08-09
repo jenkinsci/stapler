@@ -4,6 +4,12 @@ function makeStaplerProxy(url,crumb,methods) {
     if (url.substring(url.length - 1) !== '/') url+='/';
     var proxy = {};
 
+    var stringify;
+    if (Object.toJSON) // needs to use Prototype.js if it's present. See commit comment for discussion
+        stringify = Object.toJSON;  // from prototype
+    else if (typeof(JSON)=="object" && JSON.stringify)
+        stringify = JSON.stringify; // standard
+
     var genMethod = function(methodName) {
         proxy[methodName] = function() {
             var args = arguments;
@@ -24,7 +30,7 @@ function makeStaplerProxy(url,crumb,methods) {
                 $.ajax({
                     type: "POST",
                     url: url+methodName,
-                    data: JSON.stringify(a),
+                    data: stringify(a),
                     contentType: 'application/x-stapler-method-invocation;charset=UTF-8',
                     headers: {'Crumb':crumb},
                     dataType: "json",
@@ -42,7 +48,7 @@ function makeStaplerProxy(url,crumb,methods) {
                 new Ajax.Request(url+methodName, {
                     method: 'post',
                     requestHeaders: {'Content-type':'application/x-stapler-method-invocation;charset=UTF-8','Crumb':crumb},
-                    postBody: Object.toJSON(a),
+                    postBody: stringify(a),
                     onSuccess: function(t) {
                         if (callback!=null) {
                             t.responseObject = function() {
