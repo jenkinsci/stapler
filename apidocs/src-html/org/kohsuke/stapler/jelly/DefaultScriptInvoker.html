@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Copyright (c) 2004-2010, Kohsuke Kawaguchi<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * Redistribution and use in source and binary forms, with or without modification, are permitted provided<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * that the following conditions are met:<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *     * Redistributions of source code must retain the above copyright notice, this list of<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *       conditions and the following disclaimer.<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *     * Redistributions in binary form must reproduce the above copyright notice, this list of<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *       conditions and the following disclaimer in the documentation and/or other materials<a name="line.11"></a>
+<span class="sourceLineNo">012</span> *       provided with the distribution.<a name="line.12"></a>
+<span class="sourceLineNo">013</span> *<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.<a name="line.21"></a>
+<span class="sourceLineNo">022</span> */<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>package org.kohsuke.stapler.jelly;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.kohsuke.stapler.Stapler;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.kohsuke.stapler.StaplerRequest;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.kohsuke.stapler.StaplerResponse;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.jelly.Script;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.jelly.JellyTagException;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.jelly.XMLOutput;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.commons.jelly.XMLOutputFactory;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.apache.commons.jelly.JellyContext;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.apache.commons.jelly.impl.TagScript;<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>import javax.servlet.ServletContext;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import java.io.IOException;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import java.io.OutputStream;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import java.io.BufferedOutputStream;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import java.io.FilterOutputStream;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import java.io.Writer;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import java.util.Enumeration;<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>/**<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * Standard implementation of {@link ScriptInvoker}.<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * <a name="line.46"></a>
+<span class="sourceLineNo">047</span> * @author Kohsuke Kawaguchi<a name="line.47"></a>
+<span class="sourceLineNo">048</span> */<a name="line.48"></a>
+<span class="sourceLineNo">049</span>public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    public void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException, JellyTagException {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        XMLOutput xmlOutput = createXMLOutput(req, rsp, script, it);<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>        invokeScript(req,rsp,script,it,xmlOutput);<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        <a name="line.54"></a>
+<span class="sourceLineNo">055</span>        xmlOutput.flush();<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        xmlOutput.close();<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    }<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>    public void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it, XMLOutput out) throws IOException, JellyTagException {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        JellyContext context = createContext(req,rsp,script,it);<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        exportVariables(req, rsp, script, it, context);<a name="line.61"></a>
+<span class="sourceLineNo">062</span><a name="line.62"></a>
+<span class="sourceLineNo">063</span>        script.run(context,out);<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    }<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>    protected XMLOutput createXMLOutput(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        // TODO: make XMLOutput auto-close OutputStream to avoid leak<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        HTMLWriterOutput hwo = HTMLWriterOutput.create(createOutputStream(req, rsp, script, it));<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        String ct = rsp.getContentType();<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        if (ct != null &amp;&amp; !ct.startsWith("text/html"))<a name="line.70"></a>
+<span class="sourceLineNo">071</span>            hwo.useHTML(false);<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        return hwo;<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>    private boolean doCompression(Script script) {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        if (COMPRESS_BY_DEFAULT)    return true;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        if (script instanceof TagScript) {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            TagScript ts = (TagScript) script;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>            if(ts.getLocalName().equals("compress"))<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                return true;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        }<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        return false;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    }<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    protected OutputStream createOutputStream(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        // do we want to do compression?<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        OutputStream output=null;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        if (doCompression(script))<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            output = rsp.getCompressedOutputStream(req);<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        if(output==null)    // nope<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            output = new BufferedOutputStream(rsp.getOutputStream());<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>        output = new FilterOutputStream(output) {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            public void flush() {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                // flushing ServletOutputStream causes Tomcat to<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                // send out headers, making it impossible to set contentType from the script.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                // so don't let Jelly flush.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>            }<a name="line.97"></a>
+<span class="sourceLineNo">098</span>            public void write(byte b[], int off, int len) throws IOException {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                out.write(b, off, len);<a name="line.99"></a>
+<span class="sourceLineNo">100</span>            }<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        };<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        return output;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    }<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>    protected void exportVariables(StaplerRequest req, StaplerResponse rsp, Script script, Object it, JellyContext context) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        Enumeration en = req.getAttributeNames();<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        // expose request attributes, just like JSP<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        while (en.hasMoreElements()) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            String name = (String) en.nextElement();<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            context.setVariable(name,req.getAttribute(name));<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        }<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>        context.setVariable("request",req);<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        context.setVariable("response",rsp);<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        context.setVariable("it",it);<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        ServletContext servletContext = req.getServletContext();<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        context.setVariable("servletContext",servletContext);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        context.setVariable("app",servletContext.getAttribute("app"));<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        // property bag to store request scope variables<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        context.setVariable("requestScope",context.getVariables());<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        // this variable is needed to make "jelly:fmt" taglib work correctly<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        context.setVariable("org.apache.commons.jelly.tags.fmt.locale",req.getLocale());<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>    protected JellyContext createContext(final StaplerRequest req, StaplerResponse rsp, Script script, Object it) {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        CustomJellyContext context = new CustomJellyContext();<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        // let Jelly see the whole classes<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        context.setClassLoader(req.getWebApp().getClassLoader());<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        // so TagScript.getBodyText() will use HTMLWriterOutput<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        context.setVariable(XMLOutputFactory.class.getName(), this);<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        return context;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    }<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>    public XMLOutput createXMLOutput(Writer writer, boolean escapeText) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        StaplerResponse rsp = Stapler.getCurrentResponse();<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        String ct = rsp!=null ? rsp.getContentType() : "?";<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        if (ct != null &amp;&amp; !ct.startsWith("text/html"))<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            return XMLOutput.createXMLOutput(writer, escapeText);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        return HTMLWriterOutput.create(writer, escapeText);<a name="line.139"></a>
+<span class="sourceLineNo">140</span>    }<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+<span class="sourceLineNo">142</span>    /**<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * Whether gzip compression of the dynamic content is enabled by default or not.<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     *<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     * &lt;p&gt;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     * For non-trivial web applications, where the performance matters, it is normally a good trade-off to spend<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     * a bit of CPU cycles to compress data. This is because:<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     *<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     * &lt;ul&gt;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     * &lt;li&gt;CPU is already 1 or 2 order of magnitude faster than RAM and network.<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     * &lt;li&gt;CPU is getting faster than any other components, such as RAM and network.<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     * &lt;li&gt;Because of the TCP window slow start, on a large latency network, compression makes difference in<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     *     the order of 100ms to 1sec to the completion of a request by saving multiple roundtrips.<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     * &lt;/ul&gt;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     *<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     * Stuff rendered by Jelly is predominantly text, so the compression would work well.<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     *<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     * @see http://www.slideshare.net/guest22d4179/latency-trumps-all<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     */<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    public static boolean COMPRESS_BY_DEFAULT = Boolean.parseBoolean(System.getProperty(DefaultScriptInvoker.class.getName()+".compress","true"));<a name="line.160"></a>
+<span class="sourceLineNo">161</span>}<a name="line.161"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

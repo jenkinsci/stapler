@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Copyright (c) 2004-2010, Kohsuke Kawaguchi<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * Redistribution and use in source and binary forms, with or without modification, are permitted provided<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * that the following conditions are met:<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *     * Redistributions of source code must retain the above copyright notice, this list of<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *       conditions and the following disclaimer.<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *     * Redistributions in binary form must reproduce the above copyright notice, this list of<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *       conditions and the following disclaimer in the documentation and/or other materials<a name="line.11"></a>
+<span class="sourceLineNo">012</span> *       provided with the distribution.<a name="line.12"></a>
+<span class="sourceLineNo">013</span> *<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.<a name="line.21"></a>
+<span class="sourceLineNo">022</span> */<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>package org.kohsuke.stapler.jelly;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.jelly.JellyContext;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.jelly.JellyException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.jelly.JellyTagException;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.jelly.Script;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.jelly.XMLOutput;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.jelly.expression.Expression;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.commons.jelly.impl.DynamicTag;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.apache.commons.jelly.impl.ExpressionAttribute;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.apache.commons.jelly.impl.TagScript;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.xml.sax.SAXException;<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>import java.util.HashMap;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import java.util.Map;<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>/**<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * {@link TagScript} that invokes a {@link Script} as a tag.<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * @author Kohsuke Kawaguchi<a name="line.43"></a>
+<span class="sourceLineNo">044</span> */<a name="line.44"></a>
+<span class="sourceLineNo">045</span>public abstract class CallTagLibScript extends TagScript {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    /**<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * Resolves to the definition of the script to call to.<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     */<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    protected abstract Script resolveDefinition(JellyContext context) throws JellyTagException;<a name="line.49"></a>
+<span class="sourceLineNo">050</span><a name="line.50"></a>
+<span class="sourceLineNo">051</span>    @Override<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    public void run(final JellyContext context, XMLOutput output) throws JellyTagException {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        // evaluated values of the attributes<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        Map args = new HashMap(attributes.size());<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>        for (Map.Entry&lt;String, ExpressionAttribute&gt; e : attributes.entrySet()) {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>            Expression expression = e.getValue().exp;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>            args.put(e.getKey(),expression.evaluate(context));<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        }<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>        // create new context based on current attributes<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        JellyContext newJellyContext = context.newJellyContext(args);<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        newJellyContext.setVariable( "attrs", args );<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>        // &lt;d:invokeBody&gt; uses this to discover what to invoke<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        newJellyContext.setVariable("org.apache.commons.jelly.body", new Script() {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>            public Script compile() throws JellyException {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>                return this;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>            }<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>            /**<a name="line.71"></a>
+<span class="sourceLineNo">072</span>             * When &amp;lt;d:invokeBody/&gt; is used to call back into the calling script,<a name="line.72"></a>
+<span class="sourceLineNo">073</span>             * the Jelly name resolution rule is in such that the body is evaluated with<a name="line.73"></a>
+<span class="sourceLineNo">074</span>             * the variable scope of the &amp;lt;d:invokeBody/&gt; caller. This is very different<a name="line.74"></a>
+<span class="sourceLineNo">075</span>             * from a typical closure name resolution mechanism, where the body is evaluated<a name="line.75"></a>
+<span class="sourceLineNo">076</span>             * with the variable scope of where the body was created.<a name="line.76"></a>
+<span class="sourceLineNo">077</span>             *<a name="line.77"></a>
+<span class="sourceLineNo">078</span>             * &lt;p&gt;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>             * More concretely, in Jelly, this often shows up as a problem as inability to<a name="line.79"></a>
+<span class="sourceLineNo">080</span>             * access the "attrs" variable from inside a body, because every {@link DynamicTag}<a name="line.80"></a>
+<span class="sourceLineNo">081</span>             * invocation sets this variable in a new scope.<a name="line.81"></a>
+<span class="sourceLineNo">082</span>             *<a name="line.82"></a>
+<span class="sourceLineNo">083</span>             * &lt;p&gt;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>             * To counter this effect, this class temporarily restores the original "attrs"<a name="line.84"></a>
+<span class="sourceLineNo">085</span>             * when the body is evaluated. This makes the name resolution of 'attrs' work<a name="line.85"></a>
+<span class="sourceLineNo">086</span>             * like what programmers normally expect.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>             *<a name="line.87"></a>
+<span class="sourceLineNo">088</span>             * &lt;p&gt;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>             * The same problem also shows up as a lack of local variables &amp;mdash; when a tag<a name="line.89"></a>
+<span class="sourceLineNo">090</span>             * calls into the body via &amp;lt;d:invokeBody/&gt;, the invoked body will see all the<a name="line.90"></a>
+<span class="sourceLineNo">091</span>             * variables that are defined in the caller, which is again not what a normal programming language<a name="line.91"></a>
+<span class="sourceLineNo">092</span>             * does. But unfortunately, changing this is too pervasive.<a name="line.92"></a>
+<span class="sourceLineNo">093</span>             */<a name="line.93"></a>
+<span class="sourceLineNo">094</span>            public void run(JellyContext nestedContext, XMLOutput output) throws JellyTagException {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                Map m = nestedContext.getVariables();<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                Object oldAttrs = m.put("attrs",context.getVariable("attrs"));<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                try {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                    getTagBody().run(nestedContext,output);<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                } finally {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                    m.put("attrs",oldAttrs);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                }<a name="line.101"></a>
+<span class="sourceLineNo">102</span>            }<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        });<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        newJellyContext.setVariable("org.apache.commons.jelly.body.scope", context);<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        final Script def = resolveDefinition(newJellyContext);<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>        if(JellyFacet.TRACE) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            try {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                String source = getSource();<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                String msg = "&lt;" + source+"&gt;";<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                output.comment(msg.toCharArray(),0,msg.length());<a name="line.111"></a>
+<span class="sourceLineNo">112</span>                def.run(newJellyContext, output);<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                msg = "&lt;/" + source+"&gt;";<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                output.comment(msg.toCharArray(),0,msg.length());<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            } catch (SAXException e) {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                throw new JellyTagException(e);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>            }<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        } else {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>            def.run(newJellyContext, output);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        }<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>    protected String getSource() {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        return "{jelly:"+getNsUri()+"}:"+getLocalName();<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
+<span class="sourceLineNo">126</span>}<a name="line.126"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
