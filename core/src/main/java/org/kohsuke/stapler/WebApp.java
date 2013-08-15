@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
-import java.util.WeakHashMap;
 import java.util.Hashtable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -104,9 +103,9 @@ public class WebApp {
     /**
      * All {@link MetaClass}es.
      *
-     * Avoids class leaks by {@link WeakHashMap}.
+     * Note that this permanently holds a strong reference to its key, i.e. is a memory leak.
      */
-    private final Map<Klass<?>,MetaClass> classMap = new WeakHashMap<Klass<?>,MetaClass>();
+    private final Map<Klass<?>,MetaClass> classMap = new HashMap<Klass<?>,MetaClass>();
 
     /**
      * Handles objects that are exported.

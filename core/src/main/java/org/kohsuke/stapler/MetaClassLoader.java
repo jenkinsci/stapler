@@ -24,11 +24,11 @@
 package org.kohsuke.stapler;
 
 import java.util.Map;
-import java.util.WeakHashMap;
 import java.io.File;
 import java.net.URLClassLoader;
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.util.HashMap;
 
 /**
  * The stapler version of the {@link ClassLoader} object,
@@ -67,9 +67,9 @@ public class MetaClassLoader extends TearOffSupport {
     /**
      * All {@link MetaClass}es.
      *
-     * Avoids class leaks by {@link WeakHashMap}.
+     * Note that this permanently holds a strong reference to its key, i.e. is a memory leak.
      */
-    private static final Map<ClassLoader,MetaClassLoader> classMap = new WeakHashMap<ClassLoader,MetaClassLoader>();
+    private static final Map<ClassLoader,MetaClassLoader> classMap = new HashMap<ClassLoader,MetaClassLoader>();
 
     static {
         try {
