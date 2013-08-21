@@ -17,6 +17,8 @@ import javax.lang.model.util.ElementScanner6;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
+import javax.lang.model.element.Modifier;
+import javax.tools.Diagnostic;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -64,6 +66,10 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
     }
 
     private void write(ExecutableElement c) {
+        if (!c.getModifiers().contains(Modifier.PUBLIC)) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "@DataBoundConstructor must be applied to a public constructor", c);
+            return;
+        }
         try {
             StringBuilder buf = new StringBuilder();
             for( VariableElement p : c.getParameters() ) {
