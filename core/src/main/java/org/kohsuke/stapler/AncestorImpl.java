@@ -32,23 +32,20 @@ class AncestorImpl implements Ancestor {
     private final List<AncestorImpl> owner;
     private final int listIndex;
 
-    private Object object;
-    private String[] tokens;
-    private int index;
-    private String contextPath;
+    private final Object object;
+    private final String[] tokens;
+    private final int index;
+    private final String contextPath;
 
     /**
      * True if the request URL had '/' in the end.
      */
-    private boolean endsWithSlash;
+    private final boolean endsWithSlash;
 
-    public AncestorImpl(List<AncestorImpl> owner) {
-        this.owner = owner;
+    AncestorImpl(RequestImpl req, Object object) {
+        this.owner = req.ancestors;
         listIndex = owner.size();
         owner.add(this);
-    }
-
-    public void set(Object object, RequestImpl req ) {
         this.object = object;
         this.tokens = req.tokens.rawTokens;
         this.index = req.tokens.idx;

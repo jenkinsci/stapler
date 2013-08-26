@@ -627,8 +627,7 @@ public class Stapler extends HttpServlet {
         }
 
         // adds this node to ancestor list
-        AncestorImpl a = new AncestorImpl(req.ancestors);
-        a.set(node,req);
+        AncestorImpl a = new AncestorImpl(req, node);
 
         // try overrides
         if (node instanceof StaplerOverridable) {
