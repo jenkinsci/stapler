@@ -79,34 +79,33 @@
 <span class="sourceLineNo">071</span>        boolean first=true;<a name="line.71"></a>
 <span class="sourceLineNo">072</span>        for (Method m : getTarget().getClass().getMethods()) {<a name="line.72"></a>
 <span class="sourceLineNo">073</span>            Collection&lt;String&gt; names;<a name="line.73"></a>
-<span class="sourceLineNo">074</span>            if (m.isBridge())   continue;<a name="line.74"></a>
-<span class="sourceLineNo">075</span>            if (m.getName().startsWith("js")) {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>                names = Collections.singleton(camelize(m.getName().substring(2)));<a name="line.76"></a>
-<span class="sourceLineNo">077</span>            } else {<a name="line.77"></a>
-<span class="sourceLineNo">078</span>                JavaScriptMethod a = m.getAnnotation(JavaScriptMethod.class);<a name="line.78"></a>
-<span class="sourceLineNo">079</span>                if (a!=null) {<a name="line.79"></a>
-<span class="sourceLineNo">080</span>                    names = Arrays.asList(a.name());<a name="line.80"></a>
-<span class="sourceLineNo">081</span>                    if (names.isEmpty())<a name="line.81"></a>
-<span class="sourceLineNo">082</span>                        names = Collections.singleton(m.getName());<a name="line.82"></a>
-<span class="sourceLineNo">083</span>                } else<a name="line.83"></a>
-<span class="sourceLineNo">084</span>                    continue;<a name="line.84"></a>
-<span class="sourceLineNo">085</span>            }<a name="line.85"></a>
-<span class="sourceLineNo">086</span><a name="line.86"></a>
-<span class="sourceLineNo">087</span>            for (String n : names) {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>                if (first)  first = false;<a name="line.88"></a>
-<span class="sourceLineNo">089</span>                else        buf.append(',');<a name="line.89"></a>
-<span class="sourceLineNo">090</span>                buf.append('\'').append(n).append('\'');<a name="line.90"></a>
-<span class="sourceLineNo">091</span>            }<a name="line.91"></a>
-<span class="sourceLineNo">092</span>        }<a name="line.92"></a>
-<span class="sourceLineNo">093</span>        buf.append("])");<a name="line.93"></a>
-<span class="sourceLineNo">094</span>        <a name="line.94"></a>
-<span class="sourceLineNo">095</span>        return buf.toString();<a name="line.95"></a>
-<span class="sourceLineNo">096</span>    }<a name="line.96"></a>
-<span class="sourceLineNo">097</span><a name="line.97"></a>
-<span class="sourceLineNo">098</span>    private static String camelize(String name) {<a name="line.98"></a>
-<span class="sourceLineNo">099</span>        return Character.toLowerCase(name.charAt(0))+name.substring(1);<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    }<a name="line.100"></a>
-<span class="sourceLineNo">101</span>}<a name="line.101"></a>
+<span class="sourceLineNo">074</span>            if (m.getName().startsWith("js")) {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>                names = Collections.singleton(camelize(m.getName().substring(2)));<a name="line.75"></a>
+<span class="sourceLineNo">076</span>            } else {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>                JavaScriptMethod a = m.getAnnotation(JavaScriptMethod.class);<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                if (a!=null) {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                    names = Arrays.asList(a.name());<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                    if (names.isEmpty())<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                        names = Collections.singleton(m.getName());<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                } else<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                    continue;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>            }<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>            for (String n : names) {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>                if (first)  first = false;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>                else        buf.append(',');<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                buf.append('\'').append(n).append('\'');<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            }<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        }<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        buf.append("])");<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        <a name="line.93"></a>
+<span class="sourceLineNo">094</span>        return buf.toString();<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>    private static String camelize(String name) {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        return Character.toLowerCase(name.charAt(0))+name.substring(1);<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    }<a name="line.99"></a>
+<span class="sourceLineNo">100</span>}<a name="line.100"></a>
 
 
 
