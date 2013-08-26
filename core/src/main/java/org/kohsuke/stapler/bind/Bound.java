@@ -71,7 +71,6 @@ public abstract class Bound implements HttpResponse {
         boolean first=true;
         for (Method m : getTarget().getClass().getMethods()) {
             Collection<String> names;
-            if (m.isBridge())   continue;
             if (m.getName().startsWith("js")) {
                 names = Collections.singleton(camelize(m.getName().substring(2)));
             } else {

@@ -73,7 +73,6 @@ public final class ClassDescriptor {
         // instance methods
         List<Function> functions = new ArrayList<Function>();
         for (Method m : clazz.getMethods()) {
-            if (m.isBridge())       continue;
             functions.add(new Function.InstanceFunction(m).wrapByInterceptors(m));
         }
         if(wrappers!=null) {
