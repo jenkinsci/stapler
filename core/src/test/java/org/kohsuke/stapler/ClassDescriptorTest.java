@@ -51,6 +51,7 @@ public class ClassDescriptorTest {
     }
 
     @Test public void inheritedWebMethods() throws Exception {
+        // http://bugs.sun.com/view_bug.do?bug_id=6342411
         assertEquals(1, new ClassDescriptor(Sub.class).methods.name("doDynamic").signature(StaplerRequest.class, StaplerResponse.class).size());
     }
 
