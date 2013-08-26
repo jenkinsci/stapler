@@ -1,9 +1,11 @@
 package org.kohsuke.stapler;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import javax.servlet.ServletException;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -48,6 +50,10 @@ public class ClassDescriptorTest {
         }
     }
 
+    @Test public void inheritedWebMethods() throws Exception {
+        assertEquals(1, new ClassDescriptor(Sub.class).methods.name("doDynamic").signature(StaplerRequest.class, StaplerResponse.class).size());
+    }
+
     public static class C {
         public C() {}
         public C(int a, int b, String x) {}
@@ -58,4 +64,10 @@ public class ClassDescriptorTest {
     private void methodWithManyParams(String a, boolean b, int c, long d,
             Boolean e, Integer f, Long g, Object h, ClassDescriptorTest i) { }
     private static void methodWithParams_static(String abc, long def, Object ghi) { }
+
+    protected static abstract class Super {
+        public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {}
+    }
+    public static class Sub extends Super {}
+
 }
