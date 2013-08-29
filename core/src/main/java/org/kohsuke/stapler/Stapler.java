@@ -493,7 +493,7 @@ public class Stapler extends HttpServlet {
 
                         // ritual for responding to a partial GET
                         rsp.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-                        rsp.setHeader("Content-Range",s+"-"+(e-1)+'/'+contentLength); // end is inclusive.
+                        rsp.setHeader("Content-Range","bytes "+s+"-"+(e-1)+'/'+contentLength); // end is inclusive.
 
                         // prepare to send the partial content
                         DataInputStream dis = new DataInputStream(in);
