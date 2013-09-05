@@ -135,7 +135,9 @@ public class DataBindingTest extends TestCase {
     }
 
     private <T> T bind(String json, Class<T> type) {
-        RequestImpl req = new RequestImpl(new Stapler(), new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
+        Stapler s = new Stapler();
+        s.setWebApp(new WebApp(null));
+        RequestImpl req = new RequestImpl(s, new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
         return req.bindJSON(type, JSONObject.fromObject(json));
     }
 
@@ -194,7 +196,7 @@ public class DataBindingTest extends TestCase {
             this.o = o;
         }
 
-        public void setNested(List<SetterBinding> children) {
+        public void setChildren(List<SetterBinding> children) {
             this.children = children;
         }
     }
@@ -221,7 +223,7 @@ public class DataBindingTest extends TestCase {
         assertEquals(5, c1.y);
         assertEquals(5, c1.z);
 
-        SetterBinding c2 = r.children.get(0);
+        SetterBinding c2 = r.children.get(1);
         assertEquals(6, c2.x);
         assertEquals(6, c2.y);
         assertEquals(6, c2.z);

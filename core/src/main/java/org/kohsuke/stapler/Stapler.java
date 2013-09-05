@@ -163,6 +163,10 @@ public class Stapler extends HttpServlet {
         return webApp;
     }
 
+    /*package*/ void setWebApp(WebApp webApp) {
+        this.webApp = webApp;
+    }
+
     protected @Override void service(HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
         Thread t = Thread.currentThread();
         final String oldName = t.getName();
