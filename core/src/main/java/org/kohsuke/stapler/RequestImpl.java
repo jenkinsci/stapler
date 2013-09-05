@@ -58,15 +58,20 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import static java.util.logging.Level.WARNING;
 import static javax.servlet.http.HttpServletResponse.*;
 
 /**
@@ -592,7 +597,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                             }
                         }
 
-                        return invokeConstructor(c, args);
+                        return injectSetters(invokeConstructor(c, args), j, Arrays.asList(names));
                     } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException("Failed to instantiate "+type+" from "+j,e);
                     }
@@ -661,6 +666,39 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 return l.toCollection();
             }
         }
+    }
+
+    private <T> T injectSetters(T r, JSONObject j, Collection<String> exclusions) {
+        // try to assign rest of the properties
+        for (String key : (Set<String>)j.keySet()) {
+            if (!exclusions.contains(key)) {
+                try {
+                    PropertyDescriptor pd = PropertyUtils.getPropertyDescriptor(r, key);
+                    if (pd==null)   continue;
+
+                    Method wm = pd.getWriteMethod();
+                    if (wm==null)   continue;
+
+                    Class<?>[] pt = wm.getParameterTypes();
+
+                    if (pt.length!=1) {
+                        LOGGER.log(WARNING, "Setter method "+wm+" is expected to have 1 parameter");
+                        continue;
+                    }
+
+                    // only invoking public methods for security reasons
+                    wm.invoke(r, bindJSON(wm.getGenericParameterTypes()[0], pt[0], j.get(key)));
+                } catch (IllegalAccessException e) {
+                    LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
+                } catch (InvocationTargetException e) {
+                    LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
+                } catch (NoSuchMethodException e) {
+                    LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
+                }
+            }
+        }
+
+        return r;
     }
 
     /**
@@ -787,4 +825,6 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         if(item==null || item.isFormField())    return null;
         return item;
     }
+
+    private static final Logger LOGGER = Logger.getLogger(RequestImpl.class.getName());
 }

@@ -167,4 +167,67 @@ public class DataBindingTest extends TestCase {
         RawBinding r3 = bind("{x:{a:true,b:1},y:true}", RawBinding.class);
         assertTrue((Boolean)r3.y.get(0));
     }
+
+    public static class SetterBinding {
+        private int x,y,z;
+        private Object o;
+        private List<SetterBinding> children;
+
+        @DataBoundConstructor
+        public SetterBinding(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public void setZ(int z) {
+            this.z = z;
+        }
+
+        /**
+         * We expect y to be set through constructor
+         */
+        public void setY(int y) {
+            throw new IllegalArgumentException();
+        }
+
+        public void setAnotherObject(Object o) {
+            this.o = o;
+        }
+
+        public void setNested(List<SetterBinding> children) {
+            this.children = children;
+        }
+    }
+
+    public static class Point {
+        int x,y;
+
+        @DataBoundConstructor
+        public Point(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    public void testSetterInvocation() {
+        SetterBinding r = bind("{x:1,y:2,z:3, children:[{x:5,y:5,z:5},{x:6,y:6,z:6}], anotherObject:{stapler-class:'org.kohsuke.stapler.DataBindingTest$Point', x:1,y:1} }",SetterBinding.class);
+        assertEquals(1,r.x);
+        assertEquals(2,r.y);
+        assertEquals(3,r.z);
+
+        assertEquals(2,r.children.size());
+        SetterBinding c1 = r.children.get(0);
+        assertEquals(5, c1.x);
+        assertEquals(5, c1.y);
+        assertEquals(5, c1.z);
+
+        SetterBinding c2 = r.children.get(0);
+        assertEquals(6, c2.x);
+        assertEquals(6, c2.y);
+        assertEquals(6, c2.z);
+
+        Point o = (Point)r.o;
+        assertEquals(1,o.x);
+        assertEquals(1,o.y);
+    }
 }
