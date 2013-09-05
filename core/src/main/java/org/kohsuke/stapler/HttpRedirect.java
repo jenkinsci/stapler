@@ -23,7 +23,7 @@
 
 package org.kohsuke.stapler;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
+import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
 import java.io.IOException;
 
@@ -39,11 +39,11 @@ public final class HttpRedirect extends RuntimeException implements HttpResponse
     private final int statusCode;
     private final String url;
 
-    public HttpRedirect(@NonNull String url) {
+    public HttpRedirect(@Nonnull String url) {
         this(SC_MOVED_TEMPORARILY,url);
     }
 
-    public HttpRedirect(int statusCode, @NonNull String url) {
+    public HttpRedirect(int statusCode, @Nonnull String url) {
         this.statusCode = statusCode;
         if (url == null) {
             throw new NullPointerException();

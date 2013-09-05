@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import net.sf.json.JsonConfig;
 import org.kohsuke.stapler.compression.CompressionFilter;
 import org.kohsuke.stapler.compression.FilterServletOutputStream;
@@ -34,6 +33,7 @@ import org.kohsuke.stapler.export.Model;
 import org.kohsuke.stapler.export.ModelBuilder;
 import org.apache.commons.io.IOUtils;
 
+import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -128,7 +128,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     @Override
-    public void sendRedirect(@NonNull String url) throws IOException {
+    public void sendRedirect(@Nonnull String url) throws IOException {
         // WebSphere doesn't apparently handle relative URLs, so
         // to be safe, always resolve relative URLs to absolute URLs by ourselves.
         // see http://www.nabble.com/Hudson%3A-1.262%3A-Broken-link-using-update-manager-to21067157.html
@@ -146,13 +146,13 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         super.sendRedirect(base);
     }
 
-    public void sendRedirect2(@NonNull String url) throws IOException {
+    public void sendRedirect2(@Nonnull String url) throws IOException {
         // Tomcat doesn't encode URL (servlet spec isn't very clear on it)
         // so do the encoding by ourselves
         sendRedirect(encode(url));
     }
 
-    public void sendRedirect(int statusCode, @NonNull String url) throws IOException {
+    public void sendRedirect(int statusCode, @Nonnull String url) throws IOException {
         if (statusCode==SC_MOVED_TEMPORARILY) {
             sendRedirect(url);  // to be safe, let the servlet container handles this default case
             return;
@@ -352,7 +352,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     /**
      * Escapes non-ASCII characters.
      */
-    public static @NonNull String encode(@NonNull String s) {
+    public static @Nonnull String encode(@Nonnull String s) {
         try {
             boolean escaped = false;
 

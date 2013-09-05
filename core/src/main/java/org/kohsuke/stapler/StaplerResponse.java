@@ -23,10 +23,10 @@
 
 package org.kohsuke.stapler;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import net.sf.json.JsonConfig;
 import org.kohsuke.stapler.export.Flavor;
 
+import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -72,12 +72,12 @@ public interface StaplerResponse extends HttpServletResponse {
      * Works like {@link #sendRedirect(String)} except that this method
      * escapes the URL.
      */
-    void sendRedirect2(@NonNull String url) throws IOException;
+    void sendRedirect2(@Nonnull String url) throws IOException;
 
     /**
      * Works like {@link #sendRedirect2(String)} but allows the caller to specify the HTTP status code.
      */
-    void sendRedirect(int statusCore, @NonNull String url) throws IOException;
+    void sendRedirect(int statusCore, @Nonnull String url) throws IOException;
 
     /**
      * Serves a static resource.
