@@ -63,12 +63,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
@@ -678,6 +676,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
                     Method wm = pd.getWriteMethod();
                     if (wm==null)   continue;
+                    if (wm.getAnnotation(DataBoundSetter.class)==null) {
+                        LOGGER.warning("Tried to set value to "+key+" but method "+wm+" is missing @DataBoundSetter");
+                        continue;
+                    }
 
                     Class<?>[] pt = wm.getParameterTypes();
 

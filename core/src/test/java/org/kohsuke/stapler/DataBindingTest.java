@@ -171,7 +171,7 @@ public class DataBindingTest extends TestCase {
     }
 
     public static class SetterBinding {
-        private int x,y,z;
+        private int w,x,y,z;
         private Object o;
         private List<SetterBinding> children;
 
@@ -181,6 +181,14 @@ public class DataBindingTest extends TestCase {
             this.y = y;
         }
 
+        /**
+         * Setter not annotated with {@link DataBoundSetter}, so it should be ignored
+         */
+        public void setW(int w) {
+            this.w = w;
+        }
+
+        @DataBoundSetter
         public void setZ(int z) {
             this.z = z;
         }
@@ -188,14 +196,17 @@ public class DataBindingTest extends TestCase {
         /**
          * We expect y to be set through constructor
          */
+        @DataBoundSetter
         public void setY(int y) {
             throw new IllegalArgumentException();
         }
 
+        @DataBoundSetter
         public void setAnotherObject(Object o) {
             this.o = o;
         }
 
+        @DataBoundSetter
         public void setChildren(List<SetterBinding> children) {
             this.children = children;
         }
@@ -212,10 +223,11 @@ public class DataBindingTest extends TestCase {
     }
 
     public void testSetterInvocation() {
-        SetterBinding r = bind("{x:1,y:2,z:3, children:[{x:5,y:5,z:5},{x:6,y:6,z:6}], anotherObject:{stapler-class:'org.kohsuke.stapler.DataBindingTest$Point', x:1,y:1} }",SetterBinding.class);
+        SetterBinding r = bind("{x:1,y:2,z:3,w:1, children:[{x:5,y:5,z:5},{x:6,y:6,z:6}], anotherObject:{stapler-class:'org.kohsuke.stapler.DataBindingTest$Point', x:1,y:1} }",SetterBinding.class);
         assertEquals(1,r.x);
         assertEquals(2,r.y);
         assertEquals(3,r.z);
+        assertEquals(0,r.w);
 
         assertEquals(2,r.children.size());
         SetterBinding c1 = r.children.get(0);
