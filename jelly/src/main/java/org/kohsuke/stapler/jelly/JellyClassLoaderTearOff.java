@@ -23,7 +23,9 @@
 
 package org.kohsuke.stapler.jelly;
 
+import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.TagLibrary;
@@ -45,7 +47,7 @@ public class JellyClassLoaderTearOff {
     /**
      * See {@link JellyClassTearOff#scripts} for why we use {@link WeakReference} here.
      */
-    private volatile WeakReference<CacheLoader<String,TagLibrary>> taglibs;
+    private volatile WeakReference<LoadingCache<String,TagLibrary>> taglibs;
 
     public static ExpressionFactory EXPRESSION_FACTORY = new JexlExpressionFactory();
 
@@ -54,11 +56,11 @@ public class JellyClassLoaderTearOff {
     }
 
     public TagLibrary getTagLibrary(String nsUri) {
-        CacheLoader<String,TagLibrary> m=null;
+        LoadingCache<String,TagLibrary> m=null;
         if(taglibs!=null)
             m = taglibs.get();
         if(m==null) {
-            m = new CacheLoader<String,TagLibrary>() {
+            m = CacheBuilder.newBuilder().build(new CacheLoader<String,TagLibrary>() {
                 public TagLibrary load(String nsUri) {
                     if(owner.parent!=null) {
                         // parent first
@@ -89,17 +91,13 @@ public class JellyClassLoaderTearOff {
 
                     return NO_SUCH_TAGLIBRARY;    // "not found" is also cached.
                 }
-            };
-            taglibs = new WeakReference<CacheLoader<String,TagLibrary>>(m);
+            });
+            taglibs = new WeakReference<LoadingCache<String,TagLibrary>>(m);
         }
 
-        try {
-            TagLibrary tl = m.load(nsUri);
-            if (tl==NO_SUCH_TAGLIBRARY)     return null;
-            return tl;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load the taglib " + nsUri, e);
-        }
+        TagLibrary tl = m.getUnchecked(nsUri);
+        if (tl==NO_SUCH_TAGLIBRARY)     return null;
+        return tl;
     }
 
     private String trimHeadSlash(String nsUri) {

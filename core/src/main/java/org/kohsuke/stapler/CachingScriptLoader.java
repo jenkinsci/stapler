@@ -5,7 +5,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import java.net.URL;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Convenient base class for caching loaded scripts.
@@ -57,15 +56,10 @@ public abstract class CachingScriptLoader<S, E extends Exception> {
      * @return null if none was found.
      */
     public S findScript(String name) throws E {
-        if (MetaClass.NO_CACHE) {
+        if (MetaClass.NO_CACHE) 
             return loadScript(name);
-        } else {
-            try {
-                return scripts.get(name).get();
-            } catch (ExecutionException e) {
-                throw new RuntimeException("Failed to load the script " + name, e.getCause());
-            }
-        }
+        else
+            return scripts.getUnchecked(name).get();
     }
 
     /**

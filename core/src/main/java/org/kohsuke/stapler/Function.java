@@ -37,7 +37,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Abstracts the difference between normal instance methods and
@@ -145,7 +144,7 @@ public abstract class Function {
                 }
 
                 // if the databinding method is provided, call that
-                Function binder = PARSE_METHODS.get(t);
+                Function binder = PARSE_METHODS.getUnchecked(t);
                 if (binder!=RETURN_NULL) {
                     arguments[i] = binder.bindAndInvoke(null,req,rsp);
                     continue;
@@ -157,8 +156,6 @@ public abstract class Function {
             }
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Failed to invoke "+getDisplayName(),e);
-        } catch (ExecutionException e) {
-            throw new InvocationTargetException(e.getCause(), "Failed to load from the cache");
         }
 
         return invoke(req, rsp, o,arguments);
