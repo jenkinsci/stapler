@@ -1,9 +1,10 @@
 package org.kohsuke.stapler;
 
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import java.net.URL;
-import java.util.Map;
 
 /**
  * Convenient base class for caching loaded scripts.
@@ -24,8 +25,8 @@ public abstract class CachingScriptLoader<S, E extends Exception> {
      *
      * {@link Optional} is used as Google Collection doesn't allow null values in a map.
      */
-    private final Map<String,Optional<S>> scripts = new MapMaker().softValues().makeComputingMap(new com.google.common.base.Function<String, Optional<S>>() {
-        public Optional<S> apply(String from) {
+    private final LoadingCache<String,Optional<S>> scripts = CacheBuilder.newBuilder().softValues().build(new CacheLoader<String, Optional<S>>() {
+        public Optional<S> load(String from) {
             try {
                 return Optional.create(loadScript(from));
             } catch (RuntimeException e) {
@@ -55,10 +56,10 @@ public abstract class CachingScriptLoader<S, E extends Exception> {
      * @return null if none was found.
      */
     public S findScript(String name) throws E {
-        if (MetaClass.NO_CACHE)
+        if (MetaClass.NO_CACHE) 
             return loadScript(name);
         else
-            return scripts.get(name).get();
+            return scripts.getUnchecked(name).get();
     }
 
     /**
@@ -70,7 +71,7 @@ public abstract class CachingScriptLoader<S, E extends Exception> {
      * Discards the cached script.
      */
     public synchronized void clearScripts() {
-        scripts.clear();
+        scripts.invalidateAll();
     }
 
     protected abstract URL getResource(String name);
