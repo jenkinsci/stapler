@@ -23,7 +23,9 @@
 
 package org.kohsuke.stapler;
 
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
@@ -35,7 +37,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Abstracts the difference between normal instance methods and
@@ -155,6 +157,8 @@ public abstract class Function {
             }
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Failed to invoke "+getDisplayName(),e);
+        } catch (ExecutionException e) {
+            throw new InvocationTargetException(e.getCause(), "Failed to load from the cache");
         }
 
         return invoke(req, rsp, o,arguments);
@@ -164,7 +168,7 @@ public abstract class Function {
      * Computing map that discovers the static 'fromStapler' method from a class.
      * The discovered method will be returned as a Function so that the invocation can do parameter injections.
      */
-    private static final Map<Class,Function> PARSE_METHODS;
+    private static final LoadingCache<Class,Function> PARSE_METHODS;
     private static final Function RETURN_NULL;
 
     static {
@@ -174,8 +178,8 @@ public abstract class Function {
             throw new AssertionError(e);    // impossible
         }
 
-        PARSE_METHODS = new MapMaker().weakKeys().makeComputingMap(new com.google.common.base.Function<Class,Function>() {
-            public Function apply(Class from) {
+        PARSE_METHODS = CacheBuilder.newBuilder().weakKeys().build(new CacheLoader<Class,Function>() {
+            public Function load(Class from) {
                 // MethdFunction for invoking a static method as a static method
                 FunctionList methods = new ClassDescriptor(from).methods.name("fromStapler");
                 switch (methods.size()) {
