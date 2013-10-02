@@ -125,6 +125,7 @@ public class IncludeTag extends TagSupport {
         }
 
         context = new JellyContext(getContext());
+        context.setExportLibraries(false);
         if(this.it!=null)
             context.setVariable("it",this.it);
         context.setVariable("from", from!=null?from:it);

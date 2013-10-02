@@ -60,6 +60,7 @@ public abstract class CallTagLibScript extends TagScript {
 
         // create new context based on current attributes
         JellyContext newJellyContext = context.newJellyContext(args);
+        newJellyContext.setExportLibraries(false);
         newJellyContext.setVariable( "attrs", args );
 
         // <d:invokeBody> uses this to discover what to invoke

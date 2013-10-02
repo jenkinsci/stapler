@@ -1,0 +1,16 @@
+<j:jelly xmlns:st="jelly:stapler" xmlns:j="jelly:core" xmlns:d="jelly:define">
+  <d:taglib uri="local">
+    <d:tag name="foo">foo</d:tag>
+  </d:taglib>
+  <html>
+    <body>
+      <!-- make sure redefinition of the "local" namespace won't change the local taglib defined in this scope -->
+      <st:include page="sub.jelly"/>
+
+      <!-- ditto for a tag file invocation -->
+      <tagfile xmlns="/org/kohsuke/stapler/jelly/TagLibNamespaceExportTest/taglib"/>
+
+      <foo xmlns="local"/>
+    </body>
+  </html>
+</j:jelly>

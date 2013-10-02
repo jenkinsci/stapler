@@ -1,0 +1,5 @@
+<j:jelly xmlns:st="jelly:stapler" xmlns:j="jelly:core" xmlns:d="jelly:define">
+  <d:taglib uri="local">
+    <d:tag name="foo">zot</d:tag>
+  </d:taglib>
+</j:jelly>
