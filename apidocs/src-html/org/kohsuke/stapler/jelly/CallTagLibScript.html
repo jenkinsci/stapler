@@ -68,70 +68,71 @@
 <span class="sourceLineNo">060</span><a name="line.60"></a>
 <span class="sourceLineNo">061</span>        // create new context based on current attributes<a name="line.61"></a>
 <span class="sourceLineNo">062</span>        JellyContext newJellyContext = context.newJellyContext(args);<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        newJellyContext.setVariable( "attrs", args );<a name="line.63"></a>
-<span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>        // &lt;d:invokeBody&gt; uses this to discover what to invoke<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        newJellyContext.setVariable("org.apache.commons.jelly.body", new Script() {<a name="line.66"></a>
-<span class="sourceLineNo">067</span>            public Script compile() throws JellyException {<a name="line.67"></a>
-<span class="sourceLineNo">068</span>                return this;<a name="line.68"></a>
-<span class="sourceLineNo">069</span>            }<a name="line.69"></a>
-<span class="sourceLineNo">070</span><a name="line.70"></a>
-<span class="sourceLineNo">071</span>            /**<a name="line.71"></a>
-<span class="sourceLineNo">072</span>             * When &amp;lt;d:invokeBody/&gt; is used to call back into the calling script,<a name="line.72"></a>
-<span class="sourceLineNo">073</span>             * the Jelly name resolution rule is in such that the body is evaluated with<a name="line.73"></a>
-<span class="sourceLineNo">074</span>             * the variable scope of the &amp;lt;d:invokeBody/&gt; caller. This is very different<a name="line.74"></a>
-<span class="sourceLineNo">075</span>             * from a typical closure name resolution mechanism, where the body is evaluated<a name="line.75"></a>
-<span class="sourceLineNo">076</span>             * with the variable scope of where the body was created.<a name="line.76"></a>
-<span class="sourceLineNo">077</span>             *<a name="line.77"></a>
-<span class="sourceLineNo">078</span>             * &lt;p&gt;<a name="line.78"></a>
-<span class="sourceLineNo">079</span>             * More concretely, in Jelly, this often shows up as a problem as inability to<a name="line.79"></a>
-<span class="sourceLineNo">080</span>             * access the "attrs" variable from inside a body, because every {@link DynamicTag}<a name="line.80"></a>
-<span class="sourceLineNo">081</span>             * invocation sets this variable in a new scope.<a name="line.81"></a>
-<span class="sourceLineNo">082</span>             *<a name="line.82"></a>
-<span class="sourceLineNo">083</span>             * &lt;p&gt;<a name="line.83"></a>
-<span class="sourceLineNo">084</span>             * To counter this effect, this class temporarily restores the original "attrs"<a name="line.84"></a>
-<span class="sourceLineNo">085</span>             * when the body is evaluated. This makes the name resolution of 'attrs' work<a name="line.85"></a>
-<span class="sourceLineNo">086</span>             * like what programmers normally expect.<a name="line.86"></a>
-<span class="sourceLineNo">087</span>             *<a name="line.87"></a>
-<span class="sourceLineNo">088</span>             * &lt;p&gt;<a name="line.88"></a>
-<span class="sourceLineNo">089</span>             * The same problem also shows up as a lack of local variables &amp;mdash; when a tag<a name="line.89"></a>
-<span class="sourceLineNo">090</span>             * calls into the body via &amp;lt;d:invokeBody/&gt;, the invoked body will see all the<a name="line.90"></a>
-<span class="sourceLineNo">091</span>             * variables that are defined in the caller, which is again not what a normal programming language<a name="line.91"></a>
-<span class="sourceLineNo">092</span>             * does. But unfortunately, changing this is too pervasive.<a name="line.92"></a>
-<span class="sourceLineNo">093</span>             */<a name="line.93"></a>
-<span class="sourceLineNo">094</span>            public void run(JellyContext nestedContext, XMLOutput output) throws JellyTagException {<a name="line.94"></a>
-<span class="sourceLineNo">095</span>                Map m = nestedContext.getVariables();<a name="line.95"></a>
-<span class="sourceLineNo">096</span>                Object oldAttrs = m.put("attrs",context.getVariable("attrs"));<a name="line.96"></a>
-<span class="sourceLineNo">097</span>                try {<a name="line.97"></a>
-<span class="sourceLineNo">098</span>                    getTagBody().run(nestedContext,output);<a name="line.98"></a>
-<span class="sourceLineNo">099</span>                } finally {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>                    m.put("attrs",oldAttrs);<a name="line.100"></a>
-<span class="sourceLineNo">101</span>                }<a name="line.101"></a>
-<span class="sourceLineNo">102</span>            }<a name="line.102"></a>
-<span class="sourceLineNo">103</span>        });<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        newJellyContext.setVariable("org.apache.commons.jelly.body.scope", context);<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        final Script def = resolveDefinition(newJellyContext);<a name="line.105"></a>
-<span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>        if(JellyFacet.TRACE) {<a name="line.107"></a>
-<span class="sourceLineNo">108</span>            try {<a name="line.108"></a>
-<span class="sourceLineNo">109</span>                String source = getSource();<a name="line.109"></a>
-<span class="sourceLineNo">110</span>                String msg = "&lt;" + source+"&gt;";<a name="line.110"></a>
-<span class="sourceLineNo">111</span>                output.comment(msg.toCharArray(),0,msg.length());<a name="line.111"></a>
-<span class="sourceLineNo">112</span>                def.run(newJellyContext, output);<a name="line.112"></a>
-<span class="sourceLineNo">113</span>                msg = "&lt;/" + source+"&gt;";<a name="line.113"></a>
-<span class="sourceLineNo">114</span>                output.comment(msg.toCharArray(),0,msg.length());<a name="line.114"></a>
-<span class="sourceLineNo">115</span>            } catch (SAXException e) {<a name="line.115"></a>
-<span class="sourceLineNo">116</span>                throw new JellyTagException(e);<a name="line.116"></a>
-<span class="sourceLineNo">117</span>            }<a name="line.117"></a>
-<span class="sourceLineNo">118</span>        } else {<a name="line.118"></a>
-<span class="sourceLineNo">119</span>            def.run(newJellyContext, output);<a name="line.119"></a>
-<span class="sourceLineNo">120</span>        }<a name="line.120"></a>
-<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
-<span class="sourceLineNo">122</span><a name="line.122"></a>
-<span class="sourceLineNo">123</span>    protected String getSource() {<a name="line.123"></a>
-<span class="sourceLineNo">124</span>        return "{jelly:"+getNsUri()+"}:"+getLocalName();<a name="line.124"></a>
-<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
-<span class="sourceLineNo">126</span>}<a name="line.126"></a>
+<span class="sourceLineNo">063</span>        newJellyContext.setExportLibraries(false);<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        newJellyContext.setVariable( "attrs", args );<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>        // &lt;d:invokeBody&gt; uses this to discover what to invoke<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        newJellyContext.setVariable("org.apache.commons.jelly.body", new Script() {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            public Script compile() throws JellyException {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>                return this;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>            }<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>            /**<a name="line.72"></a>
+<span class="sourceLineNo">073</span>             * When &amp;lt;d:invokeBody/&gt; is used to call back into the calling script,<a name="line.73"></a>
+<span class="sourceLineNo">074</span>             * the Jelly name resolution rule is in such that the body is evaluated with<a name="line.74"></a>
+<span class="sourceLineNo">075</span>             * the variable scope of the &amp;lt;d:invokeBody/&gt; caller. This is very different<a name="line.75"></a>
+<span class="sourceLineNo">076</span>             * from a typical closure name resolution mechanism, where the body is evaluated<a name="line.76"></a>
+<span class="sourceLineNo">077</span>             * with the variable scope of where the body was created.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>             *<a name="line.78"></a>
+<span class="sourceLineNo">079</span>             * &lt;p&gt;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>             * More concretely, in Jelly, this often shows up as a problem as inability to<a name="line.80"></a>
+<span class="sourceLineNo">081</span>             * access the "attrs" variable from inside a body, because every {@link DynamicTag}<a name="line.81"></a>
+<span class="sourceLineNo">082</span>             * invocation sets this variable in a new scope.<a name="line.82"></a>
+<span class="sourceLineNo">083</span>             *<a name="line.83"></a>
+<span class="sourceLineNo">084</span>             * &lt;p&gt;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>             * To counter this effect, this class temporarily restores the original "attrs"<a name="line.85"></a>
+<span class="sourceLineNo">086</span>             * when the body is evaluated. This makes the name resolution of 'attrs' work<a name="line.86"></a>
+<span class="sourceLineNo">087</span>             * like what programmers normally expect.<a name="line.87"></a>
+<span class="sourceLineNo">088</span>             *<a name="line.88"></a>
+<span class="sourceLineNo">089</span>             * &lt;p&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>             * The same problem also shows up as a lack of local variables &amp;mdash; when a tag<a name="line.90"></a>
+<span class="sourceLineNo">091</span>             * calls into the body via &amp;lt;d:invokeBody/&gt;, the invoked body will see all the<a name="line.91"></a>
+<span class="sourceLineNo">092</span>             * variables that are defined in the caller, which is again not what a normal programming language<a name="line.92"></a>
+<span class="sourceLineNo">093</span>             * does. But unfortunately, changing this is too pervasive.<a name="line.93"></a>
+<span class="sourceLineNo">094</span>             */<a name="line.94"></a>
+<span class="sourceLineNo">095</span>            public void run(JellyContext nestedContext, XMLOutput output) throws JellyTagException {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                Map m = nestedContext.getVariables();<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                Object oldAttrs = m.put("attrs",context.getVariable("attrs"));<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                try {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                    getTagBody().run(nestedContext,output);<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                } finally {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                    m.put("attrs",oldAttrs);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>                }<a name="line.102"></a>
+<span class="sourceLineNo">103</span>            }<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        });<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        newJellyContext.setVariable("org.apache.commons.jelly.body.scope", context);<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        final Script def = resolveDefinition(newJellyContext);<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>        if(JellyFacet.TRACE) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            try {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                String source = getSource();<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                String msg = "&lt;" + source+"&gt;";<a name="line.111"></a>
+<span class="sourceLineNo">112</span>                output.comment(msg.toCharArray(),0,msg.length());<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                def.run(newJellyContext, output);<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                msg = "&lt;/" + source+"&gt;";<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                output.comment(msg.toCharArray(),0,msg.length());<a name="line.115"></a>
+<span class="sourceLineNo">116</span>            } catch (SAXException e) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                throw new JellyTagException(e);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>            }<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        } else {<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            def.run(newJellyContext, output);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        }<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    }<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>    protected String getSource() {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        return "{jelly:"+getNsUri()+"}:"+getLocalName();<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    }<a name="line.126"></a>
+<span class="sourceLineNo">127</span>}<a name="line.127"></a>
 
 
 
