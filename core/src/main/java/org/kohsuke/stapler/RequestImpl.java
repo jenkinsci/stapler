@@ -666,11 +666,30 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         }
     }
 
+    /**
+     * @param exclusions
+     *      Properties that are already injected through the constructor, thus not subject of the setter injection.
+     */
     private <T> T injectSetters(T r, JSONObject j, Collection<String> exclusions) {
         // try to assign rest of the properties
+        OUTER:
         for (String key : (Set<String>)j.keySet()) {
             if (!exclusions.contains(key)) {
                 try {
+                    // try field injection first
+                    for (Class c=r.getClass(); c!=null; c=c.getSuperclass()) {
+                        try {
+                            Field f = c.getDeclaredField(key);
+                            if (f.getAnnotation(DataBoundSetter.class)!=null) {
+                                f.setAccessible(true);
+                                f.set(r, bindJSON(f.getGenericType(), f.getType(), j.get(key)));
+                                continue OUTER;
+                            }
+                        } catch (NoSuchFieldException e) {
+                            // recurse into parents
+                        }
+                    }
+
                     PropertyDescriptor pd = PropertyUtils.getPropertyDescriptor(r, key);
                     if (pd==null)   continue;
 

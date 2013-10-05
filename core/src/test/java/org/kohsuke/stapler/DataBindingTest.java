@@ -244,4 +244,26 @@ public class DataBindingTest extends TestCase {
         assertEquals(1,o.x);
         assertEquals(1,o.y);
     }
+
+    public static abstract class Point3 {
+        @DataBoundSetter
+        private int x,y,z;
+
+        public void assertValues() {
+            assertEquals(1,x);
+            assertEquals(2,y);
+            assertEquals(3,z);
+        }
+    }
+
+    public static class Point3Derived extends Point3 {
+        @DataBoundConstructor
+        public Point3Derived() {
+        }
+    }
+
+    public void testFieldInjection() {
+        Point3Derived r = bind("{x:1,y:2,z:3} }",Point3Derived.class);
+        r.assertValues();
+    }
 }
