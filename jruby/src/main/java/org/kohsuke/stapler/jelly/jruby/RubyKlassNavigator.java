@@ -4,9 +4,11 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyModule;
 import org.jruby.RubyObject;
+import org.jruby.internal.runtime.methods.DynamicMethod;
 import org.kohsuke.stapler.MetaClassLoader;
 import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.KlassNavigator;
+import org.kohsuke.stapler.lang.MethodRef;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -57,6 +59,17 @@ public class RubyKlassNavigator extends KlassNavigator<RubyModule> {
     public Klass<?> getSuperClass(RubyModule clazz) {
         // TODO: what happens when a Ruby class extends from Java class?
         return wrap(clazz.getSuperClass());
+    }
+
+    @Override
+    public List<MethodRef> getDeclaredMethods(RubyModule clazz) {
+        List<MethodRef> r = new ArrayList<MethodRef>();
+        for (DynamicMethod m : clazz.getMethods().values()) {
+            // TODO: not sure if this is entirely correct
+            if (m.getImplementationClass()==clazz)
+                r.add(new RubyMethodRef(clazz,m));
+        }
+        return r;
     }
 
     @Override

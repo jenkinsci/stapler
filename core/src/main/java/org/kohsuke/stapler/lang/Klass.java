@@ -1,6 +1,7 @@
 package org.kohsuke.stapler.lang;
 
 import java.net.URL;
+import java.util.List;
 
 /**
  * Abstraction of class-like object, agnostic to languages.
@@ -39,6 +40,10 @@ public class Klass<C> {
         return navigator.toJavaClass(clazz);
     }
 
+    public List<MethodRef> getDeclaredMethods() {
+        return navigator.getDeclaredMethods(clazz);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -65,5 +70,4 @@ public class Klass<C> {
     public static Klass<Class> java(Class c) {
         return c == null ? null : new Klass<Class>(c, KlassNavigator.JAVA);
     }
-
 }

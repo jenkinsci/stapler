@@ -2,7 +2,9 @@ package org.kohsuke.stapler.lang;
 
 import org.kohsuke.stapler.MetaClassLoader;
 
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +60,13 @@ public abstract class KlassNavigator<C> {
      */
     public abstract Class toJavaClass(C clazz);
 
+    /**
+     * List methods of this class, regardless of access modifier.
+     *
+     * This list excludes methods from super classes.
+     */
+    public abstract List<MethodRef> getDeclaredMethods(C clazz);
+
     public static final KlassNavigator<Class> JAVA = new KlassNavigator<Class>() {
         @Override
         public URL getResource(Class clazz, String resourceName) {
@@ -95,6 +104,22 @@ public abstract class KlassNavigator<C> {
         @Override
         public Class toJavaClass(Class clazz) {
             return clazz;
+        }
+
+        @Override
+        public List<MethodRef> getDeclaredMethods(Class clazz) {
+            final Method[] methods = clazz.getDeclaredMethods();
+            return new AbstractList<MethodRef>() {
+                @Override
+                public MethodRef get(int index) {
+                    return MethodRef.wrap(methods[index]);
+                }
+
+                @Override
+                public int size() {
+                    return methods.length;
+                }
+            };
         }
     };
 }

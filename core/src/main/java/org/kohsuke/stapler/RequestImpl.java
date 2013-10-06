@@ -39,6 +39,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.lang.Klass;
+import org.kohsuke.stapler.lang.MethodRef;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -719,7 +720,26 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             }
         }
 
+        invokePostConstruct(getWebApp().getMetaClass(r).getPostConstructMethods(), r);
+
         return r;
+    }
+
+    /**
+     * Invoke PostConstruct method from the base class to subtypes.
+     */
+    private void invokePostConstruct(SingleLinkedList<MethodRef> methods, Object r) {
+        if (methods.isEmpty())  return;
+
+        invokePostConstruct(methods.tail,r);
+        try {
+            methods.head.invoke(r);
+        } catch (InvocationTargetException e) {
+            throw new IllegalArgumentException("Unable to post-construct "+r,e);
+        } catch (IllegalAccessException e) {
+            throw (Error)new IllegalAccessError().initCause(e);
+        }
+
     }
 
     /**

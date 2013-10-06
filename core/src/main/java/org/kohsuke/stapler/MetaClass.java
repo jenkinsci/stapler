@@ -27,12 +27,15 @@ import net.sf.json.JSONArray;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 import org.kohsuke.stapler.lang.Klass;
+import org.kohsuke.stapler.lang.MethodRef;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.ServletException;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +77,12 @@ public class MetaClass extends TearOffSupport {
      * {@link WebApp} that owns this meta class.
      */
     public final WebApp webApp;
+
+    /**
+     * If there's a method annotated with @PostConstruct, that {@link MethodRef} object, linked
+     * to the list of the base class.
+     */
+    private volatile SingleLinkedList<MethodRef> postConstructMethods;
 
     /*package*/ MetaClass(WebApp webApp, Klass<?> klass) {
         this.clazz = klass.toJavaClass();
@@ -395,6 +404,31 @@ public class MetaClass extends TearOffSupport {
         }
     }
 
+    /**
+     * Returns all the methods in the ancestory chain annotated with {@link PostConstruct}
+     * from those defined in the derived type toward those defined in the base type.
+     *
+     * Normally invocation requires visiting the list in the reverse order.
+     */
+    public SingleLinkedList<MethodRef> getPostConstructMethods() {
+        if (postConstructMethods ==null) {
+            MethodRef method = null;
+            for (MethodRef mr : klass.getDeclaredMethods()) {
+                if (mr.hasAnnotation(PostConstruct.class)) {
+                    if (method!=null)
+                        throw new IllegalStateException("Two methods on the same class with @PostConstruct: "+method+" and "+mr);
+                    method = mr;
+                }
+            }
+            SingleLinkedList<MethodRef> l = baseClass==null ? SingleLinkedList.<MethodRef>empty() : baseClass.getPostConstructMethods();
+            if (method==null)
+                postConstructMethods = l;
+            else
+                postConstructMethods = l.grow(method);
+        }
+        return postConstructMethods;
+    }
+
     private String getProtectedRole(Field f) {
         try {
             LimitedTo a = f.getAnnotation(LimitedTo.class);
@@ -454,4 +488,6 @@ public class MetaClass extends TearOffSupport {
             // ignore.
         }
     }
+
+    private static final Object NONE = "none";
 }

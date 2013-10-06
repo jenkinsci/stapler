@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import javax.annotation.PostConstruct;
 import java.net.Proxy;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -249,10 +250,17 @@ public class DataBindingTest extends TestCase {
         @DataBoundSetter
         private int x,y,z;
 
+        int post=1;
+
         public void assertValues() {
             assertEquals(1,x);
             assertEquals(2,y);
             assertEquals(3,z);
+        }
+
+        @PostConstruct
+        private void post1() {
+            post += 4;
         }
     }
 
@@ -260,10 +268,16 @@ public class DataBindingTest extends TestCase {
         @DataBoundConstructor
         public Point3Derived() {
         }
+
+        @PostConstruct
+        private void post1() {
+            post *= 2;
+        }
     }
 
     public void testFieldInjection() {
         Point3Derived r = bind("{x:1,y:2,z:3} }",Point3Derived.class);
         r.assertValues();
+        assertEquals(10,r.post);
     }
 }
