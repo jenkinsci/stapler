@@ -440,7 +440,13 @@ public interface StaplerRequest extends HttpServletRequest {
      */
     BindInterceptor getBindInterceptor();
 
+    /**
+     * @deprecated
+     * Typo. Use {@link #setBindInterceptpr(BindInterceptor)}
+     */
     BindInterceptor setBindListener(BindInterceptor bindListener);
+
+    BindInterceptor setBindInterceptpr(BindInterceptor bindListener);
 
     /**
      * Gets the content of the structured form submission.
