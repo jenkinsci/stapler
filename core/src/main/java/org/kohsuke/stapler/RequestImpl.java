@@ -584,28 +584,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                             }
                         }
 
-                        if (actualType==JSONObject.class || actualType==JSON.class) return actualType.cast(j);
-
-                        String[] names = new ClassDescriptor(actualType).loadConstructorParamNames();
-
-                        // the actual arguments to invoke the constructor with.
-                        Object[] args = new Object[names.length];
-
-                        // constructor
-                        Constructor c = findConstructor(actualType, names.length);
-                        Class[] types = c.getParameterTypes();
-                        Type[] genTypes = c.getGenericParameterTypes();
-
-                        // convert parameters
-                        for( int i=0; i<names.length; i++ ) {
-                            try {
-                                args[i] = bindJSON(genTypes[i],types[i],j.get(names[i]));
-                            } catch (IllegalArgumentException e) {
-                                throw new IllegalArgumentException("Failed to convert the "+names[i]+" parameter of the constructor "+c,e);
-                            }
-                        }
-
-                        return injectSetters(invokeConstructor(c, args), j, Arrays.asList(names));
+                        return instantiate(actualType, j);
                     } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException("Failed to instantiate "+type+" from "+j,e);
                     }
@@ -674,6 +653,41 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 return l.toCollection();
             }
         }
+    }
+
+    /**
+     * Called after the actual type of the binding is figured out.
+     */
+    private Object instantiate(Class actualType, JSONObject j) {
+        Object r = bindInterceptor.instantiate(actualType,j);
+        if (r!=BindInterceptor.DEFAULT) return r;
+        for (BindInterceptor bi : getWebApp().bindInterceptors) {
+            r = bi.instantiate(actualType,j);
+            if (r!=BindInterceptor.DEFAULT) return r;
+        }
+
+        if (actualType==JSONObject.class || actualType==JSON.class) return actualType.cast(j);
+
+        String[] names = new ClassDescriptor(actualType).loadConstructorParamNames();
+
+        // the actual arguments to invoke the constructor with.
+        Object[] args = new Object[names.length];
+
+        // constructor
+        Constructor c = findConstructor(actualType, names.length);
+        Class[] types = c.getParameterTypes();
+        Type[] genTypes = c.getGenericParameterTypes();
+
+        // convert parameters
+        for( int i=0; i<names.length; i++ ) {
+            try {
+                args[i] = bindJSON(genTypes[i],types[i],j.get(names[i]));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Failed to convert the "+names[i]+" parameter of the constructor "+c,e);
+            }
+        }
+
+        return injectSetters(invokeConstructor(c, args), j, Arrays.asList(names));
     }
 
     /**
