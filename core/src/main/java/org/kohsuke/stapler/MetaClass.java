@@ -31,15 +31,15 @@ import org.kohsuke.stapler.lang.MethodRef;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletException;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static javax.servlet.http.HttpServletResponse.*;
 
 /**
  * Created one instance each for a {@link Klass},
@@ -412,19 +412,14 @@ public class MetaClass extends TearOffSupport {
      */
     public SingleLinkedList<MethodRef> getPostConstructMethods() {
         if (postConstructMethods ==null) {
-            MethodRef method = null;
+            SingleLinkedList<MethodRef> l = baseClass==null ? SingleLinkedList.<MethodRef>empty() : baseClass.getPostConstructMethods();
+
             for (MethodRef mr : klass.getDeclaredMethods()) {
                 if (mr.hasAnnotation(PostConstruct.class)) {
-                    if (method!=null)
-                        throw new IllegalStateException("Two methods on the same class with @PostConstruct: "+method+" and "+mr);
-                    method = mr;
+                    l = l.grow(mr);
                 }
             }
-            SingleLinkedList<MethodRef> l = baseClass==null ? SingleLinkedList.<MethodRef>empty() : baseClass.getPostConstructMethods();
-            if (method==null)
-                postConstructMethods = l;
-            else
-                postConstructMethods = l.grow(method);
+            postConstructMethods = l;
         }
         return postConstructMethods;
     }
