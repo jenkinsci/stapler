@@ -2,6 +2,7 @@ package org.kohsuke.stapler;
 
 import net.sf.json.JSONObject;
 
+import javax.annotation.PostConstruct;
 import java.beans.Introspector;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -27,6 +28,10 @@ import static java.lang.annotation.RetentionPolicy.*;
  * <p>
  * The field is discovered through simple reflection, so its name must match the property name, but
  * its access modifier can be anything.
+ *
+ * <p>
+ * To create a method to be called after all the setter injections are complete, annotate a method
+ * with {@link PostConstruct}.
  *
  * @author Kohsuke Kawaguchi
  */
