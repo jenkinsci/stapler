@@ -91,6 +91,14 @@ public class WebApp {
     public final List<Facet> facets = new Vector<Facet>();
 
     /**
+     * Global {@link BindInterceptor}s.
+     *
+     * These are consulted after {@link StaplerRequest#getBindInterceptor()} is consulted.
+
+     */
+    public final List<BindInterceptor> bindInterceptors = new CopyOnWriteArrayList<BindInterceptor>();
+
+    /**
      * MIME type mapping from extensions (like "txt" or "jpg") to MIME types ("foo/bar").
      *
      * This overrides whatever mappings given in the servlet as far as stapler is concerned.

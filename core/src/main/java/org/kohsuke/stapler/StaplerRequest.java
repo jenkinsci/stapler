@@ -437,6 +437,8 @@ public interface StaplerRequest extends HttpServletRequest {
 
     /**
      * Gets the {@link BindInterceptor} set for this request.
+     *
+     * @see WebApp#bindInterceptors
      */
     BindInterceptor getBindInterceptor();
 

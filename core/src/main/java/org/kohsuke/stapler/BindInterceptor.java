@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
  *
  * @author Kohsuke Kawaguchi
  * @see StaplerRequest#setBindInterceptpr(BindInterceptor)
+ * @see WebApp#bindInterceptors
  */
 public class BindInterceptor {
     /**

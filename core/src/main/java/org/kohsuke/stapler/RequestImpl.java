@@ -537,7 +537,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
          */
         public Object convertJSON(Object o) {
             Object r = bindInterceptor.onConvert(genericType, type, o);
-            if (r!= BindInterceptor.DEFAULT)    return r; // taken over by the listener
+            if (r!= BindInterceptor.DEFAULT)    return r; // taken over by the interceptor
+
+            for (BindInterceptor i : getWebApp().bindInterceptors) {
+                r = i.onConvert(genericType, type, o);
+                if (r!= BindInterceptor.DEFAULT)    return r; // taken over by the interceptor
+            }
 
             if(o==null || o instanceof JSONNull) {
                 // this method returns null if the type is not primitive, which works.
