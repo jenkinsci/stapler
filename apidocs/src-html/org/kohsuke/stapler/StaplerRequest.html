@@ -445,46 +445,54 @@
 <span class="sourceLineNo">437</span><a name="line.437"></a>
 <span class="sourceLineNo">438</span>    /**<a name="line.438"></a>
 <span class="sourceLineNo">439</span>     * Gets the {@link BindInterceptor} set for this request.<a name="line.439"></a>
-<span class="sourceLineNo">440</span>     */<a name="line.440"></a>
-<span class="sourceLineNo">441</span>    BindInterceptor getBindInterceptor();<a name="line.441"></a>
-<span class="sourceLineNo">442</span><a name="line.442"></a>
-<span class="sourceLineNo">443</span>    BindInterceptor setBindListener(BindInterceptor bindListener);<a name="line.443"></a>
+<span class="sourceLineNo">440</span>     *<a name="line.440"></a>
+<span class="sourceLineNo">441</span>     * @see WebApp#bindInterceptors<a name="line.441"></a>
+<span class="sourceLineNo">442</span>     */<a name="line.442"></a>
+<span class="sourceLineNo">443</span>    BindInterceptor getBindInterceptor();<a name="line.443"></a>
 <span class="sourceLineNo">444</span><a name="line.444"></a>
 <span class="sourceLineNo">445</span>    /**<a name="line.445"></a>
-<span class="sourceLineNo">446</span>     * Gets the content of the structured form submission.<a name="line.446"></a>
-<span class="sourceLineNo">447</span>     *<a name="line.447"></a>
-<span class="sourceLineNo">448</span>     * @see &lt;a href="https://wiki.jenkins-ci.org/display/JENKINS/Structured+Form+Submission"&gt;Structured Form Submission&lt;/a&gt;<a name="line.448"></a>
-<span class="sourceLineNo">449</span>     */<a name="line.449"></a>
-<span class="sourceLineNo">450</span>    JSONObject getSubmittedForm() throws ServletException;<a name="line.450"></a>
-<span class="sourceLineNo">451</span><a name="line.451"></a>
-<span class="sourceLineNo">452</span>    /**<a name="line.452"></a>
-<span class="sourceLineNo">453</span>     * Obtains a commons-fileupload object that represents an uploaded file.<a name="line.453"></a>
-<span class="sourceLineNo">454</span>     *<a name="line.454"></a>
-<span class="sourceLineNo">455</span>     * @return<a name="line.455"></a>
-<span class="sourceLineNo">456</span>     *      null if a file of the given form field name doesn't exist.<a name="line.456"></a>
-<span class="sourceLineNo">457</span>     *      This includes the case where the name corresponds to a simple<a name="line.457"></a>
-<span class="sourceLineNo">458</span>     *      form field (like textbox, checkbox, etc.) <a name="line.458"></a>
-<span class="sourceLineNo">459</span>     */<a name="line.459"></a>
-<span class="sourceLineNo">460</span>    FileItem getFileItem(String name) throws ServletException, IOException;<a name="line.460"></a>
-<span class="sourceLineNo">461</span><a name="line.461"></a>
-<span class="sourceLineNo">462</span>    /**<a name="line.462"></a>
-<span class="sourceLineNo">463</span>     * Returns true if this request represents a server method call to a JavaScript proxy object.<a name="line.463"></a>
-<span class="sourceLineNo">464</span>     */<a name="line.464"></a>
-<span class="sourceLineNo">465</span>    boolean isJavaScriptProxyCall();<a name="line.465"></a>
-<span class="sourceLineNo">466</span><a name="line.466"></a>
-<span class="sourceLineNo">467</span>    /**<a name="line.467"></a>
-<span class="sourceLineNo">468</span>     * Short cut for obtaining {@link BoundObjectTable} associated with this webapp.<a name="line.468"></a>
-<span class="sourceLineNo">469</span>     */<a name="line.469"></a>
-<span class="sourceLineNo">470</span>    BoundObjectTable getBoundObjectTable();<a name="line.470"></a>
-<span class="sourceLineNo">471</span><a name="line.471"></a>
-<span class="sourceLineNo">472</span>    /**<a name="line.472"></a>
-<span class="sourceLineNo">473</span>     * Exports the given Java object as a JavaScript proxy and returns a JavaScript expression to create<a name="line.473"></a>
-<span class="sourceLineNo">474</span>     * a proxy on the client side.<a name="line.474"></a>
-<span class="sourceLineNo">475</span>     *<a name="line.475"></a>
-<span class="sourceLineNo">476</span>     * Short cut for {@code getBoundObjectTable().bind(toBeExported).getProxyScript()}<a name="line.476"></a>
+<span class="sourceLineNo">446</span>     * @deprecated<a name="line.446"></a>
+<span class="sourceLineNo">447</span>     * Typo. Use {@link #setBindInterceptpr(BindInterceptor)}<a name="line.447"></a>
+<span class="sourceLineNo">448</span>     */<a name="line.448"></a>
+<span class="sourceLineNo">449</span>    BindInterceptor setBindListener(BindInterceptor bindListener);<a name="line.449"></a>
+<span class="sourceLineNo">450</span><a name="line.450"></a>
+<span class="sourceLineNo">451</span>    BindInterceptor setBindInterceptpr(BindInterceptor bindListener);<a name="line.451"></a>
+<span class="sourceLineNo">452</span><a name="line.452"></a>
+<span class="sourceLineNo">453</span>    /**<a name="line.453"></a>
+<span class="sourceLineNo">454</span>     * Gets the content of the structured form submission.<a name="line.454"></a>
+<span class="sourceLineNo">455</span>     *<a name="line.455"></a>
+<span class="sourceLineNo">456</span>     * @see &lt;a href="https://wiki.jenkins-ci.org/display/JENKINS/Structured+Form+Submission"&gt;Structured Form Submission&lt;/a&gt;<a name="line.456"></a>
+<span class="sourceLineNo">457</span>     */<a name="line.457"></a>
+<span class="sourceLineNo">458</span>    JSONObject getSubmittedForm() throws ServletException;<a name="line.458"></a>
+<span class="sourceLineNo">459</span><a name="line.459"></a>
+<span class="sourceLineNo">460</span>    /**<a name="line.460"></a>
+<span class="sourceLineNo">461</span>     * Obtains a commons-fileupload object that represents an uploaded file.<a name="line.461"></a>
+<span class="sourceLineNo">462</span>     *<a name="line.462"></a>
+<span class="sourceLineNo">463</span>     * @return<a name="line.463"></a>
+<span class="sourceLineNo">464</span>     *      null if a file of the given form field name doesn't exist.<a name="line.464"></a>
+<span class="sourceLineNo">465</span>     *      This includes the case where the name corresponds to a simple<a name="line.465"></a>
+<span class="sourceLineNo">466</span>     *      form field (like textbox, checkbox, etc.) <a name="line.466"></a>
+<span class="sourceLineNo">467</span>     */<a name="line.467"></a>
+<span class="sourceLineNo">468</span>    FileItem getFileItem(String name) throws ServletException, IOException;<a name="line.468"></a>
+<span class="sourceLineNo">469</span><a name="line.469"></a>
+<span class="sourceLineNo">470</span>    /**<a name="line.470"></a>
+<span class="sourceLineNo">471</span>     * Returns true if this request represents a server method call to a JavaScript proxy object.<a name="line.471"></a>
+<span class="sourceLineNo">472</span>     */<a name="line.472"></a>
+<span class="sourceLineNo">473</span>    boolean isJavaScriptProxyCall();<a name="line.473"></a>
+<span class="sourceLineNo">474</span><a name="line.474"></a>
+<span class="sourceLineNo">475</span>    /**<a name="line.475"></a>
+<span class="sourceLineNo">476</span>     * Short cut for obtaining {@link BoundObjectTable} associated with this webapp.<a name="line.476"></a>
 <span class="sourceLineNo">477</span>     */<a name="line.477"></a>
-<span class="sourceLineNo">478</span>    String createJavaScriptProxy(Object toBeExported);<a name="line.478"></a>
-<span class="sourceLineNo">479</span>}<a name="line.479"></a>
+<span class="sourceLineNo">478</span>    BoundObjectTable getBoundObjectTable();<a name="line.478"></a>
+<span class="sourceLineNo">479</span><a name="line.479"></a>
+<span class="sourceLineNo">480</span>    /**<a name="line.480"></a>
+<span class="sourceLineNo">481</span>     * Exports the given Java object as a JavaScript proxy and returns a JavaScript expression to create<a name="line.481"></a>
+<span class="sourceLineNo">482</span>     * a proxy on the client side.<a name="line.482"></a>
+<span class="sourceLineNo">483</span>     *<a name="line.483"></a>
+<span class="sourceLineNo">484</span>     * Short cut for {@code getBoundObjectTable().bind(toBeExported).getProxyScript()}<a name="line.484"></a>
+<span class="sourceLineNo">485</span>     */<a name="line.485"></a>
+<span class="sourceLineNo">486</span>    String createJavaScriptProxy(Object toBeExported);<a name="line.486"></a>
+<span class="sourceLineNo">487</span>}<a name="line.487"></a>
 
 
 
