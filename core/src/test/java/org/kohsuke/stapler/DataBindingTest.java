@@ -5,7 +5,9 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import javax.annotation.PostConstruct;
+import java.lang.reflect.Type;
 import java.net.Proxy;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -136,14 +138,22 @@ public class DataBindingTest extends TestCase {
     }
 
     private <T> T bind(String json, Class<T> type) {
-        Stapler s = new Stapler();
-        s.setWebApp(new WebApp(null));
-        RequestImpl req = new RequestImpl(s, new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
+        return bind(json,type,BindInterceptor.NOOP);
+    }
+    private <T> T bind(String json, Class<T> type, BindInterceptor bi) {
+        RequestImpl req = createFakeRequest();
+        req.setBindInterceptpr(bi);
         return req.bindJSON(type, JSONObject.fromObject(json));
     }
 
+    private RequestImpl createFakeRequest() {
+        Stapler s = new Stapler();
+        s.setWebApp(new WebApp(null));
+        return new RequestImpl(s, new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
+    }
+
     private <T> T bind(JSONObject json, T bean) {
-        RequestImpl req = new RequestImpl(new Stapler(), new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
+        RequestImpl req = createFakeRequest();
         req.bindJSON(bean,json);
         return bean;
     }
@@ -221,6 +231,22 @@ public class DataBindingTest extends TestCase {
             this.x = x;
             this.y = y;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Point rhs = (Point) o;
+            return x == rhs.x && y == rhs.y;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = x;
+            result = 31 * result + y;
+            return result;
+        }
     }
 
     public void testSetterInvocation() {
@@ -280,4 +306,47 @@ public class DataBindingTest extends TestCase {
         r.assertValues();
         assertEquals(10,r.post);
     }
+
+    public void testInterceptor1() {
+        String r = bind("{x:1}", String.class, new BindInterceptor() {
+            @Override
+            public Object onConvert(Type targetType, Class targetTypeErasure, Object jsonSource) {
+                assertEquals(targetType, String.class);
+                assertEquals(targetTypeErasure, String.class);
+                return String.valueOf(((JSONObject) jsonSource).getInt("x"));
+            }
+        });
+        assertEquals("1",r);
+    }
+
+    public void testInterceptor2() {
+        RequestImpl req = createFakeRequest();
+        req.setBindInterceptpr(new BindInterceptor() {
+            @Override
+            public Object onConvert(Type targetType, Class targetTypeErasure, Object jsonSource) {
+                if (targetType==String.class)
+                    return String.valueOf(((JSONObject) jsonSource).getInt("x"));
+                return DEFAULT;
+            }
+        });
+
+        String[] r = (String[]) req.bindJSON(String[].class, String[].class, JSONArray.fromObject("[{x:1},{x:2}]"));
+        assertTrue(Arrays.equals(r,new String[]{"1","2"}));
+    }
+
+    public void testInterceptor3() {
+        RequestImpl req = createFakeRequest();
+        req.setBindInterceptpr(new BindInterceptor() {
+            @Override
+            public Object instantiate(Class actualType, JSONObject json) {
+                if (actualType.equals(Point.class))
+                    return new Point(1,2);
+                return DEFAULT;
+            }
+        });
+
+        Object[] r = (Object[]) req.bindJSON(Object[].class, Object[].class, JSONArray.fromObject("[{stapler-class:'"+Point.class.getName()+"'}]"));
+        assertTrue(Arrays.equals(r,new Object[]{new Point(1,2)}));
+    }
+
 }
