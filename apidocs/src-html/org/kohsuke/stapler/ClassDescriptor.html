@@ -266,42 +266,47 @@
 <span class="sourceLineNo">258</span>            if (clazz==null)    return null;<a name="line.258"></a>
 <span class="sourceLineNo">259</span><a name="line.259"></a>
 <span class="sourceLineNo">260</span>            final TreeMap&lt;Integer,String&gt; localVars = new TreeMap&lt;Integer,String&gt;();<a name="line.260"></a>
-<span class="sourceLineNo">261</span>            ClassReader r = new ClassReader(clazz.openStream());<a name="line.261"></a>
-<span class="sourceLineNo">262</span>            r.accept(new EmptyVisitor() {<a name="line.262"></a>
-<span class="sourceLineNo">263</span>                final String md = getConstructorDescriptor(m);<a name="line.263"></a>
-<span class="sourceLineNo">264</span>                public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {<a name="line.264"></a>
-<span class="sourceLineNo">265</span>                    if (methodName.equals("&lt;init&gt;") &amp;&amp; desc.equals(md))<a name="line.265"></a>
-<span class="sourceLineNo">266</span>                        return new EmptyVisitor() {<a name="line.266"></a>
-<span class="sourceLineNo">267</span>                            @Override public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {<a name="line.267"></a>
-<span class="sourceLineNo">268</span>                                if (index&gt;0)   // 0 is 'this'<a name="line.268"></a>
-<span class="sourceLineNo">269</span>                                    localVars.put(index, name);<a name="line.269"></a>
-<span class="sourceLineNo">270</span>                            }<a name="line.270"></a>
-<span class="sourceLineNo">271</span>                        };<a name="line.271"></a>
-<span class="sourceLineNo">272</span>                    else<a name="line.272"></a>
-<span class="sourceLineNo">273</span>                        return null; // ignore this method<a name="line.273"></a>
-<span class="sourceLineNo">274</span>                }<a name="line.274"></a>
-<span class="sourceLineNo">275</span>            }, 0);<a name="line.275"></a>
-<span class="sourceLineNo">276</span><a name="line.276"></a>
-<span class="sourceLineNo">277</span>            // Indexes may not be sequential, but first set of local variables are method params<a name="line.277"></a>
-<span class="sourceLineNo">278</span>            int i = 0;<a name="line.278"></a>
-<span class="sourceLineNo">279</span>            for (String s : localVars.values()) {<a name="line.279"></a>
-<span class="sourceLineNo">280</span>                paramNames[i] = s;<a name="line.280"></a>
-<span class="sourceLineNo">281</span>                if (++i == paramNames.length) return paramNames;<a name="line.281"></a>
-<span class="sourceLineNo">282</span>            }<a name="line.282"></a>
-<span class="sourceLineNo">283</span>            return null; // Not enough data found to fill array<a name="line.283"></a>
-<span class="sourceLineNo">284</span>        }<a name="line.284"></a>
-<span class="sourceLineNo">285</span><a name="line.285"></a>
-<span class="sourceLineNo">286</span>        private static String getConstructorDescriptor(Constructor c) {<a name="line.286"></a>
-<span class="sourceLineNo">287</span>            StringBuilder buf = new StringBuilder("(");<a name="line.287"></a>
-<span class="sourceLineNo">288</span>            for (Class p : c.getParameterTypes())<a name="line.288"></a>
-<span class="sourceLineNo">289</span>                buf.append(Type.getDescriptor(p));<a name="line.289"></a>
-<span class="sourceLineNo">290</span>            return buf.append(")V").toString();<a name="line.290"></a>
-<span class="sourceLineNo">291</span>        }<a name="line.291"></a>
-<span class="sourceLineNo">292</span>    }<a name="line.292"></a>
-<span class="sourceLineNo">293</span><a name="line.293"></a>
-<span class="sourceLineNo">294</span>    private static final Logger LOGGER = Logger.getLogger(ClassDescriptor.class.getName());<a name="line.294"></a>
-<span class="sourceLineNo">295</span>    private static final String[] EMPTY_ARRAY = new String[0];<a name="line.295"></a>
-<span class="sourceLineNo">296</span>}<a name="line.296"></a>
+<span class="sourceLineNo">261</span>            InputStream is = clazz.openStream();<a name="line.261"></a>
+<span class="sourceLineNo">262</span>            try {<a name="line.262"></a>
+<span class="sourceLineNo">263</span>                ClassReader r = new ClassReader(is);<a name="line.263"></a>
+<span class="sourceLineNo">264</span>                r.accept(new EmptyVisitor() {<a name="line.264"></a>
+<span class="sourceLineNo">265</span>                    final String md = getConstructorDescriptor(m);<a name="line.265"></a>
+<span class="sourceLineNo">266</span>                    public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {<a name="line.266"></a>
+<span class="sourceLineNo">267</span>                        if (methodName.equals("&lt;init&gt;") &amp;&amp; desc.equals(md))<a name="line.267"></a>
+<span class="sourceLineNo">268</span>                            return new EmptyVisitor() {<a name="line.268"></a>
+<span class="sourceLineNo">269</span>                                @Override public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {<a name="line.269"></a>
+<span class="sourceLineNo">270</span>                                    if (index&gt;0)   // 0 is 'this'<a name="line.270"></a>
+<span class="sourceLineNo">271</span>                                        localVars.put(index, name);<a name="line.271"></a>
+<span class="sourceLineNo">272</span>                                }<a name="line.272"></a>
+<span class="sourceLineNo">273</span>                            };<a name="line.273"></a>
+<span class="sourceLineNo">274</span>                        else<a name="line.274"></a>
+<span class="sourceLineNo">275</span>                            return null; // ignore this method<a name="line.275"></a>
+<span class="sourceLineNo">276</span>                    }<a name="line.276"></a>
+<span class="sourceLineNo">277</span>                }, 0);<a name="line.277"></a>
+<span class="sourceLineNo">278</span>            } finally {<a name="line.278"></a>
+<span class="sourceLineNo">279</span>                is.close();<a name="line.279"></a>
+<span class="sourceLineNo">280</span>            }<a name="line.280"></a>
+<span class="sourceLineNo">281</span><a name="line.281"></a>
+<span class="sourceLineNo">282</span>            // Indexes may not be sequential, but first set of local variables are method params<a name="line.282"></a>
+<span class="sourceLineNo">283</span>            int i = 0;<a name="line.283"></a>
+<span class="sourceLineNo">284</span>            for (String s : localVars.values()) {<a name="line.284"></a>
+<span class="sourceLineNo">285</span>                paramNames[i] = s;<a name="line.285"></a>
+<span class="sourceLineNo">286</span>                if (++i == paramNames.length) return paramNames;<a name="line.286"></a>
+<span class="sourceLineNo">287</span>            }<a name="line.287"></a>
+<span class="sourceLineNo">288</span>            return null; // Not enough data found to fill array<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        }<a name="line.289"></a>
+<span class="sourceLineNo">290</span><a name="line.290"></a>
+<span class="sourceLineNo">291</span>        private static String getConstructorDescriptor(Constructor c) {<a name="line.291"></a>
+<span class="sourceLineNo">292</span>            StringBuilder buf = new StringBuilder("(");<a name="line.292"></a>
+<span class="sourceLineNo">293</span>            for (Class p : c.getParameterTypes())<a name="line.293"></a>
+<span class="sourceLineNo">294</span>                buf.append(Type.getDescriptor(p));<a name="line.294"></a>
+<span class="sourceLineNo">295</span>            return buf.append(")V").toString();<a name="line.295"></a>
+<span class="sourceLineNo">296</span>        }<a name="line.296"></a>
+<span class="sourceLineNo">297</span>    }<a name="line.297"></a>
+<span class="sourceLineNo">298</span><a name="line.298"></a>
+<span class="sourceLineNo">299</span>    private static final Logger LOGGER = Logger.getLogger(ClassDescriptor.class.getName());<a name="line.299"></a>
+<span class="sourceLineNo">300</span>    private static final String[] EMPTY_ARRAY = new String[0];<a name="line.300"></a>
+<span class="sourceLineNo">301</span>}<a name="line.301"></a>
 
 
 
