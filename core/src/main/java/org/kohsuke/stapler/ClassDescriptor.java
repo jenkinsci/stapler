@@ -258,21 +258,26 @@ public final class ClassDescriptor {
             if (clazz==null)    return null;
 
             final TreeMap<Integer,String> localVars = new TreeMap<Integer,String>();
-            ClassReader r = new ClassReader(clazz.openStream());
-            r.accept(new EmptyVisitor() {
-                final String md = getConstructorDescriptor(m);
-                public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
-                    if (methodName.equals("<init>") && desc.equals(md))
-                        return new EmptyVisitor() {
-                            @Override public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
-                                if (index>0)   // 0 is 'this'
-                                    localVars.put(index, name);
-                            }
-                        };
-                    else
-                        return null; // ignore this method
-                }
-            }, 0);
+            InputStream is = clazz.openStream();
+            try {
+                ClassReader r = new ClassReader(is);
+                r.accept(new EmptyVisitor() {
+                    final String md = getConstructorDescriptor(m);
+                    public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
+                        if (methodName.equals("<init>") && desc.equals(md))
+                            return new EmptyVisitor() {
+                                @Override public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+                                    if (index>0)   // 0 is 'this'
+                                        localVars.put(index, name);
+                                }
+                            };
+                        else
+                            return null; // ignore this method
+                    }
+                }, 0);
+            } finally {
+                is.close();
+            }
 
             // Indexes may not be sequential, but first set of local variables are method params
             int i = 0;
