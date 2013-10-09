@@ -33,7 +33,9 @@ import org.apache.commons.beanutils.converters.DoubleConverter;
 import org.apache.commons.beanutils.converters.FloatConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.bind.BoundObjectTable;
+import sun.net.www.protocol.jar.JarURLConnection;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -261,6 +263,43 @@ public class Stapler extends HttpServlet {
         private void close() throws IOException {
             stream.close();
         }
+
+        /**
+         * Can't just use {@code connection.getLastModified()} because
+         * of a file descriptor leak in {@code JarURLConnection}.
+         * See http://sourceforge.net/p/freemarker/bugs/189/
+         */
+        public long getLastModified() {
+            if (connection instanceof JarURLConnection) {
+                // There is a bug in sun's jar url connection that causes file handle leaks when calling getLastModified()
+                // Since the time stamps of jar file contents can't vary independent from the jar file timestamp, just use
+                // the jar file timestamp
+                URL jarURL = ((JarURLConnection) connection).getJarFileURL();
+                if (jarURL.getProtocol().equals("file")) {
+                    // Return the last modified time of the underlying file - saves some opening and closing
+                    return new File(jarURL.getFile()).lastModified();
+                } else {
+                    // Use the URL mechanism
+                    URLConnection jarConn = null;
+                    try {
+                        jarConn = jarURL.openConnection();
+                        return jarConn.getLastModified();
+                    } catch (IOException e) {
+                        return -1;
+                    } finally {
+                        if (jarConn != null) {
+                            try {
+                                IOUtils.closeQuietly(jarConn.getInputStream());
+                            } catch (IOException e) {
+                                // ignore this error
+                            }
+                        }
+                    }
+                }
+            } else {
+                return connection.getLastModified();
+            }
+        }
     }
 
     /**
@@ -350,10 +389,10 @@ public class Stapler extends HttpServlet {
      * Serves the specified {@link URLConnection} as a static resource.
      */
     boolean serveStaticResource(HttpServletRequest req, StaplerResponse rsp, OpenConnection con, long expiration) throws IOException {
-        if(con==null)   return false;
+        if (con == null) return false;
         try {
-            return serveStaticResource(req,rsp, con.stream,
-                    con.connection.getLastModified(),
+            return serveStaticResource(req, rsp, con.stream,
+                    con.getLastModified(),
                     expiration,
                     con.connection.getContentLength(),
                     con.connection.getURL().toString());
