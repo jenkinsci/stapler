@@ -47,6 +47,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -807,6 +808,16 @@ public class Stapler extends HttpServlet {
             return true;
         }
         if (String.valueOf(x.getMessage()).equals("Broken pipe")) { // TBD I18N
+            return true;
+        }
+        // JENKINS-20074: various things that Jetty and other components could throw
+        if (x instanceof EOFException) {
+            return true;
+        }
+        if (x instanceof IOException && "Closed".equals(x.getMessage())) { // org.eclipse.jetty.server.HttpOutput.print
+            return true;
+        }
+        if (x instanceof IOException && "finished".equals(x.getMessage())) { //com.jcraft.jzlib.DeflaterOutputStream.write
             return true;
         }
         return isSocketException(x.getCause());
