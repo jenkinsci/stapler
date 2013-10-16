@@ -800,7 +800,13 @@ public class Stapler extends HttpServlet {
         return false;
     }
 
-    private static boolean isSocketException(Throwable x) { // JENKINS-10524
+    /**
+     * Used to detect exceptions thrown when writing content that seem to be due merely to a closed socket.
+     * @param x an exception that got caught
+     * @return true if this looks like a closed stream, false for some real problem
+     * @since 1.222
+     */
+    public static boolean isSocketException(Throwable x) { // JENKINS-10524
         if (x == null) {
             return false;
         }
