@@ -287,6 +287,11 @@ public interface StaplerRequest extends HttpServletRequest {
      *
      * So for example, if the prefix is "foo.", then property name "foo.bar" with value
      * "zot" will invoke <tt>bean.setBar("zot")</tt>.
+     *
+     *
+     * @deprecated
+     *      Instead of using prefix to group object among form parameter names,
+     *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.
      */
     void bindParameters( Object bean, String prefix );
 
@@ -315,12 +320,17 @@ public interface StaplerRequest extends HttpServletRequest {
      *
      * @return
      *      Can be empty but never null.
+     *
+     *
+     * @deprecated
+     *      Instead of using prefix to group object among form parameter names,
+     *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.
      */
     <T>
     List<T> bindParametersToList( Class<T> type, String prefix );
 
     /**
-     * Instanciates a new object by injecting constructor parameters from the form parameters.
+     * Instantiates a new object by injecting constructor parameters from the form parameters.
      *
      * <p>
      * The given class must have a constructor annotated with '@stapler-constructor',
@@ -332,6 +342,10 @@ public interface StaplerRequest extends HttpServletRequest {
      * if the prefix is "foo." and if the constructor is define as
      * <code>Foo(String a, String b)</code>, then the constructor will be invoked
      * as <code>new Foo(getParameter("foo.a"),getParameter("foo.b"))</code>.
+     *
+     * @deprecated
+     *      Instead of using prefix to group object among form parameter names,
+     *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.
      */
     <T>
     T bindParameters( Class<T> type, String prefix );
@@ -342,6 +356,11 @@ public interface StaplerRequest extends HttpServletRequest {
      *
      * <p>
      * This is useful for creating multiple instances from repeated form fields.
+     *
+     *
+     * @deprecated
+     *      Instead of using prefix to group object among form parameter names,
+     *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.
      */
     <T>
     T bindParameters( Class<T> type, String prefix, int index );
