@@ -23,8 +23,9 @@
 
 package org.kohsuke.stapler.jelly;
 
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.TagLibrary;
@@ -34,7 +35,6 @@ import org.kohsuke.stapler.MetaClassLoader;
 
 import java.lang.ref.WeakReference;
 import java.net.URL;
-import java.util.Map;
 
 /**
  * {@link MetaClassLoader} tear-off for Jelly support.
@@ -47,7 +47,7 @@ public class JellyClassLoaderTearOff {
     /**
      * See {@link JellyClassTearOff#scripts} for why we use {@link WeakReference} here.
      */
-    private volatile WeakReference<Map<String,TagLibrary>> taglibs;
+    private volatile WeakReference<LoadingCache<String,TagLibrary>> taglibs;
 
     public static ExpressionFactory EXPRESSION_FACTORY = new JexlExpressionFactory();
 
@@ -56,12 +56,12 @@ public class JellyClassLoaderTearOff {
     }
 
     public TagLibrary getTagLibrary(String nsUri) {
-        Map<String,TagLibrary> m=null;
+        LoadingCache<String,TagLibrary> m=null;
         if(taglibs!=null)
             m = taglibs.get();
         if(m==null) {
-            m = new MapMaker().makeComputingMap(new Function<String,TagLibrary>() {
-                public TagLibrary apply(String nsUri) {
+            m = CacheBuilder.newBuilder().build(new CacheLoader<String,TagLibrary>() {
+                public TagLibrary load(String nsUri) {
                     if(owner.parent!=null) {
                         // parent first
                         TagLibrary tl = owner.parent.loadTearOff(JellyClassLoaderTearOff.class).getTagLibrary(nsUri);
@@ -92,10 +92,10 @@ public class JellyClassLoaderTearOff {
                     return NO_SUCH_TAGLIBRARY;    // "not found" is also cached.
                 }
             });
-            taglibs = new WeakReference<Map<String,TagLibrary>>(m);
+            taglibs = new WeakReference<LoadingCache<String,TagLibrary>>(m);
         }
 
-        TagLibrary tl = m.get(nsUri);
+        TagLibrary tl = m.getUnchecked(nsUri);
         if (tl==NO_SUCH_TAGLIBRARY)     return null;
         return tl;
     }
