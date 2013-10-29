@@ -875,31 +875,30 @@
 <span class="sourceLineNo">867</span>                        rsp.sendError(SC_BAD_REQUEST,"This page expects a form submission");<a name="line.867"></a>
 <span class="sourceLineNo">868</span>                    else<a name="line.868"></a>
 <span class="sourceLineNo">869</span>                        rsp.sendError(SC_BAD_REQUEST,"Nothing is submitted");<a name="line.869"></a>
-<span class="sourceLineNo">870</span>                    rsp.getWriter().close();<a name="line.870"></a>
-<span class="sourceLineNo">871</span>                    throw new ServletException("This page expects a form submission but had only " + getParameterMap());<a name="line.871"></a>
-<span class="sourceLineNo">872</span>                } catch (IOException e) {<a name="line.872"></a>
-<span class="sourceLineNo">873</span>                    throw new ServletException(e);<a name="line.873"></a>
-<span class="sourceLineNo">874</span>                }<a name="line.874"></a>
-<span class="sourceLineNo">875</span>            }<a name="line.875"></a>
-<span class="sourceLineNo">876</span>            try {<a name="line.876"></a>
-<span class="sourceLineNo">877</span>                structuredForm = JSONObject.fromObject(p);<a name="line.877"></a>
-<span class="sourceLineNo">878</span>            } catch (JSONException e) {<a name="line.878"></a>
-<span class="sourceLineNo">879</span>                throw new ServletException("Failed to parse JSON:" + p, e);<a name="line.879"></a>
-<span class="sourceLineNo">880</span>            }<a name="line.880"></a>
-<span class="sourceLineNo">881</span>        }<a name="line.881"></a>
-<span class="sourceLineNo">882</span>        return structuredForm;<a name="line.882"></a>
-<span class="sourceLineNo">883</span>    }<a name="line.883"></a>
-<span class="sourceLineNo">884</span><a name="line.884"></a>
-<span class="sourceLineNo">885</span>    public FileItem getFileItem(String name) throws ServletException, IOException {<a name="line.885"></a>
-<span class="sourceLineNo">886</span>        parseMultipartFormData();<a name="line.886"></a>
-<span class="sourceLineNo">887</span>        if(parsedFormData==null)    return null;<a name="line.887"></a>
-<span class="sourceLineNo">888</span>        FileItem item = parsedFormData.get(name);<a name="line.888"></a>
-<span class="sourceLineNo">889</span>        if(item==null || item.isFormField())    return null;<a name="line.889"></a>
-<span class="sourceLineNo">890</span>        return item;<a name="line.890"></a>
-<span class="sourceLineNo">891</span>    }<a name="line.891"></a>
-<span class="sourceLineNo">892</span><a name="line.892"></a>
-<span class="sourceLineNo">893</span>    private static final Logger LOGGER = Logger.getLogger(RequestImpl.class.getName());<a name="line.893"></a>
-<span class="sourceLineNo">894</span>}<a name="line.894"></a>
+<span class="sourceLineNo">870</span>                    throw new ServletException("This page expects a form submission but had only " + getParameterMap());<a name="line.870"></a>
+<span class="sourceLineNo">871</span>                } catch (IOException e) {<a name="line.871"></a>
+<span class="sourceLineNo">872</span>                    throw new ServletException(e);<a name="line.872"></a>
+<span class="sourceLineNo">873</span>                }<a name="line.873"></a>
+<span class="sourceLineNo">874</span>            }<a name="line.874"></a>
+<span class="sourceLineNo">875</span>            try {<a name="line.875"></a>
+<span class="sourceLineNo">876</span>                structuredForm = JSONObject.fromObject(p);<a name="line.876"></a>
+<span class="sourceLineNo">877</span>            } catch (JSONException e) {<a name="line.877"></a>
+<span class="sourceLineNo">878</span>                throw new ServletException("Failed to parse JSON:" + p, e);<a name="line.878"></a>
+<span class="sourceLineNo">879</span>            }<a name="line.879"></a>
+<span class="sourceLineNo">880</span>        }<a name="line.880"></a>
+<span class="sourceLineNo">881</span>        return structuredForm;<a name="line.881"></a>
+<span class="sourceLineNo">882</span>    }<a name="line.882"></a>
+<span class="sourceLineNo">883</span><a name="line.883"></a>
+<span class="sourceLineNo">884</span>    public FileItem getFileItem(String name) throws ServletException, IOException {<a name="line.884"></a>
+<span class="sourceLineNo">885</span>        parseMultipartFormData();<a name="line.885"></a>
+<span class="sourceLineNo">886</span>        if(parsedFormData==null)    return null;<a name="line.886"></a>
+<span class="sourceLineNo">887</span>        FileItem item = parsedFormData.get(name);<a name="line.887"></a>
+<span class="sourceLineNo">888</span>        if(item==null || item.isFormField())    return null;<a name="line.888"></a>
+<span class="sourceLineNo">889</span>        return item;<a name="line.889"></a>
+<span class="sourceLineNo">890</span>    }<a name="line.890"></a>
+<span class="sourceLineNo">891</span><a name="line.891"></a>
+<span class="sourceLineNo">892</span>    private static final Logger LOGGER = Logger.getLogger(RequestImpl.class.getName());<a name="line.892"></a>
+<span class="sourceLineNo">893</span>}<a name="line.893"></a>
 
 
 
