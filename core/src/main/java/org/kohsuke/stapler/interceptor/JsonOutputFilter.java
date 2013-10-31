@@ -22,7 +22,6 @@
  */
 package org.kohsuke.stapler.interceptor;
 
-import com.google.common.collect.ImmutableSet;
 import net.sf.json.JsonConfig;
 import net.sf.json.util.PropertyFilter;
 import org.kohsuke.stapler.StaplerRequest;
@@ -37,6 +36,8 @@ import java.util.Set;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * Annotation for filtering the JSON data returned from a {@link JavaScriptMethod} annotated method.
@@ -98,7 +99,7 @@ public @interface JsonOutputFilter {
         private Set<String> excludes;
 
         public FilterPropertyFilter(String[] includes, String[] excludes) {
-            this(ImmutableSet.copyOf(includes), ImmutableSet.copyOf(excludes));
+            this(new HashSet<String>(Arrays.asList(includes)), new HashSet<String>(Arrays.asList(excludes)));
         }
 
         public FilterPropertyFilter(Set<String> includes, Set<String> excludes) {

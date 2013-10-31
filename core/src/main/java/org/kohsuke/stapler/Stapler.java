@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import com.google.common.collect.ImmutableMap;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -65,6 +64,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -156,7 +156,7 @@ public class Stapler extends HttpServlet {
                 }
             }
 
-            resourcePaths = ImmutableMap.copyOf(paths);
+            resourcePaths = Collections.unmodifiableMap(paths);
         } catch (MalformedURLException e) {
             resourcePaths = null; // abort
         }

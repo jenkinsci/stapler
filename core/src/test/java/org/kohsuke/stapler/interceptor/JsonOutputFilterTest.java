@@ -4,7 +4,6 @@ import com.gargoylesoftware.htmlunit.AlertHandler;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.google.common.collect.ImmutableList;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerResponse;
@@ -16,6 +15,7 @@ import org.mortbay.util.ajax.JSON;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -93,7 +93,7 @@ public class JsonOutputFilterTest extends JettyTestCase {
     @JsonOutputFilter(excludes = {"secret"})
     @JavaScriptMethod
     public List<MyData> getSomeExcludedList() {
-        return ImmutableList.of(new MyData("Bob", "the builder", "super secret value"),
+        return Arrays.asList(new MyData("Bob", "the builder", "super secret value"),
                 new MyData("Lisa", "the coder", "even more super secret"),
                 new MyData("Jenkins", "the butler", "really secret as well"));
     }
