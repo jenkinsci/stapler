@@ -25,6 +25,9 @@ package org.kohsuke.stapler.export;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
+
+import com.google.common.base.Objects;
 
 /**
  * Tree pruner which operates according to a textual description of what tree leaves should be included.
@@ -33,6 +36,7 @@ public final class NamedPathPruner extends TreePruner {
     
     static class Tree {
         final Map<String,Tree> children = new TreeMap<String,Tree>();
+        int limit = -1;
         public @Override String toString() {return children.toString();}
     }
 
@@ -62,8 +66,17 @@ public final class NamedPathPruner extends TreePruner {
             list(r, subtree);
             r.expect(Token.RBRACE);
         }
+        if (r.accept(Token.QLBRACE)) {
+            Object limit = r.peek();
+            if (limit instanceof Token || !Pattern.matches("[0-9]+$", (String) limit)) {
+                throw new IllegalArgumentException("expected number at " + r.pos);
+            }
+            subtree.limit = Integer.parseInt((String) limit);
+            r.advance();
+            r.expect(Token.QRBRACE);
+        }
     }
-    private enum Token {COMMA, LBRACE, RBRACE, EOF}
+    private enum Token {COMMA, LBRACE, RBRACE, QLBRACE, QRBRACE, EOF}
     private static class Reader {
         private final String text;
         int pos, next;
@@ -85,9 +98,15 @@ public final class NamedPathPruner extends TreePruner {
             case ']':
                 next = pos + 1;
                 return Token.RBRACE;
+            case '{':
+                next = pos + 1;
+                return Token.QLBRACE;
+            case '}':
+                next = pos + 1;
+                return Token.QRBRACE;
             default:
                 next = text.length();
-                for (char c : new char[] {',', '[', ']'}) {
+                for (char c : new char[] {',', '[', ']', '{', '}'}) {
                     int x = text.indexOf(c, pos);
                     if (x != -1 && x < next) {
                         next = x;
@@ -140,6 +159,10 @@ public final class NamedPathPruner extends TreePruner {
         Tree subtree = tree.children.get(prop.name);
         if (subtree==null)  subtree=tree.children.get("*");
         return subtree != null ? new NamedPathPruner(subtree) : null;
+    }
+
+    public @Override boolean acceptIndex(int index) {
+        return tree.limit == -1 || index < tree.limit;
     }
 
 }

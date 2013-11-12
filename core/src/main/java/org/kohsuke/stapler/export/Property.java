@@ -165,21 +165,32 @@ public abstract class Property implements Comparable<Property> {
             writer.startArray();
             if (value instanceof Object[]) {
                 // typical case
-                for (Object item : (Object[]) value)
-                    writeValue(item,pruner,writer,true);
+                int index = 0;
+                for (Object item : (Object[]) value) {
+                    if (pruner.acceptIndex(index))
+                        writeValue(item,pruner,writer,true);
+                    ++index;
+                }
             } else {
                 // more generic case
                 int len = Array.getLength(value);
-                for (int i=0; i<len; i++)
-                    writeValue(Array.get(value,i),pruner,writer,true);
+                for (int i=0; i<len; i++) {
+                    if (pruner.acceptIndex(i))
+                        writeValue(Array.get(value,i),pruner,writer,true);
+                }
             }
             writer.endArray();
             return;
         }
         if(value instanceof Collection) {
             writer.startArray();
-            for (Object item : (Collection) value)
-                writeValue(item,pruner,writer,true);
+            int index = 0;
+            for (Object item : (Collection) value) {
+                if (pruner.acceptIndex(index)) {
+                    writeValue(item,pruner,writer,true);
+                }
+                ++index;
+            }
             writer.endArray();
             return;
         }

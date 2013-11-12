@@ -39,6 +39,10 @@ public abstract class TreePruner {
      */
     public abstract TreePruner accept(Object node, Property prop);
 
+    public boolean acceptIndex(int index) {
+        return true;
+    }
+
     public static class ByDepth extends TreePruner {
         final int n;
         private ByDepth next;

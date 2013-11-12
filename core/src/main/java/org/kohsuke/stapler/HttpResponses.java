@@ -107,7 +107,7 @@ public class HttpResponses {
      */
     public static HttpResponseException errorWithoutStack(final int code, final String errorMessage) {
         return new HttpResponseException() {
-            @Override public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                 rsp.sendError(code, errorMessage);
             }
         };
