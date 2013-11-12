@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-import com.google.common.base.Objects;
-
 /**
  * Tree pruner which operates according to a textual description of what tree leaves should be included.
  */
