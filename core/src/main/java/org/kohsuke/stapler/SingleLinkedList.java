@@ -7,6 +7,7 @@ import java.util.Iterator;
  * Single linked list which allows sharing of the suffix.
  *
  * @author Kohsuke Kawaguchi
+ * @since 1.220
  */
 public class SingleLinkedList<T> extends AbstractList<T> {
     public final T head;

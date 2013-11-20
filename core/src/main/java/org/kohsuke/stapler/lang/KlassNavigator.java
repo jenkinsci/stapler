@@ -64,6 +64,7 @@ public abstract class KlassNavigator<C> {
      * List methods of this class, regardless of access modifier.
      *
      * This list excludes methods from super classes.
+     * @since 1.220
      */
     public abstract List<MethodRef> getDeclaredMethods(C clazz);
 

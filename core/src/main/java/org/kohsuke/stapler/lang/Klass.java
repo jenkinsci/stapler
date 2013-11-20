@@ -40,6 +40,9 @@ public class Klass<C> {
         return navigator.toJavaClass(clazz);
     }
 
+    /**
+     * @since 1.220
+     */
     public List<MethodRef> getDeclaredMethods() {
         return navigator.getDeclaredMethods(clazz);
     }

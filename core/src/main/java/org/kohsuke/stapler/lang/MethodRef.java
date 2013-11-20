@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 
 /**
  * @author Kohsuke Kawaguchi
+ * @since 1.220
  */
 public abstract class MethodRef {
     public abstract <T extends Annotation> T getAnnotation(Class<T> type);

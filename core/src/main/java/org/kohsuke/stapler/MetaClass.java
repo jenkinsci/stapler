@@ -409,6 +409,7 @@ public class MetaClass extends TearOffSupport {
      * from those defined in the derived type toward those defined in the base type.
      *
      * Normally invocation requires visiting the list in the reverse order.
+     * @since 1.220
      */
     public SingleLinkedList<MethodRef> getPostConstructMethods() {
         if (postConstructMethods ==null) {
