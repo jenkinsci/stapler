@@ -95,6 +95,7 @@ public class WebApp {
      *
      * These are consulted after {@link StaplerRequest#getBindInterceptor()} is consulted.
      * Global bind interceptors are useful to register webapp-wide conversion logic local to the application.
+     * @since 1.220
      */
     public final List<BindInterceptor> bindInterceptors = new CopyOnWriteArrayList<BindInterceptor>();
 
