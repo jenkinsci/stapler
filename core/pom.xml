@@ -83,9 +83,9 @@
       <version>14.0</version>
     </dependency>
     <dependency>
-      <groupId>org.kohsuke</groupId>
-      <artifactId>asm3</artifactId>
-      <version>3.3.0</version>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm</artifactId>
+      <version>4.0</version>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci</groupId>
