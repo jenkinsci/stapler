@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly.groovy;
 
+import org.kohsuke.stapler.MetaClassLoader;
 import org.kohsuke.stapler.jelly.JellyTagFileLoader;
 import org.kohsuke.stapler.jelly.CustomTagLibrary;
 import org.kohsuke.MetaInfServices;
@@ -42,7 +43,20 @@ public class GroovyTagFileLoader extends JellyTagFileLoader {
         if(res==null)   return null;
 
         try {
-            GroovyClassLoaderTearOff gcl = taglib.metaClassLoader.getTearOff(GroovyClassLoaderTearOff.class);
+            GroovyClassLoaderTearOff gcl = null;
+            MetaClassLoader mcl = taglib.metaClassLoader;
+            while (gcl == null) {
+                gcl = mcl.getTearOff(GroovyClassLoaderTearOff.class);
+                if (mcl.parent != null) {
+                    mcl = mcl.parent;
+                } else {
+                    break;
+                }
+            }
+            if (gcl == null) {
+                //No such tear-off, returning null
+                return null;
+            }
             return gcl.parse(res);
         } catch (IOException e) {
             throw new JellyException(e);
