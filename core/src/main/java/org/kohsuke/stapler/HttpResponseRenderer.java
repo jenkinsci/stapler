@@ -23,17 +23,19 @@
 
 package org.kohsuke.stapler;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletException;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
 import net.sf.json.util.JSONUtils;
 import org.kohsuke.stapler.export.Flavor;
-
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Collection;
 
 /**
  * Pluggable interface that takes the return value from request handling
@@ -73,6 +75,7 @@ public abstract class HttpResponseRenderer {
                 PrintWriter w = rsp.getWriter();
 
                 // handle other primitive types as JSON response
+                try {
                 if (response instanceof String) {
                     w.print(quote((String) response));
                 } else
@@ -87,6 +90,10 @@ public abstract class HttpResponseRenderer {
                 } else {
                     // last fall back
                     JSONObject.fromObject(response, rsp.getJsonConfig()).write(w);
+                }
+                } catch (JSONException x) {
+                    Logger.getLogger(HttpResponseRenderer.class.getName()).log(Level.WARNING, "failed to serialize " + response + " for " + req.getRequestURI() + " given " + req.getAncestors(), x);
+                    throw x;
                 }
                 return true;
             }
