@@ -30,7 +30,6 @@ import org.kohsuke.stapler.Facet;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
-import org.kohsuke.stapler.TearOffSupport;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.jelly.JellyCompatibleFacet;
 import org.kohsuke.stapler.jelly.JellyFacet;
@@ -104,14 +103,19 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
     }
 
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass type, Object it, String viewName) throws IOException {
-        TearOffSupport mc = request.stapler.getWebApp().getMetaClass(type);
-        return mc.loadTearOff(GroovyClassTearOff.class).createDispatcher(it,viewName);
+        MetaClass mc = request.stapler.getWebApp().getMetaClass(type);
+        return createDispatcher(it, viewName, mc);
+    }
+
+    private RequestDispatcher createDispatcher(Object it, String viewName, MetaClass mc) throws IOException {
+        RequestDispatcher d = mc.loadTearOff(GroovyClassTearOff.class).createDispatcher(it, viewName);
+        if (d==null)
+            d = mc.loadTearOff(GroovyServerPageTearOff.class).createDispatcher(it, viewName);
+        return d;
     }
 
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
-        RequestDispatcher d = nodeMetaClass.loadTearOff(GroovyClassTearOff.class).createDispatcher(node, "index");
-        if (d==null)
-            d = nodeMetaClass.loadTearOff(GroovyServerPageTearOff.class).createDispatcher(node, "index");
+        RequestDispatcher d = createDispatcher(node,"index", nodeMetaClass);
 
         if (d!=null) {
             d.forward(req, rsp);
