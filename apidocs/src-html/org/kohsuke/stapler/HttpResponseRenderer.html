@@ -31,121 +31,128 @@
 <span class="sourceLineNo">023</span><a name="line.23"></a>
 <span class="sourceLineNo">024</span>package org.kohsuke.stapler;<a name="line.24"></a>
 <span class="sourceLineNo">025</span><a name="line.25"></a>
-<span class="sourceLineNo">026</span>import net.sf.json.JSON;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import net.sf.json.JSONArray;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import net.sf.json.JSONNull;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import net.sf.json.JSONObject;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import net.sf.json.util.JSONUtils;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.kohsuke.stapler.export.Flavor;<a name="line.31"></a>
-<span class="sourceLineNo">032</span><a name="line.32"></a>
-<span class="sourceLineNo">033</span>import javax.servlet.ServletException;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import java.io.IOException;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import java.io.PrintWriter;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import java.util.Collection;<a name="line.36"></a>
-<span class="sourceLineNo">037</span><a name="line.37"></a>
-<span class="sourceLineNo">038</span>/**<a name="line.38"></a>
-<span class="sourceLineNo">039</span> * Pluggable interface that takes the return value from request handling<a name="line.39"></a>
-<span class="sourceLineNo">040</span> * methods and convert that to HTTP responses.<a name="line.40"></a>
-<span class="sourceLineNo">041</span> *<a name="line.41"></a>
-<span class="sourceLineNo">042</span> * @author Kohsuke Kawaguchi<a name="line.42"></a>
-<span class="sourceLineNo">043</span> */<a name="line.43"></a>
-<span class="sourceLineNo">044</span>public abstract class HttpResponseRenderer {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>    /**<a name="line.45"></a>
-<span class="sourceLineNo">046</span>     *<a name="line.46"></a>
-<span class="sourceLineNo">047</span>     * @param node<a name="line.47"></a>
-<span class="sourceLineNo">048</span>     *      Object that handled the request.<a name="line.48"></a>
-<span class="sourceLineNo">049</span>     * @param response<a name="line.49"></a>
-<span class="sourceLineNo">050</span>     *      The return value or the exception from the method.<a name="line.50"></a>
-<span class="sourceLineNo">051</span>     * @return<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     *      true if the response object was understood and rendered by this method.<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     *      false otherwise, in which case the next {@link HttpResponseRenderer}<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     *      will be consulted.<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     */<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    public abstract boolean generateResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response) throws IOException, ServletException;<a name="line.56"></a>
-<span class="sourceLineNo">057</span><a name="line.57"></a>
-<span class="sourceLineNo">058</span>    /**<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     * Default {@link HttpResponseRenderer}.<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     */<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    public static class Default extends HttpResponseRenderer {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>        @Override<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        public boolean generateResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response) throws IOException, ServletException {<a name="line.63"></a>
-<span class="sourceLineNo">064</span>            return handleHttpResponse(req, rsp, node, response)<a name="line.64"></a>
-<span class="sourceLineNo">065</span>                || handleJSON(rsp, response)<a name="line.65"></a>
-<span class="sourceLineNo">066</span>                || handleJavaScriptProxyMethodCall(req,rsp,response)<a name="line.66"></a>
-<span class="sourceLineNo">067</span>                || handlePrimitive(rsp, response);<a name="line.67"></a>
-<span class="sourceLineNo">068</span>        }<a name="line.68"></a>
-<span class="sourceLineNo">069</span><a name="line.69"></a>
-<span class="sourceLineNo">070</span>        protected boolean handleJavaScriptProxyMethodCall(StaplerRequest req, StaplerResponse rsp, Object response) throws IOException {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>            if (req.isJavaScriptProxyCall()) {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>                rsp.setContentType(Flavor.JSON.contentType);<a name="line.72"></a>
-<span class="sourceLineNo">073</span>                PrintWriter w = rsp.getWriter();<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>                // handle other primitive types as JSON response<a name="line.75"></a>
-<span class="sourceLineNo">076</span>                if (response instanceof String) {<a name="line.76"></a>
-<span class="sourceLineNo">077</span>                    w.print(quote((String) response));<a name="line.77"></a>
-<span class="sourceLineNo">078</span>                } else<a name="line.78"></a>
-<span class="sourceLineNo">079</span>                if (response instanceof Number || response instanceof Boolean) {<a name="line.79"></a>
-<span class="sourceLineNo">080</span>                    w.print(response);<a name="line.80"></a>
+<span class="sourceLineNo">026</span>import java.io.IOException;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import java.io.PrintWriter;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import java.util.Collection;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import java.util.logging.Level;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import java.util.logging.Logger;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import javax.servlet.ServletException;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import net.sf.json.JSON;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import net.sf.json.JSONArray;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import net.sf.json.JSONException;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import net.sf.json.JSONNull;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import net.sf.json.JSONObject;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import net.sf.json.util.JSONUtils;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.kohsuke.stapler.export.Flavor;<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>/**<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * Pluggable interface that takes the return value from request handling<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * methods and convert that to HTTP responses.<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * @author Kohsuke Kawaguchi<a name="line.44"></a>
+<span class="sourceLineNo">045</span> */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>public abstract class HttpResponseRenderer {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    /**<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     *<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * @param node<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     *      Object that handled the request.<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * @param response<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     *      The return value or the exception from the method.<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * @return<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     *      true if the response object was understood and rendered by this method.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     *      false otherwise, in which case the next {@link HttpResponseRenderer}<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     *      will be consulted.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    public abstract boolean generateResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response) throws IOException, ServletException;<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>    /**<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * Default {@link HttpResponseRenderer}.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    public static class Default extends HttpResponseRenderer {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        @Override<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        public boolean generateResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response) throws IOException, ServletException {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>            return handleHttpResponse(req, rsp, node, response)<a name="line.66"></a>
+<span class="sourceLineNo">067</span>                || handleJSON(rsp, response)<a name="line.67"></a>
+<span class="sourceLineNo">068</span>                || handleJavaScriptProxyMethodCall(req,rsp,response)<a name="line.68"></a>
+<span class="sourceLineNo">069</span>                || handlePrimitive(rsp, response);<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        }<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>        protected boolean handleJavaScriptProxyMethodCall(StaplerRequest req, StaplerResponse rsp, Object response) throws IOException {<a name="line.72"></a>
+<span class="sourceLineNo">073</span>            if (req.isJavaScriptProxyCall()) {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                rsp.setContentType(Flavor.JSON.contentType);<a name="line.74"></a>
+<span class="sourceLineNo">075</span>                PrintWriter w = rsp.getWriter();<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>                // handle other primitive types as JSON response<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                try {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                if (response instanceof String) {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                    w.print(quote((String) response));<a name="line.80"></a>
 <span class="sourceLineNo">081</span>                } else<a name="line.81"></a>
-<span class="sourceLineNo">082</span>                if (response instanceof Collection || (response!=null &amp;&amp; response.getClass().isArray())) {<a name="line.82"></a>
-<span class="sourceLineNo">083</span>                    JSONArray.fromObject(response, rsp.getJsonConfig()).write(w);<a name="line.83"></a>
+<span class="sourceLineNo">082</span>                if (response instanceof Number || response instanceof Boolean) {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                    w.print(response);<a name="line.83"></a>
 <span class="sourceLineNo">084</span>                } else<a name="line.84"></a>
-<span class="sourceLineNo">085</span>                if (response==null) {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>                    JSONNull.getInstance().write(w);<a name="line.86"></a>
-<span class="sourceLineNo">087</span>                } else {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>                    // last fall back<a name="line.88"></a>
-<span class="sourceLineNo">089</span>                    JSONObject.fromObject(response, rsp.getJsonConfig()).write(w);<a name="line.89"></a>
-<span class="sourceLineNo">090</span>                }<a name="line.90"></a>
-<span class="sourceLineNo">091</span>                return true;<a name="line.91"></a>
-<span class="sourceLineNo">092</span>            }<a name="line.92"></a>
-<span class="sourceLineNo">093</span>            return false;<a name="line.93"></a>
-<span class="sourceLineNo">094</span>        }<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>        protected boolean handlePrimitive(StaplerResponse rsp, Object response) throws IOException {<a name="line.96"></a>
-<span class="sourceLineNo">097</span>            if (response instanceof String || response instanceof Integer) {<a name="line.97"></a>
-<span class="sourceLineNo">098</span>                rsp.setContentType("text/plain;charset=UTF-8");<a name="line.98"></a>
-<span class="sourceLineNo">099</span>                rsp.getWriter().print(response);<a name="line.99"></a>
-<span class="sourceLineNo">100</span>                return true;<a name="line.100"></a>
-<span class="sourceLineNo">101</span>            }<a name="line.101"></a>
-<span class="sourceLineNo">102</span>            return false;<a name="line.102"></a>
-<span class="sourceLineNo">103</span>        }<a name="line.103"></a>
-<span class="sourceLineNo">104</span><a name="line.104"></a>
-<span class="sourceLineNo">105</span>        protected boolean handleHttpResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response) throws IOException, ServletException {<a name="line.105"></a>
-<span class="sourceLineNo">106</span>            if (response instanceof HttpResponse) {<a name="line.106"></a>
-<span class="sourceLineNo">107</span>                // let the result render the response<a name="line.107"></a>
-<span class="sourceLineNo">108</span>                HttpResponse r = (HttpResponse) response;<a name="line.108"></a>
-<span class="sourceLineNo">109</span>                try {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>                    r.generateResponse(req,rsp,node);<a name="line.110"></a>
-<span class="sourceLineNo">111</span>                } catch (IOException e) {<a name="line.111"></a>
-<span class="sourceLineNo">112</span>                    if (!handleHttpResponse(req,rsp,node,e))<a name="line.112"></a>
-<span class="sourceLineNo">113</span>                        throw e;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>                } catch (RuntimeException e) {<a name="line.114"></a>
-<span class="sourceLineNo">115</span>                    if (!handleHttpResponse(req,rsp,node,e))<a name="line.115"></a>
-<span class="sourceLineNo">116</span>                        throw e;<a name="line.116"></a>
-<span class="sourceLineNo">117</span>                } catch (ServletException e) {<a name="line.117"></a>
-<span class="sourceLineNo">118</span>                    if (!handleHttpResponse(req,rsp,node,e))<a name="line.118"></a>
-<span class="sourceLineNo">119</span>                        throw e;<a name="line.119"></a>
-<span class="sourceLineNo">120</span>                }<a name="line.120"></a>
-<span class="sourceLineNo">121</span>                return true;<a name="line.121"></a>
-<span class="sourceLineNo">122</span>            }<a name="line.122"></a>
-<span class="sourceLineNo">123</span>            return false;<a name="line.123"></a>
-<span class="sourceLineNo">124</span>        }<a name="line.124"></a>
-<span class="sourceLineNo">125</span><a name="line.125"></a>
-<span class="sourceLineNo">126</span>        protected boolean handleJSON(StaplerResponse rsp, Object response) throws IOException {<a name="line.126"></a>
-<span class="sourceLineNo">127</span>            if (response instanceof JSON) {<a name="line.127"></a>
-<span class="sourceLineNo">128</span>                rsp.setContentType(Flavor.JSON.contentType);<a name="line.128"></a>
-<span class="sourceLineNo">129</span>                ((JSON)response).write(rsp.getWriter());<a name="line.129"></a>
-<span class="sourceLineNo">130</span>                return true;<a name="line.130"></a>
-<span class="sourceLineNo">131</span>            }<a name="line.131"></a>
-<span class="sourceLineNo">132</span>            return false;<a name="line.132"></a>
-<span class="sourceLineNo">133</span>        }<a name="line.133"></a>
-<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
-<span class="sourceLineNo">135</span><a name="line.135"></a>
-<span class="sourceLineNo">136</span>    static String quote(String text) {<a name="line.136"></a>
-<span class="sourceLineNo">137</span>        return JSONUtils.quote(text);<a name="line.137"></a>
-<span class="sourceLineNo">138</span>    }<a name="line.138"></a>
-<span class="sourceLineNo">139</span><a name="line.139"></a>
-<span class="sourceLineNo">140</span>}<a name="line.140"></a>
+<span class="sourceLineNo">085</span>                if (response instanceof Collection || (response!=null &amp;&amp; response.getClass().isArray())) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                    JSONArray.fromObject(response, rsp.getJsonConfig()).write(w);<a name="line.86"></a>
+<span class="sourceLineNo">087</span>                } else<a name="line.87"></a>
+<span class="sourceLineNo">088</span>                if (response==null) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                    JSONNull.getInstance().write(w);<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                } else {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>                    // last fall back<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                    JSONObject.fromObject(response, rsp.getJsonConfig()).write(w);<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                }<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                } catch (JSONException x) {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                    Logger.getLogger(HttpResponseRenderer.class.getName()).log(Level.WARNING, "failed to serialize " + response + " for " + req.getRequestURI() + " given " + req.getAncestors(), x);<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                    throw x;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                }<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                return true;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>            }<a name="line.99"></a>
+<span class="sourceLineNo">100</span>            return false;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        }<a name="line.101"></a>
+<span class="sourceLineNo">102</span><a name="line.102"></a>
+<span class="sourceLineNo">103</span>        protected boolean handlePrimitive(StaplerResponse rsp, Object response) throws IOException {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>            if (response instanceof String || response instanceof Integer) {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>                rsp.setContentType("text/plain;charset=UTF-8");<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                rsp.getWriter().print(response);<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                return true;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            }<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            return false;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>        protected boolean handleHttpResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response) throws IOException, ServletException {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>            if (response instanceof HttpResponse) {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                // let the result render the response<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                HttpResponse r = (HttpResponse) response;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                try {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                    r.generateResponse(req,rsp,node);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                } catch (IOException e) {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                    if (!handleHttpResponse(req,rsp,node,e))<a name="line.119"></a>
+<span class="sourceLineNo">120</span>                        throw e;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                } catch (RuntimeException e) {<a name="line.121"></a>
+<span class="sourceLineNo">122</span>                    if (!handleHttpResponse(req,rsp,node,e))<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                        throw e;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                } catch (ServletException e) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                    if (!handleHttpResponse(req,rsp,node,e))<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                        throw e;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>                }<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                return true;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            }<a name="line.129"></a>
+<span class="sourceLineNo">130</span>            return false;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        }<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>        protected boolean handleJSON(StaplerResponse rsp, Object response) throws IOException {<a name="line.133"></a>
+<span class="sourceLineNo">134</span>            if (response instanceof JSON) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                rsp.setContentType(Flavor.JSON.contentType);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                ((JSON)response).write(rsp.getWriter());<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                return true;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            }<a name="line.138"></a>
+<span class="sourceLineNo">139</span>            return false;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        }<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    }<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+<span class="sourceLineNo">143</span>    static String quote(String text) {<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        return JSONUtils.quote(text);<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    }<a name="line.145"></a>
+<span class="sourceLineNo">146</span><a name="line.146"></a>
+<span class="sourceLineNo">147</span>}<a name="line.147"></a>
 
 
 
