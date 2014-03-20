@@ -25,10 +25,8 @@ package org.kohsuke.stapler.framework.io;
 
 import java.io.IOException;
 
-/**
- * {@link IOException} with missing constructors.
- * @author Kohsuke Kawaguchi
- */
+/** not needed as of Java 6 */
+@Deprecated
 public class IOException2 extends IOException {
     public IOException2() {
     }

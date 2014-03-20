@@ -29,7 +29,6 @@ import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.MetaClassLoader;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.WebApp;
-import org.kohsuke.stapler.framework.io.IOException2;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 import org.kohsuke.stapler.jelly.JellyFacet;
 import org.xml.sax.SAXException;
@@ -116,7 +115,7 @@ public class Adjunct {
             try {
                 script = MetaClassLoader.get(classLoader).loadTearOff(JellyClassLoaderTearOff.class).createContext().compileScript(jelly);
             } catch (JellyException e) {
-                throw new IOException2("Failed to load "+jelly,e);
+                throw new IOException("Failed to load "+jelly,e);
             }
         } else {
             script = null;
@@ -199,7 +198,7 @@ public class Adjunct {
             try {
                 WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, Stapler.getCurrentResponse(), script, this, out);
             } catch (JellyTagException e) {
-                throw new IOException2("Failed to execute Jelly script for adjunct "+name,e);
+                throw new IOException("Failed to execute Jelly script for adjunct "+name,e);
             }
         
         if(hasCss)
