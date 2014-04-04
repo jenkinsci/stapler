@@ -63,13 +63,14 @@ public class GroovierJellyScript implements Script {
     }
 
     public void run(JellyBuilder builder) {
-        StaplerClosureScript gcs = (StaplerClosureScript) InvokerHelper.createScript(clazz, new Binding());
-        gcs.setDelegate(builder);
-        gcs.scriptURL = scriptURL;
+        StaplerClosureScript gcs;
         try {
-            gcs.run();
+            gcs = (StaplerClosureScript) InvokerHelper.createScript(clazz, new Binding());
         } catch (LinkageError e) {
             throw (LinkageError)new LinkageError("Failed to run "+clazz+" from "+scriptURL).initCause(e);
         }
+        gcs.setDelegate(builder);
+        gcs.scriptURL = scriptURL;
+        gcs.run();
     }
 }
