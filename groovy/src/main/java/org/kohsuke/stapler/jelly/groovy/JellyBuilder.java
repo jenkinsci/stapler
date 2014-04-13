@@ -148,7 +148,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
     }
 
     private void _include(Object it, Klass clazz, String view) throws IOException, JellyException {
-        JellyClassTearOff t = request.getWebApp().getMetaClass(clazz).getTearOff(JellyClassTearOff.class);
+        JellyClassTearOff t = request.getWebApp().getMetaClass(clazz).loadTearOff(JellyClassTearOff.class);
         Script s = t.findScript(view);
         if(s==null)
             throw new IllegalArgumentException("No such view: "+view+" for "+clazz);
@@ -595,7 +595,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
             if(res!=null) {
                 // this class itself is not a tag library, but it contains Jelly side files that are tag files.
                 // (some of them might be views, but some of them are tag files, anyway.
-                JellyContext parseContext = MetaClassLoader.get(t.getClassLoader()).getTearOff(JellyClassLoaderTearOff.class).createContext();
+                JellyContext parseContext = MetaClassLoader.get(t.getClassLoader()).loadTearOff(JellyClassLoaderTearOff.class).createContext();
 
                 context.registerTagLibrary(n,
                     new CustomTagLibrary(parseContext, t.getClassLoader(), n, path));

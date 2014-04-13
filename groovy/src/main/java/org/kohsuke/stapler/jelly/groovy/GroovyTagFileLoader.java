@@ -42,7 +42,7 @@ public class GroovyTagFileLoader extends JellyTagFileLoader {
         if(res==null)   return null;
 
         try {
-            GroovyClassLoaderTearOff gcl = taglib.metaClassLoader.getTearOff(GroovyClassLoaderTearOff.class);
+            GroovyClassLoaderTearOff gcl = taglib.metaClassLoader.loadTearOff(GroovyClassLoaderTearOff.class);
             return gcl.parse(res);
         } catch (IOException e) {
             throw new JellyException(e);
