@@ -50,9 +50,12 @@ final class TruncatedInputStream extends FilterInputStream {
 
     @Override
     public int read(byte[] b, int off, int l) throws IOException {
-        if(l<=0)  return -1;
+        int toRead = (int) Math.min(l, len);
+        if (toRead <= 0) {
+            return -1;
+        }
 
-        int r = super.read(b, off, (int)Math.min(l,len));
+        int r = super.read(b, off, toRead);
         if(r>0)
             len -= r;
         return r;
