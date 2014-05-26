@@ -34,7 +34,7 @@ public final class NamedPathPruner extends TreePruner {
     
     static class Tree {
         final Map<String,Tree> children = new TreeMap<String,Tree>();
-        int limit = -1;
+        Range range = Range.ALL;
         public @Override String toString() {return children.toString();}
     }
 
@@ -65,16 +65,29 @@ public final class NamedPathPruner extends TreePruner {
             r.expect(Token.RBRACE);
         }
         if (r.accept(Token.QLBRACE)) {
-            Object limit = r.peek();
-            if (limit instanceof Token || !Pattern.matches("[0-9]+$", (String) limit)) {
-                throw new IllegalArgumentException("expected number at " + r.pos);
-            }
-            subtree.limit = Integer.parseInt((String) limit);
-            r.advance();
+            subtree.range = parseRange(r);
             r.expect(Token.QRBRACE);
         }
     }
-    private enum Token {COMMA, LBRACE, RBRACE, QLBRACE, QRBRACE, EOF}
+    static Range parseRange(Reader r) {
+        int min;
+
+        if (r.accept(Token.COMMA)) {
+            return new Range(0, r.expectNumber());  // {,M}
+        } else {
+            min = r.expectNumber();
+            if (r.peek()==Token.QRBRACE)
+                return new Range(min,min+1);        // {N}
+
+            r.expect(Token.COMMA);
+            if (r.peek()==Token.QRBRACE)
+                return new Range(min,Integer.MAX_VALUE);    // {N,}
+            else
+                return new Range(min,r.expectNumber());     // {N,M}
+        }
+    }
+
+    private enum Token {COMMA /* , */, LBRACE /* [ */, RBRACE /* ] */, QLBRACE /* { */, QRBRACE /* } */, EOF}
     private static class Reader {
         private final String text;
         int pos, next;
@@ -123,6 +136,14 @@ public final class NamedPathPruner extends TreePruner {
             }
             advance();
         }
+        int expectNumber() {
+            Object t = peek();
+            if (!(t instanceof String) || !Pattern.matches("[0-9]+$", (String) t)) {
+                throw new IllegalArgumentException("expected number at " + pos);
+            }
+            advance();
+            return Integer.parseInt((String) t);
+        }
         boolean accept(Token tok) {
             if (peek() == tok) {
                 advance();
@@ -159,8 +180,8 @@ public final class NamedPathPruner extends TreePruner {
         return subtree != null ? new NamedPathPruner(subtree) : null;
     }
 
-    public @Override boolean acceptIndex(int index) {
-        return tree.limit == -1 || index < tree.limit;
+    public @Override Range getRange() {
+        return tree.range;
     }
 
 }
