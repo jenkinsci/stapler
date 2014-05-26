@@ -162,24 +162,28 @@ public abstract class Property implements Comparable<Property> {
             return;
         }
         if(c.getComponentType()!=null) { // array
+            Range r = pruner.getRange();
             writer.startArray();
             if (value instanceof Object[]) {
                 // typical case
-                for (Object item : (Object[]) value)
+                for (Object item : r.apply((Object[]) value)) {
                     writeValue(item,pruner,writer,true);
+                }
             } else {
                 // more generic case
-                int len = Array.getLength(value);
-                for (int i=0; i<len; i++)
+                int len = Math.min(r.max,Array.getLength(value));
+                for (int i=r.min; i<len; i++) {
                     writeValue(Array.get(value,i),pruner,writer,true);
+                }
             }
             writer.endArray();
             return;
         }
         if(value instanceof Collection) {
             writer.startArray();
-            for (Object item : (Collection) value)
+            for (Object item : pruner.getRange().apply((Collection) value)) {
                 writeValue(item,pruner,writer,true);
+            }
             writer.endArray();
             return;
         }

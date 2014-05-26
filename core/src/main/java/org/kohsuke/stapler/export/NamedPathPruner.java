@@ -25,6 +25,7 @@ package org.kohsuke.stapler.export;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 /**
  * Tree pruner which operates according to a textual description of what tree leaves should be included.
@@ -33,6 +34,7 @@ public final class NamedPathPruner extends TreePruner {
     
     static class Tree {
         final Map<String,Tree> children = new TreeMap<String,Tree>();
+        Range range = Range.ALL;
         public @Override String toString() {return children.toString();}
     }
 
@@ -62,8 +64,30 @@ public final class NamedPathPruner extends TreePruner {
             list(r, subtree);
             r.expect(Token.RBRACE);
         }
+        if (r.accept(Token.QLBRACE)) {
+            subtree.range = parseRange(r);
+            r.expect(Token.QRBRACE);
+        }
     }
-    private enum Token {COMMA, LBRACE, RBRACE, EOF}
+    static Range parseRange(Reader r) {
+        int min;
+
+        if (r.accept(Token.COMMA)) {
+            return new Range(0, r.expectNumber());  // {,M}
+        } else {
+            min = r.expectNumber();
+            if (r.peek()==Token.QRBRACE)
+                return new Range(min,min+1);        // {N}
+
+            r.expect(Token.COMMA);
+            if (r.peek()==Token.QRBRACE)
+                return new Range(min,Integer.MAX_VALUE);    // {N,}
+            else
+                return new Range(min,r.expectNumber());     // {N,M}
+        }
+    }
+
+    private enum Token {COMMA /* , */, LBRACE /* [ */, RBRACE /* ] */, QLBRACE /* { */, QRBRACE /* } */, EOF}
     private static class Reader {
         private final String text;
         int pos, next;
@@ -85,9 +109,15 @@ public final class NamedPathPruner extends TreePruner {
             case ']':
                 next = pos + 1;
                 return Token.RBRACE;
+            case '{':
+                next = pos + 1;
+                return Token.QLBRACE;
+            case '}':
+                next = pos + 1;
+                return Token.QRBRACE;
             default:
                 next = text.length();
-                for (char c : new char[] {',', '[', ']'}) {
+                for (char c : new char[] {',', '[', ']', '{', '}'}) {
                     int x = text.indexOf(c, pos);
                     if (x != -1 && x < next) {
                         next = x;
@@ -105,6 +135,14 @@ public final class NamedPathPruner extends TreePruner {
                 throw new IllegalArgumentException("expected " + tok + " at " + pos);
             }
             advance();
+        }
+        int expectNumber() {
+            Object t = peek();
+            if (!(t instanceof String) || !Pattern.matches("[0-9]+$", (String) t)) {
+                throw new IllegalArgumentException("expected number at " + pos);
+            }
+            advance();
+            return Integer.parseInt((String) t);
         }
         boolean accept(Token tok) {
             if (peek() == tok) {
@@ -140,6 +178,10 @@ public final class NamedPathPruner extends TreePruner {
         Tree subtree = tree.children.get(prop.name);
         if (subtree==null)  subtree=tree.children.get("*");
         return subtree != null ? new NamedPathPruner(subtree) : null;
+    }
+
+    public @Override Range getRange() {
+        return tree.range;
     }
 
 }

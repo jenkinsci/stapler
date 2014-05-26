@@ -15,6 +15,7 @@ public class NamedPathPrunerTest extends TestCase {
         assertEquals("{a={}, b={c={}}}", NamedPathPruner.parse("a,b[c]").toString());
         assertEquals("{a={}, b={c={}, d={}}}", NamedPathPruner.parse("a,b[c,d]").toString());
         assertEquals("{a={}, b={c={}, d={}}, e={}}", NamedPathPruner.parse("a,b[c,d],e").toString());
+        assertEquals("{a={}, b={c={}, d={}}, e={}}", NamedPathPruner.parse("a,b[c,d]{,10},e").toString());
         assertParseError("");
         assertParseError("a,");
         assertParseError(",b");
@@ -23,6 +24,8 @@ public class NamedPathPrunerTest extends TestCase {
         assertParseError("a[]");
         assertParseError("a[b,,]");
         assertParseError("a]");
+        assertParseError("a{}");
+        assertParseError("a{b}");
     }
     private static void assertParseError(String spec) {
         try {
@@ -42,6 +45,21 @@ public class NamedPathPrunerTest extends TestCase {
         assertResult("{jobs:[{displayName:Job #1,name:job1},{displayName:Job #2,name:job2}],"
                 + "views:[{jobs:[{name:job1},{name:job2}],name:All},{jobs:[{name:job1}],name:Some}]}",
                 bean, "jobs[name,displayName],views[name,jobs[name]]");
+        assertResult("{jobs:[{displayName:Job #1,name:job1}],views:[{jobs:[],name:All},"
+                + "{jobs:[],name:Some}]}",
+                bean, "jobs[name,displayName]{,1},views[name,jobs[name]{,0}]");
+    }
+
+    public void testRange() throws Exception {
+        Jhob[] jobs = new Jhob[100];
+        for (int i=0; i<jobs.length; i++)
+            jobs[i] = new Jhob("job"+i,"aaa","bbb");
+        Vhew v = new Vhew("view","aaa",jobs);
+
+        assertResult("{jobs:[{name:job0},{name:job1},{name:job2}]}",    v, "jobs[name]{,3}");
+        assertResult("{jobs:[{name:job3},{name:job4},{name:job5}]}",    v, "jobs[name]{3,6}");
+        assertResult("{jobs:[{name:job38}]}",                           v, "jobs[name]{38}");
+        assertResult("{jobs:[{name:job97},{name:job98},{name:job99}]}", v, "jobs[name]{97,}");
     }
     
     @ExportedBean public static class Stuff {

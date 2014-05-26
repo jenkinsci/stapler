@@ -31,7 +31,7 @@ public @interface RequirePOST {
                 throws IllegalAccessException, InvocationTargetException {
             if (!request.getMethod().equals("POST")) {
                 throw new InvocationTargetException(new HttpResponses.HttpResponseException() {
-                    @Override public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                    public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                         rsp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
                         rsp.addHeader("Allow", "POST");
                         rsp.setContentType("text/html");
