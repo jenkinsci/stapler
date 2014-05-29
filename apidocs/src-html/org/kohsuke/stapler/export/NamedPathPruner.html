@@ -33,124 +33,166 @@
 <span class="sourceLineNo">025</span><a name="line.25"></a>
 <span class="sourceLineNo">026</span>import java.util.Map;<a name="line.26"></a>
 <span class="sourceLineNo">027</span>import java.util.TreeMap;<a name="line.27"></a>
-<span class="sourceLineNo">028</span><a name="line.28"></a>
-<span class="sourceLineNo">029</span>/**<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * Tree pruner which operates according to a textual description of what tree leaves should be included.<a name="line.30"></a>
-<span class="sourceLineNo">031</span> */<a name="line.31"></a>
-<span class="sourceLineNo">032</span>public final class NamedPathPruner extends TreePruner {<a name="line.32"></a>
-<span class="sourceLineNo">033</span>    <a name="line.33"></a>
-<span class="sourceLineNo">034</span>    static class Tree {<a name="line.34"></a>
-<span class="sourceLineNo">035</span>        final Map&lt;String,Tree&gt; children = new TreeMap&lt;String,Tree&gt;();<a name="line.35"></a>
-<span class="sourceLineNo">036</span>        public @Override String toString() {return children.toString();}<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    }<a name="line.37"></a>
-<span class="sourceLineNo">038</span><a name="line.38"></a>
-<span class="sourceLineNo">039</span>    // Simple recursive descent parser:<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    static Tree parse(String spec) throws IllegalArgumentException {<a name="line.40"></a>
-<span class="sourceLineNo">041</span>        Reader r = new Reader(spec);<a name="line.41"></a>
-<span class="sourceLineNo">042</span>        Tree t = new Tree();<a name="line.42"></a>
-<span class="sourceLineNo">043</span>        list(r, t);<a name="line.43"></a>
-<span class="sourceLineNo">044</span>        r.expect(Token.EOF);<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        return t;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    }<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    private static void list(Reader r, Tree t) throws IllegalArgumentException {<a name="line.47"></a>
-<span class="sourceLineNo">048</span>        node(r, t);<a name="line.48"></a>
-<span class="sourceLineNo">049</span>        if (r.accept(Token.COMMA)) {<a name="line.49"></a>
-<span class="sourceLineNo">050</span>            list(r, t);<a name="line.50"></a>
-<span class="sourceLineNo">051</span>        }<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    private static void node(Reader r, Tree t) throws IllegalArgumentException {<a name="line.53"></a>
-<span class="sourceLineNo">054</span>        Object actual = r.peek();<a name="line.54"></a>
-<span class="sourceLineNo">055</span>        if (actual instanceof Token) {<a name="line.55"></a>
-<span class="sourceLineNo">056</span>            throw new IllegalArgumentException("expected name at " + r.pos);<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        }<a name="line.57"></a>
-<span class="sourceLineNo">058</span>        r.advance();<a name="line.58"></a>
-<span class="sourceLineNo">059</span>        Tree subtree = new Tree();<a name="line.59"></a>
-<span class="sourceLineNo">060</span>        t.children.put((String) actual, subtree);<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        if (r.accept(Token.LBRACE)) {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>            list(r, subtree);<a name="line.62"></a>
-<span class="sourceLineNo">063</span>            r.expect(Token.RBRACE);<a name="line.63"></a>
-<span class="sourceLineNo">064</span>        }<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    }<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    private enum Token {COMMA, LBRACE, RBRACE, EOF}<a name="line.66"></a>
-<span class="sourceLineNo">067</span>    private static class Reader {<a name="line.67"></a>
-<span class="sourceLineNo">068</span>        private final String text;<a name="line.68"></a>
-<span class="sourceLineNo">069</span>        int pos, next;<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        Reader(String text) {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>            this.text = text;<a name="line.71"></a>
-<span class="sourceLineNo">072</span>            pos = 0;<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        }<a name="line.73"></a>
-<span class="sourceLineNo">074</span>        Object peek() {<a name="line.74"></a>
-<span class="sourceLineNo">075</span>            if (pos == text.length()) {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>                return Token.EOF;<a name="line.76"></a>
-<span class="sourceLineNo">077</span>            }<a name="line.77"></a>
-<span class="sourceLineNo">078</span>            switch (text.charAt(pos)) {<a name="line.78"></a>
-<span class="sourceLineNo">079</span>            case ',':<a name="line.79"></a>
-<span class="sourceLineNo">080</span>                next = pos + 1;<a name="line.80"></a>
-<span class="sourceLineNo">081</span>                return Token.COMMA;<a name="line.81"></a>
-<span class="sourceLineNo">082</span>            case '[':<a name="line.82"></a>
-<span class="sourceLineNo">083</span>                next = pos + 1;<a name="line.83"></a>
-<span class="sourceLineNo">084</span>                return Token.LBRACE;<a name="line.84"></a>
-<span class="sourceLineNo">085</span>            case ']':<a name="line.85"></a>
-<span class="sourceLineNo">086</span>                next = pos + 1;<a name="line.86"></a>
-<span class="sourceLineNo">087</span>                return Token.RBRACE;<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            default:<a name="line.88"></a>
-<span class="sourceLineNo">089</span>                next = text.length();<a name="line.89"></a>
-<span class="sourceLineNo">090</span>                for (char c : new char[] {',', '[', ']'}) {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>                    int x = text.indexOf(c, pos);<a name="line.91"></a>
-<span class="sourceLineNo">092</span>                    if (x != -1 &amp;&amp; x &lt; next) {<a name="line.92"></a>
-<span class="sourceLineNo">093</span>                        next = x;<a name="line.93"></a>
-<span class="sourceLineNo">094</span>                    }<a name="line.94"></a>
-<span class="sourceLineNo">095</span>                }<a name="line.95"></a>
-<span class="sourceLineNo">096</span>                return text.substring(pos, next);<a name="line.96"></a>
-<span class="sourceLineNo">097</span>            }<a name="line.97"></a>
-<span class="sourceLineNo">098</span>        }<a name="line.98"></a>
-<span class="sourceLineNo">099</span>        void advance() {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>            pos = next;<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        }<a name="line.101"></a>
-<span class="sourceLineNo">102</span>        void expect(Token tok) throws IllegalArgumentException {<a name="line.102"></a>
-<span class="sourceLineNo">103</span>            Object actual = peek();<a name="line.103"></a>
-<span class="sourceLineNo">104</span>            if (actual != tok) {<a name="line.104"></a>
-<span class="sourceLineNo">105</span>                throw new IllegalArgumentException("expected " + tok + " at " + pos);<a name="line.105"></a>
-<span class="sourceLineNo">106</span>            }<a name="line.106"></a>
-<span class="sourceLineNo">107</span>            advance();<a name="line.107"></a>
-<span class="sourceLineNo">108</span>        }<a name="line.108"></a>
-<span class="sourceLineNo">109</span>        boolean accept(Token tok) {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>            if (peek() == tok) {<a name="line.110"></a>
-<span class="sourceLineNo">111</span>                advance();<a name="line.111"></a>
-<span class="sourceLineNo">112</span>                return true;<a name="line.112"></a>
-<span class="sourceLineNo">113</span>            } else {<a name="line.113"></a>
-<span class="sourceLineNo">114</span>                return false;<a name="line.114"></a>
-<span class="sourceLineNo">115</span>            }<a name="line.115"></a>
-<span class="sourceLineNo">116</span>        }<a name="line.116"></a>
-<span class="sourceLineNo">117</span>    }<a name="line.117"></a>
-<span class="sourceLineNo">118</span>    <a name="line.118"></a>
-<span class="sourceLineNo">119</span>    private final Tree tree;<a name="line.119"></a>
-<span class="sourceLineNo">120</span><a name="line.120"></a>
-<span class="sourceLineNo">121</span>    /**<a name="line.121"></a>
-<span class="sourceLineNo">122</span>     * Constructs a pruner by parsing a textual specification.<a name="line.122"></a>
-<span class="sourceLineNo">123</span>     * This lists the properties which should be included at each level of the hierarchy.<a name="line.123"></a>
-<span class="sourceLineNo">124</span>     * Properties are separated by commas and nested objects are inside square braces.<a name="line.124"></a>
-<span class="sourceLineNo">125</span>     * For example, {@code a,b[c,d]} will emit the top-level property {@code a} but<a name="line.125"></a>
-<span class="sourceLineNo">126</span>     * none of its children, and the top-level property {@code b} and only those<a name="line.126"></a>
-<span class="sourceLineNo">127</span>     * of its children named {@code c} and {@code d}.<a name="line.127"></a>
-<span class="sourceLineNo">128</span>     * @param spec textual specification of tree<a name="line.128"></a>
-<span class="sourceLineNo">129</span>     * @throws IllegalArgumentException if the syntax is incorrect<a name="line.129"></a>
-<span class="sourceLineNo">130</span>     */<a name="line.130"></a>
-<span class="sourceLineNo">131</span>    public NamedPathPruner(String spec) throws IllegalArgumentException {<a name="line.131"></a>
-<span class="sourceLineNo">132</span>        this(parse(spec));<a name="line.132"></a>
-<span class="sourceLineNo">133</span>    }<a name="line.133"></a>
-<span class="sourceLineNo">134</span>    <a name="line.134"></a>
-<span class="sourceLineNo">135</span>    private NamedPathPruner(Tree tree) {<a name="line.135"></a>
-<span class="sourceLineNo">136</span>        this.tree = tree;<a name="line.136"></a>
-<span class="sourceLineNo">137</span>    }<a name="line.137"></a>
-<span class="sourceLineNo">138</span><a name="line.138"></a>
-<span class="sourceLineNo">139</span>    public @Override TreePruner accept(Object node, Property prop) {<a name="line.139"></a>
-<span class="sourceLineNo">140</span>        Tree subtree = tree.children.get(prop.name);<a name="line.140"></a>
-<span class="sourceLineNo">141</span>        if (subtree==null)  subtree=tree.children.get("*");<a name="line.141"></a>
-<span class="sourceLineNo">142</span>        return subtree != null ? new NamedPathPruner(subtree) : null;<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    }<a name="line.143"></a>
-<span class="sourceLineNo">144</span><a name="line.144"></a>
-<span class="sourceLineNo">145</span>}<a name="line.145"></a>
+<span class="sourceLineNo">028</span>import java.util.regex.Pattern;<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>/**<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * Tree pruner which operates according to a textual description of what tree leaves should be included.<a name="line.31"></a>
+<span class="sourceLineNo">032</span> */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>public final class NamedPathPruner extends TreePruner {<a name="line.33"></a>
+<span class="sourceLineNo">034</span>    <a name="line.34"></a>
+<span class="sourceLineNo">035</span>    static class Tree {<a name="line.35"></a>
+<span class="sourceLineNo">036</span>        final Map&lt;String,Tree&gt; children = new TreeMap&lt;String,Tree&gt;();<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        Range range = Range.ALL;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        public @Override String toString() {return children.toString();}<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    }<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>    // Simple recursive descent parser:<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    static Tree parse(String spec) throws IllegalArgumentException {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        Reader r = new Reader(spec);<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        Tree t = new Tree();<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        list(r, t);<a name="line.45"></a>
+<span class="sourceLineNo">046</span>        r.expect(Token.EOF);<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        return t;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    }<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    private static void list(Reader r, Tree t) throws IllegalArgumentException {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        node(r, t);<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        if (r.accept(Token.COMMA)) {<a name="line.51"></a>
+<span class="sourceLineNo">052</span>            list(r, t);<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        }<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    }<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    private static void node(Reader r, Tree t) throws IllegalArgumentException {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        Object actual = r.peek();<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        if (actual instanceof Token) {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>            throw new IllegalArgumentException("expected name at " + r.pos);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        }<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        r.advance();<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        Tree subtree = new Tree();<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        t.children.put((String) actual, subtree);<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        if (r.accept(Token.LBRACE)) {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>            list(r, subtree);<a name="line.64"></a>
+<span class="sourceLineNo">065</span>            r.expect(Token.RBRACE);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        }<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        if (r.accept(Token.QLBRACE)) {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            subtree.range = parseRange(r);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>            r.expect(Token.QRBRACE);<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        }<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    static Range parseRange(Reader r) {<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        int min;<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>        if (r.accept(Token.COMMA)) {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>            return new Range(0, r.expectNumber());  // {,M}<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        } else {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            min = r.expectNumber();<a name="line.78"></a>
+<span class="sourceLineNo">079</span>            if (r.peek()==Token.QRBRACE)<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                return new Range(min,min+1);        // {N}<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>            r.expect(Token.COMMA);<a name="line.82"></a>
+<span class="sourceLineNo">083</span>            if (r.peek()==Token.QRBRACE)<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                return new Range(min,Integer.MAX_VALUE);    // {N,}<a name="line.84"></a>
+<span class="sourceLineNo">085</span>            else<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                return new Range(min,r.expectNumber());     // {N,M}<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        }<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    }<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">090</span>    private enum Token {COMMA /* , */, LBRACE /* [ */, RBRACE /* ] */, QLBRACE /* { */, QRBRACE /* } */, EOF}<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    private static class Reader {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        private final String text;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        int pos, next;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        Reader(String text) {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>            this.text = text;<a name="line.95"></a>
+<span class="sourceLineNo">096</span>            pos = 0;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        }<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        Object peek() {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>            if (pos == text.length()) {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                return Token.EOF;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>            }<a name="line.101"></a>
+<span class="sourceLineNo">102</span>            switch (text.charAt(pos)) {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>            case ',':<a name="line.103"></a>
+<span class="sourceLineNo">104</span>                next = pos + 1;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>                return Token.COMMA;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>            case '[':<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                next = pos + 1;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                return Token.LBRACE;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            case ']':<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                next = pos + 1;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                return Token.RBRACE;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>            case '{':<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                next = pos + 1;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                return Token.QLBRACE;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            case '}':<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                next = pos + 1;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                return Token.QRBRACE;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>            default:<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                next = text.length();<a name="line.119"></a>
+<span class="sourceLineNo">120</span>                for (char c : new char[] {',', '[', ']', '{', '}'}) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                    int x = text.indexOf(c, pos);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>                    if (x != -1 &amp;&amp; x &lt; next) {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                        next = x;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                    }<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                }<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                return text.substring(pos, next);<a name="line.126"></a>
+<span class="sourceLineNo">127</span>            }<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        }<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        void advance() {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>            pos = next;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        }<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        void expect(Token tok) throws IllegalArgumentException {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>            Object actual = peek();<a name="line.133"></a>
+<span class="sourceLineNo">134</span>            if (actual != tok) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                throw new IllegalArgumentException("expected " + tok + " at " + pos);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>            }<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            advance();<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        }<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        int expectNumber() {<a name="line.139"></a>
+<span class="sourceLineNo">140</span>            Object t = peek();<a name="line.140"></a>
+<span class="sourceLineNo">141</span>            if (!(t instanceof String) || !Pattern.matches("[0-9]+$", (String) t)) {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                throw new IllegalArgumentException("expected number at " + pos);<a name="line.142"></a>
+<span class="sourceLineNo">143</span>            }<a name="line.143"></a>
+<span class="sourceLineNo">144</span>            advance();<a name="line.144"></a>
+<span class="sourceLineNo">145</span>            return Integer.parseInt((String) t);<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        }<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        boolean accept(Token tok) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            if (peek() == tok) {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                advance();<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                return true;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            } else {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                return false;<a name="line.152"></a>
+<span class="sourceLineNo">153</span>            }<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        }<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    }<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    <a name="line.156"></a>
+<span class="sourceLineNo">157</span>    private final Tree tree;<a name="line.157"></a>
+<span class="sourceLineNo">158</span><a name="line.158"></a>
+<span class="sourceLineNo">159</span>    /**<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     * Constructs a pruner by parsing a textual specification.<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     * This lists the properties which should be included at each level of the hierarchy.<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     * Properties are separated by commas and nested objects are inside square braces.<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * For example, {@code a,b[c,d]} will emit the top-level property {@code a} but<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     * none of its children, and the top-level property {@code b} and only those<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     * of its children named {@code c} and {@code d}.<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     * @param spec textual specification of tree<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * @throws IllegalArgumentException if the syntax is incorrect<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     */<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    public NamedPathPruner(String spec) throws IllegalArgumentException {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        this(parse(spec));<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    }<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    <a name="line.172"></a>
+<span class="sourceLineNo">173</span>    private NamedPathPruner(Tree tree) {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        this.tree = tree;<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    }<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>    public @Override TreePruner accept(Object node, Property prop) {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        Tree subtree = tree.children.get(prop.name);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        if (subtree==null)  subtree=tree.children.get("*");<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        return subtree != null ? new NamedPathPruner(subtree) : null;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    }<a name="line.181"></a>
+<span class="sourceLineNo">182</span><a name="line.182"></a>
+<span class="sourceLineNo">183</span>    public @Override Range getRange() {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        return tree.range;<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    }<a name="line.185"></a>
+<span class="sourceLineNo">186</span><a name="line.186"></a>
+<span class="sourceLineNo">187</span>}<a name="line.187"></a>
 
 
 
