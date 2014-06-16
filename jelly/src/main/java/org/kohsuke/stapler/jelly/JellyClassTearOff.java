@@ -49,7 +49,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
 
     public JellyClassTearOff(MetaClass owner) {
         super(owner,JellyClassLoaderTearOff.class);
-        facet = WebApp.getCurrent().getFacet(JellyFacet.class);
+        facet = owner.webApp.getFacet(JellyFacet.class);
     }
 
     protected Script parseScript(URL res) throws JellyException {
