@@ -38,6 +38,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Exposes one {@link Exported exposed property} of {@link ExportedBean} to
@@ -226,10 +228,13 @@ public abstract class Property implements Comparable<Property> {
         writer.startObject();
         Model model = null;
         try {
-            model = owner.get(c);
+            model = owner.get(c, parent.type, name);
         } catch (NotExportableException e) {
-            if(!skipIfFail)
+            if (skipIfFail) {
+                Logger.getLogger(Property.class.getName()).log(Level.WARNING, null, e);
+            } else {
                 throw e;
+            }
             // otherwise ignore this error by writing empty object
         }
         if(model!=null)

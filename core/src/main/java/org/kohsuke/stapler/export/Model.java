@@ -36,6 +36,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 /**
  * Writes all the property of one {@link ExportedBean} to {@link DataWriter}.
@@ -63,12 +65,13 @@ public class Model<T> {
      */
     private volatile Properties javadoc;
 
-    /*package*/ Model(ModelBuilder parent, Class<T> type) {
+    /*package*/ Model(ModelBuilder parent, Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property) throws NotExportableException {
         this.parent = parent;
         this.type = type;
         ExportedBean eb = type.getAnnotation(ExportedBean.class);
-        if(eb ==null)
-            throw new NotExportableException(type);
+        if (eb == null) {
+            throw propertyOwner != null ? new NotExportableException(type, propertyOwner, property) : new NotExportableException(type);
+        }
         this.defaultVisibility = eb.defaultVisibility();
         
         Class<? super T> sc = type.getSuperclass();
