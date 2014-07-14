@@ -31,6 +31,7 @@ import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.lang.Klass;
 
 import java.net.URL;
+import java.util.logging.Logger;
 
 /**
  * Represents a loaded Jelly view script that remembers where it came from.
@@ -38,6 +39,9 @@ import java.net.URL;
  * @author Kohsuke Kawaguchi
  */
 public final class JellyViewScript implements Script {
+
+    private static final Logger LOGGER = Logger.getLogger(JellyViewScript.class.getName());
+
     /**
      * Which class is this view loaded from?
      * @deprecated as of 1.177 
@@ -78,7 +82,20 @@ public final class JellyViewScript implements Script {
     }
 
     public void run(JellyContext context, XMLOutput output) throws JellyTagException {
-        base.run(context,output);
+        Thread t = Thread.currentThread();
+        String n = t.getName();
+        // JellyViewScript.getName() is a bit too verbose for this purpose (we do not really need the package prefix):
+        String url = source.toExternalForm();
+        String c = from.getName();
+        c = c.substring(c.lastIndexOf('.') + 1);
+        String n2 = n + " " + c.replace('$', '/') + "/" + url.substring(url.lastIndexOf('/') + 1);
+        t.setName(n2);
+        LOGGER.fine(n2);
+        try {
+            base.run(context,output);
+        } finally {
+            t.setName(n);
+        }
     }
 
     public String getName() {
