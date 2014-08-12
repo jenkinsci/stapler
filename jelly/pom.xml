@@ -30,7 +30,7 @@
     <dependency>
       <groupId>org.jvnet.hudson.dom4j</groupId>
       <artifactId>dom4j</artifactId>
-      <version>1.6.1-hudson-3</version>
+      <version>1.6.1-hudson-4</version>
     </dependency>
     <dependency><!-- only needed for annotations, hence optional -->
       <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
