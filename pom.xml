@@ -9,7 +9,7 @@
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.228</version>
+  <version>1.229-SNAPSHOT</version>
 
   <name>Stapler</name>
   <description>Stapler HTTP request handling engine</description>
