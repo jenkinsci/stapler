@@ -44,6 +44,9 @@ import org.kohsuke.stapler.export.Flavor;
  * @author Kohsuke Kawaguchi
  */
 public abstract class HttpResponseRenderer {
+
+    private static final Logger LOGGER = Logger.getLogger(HttpResponseRenderer.class.getName());
+
     /**
      *
      * @param node
@@ -87,13 +90,17 @@ public abstract class HttpResponseRenderer {
                 } else
                 if (response==null) {
                     JSONNull.getInstance().write(w);
+                } else if (response instanceof Throwable) {
+                    // as caught by Function.bindAndInvokeAndServeResponse
+                    LOGGER.log(Level.WARNING, "call to " + req.getRequestURI() + " failed", (Throwable) response);
+                    return false;
                 } else {
                     // last fall back
                     JSONObject.fromObject(response, rsp.getJsonConfig()).write(w);
                 }
                 } catch (JSONException x) {
-                    Logger.getLogger(HttpResponseRenderer.class.getName()).log(Level.WARNING, "failed to serialize " + response + " for " + req.getRequestURI() + " given " + req.getAncestors(), x);
-                    throw x;
+                    LOGGER.log(Level.WARNING, "failed to serialize " + response + " for " + req.getRequestURI() + " given " + req.getAncestors(), x);
+                    return false;
                 }
                 return true;
             }
