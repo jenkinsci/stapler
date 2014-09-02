@@ -57,7 +57,7 @@
 <span class="sourceLineNo">049</span><a name="line.49"></a>
 <span class="sourceLineNo">050</span>    public JellyClassTearOff(MetaClass owner) {<a name="line.50"></a>
 <span class="sourceLineNo">051</span>        super(owner,JellyClassLoaderTearOff.class);<a name="line.51"></a>
-<span class="sourceLineNo">052</span>        facet = owner.webApp.getFacet(JellyFacet.class);<a name="line.52"></a>
+<span class="sourceLineNo">052</span>        facet = WebApp.getCurrent().getFacet(JellyFacet.class);<a name="line.52"></a>
 <span class="sourceLineNo">053</span>    }<a name="line.53"></a>
 <span class="sourceLineNo">054</span><a name="line.54"></a>
 <span class="sourceLineNo">055</span>    protected Script parseScript(URL res) throws JellyException {<a name="line.55"></a>

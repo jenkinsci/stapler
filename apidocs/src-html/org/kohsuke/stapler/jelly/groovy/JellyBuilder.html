@@ -156,7 +156,7 @@
 <span class="sourceLineNo">148</span>    }<a name="line.148"></a>
 <span class="sourceLineNo">149</span><a name="line.149"></a>
 <span class="sourceLineNo">150</span>    private void _include(Object it, Klass clazz, String view) throws IOException, JellyException {<a name="line.150"></a>
-<span class="sourceLineNo">151</span>        JellyClassTearOff t = request.getWebApp().getMetaClass(clazz).loadTearOff(JellyClassTearOff.class);<a name="line.151"></a>
+<span class="sourceLineNo">151</span>        JellyClassTearOff t = request.getWebApp().getMetaClass(clazz).getTearOff(JellyClassTearOff.class);<a name="line.151"></a>
 <span class="sourceLineNo">152</span>        Script s = t.findScript(view);<a name="line.152"></a>
 <span class="sourceLineNo">153</span>        if(s==null)<a name="line.153"></a>
 <span class="sourceLineNo">154</span>            throw new IllegalArgumentException("No such view: "+view+" for "+clazz);<a name="line.154"></a>
@@ -603,7 +603,7 @@
 <span class="sourceLineNo">595</span>            if(res!=null) {<a name="line.595"></a>
 <span class="sourceLineNo">596</span>                // this class itself is not a tag library, but it contains Jelly side files that are tag files.<a name="line.596"></a>
 <span class="sourceLineNo">597</span>                // (some of them might be views, but some of them are tag files, anyway.<a name="line.597"></a>
-<span class="sourceLineNo">598</span>                JellyContext parseContext = MetaClassLoader.get(t.getClassLoader()).loadTearOff(JellyClassLoaderTearOff.class).createContext();<a name="line.598"></a>
+<span class="sourceLineNo">598</span>                JellyContext parseContext = MetaClassLoader.get(t.getClassLoader()).getTearOff(JellyClassLoaderTearOff.class).createContext();<a name="line.598"></a>
 <span class="sourceLineNo">599</span><a name="line.599"></a>
 <span class="sourceLineNo">600</span>                context.registerTagLibrary(n,<a name="line.600"></a>
 <span class="sourceLineNo">601</span>                    new CustomTagLibrary(parseContext, t.getClassLoader(), n, path));<a name="line.601"></a>

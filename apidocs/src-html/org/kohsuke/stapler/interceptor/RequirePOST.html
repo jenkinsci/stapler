@@ -39,7 +39,7 @@
 <span class="sourceLineNo">031</span>                throws IllegalAccessException, InvocationTargetException {<a name="line.31"></a>
 <span class="sourceLineNo">032</span>            if (!request.getMethod().equals("POST")) {<a name="line.32"></a>
 <span class="sourceLineNo">033</span>                throw new InvocationTargetException(new HttpResponses.HttpResponseException() {<a name="line.33"></a>
-<span class="sourceLineNo">034</span>                    public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {<a name="line.34"></a>
+<span class="sourceLineNo">034</span>                    @Override public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {<a name="line.34"></a>
 <span class="sourceLineNo">035</span>                        rsp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);<a name="line.35"></a>
 <span class="sourceLineNo">036</span>                        rsp.addHeader("Allow", "POST");<a name="line.36"></a>
 <span class="sourceLineNo">037</span>                        rsp.setContentType("text/html");<a name="line.37"></a>

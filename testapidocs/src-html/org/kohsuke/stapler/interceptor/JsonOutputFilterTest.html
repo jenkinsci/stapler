@@ -12,18 +12,18 @@
 <span class="sourceLineNo">004</span>import com.gargoylesoftware.htmlunit.Page;<a name="line.4"></a>
 <span class="sourceLineNo">005</span>import com.gargoylesoftware.htmlunit.WebClient;<a name="line.5"></a>
 <span class="sourceLineNo">006</span>import com.gargoylesoftware.htmlunit.html.HtmlPage;<a name="line.6"></a>
-<span class="sourceLineNo">007</span>import org.kohsuke.stapler.HttpResponse;<a name="line.7"></a>
-<span class="sourceLineNo">008</span>import org.kohsuke.stapler.HttpResponses;<a name="line.8"></a>
-<span class="sourceLineNo">009</span>import org.kohsuke.stapler.StaplerResponse;<a name="line.9"></a>
-<span class="sourceLineNo">010</span>import org.kohsuke.stapler.WebApp;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import org.kohsuke.stapler.bind.JavaScriptMethod;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import org.kohsuke.stapler.test.JettyTestCase;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import org.mortbay.util.ajax.JSON;<a name="line.13"></a>
-<span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.io.IOException;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import java.io.PrintWriter;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import java.net.URL;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import java.util.Arrays;<a name="line.18"></a>
+<span class="sourceLineNo">007</span>import com.google.common.collect.ImmutableList;<a name="line.7"></a>
+<span class="sourceLineNo">008</span>import org.kohsuke.stapler.HttpResponse;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import org.kohsuke.stapler.HttpResponses;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import org.kohsuke.stapler.StaplerResponse;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import org.kohsuke.stapler.WebApp;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import org.kohsuke.stapler.bind.JavaScriptMethod;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import org.kohsuke.stapler.test.JettyTestCase;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.mortbay.util.ajax.JSON;<a name="line.14"></a>
+<span class="sourceLineNo">015</span><a name="line.15"></a>
+<span class="sourceLineNo">016</span>import java.io.IOException;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import java.io.PrintWriter;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import java.net.URL;<a name="line.18"></a>
 <span class="sourceLineNo">019</span>import java.util.List;<a name="line.19"></a>
 <span class="sourceLineNo">020</span>import java.util.Map;<a name="line.20"></a>
 <span class="sourceLineNo">021</span><a name="line.21"></a>
@@ -101,7 +101,7 @@
 <span class="sourceLineNo">093</span>    @JsonOutputFilter(excludes = {"secret"})<a name="line.93"></a>
 <span class="sourceLineNo">094</span>    @JavaScriptMethod<a name="line.94"></a>
 <span class="sourceLineNo">095</span>    public List&lt;MyData&gt; getSomeExcludedList() {<a name="line.95"></a>
-<span class="sourceLineNo">096</span>        return Arrays.asList(new MyData("Bob", "the builder", "super secret value"),<a name="line.96"></a>
+<span class="sourceLineNo">096</span>        return ImmutableList.of(new MyData("Bob", "the builder", "super secret value"),<a name="line.96"></a>
 <span class="sourceLineNo">097</span>                new MyData("Lisa", "the coder", "even more super secret"),<a name="line.97"></a>
 <span class="sourceLineNo">098</span>                new MyData("Jenkins", "the butler", "really secret as well"));<a name="line.98"></a>
 <span class="sourceLineNo">099</span>    }<a name="line.99"></a>
