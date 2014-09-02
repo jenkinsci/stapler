@@ -507,6 +507,11 @@ public class Stapler extends HttpServlet {
             String mimeType = getMimeType(fileName);
             rsp.setContentType(mimeType);
 
+            // use nosniff to enforce the content type we are setting above, instead of letting browser
+            // guess it on its own. I found http://security.stackexchange.com/questions/12896/
+            // a comprehensive discussion on this topic
+            rsp.setHeader("X-Content-Type-Options","nosniff");
+
             int idx = fileName.lastIndexOf('.');
             String ext = fileName.substring(idx+1);
 
