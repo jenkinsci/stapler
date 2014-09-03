@@ -68,7 +68,30 @@ public class ExportedBeanAnnotationProcessorTest {
         assertEquals(null, Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.javadoc")));
     }
 
-    // TODO multiple beans, incremental compilation
+    @Test public void incremental() throws Exception {
+        Compilation compilation = new Compilation();
+        compilation.addSource("some.pkg.Stuff").
+                addLine("package some.pkg;").
+                addLine("import org.kohsuke.stapler.export.*;").
+                addLine("@" + SourceGeneratingAnnotation.class.getCanonicalName()).
+                addLine("@ExportedBean public class Stuff {").
+                addLine("  @Exported public int getCount() {return 0;}").
+                addLine("}");
+        compilation.doCompile(null, "-source", "6");
+        assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
+        assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
+        compilation = new Compilation(compilation);
+        compilation.addSource("some.pkg.MoreStuff").
+                addLine("package some.pkg;").
+                addLine("import org.kohsuke.stapler.export.*;").
+                addLine("@ExportedBean public class MoreStuff {").
+                addLine("  @Exported public int getCount() {return 0;}").
+                addLine("}");
+        compilation.doCompile(null, "-source", "6");
+        assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
+        assertEqualsCRLF("some.pkg.MoreStuff\nsome.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
+    }
+
     // TODO nested classes - currently saved as qualified rather than binary name, intentional?
 
 }
