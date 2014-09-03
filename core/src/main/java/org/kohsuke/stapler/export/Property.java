@@ -231,7 +231,7 @@ public abstract class Property implements Comparable<Property> {
             model = owner.get(c, parent.type, name);
         } catch (NotExportableException e) {
             if (skipIfFail) {
-                Logger.getLogger(Property.class.getName()).log(Level.WARNING, e.getMessage());
+                Logger.getLogger(Property.class.getName()).log(Level.FINE, e.getMessage());
             } else {
                 throw e;
             }
