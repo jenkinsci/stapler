@@ -43,7 +43,7 @@ public class ExportedBeanAnnotationProcessorTest {
         assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
         assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, "META-INF/annotations/org.kohsuke.stapler.export.ExportedBean"));
         assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
-        // XXX should it be null, i.e. is it desired to create an empty *.javadoc file?
+        // TODO should it be null, i.e. is it desired to create an empty *.javadoc file?
         assertEquals("{}", Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.javadoc")));
     }
     
@@ -63,12 +63,12 @@ public class ExportedBeanAnnotationProcessorTest {
         /* #7188605: broken in JDK 6u33 + org.jvnet.hudson:annotation-indexer:1.2:
         assertEquals("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, "META-INF/annotations/org.kohsuke.stapler.export.ExportedBean"));
         */
-        // XXX is it intentional that these are not listed here? (example: hudson.plugins.mercurial.MercurialSCM)
+        // TODO is it intentional that these are not listed here? (example: hudson.plugins.mercurial.MercurialSCM)
         assertEquals(null, Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
         assertEquals(null, Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.javadoc")));
     }
 
-    // XXX multiple beans, incremental compilation
-    // XXX nested classes - currently saved as qualified rather than binary name, intentional?
+    // TODO multiple beans, incremental compilation
+    // TODO nested classes - currently saved as qualified rather than binary name, intentional?
 
 }

@@ -66,7 +66,7 @@ public class ConstructorProcessorTest {
         assertTrue(msg, msg.contains("public"));
     }
 
-    // XXX nested classes use qualified rather than binary name
-    // XXX behavior when multiple @DataBoundConstructor's specified on a single class - error?
+    // TODO nested classes use qualified rather than binary name
+    // TODO behavior when multiple @DataBoundConstructor's specified on a single class - error?
 
 }

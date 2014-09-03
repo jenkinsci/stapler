@@ -22,6 +22,6 @@ public class QueryParameterAnnotationProcessorTest {
         assertEquals("name,address", Utils.getGeneratedResource(compilation, "some/pkg/Stuff/doAnother.stapler"));
     }
 
-    // XXX nested classes use qualified rather than binary name
+    // TODO nested classes use qualified rather than binary name
 
 }

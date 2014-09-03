@@ -44,7 +44,7 @@ public class SchemaGeneratorTest {
         validate(new XMLDataWriterTest.X(), XMLDataWriterTest.X.class);
     }
 
-    /* XXX currently fails
+    /* TODO currently fails
     @Test public void inheritance() throws Exception {
         validate(new XMLDataWriterTest.Container(), XMLDataWriterTest.Container.class);
     }
