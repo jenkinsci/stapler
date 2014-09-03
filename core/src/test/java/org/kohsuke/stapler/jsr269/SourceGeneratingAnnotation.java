@@ -35,6 +35,7 @@ import javax.annotation.processing.RoundEnvironment;
 /**
  * Stick this on something to demonstrate that your processor is wrong if it writes a resource before {@link RoundEnvironment#processingOver}.
  * You will get a {@code javax.annotation.processing.FilerException: Attempt to reopen a file for path …} error because the processor is run in two rounds.
+ * @see <a href="https://java.net/jira/browse/HICKORY-14">HICKORY-14</a>
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
