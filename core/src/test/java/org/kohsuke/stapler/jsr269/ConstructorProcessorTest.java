@@ -66,6 +66,21 @@ public class ConstructorProcessorTest {
         assertTrue(msg, msg.contains("public"));
     }
 
+    @Test public void abstractClass() {
+        Compilation compilation = new Compilation();
+        compilation.addSource("some.pkg.Stuff").
+                addLine("package some.pkg;").
+                addLine("import org.kohsuke.stapler.DataBoundConstructor;").
+                addLine("public abstract class Stuff {").
+                addLine("  @DataBoundConstructor public Stuff() {}").
+                addLine("}");
+        compilation.doCompile(null, "-source", "6");
+        List<Diagnostic<? extends JavaFileObject>> diagnostics = Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics());
+        assertEquals(1, diagnostics.size());
+        String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
+        assertTrue(msg, msg.contains("abstract"));
+    }
+
     // TODO nested classes use qualified rather than binary name
     // TODO behavior when multiple @DataBoundConstructor's specified on a single class - error?
 

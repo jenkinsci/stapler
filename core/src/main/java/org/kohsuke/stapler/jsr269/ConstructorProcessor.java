@@ -70,6 +70,10 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "@DataBoundConstructor must be applied to a public constructor", c);
             return;
         }
+        if (c.getEnclosingElement().getModifiers().contains(Modifier.ABSTRACT)) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "@DataBoundConstructor may not be used on an abstract class (only on concrete subclasses)", c);
+            return;
+        }
         try {
             StringBuilder buf = new StringBuilder();
             for( VariableElement p : c.getParameters() ) {
