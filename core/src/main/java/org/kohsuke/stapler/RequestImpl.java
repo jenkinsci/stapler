@@ -568,12 +568,18 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 if(l==null) {// single value conversion
                     try {
                         Class actualType = type;
+                        String className = null;
                         if(j.has("stapler-class")) {
+                            className = j.getString("stapler-class");
+                        } else if(j.has("kind")) {
+                            className = j.getString("kind");
+                        }
+
+                        if (className != null) {
                             // sub-type is specified in JSON.
                             // note that this can come from malicious clients, so we need to make sure we don't have security issues.
 
                             ClassLoader cl = stapler.getWebApp().getClassLoader();
-                            String className = j.getString("stapler-class");
                             try {
                                 Class<?> subType = cl.loadClass(className);
                                 if(!actualType.isAssignableFrom(subType))

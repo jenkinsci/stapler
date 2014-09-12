@@ -35,7 +35,7 @@ public class NestedJsonTest extends TestCase {
     }
 
     public void testCreateObject() throws Exception {
-        Foo o = createRequest().bindJSON(Foo.class, createDataSet());
+        Foo o = createRequest().bindJSON(Foo.class, createDataSet(KIND));
 
         assertNotNull(o);
         assertTrue(o.bar instanceof BarImpl);
@@ -44,7 +44,7 @@ public class NestedJsonTest extends TestCase {
 
     public void testInstanceFill() throws Exception {
         Foo o = new Foo(null);
-        createRequest().bindJSON(o, createDataSet());
+        createRequest().bindJSON(o, createDataSet(STAPLER_CLASS));
         
         assertTrue(o.bar instanceof BarImpl);
         assertEquals(123, ((BarImpl)o.bar).i);
@@ -52,7 +52,7 @@ public class NestedJsonTest extends TestCase {
 
     public void testCreateList() throws Exception {
         // Just one
-        List<Foo> list = createRequest().bindJSONToList(Foo.class, createDataSet());
+        List<Foo> list = createRequest().bindJSONToList(Foo.class, createDataSet(KIND));
         assertNotNull(list);
         assertEquals(1, list.size());
         assertTrue(list.get(0).bar instanceof BarImpl);
@@ -60,9 +60,9 @@ public class NestedJsonTest extends TestCase {
 
         // Longer list
         JSONArray data = new JSONArray();
-        data.add(createDataSet());
-        data.add(createDataSet());
-        data.add(createDataSet());
+        data.add(createDataSet(STAPLER_CLASS));
+        data.add(createDataSet(KIND));
+        data.add(createDataSet(STAPLER_CLASS));
         list = createRequest().bindJSONToList(Foo.class, data);
         assertNotNull(list);
         assertEquals(3, list.size());
@@ -73,14 +73,17 @@ public class NestedJsonTest extends TestCase {
         return new RequestImpl(createStapler(), new MockRequest(), Collections.EMPTY_LIST,null);
     }
 
-    private JSONObject createDataSet() {
+    private JSONObject createDataSet(String keyword) {
         JSONObject bar = new JSONObject();
         bar.put("i",123);
         JSONObject foo = new JSONObject();
         foo.put("bar",bar);
-        foo.getJSONObject("bar").put("stapler-class", BarImpl.class.getName());
+        foo.getJSONObject("bar").put(keyword, BarImpl.class.getName());
         return foo;
     }
+
+    private static final String STAPLER_CLASS = "stapler-class";
+    private static final String KIND = "kind";
 
     private Stapler createStapler() throws ServletException {
         Stapler stapler = new Stapler();

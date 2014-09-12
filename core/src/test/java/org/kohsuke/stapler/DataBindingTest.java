@@ -250,7 +250,7 @@ public class DataBindingTest extends TestCase {
     }
 
     public void testSetterInvocation() {
-        SetterBinding r = bind("{x:1,y:2,z:3,w:1, children:[{x:5,y:5,z:5},{x:6,y:6,z:6}], anotherObject:{stapler-class:'org.kohsuke.stapler.DataBindingTest$Point', x:1,y:1} }",SetterBinding.class);
+        SetterBinding r = bind("{x:1,y:2,z:3,w:1, children:[{x:5,y:5,z:5},{x:6,y:6,z:6}], anotherObject:{kind:'org.kohsuke.stapler.DataBindingTest$Point', x:1,y:1} }",SetterBinding.class);
         assertEquals(1,r.x);
         assertEquals(2,r.y);
         assertEquals(3,r.z);
