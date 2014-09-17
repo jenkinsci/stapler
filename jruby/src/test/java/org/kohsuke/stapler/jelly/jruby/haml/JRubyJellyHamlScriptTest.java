@@ -84,8 +84,7 @@ public class JRubyJellyHamlScriptTest extends StaplerJRubyTestCase {
         }
     }
 
-    // TODO org.jruby.exceptions.RaiseException: (LoadError) load error: haml/buffer -- java.lang.InternalError: collect=Lambda(a0:L,a1:L,a2:L,a3:L,a4:L,a5:L,a6:L)=>{ t7:L=MethodHandle()MethodHandle(); t8:I=MethodHandle(MethodHandle)boolean(t7:L);t8:I}
-    public void do_not_testNoSuchTaglib() throws Exception {
+    public void testNoSuchTaglib() throws Exception {
         Script script = getScript("test_nosuch_taglib.haml");
         StringWriter out = new StringWriter();
         try {

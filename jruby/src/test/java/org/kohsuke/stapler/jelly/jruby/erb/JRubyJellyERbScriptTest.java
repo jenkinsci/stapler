@@ -42,10 +42,7 @@ public class JRubyJellyERbScriptTest extends StaplerJRubyTestCase {
                 "</i>", out.toString());
     }
 
-    // TODO https://jenkins.ci.cloudbees.com/job/core/job/stapler/org.kohsuke.stapler$stapler-jruby/1/testReport/junit/org.kohsuke.stapler.jelly.jruby.erb/JRubyJellyERbScriptTest/testThreadSafety/ fails with
-    // org.jruby.exceptions.RaiseException: (LoadError) load error: haml/buffer -- java.lang.InternalError: convert=Lambda(a0:L,a1:L,a2:L,a3:L,a4:L,a5:L)=>{ t6:L=Species_L.argL0(a0:L); t7:I=InvocationLinker.testMetaclass(t6:L,a3:L);t7:I}
-    // (not locally reproducible); should use @Ignore when switching to JUnit 4
-    public void do_not_testThreadSafety() throws Exception {
+    public void testThreadSafety() throws Exception {
         Script script = getScript("test_taglib.erb");
         int num = 100;
         EvaluatorThread[] threads = new EvaluatorThread[num];
