@@ -31,18 +31,18 @@
 <span class="sourceLineNo">023</span><a name="line.23"></a>
 <span class="sourceLineNo">024</span>package org.kohsuke.stapler.jelly;<a name="line.24"></a>
 <span class="sourceLineNo">025</span><a name="line.25"></a>
-<span class="sourceLineNo">026</span>import com.google.common.base.Function;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import com.google.common.collect.MapMaker;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.apache.commons.jelly.JellyContext;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.apache.commons.jelly.JellyException;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.apache.commons.jelly.TagLibrary;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.apache.commons.jelly.expression.ExpressionFactory;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.apache.commons.jelly.expression.jexl.JexlExpressionFactory;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.kohsuke.stapler.MetaClassLoader;<a name="line.33"></a>
-<span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>import java.lang.ref.WeakReference;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import java.net.URL;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import java.util.Map;<a name="line.37"></a>
+<span class="sourceLineNo">026</span>import com.google.common.cache.CacheBuilder;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import com.google.common.cache.CacheLoader;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import com.google.common.cache.LoadingCache;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.jelly.JellyContext;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.jelly.JellyException;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.jelly.TagLibrary;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.commons.jelly.expression.ExpressionFactory;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.apache.commons.jelly.expression.jexl.JexlExpressionFactory;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.kohsuke.stapler.MetaClassLoader;<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>import java.lang.ref.WeakReference;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import java.net.URL;<a name="line.37"></a>
 <span class="sourceLineNo">038</span><a name="line.38"></a>
 <span class="sourceLineNo">039</span>/**<a name="line.39"></a>
 <span class="sourceLineNo">040</span> * {@link MetaClassLoader} tear-off for Jelly support.<a name="line.40"></a>
@@ -55,7 +55,7 @@
 <span class="sourceLineNo">047</span>    /**<a name="line.47"></a>
 <span class="sourceLineNo">048</span>     * See {@link JellyClassTearOff#scripts} for why we use {@link WeakReference} here.<a name="line.48"></a>
 <span class="sourceLineNo">049</span>     */<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    private volatile WeakReference&lt;Map&lt;String,TagLibrary&gt;&gt; taglibs;<a name="line.50"></a>
+<span class="sourceLineNo">050</span>    private volatile WeakReference&lt;LoadingCache&lt;String,TagLibrary&gt;&gt; taglibs;<a name="line.50"></a>
 <span class="sourceLineNo">051</span><a name="line.51"></a>
 <span class="sourceLineNo">052</span>    public static ExpressionFactory EXPRESSION_FACTORY = new JexlExpressionFactory();<a name="line.52"></a>
 <span class="sourceLineNo">053</span><a name="line.53"></a>
@@ -64,12 +64,12 @@
 <span class="sourceLineNo">056</span>    }<a name="line.56"></a>
 <span class="sourceLineNo">057</span><a name="line.57"></a>
 <span class="sourceLineNo">058</span>    public TagLibrary getTagLibrary(String nsUri) {<a name="line.58"></a>
-<span class="sourceLineNo">059</span>        Map&lt;String,TagLibrary&gt; m=null;<a name="line.59"></a>
+<span class="sourceLineNo">059</span>        LoadingCache&lt;String,TagLibrary&gt; m=null;<a name="line.59"></a>
 <span class="sourceLineNo">060</span>        if(taglibs!=null)<a name="line.60"></a>
 <span class="sourceLineNo">061</span>            m = taglibs.get();<a name="line.61"></a>
 <span class="sourceLineNo">062</span>        if(m==null) {<a name="line.62"></a>
-<span class="sourceLineNo">063</span>            m = new MapMaker().makeComputingMap(new Function&lt;String,TagLibrary&gt;() {<a name="line.63"></a>
-<span class="sourceLineNo">064</span>                public TagLibrary apply(String nsUri) {<a name="line.64"></a>
+<span class="sourceLineNo">063</span>            m = CacheBuilder.newBuilder().build(new CacheLoader&lt;String,TagLibrary&gt;() {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>                public TagLibrary load(String nsUri) {<a name="line.64"></a>
 <span class="sourceLineNo">065</span>                    if(owner.parent!=null) {<a name="line.65"></a>
 <span class="sourceLineNo">066</span>                        // parent first<a name="line.66"></a>
 <span class="sourceLineNo">067</span>                        TagLibrary tl = owner.parent.loadTearOff(JellyClassLoaderTearOff.class).getTagLibrary(nsUri);<a name="line.67"></a>
@@ -100,10 +100,10 @@
 <span class="sourceLineNo">092</span>                    return NO_SUCH_TAGLIBRARY;    // "not found" is also cached.<a name="line.92"></a>
 <span class="sourceLineNo">093</span>                }<a name="line.93"></a>
 <span class="sourceLineNo">094</span>            });<a name="line.94"></a>
-<span class="sourceLineNo">095</span>            taglibs = new WeakReference&lt;Map&lt;String,TagLibrary&gt;&gt;(m);<a name="line.95"></a>
+<span class="sourceLineNo">095</span>            taglibs = new WeakReference&lt;LoadingCache&lt;String,TagLibrary&gt;&gt;(m);<a name="line.95"></a>
 <span class="sourceLineNo">096</span>        }<a name="line.96"></a>
 <span class="sourceLineNo">097</span><a name="line.97"></a>
-<span class="sourceLineNo">098</span>        TagLibrary tl = m.get(nsUri);<a name="line.98"></a>
+<span class="sourceLineNo">098</span>        TagLibrary tl = m.getUnchecked(nsUri);<a name="line.98"></a>
 <span class="sourceLineNo">099</span>        if (tl==NO_SUCH_TAGLIBRARY)     return null;<a name="line.99"></a>
 <span class="sourceLineNo">100</span>        return tl;<a name="line.100"></a>
 <span class="sourceLineNo">101</span>    }<a name="line.101"></a>

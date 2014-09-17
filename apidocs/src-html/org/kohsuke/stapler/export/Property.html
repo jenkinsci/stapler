@@ -46,221 +46,230 @@
 <span class="sourceLineNo">038</span>import java.util.HashSet;<a name="line.38"></a>
 <span class="sourceLineNo">039</span>import java.util.Map;<a name="line.39"></a>
 <span class="sourceLineNo">040</span>import java.util.Set;<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>/**<a name="line.42"></a>
-<span class="sourceLineNo">043</span> * Exposes one {@link Exported exposed property} of {@link ExportedBean} to<a name="line.43"></a>
-<span class="sourceLineNo">044</span> * {@link DataWriter}.<a name="line.44"></a>
-<span class="sourceLineNo">045</span> *  <a name="line.45"></a>
-<span class="sourceLineNo">046</span> * @author Kohsuke Kawaguchi<a name="line.46"></a>
-<span class="sourceLineNo">047</span> */<a name="line.47"></a>
-<span class="sourceLineNo">048</span>public abstract class Property implements Comparable&lt;Property&gt; {<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    /**<a name="line.49"></a>
-<span class="sourceLineNo">050</span>     * Name of the property.<a name="line.50"></a>
-<span class="sourceLineNo">051</span>     */<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    public final String name;<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    final ModelBuilder owner;<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    /**<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     * Visibility depth level of this property.<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     *<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     * @see Exported#visibility()<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     */<a name="line.58"></a>
-<span class="sourceLineNo">059</span>    public final int visibility;<a name="line.59"></a>
-<span class="sourceLineNo">060</span><a name="line.60"></a>
-<span class="sourceLineNo">061</span>    /**<a name="line.61"></a>
-<span class="sourceLineNo">062</span>     * Model to which this property belongs to.<a name="line.62"></a>
-<span class="sourceLineNo">063</span>     * Never null.<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     */<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    public final Model parent;<a name="line.65"></a>
-<span class="sourceLineNo">066</span><a name="line.66"></a>
-<span class="sourceLineNo">067</span>    /**<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     * @see Exported#inline()<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     */<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    public final boolean inline;<a name="line.70"></a>
-<span class="sourceLineNo">071</span><a name="line.71"></a>
-<span class="sourceLineNo">072</span>    private String[] verboseMap;<a name="line.72"></a>
+<span class="sourceLineNo">041</span>import java.util.logging.Level;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import java.util.logging.Logger;<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>/**<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * Exposes one {@link Exported exposed property} of {@link ExportedBean} to<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * {@link DataWriter}.<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *  <a name="line.47"></a>
+<span class="sourceLineNo">048</span> * @author Kohsuke Kawaguchi<a name="line.48"></a>
+<span class="sourceLineNo">049</span> */<a name="line.49"></a>
+<span class="sourceLineNo">050</span>public abstract class Property implements Comparable&lt;Property&gt; {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    /**<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * Name of the property.<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    public final String name;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    final ModelBuilder owner;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    /**<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * Visibility depth level of this property.<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     *<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * @see Exported#visibility()<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     */<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    public final int visibility;<a name="line.61"></a>
+<span class="sourceLineNo">062</span><a name="line.62"></a>
+<span class="sourceLineNo">063</span>    /**<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * Model to which this property belongs to.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * Never null.<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     */<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    public final Model parent;<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>    /**<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * @see Exported#inline()<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     */<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    public final boolean inline;<a name="line.72"></a>
 <span class="sourceLineNo">073</span><a name="line.73"></a>
-<span class="sourceLineNo">074</span>    Property(Model parent, String name, Exported exported) {<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        this.parent = parent;<a name="line.75"></a>
-<span class="sourceLineNo">076</span>        this.owner = parent.parent;<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        this.name = exported.name().length()&gt;1 ? exported.name() : name;<a name="line.77"></a>
-<span class="sourceLineNo">078</span>        int v = exported.visibility();<a name="line.78"></a>
-<span class="sourceLineNo">079</span>        if(v==0)<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            v = parent.defaultVisibility;<a name="line.80"></a>
-<span class="sourceLineNo">081</span>        this.visibility = v;<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        this.inline = exported.inline();<a name="line.82"></a>
-<span class="sourceLineNo">083</span>        String[] s = exported.verboseMap().split("/");<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        if (s.length&lt;2)<a name="line.84"></a>
-<span class="sourceLineNo">085</span>            this.verboseMap = null;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        else<a name="line.86"></a>
-<span class="sourceLineNo">087</span>            this.verboseMap = s;<a name="line.87"></a>
-<span class="sourceLineNo">088</span>    }<a name="line.88"></a>
-<span class="sourceLineNo">089</span><a name="line.89"></a>
-<span class="sourceLineNo">090</span>    public int compareTo(Property that) {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        return this.name.compareTo(that.name);<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>    public abstract Type getGenericType();<a name="line.94"></a>
-<span class="sourceLineNo">095</span>    public abstract Class getType();<a name="line.95"></a>
-<span class="sourceLineNo">096</span><a name="line.96"></a>
-<span class="sourceLineNo">097</span>    /**<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     * Gets the associated javadoc, if any, or null.<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     */<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    public abstract String getJavadoc();<a name="line.100"></a>
-<span class="sourceLineNo">101</span><a name="line.101"></a>
-<span class="sourceLineNo">102</span>    /**<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     * Writes one property of the given object to {@link DataWriter}.<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     *<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     * @param pruner<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     *      Determines how to prune the object graph tree.<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     */<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    public void writeTo(Object object, TreePruner pruner, DataWriter writer) throws IOException {<a name="line.108"></a>
-<span class="sourceLineNo">109</span>        TreePruner child = pruner.accept(object, this);<a name="line.109"></a>
-<span class="sourceLineNo">110</span>        if (child==null)        return;<a name="line.110"></a>
-<span class="sourceLineNo">111</span><a name="line.111"></a>
-<span class="sourceLineNo">112</span>        try {<a name="line.112"></a>
-<span class="sourceLineNo">113</span>            writer.name(name);<a name="line.113"></a>
-<span class="sourceLineNo">114</span>            writeValue(getValue(object),child,writer);<a name="line.114"></a>
-<span class="sourceLineNo">115</span>        } catch (IllegalAccessException e) {<a name="line.115"></a>
-<span class="sourceLineNo">116</span>            IOException x = new IOException("Failed to write " + name);<a name="line.116"></a>
-<span class="sourceLineNo">117</span>            x.initCause(e);<a name="line.117"></a>
-<span class="sourceLineNo">118</span>            throw x;<a name="line.118"></a>
-<span class="sourceLineNo">119</span>        } catch (InvocationTargetException e) {<a name="line.119"></a>
-<span class="sourceLineNo">120</span>            IOException x = new IOException("Failed to write " + name);<a name="line.120"></a>
-<span class="sourceLineNo">121</span>            x.initCause(e);<a name="line.121"></a>
-<span class="sourceLineNo">122</span>            throw x;<a name="line.122"></a>
-<span class="sourceLineNo">123</span>        }<a name="line.123"></a>
-<span class="sourceLineNo">124</span>    }<a name="line.124"></a>
-<span class="sourceLineNo">125</span><a name="line.125"></a>
-<span class="sourceLineNo">126</span>    /**<a name="line.126"></a>
-<span class="sourceLineNo">127</span>     * @deprecated as of 1.139<a name="line.127"></a>
-<span class="sourceLineNo">128</span>     */<a name="line.128"></a>
-<span class="sourceLineNo">129</span>    public void writeTo(Object object, int depth, DataWriter writer) throws IOException {<a name="line.129"></a>
-<span class="sourceLineNo">130</span>        writeTo(object,new ByDepth(depth),writer);<a name="line.130"></a>
-<span class="sourceLineNo">131</span>    }<a name="line.131"></a>
-<span class="sourceLineNo">132</span><a name="line.132"></a>
-<span class="sourceLineNo">133</span>    /**<a name="line.133"></a>
-<span class="sourceLineNo">134</span>     * Writes one value of the property to {@link DataWriter}.<a name="line.134"></a>
-<span class="sourceLineNo">135</span>     */<a name="line.135"></a>
-<span class="sourceLineNo">136</span>    private void writeValue(Object value, TreePruner pruner, DataWriter writer) throws IOException {<a name="line.136"></a>
-<span class="sourceLineNo">137</span>        writeValue(value,pruner,writer,false);<a name="line.137"></a>
-<span class="sourceLineNo">138</span>    }<a name="line.138"></a>
-<span class="sourceLineNo">139</span><a name="line.139"></a>
-<span class="sourceLineNo">140</span>    /**<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     * Writes one value of the property to {@link DataWriter}.<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     */<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    private void writeValue(Object value, TreePruner pruner, DataWriter writer, boolean skipIfFail) throws IOException {<a name="line.143"></a>
-<span class="sourceLineNo">144</span>        if(value==null) {<a name="line.144"></a>
-<span class="sourceLineNo">145</span>            writer.valueNull();<a name="line.145"></a>
-<span class="sourceLineNo">146</span>            return;<a name="line.146"></a>
-<span class="sourceLineNo">147</span>        }<a name="line.147"></a>
-<span class="sourceLineNo">148</span><a name="line.148"></a>
-<span class="sourceLineNo">149</span>        if(value instanceof CustomExportedBean) {<a name="line.149"></a>
-<span class="sourceLineNo">150</span>            writeValue(((CustomExportedBean)value).toExportedObject(),pruner,writer);<a name="line.150"></a>
-<span class="sourceLineNo">151</span>            return;<a name="line.151"></a>
-<span class="sourceLineNo">152</span>        }<a name="line.152"></a>
-<span class="sourceLineNo">153</span><a name="line.153"></a>
-<span class="sourceLineNo">154</span>        Class c = value.getClass();<a name="line.154"></a>
+<span class="sourceLineNo">074</span>    private String[] verboseMap;<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>    Property(Model parent, String name, Exported exported) {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        this.parent = parent;<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        this.owner = parent.parent;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        this.name = exported.name().length()&gt;1 ? exported.name() : name;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        int v = exported.visibility();<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        if(v==0)<a name="line.81"></a>
+<span class="sourceLineNo">082</span>            v = parent.defaultVisibility;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        this.visibility = v;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        this.inline = exported.inline();<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        String[] s = exported.verboseMap().split("/");<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        if (s.length&lt;2)<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            this.verboseMap = null;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        else<a name="line.88"></a>
+<span class="sourceLineNo">089</span>            this.verboseMap = s;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    }<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>    public int compareTo(Property that) {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        return this.name.compareTo(that.name);<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    }<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>    public abstract Type getGenericType();<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    public abstract Class getType();<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>    /**<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * Gets the associated javadoc, if any, or null.<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     */<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    public abstract String getJavadoc();<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>    /**<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * Writes one property of the given object to {@link DataWriter}.<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     *<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * @param pruner<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     *      Determines how to prune the object graph tree.<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     */<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    public void writeTo(Object object, TreePruner pruner, DataWriter writer) throws IOException {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        TreePruner child = pruner.accept(object, this);<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        if (child==null)        return;<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>        try {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            writer.name(name);<a name="line.115"></a>
+<span class="sourceLineNo">116</span>            writeValue(getValue(object),child,writer);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        } catch (IllegalAccessException e) {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>            IOException x = new IOException("Failed to write " + name);<a name="line.118"></a>
+<span class="sourceLineNo">119</span>            x.initCause(e);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            throw x;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        } catch (InvocationTargetException e) {<a name="line.121"></a>
+<span class="sourceLineNo">122</span>            IOException x = new IOException("Failed to write " + name);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>            x.initCause(e);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>            throw x;<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        }<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    }<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>    /**<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * @deprecated as of 1.139<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     */<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    public void writeTo(Object object, int depth, DataWriter writer) throws IOException {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        writeTo(object,new ByDepth(depth),writer);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    }<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>    /**<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     * Writes one value of the property to {@link DataWriter}.<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     */<a name="line.137"></a>
+<span class="sourceLineNo">138</span>    private void writeValue(Object value, TreePruner pruner, DataWriter writer) throws IOException {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        writeValue(value,pruner,writer,false);<a name="line.139"></a>
+<span class="sourceLineNo">140</span>    }<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+<span class="sourceLineNo">142</span>    /**<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * Writes one value of the property to {@link DataWriter}.<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    private void writeValue(Object value, TreePruner pruner, DataWriter writer, boolean skipIfFail) throws IOException {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        if(value==null) {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            writer.valueNull();<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            return;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        }<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>        if(value instanceof CustomExportedBean) {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>            writeValue(((CustomExportedBean)value).toExportedObject(),pruner,writer);<a name="line.152"></a>
+<span class="sourceLineNo">153</span>            return;<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        }<a name="line.154"></a>
 <span class="sourceLineNo">155</span><a name="line.155"></a>
-<span class="sourceLineNo">156</span>        if(STRING_TYPES.contains(c)) {<a name="line.156"></a>
-<span class="sourceLineNo">157</span>            writer.value(value.toString());<a name="line.157"></a>
-<span class="sourceLineNo">158</span>            return;<a name="line.158"></a>
-<span class="sourceLineNo">159</span>        }<a name="line.159"></a>
-<span class="sourceLineNo">160</span>        if(PRIMITIVE_TYPES.contains(c)) {<a name="line.160"></a>
-<span class="sourceLineNo">161</span>            writer.valuePrimitive(value);<a name="line.161"></a>
-<span class="sourceLineNo">162</span>            return;<a name="line.162"></a>
-<span class="sourceLineNo">163</span>        }<a name="line.163"></a>
-<span class="sourceLineNo">164</span>        if(c.getComponentType()!=null) { // array<a name="line.164"></a>
-<span class="sourceLineNo">165</span>            writer.startArray();<a name="line.165"></a>
-<span class="sourceLineNo">166</span>            if (value instanceof Object[]) {<a name="line.166"></a>
-<span class="sourceLineNo">167</span>                // typical case<a name="line.167"></a>
-<span class="sourceLineNo">168</span>                for (Object item : (Object[]) value)<a name="line.168"></a>
-<span class="sourceLineNo">169</span>                    writeValue(item,pruner,writer,true);<a name="line.169"></a>
-<span class="sourceLineNo">170</span>            } else {<a name="line.170"></a>
-<span class="sourceLineNo">171</span>                // more generic case<a name="line.171"></a>
-<span class="sourceLineNo">172</span>                int len = Array.getLength(value);<a name="line.172"></a>
-<span class="sourceLineNo">173</span>                for (int i=0; i&lt;len; i++)<a name="line.173"></a>
-<span class="sourceLineNo">174</span>                    writeValue(Array.get(value,i),pruner,writer,true);<a name="line.174"></a>
-<span class="sourceLineNo">175</span>            }<a name="line.175"></a>
-<span class="sourceLineNo">176</span>            writer.endArray();<a name="line.176"></a>
-<span class="sourceLineNo">177</span>            return;<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        }<a name="line.178"></a>
-<span class="sourceLineNo">179</span>        if(value instanceof Collection) {<a name="line.179"></a>
-<span class="sourceLineNo">180</span>            writer.startArray();<a name="line.180"></a>
-<span class="sourceLineNo">181</span>            for (Object item : (Collection) value)<a name="line.181"></a>
-<span class="sourceLineNo">182</span>                writeValue(item,pruner,writer,true);<a name="line.182"></a>
-<span class="sourceLineNo">183</span>            writer.endArray();<a name="line.183"></a>
-<span class="sourceLineNo">184</span>            return;<a name="line.184"></a>
-<span class="sourceLineNo">185</span>        }<a name="line.185"></a>
-<span class="sourceLineNo">186</span>        if(value instanceof Map) {<a name="line.186"></a>
-<span class="sourceLineNo">187</span>            if (verboseMap!=null) {// verbose form<a name="line.187"></a>
-<span class="sourceLineNo">188</span>                writer.startArray();<a name="line.188"></a>
-<span class="sourceLineNo">189</span>                for (Map.Entry e : ((Map&lt;?,?&gt;) value).entrySet()) {<a name="line.189"></a>
-<span class="sourceLineNo">190</span>                    writer.startObject();<a name="line.190"></a>
-<span class="sourceLineNo">191</span>                    writer.name(verboseMap[0]);<a name="line.191"></a>
-<span class="sourceLineNo">192</span>                    writeValue(e.getKey(),pruner,writer);<a name="line.192"></a>
-<span class="sourceLineNo">193</span>                    writer.name(verboseMap[1]);<a name="line.193"></a>
-<span class="sourceLineNo">194</span>                    writeValue(e.getValue(),pruner,writer);<a name="line.194"></a>
-<span class="sourceLineNo">195</span>                    writer.endObject();<a name="line.195"></a>
-<span class="sourceLineNo">196</span>                }<a name="line.196"></a>
-<span class="sourceLineNo">197</span>                writer.endArray();<a name="line.197"></a>
-<span class="sourceLineNo">198</span>            } else {// compact form<a name="line.198"></a>
-<span class="sourceLineNo">199</span>                writer.startObject();<a name="line.199"></a>
-<span class="sourceLineNo">200</span>                for (Map.Entry e : ((Map&lt;?,?&gt;) value).entrySet()) {<a name="line.200"></a>
-<span class="sourceLineNo">201</span>                    writer.name(e.getKey().toString());<a name="line.201"></a>
-<span class="sourceLineNo">202</span>                    writeValue(e.getValue(),pruner,writer);<a name="line.202"></a>
-<span class="sourceLineNo">203</span>                }<a name="line.203"></a>
-<span class="sourceLineNo">204</span>                writer.endObject();<a name="line.204"></a>
-<span class="sourceLineNo">205</span>            }<a name="line.205"></a>
-<span class="sourceLineNo">206</span>            return;<a name="line.206"></a>
-<span class="sourceLineNo">207</span>        }<a name="line.207"></a>
-<span class="sourceLineNo">208</span>        if(value instanceof Date) {<a name="line.208"></a>
-<span class="sourceLineNo">209</span>            writer.valuePrimitive(((Date) value).getTime());<a name="line.209"></a>
-<span class="sourceLineNo">210</span>            return;<a name="line.210"></a>
-<span class="sourceLineNo">211</span>        }<a name="line.211"></a>
-<span class="sourceLineNo">212</span>        if(value instanceof Calendar) {<a name="line.212"></a>
-<span class="sourceLineNo">213</span>            writer.valuePrimitive(((Calendar) value).getTimeInMillis());<a name="line.213"></a>
-<span class="sourceLineNo">214</span>            return;<a name="line.214"></a>
-<span class="sourceLineNo">215</span>        }<a name="line.215"></a>
-<span class="sourceLineNo">216</span>        if(value instanceof Enum) {<a name="line.216"></a>
-<span class="sourceLineNo">217</span>            writer.value(value.toString());<a name="line.217"></a>
-<span class="sourceLineNo">218</span>            return;<a name="line.218"></a>
-<span class="sourceLineNo">219</span>        }<a name="line.219"></a>
-<span class="sourceLineNo">220</span><a name="line.220"></a>
-<span class="sourceLineNo">221</span>        // otherwise handle it as a bean<a name="line.221"></a>
-<span class="sourceLineNo">222</span>        writer.startObject();<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        Model model = null;<a name="line.223"></a>
-<span class="sourceLineNo">224</span>        try {<a name="line.224"></a>
-<span class="sourceLineNo">225</span>            model = owner.get(c);<a name="line.225"></a>
-<span class="sourceLineNo">226</span>        } catch (NotExportableException e) {<a name="line.226"></a>
-<span class="sourceLineNo">227</span>            if(!skipIfFail)<a name="line.227"></a>
-<span class="sourceLineNo">228</span>                throw e;<a name="line.228"></a>
-<span class="sourceLineNo">229</span>            // otherwise ignore this error by writing empty object<a name="line.229"></a>
-<span class="sourceLineNo">230</span>        }<a name="line.230"></a>
-<span class="sourceLineNo">231</span>        if(model!=null)<a name="line.231"></a>
-<span class="sourceLineNo">232</span>            model.writeNestedObjectTo(value, pruner, writer, Collections.&lt;String&gt;emptySet());<a name="line.232"></a>
-<span class="sourceLineNo">233</span>        writer.endObject();<a name="line.233"></a>
-<span class="sourceLineNo">234</span>    }<a name="line.234"></a>
-<span class="sourceLineNo">235</span><a name="line.235"></a>
-<span class="sourceLineNo">236</span>    /**<a name="line.236"></a>
-<span class="sourceLineNo">237</span>     * Gets the value of this property from the bean.<a name="line.237"></a>
-<span class="sourceLineNo">238</span>     */<a name="line.238"></a>
-<span class="sourceLineNo">239</span>    protected abstract Object getValue(Object bean) throws IllegalAccessException, InvocationTargetException;<a name="line.239"></a>
-<span class="sourceLineNo">240</span><a name="line.240"></a>
-<span class="sourceLineNo">241</span>    /*package*/ static final Set&lt;Class&gt; STRING_TYPES = new HashSet&lt;Class&gt;(Arrays.asList(<a name="line.241"></a>
-<span class="sourceLineNo">242</span>        String.class,<a name="line.242"></a>
-<span class="sourceLineNo">243</span>        URL.class<a name="line.243"></a>
-<span class="sourceLineNo">244</span>    ));<a name="line.244"></a>
-<span class="sourceLineNo">245</span><a name="line.245"></a>
-<span class="sourceLineNo">246</span>    /*package*/ static final Set&lt;Class&gt; PRIMITIVE_TYPES = new HashSet&lt;Class&gt;(Arrays.asList(<a name="line.246"></a>
-<span class="sourceLineNo">247</span>        Integer.class,<a name="line.247"></a>
-<span class="sourceLineNo">248</span>        Long.class,<a name="line.248"></a>
-<span class="sourceLineNo">249</span>        Boolean.class,<a name="line.249"></a>
-<span class="sourceLineNo">250</span>        Short.class,<a name="line.250"></a>
-<span class="sourceLineNo">251</span>        Character.class,<a name="line.251"></a>
-<span class="sourceLineNo">252</span>        Float.class,<a name="line.252"></a>
-<span class="sourceLineNo">253</span>        Double.class<a name="line.253"></a>
-<span class="sourceLineNo">254</span>    ));<a name="line.254"></a>
-<span class="sourceLineNo">255</span>}<a name="line.255"></a>
+<span class="sourceLineNo">156</span>        Class c = value.getClass();<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>        if(STRING_TYPES.contains(c)) {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>            writer.value(value.toString());<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            return;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        }<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        if(PRIMITIVE_TYPES.contains(c)) {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>            writer.valuePrimitive(value);<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            return;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        }<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        if(c.getComponentType()!=null) { // array<a name="line.166"></a>
+<span class="sourceLineNo">167</span>            Range r = pruner.getRange();<a name="line.167"></a>
+<span class="sourceLineNo">168</span>            writer.startArray();<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            if (value instanceof Object[]) {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>                // typical case<a name="line.170"></a>
+<span class="sourceLineNo">171</span>                for (Object item : r.apply((Object[]) value)) {<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                    writeValue(item,pruner,writer,true);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>                }<a name="line.173"></a>
+<span class="sourceLineNo">174</span>            } else {<a name="line.174"></a>
+<span class="sourceLineNo">175</span>                // more generic case<a name="line.175"></a>
+<span class="sourceLineNo">176</span>                int len = Math.min(r.max,Array.getLength(value));<a name="line.176"></a>
+<span class="sourceLineNo">177</span>                for (int i=r.min; i&lt;len; i++) {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>                    writeValue(Array.get(value,i),pruner,writer,true);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>                }<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            }<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            writer.endArray();<a name="line.181"></a>
+<span class="sourceLineNo">182</span>            return;<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        }<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        if(value instanceof Collection) {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>            writer.startArray();<a name="line.185"></a>
+<span class="sourceLineNo">186</span>            for (Object item : pruner.getRange().apply((Collection) value)) {<a name="line.186"></a>
+<span class="sourceLineNo">187</span>                writeValue(item,pruner,writer,true);<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            }<a name="line.188"></a>
+<span class="sourceLineNo">189</span>            writer.endArray();<a name="line.189"></a>
+<span class="sourceLineNo">190</span>            return;<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        }<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        if(value instanceof Map) {<a name="line.192"></a>
+<span class="sourceLineNo">193</span>            if (verboseMap!=null) {// verbose form<a name="line.193"></a>
+<span class="sourceLineNo">194</span>                writer.startArray();<a name="line.194"></a>
+<span class="sourceLineNo">195</span>                for (Map.Entry e : ((Map&lt;?,?&gt;) value).entrySet()) {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>                    writer.startObject();<a name="line.196"></a>
+<span class="sourceLineNo">197</span>                    writer.name(verboseMap[0]);<a name="line.197"></a>
+<span class="sourceLineNo">198</span>                    writeValue(e.getKey(),pruner,writer);<a name="line.198"></a>
+<span class="sourceLineNo">199</span>                    writer.name(verboseMap[1]);<a name="line.199"></a>
+<span class="sourceLineNo">200</span>                    writeValue(e.getValue(),pruner,writer);<a name="line.200"></a>
+<span class="sourceLineNo">201</span>                    writer.endObject();<a name="line.201"></a>
+<span class="sourceLineNo">202</span>                }<a name="line.202"></a>
+<span class="sourceLineNo">203</span>                writer.endArray();<a name="line.203"></a>
+<span class="sourceLineNo">204</span>            } else {// compact form<a name="line.204"></a>
+<span class="sourceLineNo">205</span>                writer.startObject();<a name="line.205"></a>
+<span class="sourceLineNo">206</span>                for (Map.Entry e : ((Map&lt;?,?&gt;) value).entrySet()) {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>                    writer.name(e.getKey().toString());<a name="line.207"></a>
+<span class="sourceLineNo">208</span>                    writeValue(e.getValue(),pruner,writer);<a name="line.208"></a>
+<span class="sourceLineNo">209</span>                }<a name="line.209"></a>
+<span class="sourceLineNo">210</span>                writer.endObject();<a name="line.210"></a>
+<span class="sourceLineNo">211</span>            }<a name="line.211"></a>
+<span class="sourceLineNo">212</span>            return;<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        }<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        if(value instanceof Date) {<a name="line.214"></a>
+<span class="sourceLineNo">215</span>            writer.valuePrimitive(((Date) value).getTime());<a name="line.215"></a>
+<span class="sourceLineNo">216</span>            return;<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        }<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        if(value instanceof Calendar) {<a name="line.218"></a>
+<span class="sourceLineNo">219</span>            writer.valuePrimitive(((Calendar) value).getTimeInMillis());<a name="line.219"></a>
+<span class="sourceLineNo">220</span>            return;<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        }<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        if(value instanceof Enum) {<a name="line.222"></a>
+<span class="sourceLineNo">223</span>            writer.value(value.toString());<a name="line.223"></a>
+<span class="sourceLineNo">224</span>            return;<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        }<a name="line.225"></a>
+<span class="sourceLineNo">226</span><a name="line.226"></a>
+<span class="sourceLineNo">227</span>        // otherwise handle it as a bean<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        writer.startObject();<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        Model model = null;<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        try {<a name="line.230"></a>
+<span class="sourceLineNo">231</span>            model = owner.get(c, parent.type, name);<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        } catch (NotExportableException e) {<a name="line.232"></a>
+<span class="sourceLineNo">233</span>            if (skipIfFail) {<a name="line.233"></a>
+<span class="sourceLineNo">234</span>                Logger.getLogger(Property.class.getName()).log(Level.FINE, e.getMessage());<a name="line.234"></a>
+<span class="sourceLineNo">235</span>            } else {<a name="line.235"></a>
+<span class="sourceLineNo">236</span>                throw e;<a name="line.236"></a>
+<span class="sourceLineNo">237</span>            }<a name="line.237"></a>
+<span class="sourceLineNo">238</span>            // otherwise ignore this error by writing empty object<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        }<a name="line.239"></a>
+<span class="sourceLineNo">240</span>        if(model!=null)<a name="line.240"></a>
+<span class="sourceLineNo">241</span>            model.writeNestedObjectTo(value, pruner, writer, Collections.&lt;String&gt;emptySet());<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        writer.endObject();<a name="line.242"></a>
+<span class="sourceLineNo">243</span>    }<a name="line.243"></a>
+<span class="sourceLineNo">244</span><a name="line.244"></a>
+<span class="sourceLineNo">245</span>    /**<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     * Gets the value of this property from the bean.<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     */<a name="line.247"></a>
+<span class="sourceLineNo">248</span>    protected abstract Object getValue(Object bean) throws IllegalAccessException, InvocationTargetException;<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>    /*package*/ static final Set&lt;Class&gt; STRING_TYPES = new HashSet&lt;Class&gt;(Arrays.asList(<a name="line.250"></a>
+<span class="sourceLineNo">251</span>        String.class,<a name="line.251"></a>
+<span class="sourceLineNo">252</span>        URL.class<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    ));<a name="line.253"></a>
+<span class="sourceLineNo">254</span><a name="line.254"></a>
+<span class="sourceLineNo">255</span>    /*package*/ static final Set&lt;Class&gt; PRIMITIVE_TYPES = new HashSet&lt;Class&gt;(Arrays.asList(<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        Integer.class,<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        Long.class,<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        Boolean.class,<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        Short.class,<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        Character.class,<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        Float.class,<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        Double.class<a name="line.262"></a>
+<span class="sourceLineNo">263</span>    ));<a name="line.263"></a>
+<span class="sourceLineNo">264</span>}<a name="line.264"></a>
 
 
 

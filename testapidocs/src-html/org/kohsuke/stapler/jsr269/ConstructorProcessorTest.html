@@ -74,10 +74,25 @@
 <span class="sourceLineNo">066</span>        assertTrue(msg, msg.contains("public"));<a name="line.66"></a>
 <span class="sourceLineNo">067</span>    }<a name="line.67"></a>
 <span class="sourceLineNo">068</span><a name="line.68"></a>
-<span class="sourceLineNo">069</span>    // XXX nested classes use qualified rather than binary name<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    // XXX behavior when multiple @DataBoundConstructor's specified on a single class - error?<a name="line.70"></a>
-<span class="sourceLineNo">071</span><a name="line.71"></a>
-<span class="sourceLineNo">072</span>}<a name="line.72"></a>
+<span class="sourceLineNo">069</span>    @Test public void abstractClass() {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        Compilation compilation = new Compilation();<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        compilation.addSource("some.pkg.Stuff").<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                addLine("package some.pkg;").<a name="line.72"></a>
+<span class="sourceLineNo">073</span>                addLine("import org.kohsuke.stapler.DataBoundConstructor;").<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                addLine("public abstract class Stuff {").<a name="line.74"></a>
+<span class="sourceLineNo">075</span>                addLine("  @DataBoundConstructor public Stuff() {}").<a name="line.75"></a>
+<span class="sourceLineNo">076</span>                addLine("}");<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        compilation.doCompile(null, "-source", "6");<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        List&lt;Diagnostic&lt;? extends JavaFileObject&gt;&gt; diagnostics = Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics());<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        assertEquals(1, diagnostics.size());<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        assertTrue(msg, msg.contains("abstract"));<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>    // TODO nested classes use qualified rather than binary name<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    // TODO behavior when multiple @DataBoundConstructor's specified on a single class - error?<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>}<a name="line.87"></a>
 
 
 
