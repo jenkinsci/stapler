@@ -141,7 +141,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
-        <version>2.1</version>
+        <version>2.5</version>
         <configuration>
           <!-- work around for a bug in javadoc plugin that causes the release to fail. see MRELEASE-271 -->
           <preparationGoals>clean install</preparationGoals>
