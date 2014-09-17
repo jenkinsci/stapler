@@ -852,8 +852,19 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 isSubmission=true;
                 parseMultipartFormData();
                 FileItem item = parsedFormData.get("json");
-                if(item!=null)
-                    p = item.getString();
+                if(item!=null) {
+                    if (item.getContentType() == null) {
+                        // JENKINS-11543: If client doesn't set charset per part, use request encoding
+                        try {
+                            p = item.getString(getCharacterEncoding());
+                        } catch (java.io.UnsupportedEncodingException uee) {
+                            LOGGER.log(WARNING, "Request has unsupported charset, using default for 'json' parameter", uee);
+                            p = item.getString();
+                        }
+                    } else {
+                        p = item.getString();
+                    }
+                }
             } else {
                 p = getParameter("json");
                 isSubmission = !getParameterMap().isEmpty();
