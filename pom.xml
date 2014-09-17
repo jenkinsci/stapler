@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.kohsuke</groupId>
     <artifactId>pom</artifactId>
-    <version>8</version>
+    <version>10</version>
   </parent>
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler-parent</artifactId>
@@ -38,6 +38,10 @@
     <developerConnection>scm:git:ssh://git@github.com/stapler/stapler.git</developerConnection>
     <url>https://github.com/stapler/stapler</url>
   </scm>
+
+  <prerequisites>
+    <maven>3.0.4</maven>
+  </prerequisites>
 
   <distributionManagement>
     <snapshotRepository>
@@ -167,25 +171,13 @@
         <version>1.2</version>
       </plugin>
     </plugins>
-    
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-webdav</artifactId>
-        <version>1.0-beta-2</version>
-      </extension>
-      <extension>
-        <groupId>org.kathrynhuxtable.maven.wagon</groupId>
-        <artifactId>wagon-gitsite</artifactId>
-        <version>0.3.1</version>
-      </extension>
-    </extensions>
   </build>
 
   <reporting>
     <plugins>
       <plugin>
         <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.7</version>
         <reportSets>
           <reportSet>
             <reports>
@@ -196,6 +188,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9.1</version>
         <configuration>
           <aggregate>true</aggregate>
           <doclet>org.kohsuke.doklet.Doklet</doclet>
@@ -216,7 +209,7 @@
     <dependency>
       <groupId>org.kohsuke.metainf-services</groupId>
       <artifactId>metainf-services</artifactId>
-      <version>1.4</version>
+      <version>1.5</version>
     </dependency>
 
     <!-- test dependencies -->
@@ -248,7 +241,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.10</version>
+      <version>4.11</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
