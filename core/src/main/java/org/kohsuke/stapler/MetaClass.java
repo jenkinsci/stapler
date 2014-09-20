@@ -458,7 +458,7 @@ public class MetaClass extends TearOffSupport {
             JSONArray jsargs = JSONArray.fromObject(IOUtils.toString(req.getReader()));
             Object[] args = new Object[jsargs.size()];
             Class[] types = f.getParameterTypes();
-            Type[] genericTypes = f.getParameterTypes();
+            Type[] genericTypes = f.getGenericParameterTypes();
 
             for (int i=0; i<args.length; i++)
                 args[i] = req.bindJSON(genericTypes[i],types[i],jsargs.get(i));
