@@ -36,6 +36,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -459,6 +460,9 @@ public class MetaClass extends TearOffSupport {
             Object[] args = new Object[jsargs.size()];
             Class[] types = f.getParameterTypes();
             Type[] genericTypes = f.getGenericParameterTypes();
+            if (args.length != types.length) {
+                throw new IllegalArgumentException("argument count mismatch between " + jsargs + " and " + Arrays.toString(genericTypes));
+            }
 
             for (int i=0; i<args.length; i++)
                 args[i] = req.bindJSON(genericTypes[i],types[i],jsargs.get(i));
