@@ -106,6 +106,13 @@ public class Stapler extends HttpServlet {
      */
     private volatile Map<String,URL> resourcePaths;
 
+    /**
+     * Temporarily updates the thread name to reflect the request being processed.
+     * On by default for convenience, but for webapps that use filters, use
+     * {@link DiagnosticThreadNameFilter} as the first filter and switch this off.
+     */
+    private boolean diagnosticThreadName = true;
+
 
     public @Override void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
@@ -122,6 +129,10 @@ public class Stapler extends HttpServlet {
         }
         buildResourcePaths();
         webApp.addStaplerServlet(servletConfig.getServletName(),this);
+
+        String v = servletConfig.getInitParameter("diagnosticThreadName");
+        if (v!=null)
+            diagnosticThreadName = Boolean.parseBoolean(v);
     }
 
     /**
@@ -174,7 +185,8 @@ public class Stapler extends HttpServlet {
         Thread t = Thread.currentThread();
         final String oldName = t.getName();
         try {
-            t.setName("Handling "+req.getMethod()+' '+req.getRequestURI()+" : "+oldName);
+            if (diagnosticThreadName)
+                t.setName("Handling "+req.getMethod()+' '+req.getRequestURI()+" : "+oldName);
 
             String servletPath = getServletPath(req);
 
