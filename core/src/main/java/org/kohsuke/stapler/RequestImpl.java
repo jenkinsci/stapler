@@ -853,7 +853,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 parseMultipartFormData();
                 FileItem item = parsedFormData.get("json");
                 if(item!=null) {
-                    if (item.getContentType() == null) {
+                    if (item.getContentType() == null && getCharacterEncoding() != null) {
                         // JENKINS-11543: If client doesn't set charset per part, use request encoding
                         try {
                             p = item.getString(getCharacterEncoding());
