@@ -861,7 +861,7 @@
 <span class="sourceLineNo">853</span>                parseMultipartFormData();<a name="line.853"></a>
 <span class="sourceLineNo">854</span>                FileItem item = parsedFormData.get("json");<a name="line.854"></a>
 <span class="sourceLineNo">855</span>                if(item!=null) {<a name="line.855"></a>
-<span class="sourceLineNo">856</span>                    if (item.getContentType() == null) {<a name="line.856"></a>
+<span class="sourceLineNo">856</span>                    if (item.getContentType() == null &amp;&amp; getCharacterEncoding() != null) {<a name="line.856"></a>
 <span class="sourceLineNo">857</span>                        // JENKINS-11543: If client doesn't set charset per part, use request encoding<a name="line.857"></a>
 <span class="sourceLineNo">858</span>                        try {<a name="line.858"></a>
 <span class="sourceLineNo">859</span>                            p = item.getString(getCharacterEncoding());<a name="line.859"></a>
