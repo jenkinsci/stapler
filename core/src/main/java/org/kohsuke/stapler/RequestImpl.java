@@ -569,10 +569,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     try {
                         Class actualType = type;
                         String className = null;
-                        if(j.has("stapler-class")) {
-                            className = j.getString("stapler-class");
-                        } else if(j.has("kind")) {
-                            className = j.getString("kind");
+                        if(j.has("$class")) {
+                            className = j.getString("$class");
                         }
 
                         if (className != null) {
