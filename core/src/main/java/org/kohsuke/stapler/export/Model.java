@@ -36,6 +36,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -93,8 +95,13 @@ public class Model<T> {
         for( Method m : type.getMethods() ) {
             if(m.getDeclaringClass()!=type) continue;
             Exported exported = m.getAnnotation(Exported.class);
-            if(exported !=null)
-                properties.add(new MethodProperty(this,m, exported));
+            if(exported !=null) {
+                if (m.getParameterTypes().length > 0) {
+                    LOGGER.log(Level.WARNING, "Method " + m.getName() + " of " + type.getName() + " is annotated @Exported but requires arguments");
+                } else {
+                    properties.add(new MethodProperty(this,m, exported));
+                }
+            }
         }
 
         this.properties = properties.toArray(new Property[properties.size()]);
@@ -191,4 +198,6 @@ public class Model<T> {
             }
         }
     }
+
+    private static final Logger LOGGER = Logger.getLogger(Model.class.getName());
 }
