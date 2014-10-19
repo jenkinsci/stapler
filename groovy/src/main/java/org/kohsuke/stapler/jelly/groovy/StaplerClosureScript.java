@@ -2,8 +2,10 @@ package org.kohsuke.stapler.jelly.groovy;
 
 import org.jvnet.localizer.LocaleProvider;
 import org.kohsuke.stapler.jelly.ResourceBundle;
+import org.owasp.encoder.Encode;
 
 import java.net.URL;
+import java.util.Date;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -42,8 +44,24 @@ public abstract class StaplerClosureScript extends GroovyClosureScript {
 //        if(listener!=null)
 //            listener.onUsed(this, args);
 
-        // TODO: XSS prevention
-        return resourceBundle.format(LocaleProvider.getLocale(), key, args);
+        return resourceBundle.format(LocaleProvider.getLocale(), key, escapeArgs(args));
+    }
+
+    private Object[] escapeArgs(Object[] args) {
+        Object[] escapedArgs = new Object[args.length];
+        for (int i = 0; i < args.length; i++) {
+            Object arg = args[i];
+            if (requiresEscaping(arg)) {
+                arg = Encode.forHtmlContent(String.valueOf(arg));
+            }
+            escapedArgs[i] = arg;
+        }
+        return escapedArgs;
+    }
+
+    private boolean requiresEscaping(Object o) {
+        // We want to escape anything that MessageFormat treats as a String
+        return !(o instanceof Number) && !(o instanceof Date);
     }
 
     private ResourceBundle getResourceBundle() {
