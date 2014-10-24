@@ -569,6 +569,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     try {
                         Class actualType = type;
                         String className = null;
+                        if(j.has("stapler-class")) {
+                            // deprecated as of 2.4-jenkins-4 but left here for a while until we are sure nobody uses this
+                            className = j.getString("stapler-class");
+                            LOGGER.log(WARNING, "'stapler-class' is deprecated: "+className);
+                        }
                         if(j.has("$class")) {
                             className = j.getString("$class");
                         }
