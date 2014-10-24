@@ -63,6 +63,7 @@ public class NestedJsonTest extends TestCase {
         data.add(createDataSet());
         data.add(createDataSet());
         data.add(createDataSet());
+
         list = createRequest().bindJSONToList(Foo.class, data);
         assertNotNull(list);
         assertEquals(3, list.size());
@@ -78,7 +79,8 @@ public class NestedJsonTest extends TestCase {
         bar.put("i",123);
         JSONObject foo = new JSONObject();
         foo.put("bar",bar);
-        foo.getJSONObject("bar").put("stapler-class", BarImpl.class.getName());
+        foo.getJSONObject("bar").put("$class", BarImpl.class.getName());
+
         return foo;
     }
 

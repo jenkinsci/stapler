@@ -568,12 +568,21 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 if(l==null) {// single value conversion
                     try {
                         Class actualType = type;
+                        String className = null;
                         if(j.has("stapler-class")) {
+                            // deprecated as of 2.4-jenkins-4 but left here for a while until we are sure nobody uses this
+                            className = j.getString("stapler-class");
+                            LOGGER.log(WARNING, "'stapler-class' is deprecated: "+className);
+                        }
+                        if(j.has("$class")) {
+                            className = j.getString("$class");
+                        }
+
+                        if (className != null) {
                             // sub-type is specified in JSON.
                             // note that this can come from malicious clients, so we need to make sure we don't have security issues.
 
                             ClassLoader cl = stapler.getWebApp().getClassLoader();
-                            String className = j.getString("stapler-class");
                             try {
                                 Class<?> subType = cl.loadClass(className);
                                 if(!actualType.isAssignableFrom(subType))
