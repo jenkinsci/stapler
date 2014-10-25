@@ -1,6 +1,7 @@
 package org.kohsuke.stapler.jelly.groovy;
 
 import org.jvnet.localizer.LocaleProvider;
+import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.jelly.ResourceBundle;
 
 import java.net.URL;
@@ -42,7 +43,8 @@ public abstract class StaplerClosureScript extends GroovyClosureScript {
 //        if(listener!=null)
 //            listener.onUsed(this, args);
 
-        // TODO: XSS prevention
+        args = Stapler.htmlSafeArguments(args);
+
         return resourceBundle.format(LocaleProvider.getLocale(), key, args);
     }
 

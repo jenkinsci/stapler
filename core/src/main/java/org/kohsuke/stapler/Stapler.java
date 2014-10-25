@@ -63,6 +63,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -1174,5 +1175,27 @@ public class Stapler extends HttpServlet {
         }
         if (buf.length()==v.length())   return  v;  // unmodified
         return buf.toString();
+    }
+
+    public static Object[] htmlSafeArguments(Object[] args) {
+        for (int i=0; i<args.length; i++)
+            args[i] = htmlSafeArgument(args[i]);
+        return args;
+    }
+
+    /**
+     * For XSS prevention, escape unsafe characters in String by default,
+     * unless it's specifically wrapped in {@link RawHtmlArgument}.
+     */
+    public static Object htmlSafeArgument(Object o) {
+        if (o instanceof RawHtmlArgument)
+            return ((RawHtmlArgument)o).getValue();
+        if (o instanceof Number || o instanceof Calendar || o instanceof Date)
+            // formatting numbers and date often requires that they be kept intact
+            return o;
+        if (o==null)
+            return o;
+
+        return escape(o.toString());
     }
 }

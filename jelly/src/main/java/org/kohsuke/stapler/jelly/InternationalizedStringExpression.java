@@ -30,14 +30,10 @@ import org.apache.commons.jelly.JellyContext;
 import org.jvnet.localizer.LocaleProvider;
 import org.kohsuke.stapler.Stapler;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Arrays;
-
-import static org.kohsuke.stapler.Stapler.escape;
 
 /**
  * Expression of the form "%messageName(arg1,arg2,...)" that represents
@@ -166,34 +162,18 @@ public class InternationalizedStringExpression extends ExpressionSupport {
 
             public Object evaluate(JellyContext context) {
                 Object[] args = evaluateArguments(context);
-                for (int i=0; i<args.length; i++) {
-                    if (args[i] instanceof RawHtmlArgument)
-                        args[i] = ((RawHtmlArgument)args[i]).value;
-                    else
-                    if (args[i] instanceof Number || args[i] instanceof Calendar || args[i] instanceof Date)
-                        ;   // formatting numbers and date often requires that they be kept intact
-                    else
-                        args[i] = args[i]==null ? null : escape(args[i].toString());
-                }
+                args = Stapler.htmlSafeArguments(args);
                 return format(args);
             }
         };
     }
 
     /**
-     * Argument to {@link InternationalizedStringExpression} that indicates this value is raw HTML
-     * and therefore should not be further escaped.
+     * @deprecated Use {@link org.kohsuke.stapler.RawHtmlArgument}
      */
-    public static final class RawHtmlArgument {
-        private final Object value;
-
+    public static final class RawHtmlArgument extends org.kohsuke.stapler.RawHtmlArgument {
         public RawHtmlArgument(Object value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value==null?"null":value.toString();
+            super(value);
         }
     }
 
