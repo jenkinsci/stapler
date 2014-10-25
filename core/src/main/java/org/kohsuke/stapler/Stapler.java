@@ -1156,7 +1156,9 @@ public class Stapler extends HttpServlet {
      * This method does not handle whitespace-preserving escape, nor attribute escapes.
      */
     public static String escape(String v) {
-        StringBuffer buf = new StringBuffer(v.length()+64);
+        if (v==null)    return null;
+
+        StringBuilder buf = new StringBuilder(v.length()+64);
         for( int i=0; i<v.length(); i++ ) {
             char ch = v.charAt(i);
             if(ch=='<')
@@ -1170,6 +1172,7 @@ public class Stapler extends HttpServlet {
             else
                 buf.append(ch);
         }
+        if (buf.length()==v.length())   return  v;  // unmodified
         return buf.toString();
     }
 }

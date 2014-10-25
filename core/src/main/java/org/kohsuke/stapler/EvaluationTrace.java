@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.io.PrintWriter;
 
+import static org.kohsuke.stapler.Stapler.escape;
+
 /**
  * Remebers the {@link Stapler#invoke(RequestImpl, ResponseImpl, Object)}
  * evaluation traces.
@@ -45,7 +47,7 @@ public class EvaluationTrace {
     
     public void printHtml(PrintWriter w) {
         for (String trace : traces)
-            w.println(trace.replaceAll("&","&amp;").replaceAll("<","&lt;"));
+            w.println(escape(trace));
     }
 
     public static EvaluationTrace get(StaplerRequest req) {

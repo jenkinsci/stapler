@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Arrays;
 
+import static org.kohsuke.stapler.Stapler.escape;
+
 /**
  * Expression of the form "%messageName(arg1,arg2,...)" that represents
  * internationalized text.
@@ -174,33 +176,6 @@ public class InternationalizedStringExpression extends ExpressionSupport {
                         args[i] = args[i]==null ? null : escape(args[i].toString());
                 }
                 return format(args);
-            }
-
-            private String escape(String text) {
-                int len = text.length();
-                StringBuilder buf = new StringBuilder(len);
-                boolean escaped = false;
-
-                for (int i=0; i< len; i++) {
-                    char ch = text.charAt(i);
-                    switch (ch) {
-                        case '<':
-                            buf.append("&lt;");
-                            escaped = true;
-                            continue;
-                        case '&':
-                            buf.append("&amp;");
-                            escaped = true;
-                            continue;
-                        default:
-                            buf.append(ch);
-                    }
-                }
-
-                if (!escaped)   return text;    // nothing to escape. no need to create a new string
-
-                return buf.toString();
-
             }
         };
     }
