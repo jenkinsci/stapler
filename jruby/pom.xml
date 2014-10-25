@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.kohsuke.stapler</groupId>
     <artifactId>stapler-parent</artifactId>
-    <version>1.232-SNAPSHOT</version>
+    <version>1.233-SNAPSHOT</version>
   </parent>
   
   <artifactId>stapler-jruby</artifactId>
