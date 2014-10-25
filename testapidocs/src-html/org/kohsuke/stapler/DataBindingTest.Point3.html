@@ -258,7 +258,7 @@
 <span class="sourceLineNo">250</span>    }<a name="line.250"></a>
 <span class="sourceLineNo">251</span><a name="line.251"></a>
 <span class="sourceLineNo">252</span>    public void testSetterInvocation() {<a name="line.252"></a>
-<span class="sourceLineNo">253</span>        SetterBinding r = bind("{x:1,y:2,z:3,w:1, children:[{x:5,y:5,z:5},{x:6,y:6,z:6}], anotherObject:{stapler-class:'org.kohsuke.stapler.DataBindingTest$Point', x:1,y:1} }",SetterBinding.class);<a name="line.253"></a>
+<span class="sourceLineNo">253</span>        SetterBinding r = bind("{x:1,y:2,z:3,w:1, children:[{x:5,y:5,z:5},{x:6,y:6,z:6}], anotherObject:{$class:'org.kohsuke.stapler.DataBindingTest$Point', x:1,y:1} }",SetterBinding.class);<a name="line.253"></a>
 <span class="sourceLineNo">254</span>        assertEquals(1,r.x);<a name="line.254"></a>
 <span class="sourceLineNo">255</span>        assertEquals(2,r.y);<a name="line.255"></a>
 <span class="sourceLineNo">256</span>        assertEquals(3,r.z);<a name="line.256"></a>
@@ -353,7 +353,7 @@
 <span class="sourceLineNo">345</span>            }<a name="line.345"></a>
 <span class="sourceLineNo">346</span>        });<a name="line.346"></a>
 <span class="sourceLineNo">347</span><a name="line.347"></a>
-<span class="sourceLineNo">348</span>        Object[] r = (Object[]) req.bindJSON(Object[].class, Object[].class, JSONArray.fromObject("[{stapler-class:'"+Point.class.getName()+"'}]"));<a name="line.348"></a>
+<span class="sourceLineNo">348</span>        Object[] r = (Object[]) req.bindJSON(Object[].class, Object[].class, JSONArray.fromObject("[{$class:'"+Point.class.getName()+"'}]"));<a name="line.348"></a>
 <span class="sourceLineNo">349</span>        assertTrue(Arrays.equals(r,new Object[]{new Point(1,2)}));<a name="line.349"></a>
 <span class="sourceLineNo">350</span>    }<a name="line.350"></a>
 <span class="sourceLineNo">351</span><a name="line.351"></a>
