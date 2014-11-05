@@ -656,7 +656,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             } else {// single value in a collection
                 Converter converter = Stapler.lookupConverter(l.itemType);
                 if (converter==null)
-                    throw new IllegalArgumentException("Unable to convert to "+type);
+                    throw new IllegalArgumentException("Unable to convert to "+l.itemType);
 
                 l.add(converter.convert(type,o));
                 return l.toCollection();
@@ -696,10 +696,26 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             }
         }
 
-        return injectSetters(invokeConstructor(c, args), j, Arrays.asList(names));
+        Object o = injectSetters(invokeConstructor(c, args), j, Arrays.asList(names));
+        o = bindResolve(o,j);
+
+        return o;
     }
 
     /**
+     * Calls {@link DataBoundResolvable#bindResolve(StaplerRequest, JSONObject)} if the object has it.
+     */
+    private Object bindResolve(Object o, JSONObject src) {
+        if (o instanceof DataBoundResolvable) {
+            DataBoundResolvable dbr = (DataBoundResolvable) o;
+            o = dbr.bindResolve(this,src);
+        }
+        return o;
+    }
+
+    /**
+     * Performs {@link DataBoundSetter} injections.
+     *
      * @param exclusions
      *      Properties that are already injected through the constructor, thus not subject of the setter injection.
      */
