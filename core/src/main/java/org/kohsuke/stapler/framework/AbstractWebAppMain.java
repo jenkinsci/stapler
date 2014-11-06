@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.framework;
 
+import com.google.common.util.concurrent.SettableFuture;
 import org.jvnet.localizer.LocaleProvider;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.Stapler;
@@ -36,6 +37,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.io.File;
 import java.util.Locale;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,6 +64,8 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      * Once the home directory is determined, this value is set to that directory.
      */
     protected File home;
+
+    private SettableFuture<Object> initializer = SettableFuture.create();
 
     protected AbstractWebAppMain(Class<T> rootType) {
         this.rootType = rootType;
@@ -128,17 +132,41 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      */
     protected void setApplicationObject() {
         try {
-            context.setAttribute(APP,createApplication());
+            Object app = createApplication();
+            context.setAttribute(APP, app);
+            initializer.set(app);
         } catch (Error e) {
             LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
+            initializer.setException(e);
             throw e;
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
+            initializer.setException(e);
             throw e;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
+            initializer.setException(e);
             throw new Error(e);
+        } finally {
+            // in case the above catch clauses miss this.
+            if (!initializer.isDone())
+                initializer.cancel(true);
         }
+    }
+
+    /**
+     * Returns a {@link Future} of {@link #getApplication()}.
+     * Useful to synchronize on the completion of initialization, successful or otherwise.
+     */
+    public Future<Object> getInitializer() {
+        return initializer;
+    }
+
+    /**
+     * Returns the root application object created in {@link #createApplication()}
+     */
+    public Object getApplication() {
+        return context.getAttribute(APP);
     }
 
     /**
