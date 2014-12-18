@@ -43,7 +43,7 @@
 <span class="sourceLineNo">035</span>        server.setHandler(new WebAppContext("/noroot", ""));<a name="line.35"></a>
 <span class="sourceLineNo">036</span><a name="line.36"></a>
 <span class="sourceLineNo">037</span>        final Context context = new Context(server, "", Context.SESSIONS);<a name="line.37"></a>
-<span class="sourceLineNo">038</span>        context.addServlet(new ServletHolder(new Stapler()), "/*");<a name="line.38"></a>
+<span class="sourceLineNo">038</span>        configure(context);<a name="line.38"></a>
 <span class="sourceLineNo">039</span>        server.setHandler(context);<a name="line.39"></a>
 <span class="sourceLineNo">040</span><a name="line.40"></a>
 <span class="sourceLineNo">041</span>        SocketConnector connector = new SocketConnector();<a name="line.41"></a>
@@ -59,12 +59,19 @@
 <span class="sourceLineNo">051</span>        webApp.setApp(this);<a name="line.51"></a>
 <span class="sourceLineNo">052</span>    }<a name="line.52"></a>
 <span class="sourceLineNo">053</span><a name="line.53"></a>
-<span class="sourceLineNo">054</span>    @Override<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    protected void tearDown() throws Exception {<a name="line.55"></a>
-<span class="sourceLineNo">056</span>        super.tearDown();<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        server.stop();<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    }<a name="line.58"></a>
-<span class="sourceLineNo">059</span>}<a name="line.59"></a>
+<span class="sourceLineNo">054</span>    /**<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * Sets up how the servlet/filters are bound.<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    protected void configure(Context context) {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        context.addServlet(new ServletHolder(new Stapler()), "/*");<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    }<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>    @Override<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    protected void tearDown() throws Exception {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        super.tearDown();<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        server.stop();<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    }<a name="line.65"></a>
+<span class="sourceLineNo">066</span>}<a name="line.66"></a>
 
 
 
