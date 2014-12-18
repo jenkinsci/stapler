@@ -1,5 +1,8 @@
 package org.kohsuke.stapler.compression;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -8,15 +11,10 @@ import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.servlet.Context;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
 
 public class CompressionFilterTest extends JettyTestCase {
 
@@ -31,6 +29,21 @@ public class CompressionFilterTest extends JettyTestCase {
         con.setRequestProperty("Accept-Encoding","gzip");
         byte[] data = IOUtils.toByteArray(con.getInputStream());
         data = IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(data)));
+        assertEquals(new String(data), CONTENT);
+    }
+
+    /**
+     * Turns out {@link #testDoubleCompression()} was insufficient to properly test the case,
+     * as HttpURLConnection appears to ignores the content-length header and read the response to the end.
+     */
+    public void testDoubleCompression2() throws Exception {
+        HttpClient hc = new HttpClient();
+        HttpMethod m = new GetMethod(this.url+"/doubleGzip");
+        m.setRequestHeader("Accept-Encoding","gzip");
+        assertEquals(200,hc.executeMethod(m));
+        byte[] data = m.getResponseBody();
+
+        data = IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(data)));
         assertEquals(new String(data),CONTENT);
     }
 
@@ -41,22 +54,10 @@ public class CompressionFilterTest extends JettyTestCase {
     public void doDoubleGzip(StaplerRequest req, StaplerResponse rsp) throws IOException {
         if (req.getHeader("Accept-Encoding").contains("gzip")) {
             rsp.setHeader("Content-Encoding", "gzip");
-            byte[] content = CONTENT.getBytes();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            GZIPOutputStream o = new GZIPOutputStream(baos);
-            try {
-                o.write(content);
-            } finally {
-                o.close();
-            }
-
-            rsp.setContentLength(baos.toByteArray().length);
-            rsp.getOutputStream().write(baos.toByteArray());
-        } else {
-            byte[] content = CONTENT.getBytes();
-            rsp.setContentLength(content.length);
-            rsp.getOutputStream().write(content);
         }
+        byte[] content = CONTENT.getBytes();
+        rsp.setContentLength(content.length);
+        rsp.getOutputStream().write(content);
     }
 
     private static final String CONTENT = "Hello World";
