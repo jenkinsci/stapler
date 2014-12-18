@@ -11,10 +11,13 @@ import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.servlet.Context;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class CompressionFilterTest extends JettyTestCase {
 
@@ -25,11 +28,13 @@ public class CompressionFilterTest extends JettyTestCase {
     }
 
     public void testDoubleCompression() throws Exception {
-        HttpURLConnection con = (HttpURLConnection) new URL(this.url, "doubleGzip").openConnection();
-        con.setRequestProperty("Accept-Encoding","gzip");
-        byte[] data = IOUtils.toByteArray(con.getInputStream());
-        data = IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(data)));
-        assertEquals(new String(data), CONTENT);
+        for (String endpoint : Arrays.asList("autoZip","ownZip")) {
+            HttpURLConnection con = (HttpURLConnection) new URL(this.url, endpoint).openConnection();
+            con.setRequestProperty("Accept-Encoding","gzip");
+            byte[] data = IOUtils.toByteArray(con.getInputStream());
+            data = IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(data)));
+            assertEquals(new String(data), CONTENT);
+        }
     }
 
     /**
@@ -37,28 +42,38 @@ public class CompressionFilterTest extends JettyTestCase {
      * as HttpURLConnection appears to ignores the content-length header and read the response to the end.
      */
     public void testDoubleCompression2() throws Exception {
-        HttpClient hc = new HttpClient();
-        HttpMethod m = new GetMethod(this.url+"/doubleGzip");
-        m.setRequestHeader("Accept-Encoding","gzip");
-        assertEquals(200,hc.executeMethod(m));
-        byte[] data = m.getResponseBody();
+        for (String endpoint : Arrays.asList("autoZip","ownZip")) {
+            HttpClient hc = new HttpClient();
+            HttpMethod m = new GetMethod(this.url + "/"+endpoint);
+            m.setRequestHeader("Accept-Encoding", "gzip");
+            assertEquals(200, hc.executeMethod(m));
+            byte[] data = m.getResponseBody();
 
-        data = IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(data)));
-        assertEquals(new String(data),CONTENT);
+            data = IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(data)));
+            assertEquals(new String(data), CONTENT);
+        }
     }
 
     /**
-     * Code that we run inside CompressionFilter might try to do its own gzip encoding,
-     * and if so, we need to work correctly.
+     * Simulate servlets that tries to handle Content-Encoding on its own
      */
-    public void doDoubleGzip(StaplerRequest req, StaplerResponse rsp) throws IOException {
-        if (req.getHeader("Accept-Encoding").contains("gzip")) {
-            rsp.setHeader("Content-Encoding", "gzip");
-        }
+    public void doOwnZip(StaplerResponse rsp) throws IOException {
+        rsp.setHeader("Content-Encoding", "gzip");
         byte[] content = CONTENT.getBytes();
-        rsp.setContentLength(content.length);
-        rsp.getOutputStream().write(content);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        GZIPOutputStream o = new GZIPOutputStream(baos);
+        o.write(content);
+        o.close();
+
+        rsp.setContentLength(baos.size());
+        rsp.getOutputStream().write(baos.toByteArray());
     }
+
+    public void doAutoZip(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        byte[] content = CONTENT.getBytes();
+        rsp.getCompressedOutputStream(req).write(content);
+    }
+
 
     private static final String CONTENT = "Hello World";
 }
