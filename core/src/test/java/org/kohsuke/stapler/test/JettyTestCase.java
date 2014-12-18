@@ -35,7 +35,7 @@ public abstract class JettyTestCase extends TestCase {
         server.setHandler(new WebAppContext("/noroot", ""));
 
         final Context context = new Context(server, "", Context.SESSIONS);
-        context.addServlet(new ServletHolder(new Stapler()), "/*");
+        configure(context);
         server.setHandler(context);
 
         SocketConnector connector = new SocketConnector();
@@ -49,6 +49,13 @@ public abstract class JettyTestCase extends TestCase {
 
         // export the test object as the root as a reasonable default.
         webApp.setApp(this);
+    }
+
+    /**
+     * Sets up how the servlet/filters are bound.
+     */
+    protected void configure(Context context) {
+        context.addServlet(new ServletHolder(new Stapler()), "/*");
     }
 
     @Override

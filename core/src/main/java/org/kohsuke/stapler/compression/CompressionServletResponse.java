@@ -10,7 +10,7 @@ import com.jcraft.jzlib.GZIPOutputStream;
 
 /**
  * {@link HttpServletResponse} that recognizes Content-Encoding: gzip in the response header
- * and acts accoringly.
+ * and acts accordingly.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -20,6 +20,8 @@ public class CompressionServletResponse extends HttpServletResponseWrapper {
      */
     private ServletOutputStream stream;
     private PrintWriter writer;
+
+    private boolean contentLengthSet = false;
 
     public CompressionServletResponse(HttpServletResponse response) {
         super(response);
@@ -37,9 +39,23 @@ public class CompressionServletResponse extends HttpServletResponseWrapper {
         activateCompressionIfNecessary(name, value);
     }
 
+    /**
+     * If we've already inserted gzip compression filter, then we can't let the content length set from the app
+     * because that refers to the size of the uncompressed content, where we actually need the size of the compressed
+     * content.
+     *
+     * For the same reason, if the content length is set before we can decide whether to
+     */
+    @Override
+    public void setContentLength(int len) {
+        if (stream!=null)       return;
+        super.setContentLength(len);
+        contentLengthSet = true;
+    }
+
     private void activateCompressionIfNecessary(String name, String value) {
         try {
-            if (name.equals("Content-Encoding") && value.equals("gzip")) {
+            if (name.equals("Content-Encoding") && value.equals("gzip") && !contentLengthSet) {
                 if (stream==null)
                     stream = new FilterServletOutputStream(new GZIPOutputStream(super.getOutputStream()));
             }
