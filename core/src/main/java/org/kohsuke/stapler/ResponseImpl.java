@@ -270,31 +270,40 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         w.close();
     }
 
-    public OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException {
+    private boolean acceptsGzip(HttpServletRequest req) {
         String acceptEncoding = req.getHeader("Accept-Encoding");
-        if(acceptEncoding==null || !acceptEncoding.contains("gzip"))
-            return getOutputStream();   // compression not available
+        return acceptEncoding==null || !acceptEncoding.contains("gzip");
+    }
 
-        setHeader("Content-Encoding","gzip");
-        if (CompressionFilter.has(req))
+    public OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException {
+        if (mode!=null) // we already made the call and created OutputStream/Writer
+            return getOutputStream();
+
+        if(acceptsGzip(req))
+            return getOutputStream();   // compression not applicable here
+
+        if (CompressionFilter.activate(req))
             return getOutputStream(); // CompressionFilter will set up compression. no need to do anything
 
-        if (mode!=null)
-            return getOutputStream();
+        // CompressionFilter not available, so do it on our own.
+        // see CompressionFilter for why this is not desirable
+        setHeader("Content-Encoding","gzip");
         return recordOutput(new FilterServletOutputStream(new GZIPOutputStream(super.getOutputStream())));
     }
 
     public Writer getCompressedWriter(HttpServletRequest req) throws IOException {
-        String acceptEncoding = req.getHeader("Accept-Encoding");
-        if(acceptEncoding==null || !acceptEncoding.contains("gzip"))
-            return getWriter();   // compression not available
-
-        setHeader("Content-Encoding","gzip");
-        if (CompressionFilter.has(req))
-            return getWriter(); // CompressionFilter will set up compression. no need to do anything
-
         if (mode!=null)
             return getWriter();
+
+        if(acceptsGzip(req))
+            return getWriter();   // compression not available
+
+        if (CompressionFilter.activate(req))
+            return getWriter(); // CompressionFilter will set up compression. no need to do anything
+
+        // CompressionFilter not available, so do it on our own.
+        // see CompressionFilter for why this is not desirable
+        setHeader("Content-Encoding","gzip");
         return recordOutput(new PrintWriter(new OutputStreamWriter(new GZIPOutputStream(super.getOutputStream()),getCharacterEncoding())));
     }
 

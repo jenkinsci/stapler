@@ -40,8 +40,11 @@ public class CompressionFilter implements Filter {
     }
 
     public void doFilter(ServletRequest _req, ServletResponse _rsp, FilterChain filterChain) throws IOException, ServletException {
-        _req.setAttribute(CompressionFilter.class.getName(),true);
+        Object old1 = swapAttribute(_req, CompressionFilter.class, true);
+
         CompressionServletResponse rsp = new CompressionServletResponse(((HttpServletResponse) _rsp));
+        Object old2 = swapAttribute(_req,CompressionServletResponse.class,rsp);
+
         try {
             filterChain.doFilter(_req, rsp);
         } catch (IOException e) {
@@ -58,7 +61,16 @@ public class CompressionFilter implements Filter {
             reportException(e,(HttpServletRequest)_req,rsp);
         } finally {
             rsp.close();
+
+            _req.setAttribute(CompressionFilter.class.getName(),old1);
+            _req.setAttribute(CompressionServletResponse.class.getName(),old2);
         }
+    }
+
+    private Object swapAttribute(ServletRequest req, Class<?> key, Object value) {
+        Object old = req.getAttribute(key.getName());
+        req.setAttribute(key.getName(), value);
+        return old;
     }
 
     private void reportException(Throwable e, HttpServletRequest req, HttpServletResponse rsp) throws IOException, ServletException {
@@ -82,8 +94,23 @@ public class CompressionFilter implements Filter {
      * Is this request already wrapped into {@link CompressionFilter}?
      */
     public static boolean has(ServletRequest req) {
-        return req.getAttribute(CompressionFilter.class.getName())!=null;
+        return req.getAttribute(CompressionServletResponse.class.getName())!=null;
     }
-    
+
+    /**
+     * Is this request already wrapped into {@link CompressionFilter},
+     * activate that, so that {@link ServletResponse#getOutputStream()} will return
+     * a stream that automatically handles compression.
+     */
+    public static boolean activate(ServletRequest req) throws IOException {
+        CompressionServletResponse rsp = (CompressionServletResponse) req.getAttribute(CompressionServletResponse.class.getName());
+        if (rsp!=null) {
+            rsp.activate();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public static boolean DISABLED = Boolean.getBoolean(CompressionFilter.class.getName()+".disabled");
 }
