@@ -79,4 +79,9 @@ public class CompressionServletResponse extends HttpServletResponseWrapper {
         if (stream!=null)   return stream;
         return super.getOutputStream();
     }
+
+    public void close() throws IOException {
+        if (stream!=null)
+            stream.close();
+    }
 }

@@ -56,6 +56,8 @@ public class CompressionFilter implements Filter {
         } catch (Error e) {
             if (DISABLED)   throw e;
             reportException(e,(HttpServletRequest)_req,rsp);
+        } finally {
+            rsp.close();
         }
     }
 
