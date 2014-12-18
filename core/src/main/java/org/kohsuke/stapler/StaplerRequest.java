@@ -333,7 +333,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * Instantiates a new object by injecting constructor parameters from the form parameters.
      *
      * <p>
-     * The given class must have a constructor annotated with '@stapler-constructor',
+     * The given class must have a constructor annotated with '&#64;stapler-constructor',
      * and must be processed by the maven-stapler-plugin, so that the parameter names
      * of the constructor is available at runtime.
      *
