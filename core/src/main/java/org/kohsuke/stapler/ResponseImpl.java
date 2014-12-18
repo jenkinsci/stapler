@@ -272,7 +272,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
     public OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException {
         String acceptEncoding = req.getHeader("Accept-Encoding");
-        if(acceptEncoding==null || acceptEncoding.indexOf("gzip")==-1)
+        if(acceptEncoding==null || !acceptEncoding.contains("gzip"))
             return getOutputStream();   // compression not available
 
         setHeader("Content-Encoding","gzip");
@@ -286,7 +286,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
     public Writer getCompressedWriter(HttpServletRequest req) throws IOException {
         String acceptEncoding = req.getHeader("Accept-Encoding");
-        if(acceptEncoding==null || acceptEncoding.indexOf("gzip")==-1)
+        if(acceptEncoding==null || !acceptEncoding.contains("gzip"))
             return getWriter();   // compression not available
 
         setHeader("Content-Encoding","gzip");
