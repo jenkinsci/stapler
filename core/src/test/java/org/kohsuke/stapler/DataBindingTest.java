@@ -142,7 +142,7 @@ public class DataBindingTest extends TestCase {
     }
     private <T> T bind(String json, Class<T> type, BindInterceptor bi) {
         RequestImpl req = createFakeRequest();
-        req.setBindInterceptpr(bi);
+        req.setBindInterceptor(bi);
         return req.bindJSON(type, JSONObject.fromObject(json));
     }
 
@@ -321,7 +321,7 @@ public class DataBindingTest extends TestCase {
 
     public void testInterceptor2() {
         RequestImpl req = createFakeRequest();
-        req.setBindInterceptpr(new BindInterceptor() {
+        req.setBindInterceptor(new BindInterceptor() {
             @Override
             public Object onConvert(Type targetType, Class targetTypeErasure, Object jsonSource) {
                 if (targetType==String.class)
@@ -336,7 +336,7 @@ public class DataBindingTest extends TestCase {
 
     public void testInterceptor3() {
         RequestImpl req = createFakeRequest();
-        req.setBindInterceptpr(new BindInterceptor() {
+        req.setBindInterceptor(new BindInterceptor() {
             @Override
             public Object instantiate(Class actualType, JSONObject json) {
                 if (actualType.equals(Point.class))

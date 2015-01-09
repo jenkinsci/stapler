@@ -8,7 +8,7 @@ import java.lang.reflect.Type;
  * Intercepts (and receives callbacks) about the JSON->object binding process.
  *
  * @author Kohsuke Kawaguchi
- * @see StaplerRequest#setBindInterceptpr(BindInterceptor)
+ * @see StaplerRequest#setBindInterceptor(BindInterceptor)
  * @see WebApp#bindInterceptors
  */
 public class BindInterceptor {
