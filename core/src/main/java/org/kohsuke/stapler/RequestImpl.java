@@ -292,10 +292,14 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     public BindInterceptor setBindListener(BindInterceptor bindListener) {
-        return setBindInterceptpr(bindListener);
+        return setBindInterceptor(bindListener);
     }
 
     public BindInterceptor setBindInterceptpr(BindInterceptor bindListener) {
+        return setBindInterceptor(bindListener);
+    }
+
+    public BindInterceptor setBindInterceptor(BindInterceptor bindListener) {
         BindInterceptor o = this.bindInterceptor;
         this.bindInterceptor = bindListener;
         return o;
