@@ -112,5 +112,10 @@ public class CompressionFilter implements Filter {
         }
     }
 
+    /**
+     * Disables the effect of {@link #setUncaughtExceptionHandler}, letting all errors be rethrown.
+     * Despite its name, this flag does <strong>not</strong> disable {@link CompressionFilter} itself!
+     * Rather use {@code DefaultScriptInvoker.COMPRESS_BY_DEFAULT}.
+     */
     public static boolean DISABLED = Boolean.getBoolean(CompressionFilter.class.getName()+".disabled");
 }
