@@ -86,12 +86,20 @@ public final class TokenList {
         return tokens[--idx];
     }
     public int nextAsInt() throws NumberFormatException {
+        long l = nextAsLong();
+        if (l > Integer.MAX_VALUE) {
+            throw new NumberFormatException(String.format("Token '%d' cannot be interpreted as an integer as it's value is greater than %d.", l, Integer.MAX_VALUE));
+        }
+        return (int) l;
+    }
+    public long nextAsLong() throws NumberFormatException {
         String p = peek();
-        if(p==null)
+        if(p == null) {
             throw new NumberFormatException();  // no more token
-        int i = Integer.valueOf(p);
+        }
+        long l = Long.valueOf(p);
         idx++;
-        return i;
+        return l;
     }
 
     public int length() {

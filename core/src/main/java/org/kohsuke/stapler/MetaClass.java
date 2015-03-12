@@ -274,6 +274,26 @@ public class MetaClass extends TearOffSupport {
             });
         }
 
+        // check public selector methods <obj>.get<Token>(long)
+        // TF: I'm sure these for loop blocks could be dried out in some way.
+        for( final Function f : getMethods.signature(long.class) ) {
+            if(f.getName().length()<=3)
+                continue;
+            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            dispatchers.add(new NameBasedDispatcher(name,1) {
+                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    long idx = req.tokens.nextAsLong();
+                    if(traceable())
+                        traceEval(req,rsp,node,f.getName()+"("+idx+")");
+                    req.getStapler().invoke(req,rsp, f.invoke(req, rsp, node,idx));
+                    return true;
+                }
+                public String toString() {
+                    return String.format("%1$s(long) for url=/%2$s/N/...",f.getQualifiedName(),name);
+                }
+            });
+        }
+
         if(node.clazz.isArray()) {
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
