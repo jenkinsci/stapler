@@ -87,9 +87,12 @@ public final class TokenList {
     }
     public int nextAsInt() throws NumberFormatException {
         long l = nextAsLong();
-        if (l > Integer.MAX_VALUE) {
-            throw new NumberFormatException(String.format("Token '%d' cannot be interpreted as an integer as it's value is greater than %d.", l, Integer.MAX_VALUE));
+        if (l < Integer.MIN_VALUE) {
+            throw new NumberFormatException(String.format("Token '%d' cannot be interpreted as an integer as its value is less than %d.", l, Integer.MIN_VALUE));
+        } else if (l > Integer.MAX_VALUE) {
+            throw new NumberFormatException(String.format("Token '%d' cannot be interpreted as an integer as its value is greater than %d.", l, Integer.MAX_VALUE));
         }
+
         return (int) l;
     }
     public long nextAsLong() throws NumberFormatException {
