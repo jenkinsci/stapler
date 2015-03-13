@@ -234,7 +234,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         setContentType(flavor.contentType);
         Writer w = getCompressedWriter(req);
 
-        if(flavor== Flavor.JSON) {
+        if (flavor==Flavor.JSON || flavor==Flavor.JSONP) { // for compatibility reasons, accept JSON for JSONP as well.
             pad = req.getParameter("jsonp");
             if(pad!=null) w.write(pad+'(');
         }
