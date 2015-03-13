@@ -100,9 +100,9 @@ public final class TokenList {
         if(p == null) {
             throw new NumberFormatException();  // no more token
         }
-        long l = Long.valueOf(p);
+        long asLongValue = Long.valueOf(p);
         idx++;
-        return l;
+        return asLongValue;
     }
 
     public int length() {
