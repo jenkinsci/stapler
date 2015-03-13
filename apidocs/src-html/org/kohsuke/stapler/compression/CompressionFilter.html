@@ -120,8 +120,13 @@
 <span class="sourceLineNo">112</span>        }<a name="line.112"></a>
 <span class="sourceLineNo">113</span>    }<a name="line.113"></a>
 <span class="sourceLineNo">114</span><a name="line.114"></a>
-<span class="sourceLineNo">115</span>    public static boolean DISABLED = Boolean.getBoolean(CompressionFilter.class.getName()+".disabled");<a name="line.115"></a>
-<span class="sourceLineNo">116</span>}<a name="line.116"></a>
+<span class="sourceLineNo">115</span>    /**<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * Disables the effect of {@link #setUncaughtExceptionHandler}, letting all errors be rethrown.<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * Despite its name, this flag does &lt;strong&gt;not&lt;/strong&gt; disable {@link CompressionFilter} itself!<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * Rather use {@code DefaultScriptInvoker.COMPRESS_BY_DEFAULT}.<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     */<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    public static boolean DISABLED = Boolean.getBoolean(CompressionFilter.class.getName()+".disabled");<a name="line.120"></a>
+<span class="sourceLineNo">121</span>}<a name="line.121"></a>
 
 
 

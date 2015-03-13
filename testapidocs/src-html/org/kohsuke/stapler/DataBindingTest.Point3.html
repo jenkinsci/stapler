@@ -150,7 +150,7 @@
 <span class="sourceLineNo">142</span>    }<a name="line.142"></a>
 <span class="sourceLineNo">143</span>    private &lt;T&gt; T bind(String json, Class&lt;T&gt; type, BindInterceptor bi) {<a name="line.143"></a>
 <span class="sourceLineNo">144</span>        RequestImpl req = createFakeRequest();<a name="line.144"></a>
-<span class="sourceLineNo">145</span>        req.setBindInterceptpr(bi);<a name="line.145"></a>
+<span class="sourceLineNo">145</span>        req.setBindInterceptor(bi);<a name="line.145"></a>
 <span class="sourceLineNo">146</span>        return req.bindJSON(type, JSONObject.fromObject(json));<a name="line.146"></a>
 <span class="sourceLineNo">147</span>    }<a name="line.147"></a>
 <span class="sourceLineNo">148</span><a name="line.148"></a>
@@ -329,7 +329,7 @@
 <span class="sourceLineNo">321</span><a name="line.321"></a>
 <span class="sourceLineNo">322</span>    public void testInterceptor2() {<a name="line.322"></a>
 <span class="sourceLineNo">323</span>        RequestImpl req = createFakeRequest();<a name="line.323"></a>
-<span class="sourceLineNo">324</span>        req.setBindInterceptpr(new BindInterceptor() {<a name="line.324"></a>
+<span class="sourceLineNo">324</span>        req.setBindInterceptor(new BindInterceptor() {<a name="line.324"></a>
 <span class="sourceLineNo">325</span>            @Override<a name="line.325"></a>
 <span class="sourceLineNo">326</span>            public Object onConvert(Type targetType, Class targetTypeErasure, Object jsonSource) {<a name="line.326"></a>
 <span class="sourceLineNo">327</span>                if (targetType==String.class)<a name="line.327"></a>
@@ -344,7 +344,7 @@
 <span class="sourceLineNo">336</span><a name="line.336"></a>
 <span class="sourceLineNo">337</span>    public void testInterceptor3() {<a name="line.337"></a>
 <span class="sourceLineNo">338</span>        RequestImpl req = createFakeRequest();<a name="line.338"></a>
-<span class="sourceLineNo">339</span>        req.setBindInterceptpr(new BindInterceptor() {<a name="line.339"></a>
+<span class="sourceLineNo">339</span>        req.setBindInterceptor(new BindInterceptor() {<a name="line.339"></a>
 <span class="sourceLineNo">340</span>            @Override<a name="line.340"></a>
 <span class="sourceLineNo">341</span>            public Object instantiate(Class actualType, JSONObject json) {<a name="line.341"></a>
 <span class="sourceLineNo">342</span>                if (actualType.equals(Point.class))<a name="line.342"></a>
