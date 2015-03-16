@@ -1,0 +1,3 @@
+org.kohsuke.stapler.jelly.jruby
+org.kohsuke.stapler.jelly.jruby.erb
+org.kohsuke.stapler.jelly.jruby.haml
