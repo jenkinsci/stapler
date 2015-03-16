@@ -50,7 +50,10 @@
 </xsd:element>
     <xsd:element name="structuredMessageArgument">
 <xsd:annotation>
-<xsd:documentation>Body is evaluated and is used as an argument for the surrounding &lt;structuredMessageFormat&gt; element.</xsd:documentation>
+<xsd:documentation>Body is evaluated and is used as an argument for the surrounding 
+        <head>
+          <structuredmessageformat/>
+        </head> element.</xsd:documentation>
 </xsd:annotation>
 <xsd:complexType mixed="true">
 <xsd:sequence>
@@ -453,7 +456,10 @@
     <xsd:element name="bind">
 <xsd:annotation>
 <xsd:documentation>Binds a server-side object to client side so that JavaScript can call into server.
- This tag evaluates to a &lt;script&gt; tag.</xsd:documentation>
+ This tag evaluates to a 
+        <head>
+          <script/>
+        </head> tag.</xsd:documentation>
 </xsd:annotation>
 <xsd:complexType mixed="true">
 <xsd:attribute name="var">
@@ -491,7 +497,10 @@
 
  
         <p>
- This tag should be placed right inside </p>DocumentationTag
+ This tag should be placed right inside </p>
+        <head>
+          <documentation/>
+        </head>
  to describe attributes of a tag. The body would describe
  the meaning of an attribute in a natural language.
  The description text can also use
@@ -549,7 +558,10 @@
 
  
         <p>
- This tag should be placed right inside </p>DocumentationTag
+ This tag should be placed right inside </p>
+        <head>
+          <documentation/>
+        </head>
  to describe attributes of a tag.</xsd:documentation>
 </xsd:annotation>
 <xsd:complexType mixed="true">

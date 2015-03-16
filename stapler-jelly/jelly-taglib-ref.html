@@ -59,7 +59,10 @@
 <td><doc>Format message from a resource, but by using a nested children as arguments, instead of just using expressions.</doc></td></tr>
 <tr class="a">
 <td><a href='#jelly:structuredMessageArgument'>structuredMessageArgument</a></td>
-<td><doc>Body is evaluated and is used as an argument for the surrounding &lt;structuredMessageFormat&gt; element.</doc></td></tr>
+<td><doc>Body is evaluated and is used as an argument for the surrounding 
+        <head>
+          <structuredmessageformat/>
+        </head> element.</doc></td></tr>
 <tr class="b">
 <td><a href='#jelly:statusCode'>statusCode</a></td>
 <td><doc>Sets HTTP status code.
@@ -115,14 +118,20 @@
 <tr class="b">
 <td><a href='#jelly:bind'>bind</a></td>
 <td><doc>Binds a server-side object to client side so that JavaScript can call into server.
- This tag evaluates to a &lt;script&gt; tag.</doc></td></tr>
+ This tag evaluates to a 
+        <head>
+          <script/>
+        </head> tag.</doc></td></tr>
 <tr class="a">
 <td><a href='#jelly:attribute'>attribute</a></td>
 <td><doc>Documentation for an attribute of a Jelly tag file.
 
  
         <p>
- This tag should be placed right inside </p>DocumentationTag
+ This tag should be placed right inside </p>
+        <head>
+          <documentation/>
+        </head>
  to describe attributes of a tag. The body would describe
  the meaning of an attribute in a natural language.
  The description text can also use
@@ -135,7 +144,10 @@
 
  
         <p>
- This tag should be placed right inside </p>DocumentationTag
+ This tag should be placed right inside </p>
+        <head>
+          <documentation/>
+        </head>
  to describe attributes of a tag.</doc></td></tr>
 <tr class="a">
 <td><a href='#jelly:adjunct'>adjunct</a></td>
@@ -168,7 +180,10 @@
 <td>String</td>
 <td><doc/></td></tr></table></div><a name="jelly:structuredMessageArgument"></a>
 <div class="section">
-<h3>structuredMessageArgument<a name="structuredMessageArgument"></a></h3><doc>Body is evaluated and is used as an argument for the surrounding &lt;structuredMessageFormat&gt; element.</doc></div><a name="jelly:statusCode"></a>
+<h3>structuredMessageArgument<a name="structuredMessageArgument"></a></h3><doc>Body is evaluated and is used as an argument for the surrounding 
+        <head>
+          <structuredmessageformat/>
+        </head> element.</doc></div><a name="jelly:statusCode"></a>
 <div class="section">
 <h3>statusCode<a name="statusCode"></a></h3><doc>Sets HTTP status code.
 
@@ -373,7 +388,10 @@
  for this output.</doc></div><a name="jelly:bind"></a>
 <div class="section">
 <h3>bind<a name="bind"></a></h3><doc>Binds a server-side object to client side so that JavaScript can call into server.
- This tag evaluates to a &lt;script&gt; tag.</doc>
+ This tag evaluates to a 
+        <head>
+          <script/>
+        </head> tag.</doc>
 <table border="0" class="bodyTable">
 <tr class="b">
 <th>Attribute Name</th>
@@ -400,7 +418,10 @@
 
  
         <p>
- This tag should be placed right inside </p>DocumentationTag
+ This tag should be placed right inside </p>
+        <head>
+          <documentation/>
+        </head>
  to describe attributes of a tag. The body would describe
  the meaning of an attribute in a natural language.
  The description text can also use
@@ -441,7 +462,10 @@
 
  
         <p>
- This tag should be placed right inside </p>DocumentationTag
+ This tag should be placed right inside </p>
+        <head>
+          <documentation/>
+        </head>
  to describe attributes of a tag.</doc>
 <table border="0" class="bodyTable">
 <tr class="b">
@@ -480,8 +504,8 @@
 
   
   
-  &nbsp;| Last Published: 2015-03-13
-  &nbsp;| Version: 1.235
+  &nbsp;| Last Published: 2015-03-16
+  &nbsp;| Version: 1.236
 </div>
       <div class="clear">
         <hr/>
