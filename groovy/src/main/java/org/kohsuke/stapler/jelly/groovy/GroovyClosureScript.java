@@ -36,25 +36,24 @@ import groovy.lang.Script;
  * <p>
  * For example, when the script is:
  *
- * <pre>
+ * <pre>{@code
  * a = 1;
  * b(2);
- * <pre>
+ * }</pre>
  *
- * <p>
  * Using {@link GroovyClosureScript} as the base class would run it as:
  *
- * <pre>
+ * <pre>{@code
  * delegate.a = 1;
  * delegate.b(2);
- * </pre>
+ * }</pre>
  *
  * ... whereas in plain {@link Script}, this will be run as:
  *
- * <pre>
+ * <pre>{@code
  * binding.setProperty("a",1);
  * ((Closure)binding.getProperty("b")).call(2);
- * </pre>
+ * }</pre>
  *
  * This is convenient for building DSL as you can use an external object to define
  * methods and properties.

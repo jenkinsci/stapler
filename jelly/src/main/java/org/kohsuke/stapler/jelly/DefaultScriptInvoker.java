@@ -155,7 +155,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
      *
      * Stuff rendered by Jelly is predominantly text, so the compression would work well.
      *
-     * @see http://www.slideshare.net/guest22d4179/latency-trumps-all
+     * @see <a href="http://www.slideshare.net/guest22d4179/latency-trumps-all">Latency Trumps All</a>
      */
     public static boolean COMPRESS_BY_DEFAULT = Boolean.parseBoolean(System.getProperty(DefaultScriptInvoker.class.getName()+".compress","true"));
 }

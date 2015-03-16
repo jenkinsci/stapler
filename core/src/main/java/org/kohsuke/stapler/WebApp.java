@@ -79,7 +79,7 @@ public class WebApp {
     public final Map<Class,Class[]> wrappers = new HashMap<Class,Class[]>();
 
     /**
-     * MIME type -> encoding map that determines how static contents in the war file is served.
+     * MIME type → encoding map that determines how static contents in the war file is served.
      */
     public final Map<String,String> defaultEncodingForStaticResources = new HashMap<String,String>();
 
@@ -254,7 +254,7 @@ public class WebApp {
      * Gets a reference to some {@link Stapler} servlet in this webapp.
      *
      * <p>
-     * Most Stapler webapps will have one &lt;servlet> entry in web.xml
+     * Most Stapler webapps will have one {@code <servlet>} entry in web.xml
      * and if that's the case, that'd be returned. In a fully general case,
      * a webapp can have multiple servlets and more than one of them can be
      * {@link Stapler}. This method returns one of those. Which one gets

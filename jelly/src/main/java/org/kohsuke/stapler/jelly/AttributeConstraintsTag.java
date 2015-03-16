@@ -31,7 +31,7 @@ import org.jvnet.maven.jellydoc.annotation.Required;
  * DTD-like expression that specifies the consraints on attribute appearances.
  *
  * <p>
- * This tag should be placed right inside {@link DocumentationTag}
+ * This tag should be placed right inside {@code <st:documentation>}
  * to describe attributes of a tag.
  *
  * @author Kohsuke Kawaguchi

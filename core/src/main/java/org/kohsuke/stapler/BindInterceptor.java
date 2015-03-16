@@ -5,7 +5,7 @@ import net.sf.json.JSONObject;
 import java.lang.reflect.Type;
 
 /**
- * Intercepts (and receives callbacks) about the JSON->object binding process.
+ * Intercepts (and receives callbacks) about the JSON → object binding process.
  *
  * @author Kohsuke Kawaguchi
  * @see StaplerRequest#setBindInterceptor(BindInterceptor)

@@ -68,9 +68,9 @@
  * Bind {@link AdjunctManager} to URL by using Stapler. This object serves adjunct JavaScript, CSS, images, and so on.
  *
  * <li>
- * Use &lt;st:adjunct> tag to load adjunct into the page. This tag expands to the &lt;script> and &lt;link> tags
+ * Use {@code <st:adjunct>} tag to load adjunct into the page. This tag expands to the {@code <script>} and {@code <link>} tags
  * for the adjunct itself and all the dependencies. It also remembers what adjuncts are already loaded into the page,
- * so when multiple &lt;st:adjunt> tags are used to load different libraries, it won't repeatedly load the same script. 
+ * so when multiple {@code <st:adjunct>} tags are used to load different libraries, it won't repeatedly load the same script.
  *
  * </ol>
  *
@@ -85,15 +85,13 @@
  * <p>
  * Lines of the following form in JavaScript and CSS are interpreted by the adjunct framework to express
  * dependencies to other adjuncts. They have to start at the beginning of the line, without a leading whitespace.
- * <pre>
+ * <pre>{@code
  * // @include fully.qualified.adjunct.name
  * /* @include fully.qualified.adjunct.name
- * </pre>
+ * }</pre>
  * <p>
  * HTML file can have the following line to indicate a dependency.
- * <pre>
- * &lt;@include fully.qualified.adjunct.name>
- * </pre>
+ * <pre>{@code <@include fully.qualified.adjunct.name>}</pre>
  *
  * <h3>Page injection</h3>
  * <p>

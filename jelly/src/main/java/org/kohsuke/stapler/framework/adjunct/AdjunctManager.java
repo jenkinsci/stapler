@@ -54,14 +54,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>
  * How you include an adjunct will depend on your template language, but for example in Jelly you do:
- * <pre>
- * &lt;st:adjunct includes="org.kohsuke.stapler.bootstrap"/>
- * </pre>
+ * <pre>{@code <st:adjunct includes="org.kohsuke.stapler.bootstrap"/>}</pre>
  *
  * Or from Groovy you do:
- * <pre>
- * adjunct "org.kohsuke.stapler.bootstrap"
- * </pre>
+ * <pre>{@code adjunct "org.kohsuke.stapler.bootstrap"}</pre>
  *
  * <p>
  * ... and this produces a series of <tt>style</tt> and <tt>script</tt> tags that include all the

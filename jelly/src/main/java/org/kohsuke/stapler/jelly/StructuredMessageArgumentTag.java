@@ -29,7 +29,7 @@ import org.apache.commons.jelly.XMLOutput;
 import java.io.StringWriter;
 
 /**
- * Body is evaluated and is used as an argument for the surrounding &lt;structuredMessageFormat> element.
+ * Body is evaluated and is used as an argument for the surrounding {@code <structuredMessageFormat>} element.
  *
  * @author Kohsuke Kawaguchi
  */

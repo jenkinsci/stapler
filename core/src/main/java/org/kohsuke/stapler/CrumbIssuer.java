@@ -38,7 +38,7 @@ public abstract class CrumbIssuer {
      * @param submittedCrumb
      *      The submitted crumb value to be validated.
      *
-     * @throws Exception
+     * @throws SecurityException
      *      If the crumb doesn't match and the request processing should abort.
      */
     public void validateCrumb(StaplerRequest request, String submittedCrumb) {

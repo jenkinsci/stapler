@@ -172,7 +172,7 @@ public class Model<T> {
      *      This parameters controls how much data we'd be writing,
      *      by adding bias to the sub tree cutting.
      *      A property with {@link Exported#visibility() visibility} X will be written
-     *      if the current depth Y and baseVisibility Z satisfies X+Z>Y.
+     *      if the current depth Y and baseVisibility Z satisfies {@code X + Z > Y}.
      *
      *      0 is the normal value. Positive value means writing bigger tree,
      *      and negative value means writing smaller trees.

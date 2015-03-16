@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler.bind;
 
-import org.kohsuke.stapler.ClassDescriptor;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.WebApp;
@@ -39,7 +38,7 @@ import java.util.Collections;
  * As {@link HttpResponse}, this object generates a redirect to the URL that it points to.
  *
  * @author Kohsuke Kawaguchi
- * @see MetaClass#buildDispatchers(ClassDescriptor)
+ * @see MetaClass#buildDispatchers
  */
 public abstract class Bound implements HttpResponse {
     /**

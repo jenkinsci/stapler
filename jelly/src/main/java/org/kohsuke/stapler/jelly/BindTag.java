@@ -34,7 +34,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Binds a server-side object to client side so that JavaScript can call into server.
- * This tag evaluates to a &lt;script> tag.
+ * This tag evaluates to a {@code <script>} tag.
  * 
  * @author Kohsuke Kawaguchi
  */

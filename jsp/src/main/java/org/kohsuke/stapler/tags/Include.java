@@ -42,22 +42,22 @@ import java.io.PrintWriter;
  * <p>
  * This tag looks for a side JSP file of the given name
  * from the inheritance hierarchy of the it object,
- * and includes the contents of it, just like &lt;jsp:include>.
+ * and includes the contents of it, just like {@code <jsp:include>}.
  *
  * <p>
  * For example, if the "it" object is an instance of the <tt>Foo</tt> class,
  * which looks like the following:
  *
- * <pre>
+ * <pre>{@code
  * class Foo extends Bar { ... }
  * class Bar extends Zot { ... }
- * </pre>
+ * }</pre>
  *
  * <p>
  * And if you write:
- * <pre><xmp>
+ * <pre>{@code
  * <st:include page="abc.jsp"/>
- * </xmp></pre>
+ * }</pre>
  * then, it looks for the following files in this order,
  * and includes the first one found.
  * <ol>

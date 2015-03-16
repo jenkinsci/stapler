@@ -637,7 +637,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
     }
 
     /**
-     * Generates an &lt;IMG> tag to the resource.
+     * Generates an {@code <IMG>} tag to the resource.
      */
     public void img(Object base, String localName) throws SAXException {
         output.write(
