@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.kohsuke</groupId>
     <artifactId>pom</artifactId>
-    <version>12</version>
+    <version>14</version>
   </parent>
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler-parent</artifactId>
@@ -149,7 +149,6 @@
         <configuration>
           <!-- work around for a bug in javadoc plugin that causes the release to fail. see MRELEASE-271 -->
           <preparationGoals>clean install</preparationGoals>
-          <releaseProfiles>release-profile</releaseProfiles> <!-- TODO remove when parent POM is 13 -->
           <remoteTagging>true</remoteTagging>
         </configuration>
       </plugin>
@@ -269,26 +268,4 @@
     </dependency>
   </dependencies>
   </dependencyManagement>
-  <profiles>
-    <profile> <!-- TODO remove when parent POM is 13 -->
-      <id>release-profile</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
