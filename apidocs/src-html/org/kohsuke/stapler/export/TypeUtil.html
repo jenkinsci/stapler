@@ -281,17 +281,17 @@
 <span class="sourceLineNo">273</span>     *<a name="line.273"></a>
 <span class="sourceLineNo">274</span>     * &lt;p&gt;<a name="line.274"></a>
 <span class="sourceLineNo">275</span>     * For example, given the following<a name="line.275"></a>
-<span class="sourceLineNo">276</span>     * &lt;pre&gt;&lt;xmp&gt;<a name="line.276"></a>
+<span class="sourceLineNo">276</span>     * &lt;pre&gt;{@code<a name="line.276"></a>
 <span class="sourceLineNo">277</span>     * interface Foo&lt;T&gt; extends List&lt;List&lt;T&gt;&gt; {}<a name="line.277"></a>
 <span class="sourceLineNo">278</span>     * interface Bar extends Foo&lt;String&gt; {}<a name="line.278"></a>
-<span class="sourceLineNo">279</span>     * &lt;/xmp&gt;&lt;/pre&gt;<a name="line.279"></a>
+<span class="sourceLineNo">279</span>     * }&lt;/pre&gt;<a name="line.279"></a>
 <span class="sourceLineNo">280</span>     * This method works like this:<a name="line.280"></a>
-<span class="sourceLineNo">281</span>     * &lt;pre&gt;&lt;xmp&gt;<a name="line.281"></a>
+<span class="sourceLineNo">281</span>     * &lt;pre&gt;{@code<a name="line.281"></a>
 <span class="sourceLineNo">282</span>     * getBaseClass( Bar, List ) = List&lt;List&lt;String&gt;<a name="line.282"></a>
 <span class="sourceLineNo">283</span>     * getBaseClass( Bar, Foo  ) = Foo&lt;String&gt;<a name="line.283"></a>
 <span class="sourceLineNo">284</span>     * getBaseClass( Foo&lt;? extends Number&gt;, Collection ) = Collection&lt;List&lt;? extends Number&gt;&gt;<a name="line.284"></a>
 <span class="sourceLineNo">285</span>     * getBaseClass( ArrayList&lt;? extends BigInteger&gt;, List ) = List&lt;? extends BigInteger&gt;<a name="line.285"></a>
-<span class="sourceLineNo">286</span>     * &lt;/xmp&gt;&lt;/pre&gt;<a name="line.286"></a>
+<span class="sourceLineNo">286</span>     * }&lt;/pre&gt;<a name="line.286"></a>
 <span class="sourceLineNo">287</span>     *<a name="line.287"></a>
 <span class="sourceLineNo">288</span>     * @param type<a name="line.288"></a>
 <span class="sourceLineNo">289</span>     *      The type that derives from {@code baseType}<a name="line.289"></a>
