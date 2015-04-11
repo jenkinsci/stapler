@@ -24,8 +24,11 @@
 package org.kohsuke.stapler.framework.adjunct;
 
 import org.kohsuke.stapler.*;
+import org.kohsuke.stapler.assets.AssetLoader;
 import org.kohsuke.stapler.assets.AssetsManager;
+import org.kohsuke.stapler.assets.DefaultAssetLoader;
 
+import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -111,18 +114,18 @@ public class AdjunctManager {
      *                    if {@link #rootURL} is unique per session then this can be very long;
      *                    otherwise a day might be reasonable
      * @deprecated
-     *      Use {@link #AdjunctManager(AssetsManager)}
+     *      Use {@link #AdjunctManager(ServletContext,ClassLoader,AssetsManager)}
      */
     public AdjunctManager(ServletContext context, ClassLoader classLoader, String rootURL, long expiration) {
         this.classLoader = classLoader;
         this.rootURL = rootURL;
         this.webApp = WebApp.get(context);
-        this.assets = new AssetsManager(context,classLoader,rootURL,expiration) {
+        this.assets = new AssetsManager(rootURL,expiration, new DefaultAssetLoader(classLoader) {
             @Override
             protected boolean allowResourceToBeServed(String absolutePath) {
                 return AdjunctManager.this.allowResourceToBeServed(absolutePath);
             }
-        };
+        });
         // register this globally
         context.setAttribute(KEY, this);
     }
@@ -131,10 +134,10 @@ public class AdjunctManager {
      * @param assets
      *      AdjunctManager generates script and style tags that refer to assets under this manager.
      */
-    public AdjunctManager(AssetsManager assets) {
-        this.classLoader = assets.getClassLoader();
+    public AdjunctManager(ServletContext context, ClassLoader classLoader, AssetsManager assets) {
+        this.classLoader = classLoader;
         this.rootURL = assets.rootURL;
-        this.webApp = assets.getWebApp();
+        this.webApp = WebApp.get(context);
         this.assets = assets;
         // register this globally
         this.webApp.context.setAttribute(KEY, this);

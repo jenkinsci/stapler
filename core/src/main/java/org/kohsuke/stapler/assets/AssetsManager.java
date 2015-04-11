@@ -4,13 +4,14 @@ import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.WebApp;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static javax.servlet.http.HttpServletResponse.*;
 
@@ -43,9 +44,9 @@ public class AssetsManager {
     /**
      * Map used as a set to remember which resources can be served.
      */
-    private final ConcurrentHashMap<String,String> allowedResources = new ConcurrentHashMap<String,String>();
+    private final ConcurrentHashMap<String,URL> resources = new ConcurrentHashMap<String,URL>();
 
-    private final ClassLoader classLoader;
+    private final CopyOnWriteArrayList<AssetLoader> loaders = new CopyOnWriteArrayList<AssetLoader>();
 
     /**
      * Absolute URL of the {@link AssetsManager} in the calling application where it is bound to.
@@ -59,11 +60,7 @@ public class AssetsManager {
 
     private final long expiration;
 
-    private final WebApp webApp;
-
     /**
-     * @param classLoader
-     *      ClassLoader to load adjuncts from.
      * @param rootURL
      *      See {@link #rootURL} for the meaning of this parameter.
      * @param expiration milliseconds from service time until expiration, for {@link #doDynamic}
@@ -71,25 +68,17 @@ public class AssetsManager {
      *                    if {@link #rootURL} is unique per session then this can be very long;
      *                    otherwise a day might be reasonable
      */
-    public AssetsManager(ServletContext context, ClassLoader classLoader, String rootURL, long expiration) {
-        this.classLoader = classLoader;
+    public AssetsManager(String rootURL, long expiration, AssetLoader... loaders) {
         this.rootURL = rootURL;
-        this.webApp = WebApp.get(context);
         this.expiration = expiration;
+        this.loaders.addAll(Arrays.asList(loaders));
     }
 
     /**
-     * {@link ClassLoader} used to search and serve static resources.
+     * Returns the live list of {@link AssetLoader} for direct manipulation.
      */
-    public ClassLoader getClassLoader() {
-        return classLoader;
-    }
-
-    /**
-     * {@link WebApp} for which this assets manager is working.
-     */
-    public WebApp getWebApp() {
-        return webApp;
+    public List<AssetLoader> getLoaders() {
+        return loaders;
     }
 
     /**
@@ -99,47 +88,23 @@ public class AssetsManager {
         String path = req.getRestOfPath();
         if (path.charAt(0)=='/') path = path.substring(1);
 
-        if(!allowedResources.containsKey(path)) {
-            if(!allowResourceToBeServed(path)) {
-                rsp.sendError(SC_FORBIDDEN);
-                return;
+        URL res = resources.get(path);
+        if(!resources.containsKey(path)) {
+            for (AssetLoader l : loaders) {
+                res = l.load(path);
+                if (res!=null) {
+                    // remember URLs that we can serve. but don't remember error ones, as it might be unbounded
+                    resources.put(path,res);
+                    break;
+                }
             }
-            // remember URLs that we can serve. but don't remember error ones, as it might be unbounded
-            allowedResources.put(path,path);
         }
 
-        URL res = classLoader.getResource(path);
         if(res==null) {
             throw HttpResponses.error(SC_NOT_FOUND, new IllegalArgumentException("No such adjunct found: " + path));
         } else {
             long expires = MetaClass.NO_CACHE ? 0 : expiration;
             rsp.serveFile(req,res,expires);
         }
-    }
-
-    /**
-     * Controls whether the given resource can be served to browsers.
-     *
-     * <p>
-     * This method can be overridden by the sub classes to change the access control behavior.
-     *
-     * <p>
-     * {@link AssetsManager} is capable of serving all the resources visible
-     * in the classloader by default. If the resource files need to be kept private,
-     * return false, which causes the request to fail with 401.
-     *
-     * Otherwise return true, in which case the resource will be served.
-     */
-    protected boolean allowResourceToBeServed(String absolutePath) {
-        // does it have an adjunct directory marker?
-        int idx = absolutePath.lastIndexOf('/');
-        if (idx>0 && classLoader.getResource(absolutePath.substring(0,idx)+"/.adjunct")!=null)
-            return true;
-
-        // backward compatible behaviour
-        return absolutePath.endsWith(".gif")
-            || absolutePath.endsWith(".png")
-            || absolutePath.endsWith(".css")
-            || absolutePath.endsWith(".js");
     }
 }
