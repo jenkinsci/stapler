@@ -23,12 +23,13 @@
 
 package org.kohsuke.stapler.framework.adjunct;
 
-import org.kohsuke.stapler.*;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.assets.AssetLoader;
 import org.kohsuke.stapler.assets.AssetsManager;
 import org.kohsuke.stapler.assets.DefaultAssetLoader;
 
-import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -203,9 +204,13 @@ public class AdjunctManager {
      */
     protected boolean allowResourceToBeServed(String absolutePath) {
         // does it have an adjunct directory marker?
-        int idx = absolutePath.lastIndexOf('/');
-        if (idx>0 && classLoader.getResource(absolutePath.substring(0,idx)+"/.adjunct")!=null)
-            return true;
+        int idx = absolutePath.length();
+        while (true) {
+            idx = absolutePath.lastIndexOf('/',idx-1);
+            if (idx < 0)    break;
+            if (classLoader.getResource(absolutePath.substring(0, idx) + "/.adjunct") != null)
+                return true;
+        }
 
         // backward compatible behaviour
         return absolutePath.endsWith(".gif")
