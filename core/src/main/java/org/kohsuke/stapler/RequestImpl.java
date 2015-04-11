@@ -70,7 +70,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
-import static java.util.logging.Level.WARNING;
+import static java.util.logging.Level.*;
 import static javax.servlet.http.HttpServletResponse.*;
 
 /**
@@ -576,7 +576,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                         if(j.has("stapler-class")) {
                             // deprecated as of 2.4-jenkins-4 but left here for a while until we are sure nobody uses this
                             className = j.getString("stapler-class");
-                            LOGGER.log(WARNING, "'stapler-class' is deprecated: "+className);
+                            LOGGER.log(FINE, "stapler-class is deprecated in favor of $class: {0}", className);
                         }
                         if(j.has("$class")) {
                             className = j.getString("$class");
