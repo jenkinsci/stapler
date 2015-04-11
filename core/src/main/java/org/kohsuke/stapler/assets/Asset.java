@@ -19,8 +19,10 @@ public abstract class Asset {
     }
 
     public static Asset fromFile(final File f) throws MalformedURLException {
-        final URL url = f.toURI().toURL();
         return new Asset() {
+            final URL url = f.toURI().toURL();
+            final long timestamp = f.lastModified();
+
             @Override
             public URL getURL() {
                 return url;
@@ -28,7 +30,7 @@ public abstract class Asset {
 
             @Override
             public boolean isStale() {
-                return !f.exists();
+                return timestamp!=f.lastModified();
             }
         };
     }
