@@ -120,14 +120,22 @@ public class AdjunctManager {
         this.classLoader = classLoader;
         this.rootURL = rootURL;
         this.webApp = WebApp.get(context);
-        this.assets = new AssetsManager(rootURL,expiration, new DefaultAssetLoader(classLoader) {
+        this.assets = new AssetsManager(rootURL,expiration, asAssetLoader());
+        // register this globally
+        context.setAttribute(KEY, this);
+    }
+
+    /**
+     * Exposes the legacy {@link #allowResourceToBeServed(String)} filtering logic as {@link AssetLoader}
+     * for apps who want to retain legacy behavior.
+     */
+    public AssetLoader asAssetLoader() {
+        return new DefaultAssetLoader(classLoader) {
             @Override
             protected boolean allowResourceToBeServed(String absolutePath) {
                 return AdjunctManager.this.allowResourceToBeServed(absolutePath);
             }
-        });
-        // register this globally
-        context.setAttribute(KEY, this);
+        };
     }
 
     /**
