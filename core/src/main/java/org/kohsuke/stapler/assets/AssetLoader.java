@@ -25,5 +25,5 @@ public abstract class AssetLoader {
      *      if this {@link AssetLoader} do not find anything in the given path, to allow
      *      other {@link AssetLoader} to look at the path.
      */
-    public abstract URL load(String path) throws IOException, ServletException;
+    public abstract Asset load(String path) throws IOException, ServletException;
 }

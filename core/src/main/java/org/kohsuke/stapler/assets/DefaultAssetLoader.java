@@ -1,7 +1,5 @@
 package org.kohsuke.stapler.assets;
 
-import java.net.URL;
-
 /**
  * Plain implementation of {@link AssetLoader} that looks for
  * static resources via straight {@link ClassLoader#getResource(String)} call.
@@ -19,10 +17,10 @@ public class DefaultAssetLoader extends AssetLoader {
     }
 
     @Override
-    public URL load(String path) {
+    public Asset load(String path) {
         if(!allowResourceToBeServed(path))
             return null;
-        return classLoader.getResource(path);
+        return Asset.fromURL(classLoader.getResource(path));
     }
 
     /**

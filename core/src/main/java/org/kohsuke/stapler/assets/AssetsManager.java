@@ -1,15 +1,12 @@
 package org.kohsuke.stapler.assets;
 
-import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.ServletException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +44,7 @@ public class AssetsManager {
     /**
      * Map used as a set to remember which resources can be served.
      */
-    private final ConcurrentHashMap<String,URL> resources = new ConcurrentHashMap<String,URL>();
+    private final ConcurrentHashMap<String,Asset> resources = new ConcurrentHashMap<String,Asset>();
 
     private final CopyOnWriteArrayList<AssetLoader> loaders = new CopyOnWriteArrayList<AssetLoader>();
 
@@ -91,36 +88,23 @@ public class AssetsManager {
         String path = req.getRestOfPath();
         if (path.charAt(0)=='/') path = path.substring(1);
 
-        for (int retry=0; retry<2; retry++) {// if the cache disappears, we want to try it a few times
-            URL res = resources.get(path);
-            if (res == null) {
-                for (AssetLoader l : loaders) {
-                    res = l.load(path);
-                    if (res != null) {
-                        // remember URLs that we can serve. but don't remember error ones, as it might be unbounded
-                        resources.put(path, res);
-                        break;
-                    }
+        Asset res = resources.get(path);
+        if (res == null || res.isStale()) {
+            for (AssetLoader l : loaders) {
+                res = l.load(path);
+                if (res != null) {
+                    // remember URLs that we can serve. but don't remember error ones, as it might be unbounded
+                    resources.put(path, res);
+                    break;
                 }
             }
+        }
 
-            if (res == null) {
-                throw HttpResponses.error(SC_NOT_FOUND, new IllegalArgumentException("No such adjunct found: " + path));
-            } else {
-                try {
-                    long expires = MetaClass.NO_CACHE ? 0 : expiration;
-                    IOUtils.closeQuietly(res.openStream());
-                    rsp.serveFile(req, res, expires);
-                    return;
-                } catch (FileNotFoundException e) {
-                    if (retry==0) {
-                        resources.remove(path);
-                        continue;   // retry one more time
-                    } else {
-                        throw e;
-                    }
-                }
-            }
+        if (res == null) {
+            throw HttpResponses.error(SC_NOT_FOUND, new IllegalArgumentException("No such adjunct found: " + path));
+        } else {
+            long expires = MetaClass.NO_CACHE ? 0 : expiration;
+            rsp.serveFile(req, res.getURL(), expires);
         }
     }
 }
