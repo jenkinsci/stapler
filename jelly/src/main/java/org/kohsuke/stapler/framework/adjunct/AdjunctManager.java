@@ -24,17 +24,16 @@
 package org.kohsuke.stapler.framework.adjunct;
 
 import org.kohsuke.stapler.*;
+import org.kohsuke.stapler.assets.AssetsManager;
 
-import javax.servlet.ServletException;
 import javax.servlet.ServletContext;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import javax.servlet.ServletException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This application-scoped object that exposes djuncts to URL.
+ * This application-scoped object that exposes adjuncts to URL.
  *
  * <p>
  * Adjuncts are packaging of JavaScript, CSS, and other static assets in jar files with dependency
@@ -72,11 +71,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AdjunctManager {
     private final ConcurrentHashMap<String, Adjunct> adjuncts = new ConcurrentHashMap<String,Adjunct>();
 
-    /**
-     * Map used as a set to remember which resources can be served.
-     */
-    private final ConcurrentHashMap<String,String> allowedResources = new ConcurrentHashMap<String,String>();
-
     private final ClassLoader classLoader;
 
     /**
@@ -99,7 +93,8 @@ public class AdjunctManager {
     public boolean debug = Boolean.getBoolean(AdjunctManager.class.getName()+".debug");
 
     public final WebApp webApp;
-    private final long expiration;
+
+    private final AssetsManager assets;
 
     @Deprecated
     public AdjunctManager(ServletContext context,ClassLoader classLoader, String rootURL) {
@@ -115,14 +110,34 @@ public class AdjunctManager {
      *                    (as in {@link StaplerResponse#serveFile(StaplerRequest, URL, long)});
      *                    if {@link #rootURL} is unique per session then this can be very long;
      *                    otherwise a day might be reasonable
+     * @deprecated
+     *      Use {@link #AdjunctManager(AssetsManager)}
      */
     public AdjunctManager(ServletContext context, ClassLoader classLoader, String rootURL, long expiration) {
         this.classLoader = classLoader;
         this.rootURL = rootURL;
         this.webApp = WebApp.get(context);
-        this.expiration = expiration;
+        this.assets = new AssetsManager(context,classLoader,rootURL,expiration) {
+            @Override
+            protected boolean allowResourceToBeServed(String absolutePath) {
+                return AdjunctManager.this.allowResourceToBeServed(absolutePath);
+            }
+        };
         // register this globally
-        context.setAttribute(KEY,this);
+        context.setAttribute(KEY, this);
+    }
+
+    /**
+     * @param assets
+     *      AdjunctManager generates script and style tags that refer to assets under this manager.
+     */
+    public AdjunctManager(AssetsManager assets) {
+        this.classLoader = assets.getClassLoader();
+        this.rootURL = assets.rootURL;
+        this.webApp = assets.getWebApp();
+        this.assets = assets;
+        // register this globally
+        this.webApp.context.setAttribute(KEY, this);
     }
 
     public static AdjunctManager get(ServletContext context) {
@@ -154,28 +169,11 @@ public class AdjunctManager {
      * Serves resources in the class loader.
      */
     public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        String path = req.getRestOfPath();
-        if (path.charAt(0)=='/') path = path.substring(1);
-
-        if(!allowedResources.containsKey(path)) {
-            if(!allowResourceToBeServed(path)) {
-                rsp.sendError(SC_FORBIDDEN);
-                return;
-            }
-            // remember URLs that we can serve. but don't remember error ones, as it might be unbounded
-            allowedResources.put(path,path);
-        }
-
-        URL res = classLoader.getResource(path);
-        if(res==null) {
-            throw HttpResponses.error(SC_NOT_FOUND,new IllegalArgumentException("No such adjunct found: "+path));
-        } else {
-            long expires = MetaClass.NO_CACHE ? 0 : expiration;
-            rsp.serveFile(req,res,expires);
-        }
+        assets.doDynamic(req,rsp);
     }
 
     /**
+     * @D
      * Controls whether the given resource can be served to browsers.
      *
      * <p>
@@ -184,9 +182,13 @@ public class AdjunctManager {
      * <p>
      * {@link AdjunctManager} is capable of serving all the resources visible
      * in the classloader by default. If the resource files need to be kept private,
-     * return false, which causes the request to fail with 401. 
+     * return false, which causes the request to fail with 401.
      *
      * Otherwise return true, in which case the resource will be served.
+     *
+     * @deprecated
+     *      the parts that serve static resources are moved to {@link AssetsManager}.
+     *      Instantiates {@link AssetsManager} on your own
      */
     protected boolean allowResourceToBeServed(String absolutePath) {
         // does it have an adjunct directory marker?
