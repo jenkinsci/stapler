@@ -86,7 +86,7 @@ public class AssetsManager {
      */
     public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         String path = req.getRestOfPath();
-        if (path.charAt(0)=='/') path = path.substring(1);
+        if (path.startsWith("/")) path = path.substring(1);
 
         Asset res = resources.get(path);
         if (res == null || res.isStale()) {
