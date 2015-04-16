@@ -78,7 +78,7 @@
 <span class="sourceLineNo">070</span>import java.util.StringTokenizer;<a name="line.70"></a>
 <span class="sourceLineNo">071</span>import java.util.logging.Logger;<a name="line.71"></a>
 <span class="sourceLineNo">072</span><a name="line.72"></a>
-<span class="sourceLineNo">073</span>import static java.util.logging.Level.WARNING;<a name="line.73"></a>
+<span class="sourceLineNo">073</span>import static java.util.logging.Level.*;<a name="line.73"></a>
 <span class="sourceLineNo">074</span>import static javax.servlet.http.HttpServletResponse.*;<a name="line.74"></a>
 <span class="sourceLineNo">075</span><a name="line.75"></a>
 <span class="sourceLineNo">076</span>/**<a name="line.76"></a>
@@ -584,7 +584,7 @@
 <span class="sourceLineNo">576</span>                        if(j.has("stapler-class")) {<a name="line.576"></a>
 <span class="sourceLineNo">577</span>                            // deprecated as of 2.4-jenkins-4 but left here for a while until we are sure nobody uses this<a name="line.577"></a>
 <span class="sourceLineNo">578</span>                            className = j.getString("stapler-class");<a name="line.578"></a>
-<span class="sourceLineNo">579</span>                            LOGGER.log(WARNING, "'stapler-class' is deprecated: "+className);<a name="line.579"></a>
+<span class="sourceLineNo">579</span>                            LOGGER.log(FINE, "stapler-class is deprecated in favor of $class: {0}", className);<a name="line.579"></a>
 <span class="sourceLineNo">580</span>                        }<a name="line.580"></a>
 <span class="sourceLineNo">581</span>                        if(j.has("$class")) {<a name="line.581"></a>
 <span class="sourceLineNo">582</span>                            className = j.getString("$class");<a name="line.582"></a>
