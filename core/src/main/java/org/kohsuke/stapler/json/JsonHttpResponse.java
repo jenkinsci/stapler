@@ -2,6 +2,7 @@ package org.kohsuke.stapler.json;
 
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.HttpResponses.HttpResponseException;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -16,7 +17,7 @@ import java.io.StringWriter;
  *
  * @author Carlos Sanchez
  */
-public class JsonHttpResponse implements HttpResponse {
+public class JsonHttpResponse extends HttpResponseException {
     private final @Nullable JSONObject responseJson;
     private final int status;
 
@@ -34,7 +35,7 @@ public class JsonHttpResponse implements HttpResponse {
         t.printStackTrace(new PrintWriter(sw));
         this.responseJson = new JSONObject()
                 .element("error", t.getClass().getName() + ": " + t.getMessage())
-                .element("stackTrace",sw.toString());
+                .element("stackTrace", sw.toString());
         this.status = status;
     }
 
