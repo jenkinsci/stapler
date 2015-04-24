@@ -7,9 +7,6 @@ import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
-import javax.annotation.Nullable;
-import javax.servlet.ServletException;
-import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -43,7 +40,17 @@ public @interface JsonResponse {
                 throws IllegalAccessException, InvocationTargetException {
             try {
                 final Object r = target.invoke(request, response, instance, arguments);
-                return new JsonHttpResponse(r == null ? null : JSONObject.fromObject(r));
+
+                JSONObject j;
+                if (r==null)
+                    j = null;
+                else
+                if (r instanceof JSONObject)
+                    j = (JSONObject)r;
+                else
+                    j = JSONObject.fromObject(r);
+
+                return new JsonHttpResponse(j);
             } catch (InvocationTargetException e) {
                 logger.log(Level.SEVERE, "Error processing request", e);
                 Throwable target = e.getTargetException();
@@ -54,35 +61,4 @@ public @interface JsonResponse {
         }
     }
 
-    static class JsonHttpResponse implements HttpResponse {
-        private final @Nullable JSONObject responseJson;
-        private final int status;
-
-        public JsonHttpResponse(JSONObject o) {
-            this(o, o == null ? 204 : 200);
-        }
-
-        public JsonHttpResponse(JSONObject o, int status) {
-            this.responseJson = o;
-            this.status = status;
-        }
-
-        public JsonHttpResponse(Throwable t, int status) {
-            this.responseJson = new JSONObject().element("error", t.getClass().getName() + ": " + t.getMessage());
-            this.status = status;
-        }
-
-        @Override
-        public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException,
-                ServletException {
-            if (status > 0) {
-                rsp.setStatus(status);
-            }
-            if (responseJson != null) {
-                rsp.setContentType("application/json;charset=UTF-8");
-                responseJson.write(rsp.getCompressedWriter(req));
-            }
-        }
-
-    }
 }
