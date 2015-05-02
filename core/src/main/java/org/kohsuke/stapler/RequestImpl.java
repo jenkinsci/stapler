@@ -862,7 +862,14 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         if(parsedFormData!=null)    return;
 
         parsedFormData = new HashMap<String,FileItem>();
-        ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
+        DiskFileItemFactory factory = null;
+        String path = System.getProperty("stapler.tmpPath");
+        if (path != null) {
+            factory = new DiskFileItemFactory(DiskFileItemFactory.DEFAULT_SIZE_THRESHOLD, new File(path));
+        } else {
+            factory = new DiskFileItemFactory();
+        }
+        ServletFileUpload upload = new ServletFileUpload(factory);
         try {
             for( FileItem fi : (List<FileItem>)upload.parseRequest(this) )
                 parsedFormData.put(fi.getFieldName(),fi);
