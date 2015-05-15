@@ -381,21 +381,6 @@ public class MetaClass extends TearOffSupport {
         for (Facet f : webApp.facets)
             f.buildFallbackDispatchers(this, dispatchers);
 
-        // check action <obj>.doDynamic(...)
-        for( final Function f : node.methods.name("doDynamic") ) {
-
-            dispatchers.add(new Dispatcher() {
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
-                    if(traceable())
-                        trace(req,rsp,"-> <%s>.doDynamic(...)",node);
-                    return f.bindAndInvokeAndServeResponse(node,req,rsp);
-                }
-                public String toString() {
-                    return String.format("%s(StaplerRequest,StaplerResponse) for any URL",f.getQualifiedName());
-                }
-            });
-        }
-
         // check public selector methods <obj>.getDynamic(<token>,...)
         for( final Function f : getMethods.signatureStartsWith(String.class).name("getDynamic")) {
             dispatchers.add(new Dispatcher() {
@@ -420,6 +405,21 @@ public class MetaClass extends TearOffSupport {
                 }
                 public String toString() {
                     return String.format("%s(String,StaplerRequest,StaplerResponse) for url=/TOKEN/...",f.getQualifiedName());
+                }
+            });
+        }
+
+        // check action <obj>.doDynamic(...)
+        for( final Function f : node.methods.name("doDynamic") ) {
+
+            dispatchers.add(new Dispatcher() {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+                    if(traceable())
+                        trace(req,rsp,"-> <%s>.doDynamic(...)",node);
+                    return f.bindAndInvokeAndServeResponse(node,req,rsp);
+                }
+                public String toString() {
+                    return String.format("%s(StaplerRequest,StaplerResponse) for any URL",f.getQualifiedName());
                 }
             });
         }
