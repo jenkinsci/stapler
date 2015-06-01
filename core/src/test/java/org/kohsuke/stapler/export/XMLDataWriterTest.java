@@ -30,7 +30,7 @@ public class XMLDataWriterTest extends TestCase {
         public String getD() {return "dval";}
     }
     public void testSimpleUsage() throws Exception {
-        assertEquals("<x><a>aval</a><c>cval</c></x>",
+        assertEquals("<x><class>X</class><a>aval</a><c>cval</c></x>",
                 serialize(new X(), X.class));
     }
 
@@ -46,7 +46,7 @@ public class XMLDataWriterTest extends TestCase {
         @Exported public Super polymorph = new Sub();
     }
     public void testInheritance() throws Exception {
-        assertEquals("<container><polymorph><basic>super</basic><generic>sub</generic>" +
+        assertEquals("<container><class>Container</class><polymorph><class>Sub</class><basic>super</basic><generic>sub</generic>" +
                 "<specific>sub</specific></polymorph></container>",
                 serialize(new Container(), Container.class));
     }
@@ -55,7 +55,7 @@ public class XMLDataWriterTest extends TestCase {
         @Exported @Override public String generic() {return "sub2";}
     }
     public void testInheritance2() throws Exception { // JENKINS-13336
-        assertEquals("<sub2><basic>super</basic><generic>sub2</generic></sub2>",
+        assertEquals("<sub2><class>Sub2</class><basic>super</basic><generic>sub2</generic></sub2>",
                 serialize(new Sub2(), Sub2.class));
     }
 
@@ -77,7 +77,7 @@ public class XMLDataWriterTest extends TestCase {
     }
 
     public void testPrimitiveArrays() throws Exception {
-        assertEquals("<PA><v>1</v><v>2</v><v>3</v></PA>",serialize(new PA(),PA.class));
+        assertEquals("<PA><class>PA</class><v>1</v><v>2</v><v>3</v></PA>",serialize(new PA(),PA.class));
     }
 
     public void testMakeXmlName() {
@@ -93,7 +93,7 @@ public class XMLDataWriterTest extends TestCase {
     }
 
     public void testToSingular() throws Exception {
-        assertEquals("<arrays><category>general</category><category>specific</category><style>ornate</style><style>plain</style></arrays>",
+        assertEquals("<arrays><class>Arrays</class><category>general</category><category>specific</category><style>ornate</style><style>plain</style></arrays>",
                 serialize(new Arrays(), Arrays.class));
     }
 
