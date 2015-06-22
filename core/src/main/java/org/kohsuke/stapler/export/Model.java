@@ -190,6 +190,9 @@ public class Model<T> {
                 superBlacklist.add(p.name);
             }
             superModel.writeNestedObjectTo(object, pruner, writer, superBlacklist);
+        } else {
+            writer.name("class");
+            writer.value(object.getClass().getSimpleName());
         }
 
         for (Property p : properties) {
