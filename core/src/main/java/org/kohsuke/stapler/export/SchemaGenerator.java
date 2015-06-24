@@ -104,6 +104,7 @@ public class SchemaGenerator {
             cm = ct.complexContent().extension().base(getXmlTypeName(m.superModel.type)).sequence();
         }
 
+        cm.element().name("class").type(XSD.Types.STRING);
         for (Property p : m.getProperties()) {
             Class t = p.getType();
             final boolean isCollection;
