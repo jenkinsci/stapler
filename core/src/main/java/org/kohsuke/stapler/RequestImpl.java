@@ -938,6 +938,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         if(parsedFormData!=null)    return;
 
         parsedFormData = new HashMap<String,FileItem>();
+        parsedFormDataFormFields = new HashMap<String, String>();
         ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
         try {
             for( FileItem fi : (List<FileItem>)upload.parseRequest(this) ) {
