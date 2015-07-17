@@ -163,13 +163,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     public String getParameter(String name) {
         if(isMultipart()) {
             Map<String, String> data = getFormDataFormFields();
-            if (data != null) {
-                String value = data.get(name);
-                if (value != null) {
-                    return value;
-                }
-                // Fallback ...
+            String value = data.get(name);
+            if (value != null) {
+                return value;
             }
+            // Fallback ...
         }
         return super.getParameter(name);
     }
@@ -179,9 +177,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         Map parameterMap = super.getParameterMap();
         if(isMultipart()) {
             Map<String, String> data = getFormDataFormFields();
-            if (data != null) {
-                parameterMap.putAll(data);
-            }
+            parameterMap.putAll(data);
         }
         return parameterMap;
     }
@@ -192,7 +188,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             return super.getParameterNames();
         }
         Map<String, String> data = getFormDataFormFields();
-        if (data == null) {
+        if (data.isEmpty()) {
             return super.getParameterNames();
         }
         
@@ -208,7 +204,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             return super.getParameterValues(name);
         }
         Map<String, String> data = getFormDataFormFields();
-        if (data == null) {
+        if (data.isEmpty()) {
             return super.getParameterValues(name);
         }
         
@@ -958,7 +954,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     private Map<String, String> getFormDataFormFields() {
         try {
             parseMultipartFormData();
-        } catch (ServletException e) {
+        } catch (Exception e) {
             LOGGER.log(SEVERE, "Error parsing multipart/form-data.", e);
         }
         return parsedFormDataFormFields;
