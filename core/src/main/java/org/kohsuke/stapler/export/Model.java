@@ -149,7 +149,7 @@ public class Model<T> {
     /**
      * Writes the property values of the given object to the writer.
      */
-    public void writeTo(T object, DataWriter writer) throws IOException {
+    public void writeTo(@CheckForNull T object, DataWriter writer) throws IOException {
         writeTo(object,0,writer);
     }
 
@@ -159,7 +159,7 @@ public class Model<T> {
      * @param pruner
      *      Controls which portion of the object graph will be sent to the writer.
      */
-    public void writeTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
+    public void writeTo(@CheckForNull T object, TreePruner pruner, DataWriter writer) throws IOException {
         writer.startObject();
         writeNestedObjectTo(object, pruner, writer, Collections.<String>emptySet());
         writer.endObject();
@@ -179,11 +179,11 @@ public class Model<T> {
      *
      * @deprecated as of 1.139
      */
-    public void writeTo(T object, int baseVisibility, DataWriter writer) throws IOException {
+    public void writeTo(@CheckForNull T object, int baseVisibility, DataWriter writer) throws IOException {
         writeTo(object,new ByDepth(1-baseVisibility),writer);
     }
 
-    void writeNestedObjectTo(T object, TreePruner pruner, DataWriter writer, Set<? extends String> blacklist) throws IOException {
+    void writeNestedObjectTo(@CheckForNull T object, TreePruner pruner, DataWriter writer, Set<? extends String> blacklist) throws IOException {
         if (superModel != null) {
             Set<String> superBlacklist = new HashSet<String>(blacklist);
             for (Property p : properties) {
@@ -191,8 +191,10 @@ public class Model<T> {
             }
             superModel.writeNestedObjectTo(object, pruner, writer, superBlacklist);
         } else {
-            writer.name("$class");
-            writer.value(object.getClass().getName());
+            if (object != null) {
+                writer.name("$class");
+                writer.value(object.getClass().getName());
+            }
         }
 
         for (Property p : properties) {
