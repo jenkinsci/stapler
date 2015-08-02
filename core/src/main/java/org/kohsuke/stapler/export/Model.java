@@ -192,7 +192,7 @@ public class Model<T> {
             superModel.writeNestedObjectTo(object, pruner, writer, superBlacklist);
         } else {
             writer.name("$class");
-            writer.value(object.getClass().getSimpleName());
+            writer.value(object.getClass().getName());
         }
 
         for (Property p : properties) {
