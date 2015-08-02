@@ -1,16 +1,13 @@
 package org.kohsuke.stapler.export;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
 
-public class JSONDataWriterTest extends TestCase {
+import static org.junit.Assert.assertEquals;
 
-    public JSONDataWriterTest(String n) {
-        super(n);
-    }
-
+public class JSONDataWriterTest {
     private static <T> String serialize(T bean, Class<T> clazz) throws IOException {
         StringWriter w = new StringWriter();
         Model<T> model = new ModelBuilder().get(clazz);
@@ -25,6 +22,7 @@ public class JSONDataWriterTest extends TestCase {
         public String getD() {return "dval";}
     }
 
+    @Test
     public void testSimpleUsage() throws Exception {
         assertEquals("{\"class\":\"X\",\"a\":\"aval\",\"c\":\"cval\"}",
                 serialize(new X(), X.class));
@@ -42,6 +40,7 @@ public class JSONDataWriterTest extends TestCase {
         @Exported public Super polymorph = new Sub();
     }
 
+    @Test
     public void testInheritance() throws Exception {
         assertEquals("{\"class\":\"Container\",\"polymorph\":{\"class\":\"Sub\",\"basic\":\"super\",\"generic\":\"sub\",\"specific\":\"sub\"}}",
                 serialize(new Container(), Container.class));
@@ -50,6 +49,8 @@ public class JSONDataWriterTest extends TestCase {
     public static class Sub2 extends Super {
         @Exported @Override public String generic() {return "sub2";}
     }
+
+    @Test
     public void testInheritance2() throws Exception { // JENKINS-13336
         assertEquals("{\"class\":\"Sub2\",\"basic\":\"super\",\"generic\":\"sub2\"}",
                 serialize(new Sub2(), Sub2.class));
