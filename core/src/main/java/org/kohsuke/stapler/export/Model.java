@@ -93,7 +93,7 @@ public class Model<T> {
         }
 
         for( Method m : type.getMethods() ) {
-            if(m.getDeclaringClass()!=type) continue;
+            if (m.getDeclaringClass() != type || m.isSynthetic()) continue;
             Exported exported = m.getAnnotation(Exported.class);
             if(exported !=null) {
                 if (m.getParameterTypes().length > 0) {
