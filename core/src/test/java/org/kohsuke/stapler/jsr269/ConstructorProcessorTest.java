@@ -20,7 +20,7 @@ public class ConstructorProcessorTest {
                 addLine("  @DataBoundConstructor public Stuff(int count, String name) {}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
+        assertEquals(Collections.emptyList(), compilation.getDiagnostics());
         assertEquals("{constructor=count,name}", Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.stapler")));
     }
 
@@ -32,7 +32,7 @@ public class ConstructorProcessorTest {
                 addLine("  /** @stapler-constructor */ public Stuff(String name, int count) {}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
+        assertEquals(Collections.emptyList(), compilation.getDiagnostics());
         assertEquals("{constructor=name,count}", Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.stapler")));
     }
 
@@ -47,7 +47,7 @@ public class ConstructorProcessorTest {
         compilation.addSource("some.pkg.package-info").
                 addLine("package some.pkg;");
         compilation.doCompile(null, "-source", "6");
-        assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
+        assertEquals(Collections.emptyList(), compilation.getDiagnostics());
         assertEquals("{constructor=count,name}", Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.stapler")));
     }
 
@@ -60,7 +60,7 @@ public class ConstructorProcessorTest {
                 addLine("  @DataBoundConstructor Stuff() {}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics());
+        List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
         assertEquals(1, diagnostics.size());
         String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
         assertTrue(msg, msg.contains("public"));
@@ -75,7 +75,7 @@ public class ConstructorProcessorTest {
                 addLine("  @DataBoundConstructor public Stuff() {}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics());
+        List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
         assertEquals(1, diagnostics.size());
         String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
         assertTrue(msg, msg.contains("abstract"));

@@ -46,7 +46,7 @@ public class RequirePOSTAnnotationProcessorTest {
                 addLine("  @RequirePOST public void doSomething() {}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
+        assertEquals(Collections.emptyList(), compilation.getDiagnostics());
     }
 
     @Test public void noAbstract() throws Exception {
@@ -58,7 +58,7 @@ public class RequirePOSTAnnotationProcessorTest {
                 addLine("  @RequirePOST public abstract void doSomething();").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics());
+        List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
         assertEquals(1, diagnostics.size());
         assertEquals(Diagnostic.Kind.ERROR, diagnostics.get(0).getKind());
         String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
@@ -79,7 +79,7 @@ public class RequirePOSTAnnotationProcessorTest {
                 addLine("  @Override public void doSomething() {}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics());
+        List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
         assertEquals(1, diagnostics.size());
         assertEquals(Diagnostic.Kind.WARNING, diagnostics.get(0).getKind());
         assertEquals("some/pkg/SpecialStuff.java", diagnostics.get(0).getSource().toUri().toString());
@@ -102,7 +102,7 @@ public class RequirePOSTAnnotationProcessorTest {
                 addLine("  @RequirePOST  @Override public void doSomething() {}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
+        assertEquals(Collections.emptyList(), compilation.getDiagnostics());
     }
 
 }
