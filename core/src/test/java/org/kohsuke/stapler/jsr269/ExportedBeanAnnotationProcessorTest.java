@@ -25,7 +25,7 @@ public class ExportedBeanAnnotationProcessorTest {
                 addLine("  @Exported(name=\"name\") public String getDisplayName() {return null;}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
+        assertEquals(Collections.emptyList(), Utils.filterObsoleteSourceVersionWarnings(compilation.getDiagnostics()));
         assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, "META-INF/annotations/org.kohsuke.stapler.export.ExportedBean"));
         assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
         assertEquals("{getDisplayName=This gets the display name. }", Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.javadoc")));
@@ -40,7 +40,7 @@ public class ExportedBeanAnnotationProcessorTest {
                 addLine("  @Exported public int getCount() {return 0;}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
+        assertEquals(Collections.emptyList(), Utils.filterObsoleteSourceVersionWarnings(compilation.getDiagnostics()));
         assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, "META-INF/annotations/org.kohsuke.stapler.export.ExportedBean"));
         assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
         // TODO should it be null, i.e. is it desired to create an empty *.javadoc file?
@@ -59,7 +59,7 @@ public class ExportedBeanAnnotationProcessorTest {
                 addLine("  @Override public int getCount() {return 0;}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
+        assertEquals(Collections.emptyList(), Utils.filterObsoleteSourceVersionWarnings(compilation.getDiagnostics()));
         /* #7188605: broken in JDK 6u33 + org.jvnet.hudson:annotation-indexer:1.2:
         assertEquals("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, "META-INF/annotations/org.kohsuke.stapler.export.ExportedBean"));
         */
@@ -78,7 +78,7 @@ public class ExportedBeanAnnotationProcessorTest {
                 addLine("  @Exported public int getCount() {return 0;}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
+        assertEquals(Collections.emptyList(), Utils.filterObsoleteSourceVersionWarnings(compilation.getDiagnostics()));
         assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
         compilation = new Compilation(compilation);
         compilation.addSource("some.pkg.MoreStuff").
@@ -88,7 +88,7 @@ public class ExportedBeanAnnotationProcessorTest {
                 addLine("  @Exported public int getCount() {return 0;}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
+        assertEquals(Collections.emptyList(), Utils.filterObsoleteSourceVersionWarnings(compilation.getDiagnostics()));
         assertEqualsCRLF("some.pkg.MoreStuff\nsome.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
     }
 

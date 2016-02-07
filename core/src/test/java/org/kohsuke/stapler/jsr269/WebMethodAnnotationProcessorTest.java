@@ -46,7 +46,7 @@ public class WebMethodAnnotationProcessorTest {
                 addLine("  @WebMethod(name=\"hello\") public void doSomething() {}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        assertEquals(Collections.emptyList(), compilation.getDiagnostics());
+        assertEquals(Collections.emptyList(), Utils.filterObsoleteSourceVersionWarnings(compilation.getDiagnostics()));
     }
 
     @Test public void nonDoMethods() throws Exception {
@@ -58,7 +58,7 @@ public class WebMethodAnnotationProcessorTest {
                 addLine("  @WebMethod(name=\"hello\") public void something() {}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
+        List<Diagnostic<? extends JavaFileObject>> diagnostics = Utils.filterObsoleteSourceVersionWarnings(compilation.getDiagnostics());
         assertEquals(1, diagnostics.size());
         String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
         assertTrue(msg, msg.contains("something"));

@@ -17,7 +17,7 @@ public class QueryParameterAnnotationProcessorTest {
                 addLine("  public void doAnother(@QueryParameter(\"ignoredHere\") String name, @QueryParameter String address) {}").
                 addLine("}");
         compilation.doCompile(null, "-source", "6");
-        assertEquals(Collections.emptyList(), Utils.filterSupportedSourceVersionWarnings(compilation.getDiagnostics()));
+        assertEquals(Collections.emptyList(), Utils.filterObsoleteSourceVersionWarnings(compilation.getDiagnostics()));
         assertEquals("key", Utils.getGeneratedResource(compilation, "some/pkg/Stuff/doOneThing.stapler"));
         assertEquals("name,address", Utils.getGeneratedResource(compilation, "some/pkg/Stuff/doAnother.stapler"));
     }
