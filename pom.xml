@@ -224,14 +224,14 @@
       </plugin>
     </plugins>
   </reporting>
-  
+
 
   <dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.kohsuke.metainf-services</groupId>
       <artifactId>metainf-services</artifactId>
-      <version>1.5</version>
+      <version>1.7</version>
     </dependency>
 
     <!-- test dependencies -->
