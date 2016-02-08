@@ -5,11 +5,11 @@
     <artifactId>stapler-parent</artifactId>
     <version>1.238-SNAPSHOT</version>
   </parent>
-  
+
   <artifactId>stapler-jelly</artifactId>
   <name>Stapler Jelly module</name>
   <description>Jelly binding for Stapler</description>
-  
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -107,11 +107,9 @@
         <version>1.2</version>
         <dependencies>
           <dependency>
-            <groupId>com.sun</groupId>
-            <artifactId>tools</artifactId>
-            <scope>system</scope>
-            <version>1.6</version>
-            <systemPath>${toolsjar}</systemPath>
+            <groupId>com.github.olivergondza</groupId>
+            <artifactId>maven-jdk-tools-wrapper</artifactId>
+            <version>0.1</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -135,11 +133,9 @@
             </executions>
             <dependencies>
               <dependency>
-                <groupId>com.sun</groupId>
-                <artifactId>tools</artifactId>
-                <scope>system</scope>
-                <version>1.6</version>
-                <systemPath>${toolsjar}</systemPath>
+                <groupId>com.github.olivergondza</groupId>
+                <artifactId>maven-jdk-tools-wrapper</artifactId>
+                <version>0.1</version>
               </dependency>
             </dependencies>
           </plugin>
@@ -155,28 +151,6 @@
           </plugin>
         </plugins>
       </reporting>
-    </profile>
-    <profile>
-      <id>sane-jdk</id>
-      <activation>
-        <file>
-          <exists>${java.home}/../lib/tools.jar</exists>
-        </file>
-      </activation>
-      <properties>
-        <toolsjar>${java.home}/../lib/tools.jar</toolsjar>
-      </properties>
-    </profile>
-    <profile>
-      <id>osx-jdk</id>
-      <activation>
-        <file>
-          <exists>${java.home}/../Classes/classes.jar</exists>
-        </file>
-      </activation>
-      <properties>
-        <toolsjar>${java.home}/../Classes/classes.jar</toolsjar>
-      </properties>
     </profile>
   </profiles>
 </project>
