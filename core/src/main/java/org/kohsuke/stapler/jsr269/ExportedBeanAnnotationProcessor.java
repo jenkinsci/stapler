@@ -146,6 +146,8 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
             in.close();
         } catch (FileNotFoundException e) {
             // no existing file, which is fine
+        } catch (java.nio.file.NoSuchFileException e) {
+            // no existing file, which is fine
         }
     }
 
