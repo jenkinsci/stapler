@@ -1,8 +1,10 @@
 package org.kohsuke.stapler.jsr269;
 
 import java.util.Collections;
+
 import net.java.dev.hickory.testing.Compilation;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 public class QueryParameterAnnotationProcessorTest {
