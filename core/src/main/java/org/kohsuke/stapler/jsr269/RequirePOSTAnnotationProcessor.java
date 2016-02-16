@@ -30,7 +30,6 @@ import java.util.Set;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -42,7 +41,6 @@ import javax.tools.Diagnostic;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("org.kohsuke.stapler.interceptor.RequirePOST")
 @MetaInfServices(Processor.class)
 public class RequirePOSTAnnotationProcessor extends AbstractProcessorImpl {
@@ -76,6 +74,10 @@ public class RequirePOSTAnnotationProcessor extends AbstractProcessorImpl {
             }
         }
         return true;
+    }
+
+    @Override public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latest();
     }
 
     private void checkForOverrides(ExecutableElement concrete) {

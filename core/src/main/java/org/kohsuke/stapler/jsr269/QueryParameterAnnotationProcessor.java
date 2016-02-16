@@ -7,7 +7,6 @@ import org.kohsuke.stapler.QueryParameter;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -23,7 +22,6 @@ import java.util.Set;
  * @author Kohsuke Kawaguchi
  */
 @SuppressWarnings({"Since15"})
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("org.kohsuke.stapler.QueryParameter")
 @MetaInfServices(Processor.class)
 public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
@@ -54,6 +52,11 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
             throw e;
         }
         return false;
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latest();
     }
 
     /**
