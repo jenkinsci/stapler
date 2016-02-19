@@ -152,22 +152,8 @@ public class MetaClass extends TearOffSupport {
             f.buildViewDispatchers(this, dispatchers);
 
         // check action <obj>.doIndex(...)
-        for( final Function f : node.methods.name("doIndex") ) {
-
-            dispatchers.add(new Dispatcher() {
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
-                    if(req.tokens.hasMore())
-                        return false;   // applicable only when there's no more token
-
-                    if(traceable())
-                        trace(req,rsp,"-> <%s>.doIndex(...)",node);
-
-                    return f.bindAndInvokeAndServeResponse(node,req,rsp);
-                }
-                public String toString() {
-                    return f.getQualifiedName()+"(StaplerRequest,StaplerResponse) for url=/";
-                }
-            });
+        for (Function f : node.methods.name("doIndex")) {
+            dispatchers.add(new IndexDispatcher(f));
         }
 
         // check public properties of the form NODE.TOKEN
