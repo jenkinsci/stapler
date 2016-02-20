@@ -72,4 +72,33 @@ public class DispatcherTest extends JettyTestCase {
         TextPage p = wc.getPage(new WebRequestSettings(new URL(url, "verbMatch/"), m));
         assertEquals("Got "+m.name()+"\n", p.getContent());
     }
+
+
+    //===================================================================
+
+
+    public final ArbitraryWebMethodName arbitraryWebMethodName = new ArbitraryWebMethodName();
+
+    public class ArbitraryWebMethodName {
+        @WebMethod(name="")
+        public HttpResponse doesNotHaveDoPrefix() {
+            return HttpResponses.plainText("I'm index");
+        }
+
+        // this method is implicitly web method by its name
+        public HttpResponse doTheNeedful() {
+            return HttpResponses.plainText("DTN");
+        }
+    }
+
+
+    public void testArbitraryWebMethodName() throws Exception {
+        WebClient wc = new WebClient();
+        TextPage p = wc.getPage(new URL(url, "arbitraryWebMethodName"));
+        assertEquals("I'm index\n", p.getContent());
+
+        p = wc.getPage(new URL(url, "arbitraryWebMethodName/theNeedful"));
+        assertEquals("DTN\n", p.getContent());
+
+    }
 }

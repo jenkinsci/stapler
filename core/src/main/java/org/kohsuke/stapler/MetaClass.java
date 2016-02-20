@@ -105,8 +105,8 @@ public class MetaClass extends TearOffSupport {
         this.dispatchers.clear();
         ClassDescriptor node = new ClassDescriptor(clazz,null/*TODO:support wrappers*/);
 
-        // check action <obj>.do<token>(...)
-        for( final Function f : node.methods.prefix("do") ) {
+        // check action <obj>.do<token>(...) and other WebMethods
+        for( final Function f : node.methods.webMethods() ) {
             WebMethod a = f.getAnnotation(WebMethod.class);
             
             String[] names;

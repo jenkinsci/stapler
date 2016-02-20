@@ -59,6 +59,16 @@ final class FunctionList extends AbstractList<Function> {
         return functions.length;
     }
 
+    /**
+     * Compute set unions of two lists.
+     */
+    public FunctionList union(FunctionList that) {
+        Set<Function> combined = new LinkedHashSet<Function>();
+        combined.addAll(Arrays.asList(this.functions));
+        combined.addAll(Arrays.asList(that.functions));
+        return new FunctionList(combined);
+    }
+
     //public int length() {
     //    return functions.length;
     //}
@@ -110,7 +120,19 @@ final class FunctionList extends AbstractList<Function> {
     public FunctionList signature(final Class... args) {
         return filter(new Filter() {
             public boolean keep(Function m) {
-                return Arrays.equals(m.getParameterTypes(),args);
+                return Arrays.equals(m.getParameterTypes(), args);
+            }
+        });
+    }
+
+    /**
+     * Returns {@link Function}s that are either explicitly {@link WebMethod} or
+     * implicitly so (by having its name start with 'do')
+     */
+    public FunctionList webMethods() {
+        return filter(new Filter() {
+            public boolean keep(Function m) {
+                return m.getName().startsWith("do") || m.getAnnotation(WebMethod.class)!=null;
             }
         });
     }
