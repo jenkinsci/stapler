@@ -200,20 +200,6 @@ evaluate(node,[x,W]) := evaluate(node.get(x),W)   &mdash; if node instanceof Map
 </pre></blockquote>
 
 
-<h3>Dynamic Action Method</h3>
-<p>
-	If the current object has a public "action" method <tt>doDynamic(StaplerRequest,StaplerResponse)</tt>, then this method is invoked. From within this method, the rest of the URL can be accessed by <tt>StaplerRequest.getRestOfPath()</tt>. This is convenient for an object that wants to control the URL mapping entirely on its own.
-<p>
-	The action method is the final consumer of the request.
-
-<p>
-Formally,
-
-<blockquote><pre>
-evaluate(node,url) := node.doDynamic(request,response)
-</pre></blockquote>
-
-
 
 <h3>Dynamic Getter Method</h3>
 <p>
@@ -227,6 +213,22 @@ Formally,
 <blockquote><pre>
 evaluate(node,[x,W]) := evaluate(node.getDynamic(x,request,response),W)
 </pre></blockquote>
+
+
+
+<h3>Dynamic Action Method</h3>
+<p>
+	If the current object has a public "action" method <tt>doDynamic(StaplerRequest,StaplerResponse)</tt>, then this method is invoked. From within this method, the rest of the URL can be accessed by <tt>StaplerRequest.getRestOfPath()</tt>. This is convenient for an object that wants to control the URL mapping entirely on its own.
+<p>
+	The action method is the final consumer of the request.
+
+<p>
+Formally,
+
+<blockquote><pre>
+evaluate(node,url) := node.doDynamic(request,response)
+</pre></blockquote>
+
 
 
 <h3>If None of the Above Works</h3>
