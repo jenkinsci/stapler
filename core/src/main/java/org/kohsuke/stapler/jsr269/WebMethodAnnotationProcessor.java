@@ -30,7 +30,6 @@ import java.util.Set;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -39,7 +38,6 @@ import javax.tools.Diagnostic;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.WebMethod;
 
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("org.kohsuke.stapler.WebMethod")
 @MetaInfServices(Processor.class)
 public class WebMethodAnnotationProcessor extends AbstractProcessorImpl {
@@ -55,6 +53,10 @@ public class WebMethodAnnotationProcessor extends AbstractProcessorImpl {
             }
         }
         return true;
+    }
+
+    @Override public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latest();
     }
 
 }
