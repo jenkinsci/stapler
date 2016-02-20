@@ -107,6 +107,13 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
      * @see #parseMultipartFormData()
      */
     private Map<String, FileItem> parsedFormData;
+    
+    /**
+     * If the request is "multipart/form-data", the form field only parts of the parsed result go here.
+     *
+     * @see #parseMultipartFormData()
+     */    
+    private Map<String, String> parsedFormDataFormFields;
 
     private BindInterceptor bindInterceptor = BindInterceptor.NOOP;
 
@@ -150,6 +157,71 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     public ServletContext getServletContext() {
         return stapler.getServletContext();
+    }
+
+    @Override
+    public String getParameter(String name) {
+        if(isMultipart()) {
+            Map<String, String> data = getFormDataFormFields();
+            String value = data.get(name);
+            if (value != null) {
+                return value;
+            }
+            // Fallback ...
+        }
+        return super.getParameter(name);
+    }
+
+    @Override
+    public Map getParameterMap() {
+        Map parameterMap = super.getParameterMap();
+        if(isMultipart()) {
+            Map<String, String> data = getFormDataFormFields();
+            parameterMap.putAll(data);
+        }
+        return parameterMap;
+    }
+
+    @Override
+    public Enumeration getParameterNames() {
+        if(!isMultipart()) {
+            return super.getParameterNames();
+        }
+        Map<String, String> data = getFormDataFormFields();
+        if (data.isEmpty()) {
+            return super.getParameterNames();
+        }
+        
+        List<String> paramNames = Collections.<String>list(super.getParameterNames());
+        paramNames.addAll(data.keySet());
+        
+        return Collections.enumeration(paramNames);
+    }
+
+    @Override
+    public String[] getParameterValues(String name) {
+        if(!isMultipart()) {
+            return super.getParameterValues(name);
+        }
+        Map<String, String> data = getFormDataFormFields();
+        if (data.isEmpty()) {
+            return super.getParameterValues(name);
+        }
+        
+        String formFieldVal = data.get(name);
+        if (formFieldVal == null) {
+            return super.getParameterValues(name);
+        }
+
+        String[] values = super.getParameterValues(name);
+        if (values == null) {
+            values = new String[0];
+        }
+        String[] extValues = new String[values.length + 1];
+        System.arraycopy(values, 0, extValues, 0, values.length);
+        extValues[extValues.length - 1] = formFieldVal;
+
+        return extValues;
     }
 
     public String getRequestURIWithQueryString() {
@@ -862,22 +934,38 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         if(parsedFormData!=null)    return;
 
         parsedFormData = new HashMap<String,FileItem>();
+        parsedFormDataFormFields = new HashMap<String, String>();
         ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
         try {
-            for( FileItem fi : (List<FileItem>)upload.parseRequest(this) )
+            for( FileItem fi : (List<FileItem>)upload.parseRequest(this) ) {
                 parsedFormData.put(fi.getFieldName(),fi);
+                if (fi.isFormField()) {
+                    parsedFormDataFormFields.put(fi.getFieldName(),fi.getString());
+                }
+            }
         } catch (FileUploadException e) {
             throw new ServletException(e);
         }
     }
 
+    /**
+     * A version of parseMultipartFormData() that doesn't throw exceptions.
+     */
+    private Map<String, String> getFormDataFormFields() {
+        try {
+            parseMultipartFormData();
+        } catch (Exception e) {
+            LOGGER.log(SEVERE, "Error parsing multipart/form-data.", e);
+        }
+        return parsedFormDataFormFields;
+    }
+
     public JSONObject getSubmittedForm() throws ServletException {
         if(structuredForm==null) {
-            String ct = getContentType();
             String p = null;
             boolean isSubmission; // for error diagnosis, if something is submitted, set to true
 
-            if(ct!=null && ct.startsWith("multipart/")) {
+            if(isMultipart()) {
                 isSubmission=true;
                 parseMultipartFormData();
                 FileItem item = parsedFormData.get("json");
@@ -919,6 +1007,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             }
         }
         return structuredForm;
+    }
+
+    private boolean isMultipart() {
+        String ct = getContentType();
+        return (ct!=null && ct.startsWith("multipart/"));
     }
 
     public FileItem getFileItem(String name) throws ServletException, IOException {
