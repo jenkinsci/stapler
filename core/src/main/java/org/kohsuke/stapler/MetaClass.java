@@ -114,16 +114,21 @@ public class MetaClass extends TearOffSupport {
             else    names=new String[]{camelize(f.getName().substring(2))}; // 'doFoo' -> 'foo'
 
             for (String name : names) {
-                dispatchers.add(new NameBasedDispatcher(name) {
-                    public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
-                        if(traceable())
-                            trace(req,rsp,"-> <%s>.%s(...)",node,f.getName());
-                        return f.bindAndInvokeAndServeResponse(node, req, rsp);
-                    }
-                    public String toString() {
-                        return f.getQualifiedName()+"(...) for url=/"+name+"/...";
-                    }
-                });
+                if (name.length()==0) {
+                    dispatchers.add(new IndexDispatcher(f));
+                } else {
+                    dispatchers.add(new NameBasedDispatcher(name) {
+                        public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+                            if (traceable())
+                                trace(req, rsp, "-> <%s>.%s(...)", node, f.getName());
+                            return f.bindAndInvokeAndServeResponse(node, req, rsp);
+                        }
+
+                        public String toString() {
+                            return f.getQualifiedName() + "(...) for url=/" + name + "/...";
+                        }
+                    });
+                }
             }
         }
 
