@@ -19,29 +19,6 @@ import javax.tools.StandardLocation;
 import net.java.dev.hickory.testing.Compilation;
 
 class Utils {
-
-    public static final List<String> IGNORE = Arrays.asList(
-            "source value 1.6 is obsolete and will be removed in a future release", // Filter out warnings about source 1.6 is obsolete in java 9
-            "To suppress warnings about obsolete options" // This usually appears with other warnings
-    );
-
-    public static List<Diagnostic<? extends JavaFileObject>> filterObsoleteSourceVersionWarnings(List<Diagnostic<? extends JavaFileObject>> diagnostics) {
-        List<Diagnostic<? extends JavaFileObject>> r = new ArrayList<Diagnostic<? extends JavaFileObject>>();
-        for (Diagnostic<? extends JavaFileObject> d : diagnostics) {
-            if (!isIgnored(d.getMessage(Locale.ENGLISH))) {
-                r.add(d);
-            }
-        }
-        return r;
-    }
-
-    private static boolean isIgnored(String message) {
-        for (String i : IGNORE) {
-            if (message.contains(i)) return true;
-        }
-        return false;
-    }
-
     private static JavaFileManager fileManager(Compilation compilation) {
         try {
             Field f = Compilation.class.getDeclaredField("jfm");
