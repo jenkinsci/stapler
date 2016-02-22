@@ -105,8 +105,8 @@ public class MetaClass extends TearOffSupport {
         this.dispatchers.clear();
         ClassDescriptor node = new ClassDescriptor(clazz,null/*TODO:support wrappers*/);
 
-        // check action <obj>.do<token>(...)
-        for( final Function f : node.methods.prefix("do") ) {
+        // check action <obj>.do<token>(...) and other WebMethods
+        for( final Function f : node.methods.webMethods() ) {
             WebMethod a = f.getAnnotation(WebMethod.class);
             
             String[] names;
@@ -187,26 +187,19 @@ public class MetaClass extends TearOffSupport {
             if(f.getName().length()<=3)
                 continue;
 
-            WebMethod a = f.getAnnotation(WebMethod.class);
+            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
 
-            String[] names;
-            if(a!=null && a.name().length>0)   names=a.name();
-            else    names=new String[]{camelize(f.getName().substring(3))}; // 'getFoo' -> 'foo'
-
-
-            for (String name : names) {
-                dispatchers.add(new NameBasedDispatcher(name) {
-                    public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                        if(traceable())
-                            traceEval(req,rsp,node,f.getName()+"()");
-                        req.getStapler().invoke(req,rsp, f.invoke(req, rsp, node));
-                        return true;
-                    }
-                    public String toString() {
-                        return String.format("%1$s() for url=/%2$s/...",f.getQualifiedName(),name);
-                    }
-                });
-            }
+            dispatchers.add(new NameBasedDispatcher(name) {
+                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    if(traceable())
+                        traceEval(req,rsp,node,f.getName()+"()");
+                    req.getStapler().invoke(req,rsp, f.invoke(req, rsp, node));
+                    return true;
+                }
+                public String toString() {
+                    return String.format("%1$s() for url=/%2$s/...",f.getQualifiedName(),name);
+                }
+            });
         }
 
         // check public selector methods of the form static NODE.getTOKEN(StaplerRequest)

@@ -94,9 +94,11 @@ public abstract class Function {
     boolean bindAndInvokeAndServeResponse(Object node, RequestImpl req, ResponseImpl rsp, Object... headArgs) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
         try {
             Object r = bindAndInvoke(node, req, rsp, headArgs);
-            if (getReturnType()!=void.class)
-                renderResponse(req,rsp,node, r);
+            if (getReturnType() != void.class)
+                renderResponse(req, rsp, node, r);
             return true;
+        } catch (CancelRequestHandlingException _) {
+            return false;
         } catch (InvocationTargetException e) {
             // exception as an HttpResponse
             Throwable te = e.getTargetException();
@@ -237,6 +239,8 @@ public abstract class Function {
 
     public abstract <A extends Annotation> A getAnnotation(Class<A> annotation);
 
+    public abstract Annotation[] getAnnotations();
+
     private abstract static class MethodFunction extends Function {
         protected final Method m;
         private volatile String[] names;
@@ -260,6 +264,10 @@ public abstract class Function {
 
         public final <A extends Annotation> A getAnnotation(Class<A> annotation) {
             return m.getAnnotation(annotation);
+        }
+
+        public final Annotation[] getAnnotations() {
+            return m.getAnnotations();
         }
 
         public final String[] getParameterNames() {
@@ -401,6 +409,11 @@ public abstract class Function {
 
         public <A extends Annotation> A getAnnotation(Class<A> annotation) {
             return next.getAnnotation(annotation);
+        }
+
+        @Override
+        public Annotation[] getAnnotations() {
+            return next.getAnnotations();
         }
     }
 }
