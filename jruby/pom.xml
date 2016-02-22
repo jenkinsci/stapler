@@ -5,7 +5,7 @@
     <artifactId>stapler-parent</artifactId>
     <version>1.238-SNAPSHOT</version>
   </parent>
-  
+
   <artifactId>stapler-jruby</artifactId>
   <name>Stapler JRuby module</name>
   <description>JRuby binding for Stapler</description>
@@ -29,7 +29,7 @@
     <dependency>
       <groupId>org.jruby</groupId>
       <artifactId>jruby-complete</artifactId>
-      <version>1.7.3</version>
+      <version>1.7.17</version>
     </dependency>
     <dependency>
       <groupId>org.jruby.rack</groupId>

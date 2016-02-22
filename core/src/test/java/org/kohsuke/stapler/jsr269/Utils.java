@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -18,7 +19,6 @@ import javax.tools.StandardLocation;
 import net.java.dev.hickory.testing.Compilation;
 
 class Utils {
-
     private static JavaFileManager fileManager(Compilation compilation) {
         try {
             Field f = Compilation.class.getDeclaredField("jfm");
