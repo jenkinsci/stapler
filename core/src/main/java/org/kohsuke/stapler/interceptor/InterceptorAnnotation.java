@@ -28,4 +28,9 @@ public @interface InterceptorAnnotation  {
      * Actual interceptor logic. Must have a default constructor.
      */
     Class<? extends Interceptor> value();
+
+    /**
+     * The point of invocation of this interceptor.
+     */
+    Stage stage() default Stage.PREINVOKE;
 }
