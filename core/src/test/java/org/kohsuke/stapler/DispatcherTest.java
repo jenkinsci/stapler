@@ -5,6 +5,7 @@ import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.TextPage;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
+import org.kohsuke.stapler.json.JsonBody;
 import org.kohsuke.stapler.test.JettyTestCase;
 import org.kohsuke.stapler.verb.GET;
 import org.kohsuke.stapler.verb.POST;
@@ -99,6 +100,43 @@ public class DispatcherTest extends JettyTestCase {
 
         p = wc.getPage(new URL(url, "arbitraryWebMethodName/theNeedful"));
         assertEquals("DTN\n", p.getContent());
+
+    }
+
+
+    //===================================================================
+
+
+    public final InterceptorStage interceptorStage = new InterceptorStage();
+
+    public class InterceptorStage {
+        @POST
+        public HttpResponse doFoo(@JsonBody Point body) {
+            return HttpResponses.plainText(body.x+","+body.y);
+        }
+    }
+
+    public static class Point {
+        public int x,y;
+    }
+
+    /**
+     * POST annotation selection needs to happen before databinding of the parameter happens.
+     */
+    public void testInterceptorStage() throws Exception {
+        WebClient wc = new WebClient();
+        try {
+            wc.getPage(new URL(url, "interceptorStage/foo"));
+            fail("Expected 404");
+        } catch (FailingHttpStatusCodeException e) {
+            assertEquals(404, e.getStatusCode());
+        }
+
+        WebRequestSettings req = new WebRequestSettings(new URL(url, "interceptorStage/foo"), HttpMethod.POST);
+        req.setAdditionalHeader("Content-Type","application/json");
+        req.setRequestBody("{x:3,y:5}");
+        TextPage p = wc.getPage(req);
+        assertEquals("3,5\n",p.getContent());
 
     }
 }
