@@ -81,7 +81,7 @@ public class DispatcherTest extends JettyTestCase {
 
     public class ArbitraryWebMethodName {
         @WebMethod(name="")
-        public HttpResponse doesNotHaveDoPrefix() {
+        public HttpResponse notDoPrefix() {
             return HttpResponses.plainText("I'm index");
         }
 
