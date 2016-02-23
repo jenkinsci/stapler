@@ -13,7 +13,9 @@ org.kohsuke.stapler.jelly.groovy
 org.kohsuke.stapler.jelly.jruby
 org.kohsuke.stapler.jelly.jruby.erb
 org.kohsuke.stapler.jelly.jruby.haml
+org.kohsuke.stapler.json
 org.kohsuke.stapler.jsp
 org.kohsuke.stapler.jsr269
 org.kohsuke.stapler.lang
 org.kohsuke.stapler.tags
+org.kohsuke.stapler.verb
