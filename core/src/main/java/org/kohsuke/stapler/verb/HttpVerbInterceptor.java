@@ -6,6 +6,7 @@ import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
+import javax.servlet.ServletException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 
@@ -42,7 +43,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class HttpVerbInterceptor extends Interceptor {
     @Override
-    public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments) throws IllegalAccessException, InvocationTargetException {
+    public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments) throws IllegalAccessException, InvocationTargetException, ServletException {
         if (matches(request))
             return target.invoke(request,response,instance,arguments);
         else
