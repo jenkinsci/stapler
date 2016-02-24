@@ -26,6 +26,7 @@ package org.kohsuke.stapler;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
 import javax.servlet.ServletException;
@@ -217,7 +218,7 @@ public abstract class Function {
     /**
      * Invokes the method.
      */
-    public abstract Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException;
+    public abstract Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException;
 
     final Function wrapByInterceptors(Method m) {
         try {
@@ -225,7 +226,21 @@ public abstract class Function {
             for (Annotation a : m.getAnnotations()) {
                 final InterceptorAnnotation ia = a.annotationType().getAnnotation(InterceptorAnnotation.class);
                 if (ia!=null) {
-                    f = new InterceptedFunction(f,ia);
+                    try {
+                        Interceptor i = ia.value().newInstance();
+                        switch (ia.stage()) {
+                        case SELECTION:
+                            f = new SelectionInterceptedFunction(f,i);
+                            break;
+                        case PREINVOKE:
+                            f = new PreInvokeInterceptedFunction(f,i);
+                            break;
+                        }
+                    } catch (InstantiationException e) {
+                        throw (Error)new InstantiationError("Failed to instantiate interceptor for "+f.getDisplayName()).initCause(e);
+                    } catch (IllegalAccessException e) {
+                        throw (Error)new IllegalAccessError("Failed to instantiate interceptor for "+f.getDisplayName()).initCause(e);
+                    }
                 }
             }
 

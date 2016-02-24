@@ -26,6 +26,8 @@ package org.kohsuke.stapler;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
+import javax.servlet.ServletException;
+
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import java.lang.annotation.Retention;
@@ -64,7 +66,7 @@ public @interface LimitedTo {
 
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
-                throws IllegalAccessException, InvocationTargetException {
+                throws IllegalAccessException, InvocationTargetException, ServletException {
             if(request.isUserInRole(role))
                 return target.invoke(request, response, instance, arguments);
             else

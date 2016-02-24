@@ -1,5 +1,6 @@
 package org.kohsuke.stapler;
 
+import javax.servlet.ServletException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
@@ -10,7 +11,7 @@ import java.lang.reflect.Type;
  *
  * @author Kohsuke Kawaguchi
  */
-/*package*/ class ForwardingFunction extends Function {
+public class ForwardingFunction extends Function {
     protected final Function next;
 
     public ForwardingFunction(Function next) {
@@ -52,7 +53,7 @@ import java.lang.reflect.Type;
         return next.getParameterNames();
     }
 
-    public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
+    public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException {
         return next.invoke(req, rsp, o, args);
     }
 

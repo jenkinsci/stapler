@@ -34,7 +34,7 @@ public @interface RequirePOST {
     public static class Processor extends Interceptor {
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
-                throws IllegalAccessException, InvocationTargetException {
+                throws IllegalAccessException, InvocationTargetException, ServletException {
             if (!request.getMethod().equals("POST")) {
                 throw new InvocationTargetException(new HttpResponses.HttpResponseException() {
                     public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {

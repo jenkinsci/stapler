@@ -8,6 +8,8 @@ import org.kohsuke.stapler.StaplerResponse;
 import java.lang.reflect.InvocationTargetException;
 import org.kohsuke.stapler.HttpResponses;
 
+import javax.servlet.ServletException;
+
 /**
  * Intercepts the domain method call from Stapler.
  *
@@ -51,5 +53,5 @@ public abstract class Interceptor {
      */
     public abstract Object invoke(StaplerRequest request, StaplerResponse response,
                                   Object instance, Object[] arguments)
-            throws IllegalAccessException, InvocationTargetException;
+            throws IllegalAccessException, InvocationTargetException, ServletException;
 }
