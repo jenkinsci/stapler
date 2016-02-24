@@ -7,6 +7,7 @@ import org.kohsuke.stapler.InjectedParameter;
  *
  * @author Kohsuke Kawaguchi
  * @see InterceptorAnnotation#stage()
+ * @since 1.239
  */
 public enum Stage {
     /**
