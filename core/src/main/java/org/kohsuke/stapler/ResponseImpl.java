@@ -26,6 +26,7 @@ package org.kohsuke.stapler;
 import net.sf.json.JsonConfig;
 import org.kohsuke.stapler.compression.CompressionFilter;
 import org.kohsuke.stapler.compression.FilterServletOutputStream;
+import org.kohsuke.stapler.export.DataWriter;
 import org.kohsuke.stapler.export.ExportConfig;
 import org.kohsuke.stapler.export.NamedPathPruner;
 import org.kohsuke.stapler.export.Flavor;
@@ -118,7 +119,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     public void forward(Object it, String url, StaplerRequest request) throws ServletException, IOException {
-        stapler.invoke(request,response,it,url);
+        stapler.invoke(request, response, it, url);
     }
 
     public void forwardToPreviousPage(StaplerRequest request) throws ServletException, IOException {
@@ -199,7 +200,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     public void serveFile(StaplerRequest req, URL resource) throws ServletException, IOException {
-        serveFile(req,resource,-1);
+        serveFile(req, resource, -1);
     }
 
     public void serveLocalizedFile(StaplerRequest request, URL res) throws ServletException, IOException {
@@ -263,11 +264,25 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         ExportConfig config = new ExportConfig();
         config.prettyPrint = req.hasParameter("pretty");
 
-        Model p = MODEL_BUILDER.get(exposedBean.getClass());
-        p.writeTo(exposedBean, pruner, flavor.createDataWriter(exposedBean,w,config));
+        DataWriter dw = flavor.createDataWriter(exposedBean, w, config);
+        if (exposedBean instanceof Object[]) {
+            // TODO: extend the contract of DataWriter to capture this
+            // TODO: make this work with XML flavor (or at least reject this better)
+            dw.startArray();
+            for (Object item : (Object[])exposedBean)
+                writeOne(pruner, dw, item);
+            dw.endArray();
+        } else {
+            writeOne(pruner, dw, exposedBean);
+        }
 
         if(pad!=null) w.write(')');
         w.close();
+    }
+
+    private void writeOne(TreePruner pruner, DataWriter dw, Object item) throws IOException {
+        Model p = MODEL_BUILDER.get(item.getClass());
+        p.writeTo(item, pruner, dw);
     }
 
     private boolean acceptsGzip(HttpServletRequest req) {
