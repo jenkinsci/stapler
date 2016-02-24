@@ -226,7 +226,7 @@
 <span class="sourceLineNo">218</span>    /**<a name="line.218"></a>
 <span class="sourceLineNo">219</span>     * Invokes the method.<a name="line.219"></a>
 <span class="sourceLineNo">220</span>     */<a name="line.220"></a>
-<span class="sourceLineNo">221</span>    public abstract Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException;<a name="line.221"></a>
+<span class="sourceLineNo">221</span>    public abstract Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException;<a name="line.221"></a>
 <span class="sourceLineNo">222</span><a name="line.222"></a>
 <span class="sourceLineNo">223</span>    final Function wrapByInterceptors(Method m) {<a name="line.223"></a>
 <span class="sourceLineNo">224</span>        try {<a name="line.224"></a>
@@ -234,197 +234,140 @@
 <span class="sourceLineNo">226</span>            for (Annotation a : m.getAnnotations()) {<a name="line.226"></a>
 <span class="sourceLineNo">227</span>                final InterceptorAnnotation ia = a.annotationType().getAnnotation(InterceptorAnnotation.class);<a name="line.227"></a>
 <span class="sourceLineNo">228</span>                if (ia!=null) {<a name="line.228"></a>
-<span class="sourceLineNo">229</span>                    f = new InterceptedFunction(f,ia);<a name="line.229"></a>
-<span class="sourceLineNo">230</span>                }<a name="line.230"></a>
-<span class="sourceLineNo">231</span>            }<a name="line.231"></a>
-<span class="sourceLineNo">232</span><a name="line.232"></a>
-<span class="sourceLineNo">233</span>            return f;<a name="line.233"></a>
-<span class="sourceLineNo">234</span>        } catch (LinkageError e) {<a name="line.234"></a>
-<span class="sourceLineNo">235</span>            // running in JDK 1.4<a name="line.235"></a>
-<span class="sourceLineNo">236</span>            return this;<a name="line.236"></a>
-<span class="sourceLineNo">237</span>        }<a name="line.237"></a>
-<span class="sourceLineNo">238</span>    }<a name="line.238"></a>
-<span class="sourceLineNo">239</span><a name="line.239"></a>
-<span class="sourceLineNo">240</span>    public abstract &lt;A extends Annotation&gt; A getAnnotation(Class&lt;A&gt; annotation);<a name="line.240"></a>
-<span class="sourceLineNo">241</span><a name="line.241"></a>
-<span class="sourceLineNo">242</span>    public abstract Annotation[] getAnnotations();<a name="line.242"></a>
-<span class="sourceLineNo">243</span><a name="line.243"></a>
-<span class="sourceLineNo">244</span>    private abstract static class MethodFunction extends Function {<a name="line.244"></a>
-<span class="sourceLineNo">245</span>        protected final Method m;<a name="line.245"></a>
-<span class="sourceLineNo">246</span>        private volatile String[] names;<a name="line.246"></a>
-<span class="sourceLineNo">247</span><a name="line.247"></a>
-<span class="sourceLineNo">248</span>        public MethodFunction(Method m) {<a name="line.248"></a>
-<span class="sourceLineNo">249</span>            this.m = m;<a name="line.249"></a>
-<span class="sourceLineNo">250</span>        }<a name="line.250"></a>
-<span class="sourceLineNo">251</span><a name="line.251"></a>
-<span class="sourceLineNo">252</span>        public final String getName() {<a name="line.252"></a>
-<span class="sourceLineNo">253</span>            return m.getName();<a name="line.253"></a>
-<span class="sourceLineNo">254</span>        }<a name="line.254"></a>
+<span class="sourceLineNo">229</span>                    try {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>                        Interceptor i = ia.value().newInstance();<a name="line.230"></a>
+<span class="sourceLineNo">231</span>                        switch (ia.stage()) {<a name="line.231"></a>
+<span class="sourceLineNo">232</span>                        case SELECTION:<a name="line.232"></a>
+<span class="sourceLineNo">233</span>                            f = new SelectionInterceptedFunction(f,i);<a name="line.233"></a>
+<span class="sourceLineNo">234</span>                            break;<a name="line.234"></a>
+<span class="sourceLineNo">235</span>                        case PREINVOKE:<a name="line.235"></a>
+<span class="sourceLineNo">236</span>                            f = new PreInvokeInterceptedFunction(f,i);<a name="line.236"></a>
+<span class="sourceLineNo">237</span>                            break;<a name="line.237"></a>
+<span class="sourceLineNo">238</span>                        }<a name="line.238"></a>
+<span class="sourceLineNo">239</span>                    } catch (InstantiationException e) {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>                        throw (Error)new InstantiationError("Failed to instantiate interceptor for "+f.getDisplayName()).initCause(e);<a name="line.240"></a>
+<span class="sourceLineNo">241</span>                    } catch (IllegalAccessException e) {<a name="line.241"></a>
+<span class="sourceLineNo">242</span>                        throw (Error)new IllegalAccessError("Failed to instantiate interceptor for "+f.getDisplayName()).initCause(e);<a name="line.242"></a>
+<span class="sourceLineNo">243</span>                    }<a name="line.243"></a>
+<span class="sourceLineNo">244</span>                }<a name="line.244"></a>
+<span class="sourceLineNo">245</span>            }<a name="line.245"></a>
+<span class="sourceLineNo">246</span><a name="line.246"></a>
+<span class="sourceLineNo">247</span>            return f;<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        } catch (LinkageError e) {<a name="line.248"></a>
+<span class="sourceLineNo">249</span>            // running in JDK 1.4<a name="line.249"></a>
+<span class="sourceLineNo">250</span>            return this;<a name="line.250"></a>
+<span class="sourceLineNo">251</span>        }<a name="line.251"></a>
+<span class="sourceLineNo">252</span>    }<a name="line.252"></a>
+<span class="sourceLineNo">253</span><a name="line.253"></a>
+<span class="sourceLineNo">254</span>    public abstract &lt;A extends Annotation&gt; A getAnnotation(Class&lt;A&gt; annotation);<a name="line.254"></a>
 <span class="sourceLineNo">255</span><a name="line.255"></a>
-<span class="sourceLineNo">256</span>        public final String getDisplayName() {<a name="line.256"></a>
-<span class="sourceLineNo">257</span>            return m.toGenericString();<a name="line.257"></a>
-<span class="sourceLineNo">258</span>        }<a name="line.258"></a>
-<span class="sourceLineNo">259</span><a name="line.259"></a>
-<span class="sourceLineNo">260</span>        @Override<a name="line.260"></a>
-<span class="sourceLineNo">261</span>        public String getQualifiedName() {<a name="line.261"></a>
-<span class="sourceLineNo">262</span>            return m.getDeclaringClass().getName()+'.'+getName();<a name="line.262"></a>
-<span class="sourceLineNo">263</span>        }<a name="line.263"></a>
-<span class="sourceLineNo">264</span><a name="line.264"></a>
-<span class="sourceLineNo">265</span>        public final &lt;A extends Annotation&gt; A getAnnotation(Class&lt;A&gt; annotation) {<a name="line.265"></a>
-<span class="sourceLineNo">266</span>            return m.getAnnotation(annotation);<a name="line.266"></a>
-<span class="sourceLineNo">267</span>        }<a name="line.267"></a>
-<span class="sourceLineNo">268</span><a name="line.268"></a>
-<span class="sourceLineNo">269</span>        public final Annotation[] getAnnotations() {<a name="line.269"></a>
-<span class="sourceLineNo">270</span>            return m.getAnnotations();<a name="line.270"></a>
-<span class="sourceLineNo">271</span>        }<a name="line.271"></a>
-<span class="sourceLineNo">272</span><a name="line.272"></a>
-<span class="sourceLineNo">273</span>        public final String[] getParameterNames() {<a name="line.273"></a>
-<span class="sourceLineNo">274</span>            if(names==null)<a name="line.274"></a>
-<span class="sourceLineNo">275</span>                names = ClassDescriptor.loadParameterNames(m);<a name="line.275"></a>
-<span class="sourceLineNo">276</span>            return names;<a name="line.276"></a>
+<span class="sourceLineNo">256</span>    public abstract Annotation[] getAnnotations();<a name="line.256"></a>
+<span class="sourceLineNo">257</span><a name="line.257"></a>
+<span class="sourceLineNo">258</span>    private abstract static class MethodFunction extends Function {<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        protected final Method m;<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        private volatile String[] names;<a name="line.260"></a>
+<span class="sourceLineNo">261</span><a name="line.261"></a>
+<span class="sourceLineNo">262</span>        public MethodFunction(Method m) {<a name="line.262"></a>
+<span class="sourceLineNo">263</span>            this.m = m;<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        }<a name="line.264"></a>
+<span class="sourceLineNo">265</span><a name="line.265"></a>
+<span class="sourceLineNo">266</span>        public final String getName() {<a name="line.266"></a>
+<span class="sourceLineNo">267</span>            return m.getName();<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        }<a name="line.268"></a>
+<span class="sourceLineNo">269</span><a name="line.269"></a>
+<span class="sourceLineNo">270</span>        public final String getDisplayName() {<a name="line.270"></a>
+<span class="sourceLineNo">271</span>            return m.toGenericString();<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        }<a name="line.272"></a>
+<span class="sourceLineNo">273</span><a name="line.273"></a>
+<span class="sourceLineNo">274</span>        @Override<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        public String getQualifiedName() {<a name="line.275"></a>
+<span class="sourceLineNo">276</span>            return m.getDeclaringClass().getName()+'.'+getName();<a name="line.276"></a>
 <span class="sourceLineNo">277</span>        }<a name="line.277"></a>
 <span class="sourceLineNo">278</span><a name="line.278"></a>
-<span class="sourceLineNo">279</span>        @Override<a name="line.279"></a>
-<span class="sourceLineNo">280</span>        public Class getReturnType() {<a name="line.280"></a>
-<span class="sourceLineNo">281</span>            return m.getReturnType();<a name="line.281"></a>
-<span class="sourceLineNo">282</span>        }<a name="line.282"></a>
-<span class="sourceLineNo">283</span>    }<a name="line.283"></a>
-<span class="sourceLineNo">284</span>    /**<a name="line.284"></a>
-<span class="sourceLineNo">285</span>     * Normal instance methods.<a name="line.285"></a>
-<span class="sourceLineNo">286</span>     */<a name="line.286"></a>
-<span class="sourceLineNo">287</span>    static final class InstanceFunction extends MethodFunction {<a name="line.287"></a>
-<span class="sourceLineNo">288</span>        public InstanceFunction(Method m) {<a name="line.288"></a>
-<span class="sourceLineNo">289</span>            super(m);<a name="line.289"></a>
-<span class="sourceLineNo">290</span>        }<a name="line.290"></a>
-<span class="sourceLineNo">291</span><a name="line.291"></a>
-<span class="sourceLineNo">292</span>        public Class[] getParameterTypes() {<a name="line.292"></a>
-<span class="sourceLineNo">293</span>            return m.getParameterTypes();<a name="line.293"></a>
-<span class="sourceLineNo">294</span>        }<a name="line.294"></a>
-<span class="sourceLineNo">295</span><a name="line.295"></a>
-<span class="sourceLineNo">296</span>        @Override<a name="line.296"></a>
-<span class="sourceLineNo">297</span>        public Type[] getGenericParameterTypes() {<a name="line.297"></a>
-<span class="sourceLineNo">298</span>            return m.getGenericParameterTypes();<a name="line.298"></a>
-<span class="sourceLineNo">299</span>        }<a name="line.299"></a>
-<span class="sourceLineNo">300</span><a name="line.300"></a>
-<span class="sourceLineNo">301</span>        public Annotation[][] getParameterAnnotations() {<a name="line.301"></a>
-<span class="sourceLineNo">302</span>            return m.getParameterAnnotations();<a name="line.302"></a>
-<span class="sourceLineNo">303</span>        }<a name="line.303"></a>
-<span class="sourceLineNo">304</span><a name="line.304"></a>
-<span class="sourceLineNo">305</span>        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {<a name="line.305"></a>
-<span class="sourceLineNo">306</span>            return m.invoke(o,args);<a name="line.306"></a>
-<span class="sourceLineNo">307</span>        }<a name="line.307"></a>
-<span class="sourceLineNo">308</span>    }<a name="line.308"></a>
+<span class="sourceLineNo">279</span>        public final &lt;A extends Annotation&gt; A getAnnotation(Class&lt;A&gt; annotation) {<a name="line.279"></a>
+<span class="sourceLineNo">280</span>            return m.getAnnotation(annotation);<a name="line.280"></a>
+<span class="sourceLineNo">281</span>        }<a name="line.281"></a>
+<span class="sourceLineNo">282</span><a name="line.282"></a>
+<span class="sourceLineNo">283</span>        public final Annotation[] getAnnotations() {<a name="line.283"></a>
+<span class="sourceLineNo">284</span>            return m.getAnnotations();<a name="line.284"></a>
+<span class="sourceLineNo">285</span>        }<a name="line.285"></a>
+<span class="sourceLineNo">286</span><a name="line.286"></a>
+<span class="sourceLineNo">287</span>        public final String[] getParameterNames() {<a name="line.287"></a>
+<span class="sourceLineNo">288</span>            if(names==null)<a name="line.288"></a>
+<span class="sourceLineNo">289</span>                names = ClassDescriptor.loadParameterNames(m);<a name="line.289"></a>
+<span class="sourceLineNo">290</span>            return names;<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        }<a name="line.291"></a>
+<span class="sourceLineNo">292</span><a name="line.292"></a>
+<span class="sourceLineNo">293</span>        @Override<a name="line.293"></a>
+<span class="sourceLineNo">294</span>        public Class getReturnType() {<a name="line.294"></a>
+<span class="sourceLineNo">295</span>            return m.getReturnType();<a name="line.295"></a>
+<span class="sourceLineNo">296</span>        }<a name="line.296"></a>
+<span class="sourceLineNo">297</span>    }<a name="line.297"></a>
+<span class="sourceLineNo">298</span>    /**<a name="line.298"></a>
+<span class="sourceLineNo">299</span>     * Normal instance methods.<a name="line.299"></a>
+<span class="sourceLineNo">300</span>     */<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    static final class InstanceFunction extends MethodFunction {<a name="line.301"></a>
+<span class="sourceLineNo">302</span>        public InstanceFunction(Method m) {<a name="line.302"></a>
+<span class="sourceLineNo">303</span>            super(m);<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        }<a name="line.304"></a>
+<span class="sourceLineNo">305</span><a name="line.305"></a>
+<span class="sourceLineNo">306</span>        public Class[] getParameterTypes() {<a name="line.306"></a>
+<span class="sourceLineNo">307</span>            return m.getParameterTypes();<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        }<a name="line.308"></a>
 <span class="sourceLineNo">309</span><a name="line.309"></a>
-<span class="sourceLineNo">310</span>    /**<a name="line.310"></a>
-<span class="sourceLineNo">311</span>     * Static methods on the wrapper type.<a name="line.311"></a>
-<span class="sourceLineNo">312</span>     */<a name="line.312"></a>
-<span class="sourceLineNo">313</span>    static final class StaticFunction extends MethodFunction {<a name="line.313"></a>
-<span class="sourceLineNo">314</span>        public StaticFunction(Method m) {<a name="line.314"></a>
-<span class="sourceLineNo">315</span>            super(m);<a name="line.315"></a>
-<span class="sourceLineNo">316</span>        }<a name="line.316"></a>
-<span class="sourceLineNo">317</span><a name="line.317"></a>
-<span class="sourceLineNo">318</span>        public Class[] getParameterTypes() {<a name="line.318"></a>
-<span class="sourceLineNo">319</span>            Class[] p = m.getParameterTypes();<a name="line.319"></a>
-<span class="sourceLineNo">320</span>            Class[] r = new Class[p.length-1];<a name="line.320"></a>
-<span class="sourceLineNo">321</span>            System.arraycopy(p,1,r,0,r.length);<a name="line.321"></a>
-<span class="sourceLineNo">322</span>            return r;<a name="line.322"></a>
-<span class="sourceLineNo">323</span>        }<a name="line.323"></a>
-<span class="sourceLineNo">324</span><a name="line.324"></a>
-<span class="sourceLineNo">325</span>        @Override<a name="line.325"></a>
-<span class="sourceLineNo">326</span>        public Type[] getGenericParameterTypes() {<a name="line.326"></a>
-<span class="sourceLineNo">327</span>            Type[] p = m.getGenericParameterTypes();<a name="line.327"></a>
-<span class="sourceLineNo">328</span>            Type[] r = new Type[p.length-1];<a name="line.328"></a>
-<span class="sourceLineNo">329</span>            System.arraycopy(p,1,r,0,r.length);<a name="line.329"></a>
-<span class="sourceLineNo">330</span>            return r;<a name="line.330"></a>
-<span class="sourceLineNo">331</span>        }<a name="line.331"></a>
-<span class="sourceLineNo">332</span><a name="line.332"></a>
-<span class="sourceLineNo">333</span>        public Annotation[][] getParameterAnnotations() {<a name="line.333"></a>
-<span class="sourceLineNo">334</span>            Annotation[][] a = m.getParameterAnnotations();<a name="line.334"></a>
-<span class="sourceLineNo">335</span>            Annotation[][] r = new Annotation[a.length-1][];<a name="line.335"></a>
-<span class="sourceLineNo">336</span>            System.arraycopy(a,1,r,0,r.length);<a name="line.336"></a>
-<span class="sourceLineNo">337</span>            return r;<a name="line.337"></a>
-<span class="sourceLineNo">338</span>        }<a name="line.338"></a>
-<span class="sourceLineNo">339</span><a name="line.339"></a>
-<span class="sourceLineNo">340</span>        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {<a name="line.340"></a>
-<span class="sourceLineNo">341</span>            Object[] r = new Object[args.length+1];<a name="line.341"></a>
-<span class="sourceLineNo">342</span>            r[0] = o;<a name="line.342"></a>
-<span class="sourceLineNo">343</span>            System.arraycopy(args,0,r,1,args.length);<a name="line.343"></a>
-<span class="sourceLineNo">344</span>            return m.invoke(null,r);<a name="line.344"></a>
+<span class="sourceLineNo">310</span>        @Override<a name="line.310"></a>
+<span class="sourceLineNo">311</span>        public Type[] getGenericParameterTypes() {<a name="line.311"></a>
+<span class="sourceLineNo">312</span>            return m.getGenericParameterTypes();<a name="line.312"></a>
+<span class="sourceLineNo">313</span>        }<a name="line.313"></a>
+<span class="sourceLineNo">314</span><a name="line.314"></a>
+<span class="sourceLineNo">315</span>        public Annotation[][] getParameterAnnotations() {<a name="line.315"></a>
+<span class="sourceLineNo">316</span>            return m.getParameterAnnotations();<a name="line.316"></a>
+<span class="sourceLineNo">317</span>        }<a name="line.317"></a>
+<span class="sourceLineNo">318</span><a name="line.318"></a>
+<span class="sourceLineNo">319</span>        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {<a name="line.319"></a>
+<span class="sourceLineNo">320</span>            return m.invoke(o,args);<a name="line.320"></a>
+<span class="sourceLineNo">321</span>        }<a name="line.321"></a>
+<span class="sourceLineNo">322</span>    }<a name="line.322"></a>
+<span class="sourceLineNo">323</span><a name="line.323"></a>
+<span class="sourceLineNo">324</span>    /**<a name="line.324"></a>
+<span class="sourceLineNo">325</span>     * Static methods on the wrapper type.<a name="line.325"></a>
+<span class="sourceLineNo">326</span>     */<a name="line.326"></a>
+<span class="sourceLineNo">327</span>    static final class StaticFunction extends MethodFunction {<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        public StaticFunction(Method m) {<a name="line.328"></a>
+<span class="sourceLineNo">329</span>            super(m);<a name="line.329"></a>
+<span class="sourceLineNo">330</span>        }<a name="line.330"></a>
+<span class="sourceLineNo">331</span><a name="line.331"></a>
+<span class="sourceLineNo">332</span>        public Class[] getParameterTypes() {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>            Class[] p = m.getParameterTypes();<a name="line.333"></a>
+<span class="sourceLineNo">334</span>            Class[] r = new Class[p.length-1];<a name="line.334"></a>
+<span class="sourceLineNo">335</span>            System.arraycopy(p,1,r,0,r.length);<a name="line.335"></a>
+<span class="sourceLineNo">336</span>            return r;<a name="line.336"></a>
+<span class="sourceLineNo">337</span>        }<a name="line.337"></a>
+<span class="sourceLineNo">338</span><a name="line.338"></a>
+<span class="sourceLineNo">339</span>        @Override<a name="line.339"></a>
+<span class="sourceLineNo">340</span>        public Type[] getGenericParameterTypes() {<a name="line.340"></a>
+<span class="sourceLineNo">341</span>            Type[] p = m.getGenericParameterTypes();<a name="line.341"></a>
+<span class="sourceLineNo">342</span>            Type[] r = new Type[p.length-1];<a name="line.342"></a>
+<span class="sourceLineNo">343</span>            System.arraycopy(p,1,r,0,r.length);<a name="line.343"></a>
+<span class="sourceLineNo">344</span>            return r;<a name="line.344"></a>
 <span class="sourceLineNo">345</span>        }<a name="line.345"></a>
-<span class="sourceLineNo">346</span>    }<a name="line.346"></a>
-<span class="sourceLineNo">347</span><a name="line.347"></a>
-<span class="sourceLineNo">348</span>    /**<a name="line.348"></a>
-<span class="sourceLineNo">349</span>     * Function that's wrapped by {@link Interceptor}.<a name="line.349"></a>
-<span class="sourceLineNo">350</span>     */<a name="line.350"></a>
-<span class="sourceLineNo">351</span>    static final class InterceptedFunction extends Function {<a name="line.351"></a>
-<span class="sourceLineNo">352</span>        private final Function next;<a name="line.352"></a>
-<span class="sourceLineNo">353</span>        private final Interceptor interceptor;<a name="line.353"></a>
-<span class="sourceLineNo">354</span><a name="line.354"></a>
-<span class="sourceLineNo">355</span>        public InterceptedFunction(Function next, InterceptorAnnotation ia) {<a name="line.355"></a>
-<span class="sourceLineNo">356</span>            this.next = next;<a name="line.356"></a>
-<span class="sourceLineNo">357</span>            this.interceptor = instantiate(ia);<a name="line.357"></a>
-<span class="sourceLineNo">358</span>            interceptor.setTarget(next);<a name="line.358"></a>
+<span class="sourceLineNo">346</span><a name="line.346"></a>
+<span class="sourceLineNo">347</span>        public Annotation[][] getParameterAnnotations() {<a name="line.347"></a>
+<span class="sourceLineNo">348</span>            Annotation[][] a = m.getParameterAnnotations();<a name="line.348"></a>
+<span class="sourceLineNo">349</span>            Annotation[][] r = new Annotation[a.length-1][];<a name="line.349"></a>
+<span class="sourceLineNo">350</span>            System.arraycopy(a,1,r,0,r.length);<a name="line.350"></a>
+<span class="sourceLineNo">351</span>            return r;<a name="line.351"></a>
+<span class="sourceLineNo">352</span>        }<a name="line.352"></a>
+<span class="sourceLineNo">353</span><a name="line.353"></a>
+<span class="sourceLineNo">354</span>        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {<a name="line.354"></a>
+<span class="sourceLineNo">355</span>            Object[] r = new Object[args.length+1];<a name="line.355"></a>
+<span class="sourceLineNo">356</span>            r[0] = o;<a name="line.356"></a>
+<span class="sourceLineNo">357</span>            System.arraycopy(args,0,r,1,args.length);<a name="line.357"></a>
+<span class="sourceLineNo">358</span>            return m.invoke(null,r);<a name="line.358"></a>
 <span class="sourceLineNo">359</span>        }<a name="line.359"></a>
-<span class="sourceLineNo">360</span><a name="line.360"></a>
-<span class="sourceLineNo">361</span>        private Interceptor instantiate(InterceptorAnnotation ia) {<a name="line.361"></a>
-<span class="sourceLineNo">362</span>            try {<a name="line.362"></a>
-<span class="sourceLineNo">363</span>                return ia.value().newInstance();<a name="line.363"></a>
-<span class="sourceLineNo">364</span>            } catch (InstantiationException e) {<a name="line.364"></a>
-<span class="sourceLineNo">365</span>                throw (Error)new InstantiationError("Failed to instantiate interceptor for "+next.getDisplayName()).initCause(e);<a name="line.365"></a>
-<span class="sourceLineNo">366</span>            } catch (IllegalAccessException e) {<a name="line.366"></a>
-<span class="sourceLineNo">367</span>                throw (Error)new IllegalAccessError("Failed to instantiate interceptor for "+next.getDisplayName()).initCause(e);<a name="line.367"></a>
-<span class="sourceLineNo">368</span>            }<a name="line.368"></a>
-<span class="sourceLineNo">369</span>        }<a name="line.369"></a>
-<span class="sourceLineNo">370</span>        <a name="line.370"></a>
-<span class="sourceLineNo">371</span>        public String getName() {<a name="line.371"></a>
-<span class="sourceLineNo">372</span>            return next.getName();<a name="line.372"></a>
-<span class="sourceLineNo">373</span>        }<a name="line.373"></a>
-<span class="sourceLineNo">374</span><a name="line.374"></a>
-<span class="sourceLineNo">375</span>        public String getDisplayName() {<a name="line.375"></a>
-<span class="sourceLineNo">376</span>            return next.getDisplayName();<a name="line.376"></a>
-<span class="sourceLineNo">377</span>        }<a name="line.377"></a>
-<span class="sourceLineNo">378</span><a name="line.378"></a>
-<span class="sourceLineNo">379</span>        @Override<a name="line.379"></a>
-<span class="sourceLineNo">380</span>        public String getQualifiedName() {<a name="line.380"></a>
-<span class="sourceLineNo">381</span>            return next.getQualifiedName();<a name="line.381"></a>
-<span class="sourceLineNo">382</span>        }<a name="line.382"></a>
-<span class="sourceLineNo">383</span><a name="line.383"></a>
-<span class="sourceLineNo">384</span>        public Class[] getParameterTypes() {<a name="line.384"></a>
-<span class="sourceLineNo">385</span>            return next.getParameterTypes();<a name="line.385"></a>
-<span class="sourceLineNo">386</span>        }<a name="line.386"></a>
-<span class="sourceLineNo">387</span><a name="line.387"></a>
-<span class="sourceLineNo">388</span>        @Override<a name="line.388"></a>
-<span class="sourceLineNo">389</span>        public Class getReturnType() {<a name="line.389"></a>
-<span class="sourceLineNo">390</span>            return next.getReturnType();<a name="line.390"></a>
-<span class="sourceLineNo">391</span>        }<a name="line.391"></a>
-<span class="sourceLineNo">392</span><a name="line.392"></a>
-<span class="sourceLineNo">393</span>        @Override<a name="line.393"></a>
-<span class="sourceLineNo">394</span>        public Type[] getGenericParameterTypes() {<a name="line.394"></a>
-<span class="sourceLineNo">395</span>            return next.getGenericParameterTypes();<a name="line.395"></a>
-<span class="sourceLineNo">396</span>        }<a name="line.396"></a>
-<span class="sourceLineNo">397</span><a name="line.397"></a>
-<span class="sourceLineNo">398</span>        public Annotation[][] getParameterAnnotations() {<a name="line.398"></a>
-<span class="sourceLineNo">399</span>            return next.getParameterAnnotations();<a name="line.399"></a>
-<span class="sourceLineNo">400</span>        }<a name="line.400"></a>
-<span class="sourceLineNo">401</span><a name="line.401"></a>
-<span class="sourceLineNo">402</span>        public String[] getParameterNames() {<a name="line.402"></a>
-<span class="sourceLineNo">403</span>            return next.getParameterNames();<a name="line.403"></a>
-<span class="sourceLineNo">404</span>        }<a name="line.404"></a>
-<span class="sourceLineNo">405</span><a name="line.405"></a>
-<span class="sourceLineNo">406</span>        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {<a name="line.406"></a>
-<span class="sourceLineNo">407</span>            return interceptor.invoke(req, rsp, o, args);<a name="line.407"></a>
-<span class="sourceLineNo">408</span>        }<a name="line.408"></a>
-<span class="sourceLineNo">409</span><a name="line.409"></a>
-<span class="sourceLineNo">410</span>        public &lt;A extends Annotation&gt; A getAnnotation(Class&lt;A&gt; annotation) {<a name="line.410"></a>
-<span class="sourceLineNo">411</span>            return next.getAnnotation(annotation);<a name="line.411"></a>
-<span class="sourceLineNo">412</span>        }<a name="line.412"></a>
-<span class="sourceLineNo">413</span><a name="line.413"></a>
-<span class="sourceLineNo">414</span>        @Override<a name="line.414"></a>
-<span class="sourceLineNo">415</span>        public Annotation[] getAnnotations() {<a name="line.415"></a>
-<span class="sourceLineNo">416</span>            return next.getAnnotations();<a name="line.416"></a>
-<span class="sourceLineNo">417</span>        }<a name="line.417"></a>
-<span class="sourceLineNo">418</span>    }<a name="line.418"></a>
-<span class="sourceLineNo">419</span>}<a name="line.419"></a>
+<span class="sourceLineNo">360</span>    }<a name="line.360"></a>
+<span class="sourceLineNo">361</span><a name="line.361"></a>
+<span class="sourceLineNo">362</span>}<a name="line.362"></a>
 
 
 
