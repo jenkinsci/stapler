@@ -11,7 +11,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 public class XMLDataWriterTest extends TestCase {
-    private ExportConfig config = new ExportConfig().withTypeAttributeBehaviour(TypeAttributeBehaviour.IF_NEEDED.simple());
+    private ExportConfig config = new ExportConfig().withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
 
     public XMLDataWriterTest(String n) {
         super(n);

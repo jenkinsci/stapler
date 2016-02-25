@@ -12,7 +12,7 @@ public class ExportConfig {
      */
     public boolean prettyPrint;
 
-    private TypeAttributeBehaviour typeAttributeBehaviour = TypeAttributeBehaviour.IF_NEEDED;
+    private ClassAttributeBehaviour classAttribute = ClassAttributeBehaviour.IF_NEEDED;
 
     public boolean isPrettyPrint() {
         return prettyPrint;
@@ -26,16 +26,16 @@ public class ExportConfig {
         return this;
     }
 
-    public TypeAttributeBehaviour getTypeAttributeBehaviour() {
-        return typeAttributeBehaviour;
+    public ClassAttributeBehaviour getClassAttribute() {
+        return classAttribute;
     }
 
     /**
-     * Controls the behaviour of the type attribute to be produced.
+     * Controls the behaviour of the class attribute to be produced.
      */
-    public ExportConfig withTypeAttributeBehaviour(TypeAttributeBehaviour tab) {
-        if (tab==null)  throw new NullPointerException();
-        this.typeAttributeBehaviour = tab;
+    public ExportConfig withClassAttribute(ClassAttributeBehaviour cab) {
+        if (cab==null)  throw new NullPointerException();
+        this.classAttribute = cab;
         return this;
     }
 }

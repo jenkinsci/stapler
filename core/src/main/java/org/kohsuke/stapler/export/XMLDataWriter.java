@@ -93,7 +93,7 @@ final class XMLDataWriter implements DataWriter {
         objectNames.push(name);
         out.write('<' + adjustName());
 
-        String t = config.getTypeAttributeBehaviour().print(expected, actual);
+        String t = config.getClassAttribute().print(expected, actual);
         if (t!=null) {
             out.write(TYPE_ATTRIBUTE_PREFIX+t+"'");
         }

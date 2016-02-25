@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 public class JSONDataWriterTest {
     private ExportConfig config = new ExportConfig()
-            .withTypeAttributeBehaviour(TypeAttributeBehaviour.IF_NEEDED.simple());
+            .withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
 
     private <T> String serialize(T bean, Class<T> clazz) throws IOException {
         StringWriter w = new StringWriter();

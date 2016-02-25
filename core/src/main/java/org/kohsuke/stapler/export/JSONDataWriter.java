@@ -141,7 +141,7 @@ class JSONDataWriter implements DataWriter {
     public void startObject(Type expected, Class actual) throws IOException {
         _startObject();
 
-        String t = config.getTypeAttributeBehaviour().print(expected, actual);
+        String t = config.getClassAttribute().print(expected, actual);
         if (t!=null) {
             name(TYPE_PROPERTY_NAME);
             value(t);

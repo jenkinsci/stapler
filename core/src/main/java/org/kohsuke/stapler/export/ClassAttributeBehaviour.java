@@ -5,13 +5,35 @@ import org.jvnet.tiger_types.Types;
 import java.lang.reflect.Type;
 
 /**
+ * Setting that controls how the '_class' attribute will be produced in the output.
+ *
+ * <p>
+ * Three basic constants are defined:
+ *
+ * <dl>
+ *     <dt>{@link #NONE}
+ *     <dd>No type information will show up in the output whatsoever
+ *
+ *     <dt>{@link #ALWAYS}
+ *     <dd>Every object gets the type information explicitly written out
+ *
+ *     <dt>{@link #IF_NEEDED}
+ *     <dd>Type information will be produced only when it is necessary,
+ *         for example when the declared type and the actual type differ.
+ * </dl>
+ *
+ * <p>
+ * In addition, {@link #simple()} can be used to produce just the simple name of the class,
+ * whereas by default {@linkplain Class#getName() full class name} will be printed.
+ *
  * @author Kohsuke Kawaguchi
+ * @see ExportConfig#withClassAttribute(ClassAttributeBehaviour)
  */
-public abstract class TypeAttributeBehaviour {
+public abstract class ClassAttributeBehaviour {
     private final String name;
 
     // no subtyping outside this package
-    private TypeAttributeBehaviour(String name) {
+    private ClassAttributeBehaviour(String name) {
         this.name = name;
     }
 
@@ -30,21 +52,21 @@ public abstract class TypeAttributeBehaviour {
         return t==null ? null : t.getName();
     }
 
-    public static final TypeAttributeBehaviour NONE = new TypeAttributeBehaviour("NONE") {
+    public static final ClassAttributeBehaviour NONE = new ClassAttributeBehaviour("NONE") {
         @Override
         Class map(Type expected, Class actual) {
             return null;
         }
     };
 
-    public static final TypeAttributeBehaviour ALWAYS = new TypeAttributeBehaviour("ALWAYS") {
+    public static final ClassAttributeBehaviour ALWAYS = new ClassAttributeBehaviour("ALWAYS") {
         @Override
         Class map(Type expected, Class actual) {
             return actual;
         }
     };
 
-    public static final TypeAttributeBehaviour IF_NEEDED = new TypeAttributeBehaviour("IF_NEEDED") {
+    public static final ClassAttributeBehaviour IF_NEEDED = new ClassAttributeBehaviour("IF_NEEDED") {
         @Override
         Class map(Type expected, Class actual) {
             if (actual==null)
@@ -59,9 +81,9 @@ public abstract class TypeAttributeBehaviour {
         }
     };
 
-    public TypeAttributeBehaviour simple() {
-        final TypeAttributeBehaviour outer = this;
-        return new TypeAttributeBehaviour(this.name+"+simple") {
+    public ClassAttributeBehaviour simple() {
+        final ClassAttributeBehaviour outer = this;
+        return new ClassAttributeBehaviour(this.name+"+simple") {
             @Override
             Class map(Type expected, Class actual) {
                 return outer.map(expected,actual);
