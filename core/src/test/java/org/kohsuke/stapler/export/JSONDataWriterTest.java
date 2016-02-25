@@ -8,10 +8,13 @@ import java.io.StringWriter;
 import static org.junit.Assert.assertEquals;
 
 public class JSONDataWriterTest {
-    private static <T> String serialize(T bean, Class<T> clazz) throws IOException {
+    private ExportConfig config = new ExportConfig()
+            .withTypeAttributeBehaviour(TypeAttributeBehaviour.IF_NEEDED.simple());
+
+    private <T> String serialize(T bean, Class<T> clazz) throws IOException {
         StringWriter w = new StringWriter();
         Model<T> model = new ModelBuilder().get(clazz);
-        model.writeTo(bean, Flavor.JSON.createDataWriter(bean, w));
+        model.writeTo(bean, Flavor.JSON.createDataWriter(bean, w, config));
         return w.toString();
     }
 
@@ -42,7 +45,7 @@ public class JSONDataWriterTest {
 
     @Test
     public void testInheritance() throws Exception {
-        assertEquals("{\"class\":\"Container\",\"polymorph\":{\"class\":\"Sub\",\"basic\":\"super\",\"generic\":\"sub\",\"specific\":\"sub\"}}",
+        assertEquals("{\"_class\":\"Container\",\"polymorph\":{\"_class\":\"Sub\",\"basic\":\"super\",\"generic\":\"sub\",\"specific\":\"sub\"}}",
                 serialize(new Container(), Container.class));
     }
 
@@ -52,7 +55,7 @@ public class JSONDataWriterTest {
 
     @Test
     public void testInheritance2() throws Exception { // JENKINS-13336
-        assertEquals("{\"class\":\"Sub2\",\"basic\":\"super\",\"generic\":\"sub2\"}",
+        assertEquals("{\"_class\":\"Sub2\",\"basic\":\"super\",\"generic\":\"sub2\"}",
                 serialize(new Sub2(), Sub2.class));
     }
 }

@@ -33,7 +33,7 @@ public class ExportConfig {
     /**
      * Controls the behaviour of the type attribute to be produced.
      */
-    public ExportConfig withRedundantTypes(TypeAttributeBehaviour tab) {
+    public ExportConfig withTypeAttributeBehaviour(TypeAttributeBehaviour tab) {
         if (tab==null)  throw new NullPointerException();
         this.typeAttributeBehaviour = tab;
         return this;
