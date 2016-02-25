@@ -39,9 +39,17 @@ import org.junit.Test;
 import org.xml.sax.SAXParseException;
 
 public class SchemaGeneratorTest {
+    @ExportedBean public static class Y {
+        @Exported public String a = "aval";
+    }
+
+    @ExportedBean public static class X extends Y {
+        @Exported public String getB() {return "bval";}
+        @Exported public Y y = new Y();
+    }
 
     @Test public void basics() throws Exception {
-        validate(new XMLDataWriterTest.X(), XMLDataWriterTest.X.class);
+        validate(new X(), X.class);
     }
 
     /* TODO currently fails
