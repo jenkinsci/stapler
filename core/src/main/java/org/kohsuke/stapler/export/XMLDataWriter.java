@@ -26,6 +26,7 @@ package org.kohsuke.stapler.export;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerResponse;
 
+import java.lang.reflect.Type;
 import java.util.Stack;
 import java.io.Writer;
 import java.io.IOException;
@@ -43,17 +44,20 @@ final class XMLDataWriter implements DataWriter {
     private final Stack<Boolean> arrayState = new Stack<Boolean>();
     private final Writer out;
     public boolean isArray;
+    private ExportConfig config;
 
-    XMLDataWriter(Object bean, Writer out) throws IOException {
+    XMLDataWriter(Object bean, Writer out, ExportConfig config) throws IOException {
         Class c=bean.getClass();
         while (c.isAnonymousClass())
             c = c.getSuperclass();
         name = Introspector.decapitalize(c.getSimpleName());
         this.out = out;
+        this.config = config;
+        // TODO: support pretty printing
     }
 
-    XMLDataWriter(Object bean, StaplerResponse rsp) throws IOException {
-        this(bean,rsp.getWriter());
+    XMLDataWriter(Object bean, StaplerResponse rsp, ExportConfig config) throws IOException {
+        this(bean,rsp.getWriter(),config);
     }
 
     public void name(String name) {
@@ -85,9 +89,15 @@ final class XMLDataWriter implements DataWriter {
         isArray = false;
     }
 
-    public void startObject() throws IOException {
+    public void startObject(Type expected, Class actual) throws IOException {
         objectNames.push(name);
-        out.write('<'+adjustName()+'>');
+        out.write('<' + adjustName());
+
+        String t = config.getTypeAttributeBehaviour().map(expected, actual);
+        if (t!=null) {
+            out.write(TYPE_ATTRIBUTE_PREFIX+t+"'");
+        }
+        out.write('>');
         arrayState.push(isArray);
         isArray = false;
     }
@@ -132,4 +142,6 @@ final class XMLDataWriter implements DataWriter {
 
         return name;
     }
+
+    private static final String TYPE_ATTRIBUTE_PREFIX = " "+TYPE_PROPERTY_NAME+"='";
 }

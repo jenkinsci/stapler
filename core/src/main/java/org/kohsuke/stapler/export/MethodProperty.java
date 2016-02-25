@@ -36,7 +36,7 @@ import java.io.IOException;
 final class MethodProperty extends Property {
     private final Method method;
     MethodProperty(Model owner, Method m, Exported exported) {
-        super(owner,buildName(m.getName()), exported);
+        super(owner,buildName(m.getName()), m.getGenericReturnType(), exported);
         this.method = m;
     }
 

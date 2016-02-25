@@ -25,6 +25,7 @@ package org.kohsuke.stapler.export;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.Type;
 
 /**
  * JSON writer.
@@ -34,12 +35,14 @@ import java.io.Writer;
 class JSONDataWriter implements DataWriter {
     protected boolean needComma;
     protected final Writer out;
+    protected final ExportConfig config;
 
     private int indent;
 
     JSONDataWriter(Writer out, ExportConfig config) throws IOException {
         this.out = out;
-        indent = config.prettyPrint ? 0 : -1;
+        this.config = config;
+        indent = config.isPrettyPrint() ? 0 : -1;
     }
 
     public void name(String name) throws IOException {
@@ -135,7 +138,17 @@ class JSONDataWriter implements DataWriter {
         close(']');
     }
 
-    public void startObject() throws IOException {
+    public void startObject(Type expected, Class actual) throws IOException {
+        _startObject();
+
+        String t = config.getTypeAttributeBehaviour().map(expected, actual);
+        if (t!=null) {
+            name(TYPE_PROPERTY_NAME);
+            value(t);
+        }
+    }
+
+    protected void _startObject() throws IOException {
         open('{');
     }
 

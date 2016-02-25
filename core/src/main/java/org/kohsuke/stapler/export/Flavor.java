@@ -56,8 +56,7 @@ public enum Flavor {
     },
     XML("application/xml;charset=UTF-8") {
         public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
-            // TODO: support pretty printing
-            return new XMLDataWriter(bean,w);
+            return new XMLDataWriter(bean,w,config);
         }
     };
 

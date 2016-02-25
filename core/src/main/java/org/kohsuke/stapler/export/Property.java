@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.export;
 
+import org.jvnet.tiger_types.Types;
 import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 import java.io.IOException;
@@ -73,10 +74,13 @@ public abstract class Property implements Comparable<Property> {
 
     private String[] verboseMap;
 
-    Property(Model parent, String name, Exported exported) {
+    private final Type type;
+
+    Property(Model parent, String name, Type type, Exported exported) {
         this.parent = parent;
         this.owner = parent.parent;
         this.name = exported.name().length()>1 ? exported.name() : name;
+        this.type = type;
         int v = exported.visibility();
         if(v==0)
             v = parent.defaultVisibility;
@@ -113,7 +117,7 @@ public abstract class Property implements Comparable<Property> {
 
         try {
             writer.name(name);
-            writeValue(getValue(object),child,writer);
+            writeValue(type, getValue(object),child,writer);
         } catch (IllegalAccessException e) {
             IOException x = new IOException("Failed to write " + name);
             x.initCause(e);
@@ -135,21 +139,21 @@ public abstract class Property implements Comparable<Property> {
     /**
      * Writes one value of the property to {@link DataWriter}.
      */
-    private void writeValue(Object value, TreePruner pruner, DataWriter writer) throws IOException {
-        writeValue(value,pruner,writer,false);
+    private void writeValue(Type expected, Object value, TreePruner pruner, DataWriter writer) throws IOException {
+        writeValue(expected,value,pruner,writer,false);
     }
 
     /**
      * Writes one value of the property to {@link DataWriter}.
      */
-    private void writeValue(Object value, TreePruner pruner, DataWriter writer, boolean skipIfFail) throws IOException {
+    private void writeValue(Type expected, Object value, TreePruner pruner, DataWriter writer, boolean skipIfFail) throws IOException {
         if(value==null) {
             writer.valueNull();
             return;
         }
 
         if(value instanceof CustomExportedBean) {
-            writeValue(((CustomExportedBean)value).toExportedObject(),pruner,writer);
+            writeValue(expected,((CustomExportedBean)value).toExportedObject(),pruner,writer);
             return;
         }
 
@@ -163,19 +167,20 @@ public abstract class Property implements Comparable<Property> {
             writer.valuePrimitive(value);
             return;
         }
-        if(c.getComponentType()!=null) { // array
+        Class act = c.getComponentType();
+        if (act !=null) { // array
             Range r = pruner.getRange();
             writer.startArray();
             if (value instanceof Object[]) {
                 // typical case
                 for (Object item : r.apply((Object[]) value)) {
-                    writeValue(item,pruner,writer,true);
+                    writeValue(act,item,pruner,writer,true);
                 }
             } else {
                 // more generic case
                 int len = Math.min(r.max,Array.getLength(value));
                 for (int i=r.min; i<len; i++) {
-                    writeValue(Array.get(value,i),pruner,writer,true);
+                    writeValue(act,Array.get(value,i),pruner,writer,true);
                 }
             }
             writer.endArray();
@@ -183,8 +188,9 @@ public abstract class Property implements Comparable<Property> {
         }
         if(value instanceof Collection) {
             writer.startArray();
+            Type expectedItemType = Types.getTypeArgument(expected, 0, null);
             for (Object item : pruner.getRange().apply((Collection) value)) {
-                writeValue(item,pruner,writer,true);
+                writeValue(expectedItemType,item,pruner,writer,true);
             }
             writer.endArray();
             return;
@@ -193,19 +199,19 @@ public abstract class Property implements Comparable<Property> {
             if (verboseMap!=null) {// verbose form
                 writer.startArray();
                 for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
-                    writer.startObject();
+                    writer.startObject(null,null);
                     writer.name(verboseMap[0]);
-                    writeValue(e.getKey(),pruner,writer);
+                    writeValue(null,e.getKey(),pruner,writer);
                     writer.name(verboseMap[1]);
-                    writeValue(e.getValue(),pruner,writer);
+                    writeValue(null,e.getValue(),pruner,writer);
                     writer.endObject();
                 }
                 writer.endArray();
             } else {// compact form
-                writer.startObject();
+                writer.startObject(null,null);
                 for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
                     writer.name(e.getKey().toString());
-                    writeValue(e.getValue(),pruner,writer);
+                    writeValue(null,e.getValue(),pruner,writer);
                 }
                 writer.endObject();
             }
@@ -225,7 +231,7 @@ public abstract class Property implements Comparable<Property> {
         }
 
         // otherwise handle it as a bean
-        writer.startObject();
+        writer.startObject(type,value.getClass());
         Model model = null;
         try {
             model = owner.get(c, parent.type, name);

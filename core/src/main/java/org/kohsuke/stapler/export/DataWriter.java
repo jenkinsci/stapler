@@ -24,6 +24,7 @@
 package org.kohsuke.stapler.export;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 /**
  * Receives the event callback on the model data to be exposed.
@@ -53,6 +54,16 @@ public interface DataWriter {
     void startArray() throws IOException;
     void endArray() throws IOException;
 
-    void startObject() throws IOException;
+    /**
+     * @param type
+     *      Type of the object to be written, passed only when the caller determines that
+     *      this information should be printed.
+     */
+    void startObject(Type expected, Class type) throws IOException;
     void endObject() throws IOException;
+
+    /**
+     * Recommended property name to write out the 'type' parameter of {@link #startObject(Type,Class)}
+     */
+    String TYPE_PROPERTY_NAME = "_class";
 }

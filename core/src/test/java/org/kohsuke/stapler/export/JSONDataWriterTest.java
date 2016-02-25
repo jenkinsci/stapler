@@ -24,7 +24,7 @@ public class JSONDataWriterTest {
 
     @Test
     public void testSimpleUsage() throws Exception {
-        assertEquals("{\"class\":\"X\",\"a\":\"aval\",\"c\":\"cval\"}",
+        assertEquals("{\"_class\":\"X\",\"a\":\"aval\",\"c\":\"cval\"}",
                 serialize(new X(), X.class));
     }
 

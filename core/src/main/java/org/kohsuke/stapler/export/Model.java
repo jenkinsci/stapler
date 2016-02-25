@@ -160,7 +160,7 @@ public class Model<T> {
      *      Controls which portion of the object graph will be sent to the writer.
      */
     public void writeTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
-        writer.startObject();
+        writer.startObject(null,object.getClass());
         writeNestedObjectTo(object, pruner, writer, Collections.<String>emptySet());
         writer.endObject();
     }
@@ -190,9 +190,6 @@ public class Model<T> {
                 superBlacklist.add(p.name);
             }
             superModel.writeNestedObjectTo(object, pruner, writer, superBlacklist);
-        } else {
-            writer.name("$class");
-            writer.value(object.getClass().getName());
         }
 
         for (Property p : properties) {

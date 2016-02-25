@@ -35,7 +35,7 @@ class FieldProperty extends Property {
     private final Field field;
 
     public FieldProperty(Model owner, Field field, Exported exported) {
-        super(owner,field.getName(), exported);
+        super(owner, field.getName(), field.getGenericType(), exported);
         this.field = field;
     }
 
