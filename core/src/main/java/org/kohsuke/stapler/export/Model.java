@@ -152,7 +152,7 @@ public class Model<T> {
      * Writes the property values of the given object to the writer.
      */
     public void writeTo(T object, DataWriter writer) throws IOException {
-        writeTo(object,0,writer);
+        writeTo(object, 0, writer);
     }
 
     /**
@@ -197,7 +197,10 @@ public class Model<T> {
 
         for (Property p : properties) {
             if (!blacklist.contains(p.name)) {
-                p.writeTo(object,pruner,writer);
+                if (p.delegate) {
+                } else {
+                    p.writeTo(object, pruner, writer);
+                }
             }
         }
     }
