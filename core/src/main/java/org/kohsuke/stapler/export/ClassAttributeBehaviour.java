@@ -42,6 +42,11 @@ public abstract class ClassAttributeBehaviour {
         return super.toString()+'['+name+']';
     }
 
+    /**
+     * Determines if this type attribute should be written.
+     *
+     * @see DataWriter#startObject(Type, Class)
+     */
     abstract Class map(Type expected, Class actual);
 
     String print(Type expected, Class actual) {

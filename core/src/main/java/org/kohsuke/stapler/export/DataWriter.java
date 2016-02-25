@@ -55,9 +55,12 @@ public interface DataWriter {
     void endArray() throws IOException;
 
     /**
+     * @param expected
+     *      The declared type of the variable that references this object.
+     *      Null if the object is not referenced by anyone, for example when it's the root.
      * @param type
-     *      Type of the object to be written, passed only when the caller determines that
-     *      this information should be printed.
+     *      The actual type of the object being written.
+     *      Null if the object is synthetic is has no valid Java type
      */
     void startObject(Type expected, Class type) throws IOException;
     void endObject() throws IOException;
