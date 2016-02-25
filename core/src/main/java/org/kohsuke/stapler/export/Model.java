@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import com.google.common.base.Predicate;
 import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 /**
@@ -123,16 +124,21 @@ public class Model<T> {
         return Collections.unmodifiableList(Arrays.asList(properties));
     }
 
-    public boolean hasPropertyNamed(String name) {
-        return propertyNames.contains(name);
-    }
-
-    public boolean hasPropertyNamedInAncestor(String name) {
-        for (Model m=this; m!=null; m=m.superModel)
-            if (m.propertyNames.contains(name))
-                return true;
-        return false;
-    }
+    /*package*/ final Predicate<String> HAS_PROPERTY_NAME = new Predicate<String>() {
+        @Override
+        public boolean apply(@Nullable String name) {
+            return propertyNames.contains(name);
+        }
+    };
+    /*package*/ final Predicate<String> HAS_PROPERTY_NAME_IN_ANCESTORY = new Predicate<String>() {
+        @Override
+        public boolean apply(@Nullable String name) {
+            for (Model m=Model.this; m!=null; m=m.superModel)
+                if (m.propertyNames.contains(name))
+                    return true;
+            return false;
+        }
+    };
 
     /**
      * Loads the javadoc list and returns it as {@link Properties}.
@@ -203,7 +209,7 @@ public class Model<T> {
 
     void writeNestedObjectTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
         if (superModel != null) {
-            superModel.writeNestedObjectTo(object, new FilteringTreePruner(this,pruner), writer);
+            superModel.writeNestedObjectTo(object, new FilteringTreePruner(HAS_PROPERTY_NAME,pruner), writer);
         }
 
         for (Property p : properties) {

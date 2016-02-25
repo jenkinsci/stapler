@@ -122,7 +122,7 @@ public abstract class Property implements Comparable<Property> {
             // merged property will get all its properties written here
             if (d != null) {
                 Model model = owner.get(d.getClass(), parent.type, name);
-                model.writeNestedObjectTo(d, new SuperFilteringTreePruner(parent,child), writer);
+                model.writeNestedObjectTo(d, new FilteringTreePruner(parent.HAS_PROPERTY_NAME_IN_ANCESTORY,child), writer);
             }
         } else {
             writer.name(name);
