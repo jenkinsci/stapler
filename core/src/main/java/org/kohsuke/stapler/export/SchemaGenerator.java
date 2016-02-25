@@ -104,7 +104,6 @@ public class SchemaGenerator {
             cm = ct.complexContent().extension().base(getXmlTypeName(m.superModel.type)).sequence();
         }
 
-        cm.element().name("class").type(XSD.Types.STRING);
         for (Property p : m.getProperties()) {
             Class t = p.getType();
             final boolean isCollection;
@@ -133,6 +132,9 @@ public class SchemaGenerator {
 
             annotate(e,p.getJavadoc());
         }
+
+        if (m.superModel==null)
+            ct.attribute().name(DataWriter.TYPE_PROPERTY_NAME).type(XSD.Types.STRING).use("optional");
     }
 
     /**
