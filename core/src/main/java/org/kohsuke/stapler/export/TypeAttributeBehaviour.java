@@ -27,7 +27,7 @@ public abstract class TypeAttributeBehaviour {
     }
 
     protected String print(Class t) {
-        return t.getName();
+        return t==null ? null : t.getName();
     }
 
     public static final TypeAttributeBehaviour NONE = new TypeAttributeBehaviour("NONE") {
