@@ -68,6 +68,8 @@ public class Model<T> {
      */
     private volatile Properties javadoc;
 
+    private final Set<String> propertyNames = new HashSet<String>();
+
     /*package*/ Model(ModelBuilder parent, Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property) throws NotExportableException {
         this.parent = parent;
         this.type = type;
@@ -108,6 +110,8 @@ public class Model<T> {
 
         this.properties = properties.toArray(new Property[properties.size()]);
         Arrays.sort(this.properties);
+        for (Property p : properties)
+            this.propertyNames.add(p.name);
 
         parent.models.put(type,this);
     }
@@ -117,6 +121,17 @@ public class Model<T> {
      */
     public List<Property> getProperties() {
         return Collections.unmodifiableList(Arrays.asList(properties));
+    }
+
+    public boolean hasPropertyNamed(String name) {
+        return propertyNames.contains(name);
+    }
+
+    public boolean hasPropertyNamedInAncestor(String name) {
+        for (Model m=this; m!=null; m=m.superModel)
+            if (m.propertyNames.contains(name))
+                return true;
+        return false;
     }
 
     /**
@@ -163,7 +178,7 @@ public class Model<T> {
      */
     public void writeTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
         writer.startObject();
-        writeNestedObjectTo(object, pruner, writer, Collections.<String>emptySet());
+        writeNestedObjectTo(object, pruner, writer);
         writer.endObject();
     }
 
@@ -186,22 +201,13 @@ public class Model<T> {
         writeTo(object,new ByDepth(1-baseVisibility),writer);
     }
 
-    void writeNestedObjectTo(T object, TreePruner pruner, DataWriter writer, Set<? extends String> blacklist) throws IOException {
+    void writeNestedObjectTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
         if (superModel != null) {
-            Set<String> superBlacklist = new HashSet<String>(blacklist);
-            for (Property p : properties) {
-                superBlacklist.add(p.name);
-            }
-            superModel.writeNestedObjectTo(object, pruner, writer, superBlacklist);
+            superModel.writeNestedObjectTo(object, new FilteringTreePruner(this,pruner), writer);
         }
 
         for (Property p : properties) {
-            if (!blacklist.contains(p.name)) {
-                if (p.delegate) {
-                } else {
-                    p.writeTo(object, pruner, writer);
-                }
-            }
+            p.writeTo(object, pruner, writer);
         }
     }
 

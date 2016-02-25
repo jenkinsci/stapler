@@ -122,7 +122,7 @@ public abstract class Property implements Comparable<Property> {
             // merged property will get all its properties written here
             if (d != null) {
                 Model model = owner.get(d.getClass(), parent.type, name);
-                model.writeNestedObjectTo(d, child, writer, blacklist);
+                model.writeNestedObjectTo(d, new SuperFilteringTreePruner(parent,child), writer);
             }
         } else {
             writer.name(name);
@@ -257,7 +257,7 @@ public abstract class Property implements Comparable<Property> {
             // otherwise ignore this error by writing empty object
         }
         if(model!=null)
-            model.writeNestedObjectTo(value, pruner, writer, Collections.<String>emptySet());
+            model.writeNestedObjectTo(value, pruner, writer);
         writer.endObject();
     }
 
