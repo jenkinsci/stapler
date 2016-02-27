@@ -44,11 +44,11 @@ public class NamedPathPrunerTest extends TestCase {
         Vhew view1 = new Vhew("All", "crap", new Jhob[] {job1, job2});
         Vhew view2 = new Vhew("Some", "less", new Jhob[] {job1});
         Stuff bean = new Stuff(new Jhob[] {job1, job2}, Arrays.asList(view1, view2));
-        assertResult("{_class:Stuff,jobs:[{_class:Jhob,displayName:Job #1,name:job1},{_class:Jhob,displayName:Job #2,name:job2}],"
-                + "views:[{_class:Vhew,jobs:[{_class:Jhob,name:job1},{_class:Jhob,name:job2}],name:All},{_class:Vhew,jobs:[{_class:Jhob,name:job1}],name:Some}]}",
+        assertResult("{_class:Stuff,jobs:[{displayName:Job #1,name:job1},{displayName:Job #2,name:job2}],"
+                + "views:[{jobs:[{name:job1},{name:job2}],name:All},{jobs:[{name:job1}],name:Some}]}",
                 bean, "jobs[name,displayName],views[name,jobs[name]]");
-        assertResult("{_class:Stuff,jobs:[{_class:Jhob,displayName:Job #1,name:job1}],views:[{_class:Vhew,jobs:[],name:All},"
-                + "{_class:Vhew,jobs:[],name:Some}]}",
+        assertResult("{_class:Stuff,jobs:[{displayName:Job #1,name:job1}],views:[{jobs:[],name:All},"
+                + "{jobs:[],name:Some}]}",
                 bean, "jobs[name,displayName]{,1},views[name,jobs[name]{,0}]");
     }
 
@@ -58,10 +58,10 @@ public class NamedPathPrunerTest extends TestCase {
             jobs[i] = new Jhob("job"+i,"aaa","bbb");
         Vhew v = new Vhew("view","aaa",jobs);
 
-        assertResult("{_class:Vhew,jobs:[{_class:Jhob,name:job0},{_class:Jhob,name:job1},{_class:Jhob,name:job2}]}",    v, "jobs[name]{,3}");
-        assertResult("{_class:Vhew,jobs:[{_class:Jhob,name:job3},{_class:Jhob,name:job4},{_class:Jhob,name:job5}]}",    v, "jobs[name]{3,6}");
-        assertResult("{_class:Vhew,jobs:[{_class:Jhob,name:job38}]}",                           v, "jobs[name]{38}");
-        assertResult("{_class:Vhew,jobs:[{_class:Jhob,name:job97},{_class:Jhob,name:job98},{_class:Jhob,name:job99}]}", v, "jobs[name]{97,}");
+        assertResult("{_class:Vhew,jobs:[{name:job0},{name:job1},{name:job2}]}",    v, "jobs[name]{,3}");
+        assertResult("{_class:Vhew,jobs:[{name:job3},{name:job4},{name:job5}]}",    v, "jobs[name]{3,6}");
+        assertResult("{_class:Vhew,jobs:[{name:job38}]}",                           v, "jobs[name]{38}");
+        assertResult("{_class:Vhew,jobs:[{name:job97},{name:job98},{name:job99}]}", v, "jobs[name]{97,}");
     }
     
     @ExportedBean public static class Stuff {

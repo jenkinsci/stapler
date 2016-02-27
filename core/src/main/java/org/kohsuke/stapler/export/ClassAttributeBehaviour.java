@@ -96,7 +96,7 @@ public abstract class ClassAttributeBehaviour {
 
             @Override
             protected String print(Class t) {
-                return t.getSimpleName();
+                return t==null ? null : t.getSimpleName();
             }
         };
     }

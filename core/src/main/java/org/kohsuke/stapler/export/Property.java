@@ -231,7 +231,7 @@ public abstract class Property implements Comparable<Property> {
         }
 
         // otherwise handle it as a bean
-        writer.startObject(type,value.getClass());
+        writer.startObject(expected,value.getClass());
         Model model = null;
         try {
             model = owner.get(c, parent.type, name);
