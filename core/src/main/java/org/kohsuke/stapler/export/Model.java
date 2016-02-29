@@ -124,12 +124,18 @@ public class Model<T> {
         return Collections.unmodifiableList(Arrays.asList(properties));
     }
 
+    /**
+     * Does a property exist strictly in this class?
+     */
     /*package*/ final Predicate<String> HAS_PROPERTY_NAME = new Predicate<String>() {
         @Override
         public boolean apply(@Nullable String name) {
             return propertyNames.contains(name);
         }
     };
+    /**
+     * Does a property exist strictly in this class or its ancestors?
+     */
     /*package*/ final Predicate<String> HAS_PROPERTY_NAME_IN_ANCESTORY = new Predicate<String>() {
         @Override
         public boolean apply(@Nullable String name) {
