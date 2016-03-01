@@ -59,57 +59,25 @@ public final class AcceptHeader
      */
     public AcceptHeader(String ranges) {
         for (String r : StringUtils.split(ranges, ','))
-            atoms.add(Atom.parseMediaRange(r));
+            atoms.add(new Atom(r));
     }
 
     /**
      * Media range plus parameters and extensions
      */
     protected static class Atom {
-        String type;
-        String subType;
+        private final String type;
+        private final String subType;
 
         // !a dictionary of all the parameters for the media range
-        Map<String, String> params;
+        private final Map<String, String> params = new HashMap<String, String>();
 
         @Override
         public String toString() {
-            StringBuffer s = new StringBuffer("('" + type + "', '" + subType
-                    + "', {");
+            StringBuilder s = new StringBuilder(type+'/'+subType);
             for (String k : params.keySet())
-                s.append("'" + k + "':'" + params.get(k) + "',");
-            return s.append("})").toString();
-        }
-
-        /**
-         * Carves up a mime-type and returns an Atom object
-         *
-         * For example, the media range 'application/xhtml;q=0.5' would get parsed
-         * into:
-         *
-         * ('application', 'xhtml', {'q', '0.5'})
-         */
-        protected static Atom parseMimeType(String mimeType) {
-            String[] parts = StringUtils.split(mimeType, ";");
-            Atom a = new Atom();
-            a.params = new HashMap<String, String>();
-
-            for (int i = 1; i < parts.length; ++i) {
-                String p = parts[i];
-                String[] subParts = StringUtils.split(p, '=');
-                if (subParts.length == 2)
-                    a.params.put(subParts[0].trim(), subParts[1].trim());
-            }
-            String fullType = parts[0].trim();
-
-            // Java URLConnection class sends an Accept header that includes a
-            // single "*" - Turn it into a legal wildcard.
-            if (fullType.equals("*"))
-                fullType = "*/*";
-            String[] types = StringUtils.split(fullType, "/");
-            a.type = types[0].trim();
-            a.subType = types[1].trim();
-            return a;
+                s.append(",").append(k).append(":").append(params.get(k));
+            return s.toString();
         }
 
         /**
@@ -125,13 +93,29 @@ public final class AcceptHeader
          *
          * @param range
          */
-        protected static Atom parseMediaRange(String range) {
-            Atom results = parseMimeType(range);
-            String q = results.params.get("q");
+        protected Atom(String range) {
+            String[] parts = StringUtils.split(range, ";");
+
+            for (int i = 1; i < parts.length; ++i) {
+                String p = parts[i];
+                String[] subParts = StringUtils.split(p, '=');
+                if (subParts.length == 2)
+                    params.put(subParts[0].trim(), subParts[1].trim());
+            }
+            String fullType = parts[0].trim();
+
+            // Java URLConnection class sends an Accept header that includes a
+            // single "*" - Turn it into a legal wildcard.
+            if (fullType.equals("*"))
+                fullType = "*/*";
+            String[] types = StringUtils.split(fullType, "/");
+            type = types[0].trim();
+            subType = types[1].trim();
+
+            String q = params.get("q");
             float f = NumberUtils.toFloat(q, 1);
             if (StringUtils.isBlank(q) || f < 0 || f > 1)
-                results.params.put("q", "1");
-            return results;
+                params.put("q", "1");
         }
     }
 
@@ -172,29 +156,24 @@ public final class AcceptHeader
     protected FitnessAndQuality fitnessAndQualityParsed(String mimeType) {
         int bestFitness = -1;
         float bestFitQ = 0;
-        Atom target = Atom.parseMediaRange(mimeType);
+        Atom target = new Atom(mimeType);
 
-        for (Atom range : atoms)
-        {
+        for (Atom range : atoms) {
             if ((target.type.equals(range.type) || range.type.equals("*") || target.type
                     .equals("*"))
                     && (target.subType.equals(range.subType)
-                            || range.subType.equals("*") || target.subType
-                            .equals("*")))
-            {
-                for (String k : target.params.keySet())
-                {
+                    || range.subType.equals("*") || target.subType
+                    .equals("*"))) {
+                for (String k : target.params.keySet()) {
                     int paramMatches = 0;
                     if (!k.equals("q") && range.params.containsKey(k)
-                            && target.params.get(k).equals(range.params.get(k)))
-                    {
+                            && target.params.get(k).equals(range.params.get(k))) {
                         paramMatches++;
                     }
                     int fitness = (range.type.equals(target.type)) ? 100 : 0;
                     fitness += (range.subType.equals(target.subType)) ? 10 : 0;
                     fitness += paramMatches;
-                    if (fitness > bestFitness)
-                    {
+                    if (fitness > bestFitness) {
                         bestFitness = fitness;
                         bestFitQ = NumberUtils
                                 .toFloat(range.params.get("q"), 0);
@@ -237,8 +216,7 @@ public final class AcceptHeader
         }
         Collections.sort(weightedMatches);
 
-        FitnessAndQuality lastOne = weightedMatches
-                .get(weightedMatches.size() - 1);
-        return NumberUtils.compare(lastOne.quality, 0) != 0 ? lastOne.mimeType : "";
+        FitnessAndQuality lastOne = weightedMatches.get(weightedMatches.size() - 1);
+        return lastOne.quality==0 ? null : lastOne.mimeType;
     }
 }
