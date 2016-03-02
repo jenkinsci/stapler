@@ -34,7 +34,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
@@ -72,6 +71,11 @@ public abstract class Property implements Comparable<Property> {
      */
     public final boolean inline;
 
+    /**
+     * @see Exported#merge()
+     */
+    public final boolean merge;
+
     private String[] verboseMap;
 
     private final Type type;
@@ -86,6 +90,7 @@ public abstract class Property implements Comparable<Property> {
             v = parent.defaultVisibility;
         this.visibility = v;
         this.inline = exported.inline();
+        this.merge = exported.merge();
         String[] s = exported.verboseMap().split("/");
         if (s.length<2)
             this.verboseMap = null;
@@ -115,9 +120,23 @@ public abstract class Property implements Comparable<Property> {
         TreePruner child = pruner.accept(object, this);
         if (child==null)        return;
 
-        try {
+        Object d = safeGetValue(object);
+
+        if (merge) {
+            // merged property will get all its properties written here
+            if (d != null) {
+                Model model = owner.get(d.getClass(), parent.type, name);
+                model.writeNestedObjectTo(d, new FilteringTreePruner(parent.HAS_PROPERTY_NAME_IN_ANCESTORY,child), writer);
+            }
+        } else {
             writer.name(name);
-            writeValue(type, getValue(object),child,writer);
+            writeValue(type, d, child, writer);
+        }
+    }
+
+    private Object safeGetValue(Object o) throws IOException {
+        try {
+            return getValue(o);
         } catch (IllegalAccessException e) {
             IOException x = new IOException("Failed to write " + name);
             x.initCause(e);
@@ -249,7 +268,7 @@ public abstract class Property implements Comparable<Property> {
             // otherwise ignore this error by writing empty object
         }
         if(model!=null)
-            model.writeNestedObjectTo(value, pruner, writer, Collections.<String>emptySet());
+            model.writeNestedObjectTo(value, pruner, writer);
         writer.endObject();
     }
 

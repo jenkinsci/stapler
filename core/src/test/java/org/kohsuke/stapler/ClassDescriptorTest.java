@@ -1,13 +1,21 @@
 package org.kohsuke.stapler;
 
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.ServletException;
 import static org.junit.Assert.*;
 import org.junit.Test;
+import org.kohsuke.stapler.verb.GET;
+import org.kohsuke.stapler.verb.POST;
 
 /**
  * @author Alan Harder
@@ -22,7 +30,7 @@ public class ClassDescriptorTest {
 
     @Test public void loadParametersFromAsm() throws Exception {
         // get private method that is being tested
-        Method lpfa = ClassDescriptor.class.getDeclaredClasses()[0].getDeclaredMethod(
+        Method lpfa = ClassDescriptor.ASM.class.getDeclaredMethod(
                 "loadParametersFromAsm", Method.class);
         lpfa.setAccessible(true);
         // collect test cases
@@ -71,4 +79,44 @@ public class ClassDescriptorTest {
     }
     public static class Sub extends Super {}
 
+
+    /**
+     * D.x() overries B.x()
+     */
+    @Test
+    public void overridingMethod() throws Exception {
+        FunctionList methods = new ClassDescriptor(D.class).methods.name("x");
+        assertEquals(1, methods.size());
+
+        // we should be able to see both annotations
+        Function f = methods.get(0);
+        assertEquals(3, f.getAnnotation(AnnA.class).value());
+        assertNotNull(f.getAnnotation(AnnB.class));
+        // similarly parameter annotations should be fused together
+        assertSame(Nullable.class, f.getParameterAnnotations()[0][0].annotationType());
+
+        // method should be dispatched to D.x() which overrides B.x()
+        assertEquals(2, f.bindAndInvoke(new D(), null, null, "Hello"));
+    }
+
+    public static class B<T> {
+        @AnnA @AnnB
+        public int x(@Nullable T t) { return 1; }
+    }
+
+    public static class D extends B<String> {
+        @AnnA(3)
+        public int x(String t) { return 2; }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface AnnA {
+        int value() default 0;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface AnnB {
+        int value() default 0;
+    }
 }
+

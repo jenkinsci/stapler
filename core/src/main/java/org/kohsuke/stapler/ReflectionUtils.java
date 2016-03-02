@@ -23,7 +23,11 @@
 
 package org.kohsuke.stapler;
 
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,4 +48,33 @@ public class ReflectionUtils {
         defaultPrimitiveValue.put(int.class,0);
         defaultPrimitiveValue.put(long.class,0L);
     }
+
+    /**
+     * Merge  two sets of annotations. If both contains the same annotation, the definition
+     * in 'b' overrides the definition in 'a' and shows up in the result
+     */
+    public static Annotation[] union(Annotation[] a, Annotation[] b) {
+        // fast path
+        if (a.length==0)    return b;
+        if (b.length==0)    return a;
+
+        // slow path
+        List<Annotation> combined = new ArrayList<Annotation>(a.length+b.length);
+        combined.addAll(Arrays.asList(a));
+
+        OUTER:
+        for (Annotation x : b) {
+            for (int i=0; i<a.length; i++) {
+                if (x.annotationType()==combined.get(i).annotationType()) {
+                    combined.set(i,x);  // override
+                    continue OUTER;
+                }
+            }
+            // not overlapping. append
+            combined.add(x);
+        }
+
+        return combined.toArray(new Annotation[combined.size()]);
+    }
+
 }

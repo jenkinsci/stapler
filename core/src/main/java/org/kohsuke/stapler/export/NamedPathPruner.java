@@ -175,6 +175,8 @@ public final class NamedPathPruner extends TreePruner {
     }
 
     public @Override TreePruner accept(Object node, Property prop) {
+        if (prop.merge)     return this;
+
         Tree subtree = tree.children.get(prop.name);
         if (subtree==null)  subtree=tree.children.get("*");
         return subtree != null ? new NamedPathPruner(subtree) : null;
