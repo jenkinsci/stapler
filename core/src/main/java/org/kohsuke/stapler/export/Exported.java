@@ -88,6 +88,15 @@ public @interface Exported {
     boolean inline() default false;
 
     /**
+     * Include an object referenced by this property as if all its properties
+     * are merged into properties of the current object.
+     *
+     * <p>
+     * Any duplicate properties from the referenced object will be masked.
+     */
+    boolean merge() default false;
+
+    /**
      * If a string value "key/value" is given, produce a map in more verbose following form:
      * "[{key:KEY1, value:VALUE1}, {key:KEY2, value:VALUE2}, ...]
      * (whereas normally it produces more compact {KEY1:VALUE1, KEY2:VALUE2, ...}

@@ -25,6 +25,7 @@ package org.kohsuke.stapler.export;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -32,10 +33,11 @@ import java.util.List;
 import org.junit.Test;
 
 public class ModelTest {
+    ModelBuilder builder = new ModelBuilder();
 
     @Test // JENKINS-26775
     public void sytheticMethodShouldNotBeExported() {
-        Model<Impl> model = new ModelBuilder().get(Impl.class);
+        Model<Impl> model = builder.get(Impl.class);
         assertEquals("Redundant properties discovered: " + model.getProperties(), 1, model.getProperties().size());
     }
 
@@ -49,5 +51,47 @@ public class ModelTest {
         public List<Integer> get() {
             return Arrays.asList(42);
         }
+    }
+
+    //===========================================
+
+    @Test
+    public void merge() throws Exception {
+        StringWriter sw = new StringWriter();
+        builder.get(B.class).writeTo(b, Flavor.JSON.createDataWriter(b, sw));
+        // B.x should maskc C.x, so x should be 40
+        // but C.y should be printed as merged
+        assertEquals("{'y':20,'z':30,'x':40}", sw.toString().replace('"','\''));
+    }
+
+    /**
+     * y is a property from a merged object but that shouldn't be visible to {@link NamedPathPruner}.
+     */
+    @Test
+    public void merge_pathPrune() throws Exception {
+        StringWriter sw = new StringWriter();
+        builder.get(B.class).writeTo(b, new NamedPathPruner("z,y"), Flavor.JSON.createDataWriter(b, sw));
+        assertEquals("{'y':20,'z':30}", sw.toString().replace('"','\''));
+    }
+
+    B b = new B();
+    public static class B extends A {
+        @Exported
+        public int x = 40;
+    }
+
+    @ExportedBean
+    public static class A {
+        @Exported(merge=true)
+        public C c = new C();
+
+        @Exported
+        public int z = 30;
+    }
+
+    @ExportedBean
+    public static class C {
+        @Exported public int x = 10;
+        @Exported public int y = 20;
     }
 }

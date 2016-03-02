@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import com.google.common.base.Predicate;
 import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 /**
@@ -67,6 +68,8 @@ public class Model<T> {
      * Lazily loaded "*.javadoc" file for this model.
      */
     private volatile Properties javadoc;
+
+    private final Set<String> propertyNames = new HashSet<String>();
 
     /*package*/ Model(ModelBuilder parent, Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property) throws NotExportableException {
         this.parent = parent;
@@ -108,6 +111,8 @@ public class Model<T> {
 
         this.properties = properties.toArray(new Property[properties.size()]);
         Arrays.sort(this.properties);
+        for (Property p : properties)
+            this.propertyNames.add(p.name);
 
         parent.models.put(type,this);
     }
@@ -118,6 +123,28 @@ public class Model<T> {
     public List<Property> getProperties() {
         return Collections.unmodifiableList(Arrays.asList(properties));
     }
+
+    /**
+     * Does a property exist strictly in this class?
+     */
+    /*package*/ final Predicate<String> HAS_PROPERTY_NAME = new Predicate<String>() {
+        @Override
+        public boolean apply(@Nullable String name) {
+            return propertyNames.contains(name);
+        }
+    };
+    /**
+     * Does a property exist strictly in this class or its ancestors?
+     */
+    /*package*/ final Predicate<String> HAS_PROPERTY_NAME_IN_ANCESTORY = new Predicate<String>() {
+        @Override
+        public boolean apply(@Nullable String name) {
+            for (Model m=Model.this; m!=null; m=m.superModel)
+                if (m.propertyNames.contains(name))
+                    return true;
+            return false;
+        }
+    };
 
     /**
      * Loads the javadoc list and returns it as {@link Properties}.
@@ -152,7 +179,7 @@ public class Model<T> {
      * Writes the property values of the given object to the writer.
      */
     public void writeTo(T object, DataWriter writer) throws IOException {
-        writeTo(object,0,writer);
+        writeTo(object, 0, writer);
     }
 
     /**
@@ -163,7 +190,7 @@ public class Model<T> {
      */
     public void writeTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
         writer.startObject();
-        writeNestedObjectTo(object, pruner, writer, Collections.<String>emptySet());
+        writeNestedObjectTo(object, pruner, writer);
         writer.endObject();
     }
 
@@ -186,19 +213,13 @@ public class Model<T> {
         writeTo(object,new ByDepth(1-baseVisibility),writer);
     }
 
-    void writeNestedObjectTo(T object, TreePruner pruner, DataWriter writer, Set<? extends String> blacklist) throws IOException {
+    void writeNestedObjectTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
         if (superModel != null) {
-            Set<String> superBlacklist = new HashSet<String>(blacklist);
-            for (Property p : properties) {
-                superBlacklist.add(p.name);
-            }
-            superModel.writeNestedObjectTo(object, pruner, writer, superBlacklist);
+            superModel.writeNestedObjectTo(object, new FilteringTreePruner(HAS_PROPERTY_NAME,pruner), writer);
         }
 
         for (Property p : properties) {
-            if (!blacklist.contains(p.name)) {
-                p.writeTo(object,pruner,writer);
-            }
+            p.writeTo(object, pruner, writer);
         }
     }
 
