@@ -85,7 +85,7 @@ public final class AcceptHeader {
         public String toString() {
             StringBuilder s = new StringBuilder(major +'/'+ minor);
             for (String k : params.keySet())
-                s.append(",").append(k).append(":").append(params.get(k));
+                s.append(";").append(k).append("=").append(params.get(k));
             return s.toString();
         }
 
@@ -164,6 +164,7 @@ public final class AcceptHeader {
             if (f>bestFitness) {
                 best = a;
             }
+            bestFitness = f;
         }
 
         return best;
