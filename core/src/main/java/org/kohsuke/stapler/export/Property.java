@@ -181,9 +181,9 @@ public abstract class Property implements Comparable<Property> {
             writer.endArray();
             return;
         }
-        if(value instanceof Collection) {
+        if(value instanceof Iterable) {
             writer.startArray();
-            for (Object item : pruner.getRange().apply((Collection) value)) {
+            for (Object item : pruner.getRange().apply((Iterable) value)) {
                 writeValue(item,pruner,writer,true);
             }
             writer.endArray();

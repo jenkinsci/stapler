@@ -32,14 +32,17 @@ public class Range {
     }
 
     public <T> Iterable<T> apply(final Collection<T> s) {
+        return apply((Iterable<T>)s);
+    }
+
+    public <T> Iterable<T> apply(final Iterable<T> s) {
         if (s instanceof List) {
             return apply((List<T>) s);
         } else {
             return new Iterable<T>() {
                 public Iterator<T> iterator() {
                     Iterator<T> itr = s.iterator();
-                    if (max<s.size())
-                        itr = Iterators.limit(itr,max);
+                    itr = Iterators.limit(itr,max);
                     if (min>0)
                         Iterators.advance(itr,min);
                     return itr;
