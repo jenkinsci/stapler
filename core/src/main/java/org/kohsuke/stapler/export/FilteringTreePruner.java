@@ -3,8 +3,8 @@ package org.kohsuke.stapler.export;
 import com.google.common.base.Predicate;
 
 /**
- * Decorates a base {@link TreePruner} by also refusing properties
- * that are present in the given {@link Model}.
+ * Decorates a base {@link TreePruner} by refusing additional properties
+ * instructed by {@linkplain Predicate an external logic.}
  *
  * @author Kohsuke Kawaguchi
  */
