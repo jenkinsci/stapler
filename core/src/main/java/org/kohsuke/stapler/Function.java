@@ -34,9 +34,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.kohsuke.stapler.ReflectionUtils.union;
 
 /**
  * Abstracts the difference between normal instance methods and
@@ -220,7 +228,7 @@ public abstract class Function {
      */
     public abstract Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException;
 
-    final Function wrapByInterceptors(Method m) {
+    final Function wrapByInterceptors(AnnotatedElement m) {
         try {
             Function f = this;
             for (Annotation a : m.getAnnotations()) {
@@ -298,7 +306,7 @@ public abstract class Function {
     /**
      * Normal instance methods.
      */
-    static final class InstanceFunction extends MethodFunction {
+    static class InstanceFunction extends MethodFunction {
         public InstanceFunction(Method m) {
             super(m);
         }
@@ -317,7 +325,35 @@ public abstract class Function {
         }
 
         public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
-            return m.invoke(o,args);
+            return m.invoke(o, args);
+        }
+    }
+
+    /**
+     * Instance method that overrides other instance methods where we join annotations.
+     */
+    static final class OverridingInstanceFunction extends InstanceFunction {
+        // the last one takes precedence
+        private final List<Method> methods;
+
+        public OverridingInstanceFunction(List<Method> m) {
+            super(m.get(m.size()-1));
+            methods = m;
+        }
+
+        public Annotation[][] getParameterAnnotations() {
+            Annotation[][] all = null;
+            for (Method m : methods) {
+                Annotation[][] next = m.getParameterAnnotations();
+                if (all==null) {
+                    all = next;
+                } else {
+                    for (int i = 0; i < next.length; i++) {
+                        all[i] = union(all[i], next[i]);
+                    }
+                }
+            }
+            return all;
         }
     }
 

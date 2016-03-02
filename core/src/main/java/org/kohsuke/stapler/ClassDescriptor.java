@@ -38,8 +38,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
@@ -72,10 +77,31 @@ public final class ClassDescriptor {
         this.fields = clazz.getFields();
 
         // instance methods
-        List<Function> functions = new ArrayList<Function>();
-        for (Method m : clazz.getMethods()) {
-            functions.add(new Function.InstanceFunction(m).wrapByInterceptors(m));
+        List<Method> methods = new ArrayList<Method>();
+        findMethods(clazz,methods,new HashSet<Class>());
+
+        // organize them into groups
+        Map<Signature,List<Method>> groups = new HashMap<Signature, List<Method>>();
+        for (Method m : methods) {
+            Signature sig = new Signature(m);
+            List<Method> v = groups.get(sig);
+            if (v==null)    groups.put(sig, v=new ArrayList<Method>());
+            v.add(m);
         }
+
+        // build functions from groups
+        List<Function> functions = new ArrayList<Function>();
+        for (List<Method> m : groups.values()) {
+            if (m.size()==1) {
+                Method one = m.get(0);
+                functions.add(new Function.InstanceFunction(one)
+                        .wrapByInterceptors(one));
+            } else {
+                functions.add(new Function.OverridingInstanceFunction(m)
+                        .wrapByInterceptors(new UnionAnnotatedElement(m)));
+            }
+        }
+
         if(wrappers!=null) {
             for (Class w : wrappers) {
                 for (Method m : w.getMethods()) {
@@ -91,6 +117,28 @@ public final class ClassDescriptor {
             }
         }
         this.methods = new FunctionList(functions);
+    }
+
+    /**
+     * Finds all the public methods across class/interface hierarchy and accumulates into a list,
+     * from ancestor first.
+     */
+    private void findMethods(Class c, List<Method> result, Set<Class> visited) {
+        if (!visited.add(c))
+            return; // avoid visiting the same type twice
+
+        // visit interfaces first so that class methods are considered as overriding interface methods
+        for (Class i : c.getInterfaces()) {
+            findMethods(i, result, visited);
+        }
+        Class sc = c.getSuperclass();
+        if (sc!=null)
+            findMethods(sc,result,visited);
+
+        for (Method m : c.getDeclaredMethods()) {
+            if ((m.getModifiers() & Modifier.PUBLIC)!=0)
+                result.add(m);
+        }
     }
 
     /**
@@ -294,6 +342,36 @@ public final class ClassDescriptor {
             for (Class p : c.getParameterTypes())
                 buf.append(Type.getDescriptor(p));
             return buf.append(")V").toString();
+        }
+    }
+
+    /**
+     * A method signature used to determine what methods override each other
+     */
+    class Signature {
+        final String methodName;
+        final Class[] parameters;
+
+        public Signature(Method m) {
+            methodName = m.getName();
+            parameters = m.getParameterTypes();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Signature that = (Signature) o;
+
+            return this.methodName.equals(that.methodName)
+                && Arrays.equals(this.parameters, that.parameters);
+
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * methodName.hashCode() + Arrays.hashCode(parameters);
         }
     }
 
