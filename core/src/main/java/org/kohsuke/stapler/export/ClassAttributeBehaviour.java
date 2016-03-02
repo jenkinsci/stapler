@@ -45,7 +45,7 @@ public abstract class ClassAttributeBehaviour {
     /**
      * Determines if this type attribute should be written.
      *
-     * @see DataWriter#startObject(Type, Class)
+     * @see DataWriter#type(Type, Class)
      */
     abstract Class map(Type expected, Class actual);
 
