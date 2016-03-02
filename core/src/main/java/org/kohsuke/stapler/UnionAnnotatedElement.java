@@ -9,8 +9,8 @@ import static org.kohsuke.stapler.ReflectionUtils.union;
 /**
  * Presents combined view of all the annotations.
  *
- * The item in the source list with larger index is preferred (think of it as 'override')
- * over the item with smaller index.
+ * The item in the source list with smaller index is preferred (think of it as 'override')
+ * over the item with larger index.
  */
 class UnionAnnotatedElement implements AnnotatedElement {
     private final List<? extends AnnotatedElement> sources;

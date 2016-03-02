@@ -41,6 +41,7 @@ import java.lang.reflect.ParameterizedType;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -98,6 +99,7 @@ public final class ClassDescriptor {
                 functions.add(new Function.InstanceFunction(one)
                         .wrapByInterceptors(one));
             } else {
+                Collections.reverse(m);
                 functions.add(new Function.OverridingInstanceFunction(m)
                         .wrapByInterceptors(new UnionAnnotatedElement(m)));
             }
@@ -144,6 +146,7 @@ public final class ClassDescriptor {
             findMethods(sc,Types.getBaseClass(logical,sc),result,visited);
 
         for (Method m : c.getDeclaredMethods()) {
+            if (m.isBridge())    continue;
             if ((m.getModifiers() & Modifier.PUBLIC)!=0) {
                 java.lang.reflect.Type[] paramTypes = m.getGenericParameterTypes();
                 Class[] erasedParamTypes = new Class[paramTypes.length];

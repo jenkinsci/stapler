@@ -38,13 +38,9 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import static org.kohsuke.stapler.ReflectionUtils.union;
+import static org.kohsuke.stapler.ReflectionUtils.*;
 
 /**
  * Abstracts the difference between normal instance methods and
@@ -284,11 +280,11 @@ public abstract class Function {
             return m.getDeclaringClass().getName()+'.'+getName();
         }
 
-        public final <A extends Annotation> A getAnnotation(Class<A> annotation) {
+        public <A extends Annotation> A getAnnotation(Class<A> annotation) {
             return m.getAnnotation(annotation);
         }
 
-        public final Annotation[] getAnnotations() {
+        public Annotation[] getAnnotations() {
             return m.getAnnotations();
         }
 
@@ -337,8 +333,27 @@ public abstract class Function {
         private final List<Method> methods;
 
         public OverridingInstanceFunction(List<Method> m) {
-            super(m.get(m.size()-1));
+            super(m.get(0));
             methods = m;
+        }
+
+        @Override
+        public <A extends Annotation> A getAnnotation(Class<A> annotation) {
+            for (Method m : methods) {
+                A a = m.getAnnotation(annotation);
+                if (a!=null)    return a;
+            }
+            return null;
+        }
+
+        @Override
+        public Annotation[] getAnnotations() {
+            Annotation[] x = null;
+            for (Method m : methods) {
+                if (x==null)    x = m.getAnnotations();
+                else            x = union(x, m.getAnnotations());
+            }
+            return super.getAnnotations();
         }
 
         public Annotation[][] getParameterAnnotations() {
