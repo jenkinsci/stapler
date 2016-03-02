@@ -61,7 +61,7 @@ public abstract class TreePruner {
         public TreePruner accept(Object node, Property prop) {
             if (prop.visibility < n)    return null;    // not visible
 
-            if (prop.inline)    return this;
+            if (prop.inline || prop.merge)    return this;
             return next();
         }
     }
