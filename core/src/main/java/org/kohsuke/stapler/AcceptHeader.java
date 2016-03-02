@@ -21,6 +21,7 @@ THE SOFTWARE.
  */
 package org.kohsuke.stapler;
 
+import org.apache.commons.beanutils.Converter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -32,22 +33,29 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * MIME-Type Parser
+ * Represents the <tt>Accept</tt> HTTP header and help server choose the right media type to serve.
  *
- * This class provides basic functions for handling mime-types. It can handle
- * matching mime-types against a list of media-ranges. See section 14.1 of the
- * HTTP specification [RFC 2616] for a complete explanation.
+ * <p>
+ * Typical usage:
+ * </p>
+ * <pre>
+ * HttpResponse doXyz(&#64;Header("Accept") AcceptHeader accept, ...) {
+ *     swtich (accept.select("application/json","text/xml")) {
+ *     case "application/json":
+ *         ...
+ *     case "text/html":
+ *         ...
+ *     }
+ * }
+ * </pre>
  *
- * http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1
+ * <p>
+ * A port to Java of Joe Gregorio's MIME-Type Parser: http://code.google.com/p/mimeparse/
+ * Ported by Tom Zellman &lt;tzellman@gmail.com>.
  *
- * A port to Java of Joe Gregorio's MIME-Type Parser:
- *
- * http://code.google.com/p/mimeparse/
- *
- * Ported by Tom Zellman <tzellman@gmail.com>.
+ * @see <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1">definition of Accept header</a>
  */
-public final class AcceptHeader
-{
+public final class AcceptHeader {
     private final List<Atom> atoms = new ArrayList<Atom>();
     private final String ranges;
 
@@ -206,5 +214,12 @@ public final class AcceptHeader
     @Override
     public String toString() {
         return super.toString()+"["+ranges+"]";
+    }
+
+    // this performs databinding for @Header parameter injection
+    public static class StaplerConverterImpl implements Converter {
+        public Object convert(Class type, Object value) {
+            return new AcceptHeader(value.toString());
+        }
     }
 }
