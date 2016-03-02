@@ -45,6 +45,7 @@ final class XMLDataWriter implements DataWriter {
     private final Writer out;
     public boolean isArray;
     private ExportConfig config;
+    private String classAttr;
 
     XMLDataWriter(Object bean, Writer out, ExportConfig config) throws IOException {
         Class c=bean.getClass();
@@ -89,13 +90,18 @@ final class XMLDataWriter implements DataWriter {
         isArray = false;
     }
 
-    public void startObject(Type expected, Class actual) throws IOException {
+    @Override
+    public void type(Type expected, Class actual) throws IOException {
+        classAttr = config.getClassAttribute().print(expected, actual);
+    }
+
+    public void startObject() throws IOException {
         objectNames.push(name);
         out.write('<' + adjustName());
 
-        String t = config.getClassAttribute().print(expected, actual);
-        if (t!=null) {
-            out.write(TYPE_ATTRIBUTE_PREFIX+t+"'");
+        if (classAttr!=null) {
+            out.write(TYPE_ATTRIBUTE_PREFIX+classAttr+"'");
+            classAttr = null;
         }
         out.write('>');
         arrayState.push(isArray);

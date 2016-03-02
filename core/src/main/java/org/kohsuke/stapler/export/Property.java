@@ -199,7 +199,7 @@ public abstract class Property implements Comparable<Property> {
             if (verboseMap!=null) {// verbose form
                 writer.startArray();
                 for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
-                    writer.startObject(null,null);
+                    writeStartObjectNullType(writer);
                     writer.name(verboseMap[0]);
                     writeValue(null,e.getKey(),pruner,writer);
                     writer.name(verboseMap[1]);
@@ -208,7 +208,7 @@ public abstract class Property implements Comparable<Property> {
                 }
                 writer.endArray();
             } else {// compact form
-                writer.startObject(null,null);
+                writeStartObjectNullType(writer);
                 for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
                     writer.name(e.getKey().toString());
                     writeValue(null,e.getValue(),pruner,writer);
@@ -231,7 +231,12 @@ public abstract class Property implements Comparable<Property> {
         }
 
         // otherwise handle it as a bean
-        writer.startObject(expected,value.getClass());
+        try {
+            writer.type(expected, value.getClass());
+        } catch (AbstractMethodError _) {
+            // legacy impl that doesn't understand it
+        }
+        writer.startObject();
         Model model = null;
         try {
             model = owner.get(c, parent.type, name);
@@ -246,6 +251,15 @@ public abstract class Property implements Comparable<Property> {
         if(model!=null)
             model.writeNestedObjectTo(value, pruner, writer, Collections.<String>emptySet());
         writer.endObject();
+    }
+
+    private void writeStartObjectNullType(DataWriter writer) throws IOException {
+        try {
+            writer.type(null,null);
+        } catch (AbstractMethodError _) {
+            // legacy client that doesn't understand this
+        }
+        writer.startObject();
     }
 
     /**

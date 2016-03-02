@@ -38,6 +38,7 @@ class JSONDataWriter implements DataWriter {
     protected final ExportConfig config;
 
     private int indent;
+    private String classAttr;
 
     JSONDataWriter(Writer out, ExportConfig config) throws IOException {
         this.out = out;
@@ -138,13 +139,18 @@ class JSONDataWriter implements DataWriter {
         close(']');
     }
 
-    public void startObject(Type expected, Class actual) throws IOException {
+    @Override
+    public void type(Type expected, Class actual) throws IOException {
+        classAttr = config.getClassAttribute().print(expected, actual);
+    }
+
+    public void startObject() throws IOException {
         _startObject();
 
-        String t = config.getClassAttribute().print(expected, actual);
-        if (t!=null) {
+        if (classAttr!=null) {
             name(TYPE_PROPERTY_NAME);
-            value(t);
+            value(classAttr);
+            classAttr = null;
         }
     }
 

@@ -160,7 +160,12 @@ public class Model<T> {
      *      Controls which portion of the object graph will be sent to the writer.
      */
     public void writeTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
-        writer.startObject(null,object.getClass());
+        try {
+            writer.type(null,object.getClass());
+        } catch (AbstractMethodError _) {
+            // legacy client that doesn't understand this
+        }
+        writer.startObject();
         writeNestedObjectTo(object, pruner, writer, Collections.<String>emptySet());
         writer.endObject();
     }

@@ -33,7 +33,7 @@ import java.lang.reflect.Type;
  * The call sequence is:
  *
  * <pre>
- * EVENTS := startObject PROPERTY* endObject
+ * EVENTS := type? startObject PROPERTY* endObject
  * PROPERTY := name VALUE
  * VALUE := valuePrimitive
  *        | value
@@ -55,18 +55,21 @@ public interface DataWriter {
     void endArray() throws IOException;
 
     /**
+     * Augments the next {@link #startObject()} call by specifying the type information of that object.
+     *
      * @param expected
      *      The declared type of the variable that references this object.
      *      Null if the object is not referenced by anyone, for example when it's the root.
-     * @param type
+     * @param actual
      *      The actual type of the object being written.
      *      Null if the object is synthetic is has no valid Java type
      */
-    void startObject(Type expected, Class type) throws IOException;
+    void type(Type expected, Class actual) throws IOException;
+    void startObject() throws IOException;
     void endObject() throws IOException;
 
     /**
-     * Recommended property name to write out the 'type' parameter of {@link #startObject(Type,Class)}
+     * Recommended property name to write out the 'type' parameter of {@link #type(Type,Class)}
      */
     String TYPE_PROPERTY_NAME = "_class";
 }
