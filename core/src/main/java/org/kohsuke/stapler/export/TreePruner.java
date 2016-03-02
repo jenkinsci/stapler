@@ -65,4 +65,10 @@ public abstract class TreePruner {
             return next();
         }
     }
+
+    /**
+     * Probably the most common {@link TreePruner} that just visits the top object and its properties,
+     * but none of the referenced objects.
+     */
+    public static final TreePruner DEFAULT = new ByDepth(1);
 }

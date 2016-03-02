@@ -9,7 +9,7 @@
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.238-SNAPSHOT</version>
+  <version>1.240-SNAPSHOT</version>
 
   <name>Stapler</name>
   <description>Stapler HTTP request handling engine</description>
@@ -95,7 +95,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <version>1.9</version>
+        <version>1.14</version>
         <executions>
           <execution>
             <goals>
@@ -224,14 +224,14 @@
       </plugin>
     </plugins>
   </reporting>
-  
+
 
   <dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.kohsuke.metainf-services</groupId>
       <artifactId>metainf-services</artifactId>
-      <version>1.5</version>
+      <version>1.7</version>
     </dependency>
 
     <!-- test dependencies -->

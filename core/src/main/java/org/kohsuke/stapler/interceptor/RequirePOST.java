@@ -14,12 +14,18 @@ import static java.lang.annotation.RetentionPolicy.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import org.kohsuke.stapler.HttpResponses;
+import org.kohsuke.stapler.verb.POST;
 
 /**
  * Requires the request to be a POST.
  *
+ * <p>
+ * When the current request has a non-matching HTTP method (such as 'GET'), this annotation
+ * will send a failure response instead of searching for other matching web methods.
+ *
  * @author Kohsuke Kawaguchi
  * @since 1.180
+ * @see POST
  */
 @Retention(RUNTIME)
 @Target({METHOD,FIELD})
@@ -28,7 +34,7 @@ public @interface RequirePOST {
     public static class Processor extends Interceptor {
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
-                throws IllegalAccessException, InvocationTargetException {
+                throws IllegalAccessException, InvocationTargetException, ServletException {
             if (!request.getMethod().equals("POST")) {
                 throw new InvocationTargetException(new HttpResponses.HttpResponseException() {
                     public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {

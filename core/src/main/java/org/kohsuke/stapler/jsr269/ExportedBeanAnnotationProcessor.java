@@ -6,7 +6,6 @@ import org.kohsuke.stapler.export.Exported;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -27,7 +26,6 @@ import java.util.TreeSet;
  * @author Kohsuke Kawaguchi
  */
 @SuppressWarnings({"Since15"})
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("org.kohsuke.stapler.export.Exported")
 @MetaInfServices(Processor.class)
 public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
@@ -134,6 +132,11 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
         return false;
     }
 
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latest();
+    }
+
     private void scanExisting() throws IOException {
         exposedBeanNames = new TreeSet<String>();
 
@@ -145,6 +148,8 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
                 exposedBeanNames.add(line.trim());
             in.close();
         } catch (FileNotFoundException e) {
+            // no existing file, which is fine
+        } catch (java.nio.file.NoSuchFileException e) {
             // no existing file, which is fine
         }
     }

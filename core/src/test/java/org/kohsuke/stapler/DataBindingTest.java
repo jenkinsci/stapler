@@ -55,7 +55,12 @@ public class DataBindingTest extends TestCase {
     }
 
     public void testFromStaplerMethod() throws Exception {
-        MockRequest mr = new MockRequest();
+        MockRequest mr = new MockRequest() {
+            @Override
+            public String getContentType() {
+                return "text/html";
+            }
+        };
         mr.getParameterMap().put("a","123");
         mr.getParameterMap().put("b","string");
         RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.<AncestorImpl>emptyList(), null);

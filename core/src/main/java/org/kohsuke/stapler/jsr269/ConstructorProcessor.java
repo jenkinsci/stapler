@@ -6,7 +6,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -24,7 +23,6 @@ import javax.tools.Diagnostic;
  * @author Kohsuke Kawaguchi
  */
 @SuppressWarnings({"Since15"})
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("*")
 @MetaInfServices(Processor.class)
 public class ConstructorProcessor extends AbstractProcessorImpl {
@@ -45,6 +43,11 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
 
                     return super.visitExecutable(e, aVoid);
                 }
+
+                @Override
+                public Void visitUnknown(Element e, Void aVoid) {
+                    return DEFAULT_VALUE;
+                }
             };
 
             for (Element e : roundEnv.getRootElements()) {
@@ -63,6 +66,11 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latest();
     }
 
     private void write(ExecutableElement c) {

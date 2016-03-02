@@ -32,6 +32,11 @@ import java.lang.reflect.InvocationTargetException;
  */
 abstract class NameBasedDispatcher extends Dispatcher {
     protected final String name;
+
+    /**
+     * Number of tokens that {@link #doDispatch(RequestImpl, ResponseImpl, Object)} expects.
+     * If the URL is shorter than that, dispatch will not take place.
+     */
     private final int argCount;
 
     protected NameBasedDispatcher(String name, int argCount) {

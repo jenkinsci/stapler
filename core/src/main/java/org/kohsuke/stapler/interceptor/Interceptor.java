@@ -1,11 +1,14 @@
 package org.kohsuke.stapler.interceptor;
 
+import org.kohsuke.stapler.CancelRequestHandlingException;
 import org.kohsuke.stapler.Function;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import java.lang.reflect.InvocationTargetException;
 import org.kohsuke.stapler.HttpResponses;
+
+import javax.servlet.ServletException;
 
 /**
  * Intercepts the domain method call from Stapler.
@@ -45,8 +48,10 @@ public abstract class Interceptor {
      * @return
      *      Return value from the method.
      * @throws InvocationTargetException if you want to send e.g. something from {@link HttpResponses}
+     * @throws CancelRequestHandlingException
+     *      to cancel this request handling and moves on to the next available dispatch mechanism.
      */
     public abstract Object invoke(StaplerRequest request, StaplerResponse response,
                                   Object instance, Object[] arguments)
-            throws IllegalAccessException, InvocationTargetException;
+            throws IllegalAccessException, InvocationTargetException, ServletException;
 }

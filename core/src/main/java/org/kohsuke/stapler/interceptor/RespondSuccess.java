@@ -4,6 +4,7 @@ import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+import javax.servlet.ServletException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
@@ -25,7 +26,7 @@ public @interface RespondSuccess {
     public static class Processor extends Interceptor {
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
-                throws IllegalAccessException, InvocationTargetException {
+                throws IllegalAccessException, InvocationTargetException, ServletException {
             target.invoke(request, response, instance, arguments);
             // TODO does this actually do anything?
             // Function.bindAndInvokeAndServeResponse ignores return value if the method is declared to return void.

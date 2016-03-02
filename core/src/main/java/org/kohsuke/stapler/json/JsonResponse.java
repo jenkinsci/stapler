@@ -7,6 +7,7 @@ import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
+import javax.servlet.ServletException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -37,7 +38,7 @@ public @interface JsonResponse {
 
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
-                throws IllegalAccessException, InvocationTargetException {
+                throws IllegalAccessException, InvocationTargetException, ServletException {
             try {
                 final Object r = target.invoke(request, response, instance, arguments);
 

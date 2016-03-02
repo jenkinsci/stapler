@@ -94,9 +94,11 @@ public abstract class Function {
     boolean bindAndInvokeAndServeResponse(Object node, RequestImpl req, ResponseImpl rsp, Object... headArgs) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
         try {
             Object r = bindAndInvoke(node, req, rsp, headArgs);
-            if (getReturnType()!=void.class)
-                renderResponse(req,rsp,node, r);
+            if (getReturnType() != void.class)
+                renderResponse(req, rsp, node, r);
             return true;
+        } catch (CancelRequestHandlingException _) {
+            return false;
         } catch (InvocationTargetException e) {
             // exception as an HttpResponse
             Throwable te = e.getTargetException();
@@ -216,7 +218,7 @@ public abstract class Function {
     /**
      * Invokes the method.
      */
-    public abstract Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException;
+    public abstract Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException;
 
     final Function wrapByInterceptors(Method m) {
         try {
@@ -224,7 +226,21 @@ public abstract class Function {
             for (Annotation a : m.getAnnotations()) {
                 final InterceptorAnnotation ia = a.annotationType().getAnnotation(InterceptorAnnotation.class);
                 if (ia!=null) {
-                    f = new InterceptedFunction(f,ia);
+                    try {
+                        Interceptor i = ia.value().newInstance();
+                        switch (ia.stage()) {
+                        case SELECTION:
+                            f = new SelectionInterceptedFunction(f,i);
+                            break;
+                        case PREINVOKE:
+                            f = new PreInvokeInterceptedFunction(f,i);
+                            break;
+                        }
+                    } catch (InstantiationException e) {
+                        throw (Error)new InstantiationError("Failed to instantiate interceptor for "+f.getDisplayName()).initCause(e);
+                    } catch (IllegalAccessException e) {
+                        throw (Error)new IllegalAccessError("Failed to instantiate interceptor for "+f.getDisplayName()).initCause(e);
+                    }
                 }
             }
 
@@ -236,6 +252,8 @@ public abstract class Function {
     }
 
     public abstract <A extends Annotation> A getAnnotation(Class<A> annotation);
+
+    public abstract Annotation[] getAnnotations();
 
     private abstract static class MethodFunction extends Function {
         protected final Method m;
@@ -260,6 +278,10 @@ public abstract class Function {
 
         public final <A extends Annotation> A getAnnotation(Class<A> annotation) {
             return m.getAnnotation(annotation);
+        }
+
+        public final Annotation[] getAnnotations() {
+            return m.getAnnotations();
         }
 
         public final String[] getParameterNames() {
@@ -337,70 +359,4 @@ public abstract class Function {
         }
     }
 
-    /**
-     * Function that's wrapped by {@link Interceptor}.
-     */
-    static final class InterceptedFunction extends Function {
-        private final Function next;
-        private final Interceptor interceptor;
-
-        public InterceptedFunction(Function next, InterceptorAnnotation ia) {
-            this.next = next;
-            this.interceptor = instantiate(ia);
-            interceptor.setTarget(next);
-        }
-
-        private Interceptor instantiate(InterceptorAnnotation ia) {
-            try {
-                return ia.value().newInstance();
-            } catch (InstantiationException e) {
-                throw (Error)new InstantiationError("Failed to instantiate interceptor for "+next.getDisplayName()).initCause(e);
-            } catch (IllegalAccessException e) {
-                throw (Error)new IllegalAccessError("Failed to instantiate interceptor for "+next.getDisplayName()).initCause(e);
-            }
-        }
-        
-        public String getName() {
-            return next.getName();
-        }
-
-        public String getDisplayName() {
-            return next.getDisplayName();
-        }
-
-        @Override
-        public String getQualifiedName() {
-            return next.getQualifiedName();
-        }
-
-        public Class[] getParameterTypes() {
-            return next.getParameterTypes();
-        }
-
-        @Override
-        public Class getReturnType() {
-            return next.getReturnType();
-        }
-
-        @Override
-        public Type[] getGenericParameterTypes() {
-            return next.getGenericParameterTypes();
-        }
-
-        public Annotation[][] getParameterAnnotations() {
-            return next.getParameterAnnotations();
-        }
-
-        public String[] getParameterNames() {
-            return next.getParameterNames();
-        }
-
-        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
-            return interceptor.invoke(req, rsp, o, args);
-        }
-
-        public <A extends Annotation> A getAnnotation(Class<A> annotation) {
-            return next.getAnnotation(annotation);
-        }
-    }
 }

@@ -28,6 +28,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 
+import javax.servlet.ServletException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
@@ -77,7 +78,7 @@ public @interface JsonOutputFilter {
     public static class Processor extends Interceptor {
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
-                throws IllegalAccessException, InvocationTargetException {
+                throws IllegalAccessException, InvocationTargetException, ServletException {
             JsonOutputFilter annotation = target.getAnnotation((JsonOutputFilter.class));
             if (annotation != null) {
                 JsonConfig config = new JsonConfig();

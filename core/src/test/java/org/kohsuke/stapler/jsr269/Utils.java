@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -18,22 +19,6 @@ import javax.tools.StandardLocation;
 import net.java.dev.hickory.testing.Compilation;
 
 class Utils {
-
-    /**
-     * Filter out warnings about {@link SupportedSourceVersion}.
-     * {@code metainf-services-1.1.jar} produces {@code warning: No SupportedSourceVersion annotation found on org.kohsuke.metainf_services.AnnotationProcessorImpl, returning RELEASE_6.} which is irrelevant to us.
-     * (Development versions have already fixed this; when released and used here, delete this method.)
-     */
-    public static List<Diagnostic<? extends JavaFileObject>> filterSupportedSourceVersionWarnings(List<Diagnostic<? extends JavaFileObject>> diagnostics) {
-        List<Diagnostic<? extends JavaFileObject>> r = new ArrayList<Diagnostic<? extends JavaFileObject>>();
-        for (Diagnostic<? extends JavaFileObject> d : diagnostics) {
-            if (!d.getMessage(Locale.ENGLISH).contains("SupportedSourceVersion")) {
-                r.add(d);
-            }
-        }
-        return r;
-    }
-
     private static JavaFileManager fileManager(Compilation compilation) {
         try {
             Field f = Compilation.class.getDeclaredField("jfm");

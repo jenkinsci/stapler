@@ -23,8 +23,6 @@
 
 package org.kohsuke.stapler.export;
 
-import org.kohsuke.stapler.export.TreePruner.ByDepth;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -38,8 +36,11 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 /**
  * Writes all the property of one {@link ExportedBean} to {@link DataWriter}.
@@ -63,7 +64,7 @@ public class Model<T> {
     /*package*/ final int defaultVisibility;
 
     /**
-     * Lazily loaded "*.javadoc" file for this model. 
+     * Lazily loaded "*.javadoc" file for this model.
      */
     private volatile Properties javadoc;
 
@@ -75,7 +76,7 @@ public class Model<T> {
             throw propertyOwner != null ? new NotExportableException(type, propertyOwner, property) : new NotExportableException(type);
         }
         this.defaultVisibility = eb.defaultVisibility();
-        
+
         Class<? super T> sc = type.getSuperclass();
         if(sc!=null && sc.getAnnotation(ExportedBean.class)!=null)
             superModel = parent.get(sc);
@@ -94,6 +95,7 @@ public class Model<T> {
 
         for( Method m : type.getMethods() ) {
             if(m.getDeclaringClass()!=type) continue;
+            if(m.isSynthetic() && m.isBridge()) continue;
             Exported exported = m.getAnnotation(Exported.class);
             if(exported !=null) {
                 if (m.getParameterTypes().length > 0) {
@@ -184,6 +186,7 @@ public class Model<T> {
      *
      * @deprecated as of 1.139
      */
+    @Deprecated
     public void writeTo(T object, int baseVisibility, DataWriter writer) throws IOException {
         writeTo(object,new ByDepth(1-baseVisibility),writer);
     }
