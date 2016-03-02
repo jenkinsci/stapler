@@ -134,7 +134,7 @@ public class SchemaGenerator {
         }
 
         if (m.superModel==null)
-            ct.attribute().name(DataWriter.TYPE_PROPERTY_NAME).type(XSD.Types.STRING).use("optional");
+            ct.attribute().name(DataWriter.CLASS_PROPERTY_NAME).type(XSD.Types.STRING).use("optional");
     }
 
     /**

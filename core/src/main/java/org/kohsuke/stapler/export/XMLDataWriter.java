@@ -100,7 +100,7 @@ final class XMLDataWriter implements DataWriter {
         out.write('<' + adjustName());
 
         if (classAttr!=null) {
-            out.write(TYPE_ATTRIBUTE_PREFIX+classAttr+"'");
+            out.write(CLASS_ATTRIBUTE_PREFIX +classAttr+"'");
             classAttr = null;
         }
         out.write('>');
@@ -149,5 +149,5 @@ final class XMLDataWriter implements DataWriter {
         return name;
     }
 
-    private static final String TYPE_ATTRIBUTE_PREFIX = " "+TYPE_PROPERTY_NAME+"='";
+    private static final String CLASS_ATTRIBUTE_PREFIX = " "+ CLASS_PROPERTY_NAME +"='";
 }

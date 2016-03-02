@@ -148,7 +148,7 @@ class JSONDataWriter implements DataWriter {
         _startObject();
 
         if (classAttr!=null) {
-            name(TYPE_PROPERTY_NAME);
+            name(CLASS_PROPERTY_NAME);
             value(classAttr);
             classAttr = null;
         }

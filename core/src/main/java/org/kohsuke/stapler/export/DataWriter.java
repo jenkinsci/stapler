@@ -71,5 +71,5 @@ public interface DataWriter {
     /**
      * Recommended property name to write out the 'type' parameter of {@link #type(Type,Class)}
      */
-    String TYPE_PROPERTY_NAME = "_class";
+    String CLASS_PROPERTY_NAME = "_class";
 }
