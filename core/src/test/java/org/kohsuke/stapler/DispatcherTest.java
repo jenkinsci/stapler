@@ -5,12 +5,14 @@ import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.TextPage;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.json.JsonBody;
 import org.kohsuke.stapler.json.JsonResponse;
 import org.kohsuke.stapler.test.JettyTestCase;
 import org.kohsuke.stapler.verb.GET;
 import org.kohsuke.stapler.verb.POST;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
 
@@ -145,6 +147,7 @@ public class DispatcherTest extends JettyTestCase {
 
     //===================================================================
 
+
     public final Inheritance inheritance = new Inheritance2();
     public class Inheritance {
         @WebMethod(name="foo")
@@ -174,5 +177,39 @@ public class DispatcherTest extends JettyTestCase {
         } catch (FailingHttpStatusCodeException e) {
             assertEquals(404,e.getStatusCode());
         }
+    }
+
+
+    //===================================================================
+
+
+    public final RequirePostOnBase requirePostOnBase = new RequirePostOnBase2();
+    public abstract class RequirePostOnBase {
+        int hit;
+        @RequirePOST
+        public abstract void doSomething();
+    }
+
+    public class RequirePostOnBase2 extends RequirePostOnBase {
+        @Override
+        public void doSomething() {
+            hit++;
+        }
+    }
+
+    public void testRequirePostOnBase() throws Exception {
+        WebClient wc = new WebClient();
+        URL url = new URL(this.url, "requirePostOnBase/something");
+
+        try {
+            wc.getPage(url);
+            fail();
+        } catch (FailingHttpStatusCodeException e) {
+            assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.getStatusCode());
+        }
+
+        // POST should succeed
+        wc.getPage(new WebRequestSettings(url, HttpMethod.POST));
+        assertEquals(1, requirePostOnBase.hit);
     }
 }
