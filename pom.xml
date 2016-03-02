@@ -9,7 +9,7 @@
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.240</version>
+  <version>1.241-SNAPSHOT</version>
 
   <name>Stapler</name>
   <description>Stapler HTTP request handling engine</description>
@@ -37,7 +37,7 @@
     <connection>scm:git:git://github.com/stapler/stapler.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/stapler/stapler.git</developerConnection>
     <url>https://github.com/stapler/stapler</url>
-    <tag>stapler-parent-1.240</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <prerequisites>
