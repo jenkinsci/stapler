@@ -30,7 +30,7 @@ public class ClassDescriptorTest {
 
     @Test public void loadParametersFromAsm() throws Exception {
         // get private method that is being tested
-        Method lpfa = ClassDescriptor.class.getDeclaredClasses()[0].getDeclaredMethod(
+        Method lpfa = ClassDescriptor.ASM.class.getDeclaredMethod(
                 "loadParametersFromAsm", Method.class);
         lpfa.setAccessible(true);
         // collect test cases

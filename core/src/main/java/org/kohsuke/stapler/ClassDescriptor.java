@@ -279,7 +279,7 @@ public final class ClassDescriptor {
     /**
      * Isolate the ASM dependency to its own class, as otherwise this seems to cause linkage error on the whole {@link ClassDescriptor}.
      */
-    private static class ASM {
+    /*package*/ static class ASM {
         /**
          * Try to load parameter names from the debug info by using ASM.
          */
