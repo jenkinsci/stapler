@@ -94,4 +94,29 @@ public class ModelTest {
         @Exported public int x = 10;
         @Exported public int y = 20;
     }
+
+    //===========================================
+
+    @Test
+    public void skipNull() throws Exception {
+        StringWriter sw = new StringWriter();
+        SomeNullProperty o = new SomeNullProperty();
+        builder.get(SomeNullProperty.class).writeTo(o, TreePruner.DEFAULT, Flavor.JSON.createDataWriter(o, sw));
+        assertEquals("{'bbb':'bbb','ccc':null,'ddd':'ddd'}", sw.toString().replace('"','\''));
+    }
+
+    @ExportedBean
+    public static class SomeNullProperty {
+        @Exported(skipNull=true)
+        public String aaa = null;
+
+        @Exported(skipNull=true)
+        public String bbb = "bbb";
+
+        @Exported(skipNull=false)
+        public String ccc = null;
+
+        @Exported(skipNull=false)
+        public String ddd = "ddd";
+    }
 }

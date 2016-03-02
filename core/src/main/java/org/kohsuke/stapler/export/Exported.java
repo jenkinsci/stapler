@@ -97,6 +97,26 @@ public @interface Exported {
     boolean merge() default false;
 
     /**
+     * If the value is null, don't even write the property.
+     *
+     * By default, the property will be produced with null value, such as this:
+     * <pre>
+     * {
+     *     foo: null,
+     *     bar: "abc"
+     * }
+     * </pre>
+     *
+     * With this switch enabled on the 'foo' field, the above will become this:
+     * <pre>
+     * {
+     *     bar: "abc"
+     * }
+     * </pre>
+     */
+    boolean skipNull() default false;
+
+    /**
      * If a string value "key/value" is given, produce a map in more verbose following form:
      * "[{key:KEY1, value:VALUE1}, {key:KEY2, value:VALUE2}, ...]
      * (whereas normally it produces more compact {KEY1:VALUE1, KEY2:VALUE2, ...}

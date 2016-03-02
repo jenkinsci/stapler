@@ -75,6 +75,11 @@ public abstract class Property implements Comparable<Property> {
      */
     public final boolean merge;
 
+    /**
+     * @see Exported#skipNull()
+     */
+    private final boolean skipNull;
+
     private String[] verboseMap;
 
     Property(Model parent, String name, Exported exported) {
@@ -87,6 +92,7 @@ public abstract class Property implements Comparable<Property> {
         this.visibility = v;
         this.inline = exported.inline();
         this.merge = exported.merge();
+        this.skipNull = exported.skipNull();
         String[] s = exported.verboseMap().split("/");
         if (s.length<2)
             this.verboseMap = null;
@@ -118,6 +124,9 @@ public abstract class Property implements Comparable<Property> {
 
         Object d = safeGetValue(object);
 
+        if (d==null && skipNull) { // don't write anything
+            return;
+        }
         if (merge) {
             // merged property will get all its properties written here
             if (d != null) {
