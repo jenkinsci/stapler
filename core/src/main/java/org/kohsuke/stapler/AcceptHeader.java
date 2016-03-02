@@ -24,9 +24,9 @@ package org.kohsuke.stapler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,19 +45,20 @@ import java.util.Map;
  * http://code.google.com/p/mimeparse/
  *
  * Ported by Tom Zellman <tzellman@gmail.com>.
- *
  */
 public final class AcceptHeader
 {
     private final List<Atom> atoms = new ArrayList<Atom>();
+    private final String ranges;
 
     /**
-     * Parse the accept header value.
+     * Parse the accept header value into a typed object.
      *
      * @param ranges
      *      something like "text/*;q=0.5,*; q=0.1"
      */
     public AcceptHeader(String ranges) {
+        this.ranges = ranges;
         for (String r : StringUtils.split(ranges, ','))
             atoms.add(new Atom(r));
     }
@@ -66,32 +67,22 @@ public final class AcceptHeader
      * Media range plus parameters and extensions
      */
     protected static class Atom {
-        private final String type;
-        private final String subType;
-
-        // !a dictionary of all the parameters for the media range
+        private final String major;
+        private final String minor;
         private final Map<String, String> params = new HashMap<String, String>();
+
+        private final float q;
 
         @Override
         public String toString() {
-            StringBuilder s = new StringBuilder(type+'/'+subType);
+            StringBuilder s = new StringBuilder(major +'/'+ minor);
             for (String k : params.keySet())
                 s.append(",").append(k).append(":").append(params.get(k));
             return s.toString();
         }
 
         /**
-         * Carves up a media range and returns a ParseResults.
-         *
-         * For example, the media range 'application/*;q=0.5' would get parsed into:
-         *
-         * ('application', '*', {'q', '0.5'})
-         *
-         * In addition this function also guarantees that there is a value for 'q'
-         * in the params dictionary, filling it in with a proper default if
-         * necessary.
-         *
-         * @param range
+         * Parses a string like 'application/*;q=0.5' into a typed object.
          */
         protected Atom(String range) {
             String[] parts = StringUtils.split(range, ";");
@@ -109,89 +100,65 @@ public final class AcceptHeader
             if (fullType.equals("*"))
                 fullType = "*/*";
             String[] types = StringUtils.split(fullType, "/");
-            type = types[0].trim();
-            subType = types[1].trim();
+            major = types[0].trim();
+            minor = types[1].trim();
 
-            String q = params.get("q");
-            float f = NumberUtils.toFloat(q, 1);
-            if (StringUtils.isBlank(q) || f < 0 || f > 1)
-                params.put("q", "1");
-        }
-    }
+            float q = NumberUtils.toFloat(params.get("q"), 1);
+            if (q < 0 || q > 1)
+                q = 1;
+            this.q = q;
 
-
-    /**
-     * Structure for holding a fitness/quality combo
-     */
-    protected static class FitnessAndQuality implements Comparable<FitnessAndQuality> {
-        private final int fitness;
-        private final float quality;
-        String mimeType; // optionally used
-
-        public FitnessAndQuality(int fitness, float quality) {
-            this.fitness = fitness;
-            this.quality = quality;
+            params.remove("q"); // normalize this away as this gets in the fitting
         }
 
-        public int compareTo(FitnessAndQuality o) {
-            if (fitness == o.fitness) {
-                if (quality == o.quality)
-                    return 0;
-                else
-                    return quality < o.quality ? -1 : 1;
-            } else
-                return fitness < o.fitness ? -1 : 1;
-        }
-    }
+        /**
+         * Consider the score of fitness between two Atoms.
+         *
+         * <p>
+         * Higher fitness means better match. For example, "text/html;level=1" fits "text/html" better
+         * than "text/*", which still fits better than "* /*"
+         */
+        private int fit(Atom that) {
+            if (!wildcardMatch(that.major, this.major) || !wildcardMatch(that.minor, this.minor))
+                return -1;
 
-    /**
-     * Find the best match for a given mimeType against a list of media_ranges
-     * that have already been parsed by MimeParse.parseMediaRange(). Returns a
-     * tuple of the fitness value and the value of the 'q' quality parameter of
-     * the best match, or (-1, 0) if no match was found. Just as for
-     * quality_parsed(), 'parsed_ranges' must be a list of parsed media ranges.
-     *
-     * @param mimeType
-     */
-    protected FitnessAndQuality fitnessAndQualityParsed(String mimeType) {
-        int bestFitness = -1;
-        float bestFitQ = 0;
-        Atom target = new Atom(mimeType);
+            int fitness;
+            fitness = (this.major.equals(that.major)) ? 10000 : 0;
+            fitness += (this.minor.equals(that.minor)) ? 1000 : 0;
 
-        for (Atom range : atoms) {
-            if ((target.type.equals(range.type) || range.type.equals("*") || target.type
-                    .equals("*"))
-                    && (target.subType.equals(range.subType)
-                    || range.subType.equals("*") || target.subType
-                    .equals("*"))) {
-                for (String k : target.params.keySet()) {
-                    int paramMatches = 0;
-                    if (!k.equals("q") && range.params.containsKey(k)
-                            && target.params.get(k).equals(range.params.get(k))) {
-                        paramMatches++;
-                    }
-                    int fitness = (range.type.equals(target.type)) ? 100 : 0;
-                    fitness += (range.subType.equals(target.subType)) ? 10 : 0;
-                    fitness += paramMatches;
-                    if (fitness > bestFitness) {
-                        bestFitness = fitness;
-                        bestFitQ = NumberUtils
-                                .toFloat(range.params.get("q"), 0);
-                    }
+            // parameter matches increase score
+            for (String k : that.params.keySet()) {
+                if (that.params.get(k).equals(this.params.get(k))) {
+                    fitness++;
                 }
             }
+
+            return fitness;
         }
-        return new FitnessAndQuality(bestFitness, bestFitQ);
+    }
+
+    private static boolean wildcardMatch(String a, String b) {
+        return a.equals(b) || a.equals("*") || b.equals("*");
     }
 
     /**
-     * Returns the quality 'q' of a mime-type when compared against the
-     * mediaRanges in ranges. For example:
+     * Given a MIME type, find the entry from this Accept header that fits the best.
      *
      * @param mimeType
      */
-    public float quality(String mimeType) {
-        return fitnessAndQualityParsed(mimeType).quality;
+    protected Atom match(String mimeType) {
+        Atom target = new Atom(mimeType);
+
+        int bestFitness = -1;
+        Atom best = null;
+        for (Atom a : atoms) {
+            int f = a.fit(target);
+            if (f>bestFitness) {
+                best = a;
+            }
+        }
+
+        return best;
     }
 
     /**
@@ -200,23 +167,44 @@ public final class AcceptHeader
      * conforms to the format of the HTTP Accept: header. The value of
      * 'supported' is a list of mime-types.
      *
-     * MimeParse.bestMatch(Arrays.asList(new String[]{"application/xbel+xml",
-     * "text/xml"}), "text/*;q=0.5,*; q=0.1") 'text/xml'
+     * <pre>
+     * // Client: I prefer text/*, but if not I'm happy to take anything
+     * // Server: I can serve you xbel or xml
+     * // Result: let's serve you text/xml
+     * new AcceptHeader("text/*;q=0.5, *;q=0.1").select("application/xbel+xml", "text/xml") => "text/xml"
      *
-     * @param supported
-     * @return
+     * // Client: I want image, ideally PNG
+     * // Server: I can give you plain text or XML
+     * // Result: there's nothing to serve you here
+     * new AcceptHeader("image/*;q=0.5, image/png;q=1").select("text/plain","text/xml") => null
+     * </pre>
+     *
+     * @return null if none of the choices in {@code supported} is acceptable to the client.
      */
-    public String bestMatch(Collection<String> supported) {
-        List<FitnessAndQuality> weightedMatches = new ArrayList<FitnessAndQuality>();
+    public String select(Iterable<String> supported) {
+        float bestQ = 0;
+        String best = null;
 
         for (String s : supported) {
-            FitnessAndQuality fitnessAndQuality = fitnessAndQualityParsed(s);
-            fitnessAndQuality.mimeType = s;
-            weightedMatches.add(fitnessAndQuality);
+            Atom a = match(s);
+            if (a.q > bestQ) {
+                bestQ = a.q;
+                best = s;
+            }
         }
-        Collections.sort(weightedMatches);
 
-        FitnessAndQuality lastOne = weightedMatches.get(weightedMatches.size() - 1);
-        return lastOne.quality==0 ? null : lastOne.mimeType;
+        if (best==null)
+            throw HttpResponses.error(HttpServletResponse.SC_NOT_ACCEPTABLE,
+                    "Requested MIME types '" + ranges + "' didn't match any of the available options "+supported);
+        return best;
+    }
+
+    public String select(String... supported) {
+        return select(Arrays.asList(supported));
+    }
+
+    @Override
+    public String toString() {
+        return super.toString()+"["+ranges+"]";
     }
 }
