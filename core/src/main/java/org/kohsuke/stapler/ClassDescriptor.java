@@ -24,6 +24,7 @@
 package org.kohsuke.stapler;
 
 import org.apache.commons.io.IOUtils;
+import org.jvnet.tiger_types.Types;
 import org.kohsuke.asm5.ClassReader;
 import org.kohsuke.asm5.ClassVisitor;
 import org.kohsuke.asm5.Label;
@@ -36,6 +37,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,16 +79,15 @@ public final class ClassDescriptor {
         this.fields = clazz.getFields();
 
         // instance methods
-        List<Method> methods = new ArrayList<Method>();
-        findMethods(clazz,methods,new HashSet<Class>());
+        List<MethodMirror> methods = new ArrayList<MethodMirror>();
+        findMethods(clazz,clazz,methods,new HashSet<Class>());
 
         // organize them into groups
         Map<Signature,List<Method>> groups = new HashMap<Signature, List<Method>>();
-        for (Method m : methods) {
-            Signature sig = new Signature(m);
-            List<Method> v = groups.get(sig);
-            if (v==null)    groups.put(sig, v=new ArrayList<Method>());
-            v.add(m);
+        for (MethodMirror m : methods) {
+            List<Method> v = groups.get(m.sig);
+            if (v==null)    groups.put(m.sig, v=new ArrayList<Method>());
+            v.add(m.method);
         }
 
         // build functions from groups
@@ -120,25 +121,43 @@ public final class ClassDescriptor {
     }
 
     /**
-     * Finds all the public methods across class/interface hierarchy and accumulates into a list,
+     * Finds all the public methods of 'c' across class/interface hierarchy and accumulates into a list,
      * from ancestor first.
+     *
+     * @param logical
+     *      Actual type parameterization of 'c' in this type hierarchy. For example, methods
+     *      we discover on {@code Collection<String>} is different from methods we discover on
+     *      {@code Collection<Integer>}. This type arguments decorates 'c' to carry this semantics.
+     *      Erasure of this is always {@code c}.
+     *
      */
-    private void findMethods(Class c, List<Method> result, Set<Class> visited) {
+    private List<MethodMirror> findMethods(Class c, java.lang.reflect.Type logical, List<MethodMirror> result, Set<Class> visited) {
         if (!visited.add(c))
-            return; // avoid visiting the same type twice
+            return result; // avoid visiting the same type twice
 
         // visit interfaces first so that class methods are considered as overriding interface methods
         for (Class i : c.getInterfaces()) {
-            findMethods(i, result, visited);
+            findMethods(i, Types.getBaseClass(logical,i), result, visited);
         }
         Class sc = c.getSuperclass();
         if (sc!=null)
-            findMethods(sc,result,visited);
+            findMethods(sc,Types.getBaseClass(logical,sc),result,visited);
 
         for (Method m : c.getDeclaredMethods()) {
-            if ((m.getModifiers() & Modifier.PUBLIC)!=0)
-                result.add(m);
+            if ((m.getModifiers() & Modifier.PUBLIC)!=0) {
+                java.lang.reflect.Type[] paramTypes = m.getGenericParameterTypes();
+                Class[] erasedParamTypes = new Class[paramTypes.length];
+                for (int i = 0; i < paramTypes.length; i++) {
+                    if (logical instanceof ParameterizedType)
+                        erasedParamTypes[i] = Types.erasure(Types.bind(paramTypes[i], c, (ParameterizedType)logical));
+                    else
+                        erasedParamTypes[i] = Types.erasure(paramTypes[i]);
+                }
+
+                result.add(new MethodMirror(new Signature(m.getName(), erasedParamTypes), m));
+            }
         }
+        return result;
     }
 
     /**
@@ -345,16 +364,26 @@ public final class ClassDescriptor {
         }
     }
 
+    final class MethodMirror {
+        final Signature sig;
+        final Method method;
+
+        public MethodMirror(Signature sig, Method method) {
+            this.sig = sig;
+            this.method = method;
+        }
+    }
+
     /**
      * A method signature used to determine what methods override each other
      */
-    class Signature {
+    final class Signature {
         final String methodName;
         final Class[] parameters;
 
-        public Signature(Method m) {
-            methodName = m.getName();
-            parameters = m.getParameterTypes();
+        Signature(String methodName, Class[] parameters) {
+            this.methodName = methodName;
+            this.parameters = parameters;
         }
 
         @Override
