@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.export;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
@@ -64,7 +65,7 @@ public interface DataWriter {
      *      The actual type of the object being written.
      *      Null if the object is synthetic and has no valid Java type
      */
-    void type(Type expected, Class actual) throws IOException;
+    void type(@Nullable Type expected, @Nullable Class actual) throws IOException;
     void startObject() throws IOException;
     void endObject() throws IOException;
 
