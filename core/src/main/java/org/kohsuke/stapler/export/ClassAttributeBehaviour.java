@@ -2,6 +2,7 @@ package org.kohsuke.stapler.export;
 
 import org.jvnet.tiger_types.Types;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 
 /**
@@ -45,9 +46,11 @@ public abstract class ClassAttributeBehaviour {
     /**
      * Determines if this type attribute should be written.
      *
+     * @return
+     *      non-null if the type should be written, null if it shouldn't.
      * @see DataWriter#type(Type, Class)
      */
-    abstract Class map(Type expected, Class actual);
+    abstract @Nullable Class map(@Nullable Type expected, @Nullable Class actual);
 
     String print(Type expected, Class actual) {
         return print(map(expected,actual));
