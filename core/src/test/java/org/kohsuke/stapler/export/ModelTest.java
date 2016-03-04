@@ -103,8 +103,8 @@ public class ModelTest {
     public void skipNull() throws Exception {
         StringWriter sw = new StringWriter();
         SomeNullProperty o = new SomeNullProperty();
-        builder.get(SomeNullProperty.class).writeTo(o, TreePruner.DEFAULT, Flavor.JSON.createDataWriter(o, sw));
-        assertEquals("{'bbb':'bbb','ccc':null,'ddd':'ddd'}", sw.toString().replace('"','\''));
+        builder.get(SomeNullProperty.class).writeTo(o, TreePruner.DEFAULT, Flavor.JSON.createDataWriter(o, sw, config));
+        assertEquals("{'_class':'SomeNullProperty','bbb':'bbb','ccc':null,'ddd':'ddd'}", sw.toString().replace('"','\''));
     }
 
     @ExportedBean
