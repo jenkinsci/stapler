@@ -62,7 +62,7 @@ public interface DataWriter {
      *      Null if the object is not referenced by anyone, for example when it's the root.
      * @param actual
      *      The actual type of the object being written.
-     *      Null if the object is synthetic is has no valid Java type
+     *      Null if the object is synthetic and has no valid Java type
      */
     void type(Type expected, Class actual) throws IOException;
     void startObject() throws IOException;
