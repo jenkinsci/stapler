@@ -33,6 +33,8 @@ import java.util.List;
 import org.junit.Test;
 
 public class ModelTest {
+    private ExportConfig config = new ExportConfig()
+            .withClassAttribute(ClassAttributeBehaviour.ALWAYS.simple());
     ModelBuilder builder = new ModelBuilder();
 
     @Test // JENKINS-26775
@@ -58,10 +60,10 @@ public class ModelTest {
     @Test
     public void merge() throws Exception {
         StringWriter sw = new StringWriter();
-        builder.get(B.class).writeTo(b, Flavor.JSON.createDataWriter(b, sw));
+        builder.get(B.class).writeTo(b, Flavor.JSON.createDataWriter(b, sw, config));
         // B.x should maskc C.x, so x should be 40
         // but C.y should be printed as merged
-        assertEquals("{'y':20,'z':30,'x':40}", sw.toString().replace('"','\''));
+        assertEquals("{'_class':'B','y':20,'z':30,'x':40}", sw.toString().replace('"','\''));
     }
 
     /**
@@ -70,8 +72,8 @@ public class ModelTest {
     @Test
     public void merge_pathPrune() throws Exception {
         StringWriter sw = new StringWriter();
-        builder.get(B.class).writeTo(b, new NamedPathPruner("z,y"), Flavor.JSON.createDataWriter(b, sw));
-        assertEquals("{'y':20,'z':30}", sw.toString().replace('"','\''));
+        builder.get(B.class).writeTo(b, new NamedPathPruner("z,y"), Flavor.JSON.createDataWriter(b, sw, config));
+        assertEquals("{'_class':'B','y':20,'z':30}", sw.toString().replace('"','\''));
     }
 
     B b = new B();

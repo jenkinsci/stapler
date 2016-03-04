@@ -56,11 +56,21 @@ public interface XSD {
         Element maxOccurs(String v);
     }
 
+    public interface Attribute extends Annotated {
+        @XmlAttribute
+        Attribute name(String v);
+        @XmlAttribute
+        Attribute type(QName v);
+        @XmlAttribute
+        Attribute use(String v);
+    }
+
     public interface ComplexType extends TypedXmlWriter {
         @XmlAttribute
         ComplexType name(String v);
         ContentModel sequence();
         ComplexContent complexContent();
+        Attribute attribute();
     }
 
     public interface ComplexContent extends TypedXmlWriter {

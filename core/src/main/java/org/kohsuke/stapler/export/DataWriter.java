@@ -23,7 +23,9 @@
 
 package org.kohsuke.stapler.export;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 /**
  * Receives the event callback on the model data to be exposed.
@@ -32,7 +34,7 @@ import java.io.IOException;
  * The call sequence is:
  *
  * <pre>
- * EVENTS := startObject PROPERTY* endObject
+ * EVENTS := type? startObject PROPERTY* endObject
  * PROPERTY := name VALUE
  * VALUE := valuePrimitive
  *        | value
@@ -53,6 +55,22 @@ public interface DataWriter {
     void startArray() throws IOException;
     void endArray() throws IOException;
 
+    /**
+     * Augments the next {@link #startObject()} call by specifying the type information of that object.
+     *
+     * @param expected
+     *      The declared type of the variable that references this object.
+     *      Null if the object is not referenced by anyone, for example when it's the root.
+     * @param actual
+     *      The actual type of the object being written.
+     *      Null if the object is synthetic and has no valid Java type
+     */
+    void type(@Nullable Type expected, @Nullable Class actual) throws IOException;
     void startObject() throws IOException;
     void endObject() throws IOException;
+
+    /**
+     * Recommended property name to write out the 'type' parameter of {@link #type(Type,Class)}
+     */
+    String CLASS_PROPERTY_NAME = "_class";
 }
