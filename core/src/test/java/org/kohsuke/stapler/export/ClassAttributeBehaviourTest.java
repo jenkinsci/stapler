@@ -83,11 +83,12 @@ public class ClassAttributeBehaviourTest {
     @Test
     public void collectionItemWithTypeVariable() throws Exception {
         String s = write(new CollectionItemWithTypeVariable());
-        assertEquals("{'_class':'CollectionItemWithTypeVariable','foo':[{'x':1,'y':2},{'_class':'Point3D','x':4,'y':5,'z':6}]}",s);
+        assertEquals("{'_class':'CollectionItemWithTypeVariable','foo':[{'x':1,'y':2},{'_class':'Point3D','x':4,'y':5,'z':6}],'goo':[{'x':9,'y':8},{'_class':'Point3D','x':7,'y':6,'z':5}]}",s);
     }
 
     @ExportedBean
     public static class CollectionItemWithTypeVariable<T extends Point> {
         @Exported public List<T> foo = (List)Arrays.asList(new Point(1,2), new Point3D(4,5,6));
+        @Exported public List<? extends Point> goo = Arrays.asList(new Point(9,8), new Point3D(7,6,5));
     }
 }
