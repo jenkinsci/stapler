@@ -196,7 +196,7 @@ public final class AcceptHeader {
 
         for (String s : supported) {
             Atom a = match(s);
-            if (a.q > bestQ) {
+            if (a!= null && a.q > bestQ) {
                 bestQ = a.q;
                 best = s;
             }
