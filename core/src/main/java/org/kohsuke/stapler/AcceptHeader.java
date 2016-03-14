@@ -25,6 +25,7 @@ import org.apache.commons.beanutils.Converter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -154,7 +155,7 @@ public final class AcceptHeader {
      *
      * @param mimeType
      */
-    protected Atom match(String mimeType) {
+    protected @Nullable Atom match(String mimeType) {
         Atom target = new Atom(mimeType);
 
         int bestFitness = -1;
