@@ -16,6 +16,24 @@ public class AcceptHeaderTest {
     }
 
     @Test
+    public void headerSelect1() {
+        String type = new AcceptHeader("text/html").select("text/html", "text/plain");
+        Assert.assertNotNull(type);
+        Assert.assertEquals("text/html", type);
+    }
+
+    @Test
+    public void headerSelect2() {
+        String type = new AcceptHeader("text/html").select("text/plain");
+        Assert.assertNotNull(type);
+        Assert.assertEquals("text/html", type);
+    }
+
+    @Test(expected = HttpResponses.HttpResponseException.class)
+    public void headerSelectUnsupportedMediaType() {
+        new AcceptHeader("text/html").select("application/json");
+    }
+    @Test
     public void simpleHeaderWithParam() {
         AcceptHeader acceptHeader = new AcceptHeader("application/json;charset=utf-8");
 
