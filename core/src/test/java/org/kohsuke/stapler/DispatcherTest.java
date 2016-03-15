@@ -150,9 +150,11 @@ public class DispatcherTest extends JettyTestCase {
 
 
     public final Inheritance inheritance = new Inheritance2();
-    public abstract class Inheritance {
+    public class Inheritance {
         @WebMethod(name="foo")
-        public abstract HttpResponse doBar(@QueryParameter String q);
+        public HttpResponse doBar(@QueryParameter String q) {
+            return HttpResponses.plainText("base");
+        }
     }
 
     public class Inheritance2 extends Inheritance {
