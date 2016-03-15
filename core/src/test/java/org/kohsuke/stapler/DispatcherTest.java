@@ -5,12 +5,13 @@ import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.TextPage;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
+import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.json.JsonBody;
-import org.kohsuke.stapler.json.JsonResponse;
 import org.kohsuke.stapler.test.JettyTestCase;
 import org.kohsuke.stapler.verb.GET;
 import org.kohsuke.stapler.verb.POST;
+import org.kohsuke.stapler.verb.PUT;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -149,11 +150,9 @@ public class DispatcherTest extends JettyTestCase {
 
 
     public final Inheritance inheritance = new Inheritance2();
-    public class Inheritance {
+    public abstract class Inheritance {
         @WebMethod(name="foo")
-        public HttpResponse doBar(@QueryParameter String q) {
-            return HttpResponses.plainText("base");
-        }
+        public abstract HttpResponse doBar(@QueryParameter String q);
     }
 
     public class Inheritance2 extends Inheritance {
@@ -178,6 +177,49 @@ public class DispatcherTest extends JettyTestCase {
             assertEquals(404,e.getStatusCode());
         }
     }
+
+    public final PutInheritance putInheritance = new PutInheritanceImpl();
+    public abstract class PutInheritance {
+        @WebMethod(name="foo") @PUT
+        public abstract HttpResponse doBar(StaplerRequest req) throws IOException;
+
+        @POST
+        public HttpResponse doAcme(StaplerRequest req) throws IOException {
+            return HttpResponses.plainText("POST: "+IOUtils.toString(req.getInputStream()));
+        }
+    }
+
+    public class PutInheritanceImpl extends PutInheritance{
+        @Override
+        public HttpResponse doBar(StaplerRequest req) throws IOException {
+            return HttpResponses.plainText(IOUtils.toString(req.getInputStream())+" World!");
+        }
+    }
+
+    public void testPutInheritance() throws Exception {
+        WebClient wc = new WebClient();
+
+        // the request should get to the overriding method and it should still see all the annotations in the base type
+        WebRequestSettings wrs = new WebRequestSettings(new URL(url, "putInheritance/foo"), HttpMethod.PUT);
+        wrs.setRequestBody("Hello");
+        TextPage p = wc.getPage(wrs);
+        assertEquals("Hello World!\n", p.getContent());
+
+        // doBar is a web method for 'foo', so bar endpoint shouldn't respond
+        try {
+            wc.getPage(new URL(url, "putInheritance/bar"));
+            fail();
+        } catch (FailingHttpStatusCodeException e) {
+            assertEquals(404,e.getStatusCode());
+        }
+
+        //Invoke Post as well
+        wrs = new WebRequestSettings(new URL(url, "putInheritance/acme"), HttpMethod.POST);
+        wrs.setRequestBody("Hello");
+        p = wc.getPage(wrs);
+        assertEquals("POST: Hello\n", p.getContent());
+    }
+
 
 
     //===================================================================
