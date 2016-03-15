@@ -348,12 +348,11 @@ public abstract class Function {
 
         @Override
         public Annotation[] getAnnotations() {
-            Annotation[] x = null;
+            Annotation[] x = new Annotation[0];
             for (Method m : methods) {
-                if (x==null)    x = m.getAnnotations();
-                else            x = union(x, m.getAnnotations());
+                x = union(x, m.getAnnotations());
             }
-            return super.getAnnotations();
+            return x;
         }
 
         public Annotation[][] getParameterAnnotations() {
