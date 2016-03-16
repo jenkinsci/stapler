@@ -24,7 +24,7 @@ public class AcceptHeaderTest {
 
     @Test
     public void headerSelect2() {
-        String type = new AcceptHeader("text/html").select("text/plain");
+        String type = new AcceptHeader("text/*").select("text/html");
         Assert.assertNotNull(type);
         Assert.assertEquals("text/html", type);
     }
