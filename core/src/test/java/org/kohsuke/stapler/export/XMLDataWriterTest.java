@@ -1,6 +1,7 @@
 package org.kohsuke.stapler.export;
 
 import junit.framework.TestCase;
+import org.junit.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -9,6 +10,10 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public class XMLDataWriterTest extends TestCase {
     private ExportConfig config = new ExportConfig().withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
@@ -22,6 +27,74 @@ public class XMLDataWriterTest extends TestCase {
         Model<T> model = new ModelBuilder().get(clazz);
         model.writeTo(bean, Flavor.XML.createDataWriter(bean, w, config));
         return w.toString();
+    }
+
+    @ExportedBean(defaultVisibility=2) public static abstract class Build {
+
+        public String getName(){
+            return "build1";
+        }
+
+        @Exported
+        public Collection<Job> getJobs(){
+            return Collections.singleton(new Job());
+        }
+    }
+    @ExportedBean
+    public static class Job {
+        @Exported
+        public String getName() {return "job1";}
+        @Exported(visibility = 2)
+        public Collection<Action> getActions() {
+            return Collections.singleton((Action) new ParameterAction());
+        }
+    }
+
+    public interface Action {
+        String getName();
+    }
+
+    @ExportedBean public static class ParameterAction implements Action, Iterable<ParameterValue>{
+
+        public String getName() {
+            return "foo";
+        }
+
+        //        @Exported(visibility = 2)
+        public Iterator<ParameterValue> iterator() {
+            return Collections.singleton(new ParameterValue()).iterator();
+        }
+
+        @Exported(visibility = 2)
+        public List<ParameterValue> getParameters(){
+            return Collections.singletonList(new ParameterValue());
+        }
+    }
+
+    @ExportedBean(defaultVisibility = 3) public static class ParameterValue{
+
+        @Exported
+        public String getName() {
+            return "foo";
+        }
+
+        @Exported
+        public String getValue() {
+            return "bar";
+        }
+    }
+
+
+    @Test
+    public void testNestedBeans() throws Exception {
+        System.out.println(serialize(new Job(), Job.class));
+        /**
+         * TODO: the expected string below has parameter element added manually
+         * With 1.239 the same test would produce:
+         * <job><action><parameter><name>foo</name><value>bar</value></parameter></action><name>job1</name></job>
+         */
+        assertEquals("<job _class='Job'><action _class='ParameterValue'><parameter><name>foo</name><value>bar</value></<parameter></action><name>job1</name></job>",
+                serialize(new Job(), Job.class));
     }
 
     @ExportedBean public static class X {
