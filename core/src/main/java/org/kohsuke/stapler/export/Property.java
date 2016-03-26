@@ -27,19 +27,16 @@ import org.jvnet.tiger_types.Types;
 import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Exposes one {@link Exported exposed property} of {@link ExportedBean} to
@@ -187,98 +184,97 @@ public abstract class Property implements Comparable<Property> {
 
         Class c = value.getClass();
 
-        if(STRING_TYPES.contains(c)) {
-            writer.value(value.toString());
-            return;
-        }
-        if(PRIMITIVE_TYPES.contains(c)) {
-            writer.valuePrimitive(value);
-            return;
-        }
-        Class act = c.getComponentType();
-        if (act !=null) { // array
-            Range r = pruner.getRange();
-            writer.startArray();
-            if (value instanceof Object[]) {
-                // typical case
-                for (Object item : r.apply((Object[]) value)) {
-                    writeValue(act,item,pruner,writer,true);
-                }
-            } else {
-                // more generic case
-                int len = Math.min(r.max,Array.getLength(value));
-                for (int i=r.min; i<len; i++) {
-                    writeValue(act,Array.get(value,i),pruner,writer,true);
-                }
+        Model model = null;
+        try {
+            model = owner.get(c, parent.type, name);
+        } catch (NotExportableException ex) {
+            if(STRING_TYPES.contains(c)) {
+                writer.value(value.toString());
+                return;
             }
-            writer.endArray();
-            return;
-        }
-        if(value instanceof Iterable) {
-            writer.startArray();
-            Type expectedItemType = Types.getTypeArgument(expected, 0, null);
-            for (Object item : pruner.getRange().apply((Iterable) value)) {
-                writeValue(expectedItemType,item,pruner,writer,true);
+            if(PRIMITIVE_TYPES.contains(c)) {
+                writer.valuePrimitive(value);
+                return;
             }
-            writer.endArray();
-            return;
-        }
-        if(value instanceof Map) {
-            if (verboseMap!=null) {// verbose form
+            Class act = c.getComponentType();
+            if (act !=null) { // array
+                Range r = pruner.getRange();
                 writer.startArray();
-                for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
-                    writeStartObjectNullType(writer);
-                    writer.name(verboseMap[0]);
-                    writeValue(null,e.getKey(),pruner,writer);
-                    writer.name(verboseMap[1]);
-                    writeValue(null,e.getValue(),pruner,writer);
-                    writer.endObject();
+                if (value instanceof Object[]) {
+                    // typical case
+                    for (Object item : r.apply((Object[]) value)) {
+                        writeValue(act,item,pruner,writer,true);
+                    }
+                } else {
+                    // more generic case
+                    int len = Math.min(r.max, Array.getLength(value));
+                    for (int i=r.min; i<len; i++) {
+                        writeValue(act,Array.get(value,i),pruner,writer,true);
+                    }
                 }
                 writer.endArray();
-            } else {// compact form
-                writeStartObjectNullType(writer);
-                for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
-                    writer.name(e.getKey().toString());
-                    writeValue(null,e.getValue(),pruner,writer);
-                }
-                writer.endObject();
+                return;
             }
-            return;
-        }
-        if(value instanceof Date) {
-            writer.valuePrimitive(((Date) value).getTime());
-            return;
-        }
-        if(value instanceof Calendar) {
-            writer.valuePrimitive(((Calendar) value).getTimeInMillis());
-            return;
-        }
-        if(value instanceof Enum) {
-            writer.value(value.toString());
-            return;
+            if(value instanceof Iterable) {
+                writer.startArray();
+                Type expectedItemType = Types.getTypeArgument(expected, 0, null);
+                for (Object item : pruner.getRange().apply((Iterable) value)) {
+                    writeValue(expectedItemType,item,pruner,writer,true);
+                }
+                writer.endArray();
+                return;
+            }
+            if(value instanceof Map) {
+                if (verboseMap!=null) {// verbose form
+                    writer.startArray();
+                    for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
+                        writeStartObjectNullType(writer);
+                        writer.name(verboseMap[0]);
+                        writeValue(null,e.getKey(),pruner,writer);
+                        writer.name(verboseMap[1]);
+                        writeValue(null,e.getValue(),pruner,writer);
+                        writer.endObject();
+                    }
+                    writer.endArray();
+                } else {// compact form
+                    writeStartObjectNullType(writer);
+                    for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
+                        writer.name(e.getKey().toString());
+                        writeValue(null,e.getValue(),pruner,writer);
+                    }
+                    writer.endObject();
+                }
+                return;
+            }
+            if(value instanceof Date) {
+                writer.valuePrimitive(((Date) value).getTime());
+                return;
+            }
+            if(value instanceof Calendar) {
+                writer.valuePrimitive(((Calendar) value).getTimeInMillis());
+                return;
+            }
+            if(value instanceof Enum) {
+                writer.value(value.toString());
+                return;
+            }
         }
 
-        // otherwise handle it as a bean
         try {
             writer.type(expected, value.getClass());
         } catch (AbstractMethodError _) {
             // legacy impl that doesn't understand it
         }
-        writer.startObject();
-        Model model = null;
-        try {
-            model = owner.get(c, parent.type, name);
-        } catch (NotExportableException e) {
-            if (skipIfFail) {
-                Logger.getLogger(Property.class.getName()).log(Level.FINE, e.getMessage());
-            } else {
-                throw e;
-            }
-            // otherwise ignore this error by writing empty object
-        }
-        if(model!=null)
+
+
+        if(model!=null) {
+            writer.startObject();
             model.writeNestedObjectTo(value, pruner, writer);
-        writer.endObject();
+            writer.endObject();
+        }else if(skipIfFail){
+            writer.startObject();
+            writer.endObject();
+        }
     }
 
     private void writeStartObjectNullType(DataWriter writer) throws IOException {

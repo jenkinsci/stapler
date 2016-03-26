@@ -1,5 +1,6 @@
 package org.kohsuke.stapler.export;
 
+import com.google.common.collect.ImmutableList;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.xml.sax.InputSource;
@@ -29,6 +30,7 @@ public class XMLDataWriterTest extends TestCase {
         return w.toString();
     }
 
+    //Nested test
     @ExportedBean(defaultVisibility=2) public static abstract class Build {
 
         public String getName(){
@@ -40,14 +42,17 @@ public class XMLDataWriterTest extends TestCase {
             return Collections.singleton(new Job());
         }
     }
+
     @ExportedBean
     public static class Job {
         @Exported
         public String getName() {return "job1";}
+
         @Exported(visibility = 2)
         public Collection<Action> getActions() {
-            return Collections.singleton((Action) new ParameterAction());
+            return ImmutableList.of(new ParameterAction(), new CauseAction());
         }
+
     }
 
     public interface Action {
@@ -71,6 +76,16 @@ public class XMLDataWriterTest extends TestCase {
         }
     }
 
+    @ExportedBean public static class CauseAction implements Action{
+
+        public String getName() {
+            return "cause1";
+        }
+
+        @Exported(visibility = 2)
+        public String getCause() { return "xyz";}
+    }
+
     @ExportedBean(defaultVisibility = 3) public static class ParameterValue{
 
         @Exported
@@ -88,12 +103,7 @@ public class XMLDataWriterTest extends TestCase {
     @Test
     public void testNestedBeans() throws Exception {
         System.out.println(serialize(new Job(), Job.class));
-        /**
-         * TODO: the expected string below has parameter element added manually
-         * With 1.239 the same test would produce:
-         * <job><action><parameter><name>foo</name><value>bar</value></parameter></action><name>job1</name></job>
-         */
-        assertEquals("<job _class='Job'><action _class='ParameterValue'><parameter><name>foo</name><value>bar</value></<parameter></action><name>job1</name></job>",
+        assertEquals("<job _class='Job'><action _class='ParameterAction'><parameter><name>foo</name><value>bar</value></parameter></action><action _class='CauseAction'><cause>xyz</cause></action><name>job1</name></job>",
                 serialize(new Job(), Job.class));
     }
 
