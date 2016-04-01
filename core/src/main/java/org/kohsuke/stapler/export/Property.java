@@ -258,6 +258,13 @@ public abstract class Property implements Comparable<Property> {
                 writer.value(value.toString());
                 return;
             }
+
+            if(skipIfFail){
+                writer.startObject();
+                writer.endObject();
+            } else {
+                throw ex;
+            }
         }
 
         try {
@@ -267,14 +274,9 @@ public abstract class Property implements Comparable<Property> {
         }
 
 
-        if(model!=null) {
-            writer.startObject();
-            model.writeNestedObjectTo(value, pruner, writer);
-            writer.endObject();
-        }else if(skipIfFail){
-            writer.startObject();
-            writer.endObject();
-        }
+        writer.startObject();
+        model.writeNestedObjectTo(value, pruner, writer);
+        writer.endObject();
     }
 
     private void writeStartObjectNullType(DataWriter writer) throws IOException {
