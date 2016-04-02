@@ -84,11 +84,10 @@ final class XMLDataWriter implements DataWriter {
         // use repeated element to display array
         // this means nested arrays are not supported
         isArray = true;
-        arrayState.push(isArray);
     }
 
     public void endArray() {
-        isArray = arrayState.pop();
+        isArray = false;
     }
 
     @Override
@@ -97,7 +96,6 @@ final class XMLDataWriter implements DataWriter {
     }
 
     public void startObject() throws IOException {
-        resetArrayState();
         objectNames.push(name);
         out.write('<' + adjustName());
 
@@ -106,18 +104,14 @@ final class XMLDataWriter implements DataWriter {
             classAttr = null;
         }
         out.write('>');
+        arrayState.push(isArray);
+        isArray = false;
     }
 
     public void endObject() throws IOException {
-        resetArrayState();
         name = objectNames.pop();
+        isArray = arrayState.pop();
         out.write("</"+adjustName()+'>');
-    }
-
-    private void resetArrayState(){
-        if(arrayState.isEmpty()){
-            isArray = false;
-        }
     }
 
     /**
