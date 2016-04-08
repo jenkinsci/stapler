@@ -64,61 +64,71 @@
 <span class="sourceLineNo">056</span>        Element maxOccurs(String v);<a name="line.56"></a>
 <span class="sourceLineNo">057</span>    }<a name="line.57"></a>
 <span class="sourceLineNo">058</span><a name="line.58"></a>
-<span class="sourceLineNo">059</span>    public interface ComplexType extends TypedXmlWriter {<a name="line.59"></a>
+<span class="sourceLineNo">059</span>    public interface Attribute extends Annotated {<a name="line.59"></a>
 <span class="sourceLineNo">060</span>        @XmlAttribute<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        ComplexType name(String v);<a name="line.61"></a>
-<span class="sourceLineNo">062</span>        ContentModel sequence();<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        ComplexContent complexContent();<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    }<a name="line.64"></a>
-<span class="sourceLineNo">065</span><a name="line.65"></a>
-<span class="sourceLineNo">066</span>    public interface ComplexContent extends TypedXmlWriter {<a name="line.66"></a>
-<span class="sourceLineNo">067</span>        Restriction extension();<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    }<a name="line.68"></a>
-<span class="sourceLineNo">069</span><a name="line.69"></a>
-<span class="sourceLineNo">070</span>    public interface ContentModel extends TypedXmlWriter {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        Element element();<a name="line.71"></a>
-<span class="sourceLineNo">072</span>    }<a name="line.72"></a>
-<span class="sourceLineNo">073</span><a name="line.73"></a>
-<span class="sourceLineNo">074</span>    public interface SimpleType extends TypedXmlWriter {<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        @XmlAttribute<a name="line.75"></a>
-<span class="sourceLineNo">076</span>        SimpleType name(String v);<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        Restriction restriction();<a name="line.77"></a>
+<span class="sourceLineNo">061</span>        Attribute name(String v);<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        @XmlAttribute<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        Attribute type(QName v);<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        @XmlAttribute<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        Attribute use(String v);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    }<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>    public interface ComplexType extends TypedXmlWriter {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        @XmlAttribute<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        ComplexType name(String v);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        ContentModel sequence();<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        ComplexContent complexContent();<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        Attribute attribute();<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    }<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>    public interface ComplexContent extends TypedXmlWriter {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        Restriction extension();<a name="line.77"></a>
 <span class="sourceLineNo">078</span>    }<a name="line.78"></a>
 <span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>    public interface Restriction extends TypedXmlWriter {<a name="line.80"></a>
-<span class="sourceLineNo">081</span>        @XmlAttribute<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        Restriction base(QName t);<a name="line.82"></a>
-<span class="sourceLineNo">083</span>        // for simple type<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        Enumeration enumeration();<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        // for complex type<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        ContentModel sequence();<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
-<span class="sourceLineNo">088</span><a name="line.88"></a>
-<span class="sourceLineNo">089</span>    public interface Enumeration extends TypedXmlWriter {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        @XmlAttribute<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        void value(String v);<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>    public interface Annotated extends TypedXmlWriter {<a name="line.94"></a>
-<span class="sourceLineNo">095</span>        Annotation annotation();<a name="line.95"></a>
-<span class="sourceLineNo">096</span>    }<a name="line.96"></a>
-<span class="sourceLineNo">097</span><a name="line.97"></a>
-<span class="sourceLineNo">098</span>    public interface Annotation extends TypedXmlWriter {<a name="line.98"></a>
-<span class="sourceLineNo">099</span>        void documentation(String value);<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    }<a name="line.100"></a>
-<span class="sourceLineNo">101</span><a name="line.101"></a>
-<span class="sourceLineNo">102</span>    public abstract class Types {<a name="line.102"></a>
-<span class="sourceLineNo">103</span>        public static final QName STRING = t("string");<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        public static final QName BOOLEAN = t("boolean");<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        public static final QName INT = t("int");<a name="line.105"></a>
-<span class="sourceLineNo">106</span>        public static final QName LONG = t("long");<a name="line.106"></a>
-<span class="sourceLineNo">107</span>        public static final QName ANYTYPE = t("anyType");<a name="line.107"></a>
-<span class="sourceLineNo">108</span><a name="line.108"></a>
-<span class="sourceLineNo">109</span>        private static QName t(String name) {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>            return new QName(XSD.URI, name);<a name="line.110"></a>
-<span class="sourceLineNo">111</span>        }<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
-<span class="sourceLineNo">113</span>}<a name="line.113"></a>
+<span class="sourceLineNo">080</span>    public interface ContentModel extends TypedXmlWriter {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        Element element();<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>    public interface SimpleType extends TypedXmlWriter {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        @XmlAttribute<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        SimpleType name(String v);<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        Restriction restriction();<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    }<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">090</span>    public interface Restriction extends TypedXmlWriter {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        @XmlAttribute<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        Restriction base(QName t);<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        // for simple type<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        Enumeration enumeration();<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        // for complex type<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        ContentModel sequence();<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    }<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>    public interface Enumeration extends TypedXmlWriter {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        @XmlAttribute<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        void value(String v);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    }<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>    public interface Annotated extends TypedXmlWriter {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        Annotation annotation();<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    }<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>    public interface Annotation extends TypedXmlWriter {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        void documentation(String value);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>    public abstract class Types {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        public static final QName STRING = t("string");<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        public static final QName BOOLEAN = t("boolean");<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        public static final QName INT = t("int");<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        public static final QName LONG = t("long");<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        public static final QName ANYTYPE = t("anyType");<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>        private static QName t(String name) {<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            return new QName(XSD.URI, name);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        }<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    }<a name="line.122"></a>
+<span class="sourceLineNo">123</span>}<a name="line.123"></a>
 
 
 

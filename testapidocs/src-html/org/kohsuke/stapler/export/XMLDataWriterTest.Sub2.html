@@ -8,104 +8,188 @@
 <div class="sourceContainer">
 <pre><span class="sourceLineNo">001</span>package org.kohsuke.stapler.export;<a name="line.1"></a>
 <span class="sourceLineNo">002</span><a name="line.2"></a>
-<span class="sourceLineNo">003</span>import junit.framework.TestCase;<a name="line.3"></a>
-<span class="sourceLineNo">004</span>import org.xml.sax.InputSource;<a name="line.4"></a>
-<span class="sourceLineNo">005</span>import org.xml.sax.helpers.DefaultHandler;<a name="line.5"></a>
-<span class="sourceLineNo">006</span><a name="line.6"></a>
-<span class="sourceLineNo">007</span>import javax.xml.parsers.SAXParser;<a name="line.7"></a>
-<span class="sourceLineNo">008</span>import javax.xml.parsers.SAXParserFactory;<a name="line.8"></a>
-<span class="sourceLineNo">009</span>import java.io.IOException;<a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.io.StringReader;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.io.StringWriter;<a name="line.11"></a>
-<span class="sourceLineNo">012</span><a name="line.12"></a>
-<span class="sourceLineNo">013</span>public class XMLDataWriterTest extends TestCase {<a name="line.13"></a>
-<span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>    public XMLDataWriterTest(String n) {<a name="line.15"></a>
-<span class="sourceLineNo">016</span>        super(n);<a name="line.16"></a>
-<span class="sourceLineNo">017</span>    }<a name="line.17"></a>
+<span class="sourceLineNo">003</span>import com.google.common.collect.ImmutableList;<a name="line.3"></a>
+<span class="sourceLineNo">004</span>import junit.framework.TestCase;<a name="line.4"></a>
+<span class="sourceLineNo">005</span>import org.junit.Test;<a name="line.5"></a>
+<span class="sourceLineNo">006</span>import org.xml.sax.InputSource;<a name="line.6"></a>
+<span class="sourceLineNo">007</span>import org.xml.sax.helpers.DefaultHandler;<a name="line.7"></a>
+<span class="sourceLineNo">008</span><a name="line.8"></a>
+<span class="sourceLineNo">009</span>import javax.xml.parsers.SAXParser;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import javax.xml.parsers.SAXParserFactory;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.io.IOException;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.io.StringReader;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.io.StringWriter;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.util.Collection;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.util.Collections;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import java.util.Iterator;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import java.util.List;<a name="line.17"></a>
 <span class="sourceLineNo">018</span><a name="line.18"></a>
-<span class="sourceLineNo">019</span>    private static &lt;T&gt; String serialize(T bean, Class&lt;T&gt; clazz) throws IOException {<a name="line.19"></a>
-<span class="sourceLineNo">020</span>        StringWriter w = new StringWriter();<a name="line.20"></a>
-<span class="sourceLineNo">021</span>        Model&lt;T&gt; model = new ModelBuilder().get(clazz);<a name="line.21"></a>
-<span class="sourceLineNo">022</span>        model.writeTo(bean, Flavor.XML.createDataWriter(bean, w));<a name="line.22"></a>
-<span class="sourceLineNo">023</span>        return w.toString();<a name="line.23"></a>
+<span class="sourceLineNo">019</span>public class XMLDataWriterTest extends TestCase {<a name="line.19"></a>
+<span class="sourceLineNo">020</span>    private ExportConfig config = new ExportConfig().withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>    public XMLDataWriterTest(String n) {<a name="line.22"></a>
+<span class="sourceLineNo">023</span>        super(n);<a name="line.23"></a>
 <span class="sourceLineNo">024</span>    }<a name="line.24"></a>
 <span class="sourceLineNo">025</span><a name="line.25"></a>
-<span class="sourceLineNo">026</span>    @ExportedBean public static class X {<a name="line.26"></a>
-<span class="sourceLineNo">027</span>        @Exported public String a = "aval";<a name="line.27"></a>
-<span class="sourceLineNo">028</span>        public String b = "bval";<a name="line.28"></a>
-<span class="sourceLineNo">029</span>        @Exported public String getC() {return "cval";}<a name="line.29"></a>
-<span class="sourceLineNo">030</span>        public String getD() {return "dval";}<a name="line.30"></a>
+<span class="sourceLineNo">026</span>    private &lt;T&gt; String serialize(T bean, Class&lt;T&gt; clazz) throws IOException {<a name="line.26"></a>
+<span class="sourceLineNo">027</span>        StringWriter w = new StringWriter();<a name="line.27"></a>
+<span class="sourceLineNo">028</span>        Model&lt;T&gt; model = new ModelBuilder().get(clazz);<a name="line.28"></a>
+<span class="sourceLineNo">029</span>        model.writeTo(bean, Flavor.XML.createDataWriter(bean, w, config));<a name="line.29"></a>
+<span class="sourceLineNo">030</span>        return w.toString();<a name="line.30"></a>
 <span class="sourceLineNo">031</span>    }<a name="line.31"></a>
-<span class="sourceLineNo">032</span>    public void testSimpleUsage() throws Exception {<a name="line.32"></a>
-<span class="sourceLineNo">033</span>        assertEquals("&lt;x&gt;&lt;a&gt;aval&lt;/a&gt;&lt;c&gt;cval&lt;/c&gt;&lt;/x&gt;",<a name="line.33"></a>
-<span class="sourceLineNo">034</span>                serialize(new X(), X.class));<a name="line.34"></a>
-<span class="sourceLineNo">035</span>    }<a name="line.35"></a>
-<span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>    @ExportedBean(defaultVisibility=2) public static abstract class Super {<a name="line.37"></a>
-<span class="sourceLineNo">038</span>        @Exported public String basic = "super";<a name="line.38"></a>
-<span class="sourceLineNo">039</span>        @Exported public abstract String generic();<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    }<a name="line.40"></a>
-<span class="sourceLineNo">041</span>    public static class Sub extends Super {<a name="line.41"></a>
-<span class="sourceLineNo">042</span>        public String generic() {return "sub";}<a name="line.42"></a>
-<span class="sourceLineNo">043</span>        @Exported public String specific() {return "sub";}<a name="line.43"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>    //Nested test<a name="line.33"></a>
+<span class="sourceLineNo">034</span>    @ExportedBean(defaultVisibility=2) public static abstract class Build {<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>        public String getName(){<a name="line.36"></a>
+<span class="sourceLineNo">037</span>            return "build1";<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        }<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>        @Exported<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        public Collection&lt;Job&gt; getJobs(){<a name="line.41"></a>
+<span class="sourceLineNo">042</span>            return Collections.singleton(new Job());<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        }<a name="line.43"></a>
 <span class="sourceLineNo">044</span>    }<a name="line.44"></a>
-<span class="sourceLineNo">045</span>    @ExportedBean public static class Container {<a name="line.45"></a>
-<span class="sourceLineNo">046</span>        @Exported public Super polymorph = new Sub();<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    }<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    public void testInheritance() throws Exception {<a name="line.48"></a>
-<span class="sourceLineNo">049</span>        assertEquals("&lt;container&gt;&lt;polymorph&gt;&lt;basic&gt;super&lt;/basic&gt;&lt;generic&gt;sub&lt;/generic&gt;" +<a name="line.49"></a>
-<span class="sourceLineNo">050</span>                "&lt;specific&gt;sub&lt;/specific&gt;&lt;/polymorph&gt;&lt;/container&gt;",<a name="line.50"></a>
-<span class="sourceLineNo">051</span>                serialize(new Container(), Container.class));<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
-<span class="sourceLineNo">053</span><a name="line.53"></a>
-<span class="sourceLineNo">054</span>    public static class Sub2 extends Super {<a name="line.54"></a>
-<span class="sourceLineNo">055</span>        @Exported @Override public String generic() {return "sub2";}<a name="line.55"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>    @ExportedBean<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    public static class Job {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        @Exported<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        public String getName() {return "job1";}<a name="line.49"></a>
+<span class="sourceLineNo">050</span><a name="line.50"></a>
+<span class="sourceLineNo">051</span>        @Exported(visibility = 2)<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        public Collection&lt;Action&gt; getActions() {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>            return ImmutableList.of(new ParameterAction(), new CauseAction());<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        }<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
 <span class="sourceLineNo">056</span>    }<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    public void testInheritance2() throws Exception { // JENKINS-13336<a name="line.57"></a>
-<span class="sourceLineNo">058</span>        assertEquals("&lt;sub2&gt;&lt;basic&gt;super&lt;/basic&gt;&lt;generic&gt;sub2&lt;/generic&gt;&lt;/sub2&gt;",<a name="line.58"></a>
-<span class="sourceLineNo">059</span>                serialize(new Sub2(), Sub2.class));<a name="line.59"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>    public interface Action {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        String getName();<a name="line.59"></a>
 <span class="sourceLineNo">060</span>    }<a name="line.60"></a>
 <span class="sourceLineNo">061</span><a name="line.61"></a>
-<span class="sourceLineNo">062</span>    private void assertValidXML(String s) throws Exception {<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        SAXParser p = SAXParserFactory.newInstance().newSAXParser();<a name="line.63"></a>
-<span class="sourceLineNo">064</span>        p.parse(new InputSource(new StringReader(s)),new DefaultHandler());<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    }<a name="line.65"></a>
-<span class="sourceLineNo">066</span><a name="line.66"></a>
-<span class="sourceLineNo">067</span>    /**<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     * Can we write out anonymous classes as the root object?<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     */<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    public void testAnonymousClass() throws Exception {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        assertValidXML(serialize(new X() {},X.class));<a name="line.71"></a>
-<span class="sourceLineNo">072</span>    }<a name="line.72"></a>
-<span class="sourceLineNo">073</span><a name="line.73"></a>
-<span class="sourceLineNo">074</span>    @ExportedBean<a name="line.74"></a>
-<span class="sourceLineNo">075</span>    public static class PA {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>        @Exported public int[] v = new int[]{1,2,3};<a name="line.76"></a>
+<span class="sourceLineNo">062</span>    @ExportedBean public static class ParameterAction implements Action, Iterable&lt;ParameterValue&gt;{<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>        public String getName() {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>            return "foo";<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        }<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>        //        @Exported(visibility = 2)<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        public Iterator&lt;ParameterValue&gt; iterator() {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>            return Collections.singleton(new ParameterValue()).iterator();<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        }<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>        @Exported(visibility = 2)<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        public List&lt;ParameterValue&gt; getParameters(){<a name="line.74"></a>
+<span class="sourceLineNo">075</span>            return Collections.singletonList(new ParameterValue());<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        }<a name="line.76"></a>
 <span class="sourceLineNo">077</span>    }<a name="line.77"></a>
 <span class="sourceLineNo">078</span><a name="line.78"></a>
-<span class="sourceLineNo">079</span>    public void testPrimitiveArrays() throws Exception {<a name="line.79"></a>
-<span class="sourceLineNo">080</span>        assertEquals("&lt;PA&gt;&lt;v&gt;1&lt;/v&gt;&lt;v&gt;2&lt;/v&gt;&lt;v&gt;3&lt;/v&gt;&lt;/PA&gt;",serialize(new PA(),PA.class));<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
-<span class="sourceLineNo">082</span><a name="line.82"></a>
-<span class="sourceLineNo">083</span>    public void testMakeXmlName() {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        assertEquals("_",   XMLDataWriter.makeXmlName(""));<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        assertEquals("abc", XMLDataWriter.makeXmlName("abc"));<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        assertEquals("abc", XMLDataWriter.makeXmlName("/abc"));<a name="line.86"></a>
-<span class="sourceLineNo">087</span>        assertEquals("abc", XMLDataWriter.makeXmlName("/a/b/c/"));<a name="line.87"></a>
-<span class="sourceLineNo">088</span>    }<a name="line.88"></a>
-<span class="sourceLineNo">089</span><a name="line.89"></a>
-<span class="sourceLineNo">090</span>    @ExportedBean public static class Arrays {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        @Exported public String[] categories = {"general", "specific"};<a name="line.91"></a>
-<span class="sourceLineNo">092</span>        @Exported public String[] styles = {"ornate", "plain"};<a name="line.92"></a>
-<span class="sourceLineNo">093</span>    }<a name="line.93"></a>
-<span class="sourceLineNo">094</span><a name="line.94"></a>
-<span class="sourceLineNo">095</span>    public void testToSingular() throws Exception {<a name="line.95"></a>
-<span class="sourceLineNo">096</span>        assertEquals("&lt;arrays&gt;&lt;category&gt;general&lt;/category&gt;&lt;category&gt;specific&lt;/category&gt;&lt;style&gt;ornate&lt;/style&gt;&lt;style&gt;plain&lt;/style&gt;&lt;/arrays&gt;",<a name="line.96"></a>
-<span class="sourceLineNo">097</span>                serialize(new Arrays(), Arrays.class));<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    }<a name="line.98"></a>
-<span class="sourceLineNo">099</span><a name="line.99"></a>
-<span class="sourceLineNo">100</span>}<a name="line.100"></a>
+<span class="sourceLineNo">079</span>    @ExportedBean public static class CauseAction implements Action{<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>        public String getName() {<a name="line.81"></a>
+<span class="sourceLineNo">082</span>            return "cause1";<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        }<a name="line.83"></a>
+<span class="sourceLineNo">084</span><a name="line.84"></a>
+<span class="sourceLineNo">085</span>        @Exported(visibility = 2)<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        public String getCause() { return "xyz";}<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>    @ExportedBean(defaultVisibility = 3) public static class ParameterValue{<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>        @Exported<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        public String getName() {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            return "foo";<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        }<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>        @Exported<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        public String getValue() {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>            return "bar";<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        }<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span><a name="line.102"></a>
+<span class="sourceLineNo">103</span>    @Test<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    public void testNestedBeans() throws Exception {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        System.out.println(serialize(new Job(), Job.class));<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        assertEquals("&lt;job _class='Job'&gt;&lt;action _class='ParameterAction'&gt;&lt;parameter&gt;&lt;name&gt;foo&lt;/name&gt;&lt;value&gt;bar&lt;/value&gt;&lt;/parameter&gt;&lt;/action&gt;&lt;action _class='CauseAction'&gt;&lt;cause&gt;xyz&lt;/cause&gt;&lt;/action&gt;&lt;name&gt;job1&lt;/name&gt;&lt;/job&gt;",<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                serialize(new Job(), Job.class));<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    }<a name="line.108"></a>
+<span class="sourceLineNo">109</span><a name="line.109"></a>
+<span class="sourceLineNo">110</span>    @ExportedBean public static class X {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        @Exported public String a = "aval";<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        public String b = "bval";<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        @Exported public String getC() {return "cval";}<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        public String getD() {return "dval";}<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    }<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    public void testSimpleUsage() throws Exception {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        assertEquals("&lt;x _class='X'&gt;&lt;a&gt;aval&lt;/a&gt;&lt;c&gt;cval&lt;/c&gt;&lt;/x&gt;",<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                serialize(new X(), X.class));<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    }<a name="line.119"></a>
+<span class="sourceLineNo">120</span><a name="line.120"></a>
+<span class="sourceLineNo">121</span>    @ExportedBean(defaultVisibility=2) public static abstract class Super {<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        @Exported public String basic = "super";<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        @Exported public abstract String generic();<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    }<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    public static class Sub extends Super {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        public String generic() {return "sub";}<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        @Exported public String specific() {return "sub";}<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    }<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    @ExportedBean public static class Container {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        @Exported public Super polymorph = new Sub();<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    }<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    public void testInheritance() throws Exception {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        assertEquals("&lt;container _class='Container'&gt;&lt;polymorph _class='Sub'&gt;&lt;basic&gt;super&lt;/basic&gt;&lt;generic&gt;sub&lt;/generic&gt;" +<a name="line.133"></a>
+<span class="sourceLineNo">134</span>                "&lt;specific&gt;sub&lt;/specific&gt;&lt;/polymorph&gt;&lt;/container&gt;",<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                serialize(new Container(), Container.class));<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+<span class="sourceLineNo">138</span>    public static class Sub2 extends Super {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        @Exported @Override public String generic() {return "sub2";}<a name="line.139"></a>
+<span class="sourceLineNo">140</span>    }<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    public void testInheritance2() throws Exception { // JENKINS-13336<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        assertEquals("&lt;sub2 _class='Sub2'&gt;&lt;basic&gt;super&lt;/basic&gt;&lt;generic&gt;sub2&lt;/generic&gt;&lt;/sub2&gt;",<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                serialize(new Sub2(), Sub2.class));<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    }<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>    private void assertValidXML(String s) throws Exception {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        SAXParser p = SAXParserFactory.newInstance().newSAXParser();<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        p.parse(new InputSource(new StringReader(s)),new DefaultHandler());<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    }<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>    /**<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     * Can we write out anonymous classes as the root object?<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     */<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    public void testAnonymousClass() throws Exception {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        assertValidXML(serialize(new X() {},X.class));<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>    @ExportedBean<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    public static class PA {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        @Exported public int[] v = new int[]{1,2,3};<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>    public void testPrimitiveArrays() throws Exception {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        assertEquals("&lt;PA _class='PA'&gt;&lt;v&gt;1&lt;/v&gt;&lt;v&gt;2&lt;/v&gt;&lt;v&gt;3&lt;/v&gt;&lt;/PA&gt;",serialize(new PA(),PA.class));<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    }<a name="line.165"></a>
+<span class="sourceLineNo">166</span><a name="line.166"></a>
+<span class="sourceLineNo">167</span>    public void testMakeXmlName() {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        assertEquals("_",   XMLDataWriter.makeXmlName(""));<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        assertEquals("abc", XMLDataWriter.makeXmlName("abc"));<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        assertEquals("abc", XMLDataWriter.makeXmlName("/abc"));<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        assertEquals("abc", XMLDataWriter.makeXmlName("/a/b/c/"));<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    }<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span>    @ExportedBean public static class Arrays {<a name="line.174"></a>
+<span class="sourceLineNo">175</span>        @Exported public String[] categories = {"general", "specific"};<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        @Exported public String[] styles = {"ornate", "plain"};<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    }<a name="line.177"></a>
+<span class="sourceLineNo">178</span><a name="line.178"></a>
+<span class="sourceLineNo">179</span>    public void testToSingular() throws Exception {<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        assertEquals("&lt;arrays _class='Arrays'&gt;&lt;category&gt;general&lt;/category&gt;&lt;category&gt;specific&lt;/category&gt;&lt;style&gt;ornate&lt;/style&gt;&lt;style&gt;plain&lt;/style&gt;&lt;/arrays&gt;",<a name="line.180"></a>
+<span class="sourceLineNo">181</span>                serialize(new Arrays(), Arrays.class));<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    }<a name="line.182"></a>
+<span class="sourceLineNo">183</span><a name="line.183"></a>
+<span class="sourceLineNo">184</span>}<a name="line.184"></a>
 
 
 
