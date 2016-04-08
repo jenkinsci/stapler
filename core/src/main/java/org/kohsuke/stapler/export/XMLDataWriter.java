@@ -41,9 +41,12 @@ final class XMLDataWriter implements DataWriter {
 
     private String name;
     private final Stack<String> objectNames = new Stack<String>();
-    private final Stack<Boolean> arrayState = new Stack<Boolean>();
+    /**
+     * Stack that keeps track of whether we are inside an array.
+     * The top element represents the current state.
+     */
+    private final Stack<Boolean> isArray = new Stack<Boolean>();
     private final Writer out;
-    public boolean isArray;
     private ExportConfig config;
     private String classAttr;
 
@@ -54,6 +57,7 @@ final class XMLDataWriter implements DataWriter {
         name = Introspector.decapitalize(c.getSimpleName());
         this.out = out;
         this.config = config;
+        this.isArray.push(false);
         // TODO: support pretty printing
     }
 
@@ -83,12 +87,11 @@ final class XMLDataWriter implements DataWriter {
     public void startArray() {
         // use repeated element to display array
         // this means nested arrays are not supported
-        isArray = true;
-        arrayState.push(isArray);
+        isArray.push(true);
     }
 
     public void endArray() {
-        isArray = arrayState.pop();
+        isArray.pop();
     }
 
     @Override
@@ -97,9 +100,9 @@ final class XMLDataWriter implements DataWriter {
     }
 
     public void startObject() throws IOException {
-        resetArrayState();
         objectNames.push(name);
         out.write('<' + adjustName());
+        isArray.push(false);
 
         if (classAttr!=null) {
             out.write(CLASS_ATTRIBUTE_PREFIX +classAttr+"'");
@@ -109,15 +112,9 @@ final class XMLDataWriter implements DataWriter {
     }
 
     public void endObject() throws IOException {
-        resetArrayState();
+        isArray.pop();
         name = objectNames.pop();
         out.write("</"+adjustName()+'>');
-    }
-
-    private void resetArrayState(){
-        if(arrayState.isEmpty()){
-            isArray = false;
-        }
     }
 
     /**
@@ -126,7 +123,7 @@ final class XMLDataWriter implements DataWriter {
      */
     private String adjustName() {
         String escaped = makeXmlName(name);
-        if(isArray) return toSingular(escaped);
+        if(isArray.peek()) return toSingular(escaped);
         return escaped;
     }
 
