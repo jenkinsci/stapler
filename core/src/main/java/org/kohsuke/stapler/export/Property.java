@@ -184,7 +184,7 @@ public abstract class Property implements Comparable<Property> {
 
         Class c = value.getClass();
 
-        Model model = null;
+        Model model;
         try {
             model = owner.get(c, parent.type, name);
         } catch (NotExportableException ex) {
@@ -259,12 +259,13 @@ public abstract class Property implements Comparable<Property> {
                 return;
             }
 
-            if(skipIfFail){
+            if (skipIfFail) {
                 writer.startObject();
                 writer.endObject();
-            } else {
-                throw ex;
+                return;
             }
+
+            throw ex;
         }
 
         try {
