@@ -89,12 +89,12 @@ public class XMLDataWriterTest extends TestCase {
     @ExportedBean(defaultVisibility = 3) public static class ParameterValue{
 
         @Exported
-        public String getName() {
+        public String getNames() {
             return "foo";
         }
 
         @Exported
-        public String getValue() {
+        public String getValues() {
             return "bar";
         }
     }
@@ -103,7 +103,7 @@ public class XMLDataWriterTest extends TestCase {
     @Test
     public void testNestedBeans() throws Exception {
         System.out.println(serialize(new Job(), Job.class));
-        assertEquals("<job _class='Job'><action _class='ParameterAction'><parameter><name>foo</name><value>bar</value></parameter></action><action _class='CauseAction'><cause>xyz</cause></action><name>job1</name></job>",
+        assertEquals("<job _class='Job'><action _class='ParameterAction'><parameter><names>foo</names><values>bar</values></parameter></action><action _class='CauseAction'><cause>xyz</cause></action><name>job1</name></job>",
                 serialize(new Job(), Job.class));
     }
 
@@ -181,4 +181,16 @@ public class XMLDataWriterTest extends TestCase {
                 serialize(new Arrays(), Arrays.class));
     }
 
+
+    @ExportedBean public static class ArraysWithPluralProperties {
+        @Exported public String[] categories = {"general", "specific"};
+        @Exported public String[] styles = {"ornate", "plain"};
+        @Exported public String foos = "foo";
+        @Exported public String bars = "foo";
+    }
+
+    public void testToSingularWithPluralProperties() throws Exception {
+        assertEquals("<arraysWithPluralProperties _class='ArraysWithPluralProperties'><bars>foo</bars><category>general</category><category>specific</category><foos>foo</foos><style>ornate</style><style>plain</style></arraysWithPluralProperties>",
+                serialize(new ArraysWithPluralProperties(), ArraysWithPluralProperties.class));
+    }
 }
