@@ -145,6 +145,22 @@ public class DispatcherTest extends JettyTestCase {
 
     }
 
+    public void testInterceptorStageContentTypeWithCharset() throws Exception {
+        WebClient wc = new WebClient();
+        try {
+            wc.getPage(new URL(url, "interceptorStage/foo"));
+            fail("Expected 404");
+        } catch (FailingHttpStatusCodeException e) {
+            assertEquals(404, e.getStatusCode());
+        }
+
+        WebRequestSettings req = new WebRequestSettings(new URL(url, "interceptorStage/foo"), HttpMethod.POST);
+        req.setAdditionalHeader("Content-Type","application/json; charset=utf-8");
+        req.setRequestBody("{x:3,y:5}");
+        TextPage p = wc.getPage(req);
+        assertEquals("3,5\n",p.getContent());
+
+    }
 
     //===================================================================
 
