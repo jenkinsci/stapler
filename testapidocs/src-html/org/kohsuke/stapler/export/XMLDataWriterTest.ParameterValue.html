@@ -97,12 +97,12 @@
 <span class="sourceLineNo">089</span>    @ExportedBean(defaultVisibility = 3) public static class ParameterValue{<a name="line.89"></a>
 <span class="sourceLineNo">090</span><a name="line.90"></a>
 <span class="sourceLineNo">091</span>        @Exported<a name="line.91"></a>
-<span class="sourceLineNo">092</span>        public String getName() {<a name="line.92"></a>
+<span class="sourceLineNo">092</span>        public String getNames() {<a name="line.92"></a>
 <span class="sourceLineNo">093</span>            return "foo";<a name="line.93"></a>
 <span class="sourceLineNo">094</span>        }<a name="line.94"></a>
 <span class="sourceLineNo">095</span><a name="line.95"></a>
 <span class="sourceLineNo">096</span>        @Exported<a name="line.96"></a>
-<span class="sourceLineNo">097</span>        public String getValue() {<a name="line.97"></a>
+<span class="sourceLineNo">097</span>        public String getValues() {<a name="line.97"></a>
 <span class="sourceLineNo">098</span>            return "bar";<a name="line.98"></a>
 <span class="sourceLineNo">099</span>        }<a name="line.99"></a>
 <span class="sourceLineNo">100</span>    }<a name="line.100"></a>
@@ -111,7 +111,7 @@
 <span class="sourceLineNo">103</span>    @Test<a name="line.103"></a>
 <span class="sourceLineNo">104</span>    public void testNestedBeans() throws Exception {<a name="line.104"></a>
 <span class="sourceLineNo">105</span>        System.out.println(serialize(new Job(), Job.class));<a name="line.105"></a>
-<span class="sourceLineNo">106</span>        assertEquals("&lt;job _class='Job'&gt;&lt;action _class='ParameterAction'&gt;&lt;parameter&gt;&lt;name&gt;foo&lt;/name&gt;&lt;value&gt;bar&lt;/value&gt;&lt;/parameter&gt;&lt;/action&gt;&lt;action _class='CauseAction'&gt;&lt;cause&gt;xyz&lt;/cause&gt;&lt;/action&gt;&lt;name&gt;job1&lt;/name&gt;&lt;/job&gt;",<a name="line.106"></a>
+<span class="sourceLineNo">106</span>        assertEquals("&lt;job _class='Job'&gt;&lt;action _class='ParameterAction'&gt;&lt;parameter&gt;&lt;names&gt;foo&lt;/names&gt;&lt;values&gt;bar&lt;/values&gt;&lt;/parameter&gt;&lt;/action&gt;&lt;action _class='CauseAction'&gt;&lt;cause&gt;xyz&lt;/cause&gt;&lt;/action&gt;&lt;name&gt;job1&lt;/name&gt;&lt;/job&gt;",<a name="line.106"></a>
 <span class="sourceLineNo">107</span>                serialize(new Job(), Job.class));<a name="line.107"></a>
 <span class="sourceLineNo">108</span>    }<a name="line.108"></a>
 <span class="sourceLineNo">109</span><a name="line.109"></a>
@@ -189,7 +189,19 @@
 <span class="sourceLineNo">181</span>                serialize(new Arrays(), Arrays.class));<a name="line.181"></a>
 <span class="sourceLineNo">182</span>    }<a name="line.182"></a>
 <span class="sourceLineNo">183</span><a name="line.183"></a>
-<span class="sourceLineNo">184</span>}<a name="line.184"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>    @ExportedBean public static class ArraysWithPluralProperties {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        @Exported public String[] categories = {"general", "specific"};<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        @Exported public String[] styles = {"ornate", "plain"};<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        @Exported public String foos = "foo";<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        @Exported public String bars = "foo";<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    }<a name="line.190"></a>
+<span class="sourceLineNo">191</span><a name="line.191"></a>
+<span class="sourceLineNo">192</span>    public void testToSingularWithPluralProperties() throws Exception {<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        assertEquals("&lt;arraysWithPluralProperties _class='ArraysWithPluralProperties'&gt;&lt;bars&gt;foo&lt;/bars&gt;&lt;category&gt;general&lt;/category&gt;&lt;category&gt;specific&lt;/category&gt;&lt;foos&gt;foo&lt;/foos&gt;&lt;style&gt;ornate&lt;/style&gt;&lt;style&gt;plain&lt;/style&gt;&lt;/arraysWithPluralProperties&gt;",<a name="line.193"></a>
+<span class="sourceLineNo">194</span>                serialize(new ArraysWithPluralProperties(), ArraysWithPluralProperties.class));<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    }<a name="line.195"></a>
+<span class="sourceLineNo">196</span>}<a name="line.196"></a>
 
 
 

@@ -153,118 +153,134 @@
 <span class="sourceLineNo">145</span><a name="line.145"></a>
 <span class="sourceLineNo">146</span>    }<a name="line.146"></a>
 <span class="sourceLineNo">147</span><a name="line.147"></a>
-<span class="sourceLineNo">148</span><a name="line.148"></a>
-<span class="sourceLineNo">149</span>    //===================================================================<a name="line.149"></a>
-<span class="sourceLineNo">150</span><a name="line.150"></a>
-<span class="sourceLineNo">151</span><a name="line.151"></a>
-<span class="sourceLineNo">152</span>    public final Inheritance inheritance = new Inheritance2();<a name="line.152"></a>
-<span class="sourceLineNo">153</span>    public class Inheritance {<a name="line.153"></a>
-<span class="sourceLineNo">154</span>        @WebMethod(name="foo")<a name="line.154"></a>
-<span class="sourceLineNo">155</span>        public HttpResponse doBar(@QueryParameter String q) {<a name="line.155"></a>
-<span class="sourceLineNo">156</span>            return HttpResponses.plainText("base");<a name="line.156"></a>
-<span class="sourceLineNo">157</span>        }<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    }<a name="line.158"></a>
-<span class="sourceLineNo">159</span><a name="line.159"></a>
-<span class="sourceLineNo">160</span>    public class Inheritance2 extends Inheritance {<a name="line.160"></a>
-<span class="sourceLineNo">161</span>        @Override<a name="line.161"></a>
-<span class="sourceLineNo">162</span>        public HttpResponse doBar(String q) {<a name="line.162"></a>
-<span class="sourceLineNo">163</span>            return HttpResponses.plainText(q);<a name="line.163"></a>
-<span class="sourceLineNo">164</span>        }<a name="line.164"></a>
-<span class="sourceLineNo">165</span>    }<a name="line.165"></a>
+<span class="sourceLineNo">148</span>    public void testInterceptorStageContentTypeWithCharset() throws Exception {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        WebClient wc = new WebClient();<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        try {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            wc.getPage(new URL(url, "interceptorStage/foo"));<a name="line.151"></a>
+<span class="sourceLineNo">152</span>            fail("Expected 404");<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        } catch (FailingHttpStatusCodeException e) {<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            assertEquals(404, e.getStatusCode());<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        }<a name="line.155"></a>
+<span class="sourceLineNo">156</span><a name="line.156"></a>
+<span class="sourceLineNo">157</span>        WebRequestSettings req = new WebRequestSettings(new URL(url, "interceptorStage/foo"), HttpMethod.POST);<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        req.setAdditionalHeader("Content-Type","application/json; charset=utf-8");<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        req.setRequestBody("{x:3,y:5}");<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        TextPage p = wc.getPage(req);<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        assertEquals("3,5\n",p.getContent());<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>    }<a name="line.163"></a>
+<span class="sourceLineNo">164</span><a name="line.164"></a>
+<span class="sourceLineNo">165</span>    //===================================================================<a name="line.165"></a>
 <span class="sourceLineNo">166</span><a name="line.166"></a>
-<span class="sourceLineNo">167</span>    public void testInheritance() throws Exception {<a name="line.167"></a>
-<span class="sourceLineNo">168</span>        WebClient wc = new WebClient();<a name="line.168"></a>
-<span class="sourceLineNo">169</span><a name="line.169"></a>
-<span class="sourceLineNo">170</span>        // the request should get to the overriding method and it should still see all the annotations in the base type<a name="line.170"></a>
-<span class="sourceLineNo">171</span>        TextPage p = wc.getPage(new URL(url, "inheritance/foo?q=abc"));<a name="line.171"></a>
-<span class="sourceLineNo">172</span>        assertEquals("abc\n", p.getContent());<a name="line.172"></a>
-<span class="sourceLineNo">173</span><a name="line.173"></a>
-<span class="sourceLineNo">174</span>        // doBar is a web method for 'foo', so bar endpoint shouldn't respond<a name="line.174"></a>
-<span class="sourceLineNo">175</span>        try {<a name="line.175"></a>
-<span class="sourceLineNo">176</span>            wc.getPage(new URL(url, "inheritance/bar"));<a name="line.176"></a>
-<span class="sourceLineNo">177</span>            fail();<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        } catch (FailingHttpStatusCodeException e) {<a name="line.178"></a>
-<span class="sourceLineNo">179</span>            assertEquals(404,e.getStatusCode());<a name="line.179"></a>
+<span class="sourceLineNo">167</span><a name="line.167"></a>
+<span class="sourceLineNo">168</span>    public final Inheritance inheritance = new Inheritance2();<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    public class Inheritance {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        @WebMethod(name="foo")<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        public HttpResponse doBar(@QueryParameter String q) {<a name="line.171"></a>
+<span class="sourceLineNo">172</span>            return HttpResponses.plainText("base");<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        }<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    }<a name="line.174"></a>
+<span class="sourceLineNo">175</span><a name="line.175"></a>
+<span class="sourceLineNo">176</span>    public class Inheritance2 extends Inheritance {<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        @Override<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        public HttpResponse doBar(String q) {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>            return HttpResponses.plainText(q);<a name="line.179"></a>
 <span class="sourceLineNo">180</span>        }<a name="line.180"></a>
 <span class="sourceLineNo">181</span>    }<a name="line.181"></a>
 <span class="sourceLineNo">182</span><a name="line.182"></a>
-<span class="sourceLineNo">183</span>    public final PutInheritance putInheritance = new PutInheritanceImpl();<a name="line.183"></a>
-<span class="sourceLineNo">184</span>    public abstract class PutInheritance {<a name="line.184"></a>
-<span class="sourceLineNo">185</span>        @WebMethod(name="foo") @PUT<a name="line.185"></a>
-<span class="sourceLineNo">186</span>        public abstract HttpResponse doBar(StaplerRequest req) throws IOException;<a name="line.186"></a>
-<span class="sourceLineNo">187</span><a name="line.187"></a>
-<span class="sourceLineNo">188</span>        @POST<a name="line.188"></a>
-<span class="sourceLineNo">189</span>        public HttpResponse doAcme(StaplerRequest req) throws IOException {<a name="line.189"></a>
-<span class="sourceLineNo">190</span>            return HttpResponses.plainText("POST: "+IOUtils.toString(req.getInputStream()));<a name="line.190"></a>
-<span class="sourceLineNo">191</span>        }<a name="line.191"></a>
-<span class="sourceLineNo">192</span>    }<a name="line.192"></a>
-<span class="sourceLineNo">193</span><a name="line.193"></a>
-<span class="sourceLineNo">194</span>    public class PutInheritanceImpl extends PutInheritance{<a name="line.194"></a>
-<span class="sourceLineNo">195</span>        @Override<a name="line.195"></a>
-<span class="sourceLineNo">196</span>        public HttpResponse doBar(StaplerRequest req) throws IOException {<a name="line.196"></a>
-<span class="sourceLineNo">197</span>            return HttpResponses.plainText(IOUtils.toString(req.getInputStream())+" World!");<a name="line.197"></a>
-<span class="sourceLineNo">198</span>        }<a name="line.198"></a>
-<span class="sourceLineNo">199</span>    }<a name="line.199"></a>
-<span class="sourceLineNo">200</span><a name="line.200"></a>
-<span class="sourceLineNo">201</span>    public void testPutInheritance() throws Exception {<a name="line.201"></a>
-<span class="sourceLineNo">202</span>        WebClient wc = new WebClient();<a name="line.202"></a>
+<span class="sourceLineNo">183</span>    public void testInheritance() throws Exception {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        WebClient wc = new WebClient();<a name="line.184"></a>
+<span class="sourceLineNo">185</span><a name="line.185"></a>
+<span class="sourceLineNo">186</span>        // the request should get to the overriding method and it should still see all the annotations in the base type<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        TextPage p = wc.getPage(new URL(url, "inheritance/foo?q=abc"));<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        assertEquals("abc\n", p.getContent());<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>        // doBar is a web method for 'foo', so bar endpoint shouldn't respond<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        try {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>            wc.getPage(new URL(url, "inheritance/bar"));<a name="line.192"></a>
+<span class="sourceLineNo">193</span>            fail();<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        } catch (FailingHttpStatusCodeException e) {<a name="line.194"></a>
+<span class="sourceLineNo">195</span>            assertEquals(404,e.getStatusCode());<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        }<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    }<a name="line.197"></a>
+<span class="sourceLineNo">198</span><a name="line.198"></a>
+<span class="sourceLineNo">199</span>    public final PutInheritance putInheritance = new PutInheritanceImpl();<a name="line.199"></a>
+<span class="sourceLineNo">200</span>    public abstract class PutInheritance {<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        @WebMethod(name="foo") @PUT<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        public abstract HttpResponse doBar(StaplerRequest req) throws IOException;<a name="line.202"></a>
 <span class="sourceLineNo">203</span><a name="line.203"></a>
-<span class="sourceLineNo">204</span>        // the request should get to the overriding method and it should still see all the annotations in the base type<a name="line.204"></a>
-<span class="sourceLineNo">205</span>        WebRequestSettings wrs = new WebRequestSettings(new URL(url, "putInheritance/foo"), HttpMethod.PUT);<a name="line.205"></a>
-<span class="sourceLineNo">206</span>        wrs.setRequestBody("Hello");<a name="line.206"></a>
-<span class="sourceLineNo">207</span>        TextPage p = wc.getPage(wrs);<a name="line.207"></a>
-<span class="sourceLineNo">208</span>        assertEquals("Hello World!\n", p.getContent());<a name="line.208"></a>
+<span class="sourceLineNo">204</span>        @POST<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        public HttpResponse doAcme(StaplerRequest req) throws IOException {<a name="line.205"></a>
+<span class="sourceLineNo">206</span>            return HttpResponses.plainText("POST: "+IOUtils.toString(req.getInputStream()));<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        }<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    }<a name="line.208"></a>
 <span class="sourceLineNo">209</span><a name="line.209"></a>
-<span class="sourceLineNo">210</span>        // doBar is a web method for 'foo', so bar endpoint shouldn't respond<a name="line.210"></a>
-<span class="sourceLineNo">211</span>        try {<a name="line.211"></a>
-<span class="sourceLineNo">212</span>            wc.getPage(new URL(url, "putInheritance/bar"));<a name="line.212"></a>
-<span class="sourceLineNo">213</span>            fail();<a name="line.213"></a>
-<span class="sourceLineNo">214</span>        } catch (FailingHttpStatusCodeException e) {<a name="line.214"></a>
-<span class="sourceLineNo">215</span>            assertEquals(404,e.getStatusCode());<a name="line.215"></a>
-<span class="sourceLineNo">216</span>        }<a name="line.216"></a>
-<span class="sourceLineNo">217</span><a name="line.217"></a>
-<span class="sourceLineNo">218</span>        //Invoke Post as well<a name="line.218"></a>
-<span class="sourceLineNo">219</span>        wrs = new WebRequestSettings(new URL(url, "putInheritance/acme"), HttpMethod.POST);<a name="line.219"></a>
-<span class="sourceLineNo">220</span>        wrs.setRequestBody("Hello");<a name="line.220"></a>
-<span class="sourceLineNo">221</span>        p = wc.getPage(wrs);<a name="line.221"></a>
-<span class="sourceLineNo">222</span>        assertEquals("POST: Hello\n", p.getContent());<a name="line.222"></a>
-<span class="sourceLineNo">223</span>    }<a name="line.223"></a>
-<span class="sourceLineNo">224</span><a name="line.224"></a>
+<span class="sourceLineNo">210</span>    public class PutInheritanceImpl extends PutInheritance{<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        @Override<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        public HttpResponse doBar(StaplerRequest req) throws IOException {<a name="line.212"></a>
+<span class="sourceLineNo">213</span>            return HttpResponses.plainText(IOUtils.toString(req.getInputStream())+" World!");<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        }<a name="line.214"></a>
+<span class="sourceLineNo">215</span>    }<a name="line.215"></a>
+<span class="sourceLineNo">216</span><a name="line.216"></a>
+<span class="sourceLineNo">217</span>    public void testPutInheritance() throws Exception {<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        WebClient wc = new WebClient();<a name="line.218"></a>
+<span class="sourceLineNo">219</span><a name="line.219"></a>
+<span class="sourceLineNo">220</span>        // the request should get to the overriding method and it should still see all the annotations in the base type<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        WebRequestSettings wrs = new WebRequestSettings(new URL(url, "putInheritance/foo"), HttpMethod.PUT);<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        wrs.setRequestBody("Hello");<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        TextPage p = wc.getPage(wrs);<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        assertEquals("Hello World!\n", p.getContent());<a name="line.224"></a>
 <span class="sourceLineNo">225</span><a name="line.225"></a>
-<span class="sourceLineNo">226</span><a name="line.226"></a>
-<span class="sourceLineNo">227</span>    //===================================================================<a name="line.227"></a>
-<span class="sourceLineNo">228</span><a name="line.228"></a>
-<span class="sourceLineNo">229</span><a name="line.229"></a>
-<span class="sourceLineNo">230</span>    public final RequirePostOnBase requirePostOnBase = new RequirePostOnBase2();<a name="line.230"></a>
-<span class="sourceLineNo">231</span>    public abstract class RequirePostOnBase {<a name="line.231"></a>
-<span class="sourceLineNo">232</span>        int hit;<a name="line.232"></a>
-<span class="sourceLineNo">233</span>        @RequirePOST<a name="line.233"></a>
-<span class="sourceLineNo">234</span>        public abstract void doSomething();<a name="line.234"></a>
-<span class="sourceLineNo">235</span>    }<a name="line.235"></a>
-<span class="sourceLineNo">236</span><a name="line.236"></a>
-<span class="sourceLineNo">237</span>    public class RequirePostOnBase2 extends RequirePostOnBase {<a name="line.237"></a>
-<span class="sourceLineNo">238</span>        @Override<a name="line.238"></a>
-<span class="sourceLineNo">239</span>        public void doSomething() {<a name="line.239"></a>
-<span class="sourceLineNo">240</span>            hit++;<a name="line.240"></a>
-<span class="sourceLineNo">241</span>        }<a name="line.241"></a>
-<span class="sourceLineNo">242</span>    }<a name="line.242"></a>
-<span class="sourceLineNo">243</span><a name="line.243"></a>
-<span class="sourceLineNo">244</span>    public void testRequirePostOnBase() throws Exception {<a name="line.244"></a>
-<span class="sourceLineNo">245</span>        WebClient wc = new WebClient();<a name="line.245"></a>
-<span class="sourceLineNo">246</span>        URL url = new URL(this.url, "requirePostOnBase/something");<a name="line.246"></a>
-<span class="sourceLineNo">247</span><a name="line.247"></a>
-<span class="sourceLineNo">248</span>        try {<a name="line.248"></a>
-<span class="sourceLineNo">249</span>            wc.getPage(url);<a name="line.249"></a>
-<span class="sourceLineNo">250</span>            fail();<a name="line.250"></a>
-<span class="sourceLineNo">251</span>        } catch (FailingHttpStatusCodeException e) {<a name="line.251"></a>
-<span class="sourceLineNo">252</span>            assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.getStatusCode());<a name="line.252"></a>
-<span class="sourceLineNo">253</span>        }<a name="line.253"></a>
-<span class="sourceLineNo">254</span><a name="line.254"></a>
-<span class="sourceLineNo">255</span>        // POST should succeed<a name="line.255"></a>
-<span class="sourceLineNo">256</span>        wc.getPage(new WebRequestSettings(url, HttpMethod.POST));<a name="line.256"></a>
-<span class="sourceLineNo">257</span>        assertEquals(1, requirePostOnBase.hit);<a name="line.257"></a>
+<span class="sourceLineNo">226</span>        // doBar is a web method for 'foo', so bar endpoint shouldn't respond<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        try {<a name="line.227"></a>
+<span class="sourceLineNo">228</span>            wc.getPage(new URL(url, "putInheritance/bar"));<a name="line.228"></a>
+<span class="sourceLineNo">229</span>            fail();<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        } catch (FailingHttpStatusCodeException e) {<a name="line.230"></a>
+<span class="sourceLineNo">231</span>            assertEquals(404,e.getStatusCode());<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        }<a name="line.232"></a>
+<span class="sourceLineNo">233</span><a name="line.233"></a>
+<span class="sourceLineNo">234</span>        //Invoke Post as well<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        wrs = new WebRequestSettings(new URL(url, "putInheritance/acme"), HttpMethod.POST);<a name="line.235"></a>
+<span class="sourceLineNo">236</span>        wrs.setRequestBody("Hello");<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        p = wc.getPage(wrs);<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        assertEquals("POST: Hello\n", p.getContent());<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    }<a name="line.239"></a>
+<span class="sourceLineNo">240</span><a name="line.240"></a>
+<span class="sourceLineNo">241</span><a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>    //===================================================================<a name="line.243"></a>
+<span class="sourceLineNo">244</span><a name="line.244"></a>
+<span class="sourceLineNo">245</span><a name="line.245"></a>
+<span class="sourceLineNo">246</span>    public final RequirePostOnBase requirePostOnBase = new RequirePostOnBase2();<a name="line.246"></a>
+<span class="sourceLineNo">247</span>    public abstract class RequirePostOnBase {<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        int hit;<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        @RequirePOST<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        public abstract void doSomething();<a name="line.250"></a>
+<span class="sourceLineNo">251</span>    }<a name="line.251"></a>
+<span class="sourceLineNo">252</span><a name="line.252"></a>
+<span class="sourceLineNo">253</span>    public class RequirePostOnBase2 extends RequirePostOnBase {<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        @Override<a name="line.254"></a>
+<span class="sourceLineNo">255</span>        public void doSomething() {<a name="line.255"></a>
+<span class="sourceLineNo">256</span>            hit++;<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        }<a name="line.257"></a>
 <span class="sourceLineNo">258</span>    }<a name="line.258"></a>
-<span class="sourceLineNo">259</span>}<a name="line.259"></a>
+<span class="sourceLineNo">259</span><a name="line.259"></a>
+<span class="sourceLineNo">260</span>    public void testRequirePostOnBase() throws Exception {<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        WebClient wc = new WebClient();<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        URL url = new URL(this.url, "requirePostOnBase/something");<a name="line.262"></a>
+<span class="sourceLineNo">263</span><a name="line.263"></a>
+<span class="sourceLineNo">264</span>        try {<a name="line.264"></a>
+<span class="sourceLineNo">265</span>            wc.getPage(url);<a name="line.265"></a>
+<span class="sourceLineNo">266</span>            fail();<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        } catch (FailingHttpStatusCodeException e) {<a name="line.267"></a>
+<span class="sourceLineNo">268</span>            assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.getStatusCode());<a name="line.268"></a>
+<span class="sourceLineNo">269</span>        }<a name="line.269"></a>
+<span class="sourceLineNo">270</span><a name="line.270"></a>
+<span class="sourceLineNo">271</span>        // POST should succeed<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        wc.getPage(new WebRequestSettings(url, HttpMethod.POST));<a name="line.272"></a>
+<span class="sourceLineNo">273</span>        assertEquals(1, requirePostOnBase.hit);<a name="line.273"></a>
+<span class="sourceLineNo">274</span>    }<a name="line.274"></a>
+<span class="sourceLineNo">275</span>}<a name="line.275"></a>
 
 
 
