@@ -7,7 +7,9 @@ import net.sf.json.JSONObject;
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Type;
 import java.net.Proxy;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -354,4 +356,46 @@ public class DataBindingTest extends TestCase {
         assertTrue(Arrays.equals(r,new Object[]{new Point(1,2)}));
     }
 
+    public static class AsymmetricProperty {
+        private final List<Integer> items = new ArrayList<Integer>();
+        @DataBoundConstructor
+        public AsymmetricProperty() {}
+
+        public List<Integer> getItems() {
+            return items;
+        }
+
+        @DataBoundSetter
+        public void setItems(Collection<Integer> v) {
+            items.clear();
+            items.addAll(v);
+        }
+    }
+
+    /**
+     * Sometimes a setter has more relaxing parameter definition than the corresponding getter.
+     */
+    public void testAsymmetricProperty() {
+        AsymmetricProperty r = bind("{items:[1,3,5]}",AsymmetricProperty.class);
+        assertEquals(Arrays.asList(1,3,5),r.getItems());
+    }
+
+    public static class DerivedProperty extends AsymmetricProperty {
+        @DataBoundConstructor
+        public DerivedProperty() {}
+
+        @Override
+        public void setItems(Collection<Integer> v) {
+            super.setItems(v);
+        }
+    }
+
+
+    /**
+     * Subyping and overriding a setter shouldn't hide it.
+     */
+    public void testDerivedProperty() {
+        DerivedProperty r = bind("{items:[1,3,5]}",DerivedProperty.class);
+        assertEquals(Arrays.asList(1,3,5),r.getItems());
+    }
 }

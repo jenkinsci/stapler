@@ -47,12 +47,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -815,30 +817,17 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                         }
                     }
 
-                    PropertyDescriptor pd = PropertyUtils.getPropertyDescriptor(r, key);
-                    if (pd==null)   continue;
-
-                    Method wm = pd.getWriteMethod();
+                    Method wm = findDataBoundSetter(r.getClass(), key);
                     if (wm==null)   continue;
-                    if (wm.getAnnotation(DataBoundSetter.class)==null) {
-                        LOGGER.warning("Tried to set value to "+key+" but method "+wm+" is missing @DataBoundSetter");
-                        continue;
-                    }
 
                     Class<?>[] pt = wm.getParameterTypes();
-
-                    if (pt.length!=1) {
-                        LOGGER.log(WARNING, "Setter method "+wm+" is expected to have 1 parameter");
-                        continue;
-                    }
+                    assert pt.length==1;
 
                     // only invoking public methods for security reasons
                     wm.invoke(r, bindJSON(wm.getGenericParameterTypes()[0], pt[0], j.get(key)));
                 } catch (IllegalAccessException e) {
                     LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
                 } catch (InvocationTargetException e) {
-                    LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
-                } catch (NoSuchMethodException e) {
                     LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
                 }
             }
@@ -847,6 +836,26 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         invokePostConstruct(getWebApp().getMetaClass(r).getPostConstructMethods(), r);
 
         return r;
+    }
+
+    private Method findDataBoundSetter(Class c, String name) {
+        // look for public setter that has the matching name
+        for ( ; c!=null; c=c.getSuperclass()) {
+            for (Method m : c.getDeclaredMethods()) {
+                if (!Modifier.isPublic(m.getModifiers())
+                 || !m.getName().startsWith("set")
+                 || m.getParameterTypes().length!=1
+                 || !m.isAnnotationPresent(DataBoundSetter.class))
+                    continue;
+
+                String propertyName = Introspector.decapitalize(m.getName().substring(3));
+                if (!name.equals(propertyName))
+                    continue;   // not the name we are looking for
+
+                return m;
+            }
+        }
+        return null;
     }
 
     /**
