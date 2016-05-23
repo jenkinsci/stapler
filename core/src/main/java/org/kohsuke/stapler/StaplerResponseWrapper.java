@@ -8,6 +8,7 @@ import java.io.Writer;
 import java.net.URL;
 import java.util.Locale;
 
+import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
@@ -36,6 +37,7 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
     /**
      * Returns the wrapped instance
      */
+    @Nonnull
     public StaplerResponse getWrapped() {
         return wrapped;
     }
