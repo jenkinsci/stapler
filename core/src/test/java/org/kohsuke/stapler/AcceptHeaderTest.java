@@ -107,4 +107,18 @@ public class AcceptHeaderTest {
         Assert.assertEquals(type, "image/png");
 
     }
+
+    @Test
+    public void qualityFactor6(){
+        AcceptHeader acceptHeader = new AcceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+
+        String type = acceptHeader.select("text/plain", "text/html");
+        Assert.assertNotNull(type);
+        Assert.assertEquals(type, "text/html"); // 1 > 0.8
+
+        type = acceptHeader.select("text/plain", "application/xml");
+        Assert.assertNotNull(type);
+        Assert.assertEquals(type, "application/xml"); //0.9 > 0.8
+    }
+
 }
