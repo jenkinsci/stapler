@@ -164,8 +164,8 @@ public final class AcceptHeader {
             int f = a.fit(target);
             if (f>bestFitness) {
                 best = a;
+                bestFitness = f;
             }
-            bestFitness = f;
         }
 
         return best;
