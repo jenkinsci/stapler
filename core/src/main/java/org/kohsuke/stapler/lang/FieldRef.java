@@ -4,6 +4,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 /**
+ * Fields of {@link Klass}.
+ *
+ * @see Klass#getDeclaredFields()
  * @author Kohsuke Kawaguchi
  */
 public abstract class FieldRef extends AnnotatedRef {

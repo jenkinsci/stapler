@@ -103,7 +103,7 @@ public abstract class KlassNavigator<C> {
         }
 
         @Override
-        public Klass<?> getSuperClass(Class clazz) {
+        public Klass<Class> getSuperClass(Class clazz) {
             return Klass.java(clazz.getSuperclass());
         }
 
