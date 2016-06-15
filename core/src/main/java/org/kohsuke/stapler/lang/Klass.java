@@ -13,6 +13,9 @@ import java.util.List;
  * 
  * This is a convenient tuple so that we can pass around a single argument instead of two.
  *
+ * @param <C>
+ *     Variable that represents the type of {@code Class} like object in this language.
+ *
  * @author Kohsuke Kawaguchi
  */
 public class Klass<C> {

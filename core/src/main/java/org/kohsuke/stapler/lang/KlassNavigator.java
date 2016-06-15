@@ -14,6 +14,9 @@ import java.util.List;
  * <p>
  * Implementations should be stateless and typically a singleton.
  *
+ * @param <C>
+ *     Variable that represents the type of {@code Class} like object in this language.
+ *
  * @author Kohsuke Kawaguchi
  */
 public abstract class KlassNavigator<C> {
