@@ -1,5 +1,7 @@
 package org.kohsuke.stapler.lang;
 
+import org.kohsuke.stapler.ClassDescriptor;
+import org.kohsuke.stapler.Function;
 import org.kohsuke.stapler.MetaClassLoader;
 
 import java.lang.reflect.Method;
@@ -71,6 +73,15 @@ public abstract class KlassNavigator<C> {
      */
     public abstract List<MethodRef> getDeclaredMethods(C clazz);
 
+    /**
+     * List fields of this class.
+     *
+     * This list excludes fields from super classes.
+     */
+    public abstract List<FieldRef> getDeclaredFields(C clazz);
+
+    public abstract List<Function> getFunctions(C clazz);
+
     public static final KlassNavigator<Class> JAVA = new KlassNavigator<Class>() {
         @Override
         public URL getResource(Class clazz, String resourceName) {
@@ -124,6 +135,18 @@ public abstract class KlassNavigator<C> {
                     return methods.length;
                 }
             };
+        }
+
+        @Override
+        public List<FieldRef> getDeclaredFields(Class clazz) {
+            return null;
+        }
+
+        @Override
+        public List<Function> getFunctions(Class clazz) {
+            // Historically ClassDescriptor used to own this non-trivial logic of computing
+            // valid functions for the class, so we'll keep it there.
+            return new ClassDescriptor(clazz).methods;
         }
     };
 }

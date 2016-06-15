@@ -5,17 +5,23 @@ import org.jruby.RubyClass;
 import org.jruby.RubyModule;
 import org.jruby.RubyObject;
 import org.jruby.internal.runtime.methods.DynamicMethod;
+import org.kohsuke.stapler.ClassDescriptor;
+import org.kohsuke.stapler.Function;
 import org.kohsuke.stapler.MetaClassLoader;
+import org.kohsuke.stapler.lang.FieldRef;
 import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.KlassNavigator;
 import org.kohsuke.stapler.lang.MethodRef;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 /**
+ * {@link KlassNavigator} implementation for JRuby.
+ *
  * @author Kohsuke Kawaguchi
  */
 public class RubyKlassNavigator extends KlassNavigator<RubyModule> {
@@ -70,6 +76,18 @@ public class RubyKlassNavigator extends KlassNavigator<RubyModule> {
                 r.add(new RubyMethodRef(clazz,m));
         }
         return r;
+    }
+
+    @Override
+    public List<FieldRef> getDeclaredFields(RubyModule clazz) {
+        // IIUC, Ruby doesn't have statically defined instance fields
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<Function> getFunctions(RubyModule clazz) {
+        // implemented as a fallback to Java through reified class, but maybe there's a better way to do this
+        return new ClassDescriptor(toJavaClass(clazz)).methods;
     }
 
     @Override

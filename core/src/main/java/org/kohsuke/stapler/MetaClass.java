@@ -26,13 +26,13 @@ package org.kohsuke.stapler;
 import net.sf.json.JSONArray;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
+import org.kohsuke.stapler.lang.FieldRef;
 import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.MethodRef;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletException;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -103,7 +103,7 @@ public class MetaClass extends TearOffSupport {
      */
     /*package*/ void buildDispatchers() {
         this.dispatchers.clear();
-        ClassDescriptor node = new ClassDescriptor(clazz,null/*TODO:support wrappers*/);
+        KlassDescriptor<?> node = new KlassDescriptor(klass);
 
         // check action <obj>.do<token>(...) and other WebMethods
         for( final Function f : node.methods.webMethods() ) {
@@ -162,7 +162,7 @@ public class MetaClass extends TearOffSupport {
         }
 
         // check public properties of the form NODE.TOKEN
-        for (final Field f : node.fields) {
+        for (final FieldRef f : node.fields) {
             dispatchers.add(new NameBasedDispatcher(f.getName()) {
                 final String role = getProtectedRole(f);
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException {
@@ -175,7 +175,7 @@ public class MetaClass extends TearOffSupport {
                     return true;
                 }
                 public String toString() {
-                    return String.format("%1$s.%2$s for url=/%2$s/...",f.getDeclaringClass().getName(),f.getName());
+                    return String.format("%1$s for url=/%2$s/...",f.getQualifiedName(),f.getName());
                 }
             });
         }
@@ -278,7 +278,8 @@ public class MetaClass extends TearOffSupport {
             });
         }
 
-        if(node.clazz.isArray()) {
+        // TODO: Klass needs to be able to define its array like access
+        if(node.clazz.toJavaClass().isArray()) {
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                     if(!req.tokens.hasMore())
@@ -299,7 +300,8 @@ public class MetaClass extends TearOffSupport {
             });
         }
 
-        if(List.class.isAssignableFrom(node.clazz)) {
+        // TODO: Klass needs to be able to define its list like access
+        if(List.class.isAssignableFrom(node.clazz.toJavaClass())) {
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                     if(!req.tokens.hasMore())
@@ -328,7 +330,8 @@ public class MetaClass extends TearOffSupport {
             });
         }
 
-        if(Map.class.isAssignableFrom(node.clazz)) {
+        // TODO: Klass needs to be able to define its map like access
+        if(Map.class.isAssignableFrom(node.clazz.toJavaClass())) {
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                     if(!req.tokens.hasMore())
@@ -430,7 +433,7 @@ public class MetaClass extends TearOffSupport {
         return postConstructMethods;
     }
 
-    private String getProtectedRole(Field f) {
+    private String getProtectedRole(FieldRef f) {
         try {
             LimitedTo a = f.getAnnotation(LimitedTo.class);
             return (a!=null)?a.value():null;

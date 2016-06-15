@@ -1,5 +1,7 @@
 package org.kohsuke.stapler.lang;
 
+import org.kohsuke.stapler.Function;
+
 import java.net.URL;
 import java.util.List;
 
@@ -48,6 +50,14 @@ public class Klass<C> {
      */
     public List<MethodRef> getDeclaredMethods() {
         return navigator.getDeclaredMethods(clazz);
+    }
+
+    public List<FieldRef> getFields() {
+        return navigator.getDeclaredFields(clazz);
+    }
+
+    public List<Function> getFunctions() {
+        return navigator.getFunctions(clazz);
     }
 
     @Override
