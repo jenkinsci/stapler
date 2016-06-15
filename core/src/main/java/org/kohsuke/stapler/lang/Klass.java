@@ -2,8 +2,12 @@ package org.kohsuke.stapler.lang;
 
 import org.kohsuke.stapler.Function;
 
+import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Abstraction of class-like object, agnostic to languages.
@@ -52,8 +56,27 @@ public class Klass<C> {
         return navigator.getDeclaredMethods(clazz);
     }
 
-    public List<FieldRef> getFields() {
+    public List<FieldRef> getDeclaredFields() {
         return navigator.getDeclaredFields(clazz);
+    }
+
+    /**
+     * Gets all the public fields defined in this type, including super types.
+     *
+     * @see Class#getFields()
+     */
+    public List<FieldRef> getFields() {
+        Map<String,FieldRef> fields = new LinkedHashMap<String,FieldRef>();
+        for (Klass<?> k = this; k!=null; k=k.getSuperClass()) {
+            for (FieldRef f : getDeclaredFields()) {
+                String name = f.getName();
+                if (!fields.containsKey(name)) {
+                    fields.put(name,f);
+                }
+            }
+        }
+
+        return new ArrayList<FieldRef>(fields.values());
     }
 
     public List<Function> getFunctions() {

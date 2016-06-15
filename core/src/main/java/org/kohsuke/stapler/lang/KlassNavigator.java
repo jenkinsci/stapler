@@ -4,6 +4,7 @@ import org.kohsuke.stapler.ClassDescriptor;
 import org.kohsuke.stapler.Function;
 import org.kohsuke.stapler.MetaClassLoader;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.AbstractList;
@@ -139,7 +140,18 @@ public abstract class KlassNavigator<C> {
 
         @Override
         public List<FieldRef> getDeclaredFields(Class clazz) {
-            return null;
+            final Field[] fields = clazz.getDeclaredFields();
+            return new AbstractList<FieldRef>() {
+                @Override
+                public FieldRef get(int index) {
+                    return FieldRef.wrap(fields[index]);
+                }
+
+                @Override
+                public int size() {
+                    return fields.length;
+                }
+            };
         }
 
         @Override
