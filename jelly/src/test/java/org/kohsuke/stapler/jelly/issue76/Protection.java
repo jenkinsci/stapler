@@ -1,5 +1,7 @@
 package org.kohsuke.stapler.jelly.issue76;
 
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.lang.KInstance;
 import org.kohsuke.stapler.lang.Klass;
 
@@ -24,5 +26,12 @@ public class Protection implements KInstance<ProtectedClass> {
     @Override
     public Klass<ProtectedClass> getKlass() {
         return new Klass<ProtectedClass>(new ProtectedClass(o.getClass()),ProtectedClass.NAVIGATOR);
+    }
+
+    /**
+     * Override doIndex.
+     */
+    public HttpResponse doIndex() {
+        return HttpResponses.plainText("protected "+o);
     }
 }

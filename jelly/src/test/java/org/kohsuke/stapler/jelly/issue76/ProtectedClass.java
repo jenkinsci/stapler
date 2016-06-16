@@ -1,6 +1,7 @@
 package org.kohsuke.stapler.jelly.issue76;
 
 import org.kohsuke.stapler.Function;
+import org.kohsuke.stapler.FunctionList;
 import org.kohsuke.stapler.lang.FieldRef;
 import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.KlassNavigator;
@@ -12,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Used as 'C' of {@code Klass<C>} to represents a protected version of a {@link Class}.
+ *
  * @author Kohsuke Kawaguchi
  */
 public class ProtectedClass {
@@ -87,7 +90,11 @@ public class ProtectedClass {
 
         @Override
         public List<Function> getFunctions(ProtectedClass clazz) {
-            return JAVA.getFunctions(clazz.c);
+            List<Function> r = new ArrayList<Function>();
+            // insert this at the top to make sure that shadows doIndex in subtypes
+            r.addAll(new FunctionList(JAVA.getFunctions(Protection.class)).name("doIndex"));
+            r.addAll(JAVA.getFunctions(clazz.c));
+            return r;
         }
     };
 }
