@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 import static javax.servlet.http.HttpServletResponse.*;
+import static org.kohsuke.stapler.TraversalMethodContext.DYNAMIC;
 
 /**
  * Created one instance each for a {@link Klass},
@@ -52,12 +53,12 @@ import static javax.servlet.http.HttpServletResponse.*;
 public class MetaClass extends TearOffSupport {
     /**
      * This meta class wraps this class
-     * 
+     *
      * @deprecated as of 1.177
      *      Use {@link #klass}. If you really want the Java class representation, use {@code klass.toJavaClass()}.
      */
     public final Class clazz;
-    
+
     public final Klass<?> klass;
 
     /**
@@ -99,33 +100,34 @@ public class MetaClass extends TearOffSupport {
      *
      * <p>
      * This is the meat of URL dispatching. It looks at the class
-     * via reflection and figures out what URLs are handled by who. 
+     * via reflection and figures out what URLs are handled by who.
      */
     /*package*/ void buildDispatchers() {
         this.dispatchers.clear();
         KlassDescriptor<?> node = new KlassDescriptor(klass);
 
         // check action <obj>.do<token>(...) and other WebMethods
-        for( final Function f : node.methods.webMethods() ) {
+        for (Function f : node.methods.webMethods()) {
             WebMethod a = f.getAnnotation(WebMethod.class);
-            
+
             String[] names;
             if(a!=null && a.name().length>0)   names=a.name();
             else    names=new String[]{camelize(f.getName().substring(2))}; // 'doFoo' -> 'foo'
 
             for (String name : names) {
+                final Function ff = f.contextualize(new WebMethodContext(name));
                 if (name.length()==0) {
-                    dispatchers.add(new IndexDispatcher(f));
+                    dispatchers.add(new IndexDispatcher(ff));
                 } else {
                     dispatchers.add(new NameBasedDispatcher(name) {
                         public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
                             if (traceable())
-                                trace(req, rsp, "-> <%s>.%s(...)", node, f.getName());
-                            return f.bindAndInvokeAndServeResponse(node, req, rsp);
+                                trace(req, rsp, "-> <%s>.%s(...)", node, ff.getName());
+                            return ff.bindAndInvokeAndServeResponse(node, req, rsp);
                         }
 
                         public String toString() {
-                            return f.getQualifiedName() + "(...) for url=/" + name + "/...";
+                            return ff.getQualifiedName() + "(...) for url=/" + name + "/...";
                         }
                     });
                 }
@@ -134,9 +136,9 @@ public class MetaClass extends TearOffSupport {
 
         // JavaScript proxy method invocations for <obj>js<token>
         // reacts only to a specific content type
-        for( final Function f : node.methods.prefix("js") ) {
+        for (Function f : node.methods.prefix("js") ) {
             String name = camelize(f.getName().substring(2)); // jsXyz -> xyz
-
+            f = f.contextualize(new JavaScriptMethodContext(name));
             dispatchers.add(new JavaScriptProxyMethodDispatcher(name, f));
         }
 
@@ -150,7 +152,7 @@ public class MetaClass extends TearOffSupport {
             else    names=new String[]{f.getName()};
 
             for (String name : names)
-                dispatchers.add(new JavaScriptProxyMethodDispatcher(name,f));
+                dispatchers.add(new JavaScriptProxyMethodDispatcher(name,f.contextualize(new JavaScriptMethodContext(name))));
         }
 
         for (Facet f : webApp.facets)
@@ -158,7 +160,7 @@ public class MetaClass extends TearOffSupport {
 
         // check action <obj>.doIndex(...)
         for (Function f : node.methods.name("doIndex")) {
-            dispatchers.add(new IndexDispatcher(f));
+            dispatchers.add(new IndexDispatcher(f.contextualize(new WebMethodContext(""))));
         }
 
         // check public properties of the form NODE.TOKEN
@@ -183,97 +185,102 @@ public class MetaClass extends TearOffSupport {
         FunctionList getMethods = node.methods.prefix("get");
 
         // check public selector methods of the form NODE.getTOKEN()
-        for( final Function f : getMethods.signature() ) {
+        for (Function f : getMethods.signature()) {
             if(f.getName().length()<=3)
                 continue;
 
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            final Function ff = f.contextualize(new TraversalMethodContext(name));
 
             dispatchers.add(new NameBasedDispatcher(name) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     if(traceable())
-                        traceEval(req,rsp,node,f.getName()+"()");
-                    req.getStapler().invoke(req,rsp, f.invoke(req, rsp, node));
+                        traceEval(req,rsp,node,ff.getName()+"()");
+                    req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node));
                     return true;
                 }
                 public String toString() {
-                    return String.format("%1$s() for url=/%2$s/...",f.getQualifiedName(),name);
+                    return String.format("%1$s() for url=/%2$s/...",ff.getQualifiedName(),name);
                 }
             });
         }
 
         // check public selector methods of the form static NODE.getTOKEN(StaplerRequest)
-        for( final Function f : getMethods.signature(StaplerRequest.class) ) {
+        for (Function f : getMethods.signature(StaplerRequest.class)) {
             if(f.getName().length()<=3)
                 continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            final Function ff = f.contextualize(new TraversalMethodContext(name));
             dispatchers.add(new NameBasedDispatcher(name) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     if(traceable())
-                        traceEval(req,rsp,node,f.getName()+"(...)");
-                    req.getStapler().invoke(req,rsp, f.invoke(req, rsp, node, req));
+                        traceEval(req,rsp,node,ff.getName()+"(...)");
+                    req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node, req));
                     return true;
                 }
                 public String toString() {
-                    return String.format("%1$s(StaplerRequest) for url=/%2$s/...",f.getQualifiedName(),name);
+                    return String.format("%1$s(StaplerRequest) for url=/%2$s/...",ff.getQualifiedName(),name);
                 }
             });
         }
 
         // check public selector methods <obj>.get<Token>(String)
-        for( final Function f : getMethods.signature(String.class) ) {
+        for (Function f : getMethods.signature(String.class)) {
             if(f.getName().length()<=3)
                 continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            final Function ff = f.contextualize(new TraversalMethodContext(name));
             dispatchers.add(new NameBasedDispatcher(name,1) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     String token = req.tokens.next();
                     if(traceable())
-                        traceEval(req,rsp,node,f.getName()+"(\""+token+"\")");
-                    req.getStapler().invoke(req,rsp, f.invoke(req, rsp, node,token));
+                        traceEval(req,rsp,node,ff.getName()+"(\""+token+"\")");
+                    req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,token));
                     return true;
                 }
                 public String toString() {
-                    return String.format("%1$s(String) for url=/%2$s/TOKEN/...",f.getQualifiedName(),name);
+                    return String.format("%1$s(String) for url=/%2$s/TOKEN/...",ff.getQualifiedName(),name);
                 }
             });
         }
 
         // check public selector methods <obj>.get<Token>(int)
-        for( final Function f : getMethods.signature(int.class) ) {
+        for (Function f : getMethods.signature(int.class)) {
             if(f.getName().length()<=3)
                 continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            final Function ff = f.contextualize(new TraversalMethodContext(name));
             dispatchers.add(new NameBasedDispatcher(name,1) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     int idx = req.tokens.nextAsInt();
                     if(traceable())
-                        traceEval(req,rsp,node,f.getName()+"("+idx+")");
-                    req.getStapler().invoke(req,rsp, f.invoke(req, rsp, node,idx));
+                        traceEval(req,rsp,node,ff.getName()+"("+idx+")");
+                    req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,idx));
                     return true;
                 }
                 public String toString() {
-                    return String.format("%1$s(int) for url=/%2$s/N/...",f.getQualifiedName(),name);
+                    return String.format("%1$s(int) for url=/%2$s/N/...",ff.getQualifiedName(),name);
                 }
             });
         }
 
         // check public selector methods <obj>.get<Token>(long)
         // TF: I'm sure these for loop blocks could be dried out in some way.
-        for( final Function f : getMethods.signature(long.class) ) {
+        for (Function f : getMethods.signature(long.class)) {
             if(f.getName().length()<=3)
                 continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            final Function ff = f.contextualize(new TraversalMethodContext(name));
             dispatchers.add(new NameBasedDispatcher(name,1) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     long idx = req.tokens.nextAsLong();
                     if(traceable())
-                        traceEval(req,rsp,node,f.getName()+"("+idx+")");
-                    req.getStapler().invoke(req,rsp, f.invoke(req, rsp, node,idx));
+                        traceEval(req,rsp,node,ff.getName()+"("+idx+")");
+                    req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,idx));
                     return true;
                 }
                 public String toString() {
-                    return String.format("%1$s(long) for url=/%2$s/N/...",f.getQualifiedName(),name);
+                    return String.format("%1$s(long) for url=/%2$s/N/...",ff.getQualifiedName(),name);
                 }
             });
         }
@@ -369,7 +376,8 @@ public class MetaClass extends TearOffSupport {
             f.buildFallbackDispatchers(this, dispatchers);
 
         // check public selector methods <obj>.getDynamic(<token>,...)
-        for( final Function f : getMethods.signatureStartsWith(String.class).name("getDynamic")) {
+        for (Function f : getMethods.signatureStartsWith(String.class).name("getDynamic")) {
+            final Function ff = f.contextualize(new TraversalMethodContext(TraversalMethodContext.DYNAMIC));
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, IOException, ServletException {
                     if(!req.tokens.hasMore())
@@ -378,7 +386,7 @@ public class MetaClass extends TearOffSupport {
                     if(traceable())
                         traceEval(req,rsp,node,"getDynamic(\""+token+"\",...)");
 
-                    Object target = f.bindAndInvoke(node, req,rsp, token);
+                    Object target = ff.bindAndInvoke(node, req,rsp, token);
                     if(target!=null) {
                         req.getStapler().invoke(req,rsp, target);
                         return true;
@@ -391,22 +399,22 @@ public class MetaClass extends TearOffSupport {
                     }
                 }
                 public String toString() {
-                    return String.format("%s(String,StaplerRequest,StaplerResponse) for url=/TOKEN/...",f.getQualifiedName());
+                    return String.format("%s(String,StaplerRequest,StaplerResponse) for url=/TOKEN/...",ff.getQualifiedName());
                 }
             });
         }
 
         // check action <obj>.doDynamic(...)
-        for( final Function f : node.methods.name("doDynamic") ) {
-
+        for (Function f : node.methods.name("doDynamic")) {
+            final Function ff = f.contextualize(new WebMethodContext(WebMethodContext.DYNAMIC));
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
                     if(traceable())
                         trace(req,rsp,"-> <%s>.doDynamic(...)",node);
-                    return f.bindAndInvokeAndServeResponse(node,req,rsp);
+                    return ff.bindAndInvokeAndServeResponse(node,req,rsp);
                 }
                 public String toString() {
-                    return String.format("%s(StaplerRequest,StaplerResponse) for any URL",f.getQualifiedName());
+                    return String.format("%s(StaplerRequest,StaplerResponse) for any URL",ff.getQualifiedName());
                 }
             });
         }

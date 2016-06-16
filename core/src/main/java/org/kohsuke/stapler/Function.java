@@ -87,6 +87,14 @@ public abstract class Function {
     public abstract Class getReturnType();
 
     /**
+     * Caller uses this method to tell {@link Function} about how it is being used.
+     * By default, this methods ignores the given context by returning {@code this}.
+     */
+    public Function contextualize(Object usage) {
+        return this;
+    }
+
+    /**
      * Calls {@link #bindAndInvoke(Object, StaplerRequest, StaplerResponse, Object...)} and then
      * optionally serve the response object.
      *
