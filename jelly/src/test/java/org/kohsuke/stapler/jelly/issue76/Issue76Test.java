@@ -25,5 +25,8 @@ public class Issue76Test extends JettyTestCase {
         // protected parts have different index view
         TextPage tp = wc.getPage(new URL(url, "protectedRobot/head/eye/3/"));
         assertTrue(tp.getContent().startsWith("protected eye #3"));
+
+        tp = wc.getPage(new URL(url, "protectedRobot/head/nose"));
+        assertEquals("nose",tp.getContent());
     }
 }

@@ -78,10 +78,7 @@ public class ProtectedClass {
                     @Override
                     public Object get(Object instance) throws IllegalAccessException {
                         // as we route requests, keep protecting objects
-                        Object o = super.get(unwrap(instance));
-                        if (o!=null)
-                            o = new Protection(o);
-                        return o;
+                        return wrap(super.get(unwrap(instance)));
                     }
                 });
             }
@@ -93,7 +90,7 @@ public class ProtectedClass {
             return ((Protection)instance).o;
         }
 
-        private Object wrap(Object instance) {
+        private Protection wrap(Object instance) {
             if (instance==null) return null;
             return new Protection(instance);
         }
@@ -110,10 +107,16 @@ public class ProtectedClass {
             return r;
         }
 
+        /**
+         * Decorates {@link Function} so that it can be invoked on {@link Protection} and the
+         * return value gets protected as well.
+         */
         private Function protect(Function f) {
             return new ForwardingFunction(f) {
                 @Override
                 public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException {
+                    // TODO: either invoke needs to get a context in which the invocation is done (rendering vs invoking?)
+                    // or we rely on the naming convention & annotations to determine how to handle this
                     return wrap(super.invoke(req, rsp, unwrap(o), args));
                 }
             };
