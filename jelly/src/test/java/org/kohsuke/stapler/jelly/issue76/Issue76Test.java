@@ -27,6 +27,6 @@ public class Issue76Test extends JettyTestCase {
         assertTrue(tp.getContent().startsWith("protected eye #3"));
 
         tp = wc.getPage(new URL(url, "protectedRobot/head/nose"));
-        assertEquals("nose",tp.getContent());
+        assertEquals("nose",tp.getContent().trim());
     }
 }

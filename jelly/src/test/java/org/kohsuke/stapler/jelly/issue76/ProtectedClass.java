@@ -5,6 +5,7 @@ import org.kohsuke.stapler.Function;
 import org.kohsuke.stapler.FunctionList;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.TraversalMethodContext;
 import org.kohsuke.stapler.lang.FieldRef;
 import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.KlassNavigator;
@@ -78,19 +79,19 @@ public class ProtectedClass {
                     @Override
                     public Object get(Object instance) throws IllegalAccessException {
                         // as we route requests, keep protecting objects
-                        return wrap(super.get(unwrap(instance)));
+                        return w(super.get(u(instance)));
                     }
                 });
             }
             return r;
         }
 
-        private Object unwrap(Object instance) {
+        private Object u(Object instance) {
             if (instance==null) return null;
             return ((Protection)instance).o;
         }
 
-        private Protection wrap(Object instance) {
+        private Protection w(Object instance) {
             if (instance==null) return null;
             return new Protection(instance);
         }
@@ -110,16 +111,34 @@ public class ProtectedClass {
         /**
          * Decorates {@link Function} so that it can be invoked on {@link Protection} and the
          * return value gets protected as well.
+         *
+         * <p>
+         * If the function is used for object traversal, the return value needs to be wrapped to {@link Protection}.
          */
         private Function protect(Function f) {
-            return new ForwardingFunction(f) {
+            final Function traversal = new ForwardingFunction(f) {
                 @Override
                 public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException {
-                    // TODO: either invoke needs to get a context in which the invocation is done (rendering vs invoking?)
-                    // or we rely on the naming convention & annotations to determine how to handle this
-                    return wrap(super.invoke(req, rsp, unwrap(o), args));
+                    return w(super.invoke(req, rsp, u(o), args));
                 }
             };
+            final Function service = new ForwardingFunction(f) {
+                @Override
+                public Function contextualize(Object usage) {
+                    if (usage instanceof TraversalMethodContext) {
+                        return traversal;
+                    } else {
+                        return super.contextualize(usage);
+                    }
+                }
+
+                @Override
+                public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException {
+                    return super.invoke(req, rsp, u(o), args);
+                }
+            };
+
+            return service;
         }
     };
 }
