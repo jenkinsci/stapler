@@ -4,6 +4,7 @@ import org.kohsuke.stapler.ClassDescriptor;
 import org.kohsuke.stapler.Function;
 import org.kohsuke.stapler.MetaClassLoader;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -85,6 +86,26 @@ public abstract class KlassNavigator<C> {
      * Reports all the methods that can be used for routing requests on this class.
      */
     public abstract List<Function> getFunctions(C clazz);
+
+    /**
+     * If the given type is an array that supports index retrieval.
+     * @see #getArrayElement(Object, int)
+     */
+    public boolean isArray(C clazz) {
+        Class j = toJavaClass(clazz);
+        return j.isArray() || List.class.isAssignableFrom(j);
+    }
+
+    /**
+     * Given an instance for which the type reported {@code isArray()==true}, obtains the element
+     * of the specified index.
+     * @see #isArray(Object)
+     */
+    public Object getArrayElement(Object o, int index) throws IndexOutOfBoundsException {
+        if (o instanceof List)
+            return ((List)o).get(index);
+        return Array.get(o,index);
+    }
 
     public static final KlassNavigator<Class> JAVA = new KlassNavigator<Class>() {
         @Override

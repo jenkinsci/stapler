@@ -2,7 +2,6 @@ package org.kohsuke.stapler.lang;
 
 import org.kohsuke.stapler.Function;
 
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -24,7 +23,7 @@ import java.util.Map;
  *
  * @author Kohsuke Kawaguchi
  */
-public class Klass<C> {
+public final class Klass<C> {
     public final C clazz;
     public final KlassNavigator<C> navigator;
 
@@ -81,6 +80,14 @@ public class Klass<C> {
 
     public List<Function> getFunctions() {
         return navigator.getFunctions(clazz);
+    }
+
+    public boolean isArray() {
+        return navigator.isArray(clazz);
+    }
+
+    public Object getArrayElement(Object o, int index) throws IndexOutOfBoundsException {
+        return navigator.getArrayElement(o,index);
     }
 
     @Override

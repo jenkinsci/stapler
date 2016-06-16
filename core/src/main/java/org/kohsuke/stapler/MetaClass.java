@@ -285,17 +285,21 @@ public class MetaClass extends TearOffSupport {
             });
         }
 
-        // TODO: Klass needs to be able to define its array like access
-        if(node.clazz.toJavaClass().isArray()) {
+        if (klass.isArray()) {
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                     if(!req.tokens.hasMore())
                         return false;
                     try {
                         int index = req.tokens.nextAsInt();
+                        if (traceable())
+                            traceEval(req, rsp, node, "", "[" + index + "]");
+                        req.getStapler().invoke(req, rsp, klass.getArrayElement(node, index));
+                        return true;
+                    } catch (IndexOutOfBoundsException e) {
                         if(traceable())
-                            traceEval(req,rsp,node,"((Object[])",")["+index+"]");
-                        req.getStapler().invoke(req,rsp, ((Object[]) node)[index]);
+                            trace(req,rsp,"-> IndexOutOfRange");
+                        rsp.sendError(SC_NOT_FOUND);
                         return true;
                     } catch (NumberFormatException e) {
                         return false; // try next
@@ -303,36 +307,6 @@ public class MetaClass extends TearOffSupport {
                 }
                 public String toString() {
                     return "Array look-up for url=/N/...";
-                }
-            });
-        }
-
-        // TODO: Klass needs to be able to define its list like access
-        if(List.class.isAssignableFrom(node.clazz.toJavaClass())) {
-            dispatchers.add(new Dispatcher() {
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
-                    if(!req.tokens.hasMore())
-                        return false;
-                    try {
-                        int index = req.tokens.nextAsInt();
-                        if(traceable())
-                            traceEval(req,rsp,node,"((List)",").get("+index+")");
-                        List list = (List) node;
-                        if (0<=index && index<list.size())
-                            req.getStapler().invoke(req,rsp, list.get(index));
-                        else {
-                            if(traceable())
-                                trace(req,rsp,"-> IndexOutOfRange [0,%d)",list.size());
-                            rsp.sendError(SC_NOT_FOUND);
-                        }
-
-                        return true;
-                    } catch (NumberFormatException e) {
-                        return false; // try next
-                    }
-                }
-                public String toString() {
-                    return "List.get(int) look-up for url=/N/...";
                 }
             });
         }
