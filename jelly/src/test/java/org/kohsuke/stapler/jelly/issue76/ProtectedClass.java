@@ -31,6 +31,27 @@ public class ProtectedClass {
     }
 
     public static KlassNavigator<ProtectedClass> NAVIGATOR = new KlassNavigator<ProtectedClass>() {
+
+        @Override
+        public boolean isArray(ProtectedClass clazz) {
+            return JAVA.isArray(clazz.c);
+        }
+
+        @Override
+        public Object getArrayElement(Object o, int index) throws IndexOutOfBoundsException {
+            return w(JAVA.getArrayElement(u(o),index));
+        }
+
+        @Override
+        public boolean isMap(ProtectedClass clazz) {
+            return JAVA.isMap(clazz.c);
+        }
+
+        @Override
+        public Object getMapElement(Object o, String key) {
+            return w(JAVA.getMapElement(u(o),key));
+        }
+
         private Klass<ProtectedClass> protect(Klass<?/*should be Class*/> c) {
             if (c==null)    return null;
             return new Klass<ProtectedClass>(new ProtectedClass((Class)c.clazz), NAVIGATOR);

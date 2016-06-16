@@ -34,5 +34,21 @@ public class Issue76Test extends JettyTestCase {
 
         tp = wc.getPage(new URL(url, "protectedRobot/arm"));
         assertEquals("protected arm",tp.getContent().trim());
+
+        {// list lookup
+            p = wc.getPage(new URL(url, "robot/legs/0/"));
+            assertTrue(p.getWebResponse().getContentAsString().contains("left leg"));
+
+            tp = wc.getPage(new URL(url, "protectedRobot/legs/1/"));
+            assertEquals("protected right leg", tp.getContent().trim());
+        }
+
+        {// map lookup
+            p = wc.getPage(new URL(url, "robot/buttons/red/"));
+            assertTrue(p.getWebResponse().getContentAsString().contains("This is a button"));
+
+            tp = wc.getPage(new URL(url, "protectedRobot/buttons/red/"));
+            assertEquals("protected red button", tp.getContent().trim());
+        }
     }
 }
