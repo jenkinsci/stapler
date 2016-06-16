@@ -17,8 +17,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javafx.scene.input.KeyCode.F;
-
 /**
  * Used as 'C' of {@code Klass<C>} to represents a protected version of a {@link Class}.
  *
