@@ -217,6 +217,9 @@ public abstract class Function {
         });
     }
 
+    /**
+     * @see StaticFunction#RETURN_NULL
+     */
     public static Object returnNull() { return null; }
 
     /**
