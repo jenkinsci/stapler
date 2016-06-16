@@ -11,5 +11,9 @@ package org.kohsuke.stapler.jelly.issue76;
 public class Robot {
     public final Head head = new Head();
 
-    // TODO: more of this
+    public Object getDynamic(String part) {
+        if (part.equals("arm"))
+            return new Arm();
+        return null;
+    }
 }
