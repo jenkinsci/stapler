@@ -9,4 +9,9 @@ public class Eye {
     public Eye(int i) {
         this.i = i;
     }
+
+    @Override
+    public String toString() {
+        return "eye #"+i;
+    }
 }

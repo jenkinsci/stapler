@@ -1,16 +1,23 @@
 package org.kohsuke.stapler.jelly.issue76;
 
+import org.kohsuke.stapler.ForwardingFunction;
 import org.kohsuke.stapler.Function;
 import org.kohsuke.stapler.FunctionList;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.lang.FieldRef;
 import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.KlassNavigator;
 import org.kohsuke.stapler.lang.MethodRef;
 import org.kohsuke.stapler.lang.util.FieldRefFilter;
 
+import javax.servlet.ServletException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import static javafx.scene.input.KeyCode.F;
 
 /**
  * Used as 'C' of {@code Klass<C>} to represents a protected version of a {@link Class}.
@@ -88,13 +95,30 @@ public class ProtectedClass {
             return ((Protection)instance).o;
         }
 
+        private Object wrap(Object instance) {
+            if (instance==null) return null;
+            return new Protection(instance);
+        }
+
         @Override
         public List<Function> getFunctions(ProtectedClass clazz) {
             List<Function> r = new ArrayList<Function>();
             // insert this at the top to make sure that shadows doIndex in subtypes
             r.addAll(new FunctionList(JAVA.getFunctions(Protection.class)).name("doIndex"));
-            r.addAll(JAVA.getFunctions(clazz.c));
+            // expose all the functions from the base type
+            for (Function f : JAVA.getFunctions(clazz.c)) {
+                r.add(protect(f));
+            }
             return r;
+        }
+
+        private Function protect(Function f) {
+            return new ForwardingFunction(f) {
+                @Override
+                public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException {
+                    return wrap(super.invoke(req, rsp, unwrap(o), args));
+                }
+            };
         }
     };
 }
