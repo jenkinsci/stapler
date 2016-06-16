@@ -81,6 +81,9 @@ public abstract class KlassNavigator<C> {
      */
     public abstract List<FieldRef> getDeclaredFields(C clazz);
 
+    /**
+     * Reports all the methods that can be used for routing requests on this class.
+     */
     public abstract List<Function> getFunctions(C clazz);
 
     public static final KlassNavigator<Class> JAVA = new KlassNavigator<Class>() {
