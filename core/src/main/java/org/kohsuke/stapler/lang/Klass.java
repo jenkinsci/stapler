@@ -90,6 +90,14 @@ public final class Klass<C> {
         return navigator.getArrayElement(o,index);
     }
 
+    public boolean isMap() {
+        return navigator.isMap(clazz);
+    }
+
+    public Object getMapElement(Object o, String key) {
+        return navigator.getMapElement(o,key);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

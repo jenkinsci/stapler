@@ -38,10 +38,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static javax.servlet.http.HttpServletResponse.*;
-import static org.kohsuke.stapler.TraversalMethodContext.DYNAMIC;
 
 /**
  * Created one instance each for a {@link Klass},
@@ -311,8 +309,7 @@ public class MetaClass extends TearOffSupport {
             });
         }
 
-        // TODO: Klass needs to be able to define its map like access
-        if(Map.class.isAssignableFrom(node.clazz.toJavaClass())) {
+        if(klass.isMap()) {
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                     if(!req.tokens.hasMore())
@@ -320,9 +317,9 @@ public class MetaClass extends TearOffSupport {
                     try {
                         String key = req.tokens.peek();
                         if(traceable())
-                            traceEval(req,rsp,"((Map)",").get(\""+key+"\")");
+                            traceEval(req,rsp,"",".get(\""+key+"\")");
 
-                        Object item = ((Map)node).get(key);
+                        Object item = klass.getMapElement(node,key);
                         if(item!=null) {
                             req.tokens.next();
                             req.getStapler().invoke(req,rsp,item);
@@ -477,6 +474,4 @@ public class MetaClass extends TearOffSupport {
             // ignore.
         }
     }
-
-    private static final Object NONE = "none";
 }

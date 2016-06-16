@@ -11,6 +11,7 @@ import java.net.URL;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Strategy pattern to provide navigation across class-like objects in other languages of JVM.
@@ -105,6 +106,21 @@ public abstract class KlassNavigator<C> {
         if (o instanceof List)
             return ((List)o).get(index);
         return Array.get(o,index);
+    }
+
+    /**
+     * If the given type is a map/associative array type that supports lookup by a string key
+     */
+    public boolean isMap(C clazz) {
+        return Map.class.isAssignableFrom(toJavaClass(clazz));
+    }
+
+    /**
+     * Given an instance for which the type reported {@code isMap()==true}, obtains the element
+     * of the specified index.
+     */
+    public Object getMapElement(Object o, String key) {
+        return ((Map)o).get(key);
     }
 
     public static final KlassNavigator<Class> JAVA = new KlassNavigator<Class>() {
