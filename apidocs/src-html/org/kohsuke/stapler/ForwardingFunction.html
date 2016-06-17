@@ -48,33 +48,39 @@
 <span class="sourceLineNo">040</span>        return next.getReturnType();<a name="line.40"></a>
 <span class="sourceLineNo">041</span>    }<a name="line.41"></a>
 <span class="sourceLineNo">042</span><a name="line.42"></a>
-<span class="sourceLineNo">043</span>    @Override<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    public Type[] getGenericParameterTypes() {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        return next.getGenericParameterTypes();<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    }<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>    public Annotation[][] getParameterAnnotations() {<a name="line.48"></a>
-<span class="sourceLineNo">049</span>        return next.getParameterAnnotations();<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    }<a name="line.50"></a>
-<span class="sourceLineNo">051</span><a name="line.51"></a>
-<span class="sourceLineNo">052</span>    public String[] getParameterNames() {<a name="line.52"></a>
-<span class="sourceLineNo">053</span>        return next.getParameterNames();<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    }<a name="line.54"></a>
-<span class="sourceLineNo">055</span><a name="line.55"></a>
-<span class="sourceLineNo">056</span>    public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException {<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        return next.invoke(req, rsp, o, args);<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    }<a name="line.58"></a>
-<span class="sourceLineNo">059</span><a name="line.59"></a>
-<span class="sourceLineNo">060</span>    public &lt;A extends Annotation&gt; A getAnnotation(Class&lt;A&gt; annotation) {<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        return next.getAnnotation(annotation);<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    }<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>    @Override<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    public Annotation[] getAnnotations() {<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        return next.getAnnotations();<a name="line.66"></a>
-<span class="sourceLineNo">067</span>    }<a name="line.67"></a>
-<span class="sourceLineNo">068</span>}<a name="line.68"></a>
+<span class="sourceLineNo">043</span>    // can't really call next.contextualize()<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    @Override<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    public Function contextualize(Object usage) {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>        return this;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    }<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>    @Override<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    public Type[] getGenericParameterTypes() {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        return next.getGenericParameterTypes();<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">054</span>    public Annotation[][] getParameterAnnotations() {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        return next.getParameterAnnotations();<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    }<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>    public String[] getParameterNames() {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        return next.getParameterNames();<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    }<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>    public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        return next.invoke(req, rsp, o, args);<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    }<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>    public &lt;A extends Annotation&gt; A getAnnotation(Class&lt;A&gt; annotation) {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        return next.getAnnotation(annotation);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    }<a name="line.68"></a>
 <span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>    @Override<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    public Annotation[] getAnnotations() {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        return next.getAnnotations();<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
+<span class="sourceLineNo">074</span>}<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
 
 
 

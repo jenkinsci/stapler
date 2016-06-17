@@ -17,5 +17,6 @@ org.kohsuke.stapler.json
 org.kohsuke.stapler.jsp
 org.kohsuke.stapler.jsr269
 org.kohsuke.stapler.lang
+org.kohsuke.stapler.lang.util
 org.kohsuke.stapler.tags
 org.kohsuke.stapler.verb
