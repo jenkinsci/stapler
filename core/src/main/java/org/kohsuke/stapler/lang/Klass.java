@@ -1,7 +1,12 @@
 package org.kohsuke.stapler.lang;
 
+import org.kohsuke.stapler.Function;
+
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Abstraction of class-like object, agnostic to languages.
@@ -18,7 +23,7 @@ import java.util.List;
  *
  * @author Kohsuke Kawaguchi
  */
-public class Klass<C> {
+public final class Klass<C> {
     public final C clazz;
     public final KlassNavigator<C> navigator;
 
@@ -48,6 +53,49 @@ public class Klass<C> {
      */
     public List<MethodRef> getDeclaredMethods() {
         return navigator.getDeclaredMethods(clazz);
+    }
+
+    public List<FieldRef> getDeclaredFields() {
+        return navigator.getDeclaredFields(clazz);
+    }
+
+    /**
+     * Gets all the public fields defined in this type, including super types.
+     *
+     * @see Class#getFields()
+     */
+    public List<FieldRef> getFields() {
+        Map<String,FieldRef> fields = new LinkedHashMap<String,FieldRef>();
+        for (Klass<?> k = this; k!=null; k=k.getSuperClass()) {
+            for (FieldRef f : getDeclaredFields()) {
+                String name = f.getName();
+                if (!fields.containsKey(name)) {
+                    fields.put(name,f);
+                }
+            }
+        }
+
+        return new ArrayList<FieldRef>(fields.values());
+    }
+
+    public List<Function> getFunctions() {
+        return navigator.getFunctions(clazz);
+    }
+
+    public boolean isArray() {
+        return navigator.isArray(clazz);
+    }
+
+    public Object getArrayElement(Object o, int index) throws IndexOutOfBoundsException {
+        return navigator.getArrayElement(o,index);
+    }
+
+    public boolean isMap() {
+        return navigator.isMap(clazz);
+    }
+
+    public Object getMapElement(Object o, String key) {
+        return navigator.getMapElement(o,key);
     }
 
     @Override

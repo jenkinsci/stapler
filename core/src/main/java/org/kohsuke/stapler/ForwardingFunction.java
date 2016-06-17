@@ -40,6 +40,12 @@ public class ForwardingFunction extends Function {
         return next.getReturnType();
     }
 
+    // can't really call next.contextualize()
+    @Override
+    public Function contextualize(Object usage) {
+        return this;
+    }
+
     @Override
     public Type[] getGenericParameterTypes() {
         return next.getGenericParameterTypes();

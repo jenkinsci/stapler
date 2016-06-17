@@ -31,7 +31,7 @@ import java.util.*;
  *
  * @author Kohsuke Kawaguchi
  */
-final class FunctionList extends AbstractList<Function> {
+public final class FunctionList extends AbstractList<Function> {
     private final Function[] functions;
 
     public FunctionList(Function... functions) {

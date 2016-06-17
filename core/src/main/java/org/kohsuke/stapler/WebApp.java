@@ -25,6 +25,7 @@ package org.kohsuke.stapler;
 
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.bind.BoundObjectTable;
+import org.kohsuke.stapler.lang.KInstance;
 import org.kohsuke.stapler.lang.Klass;
 
 import javax.servlet.Filter;
@@ -218,6 +219,13 @@ public class WebApp {
     }
 
     public Klass<?> getKlass(Object o) {
+        if (o instanceof KInstance) {
+            KInstance ki = (KInstance) o;
+            Klass k = ki.getKlass();
+            if (k!=null)
+                return k;
+        }
+
         for (Facet f : facets) {
             Klass<?> k = f.getKlass(o);
             if (k!=null)
