@@ -32,6 +32,7 @@ import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -203,6 +204,7 @@ public class LargeText {
      *      if the file is still being written, this method writes the file
      *      until the last newline character and returns the offset to start
      *      the next write operation.
+     * @throws EOFException if the start position is larger than the file size
      */
     public long writeLogTo(long start, OutputStream out) throws IOException {
         CountingOutputStream os = new CountingOutputStream(out);
@@ -528,8 +530,13 @@ public class LargeText {
         }
 
         public void skip(long start) throws IOException {
-            while (start>0)
-                start -= in.skip(start);
+            while (start > 0) {
+                long diff = in.skip(start);
+                if (diff == 0) {
+                    throw new EOFException("Attempting to read past end of buffer");
+                }
+                start -= diff;
+            }
         }
 
         public int read(byte[] buf) throws IOException {
