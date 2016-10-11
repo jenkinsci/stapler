@@ -69,7 +69,7 @@ public final class Klass<C> {
         for (Klass<?> k = this; k!=null; k=k.getSuperClass()) {
             for (FieldRef f : k.getDeclaredFields()) {
                 String name = f.getName();
-                if (!fields.containsKey(name)) {
+                if (!fields.containsKey(name) && f.isRoutable()) {
                     fields.put(name,f);
                 }
             }
