@@ -67,9 +67,9 @@ public final class Klass<C> {
     public List<FieldRef> getFields() {
         Map<String,FieldRef> fields = new LinkedHashMap<String,FieldRef>();
         for (Klass<?> k = this; k!=null; k=k.getSuperClass()) {
-            for (FieldRef f : getDeclaredFields()) {
+            for (FieldRef f : k.getDeclaredFields()) {
                 String name = f.getName();
-                if (!fields.containsKey(name)) {
+                if (!fields.containsKey(name) && f.isRoutable()) {
                     fields.put(name,f);
                 }
             }

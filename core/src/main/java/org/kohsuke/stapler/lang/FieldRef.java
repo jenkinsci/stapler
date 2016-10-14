@@ -2,6 +2,7 @@ package org.kohsuke.stapler.lang;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 /**
  * Fields of {@link Klass}.
@@ -27,6 +28,13 @@ public abstract class FieldRef extends AnnotatedRef {
      */
     public abstract String getQualifiedName();
 
+    /**
+     * Returns true if this method is a 'public' method that should be used for routing requests.
+     */
+    public boolean isRoutable() {
+        return true;
+    }
+
     public static FieldRef wrap(final Field f) {
         f.setAccessible(true);
 
@@ -49,6 +57,11 @@ public abstract class FieldRef extends AnnotatedRef {
             @Override
             public String getQualifiedName() {
                 return f.getDeclaringClass().getName()+"."+getName();
+            }
+
+            @Override
+            public boolean isRoutable() {
+                return Modifier.isPublic(f.getModifiers());
             }
         };
     }

@@ -83,5 +83,7 @@
       <artifactId>mockito-all</artifactId>
     </dependency>
   </dependencies>
+  <properties>
+    <skip.jruby.tests>${skipTests}</skip.jruby.tests>
+  </properties>
 </project>
-

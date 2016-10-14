@@ -28,6 +28,11 @@ public abstract class FieldRefFilter extends FieldRef {
         return getBase().getQualifiedName();
     }
 
+    @Override
+    public boolean isRoutable() {
+        return getBase().isRoutable();
+    }
+
     public static FieldRef wrap(Field f) {
         return FieldRef.wrap(f);
     }

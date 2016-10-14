@@ -272,4 +272,38 @@ public class DispatcherTest extends JettyTestCase {
         wc.getPage(new WebRequestSettings(url, HttpMethod.POST));
         assertEquals(1, requirePostOnBase.hit);
     }
+
+
+    public final TestWithPublicField testWithPublicField = new TestWithPublicField();
+
+    public  class TestWithPublicField extends TestWithPublicFieldBase{
+
+    }
+
+    public  class TestWithPublicFieldBase{
+        public TestClass testClass=new TestClass();
+    }
+
+
+    public  class TestClass{
+//        @GET @WebMethod(name="")
+        public String doValue(){
+            return "hello";
+        }
+    }
+
+    public void testPublicFieldDispatch() throws Exception {
+        WebClient wc = new WebClient();
+        URL url = new URL(this.url, "testWithPublicField/testClass/value/");
+
+        try {
+            wc.getPage(url);
+        } catch (FailingHttpStatusCodeException e) {
+            assertEquals(HttpServletResponse.SC_OK, e.getStatusCode());
+        }
+    }
+
+
+
+
 }
