@@ -1023,7 +1023,7 @@ public class Stapler extends HttpServlet {
      * Extensions that look like text files.
      */
     private static final Set<String> TEXT_FILES = new HashSet<String>(Arrays.asList(
-        "css","js","html","txt","java","htm","c","cpp","h","rb","pl","py","xml"
+        "css","js","html","txt","java","htm","c","cpp","h","rb","pl","py","xml","json"
     ));
 
     /**
