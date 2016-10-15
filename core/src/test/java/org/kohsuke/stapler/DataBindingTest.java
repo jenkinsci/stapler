@@ -422,7 +422,7 @@ public class DataBindingTest extends TestCase {
         public FluentSetter() {}
 
         /**
-         * WIP This tests passes in stapler, bad fluent doesn't work in jenkins...
+         * WIP This tests passes in stapler, but fluent doesn't work in jenkins...
          * @see FluentPropertyBeanIntrospector
          *
          * It is also possible to transform it to `withXXX()` to have clear vision.
