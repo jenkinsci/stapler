@@ -3,6 +3,8 @@ package org.kohsuke.stapler;
 import junit.framework.TestCase;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.beanutils.FluentPropertyBeanIntrospector;
+import org.junit.Test;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Type;
@@ -411,5 +413,35 @@ public class DataBindingTest extends TestCase {
     public void testDerivedProperty() {
         DerivedProperty r = bind("{items:[1,3,5]}",DerivedProperty.class);
         assertEquals(Arrays.asList(1,3,5),r.getItems());
+    }
+
+    public static class FluentSetter {
+        private List<String> items;
+
+        @DataBoundConstructor
+        public FluentSetter() {}
+
+        /**
+         * WIP This tests passes in stapler, bad fluent doesn't work in jenkins...
+         * @see FluentPropertyBeanIntrospector
+         *
+         * It is also possible to transform it to `withXXX()` to have clear vision.
+         */
+        @DataBoundSetter
+//        public void setItems(List<String> items) {
+        public FluentSetter setItems(List<String> items) {
+            this.items = items;
+            return this;
+        }
+
+        public List<String> getItems() {
+            return items;
+        }
+    }
+
+
+    public void testFluentSetter() {
+        FluentSetter fl = bind("{items : 'someItem'}", FluentSetter.class);
+        assertEquals(Arrays.asList("someItem"), fl.getItems());
     }
 }
