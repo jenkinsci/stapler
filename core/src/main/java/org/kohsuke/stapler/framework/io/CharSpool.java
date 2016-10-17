@@ -38,6 +38,8 @@ public /*for now, until Hudson migration completes*/ final class CharSpool exten
 
     private char[] last = new char[1024];
     private int pos;
+    
+    private final int SPOOL_LIMIT = 4096;
 
     public void write(char cbuf[], int off, int len) {
         while(len>0) {
@@ -57,6 +59,9 @@ public /*for now, until Hudson migration completes*/ final class CharSpool exten
         if(buf==null)
             buf = new LinkedList<char[]>();
         buf.add(last);
+        // STAPLER-12 don't allow buf to grown without limits, in case of huge logs can cause OOM
+        if(buf.size() > SPOOL_LIMIT)
+        	buf.remove(0);
         last = new char[1024];
         pos = 0;
     }
