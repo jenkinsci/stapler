@@ -4,6 +4,7 @@ import org.kohsuke.stapler.Function;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,13 @@ public final class Klass<C> {
     }
 
     public List<FieldRef> getDeclaredFields() {
-        return navigator.getDeclaredFields(clazz);
+        try {
+            return navigator.getDeclaredFields(clazz);
+        } catch (AbstractMethodError err) {
+            // A plugin uses obsolete version of Stapler-dependent library (e.g. JRuby), which does not offer the method (JENKINS-39414)
+            // TODO: what to do with Logging? The error must be VERY visible, but it will totally pollute system logs
+            return Collections.emptyList();
+        }
     }
 
     /**
