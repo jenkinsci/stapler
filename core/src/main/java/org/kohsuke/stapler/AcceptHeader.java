@@ -52,7 +52,7 @@ import java.util.Map;
  *
  * <p>
  * A port to Java of Joe Gregorio's MIME-Type Parser: http://code.google.com/p/mimeparse/
- * Ported by Tom Zellman &lt;tzellman@gmail.com>.
+ * Ported by Tom Zellman &lt;tzellman@gmail.com&gt;.
  *
  * @see <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1">definition of Accept header</a>
  */
@@ -177,7 +177,7 @@ public final class AcceptHeader {
      * conforms to the format of the HTTP Accept: header. The value of
      * 'supported' is a list of mime-types.
      *
-     * <pre>
+     * <pre>{@code
      * // Client: I prefer text/*, but if not I'm happy to take anything
      * // Server: I can serve you xbel or xml
      * // Result: let's serve you text/xml
@@ -187,7 +187,7 @@ public final class AcceptHeader {
      * // Server: I can give you plain text or XML
      * // Result: there's nothing to serve you here
      * new AcceptHeader("image/*;q=0.5, image/png;q=1").select("text/plain","text/xml") => null
-     * </pre>
+     * }</pre>
      *
      * @return null if none of the choices in {@code supported} is acceptable to the client.
      */
