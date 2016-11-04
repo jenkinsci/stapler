@@ -456,7 +456,11 @@
 <td>deprecated</td>
 <td>boolean</td>
 <td><doc>If the attribute is deprecated, set to true.
- Use of the deprecated attribute will cause a warning.</doc></td></tr></table></div><a name="jelly:attributeConstraints"></a>
+ Use of the deprecated attribute will cause a warning.</doc></td></tr>
+<tr class="b">
+<td>since</td>
+<td>String</td>
+<td><doc>Used to track when the attribute was added to the API surface.</doc></td></tr></table></div><a name="jelly:attributeConstraints"></a>
 <div class="section">
 <h3>attributeConstraints<a name="attributeConstraints"></a></h3><doc>DTD-like expression that specifies the consraints on attribute appearances.
 
@@ -468,26 +472,26 @@
         </head>
  to describe attributes of a tag.</doc>
 <table border="0" class="bodyTable">
-<tr class="b">
+<tr class="a">
 <th>Attribute Name</th>
 <th>Type</th>
 <th>Description</th></tr>
-<tr class="a">
+<tr class="b">
 <td>expr (required)</td>
 <td>String</td>
 <td><doc>Constraint expression.</doc></td></tr></table></div><a name="jelly:adjunct"></a>
 <div class="section">
 <h3>adjunct<a name="adjunct"></a></h3><doc>Writes out links to adjunct CSS and JavaScript, if not done so already.</doc>
 <table border="0" class="bodyTable">
-<tr class="b">
+<tr class="a">
 <th>Attribute Name</th>
 <th>Type</th>
 <th>Description</th></tr>
-<tr class="a">
+<tr class="b">
 <td>includes</td>
 <td>String</td>
 <td><doc>Comma-separated adjunct names.</doc></td></tr>
-<tr class="b">
+<tr class="a">
 <td>assumes</td>
 <td>String</td>
 <td><doc>Comma-separated adjunct names that are externally included in the page
@@ -504,8 +508,8 @@
 
   
   
-  &nbsp;| Last Published: 2016-10-14
-  &nbsp;| Version: 1.246
+  &nbsp;| Last Published: 2016-11-04
+  &nbsp;| Version: 1.247
 </div>
       <div class="clear">
         <hr/>
