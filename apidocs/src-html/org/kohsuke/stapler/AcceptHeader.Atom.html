@@ -60,7 +60,7 @@
 <span class="sourceLineNo">052</span> *<a name="line.52"></a>
 <span class="sourceLineNo">053</span> * &lt;p&gt;<a name="line.53"></a>
 <span class="sourceLineNo">054</span> * A port to Java of Joe Gregorio's MIME-Type Parser: http://code.google.com/p/mimeparse/<a name="line.54"></a>
-<span class="sourceLineNo">055</span> * Ported by Tom Zellman &amp;lt;tzellman@gmail.com&gt;.<a name="line.55"></a>
+<span class="sourceLineNo">055</span> * Ported by Tom Zellman &amp;lt;tzellman@gmail.com&amp;gt;.<a name="line.55"></a>
 <span class="sourceLineNo">056</span> *<a name="line.56"></a>
 <span class="sourceLineNo">057</span> * @see &lt;a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1"&gt;definition of Accept header&lt;/a&gt;<a name="line.57"></a>
 <span class="sourceLineNo">058</span> */<a name="line.58"></a>
@@ -185,7 +185,7 @@
 <span class="sourceLineNo">177</span>     * conforms to the format of the HTTP Accept: header. The value of<a name="line.177"></a>
 <span class="sourceLineNo">178</span>     * 'supported' is a list of mime-types.<a name="line.178"></a>
 <span class="sourceLineNo">179</span>     *<a name="line.179"></a>
-<span class="sourceLineNo">180</span>     * &lt;pre&gt;<a name="line.180"></a>
+<span class="sourceLineNo">180</span>     * &lt;pre&gt;{@code<a name="line.180"></a>
 <span class="sourceLineNo">181</span>     * // Client: I prefer text/*, but if not I'm happy to take anything<a name="line.181"></a>
 <span class="sourceLineNo">182</span>     * // Server: I can serve you xbel or xml<a name="line.182"></a>
 <span class="sourceLineNo">183</span>     * // Result: let's serve you text/xml<a name="line.183"></a>
@@ -195,7 +195,7 @@
 <span class="sourceLineNo">187</span>     * // Server: I can give you plain text or XML<a name="line.187"></a>
 <span class="sourceLineNo">188</span>     * // Result: there's nothing to serve you here<a name="line.188"></a>
 <span class="sourceLineNo">189</span>     * new AcceptHeader("image/*;q=0.5, image/png;q=1").select("text/plain","text/xml") =&gt; null<a name="line.189"></a>
-<span class="sourceLineNo">190</span>     * &lt;/pre&gt;<a name="line.190"></a>
+<span class="sourceLineNo">190</span>     * }&lt;/pre&gt;<a name="line.190"></a>
 <span class="sourceLineNo">191</span>     *<a name="line.191"></a>
 <span class="sourceLineNo">192</span>     * @return null if none of the choices in {@code supported} is acceptable to the client.<a name="line.192"></a>
 <span class="sourceLineNo">193</span>     */<a name="line.193"></a>
