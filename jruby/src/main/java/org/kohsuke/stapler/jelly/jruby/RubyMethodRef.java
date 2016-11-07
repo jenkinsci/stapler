@@ -8,20 +8,48 @@ import org.kohsuke.stapler.lang.MethodRef;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import javax.annotation.Nonnull;
 
 /**
  * @author Kohsuke Kawaguchi
  */
 public class RubyMethodRef extends MethodRef {
+    @Nonnull
     private final RubyModule klass;
+    @Nonnull
     private final DynamicMethod method;
 
 
-    public RubyMethodRef(RubyModule klass, DynamicMethod method) {
+    public RubyMethodRef(@Nonnull RubyModule klass, @Nonnull DynamicMethod method) {
         this.klass = klass;
         this.method = method;
     }
 
+    /**
+     * Retrieves the Ruby module (aka class), for which the method is declared.
+     * @return Ruby module, which stores the method reference
+     * @since 1.248
+     */
+    @Nonnull
+    public RubyModule getKlass() {
+        return klass;
+    }
+    
+    /**
+     * Retrieves the referenced method.
+     * @return Referenced method
+     * @since 1.248
+     */
+    @Nonnull
+    public DynamicMethod getMethod() {
+        return method;
+    }
+
+    @Override
+    public String getName() {
+        return method.getName();
+    }
+    
     @Override
     public <T extends Annotation> T getAnnotation(Class<T> type) {
         // TODO: what's the equivalent in JRuby?

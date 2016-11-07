@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 
 /**
  * Abstraction of class-like object, agnostic to languages.
@@ -56,14 +57,15 @@ public final class Klass<C> {
         return navigator.getDeclaredMethods(clazz);
     }
 
+    /**
+     * Gets list of fields declared by the class.
+     * @return List of fields. 
+     *         May return empty list in the case of obsolete {@link #navigator}, which does not offer the method.
+     * @since 1.246
+     */
+    @Nonnull
     public List<FieldRef> getDeclaredFields() {
-        try {
-            return navigator.getDeclaredFields(clazz);
-        } catch (AbstractMethodError err) {
-            // A plugin uses obsolete version of Stapler-dependent library (e.g. JRuby), which does not offer the method (JENKINS-39414)
-            // TODO: what to do with Logging? The error must be VERY visible, but it will totally pollute system logs
-            return Collections.emptyList();
-        }
+        return navigator.getDeclaredFields(clazz);
     }
 
     /**
@@ -85,6 +87,13 @@ public final class Klass<C> {
         return new ArrayList<FieldRef>(fields.values());
     }
 
+    /**
+     * Reports all the methods that can be used for routing requests on this class.
+     * @return List of functions. 
+     *         May return empty list in the case of obsolete {@link #navigator}, which does not offer the method.
+     * @since 1.246
+     */
+    @Nonnull
     public List<Function> getFunctions() {
         return navigator.getFunctions(clazz);
     }

@@ -10,8 +10,10 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 
 /**
  * Strategy pattern to provide navigation across class-like objects in other languages of JVM.
@@ -78,15 +80,28 @@ public abstract class KlassNavigator<C> {
 
     /**
      * List fields of this class.
-     *
      * This list excludes fields from super classes.
+     * @param clazz Class
+     * @return List of the fields declared for the class.
+     *         By default this list is empty, {@link KlassNavigator} implementations are responsible to implement it.
+     * @since 1.246
      */
-    public abstract List<FieldRef> getDeclaredFields(C clazz);
+    @Nonnull
+    public List<FieldRef> getDeclaredFields(C clazz) {
+        return Collections.emptyList();
+    }
 
     /**
      * Reports all the methods that can be used for routing requests on this class.
+     * @param clazz Class
+     * @return List of the fields functions declared for the class.
+     *         By default this list is empty, {@link KlassNavigator} implementations are responsible to implement it.
+     * @since 1.246
      */
-    public abstract List<Function> getFunctions(C clazz);
+    @Nonnull
+    public List<Function> getFunctions(C clazz) {
+        return Collections.emptyList();
+    }
 
     /**
      * If the given type is an array that supports index retrieval.

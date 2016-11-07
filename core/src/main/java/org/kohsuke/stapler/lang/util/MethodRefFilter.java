@@ -20,6 +20,11 @@ public abstract class MethodRefFilter extends MethodRef {
     }
 
     @Override
+    public String getName() {
+        return getBase().getName();
+    }
+
+    @Override
     public Object invoke(Object _this, Object... args) throws InvocationTargetException, IllegalAccessException {
         return getBase().invoke(_this, args);
     }
