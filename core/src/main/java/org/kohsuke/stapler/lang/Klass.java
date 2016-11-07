@@ -88,7 +88,7 @@ public final class Klass<C> {
     }
 
     /**
-     * Gets list of functions declared by the class.
+     * Reports all the methods that can be used for routing requests on this class.
      * @return List of functions. 
      *         May return empty list in the case of obsolete {@link #navigator}, which does not offer the method.
      * @since 1.246
