@@ -44,6 +44,11 @@ public class RubyMethodRef extends MethodRef {
     public DynamicMethod getMethod() {
         return method;
     }
+
+    @Override
+    public String getName() {
+        return method.getName();
+    }
     
     @Override
     public <T extends Annotation> T getAnnotation(Class<T> type) {

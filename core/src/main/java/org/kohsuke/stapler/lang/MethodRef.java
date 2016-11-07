@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import javax.annotation.CheckForNull;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -15,6 +16,18 @@ public abstract class MethodRef extends AnnotatedRef {
      */
     public boolean isRoutable() {
         return true;
+    }
+    
+    /**
+     * Retrieves the referenced method name.
+     * Some implementations (e.g. Ruby) cannot guarantee availability of names for all cases,
+     * so sometimes the name may be missing.
+     * @return Method name. {@code null} if it cannot be determined.
+     * @since 1.248
+     */
+    @CheckForNull
+    public String getName() {
+        return null;
     }
 
     public abstract Object invoke(Object _this, Object... args) throws InvocationTargetException, IllegalAccessException;
@@ -33,7 +46,12 @@ public abstract class MethodRef extends AnnotatedRef {
                 if (m.isBridge())    return false;
                 return (m.getModifiers() & Modifier.PUBLIC)!=0;
             }
-
+      
+            @Override
+            public String getName() {
+                return m.getName();
+            }
+            
             @Override
             public Object invoke(Object _this, Object... args) throws InvocationTargetException, IllegalAccessException {
                 return m.invoke(_this,args);
