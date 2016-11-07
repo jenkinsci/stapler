@@ -86,7 +86,13 @@ public final class Klass<C> {
     }
 
     public List<Function> getFunctions() {
-        return navigator.getFunctions(clazz);
+        try {
+            return navigator.getFunctions(clazz);
+        } catch (AbstractMethodError err) {
+            // A plugin uses obsolete version of Stapler-dependent library (e.g. JRuby), which does not offer the method (JENKINS-39414)
+            // TODO: what to do with Logging? The error must be VERY visible, but it will totally pollute system logs
+            return Collections.emptyList();
+        }
     }
 
     public boolean isArray() {
