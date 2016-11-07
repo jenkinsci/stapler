@@ -12,30 +12,62 @@
 <span class="sourceLineNo">004</span>import org.junit.Test;<a name="line.4"></a>
 <span class="sourceLineNo">005</span><a name="line.5"></a>
 <span class="sourceLineNo">006</span>import java.util.List;<a name="line.6"></a>
-<span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>/**<a name="line.8"></a>
-<span class="sourceLineNo">009</span> * Contains tests for {@link Klass}.<a name="line.9"></a>
-<span class="sourceLineNo">010</span> * @author Oleg Nenashev.<a name="line.10"></a>
-<span class="sourceLineNo">011</span> */<a name="line.11"></a>
-<span class="sourceLineNo">012</span>public class KlassTest {<a name="line.12"></a>
-<span class="sourceLineNo">013</span><a name="line.13"></a>
-<span class="sourceLineNo">014</span>    @Test<a name="line.14"></a>
-<span class="sourceLineNo">015</span>    public void shouldProperlyAccessJavaDeclaredFields() throws Exception {<a name="line.15"></a>
-<span class="sourceLineNo">016</span>        final Klass&lt;Class&gt; classInstance = Klass.java(FooClass.class);<a name="line.16"></a>
-<span class="sourceLineNo">017</span>        final List&lt;FieldRef&gt; declaredFields = classInstance.getDeclaredFields();<a name="line.17"></a>
-<span class="sourceLineNo">018</span>        for (FieldRef ref : declaredFields) {<a name="line.18"></a>
-<span class="sourceLineNo">019</span>            if ("fooField".equals(ref.getName())) {<a name="line.19"></a>
-<span class="sourceLineNo">020</span>                //TODO: check field parameters once Stapler provides such info<a name="line.20"></a>
-<span class="sourceLineNo">021</span>                return;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>            }<a name="line.22"></a>
-<span class="sourceLineNo">023</span>        }<a name="line.23"></a>
-<span class="sourceLineNo">024</span>        Assert.fail("Have not found 'fooField' in the returned field list");<a name="line.24"></a>
-<span class="sourceLineNo">025</span>    }<a name="line.25"></a>
-<span class="sourceLineNo">026</span><a name="line.26"></a>
-<span class="sourceLineNo">027</span>    private static final class FooClass {<a name="line.27"></a>
-<span class="sourceLineNo">028</span>        private int fooField;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>    }<a name="line.29"></a>
-<span class="sourceLineNo">030</span>}<a name="line.30"></a>
+<span class="sourceLineNo">007</span>import org.kohsuke.stapler.Function;<a name="line.7"></a>
+<span class="sourceLineNo">008</span><a name="line.8"></a>
+<span class="sourceLineNo">009</span>/**<a name="line.9"></a>
+<span class="sourceLineNo">010</span> * Contains tests for {@link Klass}.<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * @author Oleg Nenashev.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>public class KlassTest {<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>    @Test<a name="line.15"></a>
+<span class="sourceLineNo">016</span>    public void shouldProperlyAccessJavaDeclaredMethods() throws Exception {<a name="line.16"></a>
+<span class="sourceLineNo">017</span>        final Klass&lt;Class&gt; classInstance = Klass.java(FooClass.class);<a name="line.17"></a>
+<span class="sourceLineNo">018</span>        final List&lt;MethodRef&gt; declaredFunctions = classInstance.getDeclaredMethods();<a name="line.18"></a>
+<span class="sourceLineNo">019</span>        for (MethodRef ref : declaredFunctions) {<a name="line.19"></a>
+<span class="sourceLineNo">020</span>            if ("doDynamic".equals(ref.getName())) {<a name="line.20"></a>
+<span class="sourceLineNo">021</span>                //TODO: check field parameters once Stapler provides such info<a name="line.21"></a>
+<span class="sourceLineNo">022</span>                return;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>            }<a name="line.23"></a>
+<span class="sourceLineNo">024</span>        }<a name="line.24"></a>
+<span class="sourceLineNo">025</span>        Assert.fail("Have not found the 'doDynamic' declared method for FooClass");<a name="line.25"></a>
+<span class="sourceLineNo">026</span>    }<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    <a name="line.27"></a>
+<span class="sourceLineNo">028</span>    @Test<a name="line.28"></a>
+<span class="sourceLineNo">029</span>    public void shouldProperlyAccessJavaDeclaredFields() throws Exception {<a name="line.29"></a>
+<span class="sourceLineNo">030</span>        final Klass&lt;Class&gt; classInstance = Klass.java(FooClass.class);<a name="line.30"></a>
+<span class="sourceLineNo">031</span>        final List&lt;FieldRef&gt; declaredFields = classInstance.getDeclaredFields();<a name="line.31"></a>
+<span class="sourceLineNo">032</span>        for (FieldRef ref : declaredFields) {<a name="line.32"></a>
+<span class="sourceLineNo">033</span>            if ("fooField".equals(ref.getName())) {<a name="line.33"></a>
+<span class="sourceLineNo">034</span>                //TODO: check field parameters once Stapler provides such info<a name="line.34"></a>
+<span class="sourceLineNo">035</span>                return;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>            }<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        }<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        Assert.fail("Have not found 'fooField' in the returned field list");<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    }<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    <a name="line.40"></a>
+<span class="sourceLineNo">041</span>    @Test<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    public void shouldProperlyAccessJavaDeclaredFunctions() throws Exception {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        final Klass&lt;Class&gt; classInstance = Klass.java(FooClass.class);<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        final List&lt;Function&gt; declaredFunctions = classInstance.getFunctions();<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        for (Function ref : declaredFunctions) {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>            if ("doDynamic".equals(ref.getName())) {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>                //TODO: check field parameters once Stapler provides such info<a name="line.47"></a>
+<span class="sourceLineNo">048</span>                return;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>            }<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        }<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        Assert.fail("Have not found 'doDynamic' function for FooClass");<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">054</span>    private static final class FooClass {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        private int fooField;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        <a name="line.56"></a>
+<span class="sourceLineNo">057</span>        public Object doDynamic(String token) {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>            // Just return something potentially routable<a name="line.58"></a>
+<span class="sourceLineNo">059</span>            return new Integer(0);<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        }<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    }<a name="line.61"></a>
+<span class="sourceLineNo">062</span>}<a name="line.62"></a>
 
 
 
