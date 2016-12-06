@@ -4,6 +4,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -58,4 +60,20 @@ public class JSONDataWriterTest {
         assertEquals("{\"_class\":\"Sub2\",\"basic\":\"super\",\"generic\":\"sub2\"}",
                 serialize(new Sub2(), Sub2.class));
     }
+
+    @Test
+    public void exceptionHandling() throws IOException {
+        assertEquals("{\"_class\":\"Supers\",\"elements\":[{\"_class\":\"Sub\",\"basic\":\"super\",\"generic\":\"sub\",\"specific\":\"sub\"},{\"_class\":\"Sub2\",\"basic\":\"super\",\"generic\":\"sub2\"}]}",
+                     serialize(new Supers(new Sub(), new Broken(), new Sub2()), Supers.class));
+    }
+    public static class Broken extends Super {
+        @Exported @Override public String generic() {throw new RuntimeException("oops");}
+    }
+    @ExportedBean public static class Supers {
+        @Exported public final List<? extends Super> elements;
+        public Supers(Super... elements) {
+            this.elements = Arrays.asList(elements);
+        }
+    }
+
 }
