@@ -7,7 +7,9 @@ pipeline {
 
     stages {
         stage("Build") {
-            sh 'mvn -B -Dmaven.test.failure.ignore clean install site'
+            steps {
+              sh 'mvn -B -Dmaven.test.failure.ignore clean install site'
+            }
         }
     }
 
