@@ -209,7 +209,9 @@ public class HttpResponses {
         return new HttpResponse() {
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                 rsp.setContentType("text/html;charset=UTF-8");
-                rsp.getWriter().println(literalHtml);
+                PrintWriter pw = rsp.getWriter();
+                pw.print(literalHtml);
+                pw.flush();
             }
         };
     }
@@ -221,7 +223,9 @@ public class HttpResponses {
         return new HttpResponse() {
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                 rsp.setContentType("text/plain;charset=UTF-8");
-                rsp.getWriter().println(plainText);
+                PrintWriter pw = rsp.getWriter();
+                pw.print(plainText);
+                pw.flush();
             }
         };
     }

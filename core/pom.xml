@@ -7,7 +7,7 @@
   </parent>
   
   <artifactId>stapler</artifactId>
-  <name>Stapler</name>
+  <name>Stapler Core</name>
   <description>Stapler HTTP request handling engine</description>
 
   <build>
