@@ -41,6 +41,7 @@ import java.util.List;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
 import org.kohsuke.stapler.bind.BoundObjectTable;
+import org.kohsuke.stapler.json.SubmittedForm;
 import org.kohsuke.stapler.lang.Klass;
 
 /**
@@ -479,6 +480,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * Gets the content of the structured form submission.
      *
      * @see <a href="https://wiki.jenkins-ci.org/display/JENKINS/Structured+Form+Submission">Structured Form Submission</a>
+     * @see SubmittedForm
      */
     JSONObject getSubmittedForm() throws ServletException;
 
