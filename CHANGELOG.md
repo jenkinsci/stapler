@@ -10,7 +10,7 @@ Fixes binary compatibility issues caused in Stapler 1.246. Related to [JENKINS-3
 Release date: November 14, 2016
 * [PR 83](https://github.com/stapler/stapler/pull/83) - 
 Jenkinsfile to build Stapler.
- * [PR 84](https://github.com/stapler/stapler/pull/84) - 
+* [PR 84](https://github.com/stapler/stapler/pull/84) - 
 Add a since tag for documentation of jelly attributes.
 * [PR 85](https://github.com/stapler/stapler/pull/85) - 
 Workaround Ruby Runtime Plugin and Jenkins 2.28 compatibility issues. Fixes compatibility issues/regressions caused by Stapler 1.246. Related to [JENKINS-39414](https://issues.jenkins-ci.org/browse/JENKINS-39414).
