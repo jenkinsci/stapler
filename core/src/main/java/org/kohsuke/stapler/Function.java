@@ -34,6 +34,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -49,6 +52,7 @@ import static org.kohsuke.stapler.ReflectionUtils.*;
  * @author Kohsuke Kawaguchi
  */
 public abstract class Function {
+
     /**
      * Gets the method name.
      */
@@ -332,7 +336,14 @@ public abstract class Function {
         }
 
         public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
-            return m.invoke(o, args);
+            Object[] arguments = new Object[args.length + 1];
+            arguments[0] = o;
+            System.arraycopy(args, 0, arguments, 1, args.length);
+            try {
+                return MethodHandleCache.get(m).invokeWithArguments(arguments);
+            } catch (Throwable throwable) {
+                throw new InvocationTargetException(throwable);
+            }
         }
     }
 

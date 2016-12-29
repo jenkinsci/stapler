@@ -25,6 +25,7 @@ package org.kohsuke.stapler.export;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Predicate;
+import org.kohsuke.stapler.MethodHandleCache;
 import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 /**
@@ -100,11 +102,12 @@ public class Model<T> {
             if(m.getDeclaringClass()!=type) continue;
             if(m.isSynthetic() && m.isBridge()) continue;
             Exported exported = m.getAnnotation(Exported.class);
+            MethodHandle handle = MethodHandleCache.get(m);
             if(exported !=null) {
                 if (m.getParameterTypes().length > 0) {
                     LOGGER.log(Level.WARNING, "Method " + m.getName() + " of " + type.getName() + " is annotated @Exported but requires arguments");
                 } else {
-                    properties.add(new MethodProperty(this,m, exported));
+                    properties.add(new MethodProperty(this, m, exported, handle));
                 }
             }
         }

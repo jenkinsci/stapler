@@ -83,7 +83,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.level>6</java.level>
+    <java.level>7</java.level>
   </properties>
 
   <build>
@@ -99,7 +99,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <version>1.14</version>
+        <version>1.15</version>
         <executions>
           <execution>
             <goals>
@@ -113,6 +113,10 @@
             <artifactId>java1${java.level}</artifactId>
             <version>1.0</version>
           </signature>
+          <ignores>
+            <!-- Detects as a false positive https://github.com/mojohaus/animal-sniffer/issues/18 -->
+            <ignore>java.lang.invoke.MethodHandle</ignore>
+          </ignores>
         </configuration>
       </plugin>
       <plugin>

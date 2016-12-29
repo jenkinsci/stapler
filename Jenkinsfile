@@ -13,7 +13,7 @@ pipeline {
         }
     }
 
-    postBuild {
+    post {
         success {
             archive "**/target/**/*.jar"
             junit '**/target/surefire-reports/*.xml'
