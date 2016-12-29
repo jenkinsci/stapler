@@ -708,8 +708,6 @@ public class Stapler extends HttpServlet {
             }
         }
 
-        MetaClass metaClass = webApp.getMetaClass(node);
-
         if(!req.tokens.hasMore()) {
             String servletPath = getServletPath(req);
             if(!servletPath.endsWith("/")) {
@@ -730,17 +728,9 @@ public class Stapler extends HttpServlet {
                     return true;
                 }
             }
-
-            for (Facet f : webApp.facets) {
-                if(f.handleIndexRequest(req,rsp,node,metaClass))
-                    return true;
-            }
-
-            URL indexHtml = getSideFileURL(node,"index.html");
-            if(indexHtml!=null && serveStaticResource(req,rsp,indexHtml,0))
-                return true; // done
         }
 
+        MetaClass metaClass = webApp.getMetaClass(node);
         try {
             for( Dispatcher d : metaClass.dispatchers ) {
                 if(d.dispatch(req,rsp,node)) {
@@ -794,6 +784,17 @@ public class Stapler extends HttpServlet {
                 }
             }
             throw new ServletException(cause);
+        }
+
+        if(!req.tokens.hasMore()) {
+            for (Facet f : webApp.facets) {
+                if(f.handleIndexRequest(req,rsp,node,metaClass))
+                    return true;
+            }
+
+            URL indexHtml = getSideFileURL(node,"index.html");
+            if(indexHtml!=null && serveStaticResource(req,rsp,indexHtml,0))
+                return true; // done
         }
 
         if(node instanceof StaplerFallback) {
