@@ -36,6 +36,17 @@ public class DataBindingTest extends TestCase {
         assertEquals("string",data.myB);
     }
 
+    public void testMismatchingTypes() {
+        JSONObject json = new JSONObject();
+        json.put("b", new String[]{"v1", "v2"});
+        try {
+            Data data = bind(json, new Data());
+            fail("Should have thrown an IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Error binding field b: Got type array but no lister class found for type class java.lang.String", e.getMessage());
+        }
+    }
+
     public class DataEnumSet {
         public EnumSet<Proxy.Type> set;
     }

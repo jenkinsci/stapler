@@ -485,7 +485,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 if(type==null)
                     continue;
 
-                fill(bean,key, type.convertJSON(src.get(key)));
+                try {
+                    fill(bean,key, type.convertJSON(src.get(key)));
+                } catch (WrongTypeException e) {
+                    throw new IllegalArgumentException(String.format("Error binding field %s: %s", key, e.getMessage()));
+                }
             }
         } catch (IllegalAccessException e) {
             IllegalAccessError x = new IllegalAccessError(e.getMessage());
@@ -715,6 +719,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 }
             }
             if (o instanceof JSONArray) {
+                if (l == null)
+                    throw new WrongTypeException(String.format("Got type array but no lister class found for type %s", type));
                 JSONArray a = (JSONArray) o;
                 TypePair itemType = new TypePair(l.itemGenericType,l.itemType);
                 for (Object item : a)
