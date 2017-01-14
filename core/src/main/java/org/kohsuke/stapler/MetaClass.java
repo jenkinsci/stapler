@@ -35,10 +35,13 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.google.common.io.Resources.getResource;
 import static javax.servlet.http.HttpServletResponse.*;
 
 /**
@@ -103,6 +106,41 @@ public class MetaClass extends TearOffSupport {
     /*package*/ void buildDispatchers() {
         this.dispatchers.clear();
         KlassDescriptor<?> node = new KlassDescriptor(klass);
+
+        dispatchers.add(new Dispatcher() {
+            @Override
+            public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                if (req.tokens.hasMore())
+                    return false;
+
+                for (Facet f : webApp.facets) {
+                    if (f.handleIndexRequest(req, rsp, node, MetaClass.this))
+                        return true;
+                }
+
+                URL indexHtml = getSideFileURL(req.stapler, node, "index.html");
+                if (indexHtml != null) {
+                    rsp.serveFile(req, indexHtml, 0);
+                    return true; // done
+                }
+
+                return false;
+            }
+
+            private URL getSideFileURL(Stapler stapler, Object node, String fileName) throws MalformedURLException {
+                for (Class c = node.getClass(); c != Object.class; c = c.getSuperclass()) {
+                    String name = "/WEB-INF/side-files/" + c.getName().replace('.', '/') + '/' + fileName;
+                    URL url = stapler.getResource(name);
+                    if (url != null) return url;
+                }
+                return null;
+            }
+
+            @Override
+            public String toString() {
+                return "index views for url=/";
+            }
+        });
 
         // check action <obj>.do<token>(...) and other WebMethods
         for (Function f : node.methods.webMethods()) {

@@ -730,15 +730,6 @@ public class Stapler extends HttpServlet {
                     return true;
                 }
             }
-
-            for (Facet f : webApp.facets) {
-                if(f.handleIndexRequest(req,rsp,node,metaClass))
-                    return true;
-            }
-
-            URL indexHtml = getSideFileURL(node,"index.html");
-            if(indexHtml!=null && serveStaticResource(req,rsp,indexHtml,0))
-                return true; // done
         }
 
         try {
@@ -907,19 +898,10 @@ public class Stapler extends HttpServlet {
         dispatcher.forward(req,new ResponseImpl(this,rsp));
     }
 
-    private URL getSideFileURL(Object node,String fileName) throws MalformedURLException {
-        for( Class c = node.getClass(); c!=Object.class; c=c.getSuperclass() ) {
-            String name = "/WEB-INF/side-files/"+c.getName().replace('.','/')+'/'+fileName;
-            URL url = getResource(name);
-            if(url!=null) return url;
-        }
-        return null;
-    }
-
     /**
      * {@link ServletContext#getResource(String)} with caching.
      */
-    private URL getResource(String name) throws MalformedURLException {
+    /*package*/ URL getResource(String name) throws MalformedURLException {
         if (resourcePaths!=null)
             return resourcePaths.get(name);
         else
