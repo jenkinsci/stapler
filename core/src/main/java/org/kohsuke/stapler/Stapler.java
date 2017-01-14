@@ -710,21 +710,6 @@ public class Stapler extends HttpServlet {
 
         MetaClass metaClass = webApp.getMetaClass(node);
 
-        if(!req.tokens.hasMore()) {
-            String servletPath = getServletPath(req);
-            if(!servletPath.endsWith("/")) {
-                // if we are serving the index page, we demand that the URL be '/some/dir/' not '/some/dir'
-                // so that relative links in the page will resolve correctly. Apache does the same thing.
-                String target = req.getContextPath() + servletPath + '/';
-                if(req.getQueryString()!=null)
-                    target += '?' + req.getQueryString();
-                if(LOGGER.isLoggable(Level.FINER))
-                    LOGGER.finer("Redirecting to "+target);
-                rsp.sendRedirect2(target);
-                return true;
-            }
-        }
-
         try {
             for( Dispatcher d : metaClass.dispatchers ) {
                 if(d.dispatch(req,rsp,node)) {
@@ -1004,7 +989,7 @@ public class Stapler extends HttpServlet {
     /**
      * Get raw servlet path (decoded in TokenList).
      */
-    private String getServletPath(HttpServletRequest req) {
+    /*package*/ String getServletPath(HttpServletRequest req) {
         return canonicalPath(req.getRequestURI().substring(req.getContextPath().length()));
     }
 

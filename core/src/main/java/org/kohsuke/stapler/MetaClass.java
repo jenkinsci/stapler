@@ -105,6 +105,8 @@ public class MetaClass extends TearOffSupport {
         this.dispatchers.clear();
         KlassDescriptor<?> node = new KlassDescriptor(klass);
 
+        dispatchers.add(new DirectoryishDispatcher());
+
         if (HttpDeletable.class.isAssignableFrom(clazz))
             dispatchers.add(new HttpDeletableDispatcher());
 
