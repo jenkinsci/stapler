@@ -6,7 +6,7 @@ import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Method;
 
 /**
- *
+ * Implementation detail in Stapler. Do not use from outside.
  */
 public final class MethodHandleFactory {
     private static final Lookup LOOKUP = MethodHandles.lookup();

@@ -274,10 +274,13 @@ public abstract class Function {
 
     private abstract static class MethodFunction extends Function {
         protected final Method m;
+        protected final MethodHandle handle;
+
         private volatile String[] names;
 
         public MethodFunction(Method m) {
             this.m = m;
+            this.handle = MethodHandleFactory.get(m);
         }
 
         public final String getName() {
@@ -311,16 +314,24 @@ public abstract class Function {
         public Class getReturnType() {
             return m.getReturnType();
         }
+
+        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
+            Object[] arguments = new Object[args.length + 1];
+            arguments[0] = o;
+            System.arraycopy(args, 0, arguments, 1, args.length);
+            try {
+                return handle.invokeWithArguments(arguments);
+            } catch (Throwable throwable) {
+                throw new InvocationTargetException(throwable);
+            }
+        }
     }
     /**
      * Normal instance methods.
      */
     static class InstanceFunction extends MethodFunction {
-        private final MethodHandle handle;
-
         public InstanceFunction(Method m) {
             super(m);
-            handle = MethodHandleFactory.get(m);
         }
 
         public Class[] getParameterTypes() {
@@ -334,17 +345,6 @@ public abstract class Function {
 
         public Annotation[][] getParameterAnnotations() {
             return m.getParameterAnnotations();
-        }
-
-        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
-            Object[] arguments = new Object[args.length + 1];
-            arguments[0] = o;
-            System.arraycopy(args, 0, arguments, 1, args.length);
-            try {
-                return handle.invokeWithArguments(arguments);
-            } catch (Throwable throwable) {
-                throw new InvocationTargetException(throwable);
-            }
         }
     }
 
@@ -422,13 +422,6 @@ public abstract class Function {
             Annotation[][] r = new Annotation[a.length-1][];
             System.arraycopy(a,1,r,0,r.length);
             return r;
-        }
-
-        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
-            Object[] r = new Object[args.length+1];
-            r[0] = o;
-            System.arraycopy(args,0,r,1,args.length);
-            return m.invoke(null,r);
         }
     }
 
