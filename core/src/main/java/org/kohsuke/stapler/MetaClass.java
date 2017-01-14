@@ -109,8 +109,6 @@ public class MetaClass extends TearOffSupport {
         if (HttpDeletable.class.isAssignableFrom(clazz))
             dispatchers.add(new HttpDeletableDispatcher());
 
-        dispatchers.add(new IndexViewDispatcher(this));
-
         // check action <obj>.do<token>(...) and other WebMethods
         for (Function f : node.methods.webMethods()) {
             WebMethod a = f.getAnnotation(WebMethod.class);
@@ -139,6 +137,11 @@ public class MetaClass extends TearOffSupport {
             }
         }
 
+        // check action <obj>.doIndex(...)
+        for (Function f : node.methods.name("doIndex")) {
+            dispatchers.add(new IndexDispatcher(f.contextualize(new WebMethodContext(""))));
+        }
+
         // JavaScript proxy method invocations for <obj>js<token>
         // reacts only to a specific content type
         for (Function f : node.methods.prefix("js") ) {
@@ -163,10 +166,7 @@ public class MetaClass extends TearOffSupport {
         for (Facet f : webApp.facets)
             f.buildViewDispatchers(this, dispatchers);
 
-        // check action <obj>.doIndex(...)
-        for (Function f : node.methods.name("doIndex")) {
-            dispatchers.add(new IndexDispatcher(f.contextualize(new WebMethodContext(""))));
-        }
+        dispatchers.add(new IndexViewDispatcher(this));
 
         // check public properties of the form NODE.TOKEN
         for (final FieldRef f : node.fields) {
