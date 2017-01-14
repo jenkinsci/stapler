@@ -25,6 +25,7 @@ package org.kohsuke.stapler;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Marks the object that can handle HTTP DELETE.
@@ -36,4 +37,24 @@ public interface HttpDeletable {
      * Called when HTTP DELETE method is invoked.
      */
     void delete( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException;
+}
+
+/**
+ * {@link Dispatcher} that processes {@link HttpDeletable}
+ */
+class HttpDeletableDispatcher extends Dispatcher {
+    @Override
+    public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+        if (!req.tokens.hasMore() && req.getMethod().equals("DELETE")) {
+            ((HttpDeletable)node).delete(req,rsp);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "delete() for url=/ with DELETE";
+    }
 }

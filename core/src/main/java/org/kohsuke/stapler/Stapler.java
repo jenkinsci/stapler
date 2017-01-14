@@ -723,13 +723,6 @@ public class Stapler extends HttpServlet {
                 rsp.sendRedirect2(target);
                 return true;
             }
-
-            if(req.getMethod().equals("DELETE")) {
-                if(node instanceof HttpDeletable) {
-                    ((HttpDeletable)node).delete(req,rsp);
-                    return true;
-                }
-            }
         }
 
         try {
