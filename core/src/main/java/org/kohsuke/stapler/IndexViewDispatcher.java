@@ -15,9 +15,11 @@ import java.lang.reflect.InvocationTargetException;
  */
 class IndexViewDispatcher extends Dispatcher {
     private final MetaClass metaClass;
+    private final Facet facet;
 
-    IndexViewDispatcher(MetaClass metaClass) {
+    IndexViewDispatcher(MetaClass metaClass, Facet facet) {
         this.metaClass = metaClass;
+        this.facet = facet;
     }
 
     @Override
@@ -25,16 +27,14 @@ class IndexViewDispatcher extends Dispatcher {
         if (req.tokens.hasMore())
             return false;
 
-        for (Facet f : metaClass.webApp.facets) {
-            if (f.handleIndexRequest(req, rsp, node, metaClass))
-                return true;
-        }
+        if (facet.handleIndexRequest(req, rsp, node, metaClass))
+            return true;
 
         return false;
     }
 
     @Override
     public String toString() {
-        return "index views for url=/";
+        return "index view of "+facet+" for url=/";
     }
 }
