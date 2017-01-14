@@ -35,8 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -318,8 +316,11 @@ public abstract class Function {
      * Normal instance methods.
      */
     static class InstanceFunction extends MethodFunction {
+        private final MethodHandle handle;
+
         public InstanceFunction(Method m) {
             super(m);
+            handle = MethodHandleFactory.get(m);
         }
 
         public Class[] getParameterTypes() {
@@ -340,7 +341,7 @@ public abstract class Function {
             arguments[0] = o;
             System.arraycopy(args, 0, arguments, 1, args.length);
             try {
-                return MethodHandleCache.get(m).invokeWithArguments(arguments);
+                return handle.invokeWithArguments(arguments);
             } catch (Throwable throwable) {
                 throw new InvocationTargetException(throwable);
             }

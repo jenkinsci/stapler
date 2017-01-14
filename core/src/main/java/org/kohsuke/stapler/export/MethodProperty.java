@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler.export;
 
+import org.kohsuke.stapler.MethodHandleFactory;
+
 import java.beans.Introspector;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.InvocationTargetException;
@@ -37,10 +39,10 @@ final class MethodProperty extends Property {
     private final MethodHandle handle;
     private final Method method;
 
-    MethodProperty(Model owner, Method m, Exported exported, MethodHandle handle) {
+    MethodProperty(Model owner, Method m, Exported exported) {
         super(owner,buildName(m.getName()), m.getGenericReturnType(), exported);
         this.method = m;
-        this.handle = handle;
+        this.handle = MethodHandleFactory.get(method);
     }
 
     private static String buildName(String name) {
