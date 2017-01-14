@@ -433,6 +433,11 @@ public class MetaClass extends TearOffSupport {
         }
     }
 
+    @Override
+    public String toString() {
+        return "MetaClass["+klass+"]";
+    }
+
     private static String camelize(String name) {
         return Character.toLowerCase(name.charAt(0))+name.substring(1);
     }

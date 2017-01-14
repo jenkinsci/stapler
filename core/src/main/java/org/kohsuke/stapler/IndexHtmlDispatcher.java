@@ -3,7 +3,6 @@ package org.kohsuke.stapler;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -15,12 +14,12 @@ import java.net.URL;
 class IndexHtmlDispatcher extends Dispatcher {
     private final URL html;
 
-    private IndexHtmlDispatcher(URL html) {
+    IndexHtmlDispatcher(URL html) {
         this.html = html;
     }
 
     @Override
-    public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+    public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
         if (!req.tokens.hasMore()) {
             rsp.serveFile(req, html, 0);
             return true;
