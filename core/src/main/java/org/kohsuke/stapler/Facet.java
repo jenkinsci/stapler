@@ -54,6 +54,17 @@ public abstract class Facet {
     public abstract void buildViewDispatchers(MetaClass owner, List<Dispatcher> dispatchers);
 
     /**
+     * Adds {@link Dispatcher}s that serves the likes of {@code index.EXT}
+     *
+     * The default implementation invokes {@link #handleIndexRequest(RequestImpl, ResponseImpl, Object, MetaClass)}
+     * but facet implementations can improve runtime dispatch performance by testing the presence
+     * of index view page upfront.
+     */
+    public void buildIndexDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
+        dispatchers.add(new IndexViewDispatcher(owner,this));
+    }
+
+    /**
      * Adds {@link Dispatcher}s that do catch-all behaviours like "doDispatch" does.
      */
     public void buildFallbackDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {}
