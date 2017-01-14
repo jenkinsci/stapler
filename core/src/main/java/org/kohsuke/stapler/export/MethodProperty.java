@@ -23,21 +23,26 @@
 
 package org.kohsuke.stapler.export;
 
+import org.kohsuke.stapler.MethodHandleFactory;
+
 import java.beans.Introspector;
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.io.IOException;
 
 /**
  * {@link Property} based on {@link Method}.
  * @author Kohsuke Kawaguchi
  */
 final class MethodProperty extends Property {
+    private final MethodHandle handle;
     private final Method method;
+
     MethodProperty(Model owner, Method m, Exported exported) {
         super(owner,buildName(m.getName()), m.getGenericReturnType(), exported);
         this.method = m;
+        this.handle = MethodHandleFactory.get(method);
     }
 
     private static String buildName(String name) {
@@ -63,6 +68,10 @@ final class MethodProperty extends Property {
     }
 
     protected Object getValue(Object object) throws IllegalAccessException, InvocationTargetException {
-        return method.invoke(object);
+        try {
+            return handle.invoke(object);
+        } catch (Throwable throwable) {
+            throw new InvocationTargetException(throwable);
+        }
     }
 }

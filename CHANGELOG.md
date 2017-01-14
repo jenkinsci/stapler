@@ -1,6 +1,10 @@
 CHANGELOG
 ===
 
+##### 1.249
+* [PR 96](https://github.com/stapler/stapler/pull/96) -
+Use MethodHandle for faster reflective method invocation. Stapler now requires Java7
+
 ##### 1.248
 Release date: November 7, 2016
 * [PR 88](https://github.com/stapler/stapler/pull/88) - 

@@ -104,7 +104,7 @@ public class Model<T> {
                 if (m.getParameterTypes().length > 0) {
                     LOGGER.log(Level.WARNING, "Method " + m.getName() + " of " + type.getName() + " is annotated @Exported but requires arguments");
                 } else {
-                    properties.add(new MethodProperty(this,m, exported));
+                    properties.add(new MethodProperty(this, m, exported));
                 }
             }
         }
