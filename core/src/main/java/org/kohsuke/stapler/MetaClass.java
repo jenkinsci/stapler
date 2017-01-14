@@ -65,7 +65,7 @@ public class MetaClass extends TearOffSupport {
      */
     public final MetaClassLoader classLoader;
 
-    public final List<Dispatcher> dispatchers = new ArrayList<Dispatcher>();
+    public final List<Dispatcher> dispatchers = new ArrayList<>();
 
     /**
      * Base metaclass.
@@ -167,6 +167,9 @@ public class MetaClass extends TearOffSupport {
             f.buildViewDispatchers(this, dispatchers);
 
         dispatchers.add(new IndexViewDispatcher(this));
+        Dispatcher d = IndexHtmlDispatcher.make(webApp.context, clazz);
+        if (d!=null)
+            dispatchers.add(d);
 
         // check public properties of the form NODE.TOKEN
         for (final FieldRef f : node.fields) {
