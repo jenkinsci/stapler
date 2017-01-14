@@ -27,10 +27,7 @@ class IndexViewDispatcher extends Dispatcher {
         if (req.tokens.hasMore())
             return false;
 
-        if (facet.handleIndexRequest(req, rsp, node, metaClass))
-            return true;
-
-        return false;
+        return facet.handleIndexRequest(req, rsp, node, metaClass);
     }
 
     @Override
