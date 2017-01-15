@@ -13,6 +13,11 @@ public final class MethodHandleFactory {
 
     public static MethodHandle get(Method method) {
         try {
+            /*
+                Stapler generally deals with
+             */
+            method.setAccessible(true);
+
             return LOOKUP.unreflect(method);
         } catch (IllegalAccessException e) {
             throw (Error)new IllegalAccessError("Protected method: "+method).initCause(e);

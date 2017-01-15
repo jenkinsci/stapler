@@ -274,13 +274,13 @@ public abstract class Function {
 
     private abstract static class MethodFunction extends Function {
         protected final Method m;
-        protected final MethodHandle handle;
+        private volatile MethodHandle handle;
 
         private volatile String[] names;
 
         public MethodFunction(Method m) {
             this.m = m;
-            this.handle = MethodHandleFactory.get(m);
+            // defer the resolution of MethodHandle so that a Function can be built to represent a non-public method
         }
 
         public final String getName() {
@@ -315,12 +315,19 @@ public abstract class Function {
             return m.getReturnType();
         }
 
+        protected MethodHandle handle() {
+            if (handle==null) {
+                handle = MethodHandleFactory.get(m);
+            }
+            return handle;
+        }
+
         public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
             Object[] arguments = new Object[args.length + 1];
             arguments[0] = o;
             System.arraycopy(args, 0, arguments, 1, args.length);
             try {
-                return handle.invokeWithArguments(arguments);
+                return handle().invokeWithArguments(arguments);
             } catch (Throwable throwable) {
                 throw new InvocationTargetException(throwable);
             }
