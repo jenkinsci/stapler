@@ -2,8 +2,16 @@ CHANGELOG
 ===
 
 ##### 1.249
+* [PR 89](https://github.com/stapler/stapler/pull/89) -
+Be more robust when exporting collections ([JENKINS-40088](https://issues.jenkins-ci.org/browse/JENKINS-40088))
+* [PR 94](https://github.com/stapler/stapler/pull/94) -
+Define an annotation to inject `req.getSubmittedForm()`
 * [PR 96](https://github.com/stapler/stapler/pull/96) -
-Use MethodHandle for faster reflective method invocation. Stapler now requires Java7
+Use `MethodHandle` for faster reflective method invocation; Stapler now requires Java 7
+* [PR 99](https://github.com/stapler/stapler/pull/99) -
+Detect wrong array type in `RequestImpl.convertJSON()`
+* [PR 101](https://github.com/stapler/stapler/pull/101) (and 102) -
+Prefer `doIndex` over `index` views
 
 ##### 1.248
 Release date: November 7, 2016
