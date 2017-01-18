@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
+import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.kohsuke.MetaInfServices;
@@ -43,6 +44,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * {@link Facet} that adds Jelly as the view.
@@ -108,6 +110,17 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
                 return "VIEW.jelly for url=/VIEW";
             }
         });
+    }
+
+    @Override
+    public void buildIndexDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
+        try {
+            if (owner.loadTearOff(JellyClassTearOff.class).findScript("index.jelly")!=null) {
+                super.buildIndexDispatchers(owner, dispatchers);
+            }
+        } catch (JellyException e) {
+            LOGGER.log(Level.WARNING, "Failed to parse index.jelly for "+owner, e);
+        }
     }
 
     public Collection<Class<JellyClassTearOff>> getClassTearOffTypes() {
