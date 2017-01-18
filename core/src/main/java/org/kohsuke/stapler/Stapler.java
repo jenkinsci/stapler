@@ -710,37 +710,6 @@ public class Stapler extends HttpServlet {
 
         MetaClass metaClass = webApp.getMetaClass(node);
 
-        if(!req.tokens.hasMore()) {
-            String servletPath = getServletPath(req);
-            if(!servletPath.endsWith("/")) {
-                // if we are serving the index page, we demand that the URL be '/some/dir/' not '/some/dir'
-                // so that relative links in the page will resolve correctly. Apache does the same thing.
-                String target = req.getContextPath() + servletPath + '/';
-                if(req.getQueryString()!=null)
-                    target += '?' + req.getQueryString();
-                if(LOGGER.isLoggable(Level.FINER))
-                    LOGGER.finer("Redirecting to "+target);
-                rsp.sendRedirect2(target);
-                return true;
-            }
-
-            if(req.getMethod().equals("DELETE")) {
-                if(node instanceof HttpDeletable) {
-                    ((HttpDeletable)node).delete(req,rsp);
-                    return true;
-                }
-            }
-
-            for (Facet f : webApp.facets) {
-                if(f.handleIndexRequest(req,rsp,node,metaClass))
-                    return true;
-            }
-
-            URL indexHtml = getSideFileURL(node,"index.html");
-            if(indexHtml!=null && serveStaticResource(req,rsp,indexHtml,0))
-                return true; // done
-        }
-
         try {
             for( Dispatcher d : metaClass.dispatchers ) {
                 if(d.dispatch(req,rsp,node)) {
@@ -907,19 +876,10 @@ public class Stapler extends HttpServlet {
         dispatcher.forward(req,new ResponseImpl(this,rsp));
     }
 
-    private URL getSideFileURL(Object node,String fileName) throws MalformedURLException {
-        for( Class c = node.getClass(); c!=Object.class; c=c.getSuperclass() ) {
-            String name = "/WEB-INF/side-files/"+c.getName().replace('.','/')+'/'+fileName;
-            URL url = getResource(name);
-            if(url!=null) return url;
-        }
-        return null;
-    }
-
     /**
      * {@link ServletContext#getResource(String)} with caching.
      */
-    private URL getResource(String name) throws MalformedURLException {
+    /*package*/ URL getResource(String name) throws MalformedURLException {
         if (resourcePaths!=null)
             return resourcePaths.get(name);
         else
@@ -1029,7 +989,7 @@ public class Stapler extends HttpServlet {
     /**
      * Get raw servlet path (decoded in TokenList).
      */
-    private String getServletPath(HttpServletRequest req) {
+    /*package*/ String getServletPath(HttpServletRequest req) {
         return canonicalPath(req.getRequestURI().substring(req.getContextPath().length()));
     }
 

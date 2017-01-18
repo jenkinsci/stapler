@@ -166,7 +166,7 @@ public class DataBindingTest extends TestCase {
 
     private RequestImpl createFakeRequest() {
         Stapler s = new Stapler();
-        s.setWebApp(new WebApp(null));
+        s.setWebApp(new WebApp(new MockServletContext()));
         return new RequestImpl(s, new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
     }
 
