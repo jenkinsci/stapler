@@ -49,475 +49,477 @@
 <span class="sourceLineNo">041</span>import net.sf.json.JSONObject;<a name="line.41"></a>
 <span class="sourceLineNo">042</span>import net.sf.json.JSONArray;<a name="line.42"></a>
 <span class="sourceLineNo">043</span>import org.kohsuke.stapler.bind.BoundObjectTable;<a name="line.43"></a>
-<span class="sourceLineNo">044</span>import org.kohsuke.stapler.lang.Klass;<a name="line.44"></a>
-<span class="sourceLineNo">045</span><a name="line.45"></a>
-<span class="sourceLineNo">046</span>/**<a name="line.46"></a>
-<span class="sourceLineNo">047</span> * Defines additional parameters/operations made available by Stapler.<a name="line.47"></a>
-<span class="sourceLineNo">048</span> *<a name="line.48"></a>
-<span class="sourceLineNo">049</span> * @see Stapler#getCurrentRequest()<a name="line.49"></a>
-<span class="sourceLineNo">050</span> * @author Kohsuke Kawaguchi<a name="line.50"></a>
-<span class="sourceLineNo">051</span> */<a name="line.51"></a>
-<span class="sourceLineNo">052</span>public interface StaplerRequest extends HttpServletRequest {<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     * Gets the {@link Stapler} instance that this belongs to.<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     */<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    Stapler getStapler();<a name="line.56"></a>
-<span class="sourceLineNo">057</span><a name="line.57"></a>
-<span class="sourceLineNo">058</span>    /**<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     * Short for {@code getStapler().getWebApp()}<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     */<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    WebApp getWebApp();<a name="line.61"></a>
-<span class="sourceLineNo">062</span><a name="line.62"></a>
-<span class="sourceLineNo">063</span>    /**<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     * Returns the additional URL portion that wasn't used by the stapler,<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     * excluding the query string.<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     *<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     * &lt;p&gt;<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     * For example, if the requested URL is "foo/bar/zot/abc?def=ghi" and<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     * "foo/bar" portion matched &lt;tt&gt;bar.jsp&lt;/tt&gt;, this method returns<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     * "/zot/abc".<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     *<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     * &lt;p&gt;<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     * If this method is invoked from getters or {@link StaplerProxy#getTarget()}<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     * during the object traversal, this method returns the path portion<a name="line.74"></a>
-<span class="sourceLineNo">075</span>     * that is not yet processed.<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     *<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     * @return<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     *      can be empty string, but never null.<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     */<a name="line.79"></a>
-<span class="sourceLineNo">080</span>    String getRestOfPath();<a name="line.80"></a>
-<span class="sourceLineNo">081</span><a name="line.81"></a>
-<span class="sourceLineNo">082</span>    /**<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     * Returns the same thing as {@link #getRestOfPath()} but in the pre-decoded form,<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     * so all "%HH"s as present in the request URL is intact.<a name="line.84"></a>
-<span class="sourceLineNo">085</span>     */<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    String getOriginalRestOfPath();<a name="line.86"></a>
-<span class="sourceLineNo">087</span><a name="line.87"></a>
-<span class="sourceLineNo">088</span>    /**<a name="line.88"></a>
-<span class="sourceLineNo">089</span>     * Returns the {@link ServletContext} object given to the stapler<a name="line.89"></a>
-<span class="sourceLineNo">090</span>     * dispatcher servlet.<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     */<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    ServletContext getServletContext();<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>    /**<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     * {@link #getRequestURI()} plus additional query string part, if it exists.<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     */<a name="line.96"></a>
-<span class="sourceLineNo">097</span>    String getRequestURIWithQueryString();<a name="line.97"></a>
-<span class="sourceLineNo">098</span><a name="line.98"></a>
-<span class="sourceLineNo">099</span>    /**<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     * {@link #getRequestURL()} plus additional query string part, if it exists.<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     */<a name="line.101"></a>
-<span class="sourceLineNo">102</span>    StringBuffer getRequestURLWithQueryString();<a name="line.102"></a>
-<span class="sourceLineNo">103</span><a name="line.103"></a>
-<span class="sourceLineNo">104</span>    /**<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     * Gets the {@link RequestDispatcher} that represents a specific view<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     * for the given object.<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     *<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     * This support both JSP and Jelly.<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     *<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     * @param viewName<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     *      If this name is relative name like "foo.jsp" or "bar/zot.jelly",<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     *      then the corresponding "side file" is searched by this name.<a name="line.112"></a>
-<span class="sourceLineNo">113</span>     *      &lt;p&gt;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>     *      For Jelly, this also accepts absolute path name that starts<a name="line.114"></a>
-<span class="sourceLineNo">115</span>     *      with '/', such as "/foo/bar/zot.jelly". In this case,<a name="line.115"></a>
-<span class="sourceLineNo">116</span>     *      &lt;tt&gt;it.getClass().getClassLoader()&lt;/tt&gt; is searched for this script. <a name="line.116"></a>
-<span class="sourceLineNo">117</span>     *<a name="line.117"></a>
-<span class="sourceLineNo">118</span>     * @return null<a name="line.118"></a>
-<span class="sourceLineNo">119</span>     *      if neither JSP nor Jelly is not found by the given name.<a name="line.119"></a>
-<span class="sourceLineNo">120</span>     */<a name="line.120"></a>
-<span class="sourceLineNo">121</span>    RequestDispatcher getView(Object it,String viewName) throws IOException;<a name="line.121"></a>
-<span class="sourceLineNo">122</span><a name="line.122"></a>
-<span class="sourceLineNo">123</span>    /**<a name="line.123"></a>
-<span class="sourceLineNo">124</span>     * Convenience method to call {@link #getView(Klass, String)} with {@link Class}.<a name="line.124"></a>
-<span class="sourceLineNo">125</span>     */<a name="line.125"></a>
-<span class="sourceLineNo">126</span>    RequestDispatcher getView(Class clazz,String viewName) throws IOException;<a name="line.126"></a>
-<span class="sourceLineNo">127</span><a name="line.127"></a>
-<span class="sourceLineNo">128</span>    /**<a name="line.128"></a>
-<span class="sourceLineNo">129</span>     * Gets the {@link RequestDispatcher} that represents a specific view<a name="line.129"></a>
-<span class="sourceLineNo">130</span>     * for the given class.<a name="line.130"></a>
-<span class="sourceLineNo">131</span>     *<a name="line.131"></a>
-<span class="sourceLineNo">132</span>     * &lt;p&gt;<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     * Unlike {@link #getView(Object, String)}, calling this request dispatcher<a name="line.133"></a>
-<span class="sourceLineNo">134</span>     * doesn't set the "it" variable, so<a name="line.134"></a>
-<span class="sourceLineNo">135</span>     * {@code getView(it.getClass(),viewName)} and {@code getView(it,viewName)}<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     * aren't the same thing.<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     */<a name="line.137"></a>
-<span class="sourceLineNo">138</span>    RequestDispatcher getView(Klass&lt;?&gt; clazz, String viewName) throws IOException;<a name="line.138"></a>
-<span class="sourceLineNo">139</span><a name="line.139"></a>
-<span class="sourceLineNo">140</span>    /**<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     * Gets the part of the request URL from protocol up to the context path.<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     * So typically it's something like &lt;tt&gt;http://foobar:8080/something&lt;/tt&gt;<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     */<a name="line.143"></a>
-<span class="sourceLineNo">144</span>    String getRootPath();<a name="line.144"></a>
-<span class="sourceLineNo">145</span><a name="line.145"></a>
-<span class="sourceLineNo">146</span>    /**<a name="line.146"></a>
-<span class="sourceLineNo">147</span>     * Gets the referer header (like "http://foobar.com/zot") or null.<a name="line.147"></a>
-<span class="sourceLineNo">148</span>     *<a name="line.148"></a>
-<span class="sourceLineNo">149</span>     * This is just a convenience method.<a name="line.149"></a>
-<span class="sourceLineNo">150</span>     */<a name="line.150"></a>
-<span class="sourceLineNo">151</span>    String getReferer();<a name="line.151"></a>
-<span class="sourceLineNo">152</span><a name="line.152"></a>
-<span class="sourceLineNo">153</span>    /**<a name="line.153"></a>
-<span class="sourceLineNo">154</span>     * Returns a list of ancestor objects that lead to the "it" object.<a name="line.154"></a>
-<span class="sourceLineNo">155</span>     * The returned list contains {@link Ancestor} objects sorted in the<a name="line.155"></a>
-<span class="sourceLineNo">156</span>     * order from root to the "it" object.<a name="line.156"></a>
-<span class="sourceLineNo">157</span>     *<a name="line.157"></a>
-<span class="sourceLineNo">158</span>     * &lt;p&gt;<a name="line.158"></a>
-<span class="sourceLineNo">159</span>     * For example, if the URL was "foo/bar/zot" and the "it" object<a name="line.159"></a>
-<span class="sourceLineNo">160</span>     * was determined as &lt;code&gt;root.getFoo().getBar("zot")&lt;/code&gt;,<a name="line.160"></a>
-<span class="sourceLineNo">161</span>     * then this list will contain the following 3 objects in this order:<a name="line.161"></a>
-<span class="sourceLineNo">162</span>     * &lt;ol&gt;<a name="line.162"></a>
-<span class="sourceLineNo">163</span>     *  &lt;li&gt;the root object<a name="line.163"></a>
-<span class="sourceLineNo">164</span>     *  &lt;li&gt;root.getFoo() object<a name="line.164"></a>
-<span class="sourceLineNo">165</span>     *  &lt;li&gt;root.getFoo().getBar("zot") object (the "it" object)<a name="line.165"></a>
-<span class="sourceLineNo">166</span>     * &lt;/ol&gt;<a name="line.166"></a>
-<span class="sourceLineNo">167</span>     * &lt;p&gt;<a name="line.167"></a>
-<span class="sourceLineNo">168</span>     * <a name="line.168"></a>
-<span class="sourceLineNo">169</span>     *<a name="line.169"></a>
-<span class="sourceLineNo">170</span>     * @return<a name="line.170"></a>
-<span class="sourceLineNo">171</span>     *      list of {@link Ancestor}s. Can be empty, but always non-null.<a name="line.171"></a>
-<span class="sourceLineNo">172</span>     */<a name="line.172"></a>
-<span class="sourceLineNo">173</span>    List&lt;Ancestor&gt; getAncestors();<a name="line.173"></a>
-<span class="sourceLineNo">174</span><a name="line.174"></a>
-<span class="sourceLineNo">175</span>    /**<a name="line.175"></a>
-<span class="sourceLineNo">176</span>     * Finds the nearest ancestor that has the object of the given type, or null if not found.<a name="line.176"></a>
-<span class="sourceLineNo">177</span>     */<a name="line.177"></a>
-<span class="sourceLineNo">178</span>    Ancestor findAncestor(Class type);<a name="line.178"></a>
-<span class="sourceLineNo">179</span><a name="line.179"></a>
-<span class="sourceLineNo">180</span>    /**<a name="line.180"></a>
-<span class="sourceLineNo">181</span>     * Short for {@code findAncestor(type).getObject()}, with proper handling for null de-reference.<a name="line.181"></a>
-<span class="sourceLineNo">182</span>     * This version is also type safe.<a name="line.182"></a>
-<span class="sourceLineNo">183</span>     */<a name="line.183"></a>
-<span class="sourceLineNo">184</span>    &lt;T&gt; T findAncestorObject(Class&lt;T&gt; type);<a name="line.184"></a>
-<span class="sourceLineNo">185</span><a name="line.185"></a>
-<span class="sourceLineNo">186</span>    /**<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     * Finds the nearest ancestor whose {@link Ancestor#getObject()} matches the given object.<a name="line.187"></a>
-<span class="sourceLineNo">188</span>     */<a name="line.188"></a>
-<span class="sourceLineNo">189</span>    Ancestor findAncestor(Object o);<a name="line.189"></a>
-<span class="sourceLineNo">190</span><a name="line.190"></a>
-<span class="sourceLineNo">191</span>    /**<a name="line.191"></a>
-<span class="sourceLineNo">192</span>     * Short for {@code getParameter(name)!=null}<a name="line.192"></a>
-<span class="sourceLineNo">193</span>     */<a name="line.193"></a>
-<span class="sourceLineNo">194</span>    boolean hasParameter(String name);<a name="line.194"></a>
-<span class="sourceLineNo">195</span><a name="line.195"></a>
-<span class="sourceLineNo">196</span>    /**<a name="line.196"></a>
-<span class="sourceLineNo">197</span>     * Gets the {@link HttpServletRequest#getRequestURI() request URI}<a name="line.197"></a>
-<span class="sourceLineNo">198</span>     * of the original request, so that you can access the value even from<a name="line.198"></a>
-<span class="sourceLineNo">199</span>     * JSP.<a name="line.199"></a>
-<span class="sourceLineNo">200</span>     */<a name="line.200"></a>
-<span class="sourceLineNo">201</span>    String getOriginalRequestURI();<a name="line.201"></a>
-<span class="sourceLineNo">202</span><a name="line.202"></a>
-<span class="sourceLineNo">203</span>    /**<a name="line.203"></a>
-<span class="sourceLineNo">204</span>     * Checks "If-Modified-Since" header and returns false<a name="line.204"></a>
-<span class="sourceLineNo">205</span>     * if the resource needs to be served.<a name="line.205"></a>
-<span class="sourceLineNo">206</span>     *<a name="line.206"></a>
-<span class="sourceLineNo">207</span>     * &lt;p&gt;<a name="line.207"></a>
-<span class="sourceLineNo">208</span>     * This method can behave in three ways.<a name="line.208"></a>
-<span class="sourceLineNo">209</span>     *<a name="line.209"></a>
-<span class="sourceLineNo">210</span>     * &lt;ol&gt;<a name="line.210"></a>
-<span class="sourceLineNo">211</span>     *  &lt;li&gt;If &lt;tt&gt;timestampOfResource&lt;/tt&gt; is 0 or negative,<a name="line.211"></a>
-<span class="sourceLineNo">212</span>     *      this method just returns false.<a name="line.212"></a>
-<span class="sourceLineNo">213</span>     *<a name="line.213"></a>
-<span class="sourceLineNo">214</span>     *  &lt;li&gt;If "If-Modified-Since" header is sent and if it's bigger than<a name="line.214"></a>
-<span class="sourceLineNo">215</span>     *      &lt;tt&gt;timestampOfResource&lt;/tt&gt;, then this method sets<a name="line.215"></a>
-<span class="sourceLineNo">216</span>     *      {@link HttpServletResponse#SC_NOT_MODIFIED} as the response code<a name="line.216"></a>
-<span class="sourceLineNo">217</span>     *      and returns true.<a name="line.217"></a>
-<span class="sourceLineNo">218</span>     *<a name="line.218"></a>
-<span class="sourceLineNo">219</span>     *  &lt;li&gt;Otherwise, "Last-Modified" header is added with &lt;tt&gt;timestampOfResource&lt;/tt&gt; value,<a name="line.219"></a>
-<span class="sourceLineNo">220</span>     *      and this method returns false.<a name="line.220"></a>
-<span class="sourceLineNo">221</span>     * &lt;/ol&gt;<a name="line.221"></a>
-<span class="sourceLineNo">222</span>     *<a name="line.222"></a>
-<span class="sourceLineNo">223</span>     * &lt;p&gt;<a name="line.223"></a>
-<span class="sourceLineNo">224</span>     * This method sends out the "Expires" header to force browser<a name="line.224"></a>
-<span class="sourceLineNo">225</span>     * to re-validate all the time.<a name="line.225"></a>
-<span class="sourceLineNo">226</span>     *<a name="line.226"></a>
-<span class="sourceLineNo">227</span>     * @param timestampOfResource<a name="line.227"></a>
-<span class="sourceLineNo">228</span>     *      The time stamp of the resource.<a name="line.228"></a>
-<span class="sourceLineNo">229</span>     * @param rsp<a name="line.229"></a>
-<span class="sourceLineNo">230</span>     *      This object is updated accordingly to simplify processing.<a name="line.230"></a>
-<span class="sourceLineNo">231</span>     *<a name="line.231"></a>
-<span class="sourceLineNo">232</span>     * @return<a name="line.232"></a>
-<span class="sourceLineNo">233</span>     *      false to indicate that the caller has to serve the actual resource.<a name="line.233"></a>
-<span class="sourceLineNo">234</span>     *      true to indicate that the caller should just quit processing right there<a name="line.234"></a>
-<span class="sourceLineNo">235</span>     *      (and send back {@link HttpServletResponse#SC_NOT_MODIFIED}.<a name="line.235"></a>
-<span class="sourceLineNo">236</span>     */<a name="line.236"></a>
-<span class="sourceLineNo">237</span>    boolean checkIfModified(long timestampOfResource, StaplerResponse rsp);<a name="line.237"></a>
-<span class="sourceLineNo">238</span><a name="line.238"></a>
-<span class="sourceLineNo">239</span>    /**<a name="line.239"></a>
-<span class="sourceLineNo">240</span>     * @see #checkIfModified(long, StaplerResponse)<a name="line.240"></a>
-<span class="sourceLineNo">241</span>     */<a name="line.241"></a>
-<span class="sourceLineNo">242</span>    boolean checkIfModified(Date timestampOfResource, StaplerResponse rsp);<a name="line.242"></a>
-<span class="sourceLineNo">243</span><a name="line.243"></a>
-<span class="sourceLineNo">244</span>    /**<a name="line.244"></a>
-<span class="sourceLineNo">245</span>     * @see #checkIfModified(long, StaplerResponse)<a name="line.245"></a>
-<span class="sourceLineNo">246</span>     */<a name="line.246"></a>
-<span class="sourceLineNo">247</span>    boolean checkIfModified(Calendar timestampOfResource, StaplerResponse rsp);<a name="line.247"></a>
-<span class="sourceLineNo">248</span><a name="line.248"></a>
-<span class="sourceLineNo">249</span>    /**<a name="line.249"></a>
-<span class="sourceLineNo">250</span>     * @param expiration<a name="line.250"></a>
-<span class="sourceLineNo">251</span>     *      The number of milliseconds until the resource will "expire".<a name="line.251"></a>
-<span class="sourceLineNo">252</span>     *      Until it expires the browser will be allowed to cache it<a name="line.252"></a>
-<span class="sourceLineNo">253</span>     *      and serve it without checking back with the server.<a name="line.253"></a>
-<span class="sourceLineNo">254</span>     *      After it expires, the client will send conditional GET to<a name="line.254"></a>
-<span class="sourceLineNo">255</span>     *      check if the resource is actually modified or not.<a name="line.255"></a>
-<span class="sourceLineNo">256</span>     *      If 0, it will immediately expire.<a name="line.256"></a>
-<span class="sourceLineNo">257</span>     *<a name="line.257"></a>
-<span class="sourceLineNo">258</span>     * @see #checkIfModified(long, StaplerResponse)<a name="line.258"></a>
-<span class="sourceLineNo">259</span>     */<a name="line.259"></a>
-<span class="sourceLineNo">260</span>    boolean checkIfModified(long timestampOfResource, StaplerResponse rsp, long expiration);<a name="line.260"></a>
-<span class="sourceLineNo">261</span><a name="line.261"></a>
-<span class="sourceLineNo">262</span>    /**<a name="line.262"></a>
-<span class="sourceLineNo">263</span>     * Binds form parameters to a bean by using introspection.<a name="line.263"></a>
-<span class="sourceLineNo">264</span>     *<a name="line.264"></a>
-<span class="sourceLineNo">265</span>     * For example, if there's a parameter called 'foo' that has value 'abc',<a name="line.265"></a>
-<span class="sourceLineNo">266</span>     * then &lt;tt&gt;bean.setFoo('abc')&lt;/tt&gt; will be invoked. This will be repeated<a name="line.266"></a>
-<span class="sourceLineNo">267</span>     * for all parameters. Parameters that do not have corresponding setters will<a name="line.267"></a>
-<span class="sourceLineNo">268</span>     * be simply ignored.<a name="line.268"></a>
-<span class="sourceLineNo">269</span>     *<a name="line.269"></a>
-<span class="sourceLineNo">270</span>     * &lt;p&gt;<a name="line.270"></a>
-<span class="sourceLineNo">271</span>     * Values are converted into the right type. See {@link ConvertUtils#convert(String, Class)}.<a name="line.271"></a>
-<span class="sourceLineNo">272</span>     *<a name="line.272"></a>
-<span class="sourceLineNo">273</span>     * @see BeanUtils#setProperty(Object, String, Object)<a name="line.273"></a>
-<span class="sourceLineNo">274</span>     *<a name="line.274"></a>
-<span class="sourceLineNo">275</span>     * @param bean<a name="line.275"></a>
-<span class="sourceLineNo">276</span>     *      The object which will be filled out.<a name="line.276"></a>
-<span class="sourceLineNo">277</span>     */<a name="line.277"></a>
-<span class="sourceLineNo">278</span>    void bindParameters( Object bean );<a name="line.278"></a>
-<span class="sourceLineNo">279</span><a name="line.279"></a>
-<span class="sourceLineNo">280</span>    /**<a name="line.280"></a>
-<span class="sourceLineNo">281</span>     * Binds form parameters to a bean by using introspection.<a name="line.281"></a>
-<span class="sourceLineNo">282</span>     *<a name="line.282"></a>
-<span class="sourceLineNo">283</span>     * This method works like {@link #bindParameters(Object)}, but it performs a<a name="line.283"></a>
-<span class="sourceLineNo">284</span>     * pre-processing on property names. Namely, only property names that start<a name="line.284"></a>
-<span class="sourceLineNo">285</span>     * with the given prefix will be used for binding, and only the portion of the<a name="line.285"></a>
-<span class="sourceLineNo">286</span>     * property name after the prefix is used.<a name="line.286"></a>
-<span class="sourceLineNo">287</span>     *<a name="line.287"></a>
-<span class="sourceLineNo">288</span>     * So for example, if the prefix is "foo.", then property name "foo.bar" with value<a name="line.288"></a>
-<span class="sourceLineNo">289</span>     * "zot" will invoke &lt;tt&gt;bean.setBar("zot")&lt;/tt&gt;.<a name="line.289"></a>
-<span class="sourceLineNo">290</span>     *<a name="line.290"></a>
+<span class="sourceLineNo">044</span>import org.kohsuke.stapler.json.SubmittedForm;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>import org.kohsuke.stapler.lang.Klass;<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>/**<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * Defines additional parameters/operations made available by Stapler.<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * @see Stapler#getCurrentRequest()<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * @author Kohsuke Kawaguchi<a name="line.51"></a>
+<span class="sourceLineNo">052</span> */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>public interface StaplerRequest extends HttpServletRequest {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    /**<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * Gets the {@link Stapler} instance that this belongs to.<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    Stapler getStapler();<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>    /**<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * Short for {@code getStapler().getWebApp()}<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     */<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    WebApp getWebApp();<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>    /**<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * Returns the additional URL portion that wasn't used by the stapler,<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * excluding the query string.<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     *<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * &lt;p&gt;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * For example, if the requested URL is "foo/bar/zot/abc?def=ghi" and<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * "foo/bar" portion matched &lt;tt&gt;bar.jsp&lt;/tt&gt;, this method returns<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * "/zot/abc".<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     *<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * &lt;p&gt;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * If this method is invoked from getters or {@link StaplerProxy#getTarget()}<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * during the object traversal, this method returns the path portion<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * that is not yet processed.<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     *<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * @return<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     *      can be empty string, but never null.<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    String getRestOfPath();<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    /**<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * Returns the same thing as {@link #getRestOfPath()} but in the pre-decoded form,<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * so all "%HH"s as present in the request URL is intact.<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     */<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    String getOriginalRestOfPath();<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>    /**<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * Returns the {@link ServletContext} object given to the stapler<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * dispatcher servlet.<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     */<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    ServletContext getServletContext();<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>    /**<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * {@link #getRequestURI()} plus additional query string part, if it exists.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     */<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    String getRequestURIWithQueryString();<a name="line.98"></a>
+<span class="sourceLineNo">099</span><a name="line.99"></a>
+<span class="sourceLineNo">100</span>    /**<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     * {@link #getRequestURL()} plus additional query string part, if it exists.<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     */<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    StringBuffer getRequestURLWithQueryString();<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>    /**<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * Gets the {@link RequestDispatcher} that represents a specific view<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * for the given object.<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     *<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * This support both JSP and Jelly.<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     *<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * @param viewName<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     *      If this name is relative name like "foo.jsp" or "bar/zot.jelly",<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     *      then the corresponding "side file" is searched by this name.<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     *      &lt;p&gt;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     *      For Jelly, this also accepts absolute path name that starts<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     *      with '/', such as "/foo/bar/zot.jelly". In this case,<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     *      &lt;tt&gt;it.getClass().getClassLoader()&lt;/tt&gt; is searched for this script. <a name="line.117"></a>
+<span class="sourceLineNo">118</span>     *<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * @return null<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     *      if neither JSP nor Jelly is not found by the given name.<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    RequestDispatcher getView(Object it,String viewName) throws IOException;<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>    /**<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * Convenience method to call {@link #getView(Klass, String)} with {@link Class}.<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     */<a name="line.126"></a>
+<span class="sourceLineNo">127</span>    RequestDispatcher getView(Class clazz,String viewName) throws IOException;<a name="line.127"></a>
+<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">129</span>    /**<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * Gets the {@link RequestDispatcher} that represents a specific view<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * for the given class.<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     *<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     * &lt;p&gt;<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * Unlike {@link #getView(Object, String)}, calling this request dispatcher<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * doesn't set the "it" variable, so<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     * {@code getView(it.getClass(),viewName)} and {@code getView(it,viewName)}<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * aren't the same thing.<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     */<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    RequestDispatcher getView(Klass&lt;?&gt; clazz, String viewName) throws IOException;<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>    /**<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * Gets the part of the request URL from protocol up to the context path.<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * So typically it's something like &lt;tt&gt;http://foobar:8080/something&lt;/tt&gt;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    String getRootPath();<a name="line.145"></a>
+<span class="sourceLineNo">146</span><a name="line.146"></a>
+<span class="sourceLineNo">147</span>    /**<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     * Gets the referer header (like "http://foobar.com/zot") or null.<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     *<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     * This is just a convenience method.<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     */<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    String getReferer();<a name="line.152"></a>
+<span class="sourceLineNo">153</span><a name="line.153"></a>
+<span class="sourceLineNo">154</span>    /**<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     * Returns a list of ancestor objects that lead to the "it" object.<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     * The returned list contains {@link Ancestor} objects sorted in the<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     * order from root to the "it" object.<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     *<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     * &lt;p&gt;<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     * For example, if the URL was "foo/bar/zot" and the "it" object<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     * was determined as &lt;code&gt;root.getFoo().getBar("zot")&lt;/code&gt;,<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     * then this list will contain the following 3 objects in this order:<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * &lt;ol&gt;<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     *  &lt;li&gt;the root object<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     *  &lt;li&gt;root.getFoo() object<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     *  &lt;li&gt;root.getFoo().getBar("zot") object (the "it" object)<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * &lt;/ol&gt;<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     * &lt;p&gt;<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     * <a name="line.169"></a>
+<span class="sourceLineNo">170</span>     *<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * @return<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     *      list of {@link Ancestor}s. Can be empty, but always non-null.<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     */<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    List&lt;Ancestor&gt; getAncestors();<a name="line.174"></a>
+<span class="sourceLineNo">175</span><a name="line.175"></a>
+<span class="sourceLineNo">176</span>    /**<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     * Finds the nearest ancestor that has the object of the given type, or null if not found.<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     */<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    Ancestor findAncestor(Class type);<a name="line.179"></a>
+<span class="sourceLineNo">180</span><a name="line.180"></a>
+<span class="sourceLineNo">181</span>    /**<a name="line.181"></a>
+<span class="sourceLineNo">182</span>     * Short for {@code findAncestor(type).getObject()}, with proper handling for null de-reference.<a name="line.182"></a>
+<span class="sourceLineNo">183</span>     * This version is also type safe.<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     */<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    &lt;T&gt; T findAncestorObject(Class&lt;T&gt; type);<a name="line.185"></a>
+<span class="sourceLineNo">186</span><a name="line.186"></a>
+<span class="sourceLineNo">187</span>    /**<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * Finds the nearest ancestor whose {@link Ancestor#getObject()} matches the given object.<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     */<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    Ancestor findAncestor(Object o);<a name="line.190"></a>
+<span class="sourceLineNo">191</span><a name="line.191"></a>
+<span class="sourceLineNo">192</span>    /**<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     * Short for {@code getParameter(name)!=null}<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     */<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    boolean hasParameter(String name);<a name="line.195"></a>
+<span class="sourceLineNo">196</span><a name="line.196"></a>
+<span class="sourceLineNo">197</span>    /**<a name="line.197"></a>
+<span class="sourceLineNo">198</span>     * Gets the {@link HttpServletRequest#getRequestURI() request URI}<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     * of the original request, so that you can access the value even from<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     * JSP.<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     */<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    String getOriginalRequestURI();<a name="line.202"></a>
+<span class="sourceLineNo">203</span><a name="line.203"></a>
+<span class="sourceLineNo">204</span>    /**<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     * Checks "If-Modified-Since" header and returns false<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     * if the resource needs to be served.<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     *<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     * &lt;p&gt;<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     * This method can behave in three ways.<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     *<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     * &lt;ol&gt;<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     *  &lt;li&gt;If &lt;tt&gt;timestampOfResource&lt;/tt&gt; is 0 or negative,<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     *      this method just returns false.<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     *<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     *  &lt;li&gt;If "If-Modified-Since" header is sent and if it's bigger than<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     *      &lt;tt&gt;timestampOfResource&lt;/tt&gt;, then this method sets<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     *      {@link HttpServletResponse#SC_NOT_MODIFIED} as the response code<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     *      and returns true.<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     *<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     *  &lt;li&gt;Otherwise, "Last-Modified" header is added with &lt;tt&gt;timestampOfResource&lt;/tt&gt; value,<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     *      and this method returns false.<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * &lt;/ol&gt;<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     *<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     * &lt;p&gt;<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     * This method sends out the "Expires" header to force browser<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     * to re-validate all the time.<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     *<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     * @param timestampOfResource<a name="line.228"></a>
+<span class="sourceLineNo">229</span>     *      The time stamp of the resource.<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     * @param rsp<a name="line.230"></a>
+<span class="sourceLineNo">231</span>     *      This object is updated accordingly to simplify processing.<a name="line.231"></a>
+<span class="sourceLineNo">232</span>     *<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * @return<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     *      false to indicate that the caller has to serve the actual resource.<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     *      true to indicate that the caller should just quit processing right there<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     *      (and send back {@link HttpServletResponse#SC_NOT_MODIFIED}.<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     */<a name="line.237"></a>
+<span class="sourceLineNo">238</span>    boolean checkIfModified(long timestampOfResource, StaplerResponse rsp);<a name="line.238"></a>
+<span class="sourceLineNo">239</span><a name="line.239"></a>
+<span class="sourceLineNo">240</span>    /**<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     * @see #checkIfModified(long, StaplerResponse)<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     */<a name="line.242"></a>
+<span class="sourceLineNo">243</span>    boolean checkIfModified(Date timestampOfResource, StaplerResponse rsp);<a name="line.243"></a>
+<span class="sourceLineNo">244</span><a name="line.244"></a>
+<span class="sourceLineNo">245</span>    /**<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     * @see #checkIfModified(long, StaplerResponse)<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     */<a name="line.247"></a>
+<span class="sourceLineNo">248</span>    boolean checkIfModified(Calendar timestampOfResource, StaplerResponse rsp);<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>    /**<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     * @param expiration<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     *      The number of milliseconds until the resource will "expire".<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     *      Until it expires the browser will be allowed to cache it<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     *      and serve it without checking back with the server.<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     *      After it expires, the client will send conditional GET to<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     *      check if the resource is actually modified or not.<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     *      If 0, it will immediately expire.<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     *<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     * @see #checkIfModified(long, StaplerResponse)<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     */<a name="line.260"></a>
+<span class="sourceLineNo">261</span>    boolean checkIfModified(long timestampOfResource, StaplerResponse rsp, long expiration);<a name="line.261"></a>
+<span class="sourceLineNo">262</span><a name="line.262"></a>
+<span class="sourceLineNo">263</span>    /**<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     * Binds form parameters to a bean by using introspection.<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     *<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     * For example, if there's a parameter called 'foo' that has value 'abc',<a name="line.266"></a>
+<span class="sourceLineNo">267</span>     * then &lt;tt&gt;bean.setFoo('abc')&lt;/tt&gt; will be invoked. This will be repeated<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     * for all parameters. Parameters that do not have corresponding setters will<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     * be simply ignored.<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     *<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     * &lt;p&gt;<a name="line.271"></a>
+<span class="sourceLineNo">272</span>     * Values are converted into the right type. See {@link ConvertUtils#convert(String, Class)}.<a name="line.272"></a>
+<span class="sourceLineNo">273</span>     *<a name="line.273"></a>
+<span class="sourceLineNo">274</span>     * @see BeanUtils#setProperty(Object, String, Object)<a name="line.274"></a>
+<span class="sourceLineNo">275</span>     *<a name="line.275"></a>
+<span class="sourceLineNo">276</span>     * @param bean<a name="line.276"></a>
+<span class="sourceLineNo">277</span>     *      The object which will be filled out.<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     */<a name="line.278"></a>
+<span class="sourceLineNo">279</span>    void bindParameters( Object bean );<a name="line.279"></a>
+<span class="sourceLineNo">280</span><a name="line.280"></a>
+<span class="sourceLineNo">281</span>    /**<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     * Binds form parameters to a bean by using introspection.<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     *<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     * This method works like {@link #bindParameters(Object)}, but it performs a<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     * pre-processing on property names. Namely, only property names that start<a name="line.285"></a>
+<span class="sourceLineNo">286</span>     * with the given prefix will be used for binding, and only the portion of the<a name="line.286"></a>
+<span class="sourceLineNo">287</span>     * property name after the prefix is used.<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     *<a name="line.288"></a>
+<span class="sourceLineNo">289</span>     * So for example, if the prefix is "foo.", then property name "foo.bar" with value<a name="line.289"></a>
+<span class="sourceLineNo">290</span>     * "zot" will invoke &lt;tt&gt;bean.setBar("zot")&lt;/tt&gt;.<a name="line.290"></a>
 <span class="sourceLineNo">291</span>     *<a name="line.291"></a>
-<span class="sourceLineNo">292</span>     * @deprecated<a name="line.292"></a>
-<span class="sourceLineNo">293</span>     *      Instead of using prefix to group object among form parameter names,<a name="line.293"></a>
-<span class="sourceLineNo">294</span>     *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.<a name="line.294"></a>
-<span class="sourceLineNo">295</span>     */<a name="line.295"></a>
-<span class="sourceLineNo">296</span>    void bindParameters( Object bean, String prefix );<a name="line.296"></a>
-<span class="sourceLineNo">297</span><a name="line.297"></a>
-<span class="sourceLineNo">298</span>    /**<a name="line.298"></a>
-<span class="sourceLineNo">299</span>     * Binds collection form parameters to beans by using introspection or<a name="line.299"></a>
-<span class="sourceLineNo">300</span>     * constructor parameters injection.<a name="line.300"></a>
-<span class="sourceLineNo">301</span>     *<a name="line.301"></a>
-<span class="sourceLineNo">302</span>     * &lt;p&gt;<a name="line.302"></a>
-<span class="sourceLineNo">303</span>     * This method works like {@link #bindParameters(Object,String)} and<a name="line.303"></a>
-<span class="sourceLineNo">304</span>     * {@link #bindParameters(Class, String)}, but it assumes<a name="line.304"></a>
-<span class="sourceLineNo">305</span>     * that form parameters have multiple-values, and use individual values to<a name="line.305"></a>
-<span class="sourceLineNo">306</span>     * fill in multiple beans.<a name="line.306"></a>
-<span class="sourceLineNo">307</span>     *<a name="line.307"></a>
-<span class="sourceLineNo">308</span>     * &lt;p&gt;<a name="line.308"></a>
-<span class="sourceLineNo">309</span>     * For example, if &lt;tt&gt;getParameterValues("foo")=={"abc","def"}&lt;/tt&gt;<a name="line.309"></a>
-<span class="sourceLineNo">310</span>     * and &lt;tt&gt;getParameterValues("bar")=={"5","3"}&lt;/tt&gt;, then this method will<a name="line.310"></a>
-<span class="sourceLineNo">311</span>     * return two objects (the first with "abc" and "5", the second with<a name="line.311"></a>
-<span class="sourceLineNo">312</span>     * "def" and "3".)<a name="line.312"></a>
-<span class="sourceLineNo">313</span>     *<a name="line.313"></a>
-<span class="sourceLineNo">314</span>     * @param type<a name="line.314"></a>
-<span class="sourceLineNo">315</span>     *      Type of the bean to be created. This class must have the default no-arg<a name="line.315"></a>
-<span class="sourceLineNo">316</span>     *      constructor.<a name="line.316"></a>
-<span class="sourceLineNo">317</span>     *<a name="line.317"></a>
-<span class="sourceLineNo">318</span>     * @param prefix<a name="line.318"></a>
-<span class="sourceLineNo">319</span>     *      See {@link #bindParameters(Object, String)} for details.<a name="line.319"></a>
-<span class="sourceLineNo">320</span>     *<a name="line.320"></a>
-<span class="sourceLineNo">321</span>     * @return<a name="line.321"></a>
-<span class="sourceLineNo">322</span>     *      Can be empty but never null.<a name="line.322"></a>
-<span class="sourceLineNo">323</span>     *<a name="line.323"></a>
+<span class="sourceLineNo">292</span>     *<a name="line.292"></a>
+<span class="sourceLineNo">293</span>     * @deprecated<a name="line.293"></a>
+<span class="sourceLineNo">294</span>     *      Instead of using prefix to group object among form parameter names,<a name="line.294"></a>
+<span class="sourceLineNo">295</span>     *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.<a name="line.295"></a>
+<span class="sourceLineNo">296</span>     */<a name="line.296"></a>
+<span class="sourceLineNo">297</span>    void bindParameters( Object bean, String prefix );<a name="line.297"></a>
+<span class="sourceLineNo">298</span><a name="line.298"></a>
+<span class="sourceLineNo">299</span>    /**<a name="line.299"></a>
+<span class="sourceLineNo">300</span>     * Binds collection form parameters to beans by using introspection or<a name="line.300"></a>
+<span class="sourceLineNo">301</span>     * constructor parameters injection.<a name="line.301"></a>
+<span class="sourceLineNo">302</span>     *<a name="line.302"></a>
+<span class="sourceLineNo">303</span>     * &lt;p&gt;<a name="line.303"></a>
+<span class="sourceLineNo">304</span>     * This method works like {@link #bindParameters(Object,String)} and<a name="line.304"></a>
+<span class="sourceLineNo">305</span>     * {@link #bindParameters(Class, String)}, but it assumes<a name="line.305"></a>
+<span class="sourceLineNo">306</span>     * that form parameters have multiple-values, and use individual values to<a name="line.306"></a>
+<span class="sourceLineNo">307</span>     * fill in multiple beans.<a name="line.307"></a>
+<span class="sourceLineNo">308</span>     *<a name="line.308"></a>
+<span class="sourceLineNo">309</span>     * &lt;p&gt;<a name="line.309"></a>
+<span class="sourceLineNo">310</span>     * For example, if &lt;tt&gt;getParameterValues("foo")=={"abc","def"}&lt;/tt&gt;<a name="line.310"></a>
+<span class="sourceLineNo">311</span>     * and &lt;tt&gt;getParameterValues("bar")=={"5","3"}&lt;/tt&gt;, then this method will<a name="line.311"></a>
+<span class="sourceLineNo">312</span>     * return two objects (the first with "abc" and "5", the second with<a name="line.312"></a>
+<span class="sourceLineNo">313</span>     * "def" and "3".)<a name="line.313"></a>
+<span class="sourceLineNo">314</span>     *<a name="line.314"></a>
+<span class="sourceLineNo">315</span>     * @param type<a name="line.315"></a>
+<span class="sourceLineNo">316</span>     *      Type of the bean to be created. This class must have the default no-arg<a name="line.316"></a>
+<span class="sourceLineNo">317</span>     *      constructor.<a name="line.317"></a>
+<span class="sourceLineNo">318</span>     *<a name="line.318"></a>
+<span class="sourceLineNo">319</span>     * @param prefix<a name="line.319"></a>
+<span class="sourceLineNo">320</span>     *      See {@link #bindParameters(Object, String)} for details.<a name="line.320"></a>
+<span class="sourceLineNo">321</span>     *<a name="line.321"></a>
+<span class="sourceLineNo">322</span>     * @return<a name="line.322"></a>
+<span class="sourceLineNo">323</span>     *      Can be empty but never null.<a name="line.323"></a>
 <span class="sourceLineNo">324</span>     *<a name="line.324"></a>
-<span class="sourceLineNo">325</span>     * @deprecated<a name="line.325"></a>
-<span class="sourceLineNo">326</span>     *      Instead of using prefix to group object among form parameter names,<a name="line.326"></a>
-<span class="sourceLineNo">327</span>     *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.<a name="line.327"></a>
-<span class="sourceLineNo">328</span>     */<a name="line.328"></a>
-<span class="sourceLineNo">329</span>    &lt;T&gt;<a name="line.329"></a>
-<span class="sourceLineNo">330</span>    List&lt;T&gt; bindParametersToList( Class&lt;T&gt; type, String prefix );<a name="line.330"></a>
-<span class="sourceLineNo">331</span><a name="line.331"></a>
-<span class="sourceLineNo">332</span>    /**<a name="line.332"></a>
-<span class="sourceLineNo">333</span>     * Instantiates a new object by injecting constructor parameters from the form parameters.<a name="line.333"></a>
-<span class="sourceLineNo">334</span>     *<a name="line.334"></a>
-<span class="sourceLineNo">335</span>     * &lt;p&gt;<a name="line.335"></a>
-<span class="sourceLineNo">336</span>     * The given class must have a constructor annotated with '&amp;#64;stapler-constructor',<a name="line.336"></a>
-<span class="sourceLineNo">337</span>     * and must be processed by the maven-stapler-plugin, so that the parameter names<a name="line.337"></a>
-<span class="sourceLineNo">338</span>     * of the constructor is available at runtime.<a name="line.338"></a>
-<span class="sourceLineNo">339</span>     *<a name="line.339"></a>
-<span class="sourceLineNo">340</span>     * &lt;p&gt;<a name="line.340"></a>
-<span class="sourceLineNo">341</span>     * The prefix is used to control the form parameter name. For example,<a name="line.341"></a>
-<span class="sourceLineNo">342</span>     * if the prefix is "foo." and if the constructor is define as<a name="line.342"></a>
-<span class="sourceLineNo">343</span>     * &lt;code&gt;Foo(String a, String b)&lt;/code&gt;, then the constructor will be invoked<a name="line.343"></a>
-<span class="sourceLineNo">344</span>     * as &lt;code&gt;new Foo(getParameter("foo.a"),getParameter("foo.b"))&lt;/code&gt;.<a name="line.344"></a>
-<span class="sourceLineNo">345</span>     *<a name="line.345"></a>
-<span class="sourceLineNo">346</span>     * @deprecated<a name="line.346"></a>
-<span class="sourceLineNo">347</span>     *      Instead of using prefix to group object among form parameter names,<a name="line.347"></a>
-<span class="sourceLineNo">348</span>     *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.<a name="line.348"></a>
-<span class="sourceLineNo">349</span>     */<a name="line.349"></a>
-<span class="sourceLineNo">350</span>    &lt;T&gt;<a name="line.350"></a>
-<span class="sourceLineNo">351</span>    T bindParameters( Class&lt;T&gt; type, String prefix );<a name="line.351"></a>
-<span class="sourceLineNo">352</span><a name="line.352"></a>
-<span class="sourceLineNo">353</span>    /**<a name="line.353"></a>
-<span class="sourceLineNo">354</span>     * Works like {@link #bindParameters(Class, String)} but uses n-th value<a name="line.354"></a>
-<span class="sourceLineNo">355</span>     * of all the parameters.<a name="line.355"></a>
-<span class="sourceLineNo">356</span>     *<a name="line.356"></a>
-<span class="sourceLineNo">357</span>     * &lt;p&gt;<a name="line.357"></a>
-<span class="sourceLineNo">358</span>     * This is useful for creating multiple instances from repeated form fields.<a name="line.358"></a>
-<span class="sourceLineNo">359</span>     *<a name="line.359"></a>
+<span class="sourceLineNo">325</span>     *<a name="line.325"></a>
+<span class="sourceLineNo">326</span>     * @deprecated<a name="line.326"></a>
+<span class="sourceLineNo">327</span>     *      Instead of using prefix to group object among form parameter names,<a name="line.327"></a>
+<span class="sourceLineNo">328</span>     *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.<a name="line.328"></a>
+<span class="sourceLineNo">329</span>     */<a name="line.329"></a>
+<span class="sourceLineNo">330</span>    &lt;T&gt;<a name="line.330"></a>
+<span class="sourceLineNo">331</span>    List&lt;T&gt; bindParametersToList( Class&lt;T&gt; type, String prefix );<a name="line.331"></a>
+<span class="sourceLineNo">332</span><a name="line.332"></a>
+<span class="sourceLineNo">333</span>    /**<a name="line.333"></a>
+<span class="sourceLineNo">334</span>     * Instantiates a new object by injecting constructor parameters from the form parameters.<a name="line.334"></a>
+<span class="sourceLineNo">335</span>     *<a name="line.335"></a>
+<span class="sourceLineNo">336</span>     * &lt;p&gt;<a name="line.336"></a>
+<span class="sourceLineNo">337</span>     * The given class must have a constructor annotated with '&amp;#64;stapler-constructor',<a name="line.337"></a>
+<span class="sourceLineNo">338</span>     * and must be processed by the maven-stapler-plugin, so that the parameter names<a name="line.338"></a>
+<span class="sourceLineNo">339</span>     * of the constructor is available at runtime.<a name="line.339"></a>
+<span class="sourceLineNo">340</span>     *<a name="line.340"></a>
+<span class="sourceLineNo">341</span>     * &lt;p&gt;<a name="line.341"></a>
+<span class="sourceLineNo">342</span>     * The prefix is used to control the form parameter name. For example,<a name="line.342"></a>
+<span class="sourceLineNo">343</span>     * if the prefix is "foo." and if the constructor is define as<a name="line.343"></a>
+<span class="sourceLineNo">344</span>     * &lt;code&gt;Foo(String a, String b)&lt;/code&gt;, then the constructor will be invoked<a name="line.344"></a>
+<span class="sourceLineNo">345</span>     * as &lt;code&gt;new Foo(getParameter("foo.a"),getParameter("foo.b"))&lt;/code&gt;.<a name="line.345"></a>
+<span class="sourceLineNo">346</span>     *<a name="line.346"></a>
+<span class="sourceLineNo">347</span>     * @deprecated<a name="line.347"></a>
+<span class="sourceLineNo">348</span>     *      Instead of using prefix to group object among form parameter names,<a name="line.348"></a>
+<span class="sourceLineNo">349</span>     *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.<a name="line.349"></a>
+<span class="sourceLineNo">350</span>     */<a name="line.350"></a>
+<span class="sourceLineNo">351</span>    &lt;T&gt;<a name="line.351"></a>
+<span class="sourceLineNo">352</span>    T bindParameters( Class&lt;T&gt; type, String prefix );<a name="line.352"></a>
+<span class="sourceLineNo">353</span><a name="line.353"></a>
+<span class="sourceLineNo">354</span>    /**<a name="line.354"></a>
+<span class="sourceLineNo">355</span>     * Works like {@link #bindParameters(Class, String)} but uses n-th value<a name="line.355"></a>
+<span class="sourceLineNo">356</span>     * of all the parameters.<a name="line.356"></a>
+<span class="sourceLineNo">357</span>     *<a name="line.357"></a>
+<span class="sourceLineNo">358</span>     * &lt;p&gt;<a name="line.358"></a>
+<span class="sourceLineNo">359</span>     * This is useful for creating multiple instances from repeated form fields.<a name="line.359"></a>
 <span class="sourceLineNo">360</span>     *<a name="line.360"></a>
-<span class="sourceLineNo">361</span>     * @deprecated<a name="line.361"></a>
-<span class="sourceLineNo">362</span>     *      Instead of using prefix to group object among form parameter names,<a name="line.362"></a>
-<span class="sourceLineNo">363</span>     *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.<a name="line.363"></a>
-<span class="sourceLineNo">364</span>     */<a name="line.364"></a>
-<span class="sourceLineNo">365</span>    &lt;T&gt;<a name="line.365"></a>
-<span class="sourceLineNo">366</span>    T bindParameters( Class&lt;T&gt; type, String prefix, int index );<a name="line.366"></a>
-<span class="sourceLineNo">367</span><a name="line.367"></a>
-<span class="sourceLineNo">368</span>    /**<a name="line.368"></a>
-<span class="sourceLineNo">369</span>     * Data-bind from a {@link JSONObject} to the given target type,<a name="line.369"></a>
-<span class="sourceLineNo">370</span>     * by using introspection or constructor parameters injection.<a name="line.370"></a>
-<span class="sourceLineNo">371</span>     *<a name="line.371"></a>
-<span class="sourceLineNo">372</span>     * &lt;p&gt;<a name="line.372"></a>
-<span class="sourceLineNo">373</span>     * For example, if you have a constructor that looks like the following:<a name="line.373"></a>
-<span class="sourceLineNo">374</span>     *<a name="line.374"></a>
-<span class="sourceLineNo">375</span>     * &lt;pre&gt;<a name="line.375"></a>
-<span class="sourceLineNo">376</span>     * class Foo {<a name="line.376"></a>
-<span class="sourceLineNo">377</span>     *   &amp;#64;{@link DataBoundConstructor}<a name="line.377"></a>
-<span class="sourceLineNo">378</span>     *   public Foo(Integer x, String y, boolean z, Bar bar) { ... }<a name="line.378"></a>
-<span class="sourceLineNo">379</span>     * }<a name="line.379"></a>
-<span class="sourceLineNo">380</span>     *<a name="line.380"></a>
-<span class="sourceLineNo">381</span>     * class Bar {<a name="line.381"></a>
-<span class="sourceLineNo">382</span>     *   &amp;#64;{@link DataBoundConstructor}<a name="line.382"></a>
-<span class="sourceLineNo">383</span>     *   public Bar(int x, int y) {}<a name="line.383"></a>
-<span class="sourceLineNo">384</span>     * }<a name="line.384"></a>
-<span class="sourceLineNo">385</span>     * &lt;/pre&gt;<a name="line.385"></a>
-<span class="sourceLineNo">386</span>     *<a name="line.386"></a>
-<span class="sourceLineNo">387</span>     * ... and if JSONObject looks like<a name="line.387"></a>
-<span class="sourceLineNo">388</span>     *<a name="line.388"></a>
-<span class="sourceLineNo">389</span>     * &lt;pre&gt;{ y:"text", z:true, bar:{x:1,y:2}}&lt;/pre&gt;<a name="line.389"></a>
-<span class="sourceLineNo">390</span>     *<a name="line.390"></a>
-<span class="sourceLineNo">391</span>     * then, this method returns<a name="line.391"></a>
-<span class="sourceLineNo">392</span>     *<a name="line.392"></a>
-<span class="sourceLineNo">393</span>     * &lt;pre&gt;new Foo(null,"text",true,new Bar(1,2))&lt;/pre&gt;<a name="line.393"></a>
-<span class="sourceLineNo">394</span>     *<a name="line.394"></a>
-<span class="sourceLineNo">395</span>     * &lt;h3&gt;Sub-typing&lt;/h3&gt;<a name="line.395"></a>
-<span class="sourceLineNo">396</span>     * &lt;p&gt;<a name="line.396"></a>
-<span class="sourceLineNo">397</span>     * In the above example, a new instance of &lt;tt&gt;Bar&lt;/tt&gt; was created,<a name="line.397"></a>
-<span class="sourceLineNo">398</span>     * but you can also create a subtype of Bar by having the '$class' property in<a name="line.398"></a>
-<span class="sourceLineNo">399</span>     * JSON like this:<a name="line.399"></a>
-<span class="sourceLineNo">400</span>     *<a name="line.400"></a>
-<span class="sourceLineNo">401</span>     * &lt;pre&gt;<a name="line.401"></a>
-<span class="sourceLineNo">402</span>     * class BarEx extends Bar {<a name="line.402"></a>
-<span class="sourceLineNo">403</span>     *   &amp;#64;{@link DataBoundConstructor}<a name="line.403"></a>
-<span class="sourceLineNo">404</span>     *   public BarEx(int a, int b, int c) {}<a name="line.404"></a>
-<span class="sourceLineNo">405</span>     * }<a name="line.405"></a>
-<span class="sourceLineNo">406</span>     *<a name="line.406"></a>
-<span class="sourceLineNo">407</span>     * { y:"text", z:true, bar: { $class:"p.k.g.BarEx", a:1, b:2, c:3 } }<a name="line.407"></a>
-<span class="sourceLineNo">408</span>     * &lt;/pre&gt;<a name="line.408"></a>
-<span class="sourceLineNo">409</span>     *<a name="line.409"></a>
-<span class="sourceLineNo">410</span>     * &lt;p&gt;<a name="line.410"></a>
-<span class="sourceLineNo">411</span>     * The type that shows up in the constructor (&lt;tt&gt;Bar&lt;/tt&gt; in this case)<a name="line.411"></a>
-<span class="sourceLineNo">412</span>     * can be an interface or an abstract class.<a name="line.412"></a>
-<span class="sourceLineNo">413</span>     */<a name="line.413"></a>
-<span class="sourceLineNo">414</span>    &lt;T&gt;<a name="line.414"></a>
-<span class="sourceLineNo">415</span>    T bindJSON(Class&lt;T&gt; type, JSONObject src);<a name="line.415"></a>
-<span class="sourceLineNo">416</span><a name="line.416"></a>
-<span class="sourceLineNo">417</span>    /**<a name="line.417"></a>
-<span class="sourceLineNo">418</span>     * Data-bind from one of the JSON object types ({@link JSONObject}, {@link JSONArray},<a name="line.418"></a>
-<span class="sourceLineNo">419</span>     * {@link String}, {@link Integer}, and so on) to the expected type given as an argument.<a name="line.419"></a>
-<span class="sourceLineNo">420</span>     *<a name="line.420"></a>
-<span class="sourceLineNo">421</span>     * @param genericType<a name="line.421"></a>
-<span class="sourceLineNo">422</span>     *      The generic type of the 'erasure' parameter.<a name="line.422"></a>
-<span class="sourceLineNo">423</span>     * @param erasure<a name="line.423"></a>
-<span class="sourceLineNo">424</span>     *      The expected type to convert the JSON argument to.<a name="line.424"></a>
-<span class="sourceLineNo">425</span>     * @param json<a name="line.425"></a>
-<span class="sourceLineNo">426</span>     *      One of the JSON value type.<a name="line.426"></a>
-<span class="sourceLineNo">427</span>     */<a name="line.427"></a>
-<span class="sourceLineNo">428</span>    &lt;T&gt; T bindJSON(Type genericType, Class&lt;T&gt; erasure, Object json);<a name="line.428"></a>
-<span class="sourceLineNo">429</span><a name="line.429"></a>
-<span class="sourceLineNo">430</span>    /**<a name="line.430"></a>
-<span class="sourceLineNo">431</span>     * Data-binds from {@link JSONObject} to the given object.<a name="line.431"></a>
-<span class="sourceLineNo">432</span>     *<a name="line.432"></a>
-<span class="sourceLineNo">433</span>     * &lt;p&gt;<a name="line.433"></a>
-<span class="sourceLineNo">434</span>     * This method is bit like {@link #bindJSON(Class, JSONObject)}, except that this method<a name="line.434"></a>
-<span class="sourceLineNo">435</span>     * populates an existing object, instead of creating a new instance.<a name="line.435"></a>
-<span class="sourceLineNo">436</span>     *<a name="line.436"></a>
-<span class="sourceLineNo">437</span>     * &lt;p&gt;<a name="line.437"></a>
-<span class="sourceLineNo">438</span>     * This method is also bit like {@link #bindParameters(Object, String)}, in that it<a name="line.438"></a>
-<span class="sourceLineNo">439</span>     * populates an existing object from a form submission, except that this method<a name="line.439"></a>
-<span class="sourceLineNo">440</span>     * obtains data from {@link JSONObject} thus more structured, whereas {@link #bindParameters(Object, String)}<a name="line.440"></a>
-<span class="sourceLineNo">441</span>     * uses the map structure of the form submission. <a name="line.441"></a>
-<span class="sourceLineNo">442</span>     */<a name="line.442"></a>
-<span class="sourceLineNo">443</span>    void bindJSON( Object bean, JSONObject src );<a name="line.443"></a>
-<span class="sourceLineNo">444</span><a name="line.444"></a>
-<span class="sourceLineNo">445</span>    /**<a name="line.445"></a>
-<span class="sourceLineNo">446</span>     * Data-bind from either {@link JSONObject} or {@link JSONArray} to a list,<a name="line.446"></a>
-<span class="sourceLineNo">447</span>     * by using {@link #bindJSON(Class, JSONObject)} as the lower-level mechanism.<a name="line.447"></a>
-<span class="sourceLineNo">448</span>     *<a name="line.448"></a>
-<span class="sourceLineNo">449</span>     * &lt;p&gt;<a name="line.449"></a>
-<span class="sourceLineNo">450</span>     * If the source is {@link JSONObject}, the returned list will contain<a name="line.450"></a>
-<span class="sourceLineNo">451</span>     * a single item. If it is {@link JSONArray}, each item will be bound.<a name="line.451"></a>
-<span class="sourceLineNo">452</span>     * If it is null, then the list will be empty.<a name="line.452"></a>
-<span class="sourceLineNo">453</span>     */<a name="line.453"></a>
-<span class="sourceLineNo">454</span>    &lt;T&gt;<a name="line.454"></a>
-<span class="sourceLineNo">455</span>    List&lt;T&gt; bindJSONToList(Class&lt;T&gt; type, Object src);<a name="line.455"></a>
-<span class="sourceLineNo">456</span><a name="line.456"></a>
-<span class="sourceLineNo">457</span>    /**<a name="line.457"></a>
-<span class="sourceLineNo">458</span>     * Gets the {@link BindInterceptor} set for this request.<a name="line.458"></a>
-<span class="sourceLineNo">459</span>     *<a name="line.459"></a>
-<span class="sourceLineNo">460</span>     * @see WebApp#bindInterceptors<a name="line.460"></a>
-<span class="sourceLineNo">461</span>     */<a name="line.461"></a>
-<span class="sourceLineNo">462</span>    BindInterceptor getBindInterceptor();<a name="line.462"></a>
-<span class="sourceLineNo">463</span><a name="line.463"></a>
-<span class="sourceLineNo">464</span>    /**<a name="line.464"></a>
-<span class="sourceLineNo">465</span>     * @deprecated<a name="line.465"></a>
-<span class="sourceLineNo">466</span>     * Typo. Use {@link #setBindInterceptor(BindInterceptor)}<a name="line.466"></a>
-<span class="sourceLineNo">467</span>     */<a name="line.467"></a>
-<span class="sourceLineNo">468</span>    BindInterceptor setBindListener(BindInterceptor bindListener);<a name="line.468"></a>
-<span class="sourceLineNo">469</span><a name="line.469"></a>
-<span class="sourceLineNo">470</span>    /**<a name="line.470"></a>
-<span class="sourceLineNo">471</span>     * @deprecated<a name="line.471"></a>
-<span class="sourceLineNo">472</span>     * Typo. Use {@link #setBindInterceptor(BindInterceptor)}<a name="line.472"></a>
-<span class="sourceLineNo">473</span>     */<a name="line.473"></a>
-<span class="sourceLineNo">474</span>    BindInterceptor setBindInterceptpr(BindInterceptor bindListener);<a name="line.474"></a>
-<span class="sourceLineNo">475</span><a name="line.475"></a>
-<span class="sourceLineNo">476</span>    BindInterceptor setBindInterceptor(BindInterceptor bindListener);<a name="line.476"></a>
-<span class="sourceLineNo">477</span><a name="line.477"></a>
-<span class="sourceLineNo">478</span>    /**<a name="line.478"></a>
-<span class="sourceLineNo">479</span>     * Gets the content of the structured form submission.<a name="line.479"></a>
-<span class="sourceLineNo">480</span>     *<a name="line.480"></a>
-<span class="sourceLineNo">481</span>     * @see &lt;a href="https://wiki.jenkins-ci.org/display/JENKINS/Structured+Form+Submission"&gt;Structured Form Submission&lt;/a&gt;<a name="line.481"></a>
-<span class="sourceLineNo">482</span>     */<a name="line.482"></a>
-<span class="sourceLineNo">483</span>    JSONObject getSubmittedForm() throws ServletException;<a name="line.483"></a>
-<span class="sourceLineNo">484</span><a name="line.484"></a>
-<span class="sourceLineNo">485</span>    /**<a name="line.485"></a>
-<span class="sourceLineNo">486</span>     * Obtains a commons-fileupload object that represents an uploaded file.<a name="line.486"></a>
-<span class="sourceLineNo">487</span>     *<a name="line.487"></a>
-<span class="sourceLineNo">488</span>     * @return<a name="line.488"></a>
-<span class="sourceLineNo">489</span>     *      null if a file of the given form field name doesn't exist.<a name="line.489"></a>
-<span class="sourceLineNo">490</span>     *      This includes the case where the name corresponds to a simple<a name="line.490"></a>
-<span class="sourceLineNo">491</span>     *      form field (like textbox, checkbox, etc.) <a name="line.491"></a>
-<span class="sourceLineNo">492</span>     */<a name="line.492"></a>
-<span class="sourceLineNo">493</span>    FileItem getFileItem(String name) throws ServletException, IOException;<a name="line.493"></a>
-<span class="sourceLineNo">494</span><a name="line.494"></a>
-<span class="sourceLineNo">495</span>    /**<a name="line.495"></a>
-<span class="sourceLineNo">496</span>     * Returns true if this request represents a server method call to a JavaScript proxy object.<a name="line.496"></a>
-<span class="sourceLineNo">497</span>     */<a name="line.497"></a>
-<span class="sourceLineNo">498</span>    boolean isJavaScriptProxyCall();<a name="line.498"></a>
-<span class="sourceLineNo">499</span><a name="line.499"></a>
-<span class="sourceLineNo">500</span>    /**<a name="line.500"></a>
-<span class="sourceLineNo">501</span>     * Short cut for obtaining {@link BoundObjectTable} associated with this webapp.<a name="line.501"></a>
-<span class="sourceLineNo">502</span>     */<a name="line.502"></a>
-<span class="sourceLineNo">503</span>    BoundObjectTable getBoundObjectTable();<a name="line.503"></a>
-<span class="sourceLineNo">504</span><a name="line.504"></a>
-<span class="sourceLineNo">505</span>    /**<a name="line.505"></a>
-<span class="sourceLineNo">506</span>     * Exports the given Java object as a JavaScript proxy and returns a JavaScript expression to create<a name="line.506"></a>
-<span class="sourceLineNo">507</span>     * a proxy on the client side.<a name="line.507"></a>
-<span class="sourceLineNo">508</span>     *<a name="line.508"></a>
-<span class="sourceLineNo">509</span>     * Short cut for {@code getBoundObjectTable().bind(toBeExported).getProxyScript()}<a name="line.509"></a>
-<span class="sourceLineNo">510</span>     */<a name="line.510"></a>
-<span class="sourceLineNo">511</span>    String createJavaScriptProxy(Object toBeExported);<a name="line.511"></a>
-<span class="sourceLineNo">512</span>}<a name="line.512"></a>
+<span class="sourceLineNo">361</span>     *<a name="line.361"></a>
+<span class="sourceLineNo">362</span>     * @deprecated<a name="line.362"></a>
+<span class="sourceLineNo">363</span>     *      Instead of using prefix to group object among form parameter names,<a name="line.363"></a>
+<span class="sourceLineNo">364</span>     *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.<a name="line.364"></a>
+<span class="sourceLineNo">365</span>     */<a name="line.365"></a>
+<span class="sourceLineNo">366</span>    &lt;T&gt;<a name="line.366"></a>
+<span class="sourceLineNo">367</span>    T bindParameters( Class&lt;T&gt; type, String prefix, int index );<a name="line.367"></a>
+<span class="sourceLineNo">368</span><a name="line.368"></a>
+<span class="sourceLineNo">369</span>    /**<a name="line.369"></a>
+<span class="sourceLineNo">370</span>     * Data-bind from a {@link JSONObject} to the given target type,<a name="line.370"></a>
+<span class="sourceLineNo">371</span>     * by using introspection or constructor parameters injection.<a name="line.371"></a>
+<span class="sourceLineNo">372</span>     *<a name="line.372"></a>
+<span class="sourceLineNo">373</span>     * &lt;p&gt;<a name="line.373"></a>
+<span class="sourceLineNo">374</span>     * For example, if you have a constructor that looks like the following:<a name="line.374"></a>
+<span class="sourceLineNo">375</span>     *<a name="line.375"></a>
+<span class="sourceLineNo">376</span>     * &lt;pre&gt;<a name="line.376"></a>
+<span class="sourceLineNo">377</span>     * class Foo {<a name="line.377"></a>
+<span class="sourceLineNo">378</span>     *   &amp;#64;{@link DataBoundConstructor}<a name="line.378"></a>
+<span class="sourceLineNo">379</span>     *   public Foo(Integer x, String y, boolean z, Bar bar) { ... }<a name="line.379"></a>
+<span class="sourceLineNo">380</span>     * }<a name="line.380"></a>
+<span class="sourceLineNo">381</span>     *<a name="line.381"></a>
+<span class="sourceLineNo">382</span>     * class Bar {<a name="line.382"></a>
+<span class="sourceLineNo">383</span>     *   &amp;#64;{@link DataBoundConstructor}<a name="line.383"></a>
+<span class="sourceLineNo">384</span>     *   public Bar(int x, int y) {}<a name="line.384"></a>
+<span class="sourceLineNo">385</span>     * }<a name="line.385"></a>
+<span class="sourceLineNo">386</span>     * &lt;/pre&gt;<a name="line.386"></a>
+<span class="sourceLineNo">387</span>     *<a name="line.387"></a>
+<span class="sourceLineNo">388</span>     * ... and if JSONObject looks like<a name="line.388"></a>
+<span class="sourceLineNo">389</span>     *<a name="line.389"></a>
+<span class="sourceLineNo">390</span>     * &lt;pre&gt;{ y:"text", z:true, bar:{x:1,y:2}}&lt;/pre&gt;<a name="line.390"></a>
+<span class="sourceLineNo">391</span>     *<a name="line.391"></a>
+<span class="sourceLineNo">392</span>     * then, this method returns<a name="line.392"></a>
+<span class="sourceLineNo">393</span>     *<a name="line.393"></a>
+<span class="sourceLineNo">394</span>     * &lt;pre&gt;new Foo(null,"text",true,new Bar(1,2))&lt;/pre&gt;<a name="line.394"></a>
+<span class="sourceLineNo">395</span>     *<a name="line.395"></a>
+<span class="sourceLineNo">396</span>     * &lt;h3&gt;Sub-typing&lt;/h3&gt;<a name="line.396"></a>
+<span class="sourceLineNo">397</span>     * &lt;p&gt;<a name="line.397"></a>
+<span class="sourceLineNo">398</span>     * In the above example, a new instance of &lt;tt&gt;Bar&lt;/tt&gt; was created,<a name="line.398"></a>
+<span class="sourceLineNo">399</span>     * but you can also create a subtype of Bar by having the '$class' property in<a name="line.399"></a>
+<span class="sourceLineNo">400</span>     * JSON like this:<a name="line.400"></a>
+<span class="sourceLineNo">401</span>     *<a name="line.401"></a>
+<span class="sourceLineNo">402</span>     * &lt;pre&gt;<a name="line.402"></a>
+<span class="sourceLineNo">403</span>     * class BarEx extends Bar {<a name="line.403"></a>
+<span class="sourceLineNo">404</span>     *   &amp;#64;{@link DataBoundConstructor}<a name="line.404"></a>
+<span class="sourceLineNo">405</span>     *   public BarEx(int a, int b, int c) {}<a name="line.405"></a>
+<span class="sourceLineNo">406</span>     * }<a name="line.406"></a>
+<span class="sourceLineNo">407</span>     *<a name="line.407"></a>
+<span class="sourceLineNo">408</span>     * { y:"text", z:true, bar: { $class:"p.k.g.BarEx", a:1, b:2, c:3 } }<a name="line.408"></a>
+<span class="sourceLineNo">409</span>     * &lt;/pre&gt;<a name="line.409"></a>
+<span class="sourceLineNo">410</span>     *<a name="line.410"></a>
+<span class="sourceLineNo">411</span>     * &lt;p&gt;<a name="line.411"></a>
+<span class="sourceLineNo">412</span>     * The type that shows up in the constructor (&lt;tt&gt;Bar&lt;/tt&gt; in this case)<a name="line.412"></a>
+<span class="sourceLineNo">413</span>     * can be an interface or an abstract class.<a name="line.413"></a>
+<span class="sourceLineNo">414</span>     */<a name="line.414"></a>
+<span class="sourceLineNo">415</span>    &lt;T&gt;<a name="line.415"></a>
+<span class="sourceLineNo">416</span>    T bindJSON(Class&lt;T&gt; type, JSONObject src);<a name="line.416"></a>
+<span class="sourceLineNo">417</span><a name="line.417"></a>
+<span class="sourceLineNo">418</span>    /**<a name="line.418"></a>
+<span class="sourceLineNo">419</span>     * Data-bind from one of the JSON object types ({@link JSONObject}, {@link JSONArray},<a name="line.419"></a>
+<span class="sourceLineNo">420</span>     * {@link String}, {@link Integer}, and so on) to the expected type given as an argument.<a name="line.420"></a>
+<span class="sourceLineNo">421</span>     *<a name="line.421"></a>
+<span class="sourceLineNo">422</span>     * @param genericType<a name="line.422"></a>
+<span class="sourceLineNo">423</span>     *      The generic type of the 'erasure' parameter.<a name="line.423"></a>
+<span class="sourceLineNo">424</span>     * @param erasure<a name="line.424"></a>
+<span class="sourceLineNo">425</span>     *      The expected type to convert the JSON argument to.<a name="line.425"></a>
+<span class="sourceLineNo">426</span>     * @param json<a name="line.426"></a>
+<span class="sourceLineNo">427</span>     *      One of the JSON value type.<a name="line.427"></a>
+<span class="sourceLineNo">428</span>     */<a name="line.428"></a>
+<span class="sourceLineNo">429</span>    &lt;T&gt; T bindJSON(Type genericType, Class&lt;T&gt; erasure, Object json);<a name="line.429"></a>
+<span class="sourceLineNo">430</span><a name="line.430"></a>
+<span class="sourceLineNo">431</span>    /**<a name="line.431"></a>
+<span class="sourceLineNo">432</span>     * Data-binds from {@link JSONObject} to the given object.<a name="line.432"></a>
+<span class="sourceLineNo">433</span>     *<a name="line.433"></a>
+<span class="sourceLineNo">434</span>     * &lt;p&gt;<a name="line.434"></a>
+<span class="sourceLineNo">435</span>     * This method is bit like {@link #bindJSON(Class, JSONObject)}, except that this method<a name="line.435"></a>
+<span class="sourceLineNo">436</span>     * populates an existing object, instead of creating a new instance.<a name="line.436"></a>
+<span class="sourceLineNo">437</span>     *<a name="line.437"></a>
+<span class="sourceLineNo">438</span>     * &lt;p&gt;<a name="line.438"></a>
+<span class="sourceLineNo">439</span>     * This method is also bit like {@link #bindParameters(Object, String)}, in that it<a name="line.439"></a>
+<span class="sourceLineNo">440</span>     * populates an existing object from a form submission, except that this method<a name="line.440"></a>
+<span class="sourceLineNo">441</span>     * obtains data from {@link JSONObject} thus more structured, whereas {@link #bindParameters(Object, String)}<a name="line.441"></a>
+<span class="sourceLineNo">442</span>     * uses the map structure of the form submission. <a name="line.442"></a>
+<span class="sourceLineNo">443</span>     */<a name="line.443"></a>
+<span class="sourceLineNo">444</span>    void bindJSON( Object bean, JSONObject src );<a name="line.444"></a>
+<span class="sourceLineNo">445</span><a name="line.445"></a>
+<span class="sourceLineNo">446</span>    /**<a name="line.446"></a>
+<span class="sourceLineNo">447</span>     * Data-bind from either {@link JSONObject} or {@link JSONArray} to a list,<a name="line.447"></a>
+<span class="sourceLineNo">448</span>     * by using {@link #bindJSON(Class, JSONObject)} as the lower-level mechanism.<a name="line.448"></a>
+<span class="sourceLineNo">449</span>     *<a name="line.449"></a>
+<span class="sourceLineNo">450</span>     * &lt;p&gt;<a name="line.450"></a>
+<span class="sourceLineNo">451</span>     * If the source is {@link JSONObject}, the returned list will contain<a name="line.451"></a>
+<span class="sourceLineNo">452</span>     * a single item. If it is {@link JSONArray}, each item will be bound.<a name="line.452"></a>
+<span class="sourceLineNo">453</span>     * If it is null, then the list will be empty.<a name="line.453"></a>
+<span class="sourceLineNo">454</span>     */<a name="line.454"></a>
+<span class="sourceLineNo">455</span>    &lt;T&gt;<a name="line.455"></a>
+<span class="sourceLineNo">456</span>    List&lt;T&gt; bindJSONToList(Class&lt;T&gt; type, Object src);<a name="line.456"></a>
+<span class="sourceLineNo">457</span><a name="line.457"></a>
+<span class="sourceLineNo">458</span>    /**<a name="line.458"></a>
+<span class="sourceLineNo">459</span>     * Gets the {@link BindInterceptor} set for this request.<a name="line.459"></a>
+<span class="sourceLineNo">460</span>     *<a name="line.460"></a>
+<span class="sourceLineNo">461</span>     * @see WebApp#bindInterceptors<a name="line.461"></a>
+<span class="sourceLineNo">462</span>     */<a name="line.462"></a>
+<span class="sourceLineNo">463</span>    BindInterceptor getBindInterceptor();<a name="line.463"></a>
+<span class="sourceLineNo">464</span><a name="line.464"></a>
+<span class="sourceLineNo">465</span>    /**<a name="line.465"></a>
+<span class="sourceLineNo">466</span>     * @deprecated<a name="line.466"></a>
+<span class="sourceLineNo">467</span>     * Typo. Use {@link #setBindInterceptor(BindInterceptor)}<a name="line.467"></a>
+<span class="sourceLineNo">468</span>     */<a name="line.468"></a>
+<span class="sourceLineNo">469</span>    BindInterceptor setBindListener(BindInterceptor bindListener);<a name="line.469"></a>
+<span class="sourceLineNo">470</span><a name="line.470"></a>
+<span class="sourceLineNo">471</span>    /**<a name="line.471"></a>
+<span class="sourceLineNo">472</span>     * @deprecated<a name="line.472"></a>
+<span class="sourceLineNo">473</span>     * Typo. Use {@link #setBindInterceptor(BindInterceptor)}<a name="line.473"></a>
+<span class="sourceLineNo">474</span>     */<a name="line.474"></a>
+<span class="sourceLineNo">475</span>    BindInterceptor setBindInterceptpr(BindInterceptor bindListener);<a name="line.475"></a>
+<span class="sourceLineNo">476</span><a name="line.476"></a>
+<span class="sourceLineNo">477</span>    BindInterceptor setBindInterceptor(BindInterceptor bindListener);<a name="line.477"></a>
+<span class="sourceLineNo">478</span><a name="line.478"></a>
+<span class="sourceLineNo">479</span>    /**<a name="line.479"></a>
+<span class="sourceLineNo">480</span>     * Gets the content of the structured form submission.<a name="line.480"></a>
+<span class="sourceLineNo">481</span>     *<a name="line.481"></a>
+<span class="sourceLineNo">482</span>     * @see &lt;a href="https://wiki.jenkins-ci.org/display/JENKINS/Structured+Form+Submission"&gt;Structured Form Submission&lt;/a&gt;<a name="line.482"></a>
+<span class="sourceLineNo">483</span>     * @see SubmittedForm<a name="line.483"></a>
+<span class="sourceLineNo">484</span>     */<a name="line.484"></a>
+<span class="sourceLineNo">485</span>    JSONObject getSubmittedForm() throws ServletException;<a name="line.485"></a>
+<span class="sourceLineNo">486</span><a name="line.486"></a>
+<span class="sourceLineNo">487</span>    /**<a name="line.487"></a>
+<span class="sourceLineNo">488</span>     * Obtains a commons-fileupload object that represents an uploaded file.<a name="line.488"></a>
+<span class="sourceLineNo">489</span>     *<a name="line.489"></a>
+<span class="sourceLineNo">490</span>     * @return<a name="line.490"></a>
+<span class="sourceLineNo">491</span>     *      null if a file of the given form field name doesn't exist.<a name="line.491"></a>
+<span class="sourceLineNo">492</span>     *      This includes the case where the name corresponds to a simple<a name="line.492"></a>
+<span class="sourceLineNo">493</span>     *      form field (like textbox, checkbox, etc.) <a name="line.493"></a>
+<span class="sourceLineNo">494</span>     */<a name="line.494"></a>
+<span class="sourceLineNo">495</span>    FileItem getFileItem(String name) throws ServletException, IOException;<a name="line.495"></a>
+<span class="sourceLineNo">496</span><a name="line.496"></a>
+<span class="sourceLineNo">497</span>    /**<a name="line.497"></a>
+<span class="sourceLineNo">498</span>     * Returns true if this request represents a server method call to a JavaScript proxy object.<a name="line.498"></a>
+<span class="sourceLineNo">499</span>     */<a name="line.499"></a>
+<span class="sourceLineNo">500</span>    boolean isJavaScriptProxyCall();<a name="line.500"></a>
+<span class="sourceLineNo">501</span><a name="line.501"></a>
+<span class="sourceLineNo">502</span>    /**<a name="line.502"></a>
+<span class="sourceLineNo">503</span>     * Short cut for obtaining {@link BoundObjectTable} associated with this webapp.<a name="line.503"></a>
+<span class="sourceLineNo">504</span>     */<a name="line.504"></a>
+<span class="sourceLineNo">505</span>    BoundObjectTable getBoundObjectTable();<a name="line.505"></a>
+<span class="sourceLineNo">506</span><a name="line.506"></a>
+<span class="sourceLineNo">507</span>    /**<a name="line.507"></a>
+<span class="sourceLineNo">508</span>     * Exports the given Java object as a JavaScript proxy and returns a JavaScript expression to create<a name="line.508"></a>
+<span class="sourceLineNo">509</span>     * a proxy on the client side.<a name="line.509"></a>
+<span class="sourceLineNo">510</span>     *<a name="line.510"></a>
+<span class="sourceLineNo">511</span>     * Short cut for {@code getBoundObjectTable().bind(toBeExported).getProxyScript()}<a name="line.511"></a>
+<span class="sourceLineNo">512</span>     */<a name="line.512"></a>
+<span class="sourceLineNo">513</span>    String createJavaScriptProxy(Object toBeExported);<a name="line.513"></a>
+<span class="sourceLineNo">514</span>}<a name="line.514"></a>
 
 
 
