@@ -74,6 +74,11 @@ public class JRebelFacet extends Facet {
     }
 
     @Override
+    public void buildIndexDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
+        // no-op
+    }
+
+    @Override
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) {
         return false;
     }

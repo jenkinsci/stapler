@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly.groovy;
 
+import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.Script;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.Dispatcher;
@@ -31,6 +32,7 @@ import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.WebApp;
+import org.kohsuke.stapler.jelly.JellyClassTearOff;
 import org.kohsuke.stapler.jelly.JellyCompatibleFacet;
 import org.kohsuke.stapler.jelly.JellyFacet;
 import org.kohsuke.stapler.lang.Klass;
@@ -42,6 +44,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * {@link Facet} that brings in Groovy support on top of Jelly.
@@ -112,6 +115,17 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
         if (d==null)
             d = mc.loadTearOff(GroovyServerPageTearOff.class).createDispatcher(it, viewName);
         return d;
+    }
+
+    @Override
+    public void buildIndexDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
+        try {
+            if (owner.loadTearOff(JellyClassTearOff.class).findScript("index")!=null) {
+                super.buildIndexDispatchers(owner, dispatchers);
+            }
+        } catch (JellyException e) {
+            LOGGER.log(Level.WARNING, "Failed to parse index.groovy for "+owner, e);
+        }
     }
 
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {

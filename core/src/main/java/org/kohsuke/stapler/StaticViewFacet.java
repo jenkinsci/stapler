@@ -107,10 +107,17 @@ public class StaticViewFacet extends Facet {
         };
     }
 
+    @Override
+    public void buildIndexDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
+        URL res = findResource(owner.klass, "index.html");
+        if (res!=null) {
+            dispatchers.add(new IndexHtmlDispatcher(res));
+        }
+    }
+
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
         URL res = findResource(nodeMetaClass.klass,"index.html");
         if (res==null)  return false;
-        rsp.serveFile(req,res);
-        return true;
+        return new IndexHtmlDispatcher(res).dispatch(req,rsp,node);
     }
 }

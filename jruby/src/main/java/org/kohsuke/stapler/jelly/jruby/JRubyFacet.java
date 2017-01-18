@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 
+import static java.util.logging.Level.FINE;
+
 /**
  * {@link Facet} that adds Ruby-based view technologies.
  *
@@ -149,24 +151,61 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
         return mc.loadTearOff(ERbClassTearOff.class).createDispatcher(it,viewName);
     }
 
-    public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass mc) throws IOException, ServletException {
+    private ScriptDispatcher makeIndexDispatcher(MetaClass mc) throws IOException {
         for (Class<? extends AbstractRubyTearOff> t : getClassTearOffTypes()) {
-            AbstractRubyTearOff rt = mc.loadTearOff(t);
-            Script script = rt.findScript("index");
-            if(script!=null) {
-                try {
-                    if(LOGGER.isLoggable(Level.FINE))
-                        LOGGER.fine("Invoking index"+rt.getDefaultScriptExtension()+" on " + node);
-                    WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, rsp, script, node);
-                    return true;
-                } catch (JellyTagException e) {
-                    throw new ServletException(e);
-                }
+            final AbstractRubyTearOff rt = mc.loadTearOff(t);
+            final Script script = rt.findScript("index");
+            if(script!=null)
+                return new ScriptDispatcher(rt, script);
+        }
+        return null;
+    }
+
+    @Override
+    public void buildIndexDispatchers(MetaClass mc, List<Dispatcher> dispatchers) {
+        try {
+            ScriptDispatcher d = makeIndexDispatcher(mc);
+            if (d!=null)
+                dispatchers.add(d);
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Failed to parse Ruby index view for "+mc, e);
+        }
+    }
+
+    public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass mc) throws IOException, ServletException {
+        ScriptDispatcher d = makeIndexDispatcher(mc);
+        return d!=null && d.dispatch(req,rsp,node);
+    }
+
+    private static class ScriptDispatcher extends Dispatcher {
+        private final AbstractRubyTearOff rt;
+        private final Script script;
+
+        public ScriptDispatcher(AbstractRubyTearOff rt, Script script) {
+            this.rt = rt;
+            this.script = script;
+        }
+
+        @Override
+        public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
+            try {
+                if (req.tokens.hasMore())
+                    return false;
+
+                if(LOGGER.isLoggable(FINE))
+                    LOGGER.fine("Invoking index"+ rt.getDefaultScriptExtension()+" on " + node);
+
+                WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, rsp, script, node);
+                return true;
+            } catch (JellyTagException e) {
+                throw new ServletException(e);
             }
         }
 
-        return false;
+        @Override
+        public String toString() {
+            return "index"+ rt.getDefaultScriptExtension()+" for url=/";
+        }
     }
-
 }
 

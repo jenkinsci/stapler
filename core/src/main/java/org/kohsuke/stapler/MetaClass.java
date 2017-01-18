@@ -65,7 +65,7 @@ public class MetaClass extends TearOffSupport {
      */
     public final MetaClassLoader classLoader;
 
-    public final List<Dispatcher> dispatchers = new ArrayList<Dispatcher>();
+    public final List<Dispatcher> dispatchers = new ArrayList<>();
 
     /**
      * Base metaclass.
@@ -166,7 +166,12 @@ public class MetaClass extends TearOffSupport {
         for (Facet f : webApp.facets)
             f.buildViewDispatchers(this, dispatchers);
 
-        dispatchers.add(new IndexViewDispatcher(this));
+        for (Facet f : webApp.facets)
+            f.buildIndexDispatchers(this, dispatchers);
+
+        Dispatcher d = IndexHtmlDispatcher.make(webApp.context, clazz);
+        if (d!=null)
+            dispatchers.add(d);
 
         // check public properties of the form NODE.TOKEN
         for (final FieldRef f : node.fields) {
@@ -426,6 +431,11 @@ public class MetaClass extends TearOffSupport {
         } catch (LinkageError e) {
             return null;    // running in JDK 1.4
         }
+    }
+
+    @Override
+    public String toString() {
+        return "MetaClass["+klass+"]";
     }
 
     private static String camelize(String name) {
