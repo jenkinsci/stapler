@@ -2,6 +2,7 @@ CHANGELOG
 ===
 
 ##### 1.249
+Release date: January 18, 2017
 * [PR 89](https://github.com/stapler/stapler/pull/89) -
 Be more robust when exporting collections ([JENKINS-40088](https://issues.jenkins-ci.org/browse/JENKINS-40088))
 * [PR 94](https://github.com/stapler/stapler/pull/94) -
