@@ -79,6 +79,7 @@ public class DataBindingTest extends TestCase {
         RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.<AncestorImpl>emptyList(), null);
         new Function.InstanceFunction(getClass().getMethod("doFromStaplerMethod",StaplerRequest.class,int.class,Binder.class))
                 .bindAndInvoke(this,req,null);
+        assertEquals(42, new Function.InstanceFunction(getClass().getMethod("doStaticMethod")).bindAndInvoke(this, req, null));
     }
 
     public void doFromStaplerMethod(StaplerRequest req, @QueryParameter int a, Binder b) {
@@ -87,6 +88,8 @@ public class DataBindingTest extends TestCase {
         assertEquals("string",b.b);
 
     }
+
+    public static int doStaticMethod() {return 42;}
 
     public static class Binder {
         StaplerRequest req;

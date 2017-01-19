@@ -35,11 +35,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.WrongMethodTypeException;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.kohsuke.stapler.ReflectionUtils.*;
 
@@ -50,6 +55,8 @@ import static org.kohsuke.stapler.ReflectionUtils.*;
  * @author Kohsuke Kawaguchi
  */
 public abstract class Function {
+
+    private static final Logger LOGGER = Logger.getLogger(Function.class.getName());
 
     /**
      * Gets the method name.
@@ -322,15 +329,24 @@ public abstract class Function {
             return handle;
         }
 
+        @Override
         public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
-            Object[] arguments = new Object[args.length + 1];
-            arguments[0] = o;
-            System.arraycopy(args, 0, arguments, 1, args.length);
+            Object[] arguments;
+            if (Modifier.isStatic(m.getModifiers())) {
+                arguments = args;
+            } else {
+                arguments = new Object[args.length + 1];
+                arguments[0] = o;
+                System.arraycopy(args, 0, arguments, 1, args.length);
+            }
             try {
                 return handle().invokeWithArguments(arguments);
+            } catch (WrongMethodTypeException x) {
+                LOGGER.log(Level.WARNING, handle + " failed on " + o + "." + m + Arrays.toString(arguments), x);
             } catch (Throwable throwable) {
                 throw new InvocationTargetException(throwable);
             }
+            return m.invoke(o, args);
         }
     }
     /**
