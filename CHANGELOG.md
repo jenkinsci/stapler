@@ -1,6 +1,9 @@
 CHANGELOG
 ===
 
+##### 1.250
+Fix use of `static` methods in PR 96 in 1.249.
+
 ##### 1.249
 Release date: January 18, 2017
 * [PR 89](https://github.com/stapler/stapler/pull/89) -
