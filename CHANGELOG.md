@@ -2,6 +2,7 @@ CHANGELOG
 ===
 
 ##### 1.250
+Release date: January 20, 2017
 Fix use of `static` methods in PR 96 in 1.249.
 
 ##### 1.249
