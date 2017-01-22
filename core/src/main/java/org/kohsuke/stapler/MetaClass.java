@@ -404,7 +404,7 @@ public class MetaClass extends TearOffSupport {
     }
 
     /**
-     * Returns all the methods in the ancestory chain annotated with {@link PostConstruct}
+     * Returns all the methods in the ancestry chain annotated with {@link PostConstruct}
      * from those defined in the derived type toward those defined in the base type.
      *
      * Normally invocation requires visiting the list in the reverse order.
