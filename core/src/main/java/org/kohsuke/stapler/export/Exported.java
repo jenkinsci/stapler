@@ -126,7 +126,7 @@ public @interface Exported {
      * "[{name:"kohsuke", value:"abc"], ...}
      *
      * <p>
-     * The verboose form is useful/necessary when you use complex data structure as a key,
+     * The verbose form is useful/necessary when you use complex data structure as a key,
      * or if the string representation of the key can contain letters that are unsafe in some flavours
      * (such as XML, which prohibits a number of characters to be used as tag names.)
      *
