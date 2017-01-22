@@ -82,7 +82,7 @@ public @interface Exported {
      * object.
      *
      * <p>
-     * This flag can be used to selectively expand the subree to be
+     * This flag can be used to selectively expand the subtree to be
      * returned to the client.
      */
     boolean inline() default false;
