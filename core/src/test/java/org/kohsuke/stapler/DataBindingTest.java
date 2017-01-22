@@ -192,12 +192,12 @@ public class DataBindingTest extends TestCase {
     public void testRaw() {
         RawBinding r = bind("{x:{a:true,b:1},y:[1,2,3]}", RawBinding.class);
 
-        // array coersion on y
+        // array coercion on y
         RawBinding r2 = bind("{x:{a:true,b:1},y:{p:true}}", RawBinding.class);
         JSONObject o = (JSONObject)r2.y.get(0);
         assertTrue(o.getBoolean("p"));
 
-        // array coersion on y
+        // array coercion on y
         RawBinding r3 = bind("{x:{a:true,b:1},y:true}", RawBinding.class);
         assertTrue((Boolean)r3.y.get(0));
     }
