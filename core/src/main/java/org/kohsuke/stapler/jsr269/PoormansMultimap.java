@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Very simple multi-map implmentation.
+ * Very simple multi-map implementation.
  *
  * <p>
  * We historically used Google Collections, but there have been multiple reports that
