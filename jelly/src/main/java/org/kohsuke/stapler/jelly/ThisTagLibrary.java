@@ -73,7 +73,7 @@ public class ThisTagLibrary extends TagLibrary {
                     WebApp webApp = WebApp.getCurrent();
                     MetaClass c = webApp.getMetaClass(it instanceof Class ? Klass.java((Class)it):  webApp.getKlass(it));
                     // prefer 'foo.jellytag' to avoid tags from showing up as views,
-                    // but for backward compatibility, support the plain .jelly extention as well.
+                    // but for backward compatibility, support the plain .jelly extension as well.
                     Script tag = c.loadTearOff(JellyClassTearOff.class).findScript(tagName+".jellytag");
                     if (tag==null)
                         tag = c.loadTearOff(JellyClassTearOff.class).findScript(tagName+".jelly");
