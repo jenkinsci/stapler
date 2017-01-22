@@ -5,7 +5,7 @@
     <hr>
 
     <%--
-      because of the way we organize URL, going back to the parent CD objcet
+      because of the way we organize URL, going back to the parent CD object
       is as easy as this
     --%>
     <a href="../..">back</a>
