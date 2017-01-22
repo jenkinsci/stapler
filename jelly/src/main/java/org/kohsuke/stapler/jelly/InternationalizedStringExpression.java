@@ -40,7 +40,7 @@ import java.util.Arrays;
  * internationalized text.
  *
  * <p>
- * The "(arg1,...)" portion is optional and can be ommitted. Each argument
+ * The "(arg1,...)" portion is optional and can be omitted. Each argument
  * is assumed to be a parenthesis-balanced expression and passed to
  * {@link JellyClassLoaderTearOff#EXPRESSION_FACTORY} to be parsed.
  *
