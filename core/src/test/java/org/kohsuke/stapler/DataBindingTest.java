@@ -406,7 +406,7 @@ public class DataBindingTest extends TestCase {
 
 
     /**
-     * Subyping and overriding a setter shouldn't hide it.
+     * Subtyping and overriding a setter shouldn't hide it.
      */
     public void testDerivedProperty() {
         DerivedProperty r = bind("{items:[1,3,5]}",DerivedProperty.class);
