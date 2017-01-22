@@ -529,7 +529,7 @@ public class TypeUtil {
     }
 
     /**
-     * JDK 5.0 has a bug of createing {@link GenericArrayType} where it shouldn't.
+     * JDK 5.0 has a bug of creating {@link GenericArrayType} where it shouldn't.
      * fix that manually to work around the problem.
      *
      * See bug 6202725.
