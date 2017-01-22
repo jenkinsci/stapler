@@ -99,9 +99,9 @@ public abstract class Facet {
                 try {
                     r.add((T)c.newInstance());
                 } catch (InstantiationException e) {
-                    LOGGER.log(Level.WARNING, "Failed to instanticate "+c,e);
+                    LOGGER.log(Level.WARNING, "Failed to instantiate "+c,e);
                 } catch (IllegalAccessException e) {
-                    LOGGER.log(Level.WARNING, "Failed to instanticate "+c,e);
+                    LOGGER.log(Level.WARNING, "Failed to instantiate "+c,e);
                 }
             }
         }
