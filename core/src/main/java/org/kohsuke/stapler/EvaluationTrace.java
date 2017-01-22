@@ -30,7 +30,7 @@ import java.io.PrintWriter;
 import static org.kohsuke.stapler.Stapler.escape;
 
 /**
- * Remebers the {@link Stapler#invoke(RequestImpl, ResponseImpl, Object)}
+ * Remembers the {@link Stapler#invoke(RequestImpl, ResponseImpl, Object)}
  * evaluation traces.
  *
  * @author Kohsuke Kawaguchi
