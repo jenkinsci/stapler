@@ -37,7 +37,7 @@ public abstract class JRubyJellyScript implements Script {
     public abstract void run(JellyContext context, XMLOutput output) throws JellyTagException;
 
     /**
-     * Invokes other Jelly tag libaries.
+     * Invokes other Jelly tag libraries.
      */
     public void invokeTaglib(final IJRubyContext rcon, JellyContext context, XMLOutput output, String uri, String localName, Map<RubySymbol,?> attributes, final RubyProc proc) throws JellyException {
         TagScript tagScript = createTagScript(context, uri, localName);
