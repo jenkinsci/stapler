@@ -87,7 +87,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
      */
     public final TokenList tokens;
     /**
-     * Ancesotr nodes traversed so far.
+     * Ancestor nodes traversed so far.
      * This object is modified by {@link Stapler} as we parse through the URL.
      */
     public final List<AncestorImpl> ancestors;
