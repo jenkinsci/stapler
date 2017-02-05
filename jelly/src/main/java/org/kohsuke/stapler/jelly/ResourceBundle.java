@@ -28,8 +28,10 @@ import org.kohsuke.stapler.WebApp;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -144,24 +146,36 @@ public class ResourceBundle {
         props = new Properties();
         String url = baseName + key + ".properties";
         InputStream in=null;
+        InputStreamReader inr = null;
         try {
             in = new URL(url).openStream();
             // an user reported that on IBM JDK, URL.openStream
             // returns null instead of IOException.
             // see http://www.nabble.com/WAS---Hudson-tt16026561.html
+            if (in != null) {
+                inr = new InputStreamReader(in, StandardCharsets.UTF_8);
+            }
         } catch (IOException e) {
             // failed.
         }
 
-        if(in!=null) {
+        if (inr != null) {
             try {
                 try {
-                    props.load(in);
+                    props.load(inr);
                 } finally {
+                    inr.close();
                     in.close();
                 }
             } catch (IOException e) {
                 throw new Error("Failed to load "+url,e);
+            }
+        } else if (in != null) {
+            try {
+                // in case of an exception in creating InputStreamReader
+                in.close();
+            } catch (IOException e) {
+                // do nothing.
             }
         }
 
