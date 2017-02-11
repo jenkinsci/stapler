@@ -26,6 +26,7 @@ package org.kohsuke.stapler.export;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerResponse;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Type;
 import java.util.Stack;
 import java.io.Writer;
@@ -49,6 +50,7 @@ final class XMLDataWriter implements DataWriter {
     private final Writer out;
     private ExportConfig config;
     private String classAttr;
+    private final ExportConfig exportConfig;
 
     XMLDataWriter(Object bean, Writer out, ExportConfig config) throws IOException {
         Class c=bean.getClass();
@@ -58,11 +60,17 @@ final class XMLDataWriter implements DataWriter {
         this.out = out;
         this.config = config;
         this.isArray.push(false);
+        this.exportConfig = config;
         // TODO: support pretty printing
     }
 
     XMLDataWriter(Object bean, StaplerResponse rsp, ExportConfig config) throws IOException {
         this(bean,rsp.getWriter(),config);
+    }
+
+    @Override
+    public @Nonnull ExportConfig getExportConfig() {
+        return exportConfig;
     }
 
     public void name(String name) {

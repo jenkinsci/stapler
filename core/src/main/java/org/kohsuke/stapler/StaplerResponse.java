@@ -24,20 +24,22 @@
 package org.kohsuke.stapler;
 
 import net.sf.json.JsonConfig;
+import org.kohsuke.stapler.export.DataWriter;
+import org.kohsuke.stapler.export.ExportConfig;
 import org.kohsuke.stapler.export.Flavor;
+import org.kohsuke.stapler.export.Model;
+import org.kohsuke.stapler.export.NamedPathPruner;
 
 import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
-import org.kohsuke.stapler.export.Model;
-import org.kohsuke.stapler.export.NamedPathPruner;
 
 /**
  * Defines additional operations made available by Stapler.
@@ -173,8 +175,28 @@ public interface StaplerResponse extends HttpServletResponse {
      * 
      * <p>As of 1.146, the {@code tree} parameter may be used to control the output
      * in detail; see {@link NamedPathPruner#NamedPathPruner(String)} for details.
+     *
+     * @deprecated Use {@link #serveExposedBean(StaplerRequest, Object, Flavor, ExportConfig)}
      */
+    @Deprecated
     void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException,IOException;
+
+    /**
+     * Serves the exposed bean in the specified flavor.
+     *
+     * <p>
+     * This method performs the complete output from the header to the response body.
+     * If the flavor is JSON, this method also supports JSONP via the {@code jsonp} query parameter.
+     *
+     * <p>The {@code depth} parameter may be used to specify a recursion depth
+     * as in {@link Model#writeTo(Object,int,DataWriter)}
+     *
+     * <p>As of 1.146, the {@code tree} parameter may be used to control the output
+     * in detail; see {@link NamedPathPruner#NamedPathPruner(String)} for details.
+     *
+     * <p> {@link ExportConfig} is passed by the caller to control serialization behavior
+     */
+    void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor, ExportConfig exportConfig) throws ServletException,IOException;
 
     /**
      * Works like {@link #getOutputStream()} but tries to send the response

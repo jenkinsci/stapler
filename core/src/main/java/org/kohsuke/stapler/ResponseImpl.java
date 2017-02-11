@@ -23,39 +23,39 @@
 
 package org.kohsuke.stapler;
 
+import com.jcraft.jzlib.GZIPOutputStream;
 import net.sf.json.JsonConfig;
+import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.compression.CompressionFilter;
 import org.kohsuke.stapler.compression.FilterServletOutputStream;
 import org.kohsuke.stapler.export.DataWriter;
 import org.kohsuke.stapler.export.ExportConfig;
-import org.kohsuke.stapler.export.NamedPathPruner;
 import org.kohsuke.stapler.export.Flavor;
 import org.kohsuke.stapler.export.Model;
 import org.kohsuke.stapler.export.ModelBuilder;
-import org.apache.commons.io.IOUtils;
+import org.kohsuke.stapler.export.NamedPathPruner;
+import org.kohsuke.stapler.export.TreePruner;
+import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.Writer;
-import java.net.URL;
 import java.net.HttpURLConnection;
-import com.jcraft.jzlib.GZIPOutputStream;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.kohsuke.stapler.export.TreePruner;
-import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 /**
  * {@link StaplerResponse} implementation.
@@ -231,6 +231,11 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
     @SuppressWarnings({"unchecked", "rawtypes"}) // API design flaw prevents this from type-checking
     public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException, IOException {
+        serveExposedBean(req, exposedBean, flavor, new ExportConfig());
+    }
+
+    @Override
+    public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor, ExportConfig config) throws ServletException, IOException {
         String pad=null;
         setContentType(flavor.contentType);
         Writer w = getCompressedWriter(req);
@@ -239,7 +244,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
             pad = req.getParameter("jsonp");
             if(pad!=null) w.write(pad+'(');
         }
-        
+
         TreePruner pruner;
         String tree = req.getParameter("tree");
         if (tree != null) {
@@ -261,7 +266,6 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
             pruner = new ByDepth(1 - depth);
         }
 
-        ExportConfig config = new ExportConfig();
         config.prettyPrint = req.hasParameter("pretty");
 
         DataWriter dw = flavor.createDataWriter(exposedBean, w, config);
@@ -278,6 +282,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
         if(pad!=null) w.write(')');
         w.close();
+
     }
 
     private void writeOne(TreePruner pruner, DataWriter dw, Object item) throws IOException {
