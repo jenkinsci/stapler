@@ -23,14 +23,16 @@
  */
 package org.kohsuke.stapler.export;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
+import org.junit.Test;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class ModelTest {
     private ExportConfig config = new ExportConfig()
@@ -120,5 +122,29 @@ public class ModelTest {
 
         @Exported(skipNull=false)
         public String ddd = "ddd";
+    }
+
+    // CustomExportedBean test
+    @ExportedBean
+    public static final class Build{
+        @Exported(merge = true)
+        public Result getBuildResult(){
+            return new Result();
+        }
+    }
+
+    public static class Result implements CustomExportedBean{
+        @Override
+        public Object toExportedObject() {
+            return "SUCCESS";
+        }
+    }
+
+    @Test
+    public void customExportedBeanTest() throws IOException {
+        Build buildData = new Build();
+        StringWriter sw = new StringWriter();
+        builder.get(Build.class).writeTo(buildData, Flavor.JSON.createDataWriter(buildData, sw, config));
+        Assert.assertEquals("{\"_class\":\"Build\",\"buildResult\":\"SUCCESS\"}", sw.toString());
     }
 }
