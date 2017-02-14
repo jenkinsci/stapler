@@ -135,7 +135,8 @@ public abstract class Property implements Comparable<Property> {
         if (d==null && skipNull) { // don't write anything
             return;
         }
-        if (merge) {
+        //Merge doesn't apply to CustomExportedBean, so skip it
+        if (merge && !(d instanceof CustomExportedBean)) {
             // merged property will get all its properties written here
             if (d != null) {
                 Model model = owner.get(d.getClass(), parent.type, name);
