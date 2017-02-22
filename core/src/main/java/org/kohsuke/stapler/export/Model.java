@@ -23,11 +23,6 @@
 
 package org.kohsuke.stapler.export;
 
-import com.google.common.base.Predicate;
-import org.kohsuke.stapler.export.TreePruner.ByDepth;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -41,6 +36,12 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import com.google.common.base.Predicate;
+import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 /**
  * Writes all the property of one {@link ExportedBean} to {@link DataWriter}.
