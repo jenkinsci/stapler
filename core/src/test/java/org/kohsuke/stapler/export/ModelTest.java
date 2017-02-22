@@ -36,8 +36,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class ModelTest {
-    private ExportConfig config = new ExportConfig()
-            .withClassAttribute(ClassAttributeBehaviour.ALWAYS.simple());
+    private ExportConfig config = new ExportConfig.Builder(Flavor.JSON).classAttribute(ClassAttributeBehaviour.ALWAYS.simple()).build();
     ModelBuilder builder = new ModelBuilder();
 
     @Test // JENKINS-26775
@@ -158,8 +157,7 @@ public class ModelTest {
 
     @Test
     public void testNotExportedBean() throws IOException {
-        ExportConfig config = new ExportConfig();
-        config.withExportInterceptor(new ExportInterceptor1()).withSkipIfFail(true);
+        ExportConfig config = new ExportConfig.Builder(Flavor.JSON).exportInterceptor(new ExportInterceptor1()).skipIfFail(true).build();
         StringWriter writer = new StringWriter();
         ExportableBean b = new ExportableBean();
         builder.get(ExportableBean.class).writeTo(b,Flavor.JSON.createDataWriter(b, writer, config));
@@ -170,8 +168,7 @@ public class ModelTest {
     // should fail when serializing getShouldBeSkippedAsNull()
     @Test(expected = IOException.class)
     public void testNotExportedBeanFailing() throws IOException {
-        ExportConfig config = new ExportConfig();
-        config.withExportInterceptor(new ExportInterceptor2()).withSkipIfFail(true);
+        ExportConfig config = new ExportConfig.Builder(Flavor.JSON).exportInterceptor(new ExportInterceptor2()).skipIfFail(true).build();
         StringWriter writer = new StringWriter();
         ExportableBean b = new ExportableBean();
         builder.get(ExportableBean.class).writeTo(b,Flavor.JSON.createDataWriter(b, writer, config));

@@ -73,7 +73,7 @@ public enum Flavor {
         return createDataWriter(bean,rsp.getWriter());
     }
     public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
-        return createDataWriter(bean,w,new ExportConfig());
+        return createDataWriter(bean,w,new ExportConfig.Builder(this).build());
     }
     public abstract DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException;
 }

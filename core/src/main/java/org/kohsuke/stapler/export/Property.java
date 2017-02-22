@@ -131,7 +131,7 @@ public abstract class Property implements Comparable<Property> {
         TreePruner child = pruner.accept(object, this);
         if (child==null)        return;
 
-        Object d = safeGetValue(object, writer.getExportConfig().getExportInterceptor());
+        Object d = writer.getExportConfig().getExportInterceptor().getValue(this,object);
 
         if (d==null && skipNull) { // don't write anything
             return;
@@ -154,13 +154,6 @@ public abstract class Property implements Comparable<Property> {
             writer.name(name);
             writeValue(type, d, child, writer);
         }
-    }
-
-    /**
-     *  Ignores property if {@link ExportInterceptor#getValue(Property, Object)} throws NotExportableException.
-     */
-    private Object safeGetValue(Object o, ExportInterceptor interceptor) throws IOException {
-        return interceptor.getValue(this,o);
     }
 
     /**

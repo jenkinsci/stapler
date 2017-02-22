@@ -231,12 +231,13 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
     @SuppressWarnings({"unchecked", "rawtypes"}) // API design flaw prevents this from type-checking
     public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException, IOException {
-        serveExposedBean(req, exposedBean, flavor, new ExportConfig());
+        serveExposedBean(req, exposedBean, new ExportConfig.Builder(flavor).prettyPrint(req.hasParameter("pretty")).build());
     }
 
     @Override
-    public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor, ExportConfig config) throws ServletException, IOException {
+    public void serveExposedBean(StaplerRequest req, Object exposedBean, ExportConfig config) throws ServletException, IOException {
         String pad=null;
+        Flavor flavor = config.getFlavor();
         setContentType(flavor.contentType);
         Writer w = getCompressedWriter(req);
 
@@ -265,9 +266,6 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
             }
             pruner = new ByDepth(1 - depth);
         }
-
-        config.prettyPrint = req.hasParameter("pretty");
-
         DataWriter dw = flavor.createDataWriter(exposedBean, w, config);
         if (exposedBean instanceof Object[]) {
             // TODO: extend the contract of DataWriter to capture this
@@ -282,7 +280,6 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
         if(pad!=null) w.write(')');
         w.close();
-
     }
 
     private void writeOne(TreePruner pruner, DataWriter dw, Object item) throws IOException {

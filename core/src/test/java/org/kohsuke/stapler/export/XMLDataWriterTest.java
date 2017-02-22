@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class XMLDataWriterTest extends TestCase {
-    private ExportConfig config = new ExportConfig().withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
+    private ExportConfig config = new ExportConfig.Builder(Flavor.XML).classAttribute(ClassAttributeBehaviour.IF_NEEDED.simple()).build();
 
     public XMLDataWriterTest(String n) {
         super(n);

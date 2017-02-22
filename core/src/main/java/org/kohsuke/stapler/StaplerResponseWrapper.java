@@ -144,9 +144,9 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
 
     /** {@inheritDoc} */
     @Override
-    public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor, ExportConfig exportConfig)
+    public void serveExposedBean(StaplerRequest req, Object exposedBean, ExportConfig exportConfig)
             throws ServletException, IOException {
-        getWrapped().serveExposedBean(req, exposedBean, flavor, exportConfig);
+        getWrapped().serveExposedBean(req, exposedBean, exportConfig);
     }
 
     /** {@inheritDoc} */

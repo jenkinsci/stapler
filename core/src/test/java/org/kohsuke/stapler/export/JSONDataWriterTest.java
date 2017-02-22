@@ -10,8 +10,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class JSONDataWriterTest {
-    private ExportConfig config = new ExportConfig()
-            .withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
+    private ExportConfig config = new ExportConfig.Builder(Flavor.JSON).classAttribute(ClassAttributeBehaviour.IF_NEEDED.simple()).build();
 
     private <T> String serialize(T bean, Class<T> clazz) throws IOException {
         StringWriter w = new StringWriter();

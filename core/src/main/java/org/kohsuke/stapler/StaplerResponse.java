@@ -176,7 +176,7 @@ public interface StaplerResponse extends HttpServletResponse {
      * <p>As of 1.146, the {@code tree} parameter may be used to control the output
      * in detail; see {@link NamedPathPruner#NamedPathPruner(String)} for details.
      *
-     * @deprecated Use {@link #serveExposedBean(StaplerRequest, Object, Flavor, ExportConfig)}
+     * @deprecated Use {@link #serveExposedBean(StaplerRequest, Object, ExportConfig)}
      */
     @Deprecated
     void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException,IOException;
@@ -196,7 +196,7 @@ public interface StaplerResponse extends HttpServletResponse {
      *
      * <p> {@link ExportConfig} is passed by the caller to control serialization behavior
      */
-    void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor, ExportConfig exportConfig) throws ServletException,IOException;
+    void serveExposedBean(StaplerRequest req, Object exposedBean, ExportConfig exportConfig) throws ServletException,IOException;
 
     /**
      * Works like {@link #getOutputStream()} but tries to send the response

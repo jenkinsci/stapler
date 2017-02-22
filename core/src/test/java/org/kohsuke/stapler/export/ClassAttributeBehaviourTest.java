@@ -14,8 +14,8 @@ import static org.junit.Assert.*;
  */
 public class ClassAttributeBehaviourTest {
 
-    private ExportConfig config = new ExportConfig()
-            .withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
+    private ExportConfig config = new ExportConfig.Builder(Flavor.JSON)
+            .classAttribute(ClassAttributeBehaviour.IF_NEEDED.simple()).build();
 
     private <T> String write(T bean) throws IOException {
         StringWriter w = new StringWriter();
