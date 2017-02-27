@@ -23,26 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import com.jcraft.jzlib.GZIPOutputStream;
-import net.sf.json.JsonConfig;
-import org.apache.commons.io.IOUtils;
-import org.kohsuke.stapler.compression.CompressionFilter;
-import org.kohsuke.stapler.compression.FilterServletOutputStream;
-import org.kohsuke.stapler.export.DataWriter;
-import org.kohsuke.stapler.export.ExportConfig;
-import org.kohsuke.stapler.export.Flavor;
-import org.kohsuke.stapler.export.Model;
-import org.kohsuke.stapler.export.ModelBuilder;
-import org.kohsuke.stapler.export.NamedPathPruner;
-import org.kohsuke.stapler.export.TreePruner;
-import org.kohsuke.stapler.export.TreePruner.ByDepth;
-
-import javax.annotation.Nonnull;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,6 +36,26 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.annotation.Nonnull;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+
+import com.jcraft.jzlib.GZIPOutputStream;
+import net.sf.json.JsonConfig;
+import org.apache.commons.io.IOUtils;
+import org.kohsuke.stapler.compression.CompressionFilter;
+import org.kohsuke.stapler.compression.FilterServletOutputStream;
+import org.kohsuke.stapler.export.DataWriter;
+import org.kohsuke.stapler.export.ExportConfig;
+import org.kohsuke.stapler.export.Flavor;
+import org.kohsuke.stapler.export.Model;
+import org.kohsuke.stapler.export.ModelBuilder;
+import org.kohsuke.stapler.export.NamedPathPruner;
+import org.kohsuke.stapler.export.TreePruner;
+import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 /**
  * {@link StaplerResponse} implementation.
@@ -231,7 +231,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
     @SuppressWarnings({"unchecked", "rawtypes"}) // API design flaw prevents this from type-checking
     public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException, IOException {
-        serveExposedBean(req, exposedBean, new ExportConfig.Builder(flavor).prettyPrint(req.hasParameter("pretty")).build());
+        serveExposedBean(req, exposedBean, new ExportConfig().withFlavor(flavor).withPrettyPrint(req.hasParameter("pretty")));
     }
 
     @Override

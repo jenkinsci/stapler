@@ -1,21 +1,20 @@
 package org.kohsuke.stapler.export;
 
-import org.junit.Test;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Kohsuke Kawaguchi
  */
 public class ClassAttributeBehaviourTest {
 
-    private ExportConfig config = new ExportConfig.Builder(Flavor.JSON)
-            .classAttribute(ClassAttributeBehaviour.IF_NEEDED.simple()).build();
+    private ExportConfig config = new ExportConfig()
+            .withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
 
     private <T> String write(T bean) throws IOException {
         StringWriter w = new StringWriter();

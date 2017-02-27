@@ -23,9 +23,6 @@
  */
 package org.kohsuke.stapler.export;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -33,10 +30,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class ModelTest {
-    private ExportConfig config = new ExportConfig.Builder(Flavor.JSON).classAttribute(ClassAttributeBehaviour.ALWAYS.simple()).build();
+    private ExportConfig config = new ExportConfig().withFlavor(Flavor.JSON).withClassAttribute(ClassAttributeBehaviour.ALWAYS.simple());
     ModelBuilder builder = new ModelBuilder();
 
     @Test // JENKINS-26775
@@ -157,7 +156,7 @@ public class ModelTest {
 
     @Test
     public void testNotExportedBean() throws IOException {
-        ExportConfig config = new ExportConfig.Builder(Flavor.JSON).exportInterceptor(new ExportInterceptor1()).skipIfFail(true).build();
+        ExportConfig config = new ExportConfig().withFlavor(Flavor.JSON).withExportInterceptor(new ExportInterceptor1()).withSkipIfFail(true);
         StringWriter writer = new StringWriter();
         ExportableBean b = new ExportableBean();
         builder.get(ExportableBean.class).writeTo(b,Flavor.JSON.createDataWriter(b, writer, config));
@@ -168,7 +167,7 @@ public class ModelTest {
     // should fail when serializing getShouldBeSkippedAsNull()
     @Test(expected = IOException.class)
     public void testNotExportedBeanFailing() throws IOException {
-        ExportConfig config = new ExportConfig.Builder(Flavor.JSON).exportInterceptor(new ExportInterceptor2()).skipIfFail(true).build();
+        ExportConfig config = new ExportConfig().withFlavor(Flavor.JSON).withExportInterceptor(new ExportInterceptor2()).withSkipIfFail(true);
         StringWriter writer = new StringWriter();
         ExportableBean b = new ExportableBean();
         builder.get(ExportableBean.class).writeTo(b,Flavor.JSON.createDataWriter(b, writer, config));

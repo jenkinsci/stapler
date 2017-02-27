@@ -1,13 +1,5 @@
 package org.kohsuke.stapler.export;
 
-import com.google.common.collect.ImmutableList;
-import junit.framework.TestCase;
-import org.junit.Test;
-import org.xml.sax.InputSource;
-import org.xml.sax.helpers.DefaultHandler;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -15,9 +7,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import com.google.common.collect.ImmutableList;
+import junit.framework.TestCase;
+import org.junit.Test;
+import org.xml.sax.InputSource;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class XMLDataWriterTest extends TestCase {
-    private ExportConfig config = new ExportConfig.Builder(Flavor.XML).classAttribute(ClassAttributeBehaviour.IF_NEEDED.simple()).build();
+    private ExportConfig config = new ExportConfig().withFlavor(Flavor.XML).withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
 
     public XMLDataWriterTest(String n) {
         super(n);

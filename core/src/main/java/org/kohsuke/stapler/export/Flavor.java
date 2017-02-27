@@ -23,10 +23,10 @@
 
 package org.kohsuke.stapler.export;
 
-import org.kohsuke.stapler.StaplerResponse;
-
 import java.io.IOException;
 import java.io.Writer;
+
+import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * Export flavor.
@@ -73,7 +73,7 @@ public enum Flavor {
         return createDataWriter(bean,rsp.getWriter());
     }
     public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
-        return createDataWriter(bean,w,new ExportConfig.Builder(this).build());
+        return createDataWriter(bean,w,new ExportConfig().withFlavor(this));
     }
     public abstract DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException;
 }

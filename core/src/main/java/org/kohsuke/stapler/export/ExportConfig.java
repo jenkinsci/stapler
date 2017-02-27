@@ -1,32 +1,24 @@
 package org.kohsuke.stapler.export;
 
-import javax.annotation.Nonnull;
-
 /**
  * Controls the output behaviour.
  *
  * @author Kohsuke Kawaguchi
  */
 public class ExportConfig {
-    private final boolean prettyPrint;
-    private final ClassAttributeBehaviour classAttribute;
-    private final ExportInterceptor exportInterceptor;
-    private final boolean skipIfFail;
-    private final Flavor flavor;
-
     /**
-     * Creates {@link ExportConfig} with a flavor
-     *
-     * @param flavor must be non-null
+     * @deprecated
+     *      Use getter and setter
      */
-    private ExportConfig(Flavor flavor, ExportInterceptor exportInterceptor,
-                         ClassAttributeBehaviour classAttribute, boolean skipIfFail, boolean prettyPrint) {
-        this.flavor = flavor;
-        this.prettyPrint = prettyPrint;
-        this.classAttribute = (classAttribute == null) ? ClassAttributeBehaviour.IF_NEEDED.simple(): classAttribute;
-        this.exportInterceptor = exportInterceptor == null ? ExportInterceptor.DEFAULT :exportInterceptor;
-        this.skipIfFail = skipIfFail;
-    }
+    public boolean prettyPrint;
+
+    private ClassAttributeBehaviour classAttribute = ClassAttributeBehaviour.IF_NEEDED;
+
+    private ExportInterceptor exportInterceptor = ExportInterceptor.DEFAULT;
+
+    private boolean skipIfFail = false;
+
+    private Flavor flavor = Flavor.JSON;
 
     /**
      * If true, output will be indented to make it easier for humans to understand.
@@ -36,8 +28,13 @@ public class ExportConfig {
     }
 
     /**
-     * Controls the behaviour of the class attribute to be produced.
+     * If true, output will be indented to make it easier for humans to understand.
      */
+    public ExportConfig withPrettyPrint(boolean prettyPrint) {
+        this.prettyPrint = prettyPrint;
+        return this;
+    }
+
     public ClassAttributeBehaviour getClassAttribute() {
         return classAttribute;
     }
@@ -45,102 +42,45 @@ public class ExportConfig {
     /**
      * Controls the behaviour of the class attribute to be produced.
      */
-    public ClassAttributeBehaviour getClassAttributeBehaviour(){
-        return this.classAttribute;
+    public ExportConfig withClassAttribute(ClassAttributeBehaviour cab) {
+        if (cab==null)  throw new NullPointerException();
+        this.classAttribute = cab;
+        return this;
     }
 
     /**
-     * Gives {@link ExportInterceptor}. Always non-null.
+     * Controls serialization of {@link @Exported} properties.
      */
     public ExportInterceptor getExportInterceptor() {
         return exportInterceptor;
     }
 
+    public ExportConfig withExportInterceptor(ExportInterceptor interceptor){
+        this.exportInterceptor = interceptor;
+        return this;
+    }
+
+    public ExportConfig withSkipIfFail(boolean skipIfFail){
+        this.skipIfFail = skipIfFail;
+        return this;
+    }
+
     /**
-     *  Tells whether to skip serialization failure.
+     * Turn on or off pretty printing of serialized data.
      */
     public boolean isSkipIfFail() {
         return skipIfFail;
     }
 
     /**
-     * Gives {@link Flavor}. Always non-null.
+     * Gives {@link Flavor}
      */
-    public Flavor getFlavor() {
+    public Flavor getFlavor(){
         return flavor;
     }
 
-    /**
-     * {@link ExportConfig} builder
-     */
-    public static class Builder{
-        private  boolean prettyPrint;
-
-        private  ClassAttributeBehaviour classAttribute = ClassAttributeBehaviour.IF_NEEDED;
-
-        private  ExportInterceptor exportInterceptor = ExportInterceptor.DEFAULT;
-
-        private  boolean skipIfFail = false;
-
-        private  final Flavor flavor;
-
-        public Builder(Flavor flavor){
-            this.flavor = flavor;
-        }
-
-        /**
-         * Turn on or off pretty printing of serialized data.
-         *
-         * @param prettyPrint default false.
-         *
-         * @return {@link Builder} instance
-         */
-        public Builder prettyPrint(boolean prettyPrint){
-            this.prettyPrint = prettyPrint;
-            return this;
-        }
-
-        /**
-         * If true serialization error will be ignored
-         *
-         * @param skipIfFail default false.
-         *
-         * @return {@link Builder} instance
-         */
-        public Builder skipIfFail(boolean skipIfFail){
-            this.skipIfFail = skipIfFail;
-            return this;
-        }
-
-        /**
-         * Control how _class attribute is written
-         *
-         * @param classAttribute default {@link ClassAttributeBehaviour#IF_NEEDED}.
-         *
-         * @return {@link Builder} instance
-         */
-        public Builder classAttribute(@Nonnull ClassAttributeBehaviour classAttribute){
-            this.classAttribute = classAttribute;
-            return this;
-        }
-
-        /**
-         * Controls serialization {@link @Exported} properties
-         *
-         * @param exportInterceptor default {@link ExportInterceptor#DEFAULT}.
-         *
-         * @return {@link Builder} instance
-         */
-        public Builder exportInterceptor(@Nonnull ExportInterceptor exportInterceptor){
-            this.exportInterceptor = exportInterceptor;
-            return this;
-        }
-
-        /**
-         * Builds and returns {@link ExportConfig}
-         */
-        public @Nonnull ExportConfig build(){
-            return new ExportConfig(flavor,exportInterceptor,classAttribute,skipIfFail,prettyPrint);
-        }
+    public ExportConfig withFlavor(Flavor flavor){
+        this.flavor = flavor;
+        return this;
     }
 }
