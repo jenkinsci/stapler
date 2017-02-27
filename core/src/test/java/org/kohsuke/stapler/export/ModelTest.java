@@ -130,7 +130,7 @@ public class ModelTest {
     public static class ExportInterceptor1 extends ExportInterceptor{
 
         @Override
-        public Object getValue(Property property, Object model) throws IOException {
+        public Object getValue(Property property, Object model, ExportConfig config) throws IOException {
             try {
                 return property.getValue(model);
             } catch (IllegalAccessException | InvocationTargetException | NotExportableException e) {
@@ -142,7 +142,7 @@ public class ModelTest {
     public static class ExportInterceptor2 extends ExportInterceptor{
 
         @Override
-        public Object getValue(Property property, Object model) throws IOException {
+        public Object getValue(Property property, Object model, ExportConfig config) throws IOException {
             try {
                 return property.getValue(model);
             } catch (IllegalAccessException | InvocationTargetException | NotExportableException e) {

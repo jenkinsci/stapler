@@ -23,10 +23,6 @@
 
 package org.kohsuke.stapler.export;
 
-import org.jvnet.tiger_types.Types;
-import org.kohsuke.stapler.export.TreePruner.ByDepth;
-
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -42,6 +38,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nonnull;
+
+import org.jvnet.tiger_types.Types;
+import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 /**
  * Exposes one {@link Exported exposed property} of {@link ExportedBean} to
@@ -131,7 +131,7 @@ public abstract class Property implements Comparable<Property> {
         TreePruner child = pruner.accept(object, this);
         if (child==null)        return;
 
-        Object d = writer.getExportConfig().getExportInterceptor().getValue(this,object);
+        Object d = writer.getExportConfig().getExportInterceptor().getValue(this,object, writer.getExportConfig());
 
         if (d==null && skipNull) { // don't write anything
             return;

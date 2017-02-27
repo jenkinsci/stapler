@@ -16,22 +16,27 @@ public abstract class ExportInterceptor {
      * Subclasses must call {@link Property#getValue(Object)}  to retrieve the property.
      *
      * If the subclass decides the value can be included in the request return the value
-     * otherwise, return null to exclude.
+     * otherwise, return null results in to the property being written with value null.
      *
-     * @param property to get the value for
-     * @return the value of the property or null to exclude the property
+     * @param property to get the value from model object
+     * @param model object with this property
+     * @return the value of the property
      * @throws IOException if there was a problem with serialization that should prevent
      *         the serialization from proceeding
+     * @see Exported#skipNull()
      */
-    public abstract Object getValue(Property property, Object model) throws IOException;
+    public abstract Object getValue(Property property, Object model, ExportConfig config) throws IOException;
 
     public static final ExportInterceptor DEFAULT = new ExportInterceptor() {
         @Override
-        public Object getValue(Property property, Object model) throws IOException {
+        public Object getValue(Property property, Object model, ExportConfig config) throws IOException {
             try {
                 return property.getValue(model);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw  new IOException("Failed to write " + property.name + ":"+e.getMessage(), e);
+                if(config.isSkipIfFail()) {
+                    return null;
+                }
+                throw new IOException("Failed to write " + property.name + ":" + e.getMessage(), e);
             }
         }
     };
