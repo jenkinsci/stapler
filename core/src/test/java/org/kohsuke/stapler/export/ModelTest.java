@@ -134,7 +134,10 @@ public class ModelTest {
             try {
                 return property.getValue(model);
             } catch (IllegalAccessException | InvocationTargetException | NotExportableException e) {
-                return null; //skip failing property
+                if(property.name.equals("shouldBeSkipped")){
+                    return Skip.TRUE;
+                }
+                throw new IOException(e);
             }
         }
     }
@@ -149,7 +152,7 @@ public class ModelTest {
                 if(!property.getType().isAssignableFrom(NotExportedBean.class)){
                     throw new IOException("Failed to write "+property.name);
                 }
-                return null; //skip failing property
+                return Skip.TRUE; //skip failing property
             }
         }
     }
@@ -160,7 +163,7 @@ public class ModelTest {
         StringWriter writer = new StringWriter();
         ExportableBean b = new ExportableBean();
         builder.get(ExportableBean.class).writeTo(b,Flavor.JSON.createDataWriter(b, writer, config));
-        Assert.assertEquals("{\"_class\":\""+ExportableBean.class.getName()+"\",\"name\":\"property1\",\"notExportedBean\":{},\"shouldBeSkippedAsNull\":null}",
+        Assert.assertEquals("{\"_class\":\""+ExportableBean.class.getName()+"\",\"name\":\"property1\",\"notExportedBean\":{},\"shouldBeNull\":null}",
                 writer.toString());
     }
 
@@ -182,15 +185,22 @@ public class ModelTest {
 
         // should be serialized as null
         @Exported
-        public String getShouldBeSkippedAsNull(){
-            throw new NullPointerException();
+        public String getShouldBeNull(){
+            return null;
         }
+
         // should be skipped
-        @Exported(skipNull = true)
+        @Exported
         public String getShouldBeSkipped(){
             throw new NullPointerException();
         }
-        // should not get serialized in to JSON as empty map
+
+        // null should be skipped
+        @Exported(skipNull = true)
+        public String getShouldBeSkippedAsNull(){
+            return null;
+        }
+        // should not get serialized in to JSON as empty map due to skipIfNull is true
         @Exported
         public NotExportedBean getNotExportedBean(){
             return new NotExportedBean();
