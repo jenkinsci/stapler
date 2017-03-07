@@ -135,7 +135,7 @@ public class ModelTest {
                 return property.getValue(model);
             } catch (IllegalAccessException | InvocationTargetException | NotExportableException e) {
                 if(property.name.equals("shouldBeSkipped")){
-                    return Skip.TRUE;
+                    return SKIP;
                 }
                 throw new IOException(e);
             }
@@ -152,7 +152,7 @@ public class ModelTest {
                 if(!property.getType().isAssignableFrom(NotExportedBean.class)){
                     throw new IOException("Failed to write "+property.name);
                 }
-                return Skip.TRUE; //skip failing property
+                return SKIP; //skip failing property
             }
         }
     }

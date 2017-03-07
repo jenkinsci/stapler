@@ -133,7 +133,7 @@ public abstract class Property implements Comparable<Property> {
 
         Object d = writer.getExportConfig().getExportInterceptor().getValue(this,object, writer.getExportConfig());
 
-        if ((d==null && skipNull) || d == ExportInterceptor.Skip.TRUE) { // don't write anything
+        if ((d==null && skipNull) || d == ExportInterceptor.SKIP) { // don't write anything
             return;
         }
         if (merge) {

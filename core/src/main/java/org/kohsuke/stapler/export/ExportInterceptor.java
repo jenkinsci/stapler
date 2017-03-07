@@ -15,19 +15,19 @@ public abstract class ExportInterceptor {
     /**
      * Constant to tell if return of {@link ExportInterceptor#getValue(Property, Object, ExportConfig)} should be skipped.
      *
-     * If Skip.TRUE then this property must be skipped.
+     * Constant to skip serializaing a property in case of error
      */
-    public enum Skip {TRUE};
+    public static final Object SKIP = new Object();
 
     /**
      * Subclasses must call {@link Property#getValue(Object)}  to retrieve the property.
      *
      * If the subclass decides the value can be included in the request return the value
-     * otherwise, return {@link Skip#TRUE}  to skip the property.
+     * otherwise, return {@link #SKIP}  to skip the property.
      *
      * @param property to get the value from model object
      * @param model object with this property
-     * @return the value of the property, if {@link Skip#TRUE} is returned, this property will be skipped
+     * @return the value of the property, if {@link #SKIP} is returned, this property will be skipped
      * @throws IOException if there was a problem with serialization that should prevent
      *         the serialization from proceeding
      * @see Exported#skipNull()
@@ -41,7 +41,7 @@ public abstract class ExportInterceptor {
                 return property.getValue(model);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 if(config.isSkipIfFail()) {
-                    return Skip.TRUE;
+                    return SKIP;
                 }
                 throw new IOException("Failed to write " + property.name + ":" + e.getMessage(), e);
             }
