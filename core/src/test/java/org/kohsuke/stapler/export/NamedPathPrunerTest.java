@@ -3,11 +3,12 @@ package org.kohsuke.stapler.export;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
+
 import junit.framework.TestCase;
 
 public class NamedPathPrunerTest extends TestCase {
 
-    private static ExportConfig config = new ExportConfig().withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
+    private static ExportConfig config = new ExportConfig().withFlavor(Flavor.JSON).withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
 
     public NamedPathPrunerTest(String name) {
         super(name);

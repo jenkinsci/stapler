@@ -23,9 +23,6 @@
 
 package org.kohsuke.stapler.export;
 
-import org.jvnet.tiger_types.Types;
-import org.kohsuke.stapler.export.TreePruner.ByDepth;
-
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -41,6 +38,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nonnull;
+
+import org.jvnet.tiger_types.Types;
+import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 /**
  * Exposes one {@link Exported exposed property} of {@link ExportedBean} to
@@ -130,34 +131,28 @@ public abstract class Property implements Comparable<Property> {
         TreePruner child = pruner.accept(object, this);
         if (child==null)        return;
 
-        Object d = safeGetValue(object);
+        Object d = writer.getExportConfig().getExportInterceptor().getValue(this,object, writer.getExportConfig());
 
-        if (d==null && skipNull) { // don't write anything
+        if ((d==null && skipNull) || d == ExportInterceptor.SKIP) { // don't write anything
             return;
         }
         if (merge) {
             // merged property will get all its properties written here
             if (d != null) {
-                Model model = owner.get(d.getClass(), parent.type, name);
+                Model model;
+                try {
+                    model = owner.get(d.getClass(), parent.type, name);
+                } catch (NotExportableException e) {
+                    if(writer.getExportConfig().isSkipIfFail()){
+                        return;
+                    }
+                    throw e;
+                }
                 model.writeNestedObjectTo(d, new FilteringTreePruner(parent.HAS_PROPERTY_NAME_IN_ANCESTORY,child), writer);
             }
         } else {
             writer.name(name);
             writeValue(type, d, child, writer);
-        }
-    }
-
-    private Object safeGetValue(Object o) throws IOException {
-        try {
-            return getValue(o);
-        } catch (IllegalAccessException e) {
-            IOException x = new IOException("Failed to write " + name);
-            x.initCause(e);
-            throw x;
-        } catch (InvocationTargetException e) {
-            IOException x = new IOException("Failed to write " + name);
-            x.initCause(e);
-            throw x;
         }
     }
 
@@ -172,11 +167,11 @@ public abstract class Property implements Comparable<Property> {
      * Writes one value of the property to {@link DataWriter}.
      */
     private void writeValue(Type expected, Object value, TreePruner pruner, DataWriter writer) throws IOException {
-        writeValue(expected,value,pruner,writer,false);
+        writeValue(expected,value,pruner,writer,writer.getExportConfig().isSkipIfFail());
     }
 
     private void writeBuffered(Type expected, Object value, TreePruner pruner, DataWriter writer) throws IOException {
-        BufferedDataWriter buffer = new BufferedDataWriter();
+        BufferedDataWriter buffer = new BufferedDataWriter(writer.getExportConfig());
         try {
             writeValue(expected, value, pruner, buffer, true);
             buffer.finished();
@@ -248,7 +243,7 @@ public abstract class Property implements Comparable<Property> {
                 if (verboseMap!=null) {// verbose form
                     writer.startArray();
                     for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
-                        BufferedDataWriter buffer = new BufferedDataWriter();
+                        BufferedDataWriter buffer = new BufferedDataWriter(writer.getExportConfig());
                         try {
                             writeStartObjectNullType(buffer);
                             buffer.name(verboseMap[0]);
@@ -268,7 +263,7 @@ public abstract class Property implements Comparable<Property> {
                 } else {// compact form
                     writeStartObjectNullType(writer);
                     for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
-                        BufferedDataWriter buffer = new BufferedDataWriter();
+                        BufferedDataWriter buffer = new BufferedDataWriter(writer.getExportConfig());
                         try {
                             buffer.name(e.getKey().toString());
                             writeValue(null, e.getValue(), pruner, buffer);
@@ -319,6 +314,17 @@ public abstract class Property implements Comparable<Property> {
     }
 
     private static class BufferedDataWriter implements DataWriter {
+        private final ExportConfig exportConfig;
+
+        private BufferedDataWriter(ExportConfig exportConfig) {
+            this.exportConfig = exportConfig;
+        }
+
+        @Override
+        public @Nonnull ExportConfig getExportConfig() {
+            return exportConfig;
+        }
+
         enum Op {name, valuePrimitive, value, valueNull, startArray, endArray, type, startObject, endObject}
         static class Step {
             final Op op;
@@ -423,7 +429,7 @@ public abstract class Property implements Comparable<Property> {
     /**
      * Gets the value of this property from the bean.
      */
-    protected abstract Object getValue(Object bean) throws IllegalAccessException, InvocationTargetException;
+    public abstract Object getValue(Object bean) throws IllegalAccessException, InvocationTargetException;
 
     /*package*/ static final Set<Class> STRING_TYPES = new HashSet<Class>(Arrays.asList(
         String.class,

@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.export;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Type;
@@ -44,6 +45,11 @@ class JSONDataWriter implements DataWriter {
         this.out = out;
         this.config = config;
         indent = config.isPrettyPrint() ? 0 : -1;
+    }
+
+    @Override
+    public @Nonnull ExportConfig getExportConfig() {
+        return config;
     }
 
     public void name(String name) throws IOException {
