@@ -42,8 +42,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -84,7 +85,7 @@ public final class ClassDescriptor {
         findMethods(clazz,clazz,methods,new HashSet<Class>());
 
         // organize them into groups
-        Map<Signature,List<Method>> groups = new HashMap<Signature, List<Method>>();
+        Map<Signature,List<Method>> groups = new LinkedHashMap<>();
         for (MethodMirror m : methods) {
             List<Method> v = groups.get(m.sig);
             if (v==null)    groups.put(m.sig, v=new ArrayList<Method>());
@@ -145,7 +146,14 @@ public final class ClassDescriptor {
         if (sc!=null)
             findMethods(sc,Types.getBaseClass(logical,sc),result,visited);
 
-        for (Method m : c.getDeclaredMethods()) {
+        Method[] declaredMethods = c.getDeclaredMethods();
+        Arrays.sort(declaredMethods, new Comparator<Method>() {
+            @Override
+            public int compare(Method m1, Method m2) {
+                return m1.toString().compareTo(m2.toString());
+            }
+        });
+        for (Method m : declaredMethods) {
             if (m.isBridge())    continue;
             if ((m.getModifiers() & Modifier.PUBLIC)!=0) {
                 java.lang.reflect.Type[] paramTypes = m.getGenericParameterTypes();

@@ -273,6 +273,29 @@ public class DispatcherTest extends JettyTestCase {
         assertEquals(1, requirePostOnBase.hit);
     }
 
+    public void testOverloads() throws Exception {
+        TextPage p = new WebClient().getPage(new URL(url, "overloaded/x"));
+        assertEquals("doX()", p.getContent().trim());
+    }
+    public final Object overloaded = new Overloaded();
+    public static class Overloaded {
+        public HttpResponse doX() {
+            return HttpResponses.plainText("doX()");
+        }
+        public HttpResponse doX(StaplerRequest req) {
+            return HttpResponses.plainText("doX(StaplerRequest)");
+        }
+        public HttpResponse doX(StaplerResponse rsp) {
+            return HttpResponses.plainText("doX(StaplerResponse)");
+        }
+        public HttpResponse doX(StaplerRequest req, StaplerResponse rsp) {
+            return HttpResponses.plainText("doX(StaplerRequest, StaplerResponse)");
+        }
+        @WebMethod(name = "x")
+        public HttpResponse x() {
+            return HttpResponses.plainText("x()");
+        }
+    }
 
     public final TestWithPublicField testWithPublicField = new TestWithPublicField();
 
