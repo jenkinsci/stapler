@@ -150,7 +150,17 @@ public final class ClassDescriptor {
         Arrays.sort(declaredMethods, new Comparator<Method>() {
             @Override
             public int compare(Method m1, Method m2) {
-                return m1.toString().compareTo(m2.toString());
+                boolean m1d = m1.getAnnotation(Deprecated.class) != null;
+                boolean m2d = m2.getAnnotation(Deprecated.class) != null;
+                if (m1d && !m2d) {
+                    // Prefer nondeprecated to deprecated.
+                    return 1;
+                } else if (!m1d && m2d) {
+                    return -1;
+                } else {
+                    // Sort by string representation, so for example doFoo() is preferred to doFoo(StaplerRequest, StaplerResponse).
+                    return m1.toString().compareTo(m2.toString());
+                }
             }
         });
         for (Method m : declaredMethods) {

@@ -275,10 +275,11 @@ public class DispatcherTest extends JettyTestCase {
 
     public void testOverloads() throws Exception {
         TextPage p = new WebClient().getPage(new URL(url, "overloaded/x"));
-        assertEquals("doX()", p.getContent().trim());
+        assertEquals("doX(StaplerRequest)", p.getContent().trim());
     }
     public final Object overloaded = new Overloaded();
     public static class Overloaded {
+        @Deprecated
         public HttpResponse doX() {
             return HttpResponses.plainText("doX()");
         }
