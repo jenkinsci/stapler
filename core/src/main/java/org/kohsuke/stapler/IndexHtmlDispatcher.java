@@ -36,7 +36,7 @@ class IndexHtmlDispatcher extends Dispatcher {
      * Returns a {@link IndexHtmlDispatcher} if and only if the said class has {@code index.html} as a side-file
      */
     static Dispatcher make(ServletContext context, Class c) {
-        for (; c != Object.class; c = c.getSuperclass()) {
+        for (; c != null && c != Object.class; c = c.getSuperclass()) {
             String name = "/WEB-INF/side-files/" + c.getName().replace('.', '/') + "/index.html";
             try {
                 URL url = context.getResource(name);
