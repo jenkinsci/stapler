@@ -6,6 +6,7 @@ import org.jvnet.hudson.test.Issue;
 import javax.servlet.ServletContext;
 import java.net.MalformedURLException;
 
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
 
 public class IndexHtmlDispatcherTest {
@@ -16,7 +17,7 @@ public class IndexHtmlDispatcherTest {
         ServletContext context = mock(ServletContext.class);
         when(context.getResource(any(String.class))).thenReturn(null);
 
-        IndexHtmlDispatcher.make(context, TestInterface.class);
+        assertNull(IndexHtmlDispatcher.make(context, TestInterface.class));
     }
 
     private interface TestInterface {}
