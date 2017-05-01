@@ -238,7 +238,24 @@ public class DispatcherTest extends JettyTestCase {
         assertEquals("POST: Hello\n", p.getContent());
     }
 
-
+    public void testInterfaceMethods() throws Exception {
+        assertEquals("default", new WebClient().getPage(new URL(url, "usesInterfaceMethods/foo")).getWebResponse().getContentAsString().trim());
+        assertEquals("overridden", new WebClient().getPage(new URL(url, "overridesInterfaceMethods/foo")).getWebResponse().getContentAsString().trim());
+    }
+    public interface InterfaceWithWebMethods {
+        default HttpResponse doFoo() {
+            return HttpResponses.plainText("default");
+        }
+    }
+    public class UsesInterfaceMethods implements InterfaceWithWebMethods {}
+    public class OverridesInterfaceMethods implements InterfaceWithWebMethods {
+        @Override
+        public HttpResponse doFoo() {
+            return HttpResponses.plainText("overridden");
+        }
+    }
+    public final UsesInterfaceMethods usesInterfaceMethods = new UsesInterfaceMethods();
+    public final OverridesInterfaceMethods overridesInterfaceMethods = new OverridesInterfaceMethods();
 
     //===================================================================
 
