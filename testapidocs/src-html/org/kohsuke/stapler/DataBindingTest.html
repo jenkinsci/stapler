@@ -200,12 +200,12 @@
 <span class="sourceLineNo">192</span>    public void testRaw() {<a name="line.192"></a>
 <span class="sourceLineNo">193</span>        RawBinding r = bind("{x:{a:true,b:1},y:[1,2,3]}", RawBinding.class);<a name="line.193"></a>
 <span class="sourceLineNo">194</span><a name="line.194"></a>
-<span class="sourceLineNo">195</span>        // array coersion on y<a name="line.195"></a>
+<span class="sourceLineNo">195</span>        // array coercion on y<a name="line.195"></a>
 <span class="sourceLineNo">196</span>        RawBinding r2 = bind("{x:{a:true,b:1},y:{p:true}}", RawBinding.class);<a name="line.196"></a>
 <span class="sourceLineNo">197</span>        JSONObject o = (JSONObject)r2.y.get(0);<a name="line.197"></a>
 <span class="sourceLineNo">198</span>        assertTrue(o.getBoolean("p"));<a name="line.198"></a>
 <span class="sourceLineNo">199</span><a name="line.199"></a>
-<span class="sourceLineNo">200</span>        // array coersion on y<a name="line.200"></a>
+<span class="sourceLineNo">200</span>        // array coercion on y<a name="line.200"></a>
 <span class="sourceLineNo">201</span>        RawBinding r3 = bind("{x:{a:true,b:1},y:true}", RawBinding.class);<a name="line.201"></a>
 <span class="sourceLineNo">202</span>        assertTrue((Boolean)r3.y.get(0));<a name="line.202"></a>
 <span class="sourceLineNo">203</span>    }<a name="line.203"></a>
@@ -414,7 +414,7 @@
 <span class="sourceLineNo">406</span><a name="line.406"></a>
 <span class="sourceLineNo">407</span><a name="line.407"></a>
 <span class="sourceLineNo">408</span>    /**<a name="line.408"></a>
-<span class="sourceLineNo">409</span>     * Subyping and overriding a setter shouldn't hide it.<a name="line.409"></a>
+<span class="sourceLineNo">409</span>     * Subtyping and overriding a setter shouldn't hide it.<a name="line.409"></a>
 <span class="sourceLineNo">410</span>     */<a name="line.410"></a>
 <span class="sourceLineNo">411</span>    public void testDerivedProperty() {<a name="line.411"></a>
 <span class="sourceLineNo">412</span>        DerivedProperty r = bind("{items:[1,3,5]}",DerivedProperty.class);<a name="line.412"></a>

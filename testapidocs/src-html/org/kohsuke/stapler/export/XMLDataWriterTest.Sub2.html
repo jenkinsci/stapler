@@ -8,24 +8,24 @@
 <div class="sourceContainer">
 <pre><span class="sourceLineNo">001</span>package org.kohsuke.stapler.export;<a name="line.1"></a>
 <span class="sourceLineNo">002</span><a name="line.2"></a>
-<span class="sourceLineNo">003</span>import com.google.common.collect.ImmutableList;<a name="line.3"></a>
-<span class="sourceLineNo">004</span>import junit.framework.TestCase;<a name="line.4"></a>
-<span class="sourceLineNo">005</span>import org.junit.Test;<a name="line.5"></a>
-<span class="sourceLineNo">006</span>import org.xml.sax.InputSource;<a name="line.6"></a>
-<span class="sourceLineNo">007</span>import org.xml.sax.helpers.DefaultHandler;<a name="line.7"></a>
-<span class="sourceLineNo">008</span><a name="line.8"></a>
-<span class="sourceLineNo">009</span>import javax.xml.parsers.SAXParser;<a name="line.9"></a>
-<span class="sourceLineNo">010</span>import javax.xml.parsers.SAXParserFactory;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.io.IOException;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.io.StringReader;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.io.StringWriter;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import java.util.Collection;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.util.Collections;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import java.util.Iterator;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import java.util.List;<a name="line.17"></a>
+<span class="sourceLineNo">003</span>import java.io.IOException;<a name="line.3"></a>
+<span class="sourceLineNo">004</span>import java.io.StringReader;<a name="line.4"></a>
+<span class="sourceLineNo">005</span>import java.io.StringWriter;<a name="line.5"></a>
+<span class="sourceLineNo">006</span>import java.util.Collection;<a name="line.6"></a>
+<span class="sourceLineNo">007</span>import java.util.Collections;<a name="line.7"></a>
+<span class="sourceLineNo">008</span>import java.util.Iterator;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import java.util.List;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import javax.xml.parsers.SAXParser;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import javax.xml.parsers.SAXParserFactory;<a name="line.11"></a>
+<span class="sourceLineNo">012</span><a name="line.12"></a>
+<span class="sourceLineNo">013</span>import com.google.common.collect.ImmutableList;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import junit.framework.TestCase;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.junit.Test;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.xml.sax.InputSource;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.xml.sax.helpers.DefaultHandler;<a name="line.17"></a>
 <span class="sourceLineNo">018</span><a name="line.18"></a>
 <span class="sourceLineNo">019</span>public class XMLDataWriterTest extends TestCase {<a name="line.19"></a>
-<span class="sourceLineNo">020</span>    private ExportConfig config = new ExportConfig().withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());<a name="line.20"></a>
+<span class="sourceLineNo">020</span>    private ExportConfig config = new ExportConfig().withFlavor(Flavor.XML).withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());<a name="line.20"></a>
 <span class="sourceLineNo">021</span><a name="line.21"></a>
 <span class="sourceLineNo">022</span>    public XMLDataWriterTest(String n) {<a name="line.22"></a>
 <span class="sourceLineNo">023</span>        super(n);<a name="line.23"></a>

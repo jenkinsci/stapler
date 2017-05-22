@@ -81,7 +81,7 @@
 <span class="sourceLineNo">073</span>                    WebApp webApp = WebApp.getCurrent();<a name="line.73"></a>
 <span class="sourceLineNo">074</span>                    MetaClass c = webApp.getMetaClass(it instanceof Class ? Klass.java((Class)it):  webApp.getKlass(it));<a name="line.74"></a>
 <span class="sourceLineNo">075</span>                    // prefer 'foo.jellytag' to avoid tags from showing up as views,<a name="line.75"></a>
-<span class="sourceLineNo">076</span>                    // but for backward compatibility, support the plain .jelly extention as well.<a name="line.76"></a>
+<span class="sourceLineNo">076</span>                    // but for backward compatibility, support the plain .jelly extension as well.<a name="line.76"></a>
 <span class="sourceLineNo">077</span>                    Script tag = c.loadTearOff(JellyClassTearOff.class).findScript(tagName+".jellytag");<a name="line.77"></a>
 <span class="sourceLineNo">078</span>                    if (tag==null)<a name="line.78"></a>
 <span class="sourceLineNo">079</span>                        tag = c.loadTearOff(JellyClassTearOff.class).findScript(tagName+".jelly");<a name="line.79"></a>

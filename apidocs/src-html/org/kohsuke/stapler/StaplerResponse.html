@@ -32,200 +32,222 @@
 <span class="sourceLineNo">024</span>package org.kohsuke.stapler;<a name="line.24"></a>
 <span class="sourceLineNo">025</span><a name="line.25"></a>
 <span class="sourceLineNo">026</span>import net.sf.json.JsonConfig;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.kohsuke.stapler.export.Flavor;<a name="line.27"></a>
-<span class="sourceLineNo">028</span><a name="line.28"></a>
-<span class="sourceLineNo">029</span>import javax.annotation.Nonnull;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import javax.servlet.ServletException;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import javax.servlet.http.HttpServletResponse;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import javax.servlet.http.HttpServletRequest;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import java.io.IOException;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import java.io.InputStream;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import java.io.OutputStream;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import java.io.Writer;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import java.net.URL;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>import java.net.URLConnection;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>import org.kohsuke.stapler.export.Model;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>import org.kohsuke.stapler.export.NamedPathPruner;<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>/**<a name="line.42"></a>
-<span class="sourceLineNo">043</span> * Defines additional operations made available by Stapler.<a name="line.43"></a>
-<span class="sourceLineNo">044</span> *<a name="line.44"></a>
-<span class="sourceLineNo">045</span> * @see Stapler#getCurrentResponse()<a name="line.45"></a>
-<span class="sourceLineNo">046</span> * @author Kohsuke Kawaguchi<a name="line.46"></a>
-<span class="sourceLineNo">047</span> */<a name="line.47"></a>
-<span class="sourceLineNo">048</span>public interface StaplerResponse extends HttpServletResponse {<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    /**<a name="line.49"></a>
-<span class="sourceLineNo">050</span>     * Evaluates the url against the given object and<a name="line.50"></a>
-<span class="sourceLineNo">051</span>     * forwards the request to the result.<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     *<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     * &lt;p&gt;<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     * This can be used for example inside an action method<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     * to forward a request to a JSP.<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     *<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     * @param it<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     *      the URL is evaluated against this object. Must not be null.<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     * @param url<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     *      the relative URL (e.g., "foo" or "foo/bar") to resolve<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     *      against the "it" object.<a name="line.61"></a>
-<span class="sourceLineNo">062</span>     * @param request<a name="line.62"></a>
-<span class="sourceLineNo">063</span>     *      Request to be forwarded.<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     */<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    void forward(Object it, String url, StaplerRequest request) throws ServletException, IOException;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    /**<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     * Redirects the browser to where it came from (the referer.)<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     */<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    void forwardToPreviousPage(StaplerRequest request) throws ServletException, IOException;<a name="line.69"></a>
-<span class="sourceLineNo">070</span><a name="line.70"></a>
-<span class="sourceLineNo">071</span>    /**<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     * Works like {@link #sendRedirect(String)} except that this method<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     * escapes the URL.<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     */<a name="line.74"></a>
-<span class="sourceLineNo">075</span>    void sendRedirect2(@Nonnull String url) throws IOException;<a name="line.75"></a>
-<span class="sourceLineNo">076</span><a name="line.76"></a>
-<span class="sourceLineNo">077</span>    /**<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     * Works like {@link #sendRedirect2(String)} but allows the caller to specify the HTTP status code.<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     */<a name="line.79"></a>
-<span class="sourceLineNo">080</span>    void sendRedirect(int statusCore, @Nonnull String url) throws IOException;<a name="line.80"></a>
-<span class="sourceLineNo">081</span><a name="line.81"></a>
-<span class="sourceLineNo">082</span>    /**<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     * Serves a static resource.<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     *<a name="line.84"></a>
-<span class="sourceLineNo">085</span>     * &lt;p&gt;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>     * This method sets content type, HTTP status code, sends the complete data<a name="line.86"></a>
-<span class="sourceLineNo">087</span>     * and closes the response. This method also handles cache-control HTTP headers<a name="line.87"></a>
-<span class="sourceLineNo">088</span>     * like "If-Modified-Since" and others.<a name="line.88"></a>
-<span class="sourceLineNo">089</span>     */<a name="line.89"></a>
-<span class="sourceLineNo">090</span>    void serveFile(StaplerRequest request, URL res) throws ServletException, IOException;<a name="line.90"></a>
-<span class="sourceLineNo">091</span><a name="line.91"></a>
-<span class="sourceLineNo">092</span>    void serveFile(StaplerRequest request, URL res, long expiration) throws ServletException, IOException;<a name="line.92"></a>
+<span class="sourceLineNo">027</span>import org.kohsuke.stapler.export.DataWriter;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.kohsuke.stapler.export.ExportConfig;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.kohsuke.stapler.export.Flavor;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.kohsuke.stapler.export.Model;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.kohsuke.stapler.export.NamedPathPruner;<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>import javax.annotation.Nonnull;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import javax.servlet.ServletException;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import javax.servlet.http.HttpServletRequest;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import javax.servlet.http.HttpServletResponse;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import java.io.IOException;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import java.io.InputStream;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import java.io.OutputStream;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import java.io.Writer;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import java.net.URL;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import java.net.URLConnection;<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>/**<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * Defines additional operations made available by Stapler.<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * @see Stapler#getCurrentResponse()<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * @author Kohsuke Kawaguchi<a name="line.48"></a>
+<span class="sourceLineNo">049</span> */<a name="line.49"></a>
+<span class="sourceLineNo">050</span>public interface StaplerResponse extends HttpServletResponse {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    /**<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * Evaluates the url against the given object and<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * forwards the request to the result.<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     *<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * &lt;p&gt;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * This can be used for example inside an action method<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * to forward a request to a JSP.<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     *<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * @param it<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     *      the URL is evaluated against this object. Must not be null.<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * @param url<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     *      the relative URL (e.g., "foo" or "foo/bar") to resolve<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     *      against the "it" object.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * @param request<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     *      Request to be forwarded.<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     */<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    void forward(Object it, String url, StaplerRequest request) throws ServletException, IOException;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    /**<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * Redirects the browser to where it came from (the referer.)<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    void forwardToPreviousPage(StaplerRequest request) throws ServletException, IOException;<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>    /**<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * Works like {@link #sendRedirect(String)} except that this method<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * escapes the URL.<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     */<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    void sendRedirect2(@Nonnull String url) throws IOException;<a name="line.77"></a>
+<span class="sourceLineNo">078</span><a name="line.78"></a>
+<span class="sourceLineNo">079</span>    /**<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * Works like {@link #sendRedirect2(String)} but allows the caller to specify the HTTP status code.<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     */<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    void sendRedirect(int statusCore, @Nonnull String url) throws IOException;<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>    /**<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * Serves a static resource.<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     *<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * &lt;p&gt;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * This method sets content type, HTTP status code, sends the complete data<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * and closes the response. This method also handles cache-control HTTP headers<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * like "If-Modified-Since" and others.<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     */<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    void serveFile(StaplerRequest request, URL res) throws ServletException, IOException;<a name="line.92"></a>
 <span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>    /**<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     * Works like {@link #serveFile(StaplerRequest, URL)} but chooses the locale specific<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     * version of the resource if it's available. The convention of "locale specific version"<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     * is the same as that of property files.<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     * So Japanese resource for &lt;tt&gt;foo.html&lt;/tt&gt; would be named &lt;tt&gt;foo_ja.html&lt;/tt&gt;.<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     */<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    void serveLocalizedFile(StaplerRequest request, URL res) throws ServletException, IOException;<a name="line.100"></a>
-<span class="sourceLineNo">101</span><a name="line.101"></a>
-<span class="sourceLineNo">102</span>    /**<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     * Works like {@link #serveFile(StaplerRequest, URL, long)} but chooses the locale<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     * specific version of the resource if it's available.<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     *<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     * See {@link #serveLocalizedFile(StaplerRequest, URL)} for more details.<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     */<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    void serveLocalizedFile(StaplerRequest request, URL res, long expiration) throws ServletException, IOException;<a name="line.108"></a>
-<span class="sourceLineNo">109</span><a name="line.109"></a>
-<span class="sourceLineNo">110</span>    /**<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     * Serves a static resource.<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     *<a name="line.112"></a>
-<span class="sourceLineNo">113</span>     * &lt;p&gt;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>     * This method works like {@link #serveFile(StaplerRequest, URL)} but this version<a name="line.114"></a>
-<span class="sourceLineNo">115</span>     * allows the caller to fetch data from anywhere.<a name="line.115"></a>
-<span class="sourceLineNo">116</span>     *<a name="line.116"></a>
-<span class="sourceLineNo">117</span>     * @param data<a name="line.117"></a>
-<span class="sourceLineNo">118</span>     *      {@link InputStream} that contains the data of the static resource.<a name="line.118"></a>
-<span class="sourceLineNo">119</span>     * @param lastModified<a name="line.119"></a>
-<span class="sourceLineNo">120</span>     *      The timestamp when the resource was last modified. See {@link URLConnection#getLastModified()}<a name="line.120"></a>
-<span class="sourceLineNo">121</span>     *      for the meaning of the value. 0 if unknown, in which case "If-Modified-Since" handling<a name="line.121"></a>
-<span class="sourceLineNo">122</span>     *      will not be performed.<a name="line.122"></a>
-<span class="sourceLineNo">123</span>     * @param expiration<a name="line.123"></a>
-<span class="sourceLineNo">124</span>     *      The number of milliseconds until the resource will "expire".<a name="line.124"></a>
-<span class="sourceLineNo">125</span>     *      Until it expires the browser will be allowed to cache it<a name="line.125"></a>
-<span class="sourceLineNo">126</span>     *      and serve it without checking back with the server.<a name="line.126"></a>
-<span class="sourceLineNo">127</span>     *      After it expires, the client will send conditional GET to<a name="line.127"></a>
-<span class="sourceLineNo">128</span>     *      check if the resource is actually modified or not.<a name="line.128"></a>
-<span class="sourceLineNo">129</span>     *      If 0, it will immediately expire.<a name="line.129"></a>
-<span class="sourceLineNo">130</span>     * @param contentLength<a name="line.130"></a>
-<span class="sourceLineNo">131</span>     *      if the length of the input stream is known in advance, specify that value<a name="line.131"></a>
-<span class="sourceLineNo">132</span>     *      so that HTTP keep-alive works. Otherwise specify -1 to indicate that the length is unknown.<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     * @param fileName<a name="line.133"></a>
-<span class="sourceLineNo">134</span>     *      file name of this resource. Used to determine the MIME type.<a name="line.134"></a>
-<span class="sourceLineNo">135</span>     *      Since the only important portion is the file extension, this could be just a file name,<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     *      or a full path name, or even a pseudo file name that doesn't actually exist.<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     *      It supports both '/' and '\\' as the path separator.<a name="line.137"></a>
-<span class="sourceLineNo">138</span>     *<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     *      If this string starts with "mime-type:", like "mime-type:foo/bar", then "foo/bar" will<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     *      be used as a MIME type without consulting the servlet container.<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     */<a name="line.141"></a>
-<span class="sourceLineNo">142</span>    void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, long contentLength, String fileName) throws ServletException, IOException;<a name="line.142"></a>
-<span class="sourceLineNo">143</span><a name="line.143"></a>
-<span class="sourceLineNo">144</span>    /**<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     * @deprecated use form with long contentLength<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     */<a name="line.146"></a>
-<span class="sourceLineNo">147</span>    void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, int contentLength, String fileName) throws ServletException, IOException;<a name="line.147"></a>
-<span class="sourceLineNo">148</span><a name="line.148"></a>
-<span class="sourceLineNo">149</span>    /**<a name="line.149"></a>
-<span class="sourceLineNo">150</span>     * Serves a static resource.<a name="line.150"></a>
-<span class="sourceLineNo">151</span>     *<a name="line.151"></a>
-<span class="sourceLineNo">152</span>     * Expiration date is set to the value that forces browser to do conditional GET<a name="line.152"></a>
-<span class="sourceLineNo">153</span>     * for all resources.<a name="line.153"></a>
-<span class="sourceLineNo">154</span>     *<a name="line.154"></a>
-<span class="sourceLineNo">155</span>     * @see #serveFile(StaplerRequest, InputStream, long, long, int, String)<a name="line.155"></a>
-<span class="sourceLineNo">156</span>     */<a name="line.156"></a>
-<span class="sourceLineNo">157</span>    void serveFile(StaplerRequest req, InputStream data, long lastModified, long contentLength, String fileName) throws ServletException, IOException;<a name="line.157"></a>
-<span class="sourceLineNo">158</span><a name="line.158"></a>
-<span class="sourceLineNo">159</span>    /**<a name="line.159"></a>
-<span class="sourceLineNo">160</span>     * @deprecated use form with long contentLength<a name="line.160"></a>
-<span class="sourceLineNo">161</span>     */<a name="line.161"></a>
-<span class="sourceLineNo">162</span>    void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName) throws ServletException, IOException;<a name="line.162"></a>
-<span class="sourceLineNo">163</span><a name="line.163"></a>
-<span class="sourceLineNo">164</span>    /**<a name="line.164"></a>
-<span class="sourceLineNo">165</span>     * Serves the exposed bean in the specified flavor.<a name="line.165"></a>
-<span class="sourceLineNo">166</span>     *<a name="line.166"></a>
-<span class="sourceLineNo">167</span>     * &lt;p&gt;<a name="line.167"></a>
-<span class="sourceLineNo">168</span>     * This method performs the complete output from the header to the response body.<a name="line.168"></a>
-<span class="sourceLineNo">169</span>     * If the flavor is JSON, this method also supports JSONP via the {@code jsonp} query parameter.<a name="line.169"></a>
-<span class="sourceLineNo">170</span>     * <a name="line.170"></a>
-<span class="sourceLineNo">171</span>     * &lt;p&gt;The {@code depth} parameter may be used to specify a recursion depth<a name="line.171"></a>
-<span class="sourceLineNo">172</span>     * as in {@link Model#writeTo(Object,int,DataWriter)}.<a name="line.172"></a>
-<span class="sourceLineNo">173</span>     * <a name="line.173"></a>
-<span class="sourceLineNo">174</span>     * &lt;p&gt;As of 1.146, the {@code tree} parameter may be used to control the output<a name="line.174"></a>
-<span class="sourceLineNo">175</span>     * in detail; see {@link NamedPathPruner#NamedPathPruner(String)} for details.<a name="line.175"></a>
-<span class="sourceLineNo">176</span>     */<a name="line.176"></a>
-<span class="sourceLineNo">177</span>    void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException,IOException;<a name="line.177"></a>
-<span class="sourceLineNo">178</span><a name="line.178"></a>
-<span class="sourceLineNo">179</span>    /**<a name="line.179"></a>
-<span class="sourceLineNo">180</span>     * Works like {@link #getOutputStream()} but tries to send the response<a name="line.180"></a>
-<span class="sourceLineNo">181</span>     * with gzip compression if the client supports it.<a name="line.181"></a>
-<span class="sourceLineNo">182</span>     *<a name="line.182"></a>
-<span class="sourceLineNo">183</span>     * &lt;p&gt;<a name="line.183"></a>
-<span class="sourceLineNo">184</span>     * This method is useful for sending out a large text content.<a name="line.184"></a>
-<span class="sourceLineNo">185</span>     *<a name="line.185"></a>
-<span class="sourceLineNo">186</span>     * @param req<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     *      Used to determine whether the client supports compression<a name="line.187"></a>
-<span class="sourceLineNo">188</span>     */<a name="line.188"></a>
-<span class="sourceLineNo">189</span>    OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException;<a name="line.189"></a>
-<span class="sourceLineNo">190</span><a name="line.190"></a>
-<span class="sourceLineNo">191</span>    /**<a name="line.191"></a>
-<span class="sourceLineNo">192</span>     * Works like {@link #getCompressedOutputStream(HttpServletRequest)} but this<a name="line.192"></a>
-<span class="sourceLineNo">193</span>     * method is for {@link #getWriter()}.<a name="line.193"></a>
-<span class="sourceLineNo">194</span>     */<a name="line.194"></a>
-<span class="sourceLineNo">195</span>    Writer getCompressedWriter(HttpServletRequest req) throws IOException;<a name="line.195"></a>
-<span class="sourceLineNo">196</span><a name="line.196"></a>
-<span class="sourceLineNo">197</span>    /**<a name="line.197"></a>
-<span class="sourceLineNo">198</span>     * Performs the reverse proxy to the given URL.<a name="line.198"></a>
-<span class="sourceLineNo">199</span>     *<a name="line.199"></a>
-<span class="sourceLineNo">200</span>     * @return<a name="line.200"></a>
-<span class="sourceLineNo">201</span>     *      The status code of the response.<a name="line.201"></a>
-<span class="sourceLineNo">202</span>     */<a name="line.202"></a>
-<span class="sourceLineNo">203</span>    int reverseProxyTo(URL url, StaplerRequest req) throws IOException;<a name="line.203"></a>
-<span class="sourceLineNo">204</span><a name="line.204"></a>
-<span class="sourceLineNo">205</span>    /**<a name="line.205"></a>
-<span class="sourceLineNo">206</span>     * The JsonConfig to be used when serializing java beans from js bound methods to JSON.<a name="line.206"></a>
-<span class="sourceLineNo">207</span>     * Setting this to null will make the default config to be used.<a name="line.207"></a>
-<span class="sourceLineNo">208</span>     *<a name="line.208"></a>
-<span class="sourceLineNo">209</span>     * @param config the config<a name="line.209"></a>
+<span class="sourceLineNo">094</span>    void serveFile(StaplerRequest request, URL res, long expiration) throws ServletException, IOException;<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>    /**<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * Works like {@link #serveFile(StaplerRequest, URL)} but chooses the locale specific<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * version of the resource if it's available. The convention of "locale specific version"<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * is the same as that of property files.<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * So Japanese resource for &lt;tt&gt;foo.html&lt;/tt&gt; would be named &lt;tt&gt;foo_ja.html&lt;/tt&gt;.<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     */<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    void serveLocalizedFile(StaplerRequest request, URL res) throws ServletException, IOException;<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>    /**<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * Works like {@link #serveFile(StaplerRequest, URL, long)} but chooses the locale<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * specific version of the resource if it's available.<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     *<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     * See {@link #serveLocalizedFile(StaplerRequest, URL)} for more details.<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     */<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    void serveLocalizedFile(StaplerRequest request, URL res, long expiration) throws ServletException, IOException;<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>    /**<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * Serves a static resource.<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     *<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * &lt;p&gt;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * This method works like {@link #serveFile(StaplerRequest, URL)} but this version<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * allows the caller to fetch data from anywhere.<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     *<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * @param data<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     *      {@link InputStream} that contains the data of the static resource.<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     * @param lastModified<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     *      The timestamp when the resource was last modified. See {@link URLConnection#getLastModified()}<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     *      for the meaning of the value. 0 if unknown, in which case "If-Modified-Since" handling<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     *      will not be performed.<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * @param expiration<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     *      The number of milliseconds until the resource will "expire".<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     *      Until it expires the browser will be allowed to cache it<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     *      and serve it without checking back with the server.<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     *      After it expires, the client will send conditional GET to<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     *      check if the resource is actually modified or not.<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     *      If 0, it will immediately expire.<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * @param contentLength<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     *      if the length of the input stream is known in advance, specify that value<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     *      so that HTTP keep-alive works. Otherwise specify -1 to indicate that the length is unknown.<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * @param fileName<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     *      file name of this resource. Used to determine the MIME type.<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     *      Since the only important portion is the file extension, this could be just a file name,<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     *      or a full path name, or even a pseudo file name that doesn't actually exist.<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     *      It supports both '/' and '\\' as the path separator.<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     *<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     *      If this string starts with "mime-type:", like "mime-type:foo/bar", then "foo/bar" will<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     *      be used as a MIME type without consulting the servlet container.<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     */<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, long contentLength, String fileName) throws ServletException, IOException;<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>    /**<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     * @deprecated use form with long contentLength<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     */<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, int contentLength, String fileName) throws ServletException, IOException;<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>    /**<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     * Serves a static resource.<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     *<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     * Expiration date is set to the value that forces browser to do conditional GET<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     * for all resources.<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     *<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     * @see #serveFile(StaplerRequest, InputStream, long, long, int, String)<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     */<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    void serveFile(StaplerRequest req, InputStream data, long lastModified, long contentLength, String fileName) throws ServletException, IOException;<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>    /**<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     * @deprecated use form with long contentLength<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     */<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName) throws ServletException, IOException;<a name="line.164"></a>
+<span class="sourceLineNo">165</span><a name="line.165"></a>
+<span class="sourceLineNo">166</span>    /**<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * Serves the exposed bean in the specified flavor.<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     *<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     * &lt;p&gt;<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     * This method performs the complete output from the header to the response body.<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * If the flavor is JSON, this method also supports JSONP via the {@code jsonp} query parameter.<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     * <a name="line.172"></a>
+<span class="sourceLineNo">173</span>     * &lt;p&gt;The {@code depth} parameter may be used to specify a recursion depth<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     * as in {@link Model#writeTo(Object,int,DataWriter)}.<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     * <a name="line.175"></a>
+<span class="sourceLineNo">176</span>     * &lt;p&gt;As of 1.146, the {@code tree} parameter may be used to control the output<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     * in detail; see {@link NamedPathPruner#NamedPathPruner(String)} for details.<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     *<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     * @deprecated Use {@link #serveExposedBean(StaplerRequest, Object, ExportConfig)}<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     */<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    @Deprecated<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException,IOException;<a name="line.182"></a>
+<span class="sourceLineNo">183</span><a name="line.183"></a>
+<span class="sourceLineNo">184</span>    /**<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     * Serves the exposed bean in the specified flavor.<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     *<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     * &lt;p&gt;<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * This method performs the complete output from the header to the response body.<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     * If the flavor is JSON, this method also supports JSONP via the {@code jsonp} query parameter.<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     *<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     * &lt;p&gt;The {@code depth} parameter may be used to specify a recursion depth<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * as in {@link Model#writeTo(Object,int,DataWriter)}<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     *<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     * &lt;p&gt;As of 1.146, the {@code tree} parameter may be used to control the output<a name="line.194"></a>
+<span class="sourceLineNo">195</span>     * in detail; see {@link NamedPathPruner#NamedPathPruner(String)} for details.<a name="line.195"></a>
+<span class="sourceLineNo">196</span>     *<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     * &lt;p&gt; {@link ExportConfig} is passed by the caller to control serialization behavior<a name="line.197"></a>
+<span class="sourceLineNo">198</span>     */<a name="line.198"></a>
+<span class="sourceLineNo">199</span>    void serveExposedBean(StaplerRequest req, Object exposedBean, ExportConfig exportConfig) throws ServletException,IOException;<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>    /**<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * Works like {@link #getOutputStream()} but tries to send the response<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     * with gzip compression if the client supports it.<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     *<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     * &lt;p&gt;<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     * This method is useful for sending out a large text content.<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     *<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     * @param req<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     *      Used to determine whether the client supports compression<a name="line.209"></a>
 <span class="sourceLineNo">210</span>     */<a name="line.210"></a>
-<span class="sourceLineNo">211</span>    void setJsonConfig(JsonConfig config);<a name="line.211"></a>
+<span class="sourceLineNo">211</span>    OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException;<a name="line.211"></a>
 <span class="sourceLineNo">212</span><a name="line.212"></a>
 <span class="sourceLineNo">213</span>    /**<a name="line.213"></a>
-<span class="sourceLineNo">214</span>     * The JsonConfig to be used when serializing java beans to JSON previously set by {@link #setJsonConfig(JsonConfig)}.<a name="line.214"></a>
-<span class="sourceLineNo">215</span>     * Will return the default config if nothing has previously been set.<a name="line.215"></a>
-<span class="sourceLineNo">216</span>     *<a name="line.216"></a>
-<span class="sourceLineNo">217</span>     * @return the config<a name="line.217"></a>
-<span class="sourceLineNo">218</span>     */<a name="line.218"></a>
-<span class="sourceLineNo">219</span>    JsonConfig getJsonConfig();<a name="line.219"></a>
-<span class="sourceLineNo">220</span>}<a name="line.220"></a>
+<span class="sourceLineNo">214</span>     * Works like {@link #getCompressedOutputStream(HttpServletRequest)} but this<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     * method is for {@link #getWriter()}.<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     */<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    Writer getCompressedWriter(HttpServletRequest req) throws IOException;<a name="line.217"></a>
+<span class="sourceLineNo">218</span><a name="line.218"></a>
+<span class="sourceLineNo">219</span>    /**<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     * Performs the reverse proxy to the given URL.<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     *<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * @return<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     *      The status code of the response.<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     */<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    int reverseProxyTo(URL url, StaplerRequest req) throws IOException;<a name="line.225"></a>
+<span class="sourceLineNo">226</span><a name="line.226"></a>
+<span class="sourceLineNo">227</span>    /**<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     * The JsonConfig to be used when serializing java beans from js bound methods to JSON.<a name="line.228"></a>
+<span class="sourceLineNo">229</span>     * Setting this to null will make the default config to be used.<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     *<a name="line.230"></a>
+<span class="sourceLineNo">231</span>     * @param config the config<a name="line.231"></a>
+<span class="sourceLineNo">232</span>     */<a name="line.232"></a>
+<span class="sourceLineNo">233</span>    void setJsonConfig(JsonConfig config);<a name="line.233"></a>
+<span class="sourceLineNo">234</span><a name="line.234"></a>
+<span class="sourceLineNo">235</span>    /**<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     * The JsonConfig to be used when serializing java beans to JSON previously set by {@link #setJsonConfig(JsonConfig)}.<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * Will return the default config if nothing has previously been set.<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     *<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * @return the config<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     */<a name="line.240"></a>
+<span class="sourceLineNo">241</span>    JsonConfig getJsonConfig();<a name="line.241"></a>
+<span class="sourceLineNo">242</span>}<a name="line.242"></a>
 
 
 

@@ -129,7 +129,7 @@
 <span class="sourceLineNo">121</span><a name="line.121"></a>
 <span class="sourceLineNo">122</span>    private Script load(String name, ClassLoader classLoader) throws JellyException {<a name="line.122"></a>
 <span class="sourceLineNo">123</span>        Script script;<a name="line.123"></a>
-<span class="sourceLineNo">124</span>        // prefer 'foo.jellytag' but for backward compatibility, support the plain .jelly extention as well.<a name="line.124"></a>
+<span class="sourceLineNo">124</span>        // prefer 'foo.jellytag' but for backward compatibility, support the plain .jelly extension as well.<a name="line.124"></a>
 <span class="sourceLineNo">125</span>        URL res = classLoader.getResource(basePath + '/' + name + ".jellytag");<a name="line.125"></a>
 <span class="sourceLineNo">126</span>        if (res==null)<a name="line.126"></a>
 <span class="sourceLineNo">127</span>            res = classLoader.getResource(basePath + '/' + name + ".jelly");<a name="line.127"></a>

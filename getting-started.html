@@ -33,7 +33,7 @@
 
 <h3>Registering the root object</h3>
 <p>
-	Stapler needs to know the root object of your application. It does that by <tt>SerlvetContext.getAttribute("app")</tt>, so your application needs to set the root object into a ServletContext. The easiest to do that is to write a <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/ServletContextListener.html"><tt>ServletContextListener</tt></a> and use the helper method from <tt>Stapler</tt>.
+	Stapler needs to know the root object of your application. It does that by <tt>ServletContext.getAttribute("app")</tt>, so your application needs to set the root object into a ServletContext. The easiest to do that is to write a <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/ServletContextListener.html"><tt>ServletContextListener</tt></a> and use the helper method from <tt>Stapler</tt>.
 <p>
 	Specifically, you write the following class:
 <pre class=code><xmp
