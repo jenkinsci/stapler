@@ -1,6 +1,18 @@
 CHANGELOG
 ===
 
+##### 1.251
+Release date: Coming soon
+* [PR #106](https://github.com/stapler/stapler/pull/106) -
+Support configurable stapler serialization behavior.
+Related to [JENKINS-40088](https://issues.jenkins-ci.org/browse/JENKINS-40088).
+* [Issue #109](https://github.com/stapler/stapler/issues/109) -
+Prevent `NullPointerException` in `IndexHtmlDispatcher` when index.html resource is provided in an interface.
+Fixes [JENKINS-43715](https://issues.jenkins-ci.org/browse/JENKINS-43715), regression in 1.249.
+* [PR #112](https://github.com/stapler/stapler/pull/112) -
+Prevent `NullPointerException` in `FilteringTreePruner` when child object in the tree is `null`.
+Related to [JENKINS-40979](https://issues.jenkins-ci.org/browse/JENKINS-40979).
+
 ##### 1.250
 Release date: January 20, 2017
 * [PR 103](https://github.com/stapler/stapler/pull/103) -
