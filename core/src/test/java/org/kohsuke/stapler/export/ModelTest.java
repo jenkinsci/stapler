@@ -39,7 +39,7 @@ public class ModelTest {
     ModelBuilder builder = new ModelBuilder();
 
     @Test // JENKINS-26775
-    public void sytheticMethodShouldNotBeExported() {
+    public void syntheticMethodShouldNotBeExported() {
         Model<Impl> model = builder.get(Impl.class);
         assertEquals("Redundant properties discovered: " + model.getProperties(), 1, model.getProperties().size());
     }

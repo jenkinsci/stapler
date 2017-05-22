@@ -45,7 +45,7 @@ import java.util.Enumeration;
 public class RequestImplTest {
 
     @Test
-    public void test_mutipart_formdata() throws IOException, ServletException {
+    public void test_multipart_formdata() throws IOException, ServletException {
         final Stapler stapler = new Stapler();
         final byte[] buf = generateMultipartData();
         final ByteArrayInputStream is = new ByteArrayInputStream(buf);

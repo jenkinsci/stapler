@@ -136,7 +136,7 @@ public class Model<T> {
     /**
      * Does a property exist strictly in this class or its ancestors?
      */
-    /*package*/ final Predicate<String> HAS_PROPERTY_NAME_IN_ANCESTORY = new Predicate<String>() {
+    /*package*/ final Predicate<String> HAS_PROPERTY_NAME_IN_ANCESTRY = new Predicate<String>() {
         @Override
         public boolean apply(@Nullable String name) {
             for (Model m=Model.this; m!=null; m=m.superModel)

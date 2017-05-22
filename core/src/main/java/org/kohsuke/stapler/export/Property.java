@@ -148,7 +148,7 @@ public abstract class Property implements Comparable<Property> {
                     }
                     throw e;
                 }
-                model.writeNestedObjectTo(d, new FilteringTreePruner(parent.HAS_PROPERTY_NAME_IN_ANCESTORY,child), writer);
+                model.writeNestedObjectTo(d, new FilteringTreePruner(parent.HAS_PROPERTY_NAME_IN_ANCESTRY,child), writer);
             }
         } else {
             writer.name(name);

@@ -28,7 +28,7 @@ import org.apache.commons.jelly.XMLOutput;
 import org.jvnet.maven.jellydoc.annotation.Required;
 
 /**
- * DTD-like expression that specifies the consraints on attribute appearances.
+ * DTD-like expression that specifies the constraints on attribute appearances.
  *
  * <p>
  * This tag should be placed right inside {@code <st:documentation>}

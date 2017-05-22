@@ -54,4 +54,4 @@ Parallel request routing for Blue Ocean. This will allow BlueOcean or any Jenkin
 ##### 1.243
 Release date: April 29, 2016
 * [PR 74](https://github.com/stapler/stapler/pull/74/files) - 
-BeanInfo doesn't work when there's assymetry in getter vs setter
+BeanInfo doesn't work when there's asymmetry in getter vs setter

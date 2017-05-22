@@ -35,7 +35,7 @@ import java.util.Collection;
  *
  * <p>
  * In override objects, {@link CancelRequestHandlingException} is an useful mechanism to programmatically
- * inspect a request and then selecctively return the request back to the original object (that implements
+ * inspect a request and then selectively return the request back to the original object (that implements
  * {@link StaplerOverridable}.
  *
  * @author Kohsuke Kawaguchi
