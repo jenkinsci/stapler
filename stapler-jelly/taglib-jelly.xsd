@@ -559,7 +559,7 @@
 </xsd:element>
     <xsd:element name="attributeConstraints">
 <xsd:annotation>
-<xsd:documentation>DTD-like expression that specifies the consraints on attribute appearances.
+<xsd:documentation>DTD-like expression that specifies the constraints on attribute appearances.
 
  
         <p>
