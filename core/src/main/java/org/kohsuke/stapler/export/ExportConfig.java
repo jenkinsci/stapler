@@ -49,7 +49,7 @@ public class ExportConfig {
     }
 
     /**
-     * Controls serialization of {@link @Exported} properties.
+     * Controls serialization of {@link Exported} properties.
      */
     public ExportInterceptor getExportInterceptor() {
         return exportInterceptor;
