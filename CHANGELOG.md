@@ -2,7 +2,7 @@ CHANGELOG
 ===
 
 ##### 1.251
-Release date: Coming soon
+Release date: May 22, 2017
 * [PR #106](https://github.com/stapler/stapler/pull/106) -
 Support configurable stapler serialization behavior.
 Related to [JENKINS-40088](https://issues.jenkins-ci.org/browse/JENKINS-40088).
