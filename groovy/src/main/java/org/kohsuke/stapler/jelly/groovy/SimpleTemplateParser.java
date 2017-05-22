@@ -126,7 +126,7 @@ class SimpleTemplateParser {
     }
 
     /**
-     * Closes the currently open write and writes out the following text as a GSstring expression until it reaches an end %>.
+     * Closes the currently open write and writes out the following text as a GString expression until it reaches an end %>.
      *
      * @param reader a reader for the template text
      * @param sw     a StringWriter to write expression content
