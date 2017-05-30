@@ -37,7 +37,7 @@ public class DispatcherTest extends JettyTestCase {
     public void testIndexDispatchByName() throws Exception {
         WebClient wc = new WebClient();
         TextPage p = wc.getPage(new URL(url, "indexDispatchByName"));
-        assertEquals("Hello world\n", p.getContent());
+        assertEquals("Hello world", p.getContent());
     }
 
 
@@ -76,7 +76,7 @@ public class DispatcherTest extends JettyTestCase {
 
     private void check(WebClient wc, HttpMethod m) throws java.io.IOException {
         TextPage p = wc.getPage(new WebRequestSettings(new URL(url, "verbMatch/"), m));
-        assertEquals("Got "+m.name()+"\n", p.getContent());
+        assertEquals("Got "+m.name(), p.getContent());
     }
 
 
@@ -101,10 +101,10 @@ public class DispatcherTest extends JettyTestCase {
     public void testArbitraryWebMethodName() throws Exception {
         WebClient wc = new WebClient();
         TextPage p = wc.getPage(new URL(url, "arbitraryWebMethodName"));
-        assertEquals("I'm index\n", p.getContent());
+        assertEquals("I'm index", p.getContent());
 
         p = wc.getPage(new URL(url, "arbitraryWebMethodName/theNeedful"));
-        assertEquals("DTN\n", p.getContent());
+        assertEquals("DTN", p.getContent());
 
     }
 
@@ -141,7 +141,7 @@ public class DispatcherTest extends JettyTestCase {
         req.setAdditionalHeader("Content-Type","application/json");
         req.setRequestBody("{x:3,y:5}");
         TextPage p = wc.getPage(req);
-        assertEquals("3,5\n",p.getContent());
+        assertEquals("3,5",p.getContent());
 
     }
 
@@ -158,7 +158,7 @@ public class DispatcherTest extends JettyTestCase {
         req.setAdditionalHeader("Content-Type","application/json; charset=utf-8");
         req.setRequestBody("{x:3,y:5}");
         TextPage p = wc.getPage(req);
-        assertEquals("3,5\n",p.getContent());
+        assertEquals("3,5",p.getContent());
 
     }
 
@@ -185,7 +185,7 @@ public class DispatcherTest extends JettyTestCase {
 
         // the request should get to the overriding method and it should still see all the annotations in the base type
         TextPage p = wc.getPage(new URL(url, "inheritance/foo?q=abc"));
-        assertEquals("abc\n", p.getContent());
+        assertEquals("abc", p.getContent());
 
         // doBar is a web method for 'foo', so bar endpoint shouldn't respond
         try {
@@ -221,7 +221,7 @@ public class DispatcherTest extends JettyTestCase {
         WebRequestSettings wrs = new WebRequestSettings(new URL(url, "putInheritance/foo"), HttpMethod.PUT);
         wrs.setRequestBody("Hello");
         TextPage p = wc.getPage(wrs);
-        assertEquals("Hello World!\n", p.getContent());
+        assertEquals("Hello World!", p.getContent());
 
         // doBar is a web method for 'foo', so bar endpoint shouldn't respond
         try {
@@ -235,7 +235,7 @@ public class DispatcherTest extends JettyTestCase {
         wrs = new WebRequestSettings(new URL(url, "putInheritance/acme"), HttpMethod.POST);
         wrs.setRequestBody("Hello");
         p = wc.getPage(wrs);
-        assertEquals("POST: Hello\n", p.getContent());
+        assertEquals("POST: Hello", p.getContent());
     }
 
 
