@@ -173,7 +173,7 @@ public class BoundObjectTable implements StaplerFallback {
         public HttpResponse doEnableLogging() {
             if (DEBUG_LOGGING) {
                 this.logging = true;
-                return HttpResponses.plainText("Logging enabled for this session: "+toString());
+                return HttpResponses.text("Logging enabled for this session: " + this + "\n");
             } else {
                 return HttpResponses.forbidden();
             }
