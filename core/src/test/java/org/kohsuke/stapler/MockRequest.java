@@ -34,6 +34,9 @@ public class MockRequest implements HttpServletRequest {
     }
 
     public String getHeader(String name) {
+        if ("Content-length".equals(name)) {
+            return "0";
+        }
         // TODO
         throw new UnsupportedOperationException();
     }
