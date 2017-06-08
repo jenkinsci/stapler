@@ -1,6 +1,10 @@
 CHANGELOG
 ===
 
+##### 1.252
+Upcoming.
+* [PR #118](https://github.com/stapler/stapler/pull/118) - deprecated `HttpResponses.html` and `.plainText` in favor of `.literalHtml` and `.text`.
+
 ##### 1.251
 Release date: May 22, 2017
 * [PR #106](https://github.com/stapler/stapler/pull/106) -

@@ -203,8 +203,9 @@ public class HttpResponses {
     }
 
     /**
-     * Serves the literal HTML.
+     * @deprecated Adds a platform-specific newline; prefer {@link #literalHtml}.
      */
+    @Deprecated
     public static HttpResponse html(final String literalHtml) {
         return new HttpResponse() {
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
@@ -215,13 +216,44 @@ public class HttpResponses {
     }
 
     /**
-     * Serves the plain text.
+     * Serves an HTML response.
      */
+    public static HttpResponse literalHtml(final String text) {
+        return new HttpResponse() {
+            @Override
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                rsp.setContentType("text/html;charset=UTF-8");
+                PrintWriter pw = rsp.getWriter();
+                pw.print(text);
+                pw.flush();
+            }
+        };
+    }
+
+    /**
+     * @deprecated Adds a platform-specific newline; prefer {@link #text}.
+     */
+    @Deprecated
     public static HttpResponse plainText(final String plainText) {
         return new HttpResponse() {
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                 rsp.setContentType("text/plain;charset=UTF-8");
                 rsp.getWriter().println(plainText);
+            }
+        };
+    }
+
+    /**
+     * Serves a plain text response.
+     */
+    public static HttpResponse text(final String text) {
+        return new HttpResponse() {
+            @Override
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                rsp.setContentType("text/plain;charset=UTF-8");
+                PrintWriter pw = rsp.getWriter();
+                pw.print(text);
+                pw.flush();
             }
         };
     }
