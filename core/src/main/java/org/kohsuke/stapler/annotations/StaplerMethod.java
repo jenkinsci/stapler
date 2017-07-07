@@ -37,6 +37,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Documented
 @Repeatable(StaplerMethods.class)
+@StaplerPath.Implicit
 @InterceptorAnnotation(value = StaplerMethodInterceptor.class, stage = Stage.SELECTION)
 public @interface StaplerMethod {
     String value();

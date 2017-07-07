@@ -28,12 +28,15 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Marks methods and fields as being navigable by Stapler.
+ *
+ * @since TODO
  */
 @Target({METHOD, FIELD})
 @Retention(RUNTIME)
@@ -66,4 +69,14 @@ public @interface StaplerPath {
     String INDEX = "";
 
     String value() default INFER_FROM_NAME;
+
+    /**
+     * Meta-annotation to flag an annotation as implying {@link StaplerPath#INFER_FROM_NAME} without explicitly
+     * requiring the method / field to have a {@link StaplerPath} annotation
+     */
+    @Target(ANNOTATION_TYPE)
+    @Retention(RUNTIME)
+    @Documented
+    public @interface Implicit {
+    }
 }

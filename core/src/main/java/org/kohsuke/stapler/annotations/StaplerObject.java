@@ -31,9 +31,25 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+/**
+ * Marker annotation that declares the annotated type is complete from the point of view of
+ * {@link org.kohsuke.stapler.annotations}{@code .Stapler*} annotations. A type that is complete can be subjected to
+ * additional verifications.
+ *
+ * @since TODO
+ */
+/* FIXME: Need to determine how inheritance applies to this annotation.
+ *
+ * Some of the issues:
+ * * If a class is annotated, it does not seem appropriate that all derived classes inherit the annotation as they
+ *   may have been compiled against an earlier version of the class (from before these annotations were introduced)
+ *   thus we need to find a way to differentiate between a class that has been explicitly annotated and one
+ *   that has "inherited" the annotation.
+ * * Similarly, in terms of completeness, that concept only apply at the annotated level.
+ */
 @Target(TYPE)
 @Retention(RUNTIME)
 @Documented
-@Inherited
+@Inherited // TODO determine whether this should be inherited or not
 public @interface StaplerObject {
 }
