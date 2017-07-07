@@ -5,17 +5,41 @@ import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.TextPage;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+import java.util.Locale;
+import javax.net.ssl.HttpsURLConnection;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
+import org.kohsuke.stapler.annotations.StaplerCONNECT;
+import org.kohsuke.stapler.annotations.StaplerContent;
+import org.kohsuke.stapler.annotations.StaplerDELETE;
+import org.kohsuke.stapler.annotations.StaplerGET;
+import org.kohsuke.stapler.annotations.StaplerHEAD;
+import org.kohsuke.stapler.annotations.StaplerMethod;
+import org.kohsuke.stapler.annotations.StaplerMethods;
+import org.kohsuke.stapler.annotations.StaplerPATCH;
+import org.kohsuke.stapler.annotations.StaplerPOST;
+import org.kohsuke.stapler.annotations.StaplerPUT;
+import org.kohsuke.stapler.annotations.StaplerPath;
+import org.kohsuke.stapler.annotations.StaplerPaths;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.json.JsonBody;
 import org.kohsuke.stapler.test.JettyTestCase;
 import org.kohsuke.stapler.verb.GET;
 import org.kohsuke.stapler.verb.POST;
 import org.kohsuke.stapler.verb.PUT;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -79,6 +103,237 @@ public class DispatcherTest extends JettyTestCase {
         assertEquals("Got " + m.name(), p.getContent());
     }
 
+
+    //===================================================================
+
+    public final ContentMatch contentMatch = new ContentMatch();
+
+    public class ContentMatch {
+
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("text")})
+        @StaplerPOST
+        @StaplerContent(StaplerContent.ANY_TEXT)
+        public HttpResponse doText() {
+            return HttpResponses.text("I got text");
+        }
+
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("xml")})
+        @StaplerPOST
+        @StaplerContent("*/xml")
+        public HttpResponse doXml() {
+            return HttpResponses.text("I got xml");
+        }
+
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("json")})
+        @StaplerPOST
+        @StaplerContent("application/json")
+        public HttpResponse doJson() {
+            return HttpResponses.text("I got json");
+        }
+    }
+
+    /**
+     * Tests the dispatching of WebMethod based on verb
+     */
+    public void testContentMatch() throws Exception {
+        post("text/plain", "text", "I got text");
+        post("text/html", "text", "I got text");
+        postFail("application/xml", "text");
+        post("application/xml", "xml", "I got xml");
+        post("text/xml", "xml", "I got xml");
+        postFail("text/html", "xml");
+        post("application/json", "json", "I got json");
+        postFail("text/html", "json");
+
+        // FIXME uncomment once StaplerPath support added
+        // post("text/plain", "", "I got text");
+        // post("text/html", "", "I got text");
+        // post("application/xml", "", "I got xml");
+        // // post("text/xml", "", "I got xml"); // FIXME uncomment once matching conflict resolution added
+        // post("application/json", "", "I got json");
+
+    }
+
+    private void post(String contentType, String path, String expectedResponse) throws java.io.IOException {
+        HttpURLConnection connection = (HttpURLConnection) new URL(url, "contentMatch/" + path).openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", contentType);
+        connection.setDoOutput(true);
+        try {
+            connection.connect();
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write("Dummy".getBytes(StandardCharsets.UTF_8));
+            }
+            assertEquals("Content-Type " + contentType + " on path " + path, 200, connection.getResponseCode());
+            ByteArrayOutputStream in = new ByteArrayOutputStream();
+            try (InputStream is = connection.getInputStream()) {
+                IOUtils.copy(is, in);
+            }
+            assertEquals("Content-Type " + contentType + " on path " + path, expectedResponse, new String(in.toByteArray(), StandardCharsets.UTF_8));
+        } finally {
+            connection.disconnect();
+        }
+    }
+
+    private void postFail(String contentType, String path) throws java.io.IOException {
+        HttpURLConnection connection = (HttpURLConnection) new URL(url, "contentMatch/" + path).openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", contentType);
+        connection.setDoOutput(true);
+        try {
+            connection.connect();
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write("Dummy".getBytes(StandardCharsets.UTF_8));
+            }
+            assertEquals("Content-Type " + contentType + " on path " + path, 404, connection.getResponseCode());
+        } finally {
+            connection.disconnect();
+        }
+    }
+    //===================================================================
+
+    public final MethodMatch methodMatch = new MethodMatch();
+
+    public class MethodMatch {
+
+        private HttpResponse response(final String probe) {
+            return new HttpResponse() {
+                @Override
+                public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                        throws IOException, ServletException {
+                    rsp.addHeader("X-Probe", probe);
+                    rsp.setStatus(200);
+                }
+            };
+        }
+
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("connect")})
+        @StaplerCONNECT
+        public HttpResponse doConnect() {
+            return response("connect");
+        }
+
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("delete")})
+        @StaplerDELETE
+        public HttpResponse doDelete() {
+            return response("delete");
+        }
+
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("get")})
+        @StaplerGET
+        public HttpResponse doGet() {
+            return response("get");
+        }
+
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("head")})
+        @StaplerHEAD
+        public HttpResponse doHead() {
+            return response("head");
+        }
+
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX), @StaplerPath("patch")})
+        @StaplerPATCH
+        public HttpResponse doPatch() {
+            return response("patch");
+        }
+
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX), @StaplerPath("post")})
+        @StaplerPOST
+        public HttpResponse doPost() {
+            return response("post");
+        }
+
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX), @StaplerPath("put")})
+        @StaplerPUT
+        public HttpResponse doPut() {
+            return response("put");
+        }
+
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX), @StaplerPath("custom")})
+        @StaplerMethod("CUSTOM")
+        public HttpResponse doCustom() {
+            return response("custom");
+        }
+
+        @StaplerMethods({@StaplerMethod("CONNECT"), @StaplerMethod("DELETE"), @StaplerMethod("GET"),
+                         @StaplerMethod("HEAD"), @StaplerMethod("PATCH"), @StaplerMethod("POST"),
+                         @StaplerMethod("PUT"), @StaplerMethod("CUSTOM")})
+        public HttpResponse doAll() {
+            return response(Stapler.getCurrentRequest().getMethod().toLowerCase(Locale.ENGLISH));
+        }
+    }
+
+    /**
+     * Tests the dispatching of StaplerPath based on method
+     */
+    public void testMethodMatch() throws Exception {
+        String[] methods = {"CONNECT", "DELETE", "GET", "HEAD", "PATCH", "POST", "PUT", "CUSTOM"};
+        for (String method1: methods) {
+            check(method1, "all", 200);
+            // check(method1, "", 200); // FIXME uncomment once StaplerPath support added
+            for (String method2: methods) {
+                check(method1, method2.toLowerCase(), method1.equals(method2)?200:404);
+            }
+        }
+    }
+
+    private void check(String m, String path, int expectedStatus) throws java.io.IOException {
+        HttpURLConnection connection = (HttpURLConnection) new URL(url, "methodMatch/" + path).openConnection();
+        setRequestMethodViaJreBugWorkaround(connection, m);
+        try {
+            connection.connect();
+            assertEquals("Method " + m + " on path " + path, expectedStatus, connection.getResponseCode());
+            if (expectedStatus == 200) {
+                assertEquals("Method " + m + " on path " + path, m.toLowerCase(Locale.ENGLISH),
+                        connection.getHeaderField("X-Probe"));
+            } else {
+                assertNull("Method " + m + " on path " + path, connection.getHeaderField("X-Probe"));
+            }
+        } finally {
+            connection.disconnect();
+        }
+    }
+
+
+    /**
+     * Workaround for a bug in {@code HttpURLConnection.setRequestMethod(String)}
+     * The implementation of Sun/Oracle is throwing a {@code ProtocolException}
+     * when the method is other than the HTTP/1.1 default methods. So to use {@code PROPFIND}
+     * and others, we must apply this workaround.
+     */
+    private static void setRequestMethodViaJreBugWorkaround(final HttpURLConnection httpURLConnection,
+                                                            final String method) {
+        try {
+            httpURLConnection.setRequestMethod(method); // Check whether we are running on a buggy JRE
+        } catch (final ProtocolException pe) {
+            try {
+                AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+                    @Override
+                    public Object run() throws NoSuchFieldException, IllegalAccessException {
+                        final Object target;
+                        if (httpURLConnection instanceof HttpsURLConnection) {
+                            final Field delegate = httpURLConnection.getClass().getDeclaredField("delegate");
+                            delegate.setAccessible(true);
+                            target = delegate.get(httpURLConnection);
+                        } else {
+                            target = httpURLConnection;
+                        }
+                        final Field methodField = HttpURLConnection.class.getDeclaredField("method");
+                        methodField.setAccessible(true);
+                        methodField.set(target, method);
+                        return null;
+                    }
+                });
+            } catch (final PrivilegedActionException e) {
+                final Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
+                } else {
+                    throw new RuntimeException(cause);
+                }
+            }
+        }
+    }
 
     //===================================================================
 
