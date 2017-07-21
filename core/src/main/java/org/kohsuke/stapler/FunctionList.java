@@ -24,7 +24,11 @@
 package org.kohsuke.stapler;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.*;
+import org.kohsuke.stapler.annotations.StaplerMethod;
+import org.kohsuke.stapler.annotations.StaplerPath;
+import org.kohsuke.stapler.annotations.StaplerRMI;
 
 /**
  * Immutable list of {@link Function}s.
@@ -32,6 +36,7 @@ import java.util.*;
  * @author Kohsuke Kawaguchi
  */
 public final class FunctionList extends AbstractList<Function> {
+    private static final FunctionList EMPTY = new FunctionList();
     private final Function[] functions;
 
     public FunctionList(Function... functions) {
@@ -67,6 +72,10 @@ public final class FunctionList extends AbstractList<Function> {
         combined.addAll(Arrays.asList(this.functions));
         combined.addAll(Arrays.asList(that.functions));
         return new FunctionList(combined);
+    }
+
+    public static FunctionList emptyList() {
+        return EMPTY;
     }
 
     //public int length() {
@@ -133,6 +142,78 @@ public final class FunctionList extends AbstractList<Function> {
         return filter(new Filter() {
             public boolean keep(Function m) {
                 return m.getName().startsWith("do") || m.getAnnotation(WebMethod.class)!=null;
+            }
+        });
+    }
+
+    /**
+     * Returns {@link Function}s that have {@link StaplerPath.Helper#isPath(Function)} true.
+     */
+    public FunctionList staplerPath() {
+        return filter(new Filter() {
+            @Override
+            public boolean keep(Function m) {
+                return StaplerPath.Helper.isPath(m);
+            }
+        });
+    }
+
+    /**
+     * Returns {@link Function}s that have {@link StaplerPath.Helper#isPath(Function)} false.
+     */
+    public FunctionList nonStaplerPath() {
+        return filter(new Filter() {
+            @Override
+            public boolean keep(Function m) {
+                return !StaplerPath.Helper.isPath(m);
+            }
+        });
+    }
+
+    /**
+     * Returns {@link Function}s that have {@link StaplerMethod.Helper#isMethod(Function)} true.
+     */
+    public FunctionList staplerMethod() {
+        return filter(new Filter() {
+            @Override
+            public boolean keep(Function m) {
+                return StaplerMethod.Helper.isMethod(m);
+            }
+        });
+    }
+
+    /**
+     * Returns {@link Function}s that have {@link StaplerMethod.Helper#isMethod(Function)} false.
+     */
+    public FunctionList nonStaplerMethod() {
+        return filter(new Filter() {
+            @Override
+            public boolean keep(Function m) {
+                return !StaplerMethod.Helper.isMethod(m);
+            }
+        });
+    }
+
+    /**
+     * Returns {@link Function}s that have {@link StaplerRMI}.
+     */
+    public FunctionList staplerRmi() {
+        return filter(new Filter() {
+            @Override
+            public boolean keep(Function m) {
+                return m.getAnnotation(StaplerRMI.class) != null;
+            }
+        });
+    }
+
+    /**
+     * Returns {@link Function}s that do not have {@link StaplerRMI}.
+     */
+    public FunctionList nonStaplerRmi() {
+        return filter(new Filter() {
+            @Override
+            public boolean keep(Function m) {
+                return m.getAnnotation(StaplerRMI.class) == null;
             }
         });
     }

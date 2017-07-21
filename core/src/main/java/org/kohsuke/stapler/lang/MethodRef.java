@@ -42,6 +42,11 @@ public abstract class MethodRef extends AnnotatedRef {
             }
 
             @Override
+            public Annotation[] getAnnotations() {
+                return m.getAnnotations();
+            }
+
+            @Override
             public boolean isRoutable() {
                 if (m.isBridge())    return false;
                 return (m.getModifiers() & Modifier.PUBLIC)!=0;

@@ -54,12 +54,14 @@ public class StaplerMethodInterceptor extends Interceptor {
         for (Annotation a : target.getAnnotations()) {
             if (a instanceof StaplerMethods) {
                 for (StaplerMethod sa : ((StaplerMethods) a).value()) {
-                    if (sa.value().equals(method)) {
+                    String value = sa.value();
+                    if (value.equals(method) || value.equals(StaplerMethod.ALL)) {
                         return true;
                     }
                 }
             } else if (a instanceof StaplerMethod) {
-                if (((StaplerMethod) a).value().equals(method)) {
+                String value = ((StaplerMethod) a).value();
+                if (value.equals(method) || value.equals(StaplerMethod.ALL)) {
                     return true;
                 }
             } else {

@@ -57,6 +57,12 @@ public class RubyMethodRef extends MethodRef {
     }
 
     @Override
+    public Annotation[] getAnnotations() {
+        // TODO: what's the equivalent in JRuby?
+        return super.getAnnotations();
+    }
+
+    @Override
     public Object invoke(Object _this, Object... args) throws InvocationTargetException, IllegalAccessException {
         IRubyObject[] argList = new IRubyObject[args.length];
         for (int i=0; i<args.length; i++)

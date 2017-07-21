@@ -23,12 +23,19 @@
 
 package org.kohsuke.stapler.annotations;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import javax.servlet.http.HttpServletRequest;
+import org.kohsuke.stapler.Function;
+import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 import org.kohsuke.stapler.interceptor.Stage;
+import org.kohsuke.stapler.lang.MethodRef;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -37,8 +44,46 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Documented
 @Repeatable(StaplerMethods.class)
-@StaplerPath.Implicit
+@StaplerPath.Implicit(methodPrefix = "do")
 @InterceptorAnnotation(value = StaplerMethodInterceptor.class, stage = Stage.SELECTION)
 public @interface StaplerMethod {
+    /**
+     * Special constant used to indicate that the annotated method matches all {@link HttpServletRequest#getMethod()}s.
+     */
+    String ALL = "*";
+
     String value();
+
+    /**
+     * Helper class that consolidates the rules for determining the names to infer from a
+     */
+    class Helper {
+
+        private Helper() {
+            throw new IllegalAccessError("Utility class");
+        }
+
+        public static boolean isMethod(Function method) {
+            return isMethod(method.getAnnotations());
+        }
+
+        public static boolean isMethod(Method method) {
+            return Modifier.isPublic(method.getModifiers()) && isMethod(method.getAnnotations());
+        }
+
+        public static boolean isMethod(MethodRef method) {
+            return method.isRoutable() && isMethod(method.getAnnotations());
+        }
+
+        private static boolean isMethod(Annotation[] annotations) {
+            for (Annotation a : annotations) {
+                InterceptorAnnotation interceptor = a.annotationType().getAnnotation(InterceptorAnnotation.class);
+                if (interceptor != null && StaplerMethodInterceptor.class.equals(interceptor.value())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+    }
 }

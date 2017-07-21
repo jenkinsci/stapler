@@ -40,7 +40,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(METHOD)
 @Retention(RUNTIME)
 @Documented
-@StaplerPath.Implicit
+@StaplerPath.Implicit(methodPrefix = "do")
 @InterceptorAnnotation(value = StaplerMethodInterceptor.class, stage = Stage.SELECTION)
 public @interface StaplerGET {
 }

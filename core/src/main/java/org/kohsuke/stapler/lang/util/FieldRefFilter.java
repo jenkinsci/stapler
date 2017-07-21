@@ -43,6 +43,11 @@ public abstract class FieldRefFilter extends FieldRef {
     }
 
     @Override
+    public Annotation[] getAnnotations() {
+        return getBase().getAnnotations();
+    }
+
+    @Override
     public boolean hasAnnotation(Class<? extends Annotation> type) {
         return getBase().hasAnnotation(type);
     }

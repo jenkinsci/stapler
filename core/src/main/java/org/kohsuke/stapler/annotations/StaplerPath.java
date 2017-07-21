@@ -36,6 +36,8 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import org.kohsuke.stapler.Function;
+import org.kohsuke.stapler.lang.FieldRef;
+import org.kohsuke.stapler.lang.MethodRef;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
@@ -98,7 +100,7 @@ public @interface StaplerPath {
      * Helper class that consolidates the rules for determining the names to infer from a
      */
     class Helper {
-        private static final String DEFAULT_METHOD_PREFIX = "do";
+        private static final String DEFAULT_METHOD_PREFIX = "get";
 
         private Helper() {
             throw new IllegalAccessError("Utility class");
@@ -109,10 +111,11 @@ public @interface StaplerPath {
         }
 
         public static boolean isPath(Method method) {
-            if (!Modifier.isPublic(method.getModifiers())) {
-                return false;
-            }
-            return isMethodPath(method.getAnnotations());
+            return Modifier.isPublic(method.getModifiers()) && isMethodPath(method.getAnnotations());
+        }
+
+        public static boolean isPath(MethodRef method) {
+            return method.isRoutable() && isMethodPath(method.getAnnotations());
         }
 
         private static boolean isMethodPath(Annotation[] annotations) {
@@ -131,10 +134,15 @@ public @interface StaplerPath {
         }
 
         public static boolean isPath(Field field) {
-            if (!Modifier.isPublic(field.getModifiers())) {
-                return false;
-            }
-            for (Annotation a : field.getAnnotations()) {
+            return Modifier.isPublic(field.getModifiers()) && isFieldPath(field.getAnnotations());
+        }
+
+        public static boolean isPath(FieldRef field) {
+            return field.isRoutable() && isFieldPath(field.getAnnotations());
+        }
+
+        private static boolean isFieldPath(Annotation[] annotations) {
+            for (Annotation a : annotations) {
                 if (a instanceof StaplerPaths) {
                     StaplerPath[] paths = ((StaplerPaths) a).value();
                     if (paths.length == 0) {
@@ -158,17 +166,18 @@ public @interface StaplerPath {
         }
 
         public static boolean isDynamic(Function method) {
-            return isDynamic(method.getAnnotations());
+            return isMethodDynamic(method.getAnnotations());
         }
 
         public static boolean isDynamic(Method method) {
-            if (!Modifier.isPublic(method.getModifiers())) {
-                return false;
-            }
-            return isDynamic(method.getAnnotations());
+            return Modifier.isPublic(method.getModifiers()) && isMethodDynamic(method.getAnnotations());
         }
 
-        private static boolean isDynamic(Annotation[] annotations) {
+        public static boolean isDynamic(MethodRef method) {
+            return method.isRoutable() && isMethodDynamic(method.getAnnotations());
+        }
+
+        private static boolean isMethodDynamic(Annotation[] annotations) {
             for (Annotation a : annotations) {
                 if (a instanceof StaplerPaths) {
                     for (StaplerPath p : ((StaplerPaths) a).value()) {
@@ -192,6 +201,13 @@ public @interface StaplerPath {
 
         public static Iterable<String> getPaths(Method method) {
             if (!Modifier.isPublic(method.getModifiers())) {
+                return Collections.emptyList();
+            }
+            return getMethodPaths(method.getName(), method.getAnnotations());
+        }
+
+        public static Iterable<String> getPaths(MethodRef method) {
+            if (!method.isRoutable()) {
                 return Collections.emptyList();
             }
             return getMethodPaths(method.getName(), method.getAnnotations());
@@ -279,23 +295,34 @@ public @interface StaplerPath {
             if (!Modifier.isPublic(field.getModifiers())) {
                 return Collections.emptyList();
             }
+            return getFieldPaths(field.getName(), field.getAnnotations());
+        }
+
+        public static Iterable<String> getPaths(FieldRef field) {
+            if (!field.isRoutable()) {
+                return Collections.emptyList();
+            }
+            return getFieldPaths(field.getName(), field.getAnnotations());
+        }
+
+        private static Iterable<String> getFieldPaths(String fieldName, Annotation[] annotations) {
             Set<String> names = new TreeSet<>();
             boolean hasPathAnnotation = false;
             boolean hasImplicitAnnotation = false;
-            for (Annotation a : field.getAnnotations()) {
+            for (Annotation a : annotations) {
                 if (a instanceof StaplerPaths) {
                     hasPathAnnotation = true;
                     StaplerPath[] paths = ((StaplerPaths) a).value();
                     if (paths.length == 0) {
                         // infer name for an empty @StaplerPaths()
-                        names.add(field.getName());
+                        names.add(fieldName);
                     } else {
                         for (StaplerPath p : paths) {
                             switch (p.value()) {
                                 case DYNAMIC:
                                     continue;
                                 case INFER_FROM_NAME:
-                                    names.add(field.getName());
+                                    names.add(fieldName);
                                     break;
                                 default:
                                     names.add(p.value());
@@ -310,7 +337,7 @@ public @interface StaplerPath {
                         case DYNAMIC:
                             continue;
                         case INFER_FROM_NAME:
-                            names.add(field.getName());
+                            names.add(fieldName);
                             break;
                         default:
                             names.add(p.value());
@@ -324,7 +351,7 @@ public @interface StaplerPath {
                 }
             }
             if (!hasPathAnnotation && hasImplicitAnnotation) {
-                names.add(field.getName());
+                names.add(fieldName);
             }
             return names;
         }

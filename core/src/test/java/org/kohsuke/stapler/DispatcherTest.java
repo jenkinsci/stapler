@@ -29,6 +29,7 @@ import org.kohsuke.stapler.annotations.StaplerGET;
 import org.kohsuke.stapler.annotations.StaplerHEAD;
 import org.kohsuke.stapler.annotations.StaplerMethod;
 import org.kohsuke.stapler.annotations.StaplerMethods;
+import org.kohsuke.stapler.annotations.StaplerObject;
 import org.kohsuke.stapler.annotations.StaplerPATCH;
 import org.kohsuke.stapler.annotations.StaplerPOST;
 import org.kohsuke.stapler.annotations.StaplerPUT;
@@ -108,6 +109,7 @@ public class DispatcherTest extends JettyTestCase {
 
     public final ContentMatch contentMatch = new ContentMatch();
 
+    @StaplerObject
     public class ContentMatch {
 
         @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("text")})
@@ -146,11 +148,11 @@ public class DispatcherTest extends JettyTestCase {
         postFail("text/html", "json");
 
         // FIXME uncomment once StaplerPath support added
-        // post("text/plain", "", "I got text");
-        // post("text/html", "", "I got text");
-        // post("application/xml", "", "I got xml");
-        // // post("text/xml", "", "I got xml"); // FIXME uncomment once matching conflict resolution added
-        // post("application/json", "", "I got json");
+        post("text/plain", "", "I got text");
+        post("text/html", "", "I got text");
+        post("application/xml", "", "I got xml");
+        // post("text/xml", "", "I got xml"); // FIXME uncomment once matching conflict resolution added
+        post("application/json", "", "I got json");
 
     }
 

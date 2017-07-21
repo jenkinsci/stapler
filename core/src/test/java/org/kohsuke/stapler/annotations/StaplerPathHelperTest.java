@@ -22,7 +22,9 @@ import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 import org.kohsuke.stapler.Function;
 import org.kohsuke.stapler.FunctionList;
+import org.kohsuke.stapler.lang.FieldRef;
 import org.kohsuke.stapler.lang.Klass;
+import org.kohsuke.stapler.lang.MethodRef;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -470,6 +472,69 @@ public class StaplerPathHelperTest {
     }
 
     @Test
+    public void given__navigatePrefixNoAnnotation__when__getPaths__then__noNames()
+            throws Exception {
+        assertThat(StaplerPath.Helper.getPaths(method("getNoAnnotation")),
+                StaplerPathHelperTest.<String>setEquivalence());
+    }
+
+    @Test
+    public void given__navigatePrefixInferAnnotation__when__getPaths__then__nameInferred()
+            throws Exception {
+        assertThat(StaplerPath.Helper.getPaths(method("getInferAnnotation")),
+                setEquivalence("inferAnnotation"));
+    }
+
+    @Test
+    public void given__navigateNoPrefixInferAnnotation__when__getPaths__then__nameInferred()
+            throws Exception {
+        assertThat(StaplerPath.Helper.getPaths(method("inferAnnotation")),
+                setEquivalence("inferAnnotation"));
+    }
+
+    @Test
+    public void given__navigatePrefixExplicitAnnotation__when__getPaths__then__nameExplicit()
+            throws Exception {
+        assertThat(StaplerPath.Helper.getPaths(method("getExplicitAnnotation")),
+                setEquivalence("alternative"));
+    }
+
+    @Test
+    public void given__navigateNoPrefixExplicitAnnotation__when__getPaths__then__nameExplicit()
+            throws Exception {
+        assertThat(StaplerPath.Helper.getPaths(method("explicitAnnotation")),
+                setEquivalence("alternative"));
+    }
+
+    @Test
+    public void given__navigatePrefixDynamicAnnotation__when__getPaths__then__nameEmpty()
+            throws Exception {
+        assertThat(StaplerPath.Helper.getPaths(method("getDynamic")),
+                StaplerPathHelperTest.<String>setEquivalence());
+    }
+
+    @Test
+    public void given__navigateNoPrefixDynamicAnnotation__when__getPaths__then__nameEmpty()
+            throws Exception {
+        assertThat(StaplerPath.Helper.getPaths(method("dynamic")),
+                StaplerPathHelperTest.<String>setEquivalence());
+    }
+
+    @Test
+    public void given__navigatePrefixIndexAnnotation__when__getPaths__then__nameIndex()
+            throws Exception {
+        assertThat(StaplerPath.Helper.getPaths(method("getIndex")),
+                setEquivalence(StaplerPath.INDEX));
+    }
+
+    @Test
+    public void given__navigateNoPrefixIndexAnnotation__when__getPaths__then__nameExplicit()
+            throws Exception {
+        assertThat(StaplerPath.Helper.getPaths(method("index")),
+                setEquivalence(StaplerPath.INDEX));
+    }
+
+    @Test
     public void given__publicMethodPathNotDynamic__when__isDynamic__then__false()
             throws Exception {
         assertThat(StaplerPath.Helper.isDynamic(method("doPublicWithAnnotation")), is(false));
@@ -496,13 +561,38 @@ public class StaplerPathHelperTest {
     }
 
     @Test
+    public void given__navigatePrefixDynamicAnnotation__when__isDynamic__then__dynamic()
+            throws Exception {
+        assertThat(StaplerPath.Helper.isDynamic(method("getDynamic")), is(true));
+    }
+
+    @Test
+    public void given__navigateNoPrefixDynamicAnnotation__when__isDynamic__then__dynamic()
+            throws Exception {
+        assertThat(StaplerPath.Helper.isDynamic(method("dynamic")), is(true));
+    }
+
+    @Test
     public void viaFunctions() throws Exception {
-        for (Function function: new FunctionList(Klass.java(Probe.class).getFunctions()).staplerPathMethods()) {
+        for (Function function: new FunctionList(Klass.java(Probe.class).getFunctions()).staplerPath()) {
             assertThat(StaplerPath.Helper.isPath(function), is(true));
             Method m = method(function.getName());
             assertThat(StaplerPath.Helper.isDynamic(function), is(StaplerPath.Helper.isDynamic(m)));
             assertThat(StaplerPath.Helper.getPaths(function), is(getPaths(m)));
         }
+    }
+
+    @Theory
+    public void viaMethodRefs(Method method) throws Exception {
+        assertThat(StaplerPath.Helper.isPath(MethodRef.wrap(method)), is(StaplerPath.Helper.isPath(method)));
+        assertThat(StaplerPath.Helper.isDynamic(MethodRef.wrap(method)), is(StaplerPath.Helper.isDynamic(method)));
+        assertThat(StaplerPath.Helper.getPaths(MethodRef.wrap(method)), setEquivalence(StaplerPath.Helper.getPaths(method)));
+    }
+
+    @Theory
+    public void viaFieldRefs(Field field) throws Exception {
+        assertThat(StaplerPath.Helper.isPath(FieldRef.wrap(field)), is(StaplerPath.Helper.isPath(field)));
+        assertThat(StaplerPath.Helper.getPaths(FieldRef.wrap(field)), setEquivalence(StaplerPath.Helper.getPaths(field)));
     }
 
     public static class Probe {
@@ -554,6 +644,7 @@ public class StaplerPathHelperTest {
         }
 
         @StaplerPath
+        @StaplerMethod(StaplerMethod.ALL)
         protected void doProtectedWithAnnotation() {
         }
 
@@ -561,18 +652,22 @@ public class StaplerPathHelperTest {
         }
 
         @StaplerPath
+        @StaplerMethod(StaplerMethod.ALL)
         public void doPublicWithAnnotation() {
         }
 
         @StaplerPath
+        @StaplerMethod(StaplerMethod.ALL)
         public void publicWithAnnotation() {
         }
 
         @StaplerPath
+        @StaplerMethod(StaplerMethod.ALL)
         public void doA() {
         }
 
         @StaplerPath
+        @StaplerMethod(StaplerMethod.ALL)
         public void doAt() {
         }
 
@@ -589,26 +684,32 @@ public class StaplerPathHelperTest {
         }
 
         @StaplerPath("named-public-method")
+        @StaplerMethod(StaplerMethod.ALL)
         public void doPublicWithAnnotationName() {
         }
 
         @StaplerPath(StaplerPath.INDEX)
+        @StaplerMethod(StaplerMethod.ALL)
         public void doPublicWithAnnotationIndex() {
         }
 
         @StaplerPath(StaplerPath.DYNAMIC)
+        @StaplerMethod(StaplerMethod.ALL)
         public void doPublicWithAnnotationDynamic() {
         }
 
         @StaplerPaths({})
+        @StaplerMethod(StaplerMethod.ALL)
         public void doPublicWithAnnotationsEmpty() {
         }
 
         @StaplerPaths({@StaplerPath, @StaplerPath("alternative"), @StaplerPath(StaplerPath.DYNAMIC)})
+        @StaplerMethod(StaplerMethod.ALL)
         public void doPublicWithAnnotations() {
         }
 
         @StaplerPaths({@StaplerPath(StaplerPath.DYNAMIC), @StaplerPath(StaplerPath.DYNAMIC)})
+        @StaplerMethod(StaplerMethod.ALL)
         public void doPublicWithDynamicAnnotations() {
         }
 
@@ -664,6 +765,50 @@ public class StaplerPathHelperTest {
         public void jsJsManyPrefixes() {
 
         }
+
+        public Object getNoAnnotation() {
+            return null;
+        }
+
+        @StaplerPath
+        public Object getInferAnnotation() {
+            return null;
+        }
+
+        @StaplerPath("alternative")
+        public Object getExplicitAnnotation() {
+            return null;
+        }
+
+        @StaplerPath(StaplerPath.DYNAMIC)
+        public Object getDynamic() {
+            return null;
+        }
+
+        @StaplerPath(StaplerPath.INDEX)
+        public Object getIndex() {
+            return null;
+        }
+
+        @StaplerPath
+        public Object inferAnnotation() {
+            return null;
+        }
+
+        @StaplerPath("alternative")
+        public Object explicitAnnotation() {
+            return null;
+        }
+
+        @StaplerPath(StaplerPath.DYNAMIC)
+        public Object dynamic() {
+            return null;
+        }
+
+        @StaplerPath(StaplerPath.INDEX)
+        public Object index() {
+            return null;
+        }
     }
 
     @Target({FIELD})
@@ -679,6 +824,28 @@ public class StaplerPathHelperTest {
             @Override
             public boolean matches(Object item) {
                 Set<T> expected = new HashSet<>(Arrays.asList(items));
+                Set<T> actual = new HashSet<>(expected.size());
+                for (T i : (Iterable<T>) item) {
+                    actual.add(i);
+                }
+                return expected.equals(actual);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendValueList("an iterable over [", ",", "]", items);
+            }
+        };
+    }
+
+    private static <T> Matcher<? super Iterable<T>> setEquivalence(final Iterable<T> items) {
+        return new BaseMatcher<Iterable<T>>() {
+            @Override
+            public boolean matches(Object item) {
+                Set<T> expected = new HashSet<>();
+                for (T i: items) {
+                    expected.add(i);
+                }
                 Set<T> actual = new HashSet<>(expected.size());
                 for (T i : (Iterable<T>) item) {
                     actual.add(i);

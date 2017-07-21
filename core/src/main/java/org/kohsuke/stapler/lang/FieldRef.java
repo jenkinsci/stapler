@@ -45,6 +45,11 @@ public abstract class FieldRef extends AnnotatedRef {
             }
 
             @Override
+            public Annotation[] getAnnotations() {
+                return f.getAnnotations();
+            }
+
+            @Override
             public String getName() {
                 return f.getName();
             }
