@@ -49,7 +49,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Target(METHOD)
 @Retention(RUNTIME)
-@StaplerPath.Implicit
+@StaplerPath.Implicit(methodPrefix = "js")
 @Documented
 public @interface StaplerRMI {
 }

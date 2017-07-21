@@ -23,10 +23,18 @@
 
 package org.kohsuke.stapler.annotations;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
@@ -77,6 +85,236 @@ public @interface StaplerPath {
     @Target(ANNOTATION_TYPE)
     @Retention(RUNTIME)
     @Documented
-    public @interface Implicit {
+    @interface Implicit {
+        /**
+         * The prefix to remove from the method name in order to recover the inferred name.
+         * @return the prefix to remove from the method name in order to recover the inferred name.
+         */
+        String methodPrefix() default Helper.DEFAULT_METHOD_PREFIX;
+    }
+
+    /**
+     * Helper class that consolidates the rules for determining the names to infer from a
+     */
+    class Helper {
+        private static final String DEFAULT_METHOD_PREFIX = "do";
+
+        private Helper() {
+            throw new IllegalAccessError("Utility class");
+        }
+
+        public static boolean isPath(Method method) {
+            if (!Modifier.isPublic(method.getModifiers())) {
+                return false;
+            }
+            for (Annotation a : method.getAnnotations()) {
+                if (a instanceof StaplerPaths) {
+                    return true;
+                } else if (a instanceof StaplerPath) {
+                    return true;
+                }
+                Implicit implicit = a.annotationType().getAnnotation(Implicit.class);
+                if (implicit != null) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static boolean isPath(Field field) {
+            if (!Modifier.isPublic(field.getModifiers())) {
+                return false;
+            }
+            for (Annotation a : field.getAnnotations()) {
+                if (a instanceof StaplerPaths) {
+                    StaplerPath[] paths = ((StaplerPaths) a).value();
+                    if (paths.length == 0) {
+                        return true;
+                    }
+                    for (StaplerPath p : paths) {
+                        if (!DYNAMIC.equals(p.value())) {
+                            return true;
+                        }
+                    }
+                    return false;
+                } else if (a instanceof StaplerPath) {
+                    return !DYNAMIC.equals(((StaplerPath) a).value());
+                }
+                Implicit implicit = a.annotationType().getAnnotation(Implicit.class);
+                if (implicit != null) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static boolean isDynamic(Method method) {
+            if (!Modifier.isPublic(method.getModifiers())) {
+                return false;
+            }
+            for (Annotation a : method.getAnnotations()) {
+                if (a instanceof StaplerPaths) {
+                    for (StaplerPath p : ((StaplerPaths) a).value()) {
+                        if (DYNAMIC.equals(p.value())) {
+                            return true;
+                        }
+                    }
+                } else if (a instanceof StaplerPath) {
+                    StaplerPath p = (StaplerPath) a;
+                    if (DYNAMIC.equals(p.value())) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public static Iterable<String> getPaths(Method method) {
+            if (!Modifier.isPublic(method.getModifiers())) {
+                return Collections.emptyList();
+            }
+            Set<String> names = new TreeSet<>();
+            Set<String> prefixes = null; // lazy init to avoid an allocation
+            boolean hasPathAnnotation = false;
+            boolean hasImplicitAnnotation = false;
+            boolean hasInferredName = false;
+            for (Annotation a: method.getAnnotations()) {
+                if (a instanceof StaplerPaths) {
+                    hasPathAnnotation = true;
+                    StaplerPath[] paths = ((StaplerPaths) a).value();
+                    if (paths.length == 0) {
+                        hasInferredName = true;
+                    } else {
+                        for (StaplerPath p: paths) {
+                            switch (p.value()) {
+                                case DYNAMIC:
+                                    continue;
+                                case INFER_FROM_NAME:
+                                    hasInferredName = true;
+                                    break;
+                                default:
+                                    names.add(p.value());
+                                    break;
+                            }
+                        }
+                    }
+                } else if (a instanceof StaplerPath) {
+                    hasPathAnnotation = true;
+                    StaplerPath p = (StaplerPath) a;
+                    switch (p.value()) {
+                        case DYNAMIC:
+                            continue;
+                        case INFER_FROM_NAME:
+                            hasInferredName = true;
+                            break;
+                        default:
+                            names.add(p.value());
+                            break;
+                    }
+                } else {
+                    Implicit implicit = a.annotationType().getAnnotation(Implicit.class);
+                    if (implicit != null) {
+                        hasImplicitAnnotation = true;
+                        if (!implicit.methodPrefix().isEmpty()) {
+                            if (prefixes == null) {
+                                prefixes = new TreeSet<>();
+                            }
+                            prefixes.add(implicit.methodPrefix());
+                        }
+                    }
+                }
+            }
+            // we infer the name if either we have a path annotation that specifies inference or we do not have a path
+            // annotation but we have another implicit annotation
+            if (hasPathAnnotation ? hasInferredName : hasImplicitAnnotation) {
+                if (prefixes == null) {
+                    if (method.getName().startsWith(DEFAULT_METHOD_PREFIX)) {
+                        names.add(removePrefix(method, DEFAULT_METHOD_PREFIX));
+                    } else {
+                        names.add(method.getName());
+                    }
+                } else {
+                    boolean matchedPrefix = false;
+                    for (String prefix : prefixes) {
+                        if (prefix.isEmpty()) continue;
+                        if (method.getName().startsWith(prefix)) {
+                            matchedPrefix = true;
+                            names.add(removePrefix(method, prefix));
+                        }
+                    }
+                    if (!matchedPrefix) {
+                        names.add(method.getName());
+                    }
+                }
+            }
+            return names;
+        }
+
+        public static Iterable<String> getPaths(Field field) {
+            if (!Modifier.isPublic(field.getModifiers())) {
+                return Collections.emptyList();
+            }
+            Set<String> names = new TreeSet<>();
+            boolean hasPathAnnotation = false;
+            boolean hasImplicitAnnotation = false;
+            for (Annotation a : field.getAnnotations()) {
+                if (a instanceof StaplerPaths) {
+                    hasPathAnnotation = true;
+                    StaplerPath[] paths = ((StaplerPaths) a).value();
+                    if (paths.length == 0) {
+                        // infer name for an empty @StaplerPaths()
+                        names.add(field.getName());
+                    } else {
+                        for (StaplerPath p : paths) {
+                            switch (p.value()) {
+                                case DYNAMIC:
+                                    continue;
+                                case INFER_FROM_NAME:
+                                    names.add(field.getName());
+                                    break;
+                                default:
+                                    names.add(p.value());
+                                    break;
+                            }
+                        }
+                    }
+                } else if (a instanceof StaplerPath) {
+                    hasPathAnnotation = true;
+                    StaplerPath p = (StaplerPath) a;
+                    switch (p.value()) {
+                        case DYNAMIC:
+                            continue;
+                        case INFER_FROM_NAME:
+                            names.add(field.getName());
+                            break;
+                        default:
+                            names.add(p.value());
+                            break;
+                    }
+                } else {
+                    Implicit implicit = a.annotationType().getAnnotation(Implicit.class);
+                    if (implicit != null) {
+                        hasImplicitAnnotation = true;
+                    }
+                }
+            }
+            if (!hasPathAnnotation && hasImplicitAnnotation) {
+                names.add(field.getName());
+            }
+            return names;
+        }
+
+        private static String removePrefix(Method method, String prefix) {
+            int prefixLength = prefix.length();
+            String name = method.getName();
+            int nameLength = name.length();
+            if (prefixLength == 0 || nameLength < prefixLength + 1) return name;
+            StringBuilder result = new StringBuilder(nameLength);
+            result.append(name.substring(prefixLength, prefixLength+1).toLowerCase(Locale.ENGLISH));
+            if (nameLength > prefixLength + 1) {
+                result.append(name.substring(prefixLength+1));
+            }
+            return result.toString();
+        }
     }
 }
