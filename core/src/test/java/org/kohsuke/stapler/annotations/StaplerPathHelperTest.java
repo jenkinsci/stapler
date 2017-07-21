@@ -20,6 +20,9 @@ import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
+import org.kohsuke.stapler.Function;
+import org.kohsuke.stapler.FunctionList;
+import org.kohsuke.stapler.lang.Klass;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -31,6 +34,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
+import static org.kohsuke.stapler.annotations.StaplerPath.Helper.getPaths;
 
 @RunWith(Theories.class)
 public class StaplerPathHelperTest {
@@ -489,6 +493,16 @@ public class StaplerPathHelperTest {
     public void given__nonPublicMethod__when__isDynamic__then__notAPath(Method method) throws Exception {
         assumeThat(Modifier.isPublic(method.getModifiers()), is(false));
         assertThat(StaplerPath.Helper.isDynamic(method), is(false));
+    }
+
+    @Test
+    public void viaFunctions() throws Exception {
+        for (Function function: new FunctionList(Klass.java(Probe.class).getFunctions()).staplerPathMethods()) {
+            assertThat(StaplerPath.Helper.isPath(function), is(true));
+            Method m = method(function.getName());
+            assertThat(StaplerPath.Helper.isDynamic(function), is(StaplerPath.Helper.isDynamic(m)));
+            assertThat(StaplerPath.Helper.getPaths(function), is(getPaths(m)));
+        }
     }
 
     public static class Probe {

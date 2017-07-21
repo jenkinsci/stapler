@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
+import org.kohsuke.stapler.Function;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
@@ -103,11 +104,19 @@ public @interface StaplerPath {
             throw new IllegalAccessError("Utility class");
         }
 
+        public static boolean isPath(Function method) {
+            return isMethodPath(method.getAnnotations());
+        }
+
         public static boolean isPath(Method method) {
             if (!Modifier.isPublic(method.getModifiers())) {
                 return false;
             }
-            for (Annotation a : method.getAnnotations()) {
+            return isMethodPath(method.getAnnotations());
+        }
+
+        private static boolean isMethodPath(Annotation[] annotations) {
+            for (Annotation a : annotations) {
                 if (a instanceof StaplerPaths) {
                     return true;
                 } else if (a instanceof StaplerPath) {
@@ -148,11 +157,19 @@ public @interface StaplerPath {
             return false;
         }
 
+        public static boolean isDynamic(Function method) {
+            return isDynamic(method.getAnnotations());
+        }
+
         public static boolean isDynamic(Method method) {
             if (!Modifier.isPublic(method.getModifiers())) {
                 return false;
             }
-            for (Annotation a : method.getAnnotations()) {
+            return isDynamic(method.getAnnotations());
+        }
+
+        private static boolean isDynamic(Annotation[] annotations) {
+            for (Annotation a : annotations) {
                 if (a instanceof StaplerPaths) {
                     for (StaplerPath p : ((StaplerPaths) a).value()) {
                         if (DYNAMIC.equals(p.value())) {
@@ -169,16 +186,24 @@ public @interface StaplerPath {
             return false;
         }
 
+        public static Iterable<String> getPaths(Function method) {
+            return getMethodPaths(method.getName(), method.getAnnotations());
+        }
+
         public static Iterable<String> getPaths(Method method) {
             if (!Modifier.isPublic(method.getModifiers())) {
                 return Collections.emptyList();
             }
+            return getMethodPaths(method.getName(), method.getAnnotations());
+        }
+
+        private static Iterable<String> getMethodPaths(String methodName, Annotation[] annotations) {
             Set<String> names = new TreeSet<>();
             Set<String> prefixes = null; // lazy init to avoid an allocation
             boolean hasPathAnnotation = false;
             boolean hasImplicitAnnotation = false;
             boolean hasInferredName = false;
-            for (Annotation a: method.getAnnotations()) {
+            for (Annotation a: annotations) {
                 if (a instanceof StaplerPaths) {
                     hasPathAnnotation = true;
                     StaplerPath[] paths = ((StaplerPaths) a).value();
@@ -228,22 +253,22 @@ public @interface StaplerPath {
             // annotation but we have another implicit annotation
             if (hasPathAnnotation ? hasInferredName : hasImplicitAnnotation) {
                 if (prefixes == null) {
-                    if (method.getName().startsWith(DEFAULT_METHOD_PREFIX)) {
-                        names.add(removePrefix(method, DEFAULT_METHOD_PREFIX));
+                    if (methodName.startsWith(DEFAULT_METHOD_PREFIX)) {
+                        names.add(removePrefix(DEFAULT_METHOD_PREFIX, methodName));
                     } else {
-                        names.add(method.getName());
+                        names.add(methodName);
                     }
                 } else {
                     boolean matchedPrefix = false;
                     for (String prefix : prefixes) {
                         if (prefix.isEmpty()) continue;
-                        if (method.getName().startsWith(prefix)) {
+                        if (methodName.startsWith(prefix)) {
                             matchedPrefix = true;
-                            names.add(removePrefix(method, prefix));
+                            names.add(removePrefix(prefix, methodName));
                         }
                     }
                     if (!matchedPrefix) {
-                        names.add(method.getName());
+                        names.add(methodName);
                     }
                 }
             }
@@ -304,9 +329,9 @@ public @interface StaplerPath {
             return names;
         }
 
-        private static String removePrefix(Method method, String prefix) {
+        private static String removePrefix(String prefix, String methodName) {
             int prefixLength = prefix.length();
-            String name = method.getName();
+            String name = methodName;
             int nameLength = name.length();
             if (prefixLength == 0 || nameLength < prefixLength + 1) return name;
             StringBuilder result = new StringBuilder(nameLength);
