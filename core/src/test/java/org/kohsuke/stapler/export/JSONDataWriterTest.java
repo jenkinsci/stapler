@@ -5,6 +5,8 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 
+import net.sf.json.JSONObject;
+import net.sf.json.util.JSONUtils;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
@@ -16,6 +18,20 @@ public class JSONDataWriterTest {
         Model<T> model = new ModelBuilder().get(clazz);
         model.writeTo(bean, Flavor.JSON.createDataWriter(bean, w, config));
         return w.toString();
+    }
+
+    @Test
+    public void testJsonCharacters() throws Exception {
+        String serialize = serialize(new JsonCharacters(), JsonCharacters.class);
+        assertEquals("{\"_class\":\"JsonCharacters\",\"value\":\"\\\"'\\/[]{}\\\\\"}", serialize);
+    }
+
+    @ExportedBean
+    public static class JsonCharacters {
+        @Exported
+        public String getValue() {
+            return "\"'/[]{}\\";
+        }
     }
 
     @ExportedBean public static class X {
