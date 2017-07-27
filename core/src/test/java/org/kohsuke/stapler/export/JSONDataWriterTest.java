@@ -5,8 +5,6 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 
-import net.sf.json.JSONObject;
-import net.sf.json.util.JSONUtils;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
