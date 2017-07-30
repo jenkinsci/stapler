@@ -441,7 +441,7 @@ public class DataBindingTest extends TestCase {
 
 
     public void testFluentSetter() {
-        FluentSetter fl = bind("{items : 'someItem'}", FluentSetter.class);
+        FluentSetter fl = bind("{items : ['someItem']}", FluentSetter.class);
         assertEquals(Arrays.asList("someItem"), fl.getItems());
     }
 }
