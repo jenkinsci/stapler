@@ -1,11 +1,13 @@
 package org.kohsuke.stapler.config;
 
 import com.google.common.base.Function;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import org.apache.commons.beanutils.ConvertUtils;
 
 import java.beans.Introspector;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -60,12 +62,9 @@ public class ConfigurationLoader {
 
     private static Properties load(File f) throws IOException {
         Properties config = new Properties();
-        FileInputStream in = new FileInputStream(f);
-        try {
+        try (InputStream in = Files.newInputStream(f.toPath(), StandardOpenOption.READ)){
             config.load(in);
             return config;
-        } finally {
-            in.close();
         }
     }
 
