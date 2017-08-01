@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import java.lang.annotation.Annotation;
 import net.sf.json.JSONArray;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.annotations.StaplerObject;
@@ -106,7 +107,14 @@ public class MetaClass extends TearOffSupport {
         this.dispatchers.clear();
         KlassDescriptor<?> node = new KlassDescriptor(klass);
         // TODO abstract this test into Klass so that e.g. Ruby can have idiomatic
-        boolean staplerObject = clazz.getAnnotation(StaplerObject.class) != null;
+        boolean staplerObject = false;
+        // TODO use clazz.getDeclaredAnnotation(StaplerObject.class) != null when Java 8 baseline
+        for (Annotation o: clazz.getDeclaredAnnotations()) {
+            if (o instanceof StaplerObject) {
+                staplerObject = true;
+                break;
+            }
+        }
 
         dispatchers.add(new DirectoryishDispatcher());
 

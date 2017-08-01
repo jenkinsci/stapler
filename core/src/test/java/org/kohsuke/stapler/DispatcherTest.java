@@ -6,6 +6,7 @@ import com.gargoylesoftware.htmlunit.TextPage;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,6 +14,7 @@ import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
@@ -50,7 +52,7 @@ public class DispatcherTest extends JettyTestCase {
     public final IndexDispatchByName indexDispatchByName = new IndexDispatchByName();
 
     public class IndexDispatchByName {
-        @WebMethod(name="")
+        @WebMethod(name = "")
         public HttpResponse doHelloWorld() {
             return HttpResponses.text("Hello world");
         }
@@ -72,12 +74,14 @@ public class DispatcherTest extends JettyTestCase {
     public final VerbMatch verbMatch = new VerbMatch();
 
     public class VerbMatch {
-        @WebMethod(name="") @GET
+        @WebMethod(name = "")
+        @GET
         public HttpResponse doGet() {
             return HttpResponses.text("Got GET");
         }
 
-        @WebMethod(name="") @POST
+        @WebMethod(name = "")
+        @POST
         public HttpResponse doPost() {
             return HttpResponses.text("Got POST");
         }
@@ -112,21 +116,21 @@ public class DispatcherTest extends JettyTestCase {
     @StaplerObject
     public class ContentMatch {
 
-        @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("text")})
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX), @StaplerPath("text")})
         @StaplerPOST
         @StaplerContent(StaplerContent.ANY_TEXT)
         public HttpResponse doText() {
             return HttpResponses.text("I got text");
         }
 
-        @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("xml")})
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX), @StaplerPath("xml")})
         @StaplerPOST
         @StaplerContent("*/xml")
         public HttpResponse doXml() {
             return HttpResponses.text("I got xml");
         }
 
-        @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("json")})
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX), @StaplerPath("json")})
         @StaplerPOST
         @StaplerContent("application/json")
         public HttpResponse doJson() {
@@ -171,7 +175,8 @@ public class DispatcherTest extends JettyTestCase {
             try (InputStream is = connection.getInputStream()) {
                 IOUtils.copy(is, in);
             }
-            assertEquals("Content-Type " + contentType + " on path " + path, expectedResponse, new String(in.toByteArray(), StandardCharsets.UTF_8));
+            assertEquals("Content-Type " + contentType + " on path " + path, expectedResponse,
+                    new String(in.toByteArray(), StandardCharsets.UTF_8));
         } finally {
             connection.disconnect();
         }
@@ -209,25 +214,25 @@ public class DispatcherTest extends JettyTestCase {
             };
         }
 
-        @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("connect")})
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX), @StaplerPath("connect")})
         @StaplerCONNECT
         public HttpResponse doConnect() {
             return response("connect");
         }
 
-        @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("delete")})
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX), @StaplerPath("delete")})
         @StaplerDELETE
         public HttpResponse doDelete() {
             return response("delete");
         }
 
-        @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("get")})
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX), @StaplerPath("get")})
         @StaplerGET
         public HttpResponse doGet() {
             return response("get");
         }
 
-        @StaplerPaths({@StaplerPath(StaplerPath.INDEX),@StaplerPath("head")})
+        @StaplerPaths({@StaplerPath(StaplerPath.INDEX), @StaplerPath("head")})
         @StaplerHEAD
         public HttpResponse doHead() {
             return response("head");
@@ -257,9 +262,11 @@ public class DispatcherTest extends JettyTestCase {
             return response("custom");
         }
 
-        @StaplerMethods({@StaplerMethod("CONNECT"), @StaplerMethod("DELETE"), @StaplerMethod("GET"),
-                         @StaplerMethod("HEAD"), @StaplerMethod("PATCH"), @StaplerMethod("POST"),
-                         @StaplerMethod("PUT"), @StaplerMethod("CUSTOM")})
+        @StaplerMethods({
+                                @StaplerMethod("CONNECT"), @StaplerMethod("DELETE"), @StaplerMethod("GET"),
+                                @StaplerMethod("HEAD"), @StaplerMethod("PATCH"), @StaplerMethod("POST"),
+                                @StaplerMethod("PUT"), @StaplerMethod("CUSTOM")
+                        })
         public HttpResponse doAll() {
             return response(Stapler.getCurrentRequest().getMethod().toLowerCase(Locale.ENGLISH));
         }
@@ -270,11 +277,11 @@ public class DispatcherTest extends JettyTestCase {
      */
     public void testMethodMatch() throws Exception {
         String[] methods = {"CONNECT", "DELETE", "GET", "HEAD", "PATCH", "POST", "PUT", "CUSTOM"};
-        for (String method1: methods) {
+        for (String method1 : methods) {
             check(method1, "all", 200);
             // check(method1, "", 200); // FIXME uncomment once StaplerPath support added
-            for (String method2: methods) {
-                check(method1, method2.toLowerCase(), method1.equals(method2)?200:404);
+            for (String method2 : methods) {
+                check(method1, method2.toLowerCase(), method1.equals(method2) ? 200 : 404);
             }
         }
     }
@@ -343,7 +350,7 @@ public class DispatcherTest extends JettyTestCase {
     public final ArbitraryWebMethodName arbitraryWebMethodName = new ArbitraryWebMethodName();
 
     public class ArbitraryWebMethodName {
-        @WebMethod(name="")
+        @WebMethod(name = "")
         public HttpResponse notDoPrefix() {
             return HttpResponses.text("I'm index");
         }
@@ -379,7 +386,7 @@ public class DispatcherTest extends JettyTestCase {
     }
 
     public static class Point {
-        public int x,y;
+        public int x, y;
     }
 
     /**
@@ -395,10 +402,10 @@ public class DispatcherTest extends JettyTestCase {
         }
 
         WebRequestSettings req = new WebRequestSettings(new URL(url, "interceptorStage/foo"), HttpMethod.POST);
-        req.setAdditionalHeader("Content-Type","application/json");
+        req.setAdditionalHeader("Content-Type", "application/json");
         req.setRequestBody("{x:3,y:5}");
         TextPage p = wc.getPage(req);
-        assertEquals("3,5",p.getContent());
+        assertEquals("3,5", p.getContent());
 
     }
 
@@ -412,10 +419,10 @@ public class DispatcherTest extends JettyTestCase {
         }
 
         WebRequestSettings req = new WebRequestSettings(new URL(url, "interceptorStage/foo"), HttpMethod.POST);
-        req.setAdditionalHeader("Content-Type","application/json; charset=utf-8");
+        req.setAdditionalHeader("Content-Type", "application/json; charset=utf-8");
         req.setRequestBody("{x:3,y:5}");
         TextPage p = wc.getPage(req);
-        assertEquals("3,5",p.getContent());
+        assertEquals("3,5", p.getContent());
 
     }
 
@@ -423,8 +430,9 @@ public class DispatcherTest extends JettyTestCase {
 
 
     public final Inheritance inheritance = new Inheritance2();
+
     public class Inheritance {
-        @WebMethod(name="foo")
+        @WebMethod(name = "foo")
         public HttpResponse doBar(@QueryParameter String q) {
             return HttpResponses.text("base");
         }
@@ -449,13 +457,15 @@ public class DispatcherTest extends JettyTestCase {
             wc.getPage(new URL(url, "inheritance/bar"));
             fail();
         } catch (FailingHttpStatusCodeException e) {
-            assertEquals(404,e.getStatusCode());
+            assertEquals(404, e.getStatusCode());
         }
     }
 
     public final PutInheritance putInheritance = new PutInheritanceImpl();
+
     public abstract class PutInheritance {
-        @WebMethod(name="foo") @PUT
+        @WebMethod(name = "foo")
+        @PUT
         public abstract HttpResponse doBar(StaplerRequest req) throws IOException;
 
         @POST
@@ -464,7 +474,7 @@ public class DispatcherTest extends JettyTestCase {
         }
     }
 
-    public class PutInheritanceImpl extends PutInheritance{
+    public class PutInheritanceImpl extends PutInheritance {
         @Override
         public HttpResponse doBar(StaplerRequest req) throws IOException {
             return HttpResponses.text(IOUtils.toString(req.getInputStream()) + " World!");
@@ -485,7 +495,7 @@ public class DispatcherTest extends JettyTestCase {
             wc.getPage(new URL(url, "putInheritance/bar"));
             fail();
         } catch (FailingHttpStatusCodeException e) {
-            assertEquals(404,e.getStatusCode());
+            assertEquals(404, e.getStatusCode());
         }
 
         //Invoke Post as well
@@ -495,14 +505,367 @@ public class DispatcherTest extends JettyTestCase {
         assertEquals("POST: Hello", p.getContent());
     }
 
+    public class AnnotationInheritance {
+        public final HttpResponse doMagicFinal(@QueryParameter String q) {
+            return HttpResponses.text("root: " + q);
+        }
 
+        @StaplerGET
+        @StaplerPath("annotated-final")
+        public final HttpResponse doAnnotatedFinal(@QueryParameter String q) {
+            return HttpResponses.text("root: " + q);
+        }
+
+        public HttpResponse doMagicBase(@QueryParameter String q) {
+            return HttpResponses.text("root: " + q);
+        }
+
+        @StaplerGET
+        @StaplerPath("annotated-base")
+        public HttpResponse doAnnotatedBase(@QueryParameter String q) {
+            return HttpResponses.text("root: " + q);
+        }
+
+        public HttpResponse doMagicBaseOverrideAnnotated(@QueryParameter String q) {
+            return HttpResponses.text("root: " + q);
+        }
+
+        @StaplerGET
+        @StaplerPath("annotated-base-override-annotated")
+        public HttpResponse doAnnotatedBaseOverrideAnnotated(@QueryParameter String q) {
+            return HttpResponses.text("root: " + q);
+        }
+
+        public HttpResponse doMagicBaseOverrideNoAnnotation(@QueryParameter String q) {
+            return HttpResponses.text("root: " + q);
+        }
+
+        @StaplerGET
+        @StaplerPath("annotated-base-override-no-annotation")
+        public HttpResponse doAnnotatedBaseOverrideNoAnnotation(@QueryParameter String q) {
+            return HttpResponses.text("root: " + q);
+        }
+    }
+
+    @StaplerObject
+    public class AnnotationInheritance2 extends AnnotationInheritance {
+
+        @StaplerGET
+        public HttpResponse doMagicBaseOverrideAnnotated(@QueryParameter String q) {
+            return HttpResponses.text("child: " + q);
+        }
+
+        @StaplerGET
+        @StaplerPath("annotated-base-override-annotated")
+        public HttpResponse doAnnotatedBaseOverrideAnnotated(@QueryParameter String q) {
+            return HttpResponses.text("child: " + q);
+        }
+
+        public HttpResponse doMagicBaseOverrideNoAnnotation(String q) {
+            return HttpResponses.text("child: " + q);
+        }
+
+        public HttpResponse doAnnotatedBaseOverrideNoAnnotation(String q) {
+            return HttpResponses.text("child: " + q);
+        }
+
+
+        public final HttpResponse doMagicFinal2(@QueryParameter String q) {
+            return HttpResponses.text("child: " + q);
+        }
+
+        @StaplerGET
+        @StaplerPath("annotated-final2")
+        public final HttpResponse doAnnotatedFinal2(@QueryParameter String q) {
+            return HttpResponses.text("child: " + q);
+        }
+
+        public HttpResponse doMagicBase2(@QueryParameter String q) {
+            return HttpResponses.text("child: " + q);
+        }
+
+        @StaplerGET
+        @StaplerPath("annotated-base2")
+        public HttpResponse doAnnotatedBase2(@QueryParameter String q) {
+            return HttpResponses.text("child: " + q);
+        }
+
+        public HttpResponse doMagicBaseOverrideAnnotated2(@QueryParameter String q) {
+            return HttpResponses.text("child: " + q);
+        }
+
+        @StaplerGET
+        @StaplerPath("annotated-base-override-annotated2")
+        public HttpResponse doAnnotatedBaseOverrideAnnotated2(@QueryParameter String q) {
+            return HttpResponses.text("child: " + q);
+        }
+
+        public HttpResponse doMagicBaseOverrideNoAnnotation2(@QueryParameter String q) {
+            return HttpResponses.text("child: " + q);
+        }
+
+        @StaplerGET
+        @StaplerPath("annotated-base-override-no-annotation2")
+        public HttpResponse doAnnotatedBaseOverrideNoAnnotation2(@QueryParameter String q) {
+            return HttpResponses.text("child: " + q);
+        }
+    }
+
+    public class AnnotationInheritance3 extends AnnotationInheritance2 {
+
+        @StaplerGET
+        public HttpResponse doMagicBaseOverrideAnnotated(@QueryParameter String q) {
+            return HttpResponses.text("leaf: " + q);
+        }
+
+        @StaplerGET
+        public HttpResponse doAnnotatedBaseOverrideAnnotated(@QueryParameter String q) {
+            return HttpResponses.text("leaf: " + q);
+        }
+
+        public HttpResponse doMagicBaseOverrideNoAnnotation(String q) {
+            return HttpResponses.text("leaf: " + q);
+        }
+
+        public HttpResponse doAnnotatedBaseOverrideNoAnnotation(String q) {
+            return HttpResponses.text("leaf: " + q);
+        }
+
+        @StaplerGET
+        public HttpResponse doMagicBaseOverrideAnnotated2(@QueryParameter String q) {
+            return HttpResponses.text("leaf: " + q);
+        }
+
+        @StaplerGET
+        public HttpResponse doAnnotatedBaseOverrideAnnotated2(@QueryParameter String q) {
+            return HttpResponses.text("leaf: " + q);
+        }
+
+        public HttpResponse doMagicBaseOverrideNoAnnotation2(String q) {
+            return HttpResponses.text("leaf: " + q);
+        }
+
+        public HttpResponse doAnnotatedBaseOverrideNoAnnotation2(String q) {
+            return HttpResponses.text("leaf: " + q);
+        }
+    }
+
+    public final AnnotationInheritance annotationInheritanceA = new AnnotationInheritance2();
+    public final AnnotationInheritance annotationInheritanceB = new AnnotationInheritance3();
+
+    public void testGiven__staplerObject_extends_magic__when__finalMethodInBaseClass__then__magicUsed()
+            throws Exception {
+        assertFound("annotationInheritanceA/magicFinal?q=123", "root: 123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__annotatedFinalMethodInBaseClass__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceA/annotated-final?q=123", "root: 123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__methodImplInBaseClass__then__magicUsed()
+            throws Exception {
+        assertFound("annotationInheritanceA/magicBase?q=123", "root: 123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__annotatedMethodImplInBaseClass__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceA/annotated-base?q=123", "root: 123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__magicInAnnotatedClass__then__404()
+            throws Exception {
+        assertNotFound("annotationInheritanceA/magicBaseOverrideAnnotated2?q=123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__annotationsInAnnotatedClass__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceA/annotated-base-override-annotated2?q=123", "child: 123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__magicInAnnotatedClass2__then__404()
+            throws Exception {
+        assertNotFound("annotationInheritanceA/magicBaseOverrideNoAnnotation2?q=123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__annotationsInAnnotatedClass2__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceA/annotated-base-override-no-annotation2?q=123", "child: 123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__magicFinalMethodInAnnotatedClass__then__404()
+            throws Exception {
+        assertNotFound("annotationInheritanceA/magicFinal2?q=123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__annotatedFinalMethodInAnnotatedClass__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceA/annotated-final2?q=123", "child: 123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__methodImplInAnnotatedClass__then_404()
+            throws Exception {
+        assertNotFound("annotationInheritanceA/magicBase2?q=123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__annotatedMethodImplInAnnotatedClass__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceA/annotated-base2?q=123", "child: 123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__overrideMagicWithAnnotations__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceA/magicBaseOverrideAnnotated?q=123", "child: 123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__overrideAnnotationsWithAnnotations__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceA/annotated-base-override-annotated?q=123", "child: 123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__overrideMagicWithoutAnnotations__then__404()
+            throws Exception {
+        assertNotFound("annotationInheritanceA/magicBaseOverrideNoAnnotation?q=123");
+    }
+
+    public void testGiven__staplerObject_extends_magic__when__overrideAnnotationsWithoutAnnotations__then__404()
+            throws Exception {
+        assertNotFound("annotationInheritanceA/annotated-base-override-no-annotation?q=123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__finalMethodInBaseClass__then__magicUsed()
+            throws Exception {
+        assertFound("annotationInheritanceB/magicFinal?q=123", "root: 123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__annotatedFinalMethodInBaseClass__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceB/annotated-final?q=123", "root: 123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__methodImplInBaseClass__then__magicUsed()
+            throws Exception {
+        assertFound("annotationInheritanceB/magicBase?q=123", "root: 123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__annotatedMethodImplInBaseClass__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceB/annotated-base?q=123", "root: 123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__overrideMagicWithAnnotations__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceB/magicBaseOverrideAnnotated?q=123", "leaf: 123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__overrideAnnotationsWithAnnotations__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceB/annotated-base-override-annotated?q=123", "leaf: 123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__overrideMagicWithoutAnnotations__then__404()
+            throws Exception {
+        assertNotFound("annotationInheritanceB/magicBaseOverrideNoAnnotation?q=123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__overrideAnnotationsWithoutAnnotations2__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceB/annotated-base-override-no-annotation?q=123", "leaf: 123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__magicFinalMethodInAnnotatedClass__then__404()
+            throws Exception {
+        assertNotFound("annotationInheritanceB/magicFinal2?q=123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__annotatedFinalMethodInAnnotatedClass__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceB/annotated-final2?q=123", "child: 123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__magicMethodImplInAnnotatedClass__then__404()
+            throws Exception {
+        assertNotFound("annotationInheritanceB/magicBase2?q=123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__annotatedMethodImplInAnnotatedClass__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceB/annotated-base2?q=123", "child: 123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__overrideWithAnnotations1__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceB/magicBaseOverrideAnnotated2?q=123", "leaf: 123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__overrideWithAnnotations2__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceB/annotated-base-override-annotated2?q=123", "leaf: 123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__overrideMagicWithoutAnnotations__then__magicUsed()
+            throws Exception {
+        assertFound("annotationInheritanceB/magicBaseOverrideNoAnnotation2?q=123", "leaf: 123");
+    }
+
+    public void testGiven__magic_extends_staplerObject_extends_magic__when__overrideAnnotationsWithoutAnnotations__then__annotationUsed()
+            throws Exception {
+        assertFound("annotationInheritanceB/annotated-base-override-no-annotation2?q=123", "leaf: 123");
+    }
+
+    private void assertFound(String relativeUrl, String expectedContent) throws IOException {
+        try {
+            HttpURLConnection connection = (HttpURLConnection) new URL(url, relativeUrl).openConnection();
+            int status = connection.getResponseCode();
+            if (status/100 == 2) {
+                String result;
+                try (InputStream is = connection.getInputStream()) {
+                    result = IOUtils.toString(is);
+                } finally {
+                    connection.disconnect();
+                }
+                assertEquals(expectedContent, result);
+            } else {
+                String result = "";
+                try (InputStream is = connection.getInputStream()) {
+                    result = IOUtils.toString(is);
+                } catch (FileNotFoundException e) {
+                    // ignore
+                }
+                fail("Expected HTTP/20x at " + relativeUrl + ", got HTTP/" + status + "\n" + result);
+            }
+        } catch (FileNotFoundException e) {
+            fail("Expected HTTP/20x at " + relativeUrl);
+        }
+    }
+
+    private void assertNotFound(String relativeUrl) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) new URL(url, relativeUrl).openConnection();
+        try {
+            int status = connection.getResponseCode();
+            if (status == 404) {
+                return;
+            }
+            String result = "";
+            try (InputStream is = connection.getInputStream()) {
+                result = IOUtils.toString(is);
+            } catch (FileNotFoundException e) {
+                // ignore
+            }
+            fail("Expected HTTP/404 at " + relativeUrl + ", got HTTP/" + status + "\n"+result);
+        } finally {
+            connection.disconnect();
+        }
+    }
 
     //===================================================================
 
 
     public final RequirePostOnBase requirePostOnBase = new RequirePostOnBase2();
+
     public abstract class RequirePostOnBase {
         int hit;
+
         @RequirePOST
         public abstract void doSomething();
     }
@@ -534,21 +897,27 @@ public class DispatcherTest extends JettyTestCase {
         TextPage p = new WebClient().getPage(new URL(url, "overloaded/x"));
         assertEquals("doX(StaplerRequest)", p.getContent());
     }
+
     public final Object overloaded = new Overloaded();
+
     public static class Overloaded {
         @Deprecated
         public HttpResponse doX() {
             return HttpResponses.text("doX()");
         }
+
         public HttpResponse doX(StaplerRequest req) {
             return HttpResponses.text("doX(StaplerRequest)");
         }
+
         public HttpResponse doX(StaplerResponse rsp) {
             return HttpResponses.text("doX(StaplerResponse)");
         }
+
         public HttpResponse doX(StaplerRequest req, StaplerResponse rsp) {
             return HttpResponses.text("doX(StaplerRequest, StaplerResponse)");
         }
+
         @WebMethod(name = "x")
         public HttpResponse x() {
             return HttpResponses.text("x()");
@@ -557,18 +926,18 @@ public class DispatcherTest extends JettyTestCase {
 
     public final TestWithPublicField testWithPublicField = new TestWithPublicField();
 
-    public  class TestWithPublicField extends TestWithPublicFieldBase{
+    public class TestWithPublicField extends TestWithPublicFieldBase {
 
     }
 
-    public  class TestWithPublicFieldBase{
-        public TestClass testClass=new TestClass();
+    public class TestWithPublicFieldBase {
+        public TestClass testClass = new TestClass();
     }
 
 
-    public  class TestClass{
-//        @GET @WebMethod(name="")
-        public String doValue(){
+    public class TestClass {
+        //        @GET @WebMethod(name="")
+        public String doValue() {
             return "hello";
         }
     }
@@ -583,8 +952,6 @@ public class DispatcherTest extends JettyTestCase {
             assertEquals(HttpServletResponse.SC_OK, e.getStatusCode());
         }
     }
-
-
 
 
 }
