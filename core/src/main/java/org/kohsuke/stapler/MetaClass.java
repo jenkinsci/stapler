@@ -115,7 +115,7 @@ public class MetaClass extends TearOffSupport {
 
         FunctionList staplerPaths = node.methods.staplerPath();
         FunctionList impliedPaths;
-        if (clazz.getAnnotation(StaplerObject.class) != null) {
+        if (staplerObject) {
             impliedPaths = FunctionList.emptyList();
         } else {
             impliedPaths = node.methods.nonStaplerPath();
