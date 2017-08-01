@@ -486,6 +486,12 @@ public class StaplerPathHelperTest {
     }
 
     @Test
+    public void given__navigatePrefixInferAnnotation__when__isPath__then__true()
+            throws Exception {
+        assertThat(StaplerPath.Helper.isPath(method("getInferAnnotation")), is(true));
+    }
+
+    @Test
     public void given__navigateNoPrefixInferAnnotation__when__getPaths__then__nameInferred()
             throws Exception {
         assertThat(StaplerPath.Helper.getPaths(method("inferAnnotation")),
