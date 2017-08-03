@@ -238,7 +238,38 @@ public class DispatcherTest extends JettyTestCase {
         assertEquals("POST: Hello", p.getContent());
     }
 
-
+    public void testInterfaceMethods() throws Exception {
+        WebClient wc = new WebClient();
+        try {
+            wc.getPage(new URL(url, "usesInterfaceMethods/foo"));
+            fail();
+        } catch (FailingHttpStatusCodeException x) {
+            assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, x.getStatusCode());
+        }
+        assertEquals("default", wc.getPage(new WebRequestSettings(new URL(url, "usesInterfaceMethods/foo"), HttpMethod.POST)).getWebResponse().getContentAsString().trim());
+        try {
+            wc.getPage(new URL(url, "overridesInterfaceMethods/foo"));
+            fail();
+        } catch (FailingHttpStatusCodeException x) {
+            assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, x.getStatusCode());
+        }
+        assertEquals("due to UnionAnnotatedElement it is even inherited", "overridden", wc.getPage(new WebRequestSettings(new URL(url, "overridesInterfaceMethods/foo"), HttpMethod.POST)).getWebResponse().getContentAsString().trim());
+    }
+    public interface InterfaceWithWebMethods {
+        @RequirePOST
+        default HttpResponse doFoo() {
+            return HttpResponses.plainText("default");
+        }
+    }
+    public class UsesInterfaceMethods implements InterfaceWithWebMethods {}
+    public class OverridesInterfaceMethods implements InterfaceWithWebMethods {
+        @Override
+        public HttpResponse doFoo() {
+            return HttpResponses.plainText("overridden");
+        }
+    }
+    public final UsesInterfaceMethods usesInterfaceMethods = new UsesInterfaceMethods();
+    public final OverridesInterfaceMethods overridesInterfaceMethods = new OverridesInterfaceMethods();
 
     //===================================================================
 
