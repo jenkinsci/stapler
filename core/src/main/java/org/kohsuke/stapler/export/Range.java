@@ -43,8 +43,11 @@ public class Range {
                 public Iterator<T> iterator() {
                     Iterator<T> itr = s.iterator();
                     itr = Iterators.limit(itr,max);
-                    if (min>0)
-                        Iterators.advance(itr,min);
+                    if (min > 0) {
+                        for (int i = 0; i < min && itr.hasNext(); i++) {
+                            itr.next();
+                        }
+                    }
                     return itr;
                 }
             };
