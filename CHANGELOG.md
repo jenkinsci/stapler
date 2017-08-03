@@ -2,8 +2,11 @@ CHANGELOG
 ===
 
 ##### 1.252
-Upcoming.
+Release date: Aug 03, 2017
+* [PR #113](https://github.com/stapler/stapler/pull/113) - **updated to Java 8** and testing some effects of that
+* [PR #117](https://github.com/stapler/stapler/pull/117) - made `ClassDescriptor` deterministic
 * [PR #118](https://github.com/stapler/stapler/pull/118) - deprecated `HttpResponses.html` and `.plainText` in favor of `.literalHtml` and `.text`.
+* [PR #123](https://github.com/stapler/stapler/pull/123) - lower Guava dep to 11 to match Jenkins core
 
 ##### 1.251
 Release date: May 22, 2017
