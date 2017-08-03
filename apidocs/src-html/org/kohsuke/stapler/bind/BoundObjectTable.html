@@ -181,7 +181,7 @@
 <span class="sourceLineNo">173</span>        public HttpResponse doEnableLogging() {<a name="line.173"></a>
 <span class="sourceLineNo">174</span>            if (DEBUG_LOGGING) {<a name="line.174"></a>
 <span class="sourceLineNo">175</span>                this.logging = true;<a name="line.175"></a>
-<span class="sourceLineNo">176</span>                return HttpResponses.plainText("Logging enabled for this session: "+toString());<a name="line.176"></a>
+<span class="sourceLineNo">176</span>                return HttpResponses.text("Logging enabled for this session: " + this + "\n");<a name="line.176"></a>
 <span class="sourceLineNo">177</span>            } else {<a name="line.177"></a>
 <span class="sourceLineNo">178</span>                return HttpResponses.forbidden();<a name="line.178"></a>
 <span class="sourceLineNo">179</span>            }<a name="line.179"></a>
