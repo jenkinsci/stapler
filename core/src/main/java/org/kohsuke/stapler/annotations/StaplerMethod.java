@@ -55,7 +55,7 @@ public @interface StaplerMethod {
     String value();
 
     /**
-     * Helper class that consolidates the rules for determining the names to infer from a
+     * Helper class that consolidates the rules for determining if a method is a valid stapler method.
      */
     class Helper {
 
