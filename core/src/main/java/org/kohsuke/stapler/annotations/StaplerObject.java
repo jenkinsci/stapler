@@ -23,10 +23,19 @@
 
 package org.kohsuke.stapler.annotations;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.Stack;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -46,6 +55,200 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(TYPE)
 @Retention(RUNTIME)
 @Documented
-@Inherited // TODO determine whether this should be inherited or not (in meta-class we use getDeclaredAnnotations for check)
 public @interface StaplerObject {
+
+    /**
+     * Helper class that consolidates the rules for determining if a class is a {@link StaplerObject}
+     */
+    class Helper {
+
+        private Helper() {
+            throw new IllegalAccessError("Utility class");
+        }
+
+        /**
+         * Returns {@code true} if and only if the supplied object is an instance of a class that has a declared
+         * {@link StaplerObject} annotation.
+         *
+         * @param object the instance.
+         * @return {@code true} if and only if the supplied object is an instance of a class that has a declared
+         * {@link StaplerObject} annotation.
+         */
+        public static boolean isObject(Object object) {
+            return object != null && isObject(object.getClass());
+        }
+
+        /**
+         * Returns {@code true} if and only if the supplied object is an instance of a class that either has a declared
+         * {@link StaplerObject} annotation or has the annotation somewhere in it's parent class/interface hierarchy.
+         *
+         * @param object the instance.
+         * @return {@code true} if and only if the supplied object is an instance of a class that either has a declared
+         * {@link StaplerObject} annotation or has the annotation somewhere in it's parent class/interface hierarchy.
+         */
+        public static boolean hasObject(Object object) {
+            return object != null && hasObject(object.getClass());
+        }
+
+        /**
+         * Returns {@code true} if and only if the supplied class has a declared {@link StaplerObject} annotation.
+         *
+         * @param clazz the class.
+         * @return {@code true} if and only if the supplied class has a declared {@link StaplerObject} annotation.
+         */
+        public static boolean isObject(Class clazz) {
+            if (clazz == null) {
+                return false;
+            }
+            // TODO Java 8 switch to getDeclaredAnnotation(StaplerObject.class) != null
+            for (Annotation a : clazz.getDeclaredAnnotations()) {
+                if (StaplerObject.class.equals(a.annotationType())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Returns {@code true} if and only if the supplied class that either has a declared {@link StaplerObject}
+         * annotation or has the annotation somewhere in it's parent class/interface hierarchy.
+         *
+         * @param clazz the class.
+         * @return {@code true} if and only if the supplied class that either has a declared {@link StaplerObject}
+         * annotation or has the annotation somewhere in it's parent class/interface hierarchy.
+         */
+        public static boolean hasObject(Class clazz) {
+            if (clazz == null) {
+                return false;
+            }
+            if (isObject(clazz)) {
+                return true;
+            }
+            for (Class c = clazz.getSuperclass(); c != null && c != Object.class; c = c.getSuperclass()) {
+                if (isObject(c)) {
+                    return true;
+                }
+            }
+            Class[] interfaces = clazz.getInterfaces();
+            if (interfaces.length > 0) {
+                Set<Class> checked = new HashSet<>();
+                Stack<Class> toCheck = new Stack<>();
+                toCheck.addAll(Arrays.asList(interfaces));
+                while (!toCheck.isEmpty()) {
+                    Class c = toCheck.pop();
+                    if (checked.add(c)) {
+                        if (isObject(c)) {
+                            return true;
+                        } else {
+                            for (Class t: c.getInterfaces()) {
+                                if (!checked.contains(t)) {
+                                    toCheck.push(t);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Finds the (possibly abstract) super method declarations. Only methods with the same or higher visibility
+         * will be returned.
+         *
+         * @param method the method.
+         * @return the (possibly abstract) super method declarations.
+         */
+        public static Iterable<Method> declaredSuperMethods(final Method method) {
+            if (Modifier.isPrivate(method.getModifiers())) {
+                // cannot override private methods
+                return Collections.emptySet();
+            }
+            return new Iterable<Method>() {
+                @Override
+                public Iterator<Method> iterator() {
+                    return new Iterator<Method>() {
+                        Stack<Class> toCheck;
+                        Set<Class> checked;
+                        Class<?> current;
+                        Method next;
+
+                        @Override
+                        public void remove() {
+                            throw new UnsupportedOperationException("remove");
+                        }
+
+                        @Override
+                        public boolean hasNext() {
+                            if (next != null) {
+                                return true;
+                            }
+                            if (toCheck == null) {
+                                // initialize
+                                toCheck = new Stack<>();
+                                checked = new HashSet<>();
+                                // check the class hierarchy first, then interfaces
+                                current = method.getDeclaringClass().getSuperclass();
+                                toCheck.addAll(Arrays.asList(method.getDeclaringClass().getInterfaces()));
+                            }
+                            while (true) {
+                                if (current == null) {
+                                    if (toCheck.isEmpty()) {
+                                        return false;
+                                    }
+                                    current = toCheck.pop();
+                                    if (current != null) {
+                                        toCheck.addAll(Arrays.asList(current.getInterfaces()));
+                                    }
+                                }
+                                if (checked.add(current)) {
+                                    try {
+                                        next = current.getDeclaredMethod(method.getName(), method.getParameterTypes());
+                                        if (Modifier.isPrivate(next.getModifiers())) {
+                                            // this is a private mirror, not the super method
+                                            next = null;
+                                        } else if (Modifier.isPublic(next.getModifiers())) {
+                                            // this is a public parent, hence must be the parent
+                                            return true;
+                                        } else if (Modifier.isProtected(next.getModifiers())
+                                                && Modifier.isProtected(method.getModifiers())) {
+                                            // this is a protected parent, the child must be at least protected, but
+                                            // if the child is public then we are not the "parent" declaration
+                                            return true;
+                                        } else if (!Modifier.isProtected(method.getModifiers())
+                                                && !Modifier.isProtected(method.getModifiers())) {
+                                            // this is a package scoped parent method, the child must also be
+                                            // packaged scoped for this to be the "parent" declaration.
+                                            return true;
+                                        } else {
+                                            // keep searching
+                                            next = null;
+                                        }
+                                    } catch (NoSuchMethodException e) {
+                                        // ignore
+                                    }
+                                }
+                                current = current.getSuperclass();
+                                if (current != null) {
+                                    toCheck.addAll(Arrays.asList(current.getInterfaces()));
+                                }
+                            }
+                        }
+
+                        @Override
+                        public Method next() {
+                            if (hasNext()) {
+                                try {
+                                    return next;
+                                } finally {
+                                    next = null;
+                                }
+                            }
+                            throw new NoSuchElementException();
+                        }
+                    };
+                }
+            };
+        }
+    }
 }

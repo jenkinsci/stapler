@@ -68,6 +68,13 @@ public abstract class FieldRef extends AnnotatedRef {
             public boolean isRoutable() {
                 return Modifier.isPublic(f.getModifiers());
             }
+
+            @Override
+            public Class<?> getDeclaringClass() {
+                return f.getDeclaringClass();
+            }
         };
     }
+
+    public abstract Class<?> getDeclaringClass();
 }

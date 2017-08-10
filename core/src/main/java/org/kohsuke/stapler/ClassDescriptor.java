@@ -51,6 +51,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Logger;
+import org.kohsuke.stapler.annotations.StaplerObject;
+import org.kohsuke.stapler.annotations.StaplerPath;
 
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
@@ -97,10 +99,22 @@ public final class ClassDescriptor {
         for (List<Method> m : groups.values()) {
             if (m.size()==1) {
                 Method one = m.get(0);
+                if (StaplerObject.Helper.isObject(one.getDeclaringClass())) {
+                    // ignore functions from a stapler object if they do not have a @StaplerPath
+                    if (!StaplerPath.Helper.isPath(one)) {
+                        continue;
+                    }
+                }
                 functions.add(new Function.InstanceFunction(one)
                         .wrapByInterceptors(one));
             } else {
                 Collections.reverse(m);
+                if (StaplerObject.Helper.isObject(m.get(0).getDeclaringClass())) {
+                    // ignore functions from a stapler object if they do not have a @StaplerPath
+                    if (!StaplerPath.Helper.isPath(m.get(0))) {
+                        continue;
+                    }
+                }
                 functions.add(new Function.OverridingInstanceFunction(m)
                         .wrapByInterceptors(new UnionAnnotatedElement(m)));
             }

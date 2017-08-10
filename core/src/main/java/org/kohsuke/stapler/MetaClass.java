@@ -23,9 +23,9 @@
 
 package org.kohsuke.stapler;
 
-import java.lang.annotation.Annotation;
 import net.sf.json.JSONArray;
 import org.apache.commons.io.IOUtils;
+import org.kohsuke.stapler.annotations.StaplerFacet;
 import org.kohsuke.stapler.annotations.StaplerObject;
 import org.kohsuke.stapler.annotations.StaplerPath;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
@@ -107,14 +107,6 @@ public class MetaClass extends TearOffSupport {
         this.dispatchers.clear();
         KlassDescriptor<?> node = new KlassDescriptor(klass);
         // TODO abstract this test into Klass so that e.g. Ruby can have idiomatic
-        boolean staplerObject = false;
-        // TODO use clazz.getDeclaredAnnotation(StaplerObject.class) != null when Java 8 baseline
-        for (Annotation o: clazz.getDeclaredAnnotations()) {
-            if (o instanceof StaplerObject) {
-                staplerObject = true;
-                break;
-            }
-        }
 
         dispatchers.add(new DirectoryishDispatcher());
 
@@ -122,12 +114,7 @@ public class MetaClass extends TearOffSupport {
             dispatchers.add(new HttpDeletableDispatcher());
 
         FunctionList staplerPaths = node.methods.staplerPath();
-        FunctionList impliedPaths;
-        if (staplerObject) {
-            impliedPaths = FunctionList.emptyList();
-        } else {
-            impliedPaths = node.methods.nonStaplerPath();
-        }
+        FunctionList impliedPaths = node.methods.nonStaplerPath();
 
         for (Function f: staplerPaths.staplerMethod()) {
             for (String name: StaplerPath.Helper.getPaths(f)) {
@@ -209,7 +196,7 @@ public class MetaClass extends TearOffSupport {
                 for (String name: StaplerPath.Helper.getPaths(f)) {
                     dispatchers.add(new FieldSelectDispatcher(name, f));
                 }
-            } else if (!staplerObject) {
+            } else if (!StaplerObject.Helper.isObject(f.getDeclaringClass())) {
                 dispatchers.add(new FieldSelectDispatcher(f.getName(), f));
             }
         }
@@ -355,8 +342,10 @@ public class MetaClass extends TearOffSupport {
         // TODO: check if we can route to static resources
         // which directory shall we look up a resource from?
 
-        for (Facet f : webApp.facets) {
-            f.buildFallbackDispatchers(this, dispatchers);
+        if (!StaplerObject.Helper.isObject(clazz) || StaplerFacet.Helper.hasFallback(clazz)) {
+            for (Facet f : webApp.facets) {
+                f.buildFallbackDispatchers(this, dispatchers);
+            }
         }
 
         // check public selector methods <obj>.getDynamic(<token>,...)

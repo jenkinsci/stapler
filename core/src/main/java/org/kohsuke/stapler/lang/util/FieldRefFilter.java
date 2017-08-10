@@ -51,4 +51,9 @@ public abstract class FieldRefFilter extends FieldRef {
     public boolean hasAnnotation(Class<? extends Annotation> type) {
         return getBase().hasAnnotation(type);
     }
+
+    @Override
+    public Class<?> getDeclaringClass() {
+        return getBase().getDeclaringClass();
+    }
 }

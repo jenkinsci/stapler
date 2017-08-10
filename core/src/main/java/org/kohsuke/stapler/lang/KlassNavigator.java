@@ -1,5 +1,6 @@
 package org.kohsuke.stapler.lang;
 
+import java.lang.reflect.Modifier;
 import org.kohsuke.stapler.ClassDescriptor;
 import org.kohsuke.stapler.Function;
 import org.kohsuke.stapler.MetaClassLoader;
@@ -14,6 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import org.kohsuke.stapler.annotations.StaplerObject;
+import org.kohsuke.stapler.annotations.StaplerPath;
 
 /**
  * Strategy pattern to provide navigation across class-like objects in other languages of JVM.
