@@ -23,11 +23,20 @@
 
 package org.kohsuke.stapler.annotations;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 import org.kohsuke.stapler.Facet;
 
 import static java.lang.annotation.ElementType.TYPE;
@@ -47,10 +56,137 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Inherited
 public @interface StaplerFacet {
     /**
+     * Special constant used to signify that the annotated class has a catch-all fallback dispatch facet. For example
+     * a JRuby facet can have a rack dispatcher that could handle any facet name.
+     */
+    String FALLBACK = "\u0000\ufefforg.kohsuke.stapler.annotations.StaplerFacet#FALLBACK\ufeff\u0000";
+
+    /**
      * The name of the {@link Facet} excluding the extension, for example {@code index} not {@code index.jelly} or
      * {@code index.groovy}.
      *
      * @return the name of the {@link Facet}.
      */
     String value();
+
+    /**
+     * Helper class.
+     */
+    class Helper {
+
+        private Helper() {
+            throw new IllegalAccessError("Utility class");
+        }
+
+        /**
+         * Collects the {@link StaplerFacet} annotations of a class. Walks the class hierarchy and all implemented
+         * interfaces to collect the facets.
+         *
+         * @param clazz the class.
+         * @return the annotations.
+         */
+        public static List<StaplerFacet> facetsOf(Class<?> clazz) {
+            Map<String, StaplerFacet> result = new LinkedHashMap<>();
+            Stack<Class<?>> interfaces = new Stack<>();
+            interfaces.addAll(Arrays.asList(clazz.getInterfaces()));
+            for (Class<?> c = clazz; c != null && c != Object.class; c = c.getSuperclass()) {
+                interfaces.addAll(Arrays.asList(c.getInterfaces()));
+                for (Annotation a : c.getDeclaredAnnotations()) {
+                    if (a instanceof StaplerFacet) {
+                        StaplerFacet f = (StaplerFacet) a;
+                        if (!result.containsKey(f.value()) && !FALLBACK.equals(f.value())) {
+                            result.put(f.value(), f);
+                        }
+                    } else if (a instanceof StaplerFacets) {
+                        for (StaplerFacet f : ((StaplerFacets) a).value()) {
+                            if (!result.containsKey(f.value()) && !FALLBACK.equals(f.value())) {
+                                result.put(f.value(), f);
+                            }
+                        }
+                    }
+                }
+            }
+            if (!interfaces.isEmpty()) {
+                Set<Class<?>> checked = new HashSet<>();
+                while (!interfaces.isEmpty()) {
+                    Class<?> c = interfaces.pop();
+                    if (checked.contains(c)) {
+                        continue;
+                    }
+                    checked.add(c);
+                    interfaces.addAll(Arrays.asList(c.getInterfaces()));
+                    for (Annotation a : c.getDeclaredAnnotations()) {
+                        if (a instanceof StaplerFacet) {
+                            StaplerFacet f = (StaplerFacet) a;
+                            if (!result.containsKey(f.value()) && !FALLBACK.equals(f.value())) {
+                                result.put(f.value(), f);
+                            }
+                        } else if (a instanceof StaplerFacets) {
+                            for (StaplerFacet f : ((StaplerFacets) a).value()) {
+                                if (!result.containsKey(f.value()) && !FALLBACK.equals(f.value())) {
+                                    result.put(f.value(), f);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return new ArrayList<>(result.values());
+        }
+
+        /**
+         * Checks if any of the {@link StaplerFacet} annotations of a class allow for a dynamic dispatch facet.
+         *
+         * @param clazz the class.
+         * @return the annotations.
+         */
+        public static boolean hasFallback(Class<?> clazz) {
+            Stack<Class<?>> interfaces = new Stack<>();
+            interfaces.addAll(Arrays.asList(clazz.getInterfaces()));
+            for (Class<?> c = clazz; c != null && c != Object.class; c = c.getSuperclass()) {
+                interfaces.addAll(Arrays.asList(c.getInterfaces()));
+                for (Annotation a : c.getDeclaredAnnotations()) {
+                    if (a instanceof StaplerFacet) {
+                        StaplerFacet f = (StaplerFacet) a;
+                        if (FALLBACK.equals(f.value())) {
+                            return true;
+                        }
+                    } else if (a instanceof StaplerFacets) {
+                        for (StaplerFacet f : ((StaplerFacets) a).value()) {
+                            if (FALLBACK.equals(f.value())) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            if (!interfaces.isEmpty()) {
+                Set<Class<?>> checked = new HashSet<>();
+                while (!interfaces.isEmpty()) {
+                    Class<?> c = interfaces.pop();
+                    if (checked.contains(c)) {
+                        continue;
+                    }
+                    checked.add(c);
+                    interfaces.addAll(Arrays.asList(c.getInterfaces()));
+                    for (Annotation a : c.getDeclaredAnnotations()) {
+                        if (a instanceof StaplerFacet) {
+                            StaplerFacet f = (StaplerFacet) a;
+                            if (FALLBACK.equals(f.value())) {
+                                return true;
+                            }
+                        } else if (a instanceof StaplerFacets) {
+                            for (StaplerFacet f : ((StaplerFacets) a).value()) {
+                                if (FALLBACK.equals(f.value())) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+    }
 }
