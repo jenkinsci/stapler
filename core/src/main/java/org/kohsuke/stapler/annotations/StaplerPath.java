@@ -97,7 +97,7 @@ public @interface StaplerPath {
     }
 
     /**
-     * Helper class that consolidates the rules for determining the names to infer from a
+     * Helper class that consolidates the rules for determining the names to infer from a method
      */
     class Helper {
         private static final String DEFAULT_METHOD_PREFIX = "get";
