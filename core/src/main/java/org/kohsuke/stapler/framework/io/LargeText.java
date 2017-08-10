@@ -25,7 +25,8 @@
 
 package org.kohsuke.stapler.framework.io;
 
-import org.apache.commons.io.IOUtils;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -34,7 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -427,7 +427,7 @@ public class LargeText {
         private final GZIPInputStream gz;
 
         public GzipAwareSession(File file) throws IOException {
-            this.gz = new GZIPInputStream(new FileInputStream(file));
+            this.gz = new GZIPInputStream(Files.newInputStream(file.toPath(), StandardOpenOption.READ));
         }
 
         public void close() throws IOException {
@@ -455,14 +455,11 @@ public class LargeText {
          * @return true, if the first two bytes are the GZIP magic number.
          */
         public static boolean isGzipStream(File file) {
-            DataInputStream in = null;
-            try {
-                in = new DataInputStream(new FileInputStream(file));
-                return in.readShort()==0x1F8B;
+            try (InputStream in = Files.newInputStream(file.toPath(), StandardOpenOption.READ);
+                 DataInputStream din = new DataInputStream(in)) {
+                return din.readShort()==0x1F8B;
             } catch (IOException ex) {
                 return false;
-            } finally {
-                IOUtils.closeQuietly(in);
             }
         }
         
