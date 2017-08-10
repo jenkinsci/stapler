@@ -26,6 +26,8 @@ package org.kohsuke.stapler;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.kohsuke.stapler.annotations.StaplerBinder;
+import org.kohsuke.stapler.annotations.StaplerObject;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
@@ -200,35 +202,44 @@ public abstract class Function {
 
         PARSE_METHODS = CacheBuilder.newBuilder().weakKeys().build(new CacheLoader<Class,Function>() {
             public Function load(Class from) {
-                // MethdFunction for invoking a static method as a static method
-                FunctionList methods = new ClassDescriptor(from).methods.name("fromStapler");
+                FunctionList functions = new ClassDescriptor(from).methods;
+                boolean annotated = true;
+                FunctionList methods = functions.annotated(StaplerBinder.class);
+                if (methods.isEmpty() && !StaplerObject.Helper.isObject(from)) {
+                    annotated = false;
+                    methods = functions.name("fromStapler");
+                }
                 switch (methods.size()) {
-                case 0: return RETURN_NULL;
-                default:
-                    throw new IllegalArgumentException("Too many 'fromStapler' methods on "+from);
-                case 1:
-                    Method m = ((MethodFunction)methods.get(0)).m;
-                    return new MethodFunction(m) {
-                        @Override
-                        public Class[] getParameterTypes() {
-                            return m.getParameterTypes();
-                        }
+                    case 0:
+                        return RETURN_NULL;
+                    default:
+                        throw new IllegalArgumentException("Too many '"
+                                + (annotated ? "@StaplerBinder" : "fromStapler")
+                                + "' methods on " + from);
+                    case 1:
+                        Method m = ((MethodFunction) methods.get(0)).m;
+                        return new MethodFunction(m) {
+                            @Override
+                            public Class[] getParameterTypes() {
+                                return m.getParameterTypes();
+                            }
 
-                        @Override
-                        public Type[] getGenericParameterTypes() {
-                            return m.getGenericParameterTypes();
-                        }
+                            @Override
+                            public Type[] getGenericParameterTypes() {
+                                return m.getGenericParameterTypes();
+                            }
 
-                        @Override
-                        public Annotation[][] getParameterAnnotations() {
-                            return m.getParameterAnnotations();
-                        }
+                            @Override
+                            public Annotation[][] getParameterAnnotations() {
+                                return m.getParameterAnnotations();
+                            }
 
-                        @Override
-                        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
-                            return m.invoke(null,args);
-                        }
-                    };
+                            @Override
+                            public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+                                    throws IllegalAccessException, InvocationTargetException {
+                                return m.invoke(null, args);
+                            }
+                        };
                 }
             }
         });

@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import org.kohsuke.stapler.annotations.StaplerBinder;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -98,6 +99,40 @@ public class DataBindingTest extends TestCase {
         @CapturedParameterNames({"req","b"})
         public static Binder fromStapler(StaplerRequest req, @QueryParameter String b) {
             Binder r = new Binder();
+            r.req = req;
+            r.b = b;
+            return r;
+        }
+    }
+
+    public void testStaplerBinderMethod() throws Exception {
+        MockRequest mr = new MockRequest() {
+            @Override
+            public String getContentType() {
+                return "text/html";
+            }
+        };
+        mr.getParameterMap().put("a","123");
+        mr.getParameterMap().put("b","string");
+        RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.<AncestorImpl>emptyList(), null);
+        new Function.InstanceFunction(getClass().getMethod("doStaplerBinderMethod",StaplerRequest.class,int.class,Binder2.class))
+                .bindAndInvoke(this,req,null);
+    }
+
+    public void doStaplerBinderMethod(StaplerRequest req, @QueryParameter int a, Binder2 b) {
+        assertEquals(123,a);
+        assertSame(req,b.req);
+        assertEquals("string",b.b);
+
+    }
+
+    public static class Binder2 {
+        StaplerRequest req;
+        String b;
+
+        @StaplerBinder
+        public static Binder2 factory(StaplerRequest req, @QueryParameter String b) {
+            Binder2 r = new Binder2();
             r.req = req;
             r.b = b;
             return r;
