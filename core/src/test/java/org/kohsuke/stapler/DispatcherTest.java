@@ -765,7 +765,7 @@ public class DispatcherTest extends JettyTestCase {
 
     public void testGiven__magic_extends_staplerObject_extends_magic__when__overrideMagicWithoutAnnotations__then__404()
             throws Exception {
-        assertNotFound("annotationInheritanceB/magicBaseOverrideNoAnnotation?q=123");
+        assertFound("annotationInheritanceB/magicBaseOverrideNoAnnotation?q=123", "leaf: 123");
     }
 
     public void testGiven__magic_extends_staplerObject_extends_magic__when__overrideAnnotationsWithoutAnnotations2__then__annotationUsed()
