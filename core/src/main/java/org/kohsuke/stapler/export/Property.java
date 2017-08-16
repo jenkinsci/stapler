@@ -198,15 +198,14 @@ public abstract class Property implements Comparable<Property> {
 
         Class c = value.getClass();
 
-        try {
-            writer.type(expected, value.getClass());
-        } catch (AbstractMethodError _) {
-            // legacy impl that doesn't understand it
-        }
-
         if (c.getAnnotation(ExportedBean.class) == null) {
             handleNotExportable(expected, value, pruner, writer, skipIfFail, c);
         } else {
+            try {
+                writer.type(expected, value.getClass());
+            } catch (AbstractMethodError _) {
+                // legacy impl that doesn't understand it
+            }
             try {
                 Model model = owner.getOrNull(c, parent.type, name);
                 if (model == null) {
