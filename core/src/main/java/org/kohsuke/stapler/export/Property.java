@@ -198,6 +198,12 @@ public abstract class Property implements Comparable<Property> {
 
         Class c = value.getClass();
 
+        try {
+            writer.type(expected, value.getClass());
+        } catch (AbstractMethodError _) {
+            // legacy impl that doesn't understand it
+        }
+
         if (c.getAnnotation(ExportedBean.class) == null) {
             handleNotExportable(expected, value, pruner, writer, skipIfFail, c);
         } else {
@@ -213,12 +219,6 @@ public abstract class Property implements Comparable<Property> {
                 handleNotExportable(expected, value, pruner, writer, skipIfFail, c);
                 return;
             }
-        }
-
-        try {
-            writer.type(expected, value.getClass());
-        } catch (AbstractMethodError _) {
-            // legacy impl that doesn't understand it
         }
     }
 
