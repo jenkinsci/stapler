@@ -131,7 +131,7 @@ public abstract class Property implements Comparable<Property> {
         TreePruner child = pruner.accept(object, this);
         if (child==null)        return;
 
-        Object d = writer.getExportConfig().getExportInterceptor().getValue(this,object, writer.getExportConfig());
+        Object d = writer.getExportConfig().getExportInterceptor().getValue(this,object,writer.getExportConfig());
 
         if ((d==null && skipNull) || d == ExportInterceptor.SKIP) { // don't write anything
             return;
@@ -139,15 +139,14 @@ public abstract class Property implements Comparable<Property> {
         if (merge) {
             // merged property will get all its properties written here
             if (d != null) {
-                Model model;
-                try {
-                    model = owner.get(d.getClass(), parent.type, name);
-                } catch (NotExportableException e) {
+                if (d.getClass().getAnnotation(ExportedBean.class) == null) {
                     if(writer.getExportConfig().isSkipIfFail()){
                         return;
+                    } else {
+                        throw new NotExportableException(d.getClass());
                     }
-                    throw e;
                 }
+                Model model = owner.getOrNull(d.getClass(), parent.type, name);
                 model.writeNestedObjectTo(d, new FilteringTreePruner(parent.HAS_PROPERTY_NAME_IN_ANCESTRY,child), writer);
             }
         } else {
