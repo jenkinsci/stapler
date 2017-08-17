@@ -131,7 +131,7 @@ public abstract class Property implements Comparable<Property> {
         TreePruner child = pruner.accept(object, this);
         if (child==null)        return;
 
-        Object d = writer.getExportConfig().getExportInterceptor().getValue(this,object,writer.getExportConfig());
+        Object d = writer.getExportConfig().getExportInterceptor().getValue(this,object, writer.getExportConfig());
 
         if ((d==null && skipNull) || d == ExportInterceptor.SKIP) { // don't write anything
             return;
