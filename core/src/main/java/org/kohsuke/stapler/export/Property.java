@@ -127,6 +127,7 @@ public abstract class Property implements Comparable<Property> {
      * @param pruner
      *      Determines how to prune the object graph tree.
      */
+    @SuppressWarnings("unchecked")
     public void writeTo(Object object, TreePruner pruner, DataWriter writer) throws IOException {
         TreePruner child = pruner.accept(object, this);
         if (child==null)        return;
@@ -139,15 +140,12 @@ public abstract class Property implements Comparable<Property> {
         if (merge) {
             // merged property will get all its properties written here
             if (d != null) {
-                if (d.getClass().getAnnotation(ExportedBean.class) == null) {
-                    if(writer.getExportConfig().isSkipIfFail()){
-                        return;
-                    } else {
-                        throw new NotExportableException(d.getClass());
-                    }
-                }
                 Model model = owner.getOrNull(d.getClass(), parent.type, name);
-                model.writeNestedObjectTo(d, new FilteringTreePruner(parent.HAS_PROPERTY_NAME_IN_ANCESTRY,child), writer);
+                if (model == null && !writer.getExportConfig().isSkipIfFail()) {
+                    throw new NotExportableException(d.getClass());
+                } else if (model != null) {
+                    model.writeNestedObjectTo(d, new FilteringTreePruner(parent.HAS_PROPERTY_NAME_IN_ANCESTRY,child), writer);
+                }
             }
         } else {
             writer.name(name);
@@ -185,6 +183,7 @@ public abstract class Property implements Comparable<Property> {
     /**
      * Writes one value of the property to {@link DataWriter}.
      */
+    @SuppressWarnings("unchecked")
     private void writeValue(Type expected, Object value, TreePruner pruner, DataWriter writer, boolean skipIfFail) throws IOException {
         if(value==null) {
             writer.valueNull();
@@ -206,17 +205,13 @@ public abstract class Property implements Comparable<Property> {
             } catch (AbstractMethodError _) {
                 // legacy impl that doesn't understand it
             }
-            try {
-                Model model = owner.getOrNull(c, parent.type, name);
-                if (model == null) {
-                    throw new NotExportableException(c);
-                }
+            Model model = owner.getOrNull(c, parent.type, name);
+            if (model == null) {
+                handleNotExportable(expected, value, pruner, writer, skipIfFail, c);
+            } else {
                 writer.startObject();
                 model.writeNestedObjectTo(value, pruner, writer);
                 writer.endObject();
-            } catch (NotExportableException ex) {
-                handleNotExportable(expected, value, pruner, writer, skipIfFail, c);
-                return;
             }
         }
     }

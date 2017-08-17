@@ -26,6 +26,7 @@ package org.kohsuke.stapler.export;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -36,27 +37,28 @@ import javax.annotation.Nullable;
 public class ModelBuilder {
     /**
      * Instantiated {@link Model}s.
-     * Registration happens in {@link Model#Model(ModelBuilder,Class)} so that cyclic references
+     * Registration happens in {@link Model#Model(ModelBuilder, Class, Class, String)} so that cyclic references
      * are handled correctly.
      */
     /*package*/ final Map<Class, Model> models = new ConcurrentHashMap<Class, Model>();
 
+    @Nonnull
     public <T> Model<T> get(Class<T> type) throws NotExportableException {
-        if (type.getAnnotation(ExportedBean.class) == null) {
-            throw new NotExportableException(type);
-        }
         return get(type, null, null);
     }
 
-    public <T> Model<T> get(Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property) {
-        if (type.getAnnotation(ExportedBean.class) == null) {
+    @Nonnull
+    public <T> Model<T> get(Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property) throws NotExportableException {
+        Model<T> model = getOrNull(type, propertyOwner, property);
+        if (model == null) {
             throw new NotExportableException(type);
         }
-        return getOrNull(type, propertyOwner, property);
+        return model;
     }
 
-    public <T> Model<T> getOrNull(Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property) throws NotExportableException {
-        Model m = models.get(type);
+    @CheckForNull
+    public <T> Model<T> getOrNull(Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property) {
+        Model<T> m = models.get(type);
         if(m==null && type.getAnnotation(ExportedBean.class) != null) {
             m = new Model<T>(this, type, propertyOwner, property);
         }
