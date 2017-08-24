@@ -301,12 +301,7 @@ public abstract class Property implements Comparable<Property> {
             throw ex;
         }
 
-        try {
-            writer.type(expected, value.getClass());
-        } catch (AbstractMethodError _) {
-            // legacy impl that doesn't understand it
-        }
-
+        writer.type(expected, value.getClass());
 
         writer.startObject();
         model.writeNestedObjectTo(value, pruner, writer);
@@ -400,9 +395,7 @@ public abstract class Property implements Comparable<Property> {
                     w.endArray();
                     break;
                 case type:
-                    try {
-                        w.type((Type) step.args[0], (Class) step.args[1]);
-                    } catch (AbstractMethodError ignored) {}
+                    w.type((Type) step.args[0], (Class) step.args[1]);
                     break;
                 case startObject:
                     w.startObject();
@@ -418,11 +411,7 @@ public abstract class Property implements Comparable<Property> {
     }
 
     private void writeStartObjectNullType(DataWriter writer) throws IOException {
-        try {
-            writer.type(null,null);
-        } catch (AbstractMethodError _) {
-            // legacy client that doesn't understand this
-        }
+        writer.type(null,null);
         writer.startObject();
     }
 
