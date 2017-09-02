@@ -195,8 +195,11 @@ public interface StaplerResponse extends HttpServletResponse {
      * in detail; see {@link NamedPathPruner#NamedPathPruner(String)} for details.
      *
      * <p> {@link ExportConfig} is passed by the caller to control serialization behavior
+     * @since 1.251
      */
-    void serveExposedBean(StaplerRequest req, Object exposedBean, ExportConfig exportConfig) throws ServletException,IOException;
+    default void serveExposedBean(StaplerRequest req, Object exposedBean, ExportConfig exportConfig) throws ServletException,IOException {
+        serveExposedBean(req, exposedBean, exportConfig.getFlavor());
+    }
 
     /**
      * Works like {@link #getOutputStream()} but tries to send the response

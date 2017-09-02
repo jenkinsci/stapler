@@ -1,6 +1,9 @@
 CHANGELOG
 ===
 
+##### 1.253 (upcoming)
+* [PR #128](https://github.com/stapler/stapler/pull/128) - fixing binary incompatibility in 1.251.
+
 ##### 1.252
 Release date: Aug 03, 2017
 * [PR #113](https://github.com/stapler/stapler/pull/113) - **updated to Java 8** and testing some effects of that
