@@ -47,6 +47,10 @@ public class ModelBuilder {
         return get(type, null, null);
     }
 
+    /**
+     * @throws NotExportableException if type is not exportable
+     * @return model
+     */
     @Nonnull
     public <T> Model<T> get(Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property) throws NotExportableException {
         Model<T> model = getOrNull(type, propertyOwner, property);
@@ -56,6 +60,12 @@ public class ModelBuilder {
         return model;
     }
 
+    /**
+     * Instead of throwing {@link NotExportableException} this method will return null
+     * This should be used on hot paths where throwing the exception and catching it would incur a performance hit
+     * @return model
+     * @since 1.253
+     */
     @CheckForNull
     public <T> Model<T> getOrNull(Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property) {
         Model<T> m = models.get(type);
