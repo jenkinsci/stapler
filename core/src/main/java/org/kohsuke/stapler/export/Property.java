@@ -146,8 +146,6 @@ public abstract class Property implements Comparable<Property> {
                     throw new NotExportableException(objectType);
                 } else if (model != null) {
                     model.writeNestedObjectTo(d, new FilteringTreePruner(parent.HAS_PROPERTY_NAME_IN_ANCESTRY,child), writer);
-                } else {
-                    LOGGER.log(Level.FINE, "Type ");
                 }
             }
         } else {
@@ -199,12 +197,6 @@ public abstract class Property implements Comparable<Property> {
         }
 
         Class c = value.getClass();
-
-        try {
-            writer.type(expected, value.getClass());
-        } catch (AbstractMethodError _) {
-            // legacy impl that doesn't understand it
-        }
 
         Model model = owner.getOrNull(c, parent.type, name);
         if (model == null) {
@@ -305,6 +297,11 @@ public abstract class Property implements Comparable<Property> {
 
             throw new NotExportableException(c);
         } else {
+            try {
+                writer.type(expected, value.getClass());
+            } catch (AbstractMethodError _) {
+                // legacy impl that doesn't understand it
+            }
             writer.startObject();
             model.writeNestedObjectTo(value, pruner, writer);
             writer.endObject();
