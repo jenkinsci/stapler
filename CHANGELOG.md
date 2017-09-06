@@ -2,6 +2,7 @@ CHANGELOG
 ===
 
 ##### 1.253 (upcoming)
+* [PR #127](https://github.com/stapler/stapler/pull/127) - performance optimizations
 * [PR #128](https://github.com/stapler/stapler/pull/128) - fixing binary incompatibility in 1.251.
 
 ##### 1.252
