@@ -58,7 +58,7 @@ public class CompressionServletResponse extends HttpServletResponseWrapper {
     public void activate() throws IOException {
         if (stream==null) {
             super.setHeader("Content-Encoding", "gzip");
-            stream = new FilterServletOutputStream(new GZIPOutputStream(super.getOutputStream()));
+            stream = new FilterServletOutputStream(new GZIPOutputStream(super.getOutputStream()), stream);
         }
     }
 
