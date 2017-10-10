@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Locale;
 
 /**
@@ -339,5 +340,47 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
     @Override
     public void setLocale(Locale loc) {
         getWrapped().setLocale(loc);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int getStatus() {
+        return getWrapped().getStatus();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getHeader(String name) {
+        return getWrapped().getHeader(name);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Collection<String> getHeaders(String name) {
+        return getWrapped().getHeaders(name);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Collection<String> getHeaderNames() {
+        return getWrapped().getHeaderNames();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getContentType() {
+        return getWrapped().getContentType();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setCharacterEncoding(String charset) {
+        getWrapped().setCharacterEncoding(charset);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setContentLengthLong(long len) {
+        getWrapped().setContentLengthLong(len);
     }
 }

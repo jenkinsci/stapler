@@ -305,7 +305,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         // CompressionFilter not available, so do it on our own.
         // see CompressionFilter for why this is not desirable
         setHeader("Content-Encoding","gzip");
-        return recordOutput(new FilterServletOutputStream(new GZIPOutputStream(super.getOutputStream())));
+        return recordOutput(new FilterServletOutputStream(new GZIPOutputStream(super.getOutputStream()), super.getOutputStream()));
     }
 
     public Writer getCompressedWriter(HttpServletRequest req) throws IOException {

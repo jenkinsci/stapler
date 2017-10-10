@@ -1,10 +1,21 @@
 package org.kohsuke.stapler;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpUpgradeHandler;
+import javax.servlet.http.Part;
 import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.AsyncContext;
+import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -264,6 +275,121 @@ public class MockRequest implements HttpServletRequest {
     }
 
     public String getRealPath(String path) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getContentLengthLong() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getRemotePort() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getLocalName() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getLocalAddr() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getLocalPort() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public AsyncContext startAsync() throws IllegalStateException {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
+            throws IllegalStateException {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isAsyncStarted() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isAsyncSupported() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public AsyncContext getAsyncContext() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DispatcherType getDispatcherType() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String changeSessionId() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void login(String username, String password) throws ServletException {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void logout() throws ServletException {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<Part> getParts() throws IOException, ServletException {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Part getPart(String name) throws IOException, ServletException {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
         // TODO
         throw new UnsupportedOperationException();
     }
