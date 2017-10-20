@@ -139,8 +139,8 @@ public class DataBindingTest extends TestCase {
         ScalarToArray r = bind("{a:'x',b:'y',c:5,d:6}", ScalarToArray.class);
         assertEquals("x",r.a[0]);
         assertEquals("y",r.b.get(0));
-        assertEquals(5,(int)r.c[0]);
-        assertEquals(6,(int)r.d.get(0));
+        assertEquals(Integer.valueOf(5), r.c[0]);
+        assertEquals(Integer.valueOf(6), r.d.get(0));
     }
 
     public static class ScalarToArray {
