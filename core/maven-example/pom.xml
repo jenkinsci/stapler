@@ -13,8 +13,7 @@
     <dependency>
       <groupId>org.kohsuke.stapler</groupId>
       <artifactId>stapler-jsp</artifactId>
-      <!-- TODO update after releasing -->
-      <version>1.253-SNAPSHOT</version>
+      <version>1.253</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet.jsp.jstl</groupId>
