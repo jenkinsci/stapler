@@ -1,9 +1,13 @@
 CHANGELOG
 ===
 
-##### 1.253 (upcoming)
+##### 1.253
+Release date: Oct 20, 2017
 * [PR #127](https://github.com/stapler/stapler/pull/127) - performance optimizations
-* [PR #128](https://github.com/stapler/stapler/pull/128) - fixing binary incompatibility in 1.251.
+* [PR #128](https://github.com/stapler/stapler/pull/128) - fixing binary incompatibility in 1.251
+* [PR #129](https://github.com/stapler/stapler/pull/129) - adding default implementations for some `DataWriter` methods
+* [PR #130](https://github.com/stapler/stapler/pull/130) - updated to Servlet API 3.1.0
+* [PR #134](https://github.com/stapler/stapler/pull/134) - updating various dependencies, better matching versions in Jenkins core
 
 ##### 1.252
 Release date: Aug 03, 2017
