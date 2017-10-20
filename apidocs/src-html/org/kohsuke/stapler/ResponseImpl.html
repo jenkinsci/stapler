@@ -313,7 +313,7 @@
 <span class="sourceLineNo">305</span>        // CompressionFilter not available, so do it on our own.<a name="line.305"></a>
 <span class="sourceLineNo">306</span>        // see CompressionFilter for why this is not desirable<a name="line.306"></a>
 <span class="sourceLineNo">307</span>        setHeader("Content-Encoding","gzip");<a name="line.307"></a>
-<span class="sourceLineNo">308</span>        return recordOutput(new FilterServletOutputStream(new GZIPOutputStream(super.getOutputStream())));<a name="line.308"></a>
+<span class="sourceLineNo">308</span>        return recordOutput(new FilterServletOutputStream(new GZIPOutputStream(super.getOutputStream()), super.getOutputStream()));<a name="line.308"></a>
 <span class="sourceLineNo">309</span>    }<a name="line.309"></a>
 <span class="sourceLineNo">310</span><a name="line.310"></a>
 <span class="sourceLineNo">311</span>    public Writer getCompressedWriter(HttpServletRequest req) throws IOException {<a name="line.311"></a>

@@ -37,103 +37,117 @@
 <span class="sourceLineNo">029</span>import org.junit.Assert;<a name="line.29"></a>
 <span class="sourceLineNo">030</span>import org.junit.Test;<a name="line.30"></a>
 <span class="sourceLineNo">031</span><a name="line.31"></a>
-<span class="sourceLineNo">032</span>import javax.servlet.ServletException;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import javax.servlet.ServletInputStream;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import java.io.ByteArrayInputStream;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import java.io.ByteArrayOutputStream;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import java.io.File;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import java.io.IOException;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>import java.util.Arrays;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>import java.util.Collections;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>import java.util.Enumeration;<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>/**<a name="line.42"></a>
-<span class="sourceLineNo">043</span> * @author &lt;a href="mailto:tom.fennelly@gmail.com"&gt;tom.fennelly@gmail.com&lt;/a&gt;<a name="line.43"></a>
-<span class="sourceLineNo">044</span> */<a name="line.44"></a>
-<span class="sourceLineNo">045</span>public class RequestImplTest {<a name="line.45"></a>
-<span class="sourceLineNo">046</span><a name="line.46"></a>
-<span class="sourceLineNo">047</span>    @Test<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    public void test_multipart_formdata() throws IOException, ServletException {<a name="line.48"></a>
-<span class="sourceLineNo">049</span>        final Stapler stapler = new Stapler();<a name="line.49"></a>
-<span class="sourceLineNo">050</span>        final byte[] buf = generateMultipartData();<a name="line.50"></a>
-<span class="sourceLineNo">051</span>        final ByteArrayInputStream is = new ByteArrayInputStream(buf);<a name="line.51"></a>
-<span class="sourceLineNo">052</span>        final MockRequest mockRequest = new MockRequest() {<a name="line.52"></a>
-<span class="sourceLineNo">053</span>            @Override<a name="line.53"></a>
-<span class="sourceLineNo">054</span>            public String getContentType() {<a name="line.54"></a>
-<span class="sourceLineNo">055</span>                return "multipart/form-data; boundary=mpboundary";<a name="line.55"></a>
-<span class="sourceLineNo">056</span>            }<a name="line.56"></a>
-<span class="sourceLineNo">057</span>            @Override<a name="line.57"></a>
-<span class="sourceLineNo">058</span>            public String getCharacterEncoding() {<a name="line.58"></a>
-<span class="sourceLineNo">059</span>                return "UTF-8";<a name="line.59"></a>
-<span class="sourceLineNo">060</span>            }<a name="line.60"></a>
-<span class="sourceLineNo">061</span>            @Override<a name="line.61"></a>
-<span class="sourceLineNo">062</span>            public int getContentLength() {<a name="line.62"></a>
-<span class="sourceLineNo">063</span>                return buf.length;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>            }<a name="line.64"></a>
-<span class="sourceLineNo">065</span><a name="line.65"></a>
-<span class="sourceLineNo">066</span>            @Override<a name="line.66"></a>
-<span class="sourceLineNo">067</span>            public Enumeration getParameterNames() {<a name="line.67"></a>
-<span class="sourceLineNo">068</span>                return Collections.enumeration(Arrays.asList("p1"));<a name="line.68"></a>
-<span class="sourceLineNo">069</span>            }<a name="line.69"></a>
-<span class="sourceLineNo">070</span><a name="line.70"></a>
-<span class="sourceLineNo">071</span>            @Override<a name="line.71"></a>
-<span class="sourceLineNo">072</span>            public ServletInputStream getInputStream() throws IOException {<a name="line.72"></a>
-<span class="sourceLineNo">073</span>                return new ServletInputStream() {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>                    @Override<a name="line.74"></a>
-<span class="sourceLineNo">075</span>                    public int read() throws IOException {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>                        return is.read();<a name="line.76"></a>
-<span class="sourceLineNo">077</span>                    }<a name="line.77"></a>
-<span class="sourceLineNo">078</span>                    @Override<a name="line.78"></a>
-<span class="sourceLineNo">079</span>                    public int read(byte[] b) throws IOException {<a name="line.79"></a>
-<span class="sourceLineNo">080</span>                        return is.read(b);<a name="line.80"></a>
-<span class="sourceLineNo">081</span>                    }<a name="line.81"></a>
-<span class="sourceLineNo">082</span>                    @Override<a name="line.82"></a>
-<span class="sourceLineNo">083</span>                    public int read(byte[] b, int off, int len) throws IOException {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>                        return is.read(b, off, len);<a name="line.84"></a>
-<span class="sourceLineNo">085</span>                    }                    <a name="line.85"></a>
-<span class="sourceLineNo">086</span>                };<a name="line.86"></a>
-<span class="sourceLineNo">087</span>            }<a name="line.87"></a>
-<span class="sourceLineNo">088</span>        };<a name="line.88"></a>
-<span class="sourceLineNo">089</span>        <a name="line.89"></a>
-<span class="sourceLineNo">090</span>        RequestImpl request = new RequestImpl(stapler, mockRequest, Collections.&lt;AncestorImpl&gt;emptyList(), null);<a name="line.90"></a>
-<span class="sourceLineNo">091</span><a name="line.91"></a>
-<span class="sourceLineNo">092</span>        // Check that we can get the Form Fields. See https://github.com/stapler/stapler/issues/52<a name="line.92"></a>
-<span class="sourceLineNo">093</span>        Assert.assertEquals("text1_val", request.getParameter("text1"));<a name="line.93"></a>
-<span class="sourceLineNo">094</span>        Assert.assertEquals("text2_val", request.getParameter("text2"));<a name="line.94"></a>
-<span class="sourceLineNo">095</span>        <a name="line.95"></a>
-<span class="sourceLineNo">096</span>        // Check that we can get the file<a name="line.96"></a>
-<span class="sourceLineNo">097</span>        FileItem fileItem = request.getFileItem("pomFile");<a name="line.97"></a>
-<span class="sourceLineNo">098</span>        Assert.assertNotNull(fileItem);<a name="line.98"></a>
-<span class="sourceLineNo">099</span>        <a name="line.99"></a>
-<span class="sourceLineNo">100</span>        // Check getParameterValues<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        Assert.assertEquals("text1_val", request.getParameterValues("text1")[0]);<a name="line.101"></a>
-<span class="sourceLineNo">102</span>        <a name="line.102"></a>
-<span class="sourceLineNo">103</span>        // Check getParameterNames<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        Assert.assertTrue(Collections.list(request.getParameterNames()).contains("p1"));<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        Assert.assertTrue(Collections.list(request.getParameterNames()).contains("text1"));<a name="line.105"></a>
-<span class="sourceLineNo">106</span>        <a name="line.106"></a>
-<span class="sourceLineNo">107</span>        // Check getParameterMap<a name="line.107"></a>
-<span class="sourceLineNo">108</span>        Assert.assertTrue(request.getParameterMap().containsKey("text1"));        <a name="line.108"></a>
-<span class="sourceLineNo">109</span>    }<a name="line.109"></a>
-<span class="sourceLineNo">110</span><a name="line.110"></a>
-<span class="sourceLineNo">111</span>    private byte[] generateMultipartData() throws IOException {<a name="line.111"></a>
-<span class="sourceLineNo">112</span>        MultipartEntityBuilder reqEntityBuilder = MultipartEntityBuilder.create();<a name="line.112"></a>
-<span class="sourceLineNo">113</span><a name="line.113"></a>
-<span class="sourceLineNo">114</span>        reqEntityBuilder.setBoundary("mpboundary");<a name="line.114"></a>
-<span class="sourceLineNo">115</span>        reqEntityBuilder.addBinaryBody("pomFile", new File("./pom.xml"), ContentType.TEXT_XML, "pom.xml");<a name="line.115"></a>
-<span class="sourceLineNo">116</span>        reqEntityBuilder.addTextBody("text1", "text1_val");<a name="line.116"></a>
-<span class="sourceLineNo">117</span>        reqEntityBuilder.addTextBody("text2", "text2_val");<a name="line.117"></a>
-<span class="sourceLineNo">118</span><a name="line.118"></a>
-<span class="sourceLineNo">119</span>        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();<a name="line.119"></a>
-<span class="sourceLineNo">120</span>        try {<a name="line.120"></a>
-<span class="sourceLineNo">121</span>            reqEntityBuilder.build().writeTo(outputStream);<a name="line.121"></a>
-<span class="sourceLineNo">122</span>            outputStream.flush();<a name="line.122"></a>
-<span class="sourceLineNo">123</span>            return outputStream.toByteArray();<a name="line.123"></a>
-<span class="sourceLineNo">124</span>        } finally {<a name="line.124"></a>
-<span class="sourceLineNo">125</span>            outputStream.close();<a name="line.125"></a>
-<span class="sourceLineNo">126</span>        }<a name="line.126"></a>
-<span class="sourceLineNo">127</span>    }<a name="line.127"></a>
-<span class="sourceLineNo">128</span>}<a name="line.128"></a>
+<span class="sourceLineNo">032</span>import javax.servlet.ReadListener;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import javax.servlet.ServletException;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import javax.servlet.ServletInputStream;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import java.io.ByteArrayInputStream;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import java.io.ByteArrayOutputStream;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import java.io.File;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import java.io.IOException;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import java.util.Arrays;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import java.util.Collections;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import java.util.Enumeration;<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>/**<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * @author &lt;a href="mailto:tom.fennelly@gmail.com"&gt;tom.fennelly@gmail.com&lt;/a&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span> */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>public class RequestImplTest {<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>    @Test<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    public void test_multipart_formdata() throws IOException, ServletException {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        final Stapler stapler = new Stapler();<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        final byte[] buf = generateMultipartData();<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        final ByteArrayInputStream is = new ByteArrayInputStream(buf);<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        final MockRequest mockRequest = new MockRequest() {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>            @Override<a name="line.54"></a>
+<span class="sourceLineNo">055</span>            public String getContentType() {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>                return "multipart/form-data; boundary=mpboundary";<a name="line.56"></a>
+<span class="sourceLineNo">057</span>            }<a name="line.57"></a>
+<span class="sourceLineNo">058</span>            @Override<a name="line.58"></a>
+<span class="sourceLineNo">059</span>            public String getCharacterEncoding() {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                return "UTF-8";<a name="line.60"></a>
+<span class="sourceLineNo">061</span>            }<a name="line.61"></a>
+<span class="sourceLineNo">062</span>            @Override<a name="line.62"></a>
+<span class="sourceLineNo">063</span>            public int getContentLength() {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>                return buf.length;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>            }<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>            @Override<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            public Enumeration getParameterNames() {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>                return Collections.enumeration(Arrays.asList("p1"));<a name="line.69"></a>
+<span class="sourceLineNo">070</span>            }<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>            @Override<a name="line.72"></a>
+<span class="sourceLineNo">073</span>            public ServletInputStream getInputStream() throws IOException {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                return new ServletInputStream() {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>                    @Override<a name="line.75"></a>
+<span class="sourceLineNo">076</span>                    public int read() throws IOException {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>                        return is.read();<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                    }<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                    @Override<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                    public int read(byte[] b) throws IOException {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                        return is.read(b);<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                    }<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                    @Override<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                    public int read(byte[] b, int off, int len) throws IOException {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>                        return is.read(b, off, len);<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                    }<a name="line.86"></a>
+<span class="sourceLineNo">087</span>                    @Override<a name="line.87"></a>
+<span class="sourceLineNo">088</span>                    public boolean isFinished() {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                        return is.available() != 0;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                    }<a name="line.90"></a>
+<span class="sourceLineNo">091</span>                    @Override<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                    public boolean isReady() {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                        return true;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                    }<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                    @Override<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                    public void setReadListener(ReadListener readListener) {<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                        // ignored<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                    }<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                    <a name="line.99"></a>
+<span class="sourceLineNo">100</span>                };<a name="line.100"></a>
+<span class="sourceLineNo">101</span>            }<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        };<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        <a name="line.103"></a>
+<span class="sourceLineNo">104</span>        RequestImpl request = new RequestImpl(stapler, mockRequest, Collections.&lt;AncestorImpl&gt;emptyList(), null);<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>        // Check that we can get the Form Fields. See https://github.com/stapler/stapler/issues/52<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        Assert.assertEquals("text1_val", request.getParameter("text1"));<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        Assert.assertEquals("text2_val", request.getParameter("text2"));<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        <a name="line.109"></a>
+<span class="sourceLineNo">110</span>        // Check that we can get the file<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        FileItem fileItem = request.getFileItem("pomFile");<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        Assert.assertNotNull(fileItem);<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        <a name="line.113"></a>
+<span class="sourceLineNo">114</span>        // Check getParameterValues<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        Assert.assertEquals("text1_val", request.getParameterValues("text1")[0]);<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        <a name="line.116"></a>
+<span class="sourceLineNo">117</span>        // Check getParameterNames<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        Assert.assertTrue(Collections.list(request.getParameterNames()).contains("p1"));<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        Assert.assertTrue(Collections.list(request.getParameterNames()).contains("text1"));<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        <a name="line.120"></a>
+<span class="sourceLineNo">121</span>        // Check getParameterMap<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        Assert.assertTrue(request.getParameterMap().containsKey("text1"));        <a name="line.122"></a>
+<span class="sourceLineNo">123</span>    }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>    private byte[] generateMultipartData() throws IOException {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        MultipartEntityBuilder reqEntityBuilder = MultipartEntityBuilder.create();<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>        reqEntityBuilder.setBoundary("mpboundary");<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        reqEntityBuilder.addBinaryBody("pomFile", new File("./pom.xml"), ContentType.TEXT_XML, "pom.xml");<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        reqEntityBuilder.addTextBody("text1", "text1_val");<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        reqEntityBuilder.addTextBody("text2", "text2_val");<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        try {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>            reqEntityBuilder.build().writeTo(outputStream);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>            outputStream.flush();<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            return outputStream.toByteArray();<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        } finally {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>            outputStream.close();<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        }<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    }<a name="line.141"></a>
+<span class="sourceLineNo">142</span>}<a name="line.142"></a>
 
 
 

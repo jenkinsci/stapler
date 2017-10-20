@@ -750,7 +750,7 @@
 <span class="sourceLineNo">742</span>                if (converter==null)<a name="line.742"></a>
 <span class="sourceLineNo">743</span>                    throw new IllegalArgumentException("Unable to convert to "+l.itemType);<a name="line.743"></a>
 <span class="sourceLineNo">744</span><a name="line.744"></a>
-<span class="sourceLineNo">745</span>                l.add(converter.convert(type,o));<a name="line.745"></a>
+<span class="sourceLineNo">745</span>                l.add(converter.convert(l.itemType, o));<a name="line.745"></a>
 <span class="sourceLineNo">746</span>                return l.toCollection();<a name="line.746"></a>
 <span class="sourceLineNo">747</span>            }<a name="line.747"></a>
 <span class="sourceLineNo">748</span>        }<a name="line.748"></a>
