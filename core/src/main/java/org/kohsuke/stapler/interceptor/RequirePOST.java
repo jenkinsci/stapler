@@ -10,6 +10,7 @@ import org.kohsuke.stapler.StaplerResponse;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ServiceLoader;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
@@ -36,27 +37,19 @@ public @interface RequirePOST {
 
     /**
      * Allows customizing the error page shown when an annotated method is called with the wrong HTTP method.
+     *
+     * <p>Implementations are looked up using {@link java.util.ServiceLoader}, the first implementation to return a non-null value will be used.</p>
      */
-    interface ErrorHandler {
+    interface ErrorCustomizer {
         ForwardToView getForwardView();
     }
 
     public static class Processor extends Interceptor {
-        private static ErrorHandler handler;
-
-        /**
-         * Register the custom error handler to be used when an annotated method is called with the wrong HTTP method.
-         * @param errorHandler the error handler providing the view to show instead
-         */
-        public static void registerErrorHandler(ErrorHandler errorHandler) {
-            handler = errorHandler;
-        }
-
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException, ServletException {
             if (!request.getMethod().equals("POST")) {
-                if (handler != null) {
+                for (ErrorCustomizer handler : ServiceLoader.load(ErrorCustomizer.class)) {
                     ForwardToView forwardToView = handler.getForwardView();
                     if (forwardToView != null) {
                         throw new InvocationTargetException(forwardToView.with("requestURL", request.getRequestURLWithQueryString().toString()));
