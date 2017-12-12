@@ -49,7 +49,7 @@ public @interface RequirePOST {
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException, ServletException {
             if (!request.getMethod().equals("POST")) {
-                for (ErrorCustomizer handler : ServiceLoader.load(ErrorCustomizer.class)) {
+                for (ErrorCustomizer handler : ServiceLoader.load(ErrorCustomizer.class, request.getWebApp().getClassLoader())) {
                     ForwardToView forwardToView = handler.getForwardView();
                     if (forwardToView != null) {
                         throw new InvocationTargetException(forwardToView.with("requestURL", request.getRequestURLWithQueryString().toString()));
