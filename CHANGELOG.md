@@ -1,6 +1,10 @@
 CHANGELOG
 ===
 
+##### 1.254
+Release date: Dec 15, 2017
+* [PR #135](https://github.com/stapler/stapler/pull/135) - allow customizing `RequirePOST` error pages
+
 ##### 1.253
 Release date: Oct 20, 2017
 * [PR #127](https://github.com/stapler/stapler/pull/127) - performance optimizations
