@@ -2,15 +2,20 @@ package org.kohsuke.stapler.interceptor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+
+import org.kohsuke.stapler.ForwardToView;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ServiceLoader;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
+
+import javax.annotation.CheckForNull;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import org.kohsuke.stapler.HttpResponses;
@@ -31,11 +36,31 @@ import org.kohsuke.stapler.verb.POST;
 @Target({METHOD,FIELD})
 @InterceptorAnnotation(RequirePOST.Processor.class)
 public @interface RequirePOST {
+
+    /**
+     * Allows customizing the error page shown when an annotated method is called with the wrong HTTP method.
+     */
+    interface ErrorCustomizer {
+        /**
+         * Return the {@link ForwardToView} showing a custom error page for {@link RequirePOST} annotated methods. This is
+         * typically used to show a form with a "Try again using POST" button.
+         *
+         * <p>Implementations are looked up using {@link java.util.ServiceLoader}, the first implementation to return a non-null value will be used.</p>
+         */
+        @CheckForNull ForwardToView getForwardView();
+    }
+
     public static class Processor extends Interceptor {
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException, ServletException {
             if (!request.getMethod().equals("POST")) {
+                for (ErrorCustomizer handler : ServiceLoader.load(ErrorCustomizer.class, request.getWebApp().getClassLoader())) {
+                    ForwardToView forwardToView = handler.getForwardView();
+                    if (forwardToView != null) {
+                        throw new InvocationTargetException(forwardToView.with("requestURL", request.getRequestURLWithQueryString().toString()));
+                    }
+                }
                 throw new InvocationTargetException(new HttpResponses.HttpResponseException() {
                     public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                         rsp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
