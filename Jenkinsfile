@@ -13,6 +13,11 @@ pipeline {
               sh 'mvn -B -Dmaven.test.failure.ignore clean install site'
             }
         }
+        stage("Integration Tests") {
+            steps {
+              incrementalsTest(baseDir: "src/test/it")
+            }
+        }
     }
 
     post {

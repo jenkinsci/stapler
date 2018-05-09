@@ -1,0 +1,78 @@
+---
+packaging:
+  # We cannot use BOM here, because BOM does not support build by relative path
+  configFile: "packager-config.yml"
+  archiveArtifacts: true
+  config:
+    bundle:
+      groupId: "io.jenkins-ci.main"
+      artifactId: "jenkins-war"
+      vendor: "Jenkins project"
+      title: "Jenkins WAR - Stapler Integration Tests"
+      description: "Bundles stapler "
+    war:
+      groupId: "org.jenkins-ci.main"
+      artifactId: "jenkins-war"
+      source:
+        version: 2.107.3
+    plugins:
+      # Includes stapler-adjunct-jquery, we may want to test compatibility
+      - groupId: "org.jenkins-ci.plugins"
+        artifactId: "jquery"
+        source:
+          version: "1.12.4-0"
+      # Includes stapler-groovy, we may want to test compatibility
+      - groupId: "org.jenkins-ci.plugins.icon-shim"
+        artifactId: "icon-shim"
+        source:
+          version: "2.0.3"
+      # Includes Stapler directly
+      #TODO: Why?
+      - groupId: "org.jenkins-ci.plugins"
+        artifactId: "pipeline-maven"
+        source:
+          version: "3.5.5"
+      # Upper bounds and JENKINS-51224
+      - groupId: "org.jenkins-ci.plugins"
+        artifactId: "junit"
+        source:
+          version: "1.20"
+    libPatches:
+      - groupId: "org.kohsuke.stapler"
+        artifactId: "stapler"
+        source:
+          dir: ../../..
+      - groupId: "org.kohsuke.stapler"
+        artifactId: "stapler-groovy"
+        source:
+          dir: ../../..
+      - groupId: "org.kohsuke.stapler"
+        artifactId: "stapler-jelly"
+        source:
+          dir: ../../..
+      - groupId: "org.kohsuke.stapler"
+        artifactId: "stapler-jrebel"
+        source:
+          dir: ../../..
+ath:
+  useLocalSnapshots: false
+  athImage: "local"
+  tests:
+    - "plugins.WorkflowPluginTest"
+    - "plugins.StageViewTest"
+    - "core.SlaveTest"
+    - "core.PluginManagerTest"
+    - "core.ViewTest"
+  categories:
+    - "org.jenkinsci.test.acceptance.junit.SmokeTest"
+pct:
+  useLocalSnapshots: false
+  jth:
+    version: 2.38
+    passCustomJenkinsWAR: true
+  plugins:
+    - "jquery"
+    - "icon-shim"
+    - "pipeline-maven"
+    - "pipeline-stage-view"
+
