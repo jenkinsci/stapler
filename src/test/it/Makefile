@@ -19,8 +19,8 @@ run: tmp/output/target/jenkins-war-${VERSION}.war
         --httpPort=8080 --prefix=/jenkins
 
 pct: tmp/output/target/jenkins-war-${VERSION}.war
-	docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out \
-		-v tmp/output/target/jenkins-war-${VERSION}.war:/pct/jenkins.war:ro \
+	docker run --rm -v maven-repo:/root/.m2 -v $(shell pwd)/out:/pct/out \
+		-v $(shell pwd)/tmp/output/target/jenkins-war-${VERSION}.war:/pct/jenkins.war:ro \
 		-e ARTIFACT_ID=pipeline-maven \
 		-e INSTALL_BUNDLED_SNAPSHOTS=true \
 		jenkins/pct
