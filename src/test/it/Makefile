@@ -6,9 +6,7 @@ VERSION = 2.107.3-stapler-it-1.255-SNAPSHOT
 all: clean build
 
 clean:
-	if [ -f "tmp" ]; then
-		rm -rf tmp
-	fi
+	rm -rf tmp
 
 build: tmp/output/target/jenkins-war-${VERSION}.war
 
