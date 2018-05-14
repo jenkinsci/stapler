@@ -1,6 +1,6 @@
 pipeline {
     agent {
-      docker 'maven:3.3.9-jdk-8'
+      label 'linux'
     }
 
     environment {
@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage("Build") {
             steps {
-              sh 'mvn -B -Dmaven.test.failure.ignore clean install site'
+              infra.runMaven(["-Dmaven.test.failure.ignore", "clean", "install", "site"])
             }
         }
         stage("Integration Tests") {
