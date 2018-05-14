@@ -15,7 +15,7 @@ pipeline {
         }
         stage("Integration Tests") {
             steps {
-              incrementalsTest(baseDir: "src/test/it")
+              essentialsTest(baseDir: "src/test/it")
             }
         }
     }
