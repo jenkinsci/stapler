@@ -10,12 +10,16 @@ pipeline {
     stages {
         stage("Build") {
             steps {
-              infra.runMaven(["-Dmaven.test.failure.ignore", "clean", "install", "site"])
+                script {
+                    infra.runMaven(["-Dmaven.test.failure.ignore", "clean", "install", "site"])
+                }
             }
         }
         stage("Integration Tests") {
             steps {
-              essentialsTest(baseDir: "src/test/it")
+                script {
+                    essentialsTest(baseDir: "src/test/it")
+                }
             }
         }
     }
