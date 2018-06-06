@@ -798,7 +798,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     /**
-     * Performs {@link DataBoundSetter} injections.
+     * Performs {@link DataBound} field or {@link DataBoundSetter} accessor injections.
      *
      * @param exclusions
      *      Properties that are already injected through the constructor, thus not subject of the setter injection.
@@ -809,18 +809,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         for (String key : (Set<String>)j.keySet()) {
             if (!exclusions.contains(key)) {
                 try {
+                    final Map<String, Field> fields = getDataBoundFields(r);
                     // try field injection first
-                    for (Class c=r.getClass(); c!=null; c=c.getSuperclass()) {
-                        try {
-                            Field f = c.getDeclaredField(key);
-                            if (f.getAnnotation(DataBoundSetter.class)!=null) {
-                                f.setAccessible(true);
-                                f.set(r, bindJSON(f.getGenericType(), f.getType(), j.get(key)));
-                                continue OUTER;
-                            }
-                        } catch (NoSuchFieldException e) {
-                            // recurse into parents
-                        }
+                    Field f = fields.get(key);
+                    if (f != null) {
+                        f.set(r, bindJSON(f.getGenericType(), f.getType(), j.get(key)));
+                        continue OUTER;
                     }
 
                     Method wm = findDataBoundSetter(r.getClass(), key);
@@ -842,6 +836,23 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         invokePostConstruct(getWebApp().getMetaClass(r).getPostConstructMethods(), r);
 
         return r;
+    }
+
+    private <T> Map<String, Field> getDataBoundFields(T r) {
+        Map<String, Field> fields = new HashMap<>();
+        for (Class c=r.getClass(); c!=null; c=c.getSuperclass()) {
+            for (Field f : c.getDeclaredFields()) {
+                final DataBound dataBound = f.getAnnotation(DataBound.class);
+                if (dataBound == null && f.getAnnotation(DataBoundSetter.class) == null) {
+                    continue;
+                }
+
+                String key = f.getName();
+                f.setAccessible(true);
+                fields.put(key, f);
+            }
+        }
+        return fields;
     }
 
     private Method findDataBoundSetter(Class c, String name) {

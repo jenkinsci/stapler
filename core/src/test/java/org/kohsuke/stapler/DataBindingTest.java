@@ -297,12 +297,16 @@ public class DataBindingTest extends TestCase {
         @DataBoundSetter
         private int x,y,z;
 
+        @DataBound
+        private int w;
+
         int post=1;
 
         public void assertValues() {
             assertEquals(1,x);
             assertEquals(2,y);
             assertEquals(3,z);
+            assertEquals(4,w);
         }
 
         @PostConstruct
@@ -320,7 +324,7 @@ public class DataBindingTest extends TestCase {
     }
 
     public void testFieldInjection() {
-        Point3Derived r = bind("{x:1,y:2,z:3} }",Point3Derived.class);
+        Point3Derived r = bind("{x:1,y:2,z:3,w:4} }",Point3Derived.class);
         r.assertValues();
         assertEquals(10,r.post);
     }
