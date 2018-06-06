@@ -312,9 +312,6 @@ public class DataBindingTest extends TestCase {
     }
 
     public static class Point3Derived extends Point3 {
-        @DataBoundConstructor
-        public Point3Derived() {
-        }
 
         @PostConstruct
         private void post1() {
@@ -372,8 +369,6 @@ public class DataBindingTest extends TestCase {
 
     public static class AsymmetricProperty {
         private final List<Integer> items = new ArrayList<Integer>();
-        @DataBoundConstructor
-        public AsymmetricProperty() {}
 
         public List<Integer> getItems() {
             return items;
@@ -395,8 +390,6 @@ public class DataBindingTest extends TestCase {
     }
 
     public static class DerivedProperty extends AsymmetricProperty {
-        @DataBoundConstructor
-        public DerivedProperty() {}
 
         @Override
         public void setItems(Collection<Integer> v) {
