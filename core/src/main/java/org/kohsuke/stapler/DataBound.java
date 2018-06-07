@@ -1,6 +1,7 @@
 package org.kohsuke.stapler;
 
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.lang.annotation.Documented;
@@ -29,4 +30,31 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({FIELD})
 @Documented
 public @interface DataBound {
+
+    enum Trim {
+        NONE {
+            @Override
+            public Object apply(Object val) {
+                return val;
+            }
+        }, TONULL {
+            @Override
+            public Object apply(Object val) {
+                return StringUtils.trimToNull((String) val);
+            }
+        }, TOEMPTY {
+            @Override
+            public Object apply(Object val) {
+                return StringUtils.trimToEmpty((String) val);
+            }
+        };
+
+        public abstract Object apply(Object val);
+
+    }
+
+    /**
+     * Define pre-processing of string-based values before they get injected and validated.
+     */
+    Trim trim() default Trim.NONE;
 }

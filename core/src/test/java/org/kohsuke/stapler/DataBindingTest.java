@@ -5,12 +5,8 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import javax.annotation.PostConstruct;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
 import java.lang.reflect.Type;
 import java.net.Proxy;
 import java.util.ArrayList;
@@ -335,7 +331,7 @@ public class DataBindingTest extends TestCase {
         assertEquals(10,r.post);
     }
 
-    public static class BeanValidation {
+    public static class DataBoundBean {
 
         @DataBound
         @Positive
@@ -345,29 +341,30 @@ public class DataBindingTest extends TestCase {
         @NotBlank
         private String y;
 
-        @DataBound
+        @DataBound(trim = DataBound.Trim.TONULL)
         private String z;
 
         void assertValues() {
             assertEquals(1,x);
             assertEquals("2",y);
-            assertEquals("3",z);
+            assertEquals(null,z);
         }
     }
 
     public void testFieldInjectionWithValidation() {
-        BeanValidation r = bind("{x:1,y:'2',z:'3'} }",BeanValidation.class);
-        r.assertValues();
+        bind("{x:1,y:'2'} }",DataBoundBean.class)
+          .assertValues();
+
+        bind("{x:1,y:'2', z:'   '} }",DataBoundBean.class)
+          .assertValues();
 
         try {
-            bind("{x:0,y:' ',z:'foo'} }", BeanValidation.class);
+            bind("{x:0,y:' '} }", DataBoundBean.class);
             fail("validation was expected to fail.");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getCause());
         }
-
     }
-
 
     public void testInterceptor1() {
         String r = bind("{x:1}", String.class, new BindInterceptor() {

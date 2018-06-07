@@ -50,6 +50,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import javax.xml.crypto.Data;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
@@ -814,15 +815,22 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
      */
     private <T> T injectSetters(T r, JSONObject j, Collection<String> exclusions) {
         // try to assign rest of the properties
+
+        final Map<String, Field> fields = getDataBoundFields(r);
+
         OUTER:
         for (String key : (Set<String>)j.keySet()) {
             if (!exclusions.contains(key)) {
                 try {
-                    final Map<String, Field> fields = getDataBoundFields(r);
                     // try field injection first
                     Field f = fields.get(key);
                     if (f != null) {
-                        f.set(r, bindJSON(f.getGenericType(), f.getType(), j.get(key)));
+                        final DataBound dataBound = f.getAnnotation(DataBound.class);
+                        Object val = j.get(key);
+                        if (dataBound != null) {
+                            val = dataBound.trim().apply(val);
+                        }
+                        f.set(r, bindJSON(f.getGenericType(), f.getType(), val));
                         continue OUTER;
                     }
 
