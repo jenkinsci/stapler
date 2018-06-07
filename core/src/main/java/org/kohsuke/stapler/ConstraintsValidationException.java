@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2018, Nicolas De Loof
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided
