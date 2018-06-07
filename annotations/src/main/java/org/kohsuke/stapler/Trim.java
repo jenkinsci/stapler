@@ -30,15 +30,16 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Designates a {@link DataBound} field to require trimming before value being set.
+ * Designates a {@link DataBound} field or parameter which will be automatically trimmed before value is set.
  **
  * @author <a href="mailto:nicolas.deloof@gmail.com">Nicolas De Loof</a>
  */
 @Retention(RUNTIME)
-@Target({FIELD, METHOD})
+@Target({FIELD, PARAMETER})
 @Documented
 public @interface Trim {
 

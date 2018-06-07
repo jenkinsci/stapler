@@ -6,7 +6,9 @@ import net.sf.json.JSONObject;
 import org.kohsuke.accmod.Restricted;
 
 import javax.annotation.PostConstruct;
+import javax.validation.ConstraintViolation;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.lang.reflect.Type;
 import java.net.Proxy;
@@ -335,44 +337,55 @@ public class DataBindingTest extends TestCase {
     public static class ValidatedBean {
 
         @DataBound @Required @Positive
-        private int x;
+        private Integer x;
 
-        @DataBound @NotBlank
+        @DataBound @NotNull
         private String y;
 
         private String z;
 
-        @DataBound @Trim
-        public void setZ(String z) {
+        @DataBound
+        public void setZ(@Trim @NotBlank String z) {
             this.z = z;
         }
 
         void assertValues() {
-            assertEquals(1,x);
+            assertNotNull(x);
+            assertEquals(1,x.intValue());
             assertEquals("2",y);
-            assertEquals(null,z);
+            assertEquals("value",z);
         }
     }
 
     public void testFieldInjectionWithValidation() {
-        bind("{x:1,y:'2'}",ValidatedBean.class)
-          .assertValues();
-
-        bind("{x:1,y:'2', z:'   '}",ValidatedBean.class)
+        bind("{x:1,y:'2',z:'  value  '}",ValidatedBean.class)
           .assertValues();
 
         try {
-            bind("{x:0,y:' '}", ValidatedBean.class);
+            bind("{x:0,y:'2',z:'value'}", ValidatedBean.class);
             fail("validation was expected to fail.");
         } catch (IllegalArgumentException e) {
-            System.out.println(e.getCause());
+            final ConstraintsValidationException violations = (ConstraintsValidationException) e.getCause();
+            for (ConstraintViolation x : violations.getViolations("x")) {
+                assertTrue(x.getConstraintDescriptor().getAnnotation() instanceof Positive);
+            }
         }
 
         try {
-            bind("{y:'2'}", ValidatedBean.class);
+            bind("{y:'ok',z:'value'}", ValidatedBean.class);
             fail("validation was expected to fail.");
         } catch (IllegalArgumentException e) {
-            System.out.println(e.getCause());
+            // x is missing
+        }
+
+        try {
+            bind("{x:'2',y:'   ',z:'   '}", ValidatedBean.class);
+            fail("validation was expected to fail.");
+        } catch (IllegalArgumentException e) {
+            final ConstraintsValidationException violations = (ConstraintsValidationException) e.getCause();
+            for (ConstraintViolation x : violations.getViolations("x")) {
+                assertTrue(x.getConstraintDescriptor().getAnnotation() instanceof NotBlank);
+            }
         }
     }
 

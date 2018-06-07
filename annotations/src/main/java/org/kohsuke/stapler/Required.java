@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import javax.annotation.PostConstruct;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -33,20 +32,12 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Designates a {@link DataBound} field to require trimming before value being set.
+ * Designates a {@link DataBound} field is required: if not provided in JSON payload instanciation will fail.
  **
  * @author <a href="mailto:nicolas.deloof@gmail.com">Nicolas De Loof</a>
  */
 @Retention(RUNTIME)
 @Target({FIELD, METHOD})
 @Documented
-public @interface Trim {
-
-    enum Type { TO_EMPTY, TO_NULL }
-
-    /**
-     * Mark an attribute as required for data-binding. If not provided in JSON payload instanciation will fail.
-     */
-    Type value() default Type.TO_NULL;
-
+public @interface Required {
 }

@@ -51,10 +51,10 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.xml.crypto.Data;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -837,26 +837,21 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     // try field injection first
                     AccessibleObject a = fields.get(key);
                     if (a != null) {
-                        Object val = j.get(key);
-                        final Trim trim = a.getAnnotation(Trim.class);
-                        if (trim != null) {
-                            switch (trim.value()) {
-                                case TO_NULL:
-                                    val = StringUtils.trimToNull((String) val);
-                                    break;
-                                case TO_EMPTY:
-                                    val = StringUtils.trimToEmpty((String) val);
-                                    break;
-                            }
-                        }
                         if (a instanceof Field) {
                             Field f = (Field) a;
+                            Object val = transform(a.getAnnotations(), j.get(key));
                             f.set(r, bindJSON(f.getGenericType(), f.getType(), val));
                         } else {
                             Method m = (Method) a;
                             Class<?>[] pt = m.getParameterTypes();
                             assert pt.length==1;
-                            m.invoke(r, bindJSON(m.getGenericParameterTypes()[0], pt[0], val));
+
+                            final Class<?> type = pt[0];
+                            Object val = transform(m.getParameterAnnotations()[0], j.get(key));
+
+                            final Set violations = validator.forExecutables().validateParameters(r, m, new Object[] { val });
+                            if (!violations.isEmpty()) throw new ConstraintsValidationException(violations);
+                            m.invoke(r, bindJSON(m.getGenericParameterTypes()[0], type, val));
                         }
                         continue OUTER;
                     }
@@ -874,6 +869,32 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         invokePostConstruct(getWebApp().getMetaClass(r).getPostConstructMethods(), r);
 
         return r;
+    }
+
+    /**
+     * Transform value according to pre-processing annotations.
+     *
+     * @see Trim
+     * @param annotations
+     * @param val
+     * @return
+     */
+    private Object transform(Annotation[] annotations, Object val) {
+
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof Trim) {
+                final Trim trim = (Trim) annotation;
+                switch (trim.value()) {
+                    case TO_NULL:
+                        val = StringUtils.trimToNull((String) val);
+                        break;
+                    case TO_EMPTY:
+                        val = StringUtils.trimToEmpty((String) val);
+                        break;
+                }
+            }
+        }
+        return val;
     }
 
     private <T> Map<String, AccessibleObject> getDataBoundFields(T r) {

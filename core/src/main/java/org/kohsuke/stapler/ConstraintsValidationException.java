@@ -24,6 +24,7 @@
 package org.kohsuke.stapler;
 
 import javax.validation.ConstraintViolation;
+import javax.validation.Path;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,5 +47,14 @@ public class ConstraintsValidationException extends IllegalArgumentException {
 
     public Set<ConstraintViolation> getViolations() {
         return violations;
+    }
+
+    public Set<ConstraintViolation> getViolations(String path) {
+        return violations.stream().filter(v -> v.getPropertyPath().toString().equals(path))
+                .collect(Collectors.toSet());
+    }
+
+    public Set<String> getPaths() {
+        return violations.stream().map(ConstraintViolation::getPropertyPath).map(Path::toString).collect(Collectors.toSet());
     }
 }
