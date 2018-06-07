@@ -55,6 +55,7 @@ import javax.xml.crypto.Data;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -819,10 +820,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         // try to assign rest of the properties
 
         final Set<String> keys = j.keySet();
-        final Map<String, Field> fields = getDataBoundFields(r);
-        final List<String> required = fields.values().stream()
-                .filter(f -> f.getAnnotation(DataBound.class).required())
-                .map(Field::getName)
+        final Map<String, AccessibleObject> fields = getDataBoundFields(r);
+        final List<String> required = fields.entrySet().stream()
+                .filter(e -> e.getValue().getAnnotation(DataBound.class).required())
+                .map(Map.Entry::getKey)
                 .filter(s -> !keys.contains(s))
                 .collect(Collectors.toList());
         if (!required.isEmpty()) {
@@ -834,10 +835,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             if (!exclusions.contains(key)) {
                 try {
                     // try field injection first
-                    Field f = fields.get(key);
-                    if (f != null) {
+                    AccessibleObject a = fields.get(key);
+                    if (a != null) {
                         Object val = j.get(key);
-                        final Trim trim = f.getAnnotation(Trim.class);
+                        final Trim trim = a.getAnnotation(Trim.class);
                         if (trim != null) {
                             switch (trim.value()) {
                                 case TO_NULL:
@@ -848,18 +849,17 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                                     break;
                             }
                         }
-                        f.set(r, bindJSON(f.getGenericType(), f.getType(), val));
+                        if (a instanceof Field) {
+                            Field f = (Field) a;
+                            f.set(r, bindJSON(f.getGenericType(), f.getType(), val));
+                        } else {
+                            Method m = (Method) a;
+                            Class<?>[] pt = m.getParameterTypes();
+                            assert pt.length==1;
+                            m.invoke(r, bindJSON(m.getGenericParameterTypes()[0], pt[0], val));
+                        }
                         continue OUTER;
                     }
-
-                    Method wm = findDataBoundSetter(r.getClass(), key);
-                    if (wm==null)   continue;
-
-                    Class<?>[] pt = wm.getParameterTypes();
-                    assert pt.length==1;
-
-                    // only invoking public methods for security reasons
-                    wm.invoke(r, bindJSON(wm.getGenericParameterTypes()[0], pt[0], j.get(key)));
                 } catch (IllegalAccessException e) {
                     LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
                 } catch (InvocationTargetException e) {
@@ -876,12 +876,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return r;
     }
 
-    private <T> Map<String, Field> getDataBoundFields(T r) {
-        Map<String, Field> fields = new HashMap<>();
+    private <T> Map<String, AccessibleObject> getDataBoundFields(T r) {
+        Map<String, AccessibleObject> fields = new HashMap<>();
         for (Class c=r.getClass(); c!=null; c=c.getSuperclass()) {
             for (Field f : c.getDeclaredFields()) {
-                final DataBound dataBound = f.getAnnotation(DataBound.class);
-                if (dataBound == null && f.getAnnotation(DataBoundSetter.class) == null) {
+                if (f.isAnnotationPresent(DataBound.class) && f.isAnnotationPresent(DataBoundSetter.class)) {
                     continue;
                 }
 
@@ -890,27 +889,21 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 fields.put(key, f);
             }
         }
-        return fields;
-    }
 
-    private Method findDataBoundSetter(Class c, String name) {
-        // look for public setter that has the matching name
-        for ( ; c!=null; c=c.getSuperclass()) {
+        for (Class c=r.getClass(); c!=null; c=c.getSuperclass()) {
             for (Method m : c.getDeclaredMethods()) {
                 if (!Modifier.isPublic(m.getModifiers())
-                 || !m.getName().startsWith("set")
-                 || m.getParameterTypes().length!=1
-                 || !m.isAnnotationPresent(DataBoundSetter.class))
+                        || !m.getName().startsWith("set")
+                        || m.getParameterTypes().length!=1
+                        || (!m.isAnnotationPresent(DataBound.class) && !m.isAnnotationPresent(DataBoundSetter.class)))
                     continue;
 
-                String propertyName = Introspector.decapitalize(m.getName().substring(3));
-                if (!name.equals(propertyName))
-                    continue;   // not the name we are looking for
-
-                return m;
+                String name = Introspector.decapitalize(m.getName().substring(3));
+                fields.put(name, m);
             }
         }
-        return null;
+
+        return fields;
     }
 
     /**

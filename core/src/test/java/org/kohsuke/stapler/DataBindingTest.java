@@ -339,8 +339,12 @@ public class DataBindingTest extends TestCase {
         @DataBound @NotBlank
         private String y;
 
-        @DataBound @Trim
         private String z;
+
+        @DataBound @Trim
+        public void setZ(String z) {
+            this.z = z;
+        }
 
         void assertValues() {
             assertEquals(1,x);
