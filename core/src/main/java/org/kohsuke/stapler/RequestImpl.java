@@ -36,6 +36,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.lang.Klass;
@@ -47,6 +48,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
@@ -118,6 +121,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     private Map<String, String> parsedFormDataFormFields;
 
     private BindInterceptor bindInterceptor = BindInterceptor.NOOP;
+
+    private static final Validator validator = Validation.byDefaultProvider()
+            .configure()
+            .messageInterpolator(new ParameterMessageInterpolator())
+            .buildValidatorFactory()
+            .getValidator();
 
     public RequestImpl(Stapler stapler, HttpServletRequest request, List<AncestorImpl> ancestors, TokenList tokens) {
         super(request);
@@ -832,6 +841,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 }
             }
         }
+
+        final Set violations = validator.validate(r);
+        if (!violations.isEmpty()) throw new ConstraintsValidationException(violations);
 
         invokePostConstruct(getWebApp().getMetaClass(r).getPostConstructMethods(), r);
 
