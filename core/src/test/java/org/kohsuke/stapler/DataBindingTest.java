@@ -333,15 +333,13 @@ public class DataBindingTest extends TestCase {
 
     public static class DataBoundBean {
 
-        @DataBound
-        @Positive
+        @DataBound(required = true) @Positive
         private int x;
 
-        @DataBound
-        @NotBlank
+        @DataBound @NotBlank
         private String y;
 
-        @DataBound(trim = DataBound.Trim.TONULL)
+        @DataBound @Trim
         private String z;
 
         void assertValues() {
@@ -352,14 +350,21 @@ public class DataBindingTest extends TestCase {
     }
 
     public void testFieldInjectionWithValidation() {
-        bind("{x:1,y:'2'} }",DataBoundBean.class)
+        bind("{x:1,y:'2'}",DataBoundBean.class)
           .assertValues();
 
-        bind("{x:1,y:'2', z:'   '} }",DataBoundBean.class)
+        bind("{x:1,y:'2', z:'   '}",DataBoundBean.class)
           .assertValues();
 
         try {
-            bind("{x:0,y:' '} }", DataBoundBean.class);
+            bind("{x:0,y:' '}", DataBoundBean.class);
+            fail("validation was expected to fail.");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getCause());
+        }
+
+        try {
+            bind("{y:'2'}", DataBoundBean.class);
             fail("validation was expected to fail.");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getCause());

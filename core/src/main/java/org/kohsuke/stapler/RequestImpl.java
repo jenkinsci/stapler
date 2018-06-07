@@ -36,6 +36,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.bind.BoundObjectTable;
@@ -75,6 +76,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static java.util.logging.Level.*;
 import static javax.servlet.http.HttpServletResponse.*;
@@ -816,19 +818,35 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     private <T> T injectSetters(T r, JSONObject j, Collection<String> exclusions) {
         // try to assign rest of the properties
 
+        final Set<String> keys = j.keySet();
         final Map<String, Field> fields = getDataBoundFields(r);
+        final List<String> required = fields.values().stream()
+                .filter(f -> f.getAnnotation(DataBound.class).required())
+                .map(Field::getName)
+                .filter(s -> !keys.contains(s))
+                .collect(Collectors.toList());
+        if (!required.isEmpty()) {
+            throw new IllegalArgumentException("JSON payload is missing required elements "+StringUtils.join(required, ", "));
+        }
 
         OUTER:
-        for (String key : (Set<String>)j.keySet()) {
+        for (String key : keys) {
             if (!exclusions.contains(key)) {
                 try {
                     // try field injection first
                     Field f = fields.get(key);
                     if (f != null) {
-                        final DataBound dataBound = f.getAnnotation(DataBound.class);
                         Object val = j.get(key);
-                        if (dataBound != null) {
-                            val = dataBound.trim().apply(val);
+                        final Trim trim = f.getAnnotation(Trim.class);
+                        if (trim != null) {
+                            switch (trim.value()) {
+                                case TO_NULL:
+                                    val = StringUtils.trimToNull((String) val);
+                                    break;
+                                case TO_EMPTY:
+                                    val = StringUtils.trimToEmpty((String) val);
+                                    break;
+                            }
                         }
                         f.set(r, bindJSON(f.getGenericType(), f.getType(), val));
                         continue OUTER;
