@@ -3,6 +3,7 @@ package org.kohsuke.stapler;
 import junit.framework.TestCase;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.kohsuke.accmod.Restricted;
 
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotBlank;
@@ -331,9 +332,9 @@ public class DataBindingTest extends TestCase {
         assertEquals(10,r.post);
     }
 
-    public static class DataBoundBean {
+    public static class ValidatedBean {
 
-        @DataBound(required = true) @Positive
+        @DataBound @Required @Positive
         private int x;
 
         @DataBound @NotBlank
@@ -354,25 +355,51 @@ public class DataBindingTest extends TestCase {
     }
 
     public void testFieldInjectionWithValidation() {
-        bind("{x:1,y:'2'}",DataBoundBean.class)
+        bind("{x:1,y:'2'}",ValidatedBean.class)
           .assertValues();
 
-        bind("{x:1,y:'2', z:'   '}",DataBoundBean.class)
+        bind("{x:1,y:'2', z:'   '}",ValidatedBean.class)
           .assertValues();
 
         try {
-            bind("{x:0,y:' '}", DataBoundBean.class);
+            bind("{x:0,y:' '}", ValidatedBean.class);
             fail("validation was expected to fail.");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getCause());
         }
 
         try {
-            bind("{y:'2'}", DataBoundBean.class);
+            bind("{y:'2'}", ValidatedBean.class);
             fail("validation was expected to fail.");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getCause());
         }
+    }
+
+    @DataBound
+    public static class DataBoundBean {
+
+        @Required @Positive
+        private int x;
+
+        @NotBlank
+        private String y;
+
+        @Trim
+        private String z;
+
+        void assertValues() {
+            assertEquals(1,x);
+            assertEquals("2",y);
+            assertEquals(null,z);
+        }
+    }
+
+    public void testDataBoundBean() {
+        bind("{x:1,y:'2', z:'   '}", DataBoundBean.class)
+            .assertValues();
+
+        DataBoundBean.class.isAnnotationPresent(Restricted.class);
     }
 
     public void testInterceptor1() {

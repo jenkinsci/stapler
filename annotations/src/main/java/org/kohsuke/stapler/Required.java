@@ -23,9 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import org.kohsuke.accmod.Restricted;
-import org.kohsuke.accmod.restrictions.NoExternalUse;
-
 import javax.annotation.PostConstruct;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -33,31 +30,23 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Designates a field used to data-bind JSON values into objects.
- *
- * <p>
- * a DataBound field, method or class is automatically marked as ${@link Restricted} as
- * making it public is only required to let Stapler manage the class, but there's no legitimate
- * reason for it to be used in another context.
- *
- * <p>
- * When used on a type, implies all attributes are considered to be <code>@DataBound</code>.
- *
- * <p>
- * To create a method to be called after all the injections are complete, annotate a method
- * with {@link PostConstruct}. This typically can be used to accept legacy JSON using deprecated
- * keys and process data conversion.
- *
+ * Designates a {@link DataBound} field to require trimming before value being set.
+ **
  * @author <a href="mailto:nicolas.deloof@gmail.com">Nicolas De Loof</a>
  */
 @Retention(RUNTIME)
-@Target({FIELD, METHOD, TYPE})
+@Target({FIELD, METHOD})
 @Documented
-@Restricted(NoExternalUse.class)
-public @interface DataBound {
+public @interface Trim {
+
+    enum Type { TO_EMPTY, TO_NULL }
+
+    /**
+     * Mark an attribute as required for data-binding. If not provided in JSON payload instanciation will fail.
+     */
+    Type value() default Type.TO_NULL;
 
 }

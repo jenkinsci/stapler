@@ -12,4 +12,12 @@
   <artifactId>annotations</artifactId>
 
 
+  <dependencies>
+    <dependency>
+      <groupId>org.kohsuke</groupId>
+      <artifactId>access-modifier-annotation</artifactId>
+      <version>1.13</version>
+    </dependency>
+  </dependencies>
+
 </project>

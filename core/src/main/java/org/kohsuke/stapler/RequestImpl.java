@@ -822,7 +822,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         final Set<String> keys = j.keySet();
         final Map<String, AccessibleObject> fields = getDataBoundFields(r);
         final List<String> required = fields.entrySet().stream()
-                .filter(e -> e.getValue().getAnnotation(DataBound.class).required())
+                .filter(e -> e.getValue().isAnnotationPresent(Required.class))
                 .map(Map.Entry::getKey)
                 .filter(s -> !keys.contains(s))
                 .collect(Collectors.toList());
@@ -878,9 +878,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     private <T> Map<String, AccessibleObject> getDataBoundFields(T r) {
         Map<String, AccessibleObject> fields = new HashMap<>();
-        for (Class c=r.getClass(); c!=null; c=c.getSuperclass()) {
+        Class c=r.getClass();
+        final boolean databound = c.isAnnotationPresent(DataBound.class);
+        for (; c!=null; c=c.getSuperclass()) {
             for (Field f : c.getDeclaredFields()) {
-                if (f.isAnnotationPresent(DataBound.class) && f.isAnnotationPresent(DataBoundSetter.class)) {
+                if (!databound && !f.isAnnotationPresent(DataBound.class) && !f.isAnnotationPresent(DataBoundSetter.class)) {
                     continue;
                 }
 
@@ -888,14 +890,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 f.setAccessible(true);
                 fields.put(key, f);
             }
-        }
-
-        for (Class c=r.getClass(); c!=null; c=c.getSuperclass()) {
             for (Method m : c.getDeclaredMethods()) {
                 if (!Modifier.isPublic(m.getModifiers())
                         || !m.getName().startsWith("set")
                         || m.getParameterTypes().length!=1
-                        || (!m.isAnnotationPresent(DataBound.class) && !m.isAnnotationPresent(DataBoundSetter.class)))
+                        || (!databound && !m.isAnnotationPresent(DataBound.class) && !m.isAnnotationPresent(DataBoundSetter.class)))
                     continue;
 
                 String name = Introspector.decapitalize(m.getName().substring(3));
