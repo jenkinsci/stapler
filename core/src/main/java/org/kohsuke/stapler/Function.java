@@ -118,7 +118,7 @@ public abstract class Function {
             if (getReturnType() != void.class)
                 renderResponse(req, rsp, node, r);
             return true;
-        } catch (CancelRequestHandlingException _) {
+        } catch (CancelRequestHandlingException ex) {
             return false;
         } catch (InvocationTargetException e) {
             // exception as an HttpResponse
