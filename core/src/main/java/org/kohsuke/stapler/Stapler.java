@@ -877,9 +877,9 @@ public class Stapler extends HttpServlet {
             w.println("<p>Stapler processed this HTTP request as follows, but couldn't find the resource to consume the request");
             w.println("<pre>");
             EvaluationTrace.get(req).printHtml(w);
-            w.printf("<font color=red>-&gt; No matching rule was found on &lt;%s&gt; for \"%s\"</font>\n",node,req.tokens.assembleOriginalRestOfPath());
+            w.printf("<font color=red>-&gt; No matching rule was found on &lt;%s&gt; for \"%s\"</font>\n", escape(node.toString()), req.tokens.assembleOriginalRestOfPath());
             w.println("</pre>");
-            w.printf("<p>&lt;%s&gt; has the following URL mappings, in the order of preference:",node);
+            w.printf("<p>&lt;%s&gt; has the following URL mappings, in the order of preference:", escape(node.toString()));
             w.println("<ol>");
             MetaClass metaClass = webApp.getMetaClass(node);
             for (Dispatcher d : metaClass.dispatchers) {
