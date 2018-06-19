@@ -3,27 +3,19 @@ package org.kohsuke.stapler.jsr269;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 import java.util.TreeMap;
-import javax.annotation.processing.SupportedSourceVersion;
-import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
+
+import io.jenkins.fields.Fields;
 import net.java.dev.hickory.testing.Compilation;
 
 class Utils {
     private static JavaFileManager fileManager(Compilation compilation) {
         try {
-            Field f = Compilation.class.getDeclaredField("jfm");
-            f.setAccessible(true);
-            return (JavaFileManager) f.get(compilation);
+            return (JavaFileManager) Fields.read(compilation, "jfm");
         } catch (Exception x) {
             throw new AssertionError(x);
         }

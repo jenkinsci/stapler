@@ -76,7 +76,7 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
 
         OutputStream os = f.openOutputStream();
         try {
-            IOUtils.write(buf, os, "UTF-8");
+            IOUtils.write(buf.toString(), os, "UTF-8");
         } finally {
             os.close();
         }

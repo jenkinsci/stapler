@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import io.jenkins.fields.Fields;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
@@ -814,8 +815,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                         try {
                             Field f = c.getDeclaredField(key);
                             if (f.getAnnotation(DataBoundSetter.class)!=null) {
-                                f.setAccessible(true);
-                                f.set(r, bindJSON(f.getGenericType(), f.getType(), j.get(key)));
+                                Fields.write(r, f, bindJSON(f.getGenericType(), f.getType(), j.get(key)));
                                 continue OUTER;
                             }
                         } catch (NoSuchFieldException e) {

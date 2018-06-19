@@ -1,5 +1,7 @@
 package org.kohsuke.stapler.lang;
 
+import io.jenkins.fields.Fields;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -36,7 +38,6 @@ public abstract class FieldRef extends AnnotatedRef {
     }
 
     public static FieldRef wrap(final Field f) {
-        f.setAccessible(true);
 
         return new FieldRef() {
             @Override
@@ -51,7 +52,7 @@ public abstract class FieldRef extends AnnotatedRef {
 
             @Override
             public Object get(Object instance) throws IllegalAccessException {
-                return f.get(instance);
+                return Fields.read(instance, f);
             }
 
             @Override
