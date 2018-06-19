@@ -350,15 +350,34 @@ public class Stapler extends HttpServlet {
             if(ext.indexOf('/')>=0) // the '.' we found was not an extension separator
                 return openURL(fallback);
 
+            // RegExps found in Locale JavaDoc
+            String language = locale.getLanguage();
+            boolean languageOk = language.matches("^[a-zA-Z]{2,8}$");
+            String country = locale.getCountry();
+            boolean countryOk = country.matches("^[a-zA-Z]{2}|[0-9]{3}$");
+            String variant = locale.getVariant();
+            
+            String SUBTAG = "(?:[0-9][0-9a-zA-Z]{3}|[0-9a-zA-Z]{5,8})";
+            boolean variantOk = variant.matches("^" + SUBTAG + "(?:[_\\-]" + SUBTAG + ")*$");
+            
             OpenConnection con;
 
             // try locale specific resources first.
-            con = openURL(map(base + '_' + locale.getLanguage() + '_' + locale.getCountry() + '_' + locale.getVariant() + ext));
-            if(con!=null)   return con;
-            con = openURL(map(base+'_'+ locale.getLanguage()+'_'+ locale.getCountry()+ext));
-            if(con!=null)   return con;
-            con = openURL(map(base+'_'+ locale.getLanguage()+ext));
-            if(con!=null)   return con;
+            if(languageOk && countryOk && variantOk){
+                con = openURL(map(base + '_' + language + '_' + country + '_' + variant + ext));
+                if(con!=null)
+                    return con;
+            }
+            if(languageOk && countryOk){
+                con = openURL(map(base + '_'+ language + '_' + country + ext));
+                if(con!=null)
+                    return con;
+            }
+            if(languageOk){
+                con = openURL(map(base + '_' + language + ext));
+                if(con!=null)
+                    return con;
+            }
             // default
             return openURL(fallback);
         }
