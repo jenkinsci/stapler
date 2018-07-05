@@ -113,6 +113,10 @@ public class IncludeTag extends TagSupport {
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
+            if(optional) {
+                invokeBody(output);
+                return;
+            }
             throw new JellyTagException("Error loading '"+page+"' for "+c.klass,e);
         }
 
