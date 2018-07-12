@@ -36,6 +36,8 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.lang.Klass;
@@ -47,9 +49,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -71,6 +77,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static java.util.logging.Level.*;
 import static javax.servlet.http.HttpServletResponse.*;
@@ -118,6 +125,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     private Map<String, String> parsedFormDataFormFields;
 
     private BindInterceptor bindInterceptor = BindInterceptor.NOOP;
+
+    private static final Validator validator = Validation.byDefaultProvider()
+            .configure()
+            .messageInterpolator(new ParameterMessageInterpolator())
+            .buildValidatorFactory()
+            .getValidator();
 
     public RequestImpl(Stapler stapler, HttpServletRequest request, List<AncestorImpl> ancestors, TokenList tokens) {
         super(request);
@@ -413,7 +426,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             // use the designated constructor for databinding
             for( int i=0; i<len; i++ )
                 r.add(bindParameters(type,prefix,i));
-        } catch (NoStaplerConstructorException _) {
+        } catch (NoStaplerConstructorException ex) {
             // no designated data binding constructor. use reflection
             try {
                 for( int i=0; i<len; i++ ) {
@@ -798,39 +811,50 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     /**
-     * Performs {@link DataBoundSetter} injections.
+     * Performs {@link DataBound} field or {@link DataBoundSetter} accessor injections.
      *
      * @param exclusions
      *      Properties that are already injected through the constructor, thus not subject of the setter injection.
      */
     private <T> T injectSetters(T r, JSONObject j, Collection<String> exclusions) {
         // try to assign rest of the properties
+
+        final Set<String> keys = j.keySet();
+        final Map<String, AccessibleObject> fields = getDataBoundFields(r);
+        final List<String> required = fields.entrySet().stream()
+                .filter(e -> e.getValue().isAnnotationPresent(Required.class))
+                .map(Map.Entry::getKey)
+                .filter(s -> !keys.contains(s))
+                .collect(Collectors.toList());
+        if (!required.isEmpty()) {
+            throw new IllegalArgumentException("JSON payload is missing required elements "+StringUtils.join(required, ", "));
+        }
+
         OUTER:
-        for (String key : (Set<String>)j.keySet()) {
+        for (String key : keys) {
             if (!exclusions.contains(key)) {
                 try {
                     // try field injection first
-                    for (Class c=r.getClass(); c!=null; c=c.getSuperclass()) {
-                        try {
-                            Field f = c.getDeclaredField(key);
-                            if (f.getAnnotation(DataBoundSetter.class)!=null) {
-                                f.setAccessible(true);
-                                f.set(r, bindJSON(f.getGenericType(), f.getType(), j.get(key)));
-                                continue OUTER;
-                            }
-                        } catch (NoSuchFieldException e) {
-                            // recurse into parents
+                    AccessibleObject a = fields.get(key);
+                    if (a != null) {
+                        if (a instanceof Field) {
+                            Field f = (Field) a;
+                            Object val = transform(a.getAnnotations(), j.get(key));
+                            f.set(r, bindJSON(f.getGenericType(), f.getType(), val));
+                        } else {
+                            Method m = (Method) a;
+                            Class<?>[] pt = m.getParameterTypes();
+                            assert pt.length==1;
+
+                            final Class<?> type = pt[0];
+                            Object val = transform(m.getParameterAnnotations()[0], j.get(key));
+
+                            final Set violations = validator.forExecutables().validateParameters(r, m, new Object[] { val });
+                            if (!violations.isEmpty()) throw new ConstraintsValidationException(violations);
+                            m.invoke(r, bindJSON(m.getGenericParameterTypes()[0], type, val));
                         }
+                        continue OUTER;
                     }
-
-                    Method wm = findDataBoundSetter(r.getClass(), key);
-                    if (wm==null)   continue;
-
-                    Class<?>[] pt = wm.getParameterTypes();
-                    assert pt.length==1;
-
-                    // only invoking public methods for security reasons
-                    wm.invoke(r, bindJSON(wm.getGenericParameterTypes()[0], pt[0], j.get(key)));
                 } catch (IllegalAccessException e) {
                     LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
                 } catch (InvocationTargetException e) {
@@ -839,29 +863,67 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             }
         }
 
+        final Set violations = validator.validate(r);
+        if (!violations.isEmpty()) throw new ConstraintsValidationException(violations);
+
         invokePostConstruct(getWebApp().getMetaClass(r).getPostConstructMethods(), r);
 
         return r;
     }
 
-    private Method findDataBoundSetter(Class c, String name) {
-        // look for public setter that has the matching name
-        for ( ; c!=null; c=c.getSuperclass()) {
-            for (Method m : c.getDeclaredMethods()) {
-                if (!Modifier.isPublic(m.getModifiers())
-                 || !m.getName().startsWith("set")
-                 || m.getParameterTypes().length!=1
-                 || !m.isAnnotationPresent(DataBoundSetter.class))
-                    continue;
+    /**
+     * Transform value according to pre-processing annotations.
+     *
+     * @see Trim
+     * @param annotations
+     * @param val
+     * @return
+     */
+    private Object transform(Annotation[] annotations, Object val) {
 
-                String propertyName = Introspector.decapitalize(m.getName().substring(3));
-                if (!name.equals(propertyName))
-                    continue;   // not the name we are looking for
-
-                return m;
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof Trim) {
+                final Trim trim = (Trim) annotation;
+                switch (trim.value()) {
+                    case TO_NULL:
+                        val = StringUtils.trimToNull((String) val);
+                        break;
+                    case TO_EMPTY:
+                        val = StringUtils.trimToEmpty((String) val);
+                        break;
+                }
             }
         }
-        return null;
+        return val;
+    }
+
+    private <T> Map<String, AccessibleObject> getDataBoundFields(T r) {
+        Map<String, AccessibleObject> fields = new HashMap<>();
+        Class c=r.getClass();
+        final boolean databound = c.isAnnotationPresent(DataBound.class);
+        for (; c!=null; c=c.getSuperclass()) {
+            for (Field f : c.getDeclaredFields()) {
+                if (!databound && !f.isAnnotationPresent(DataBound.class) && !f.isAnnotationPresent(DataBoundSetter.class)) {
+                    continue;
+                }
+
+                String key = f.getName();
+                f.setAccessible(true);
+                fields.put(key, f);
+            }
+            for (Method m : c.getDeclaredMethods()) {
+                if (!Modifier.isPublic(m.getModifiers())
+                        || !m.getName().startsWith("set")
+                        || m.getParameterTypes().length!=1
+                        || (!databound && !m.isAnnotationPresent(DataBound.class) && !m.isAnnotationPresent(DataBoundSetter.class)))
+                    continue;
+
+                String name = Introspector.decapitalize(m.getName().substring(3));
+                fields.put(name, m);
+            }
+        }
+
+        return fields;
     }
 
     /**

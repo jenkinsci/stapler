@@ -261,6 +261,15 @@ public final class ClassDescriptor {
             }
         }
 
+        if (dbc==null) {
+            for (Constructor<?> c : ctrs) {
+                if (c.getParameterCount() == 0) {
+                    // we can use default constructor in combination with @DataBoundSetters
+                    return new String[0];
+                }
+            }
+        }
+
         if (dbc==null)
             throw new NoStaplerConstructorException("There's no @DataBoundConstructor on any constructor of " + clazz);
 

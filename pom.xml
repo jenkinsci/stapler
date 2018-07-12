@@ -15,6 +15,7 @@
   <description>Stapler HTTP request handling engine</description>
   
   <modules>
+    <module>annotations</module>
     <module>core</module>
     <module>jsp</module>
     <module>jelly</module>

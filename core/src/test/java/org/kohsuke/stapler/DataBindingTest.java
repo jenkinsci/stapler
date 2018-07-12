@@ -3,8 +3,13 @@ package org.kohsuke.stapler;
 import junit.framework.TestCase;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.kohsuke.accmod.Restricted;
 
 import javax.annotation.PostConstruct;
+import javax.validation.ConstraintViolation;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.lang.reflect.Type;
 import java.net.Proxy;
 import java.util.ArrayList;
@@ -297,12 +302,16 @@ public class DataBindingTest extends TestCase {
         @DataBoundSetter
         private int x,y,z;
 
+        @DataBound
+        private int w;
+
         int post=1;
 
         public void assertValues() {
             assertEquals(1,x);
             assertEquals(2,y);
             assertEquals(3,z);
+            assertEquals(4,w);
         }
 
         @PostConstruct
@@ -312,9 +321,6 @@ public class DataBindingTest extends TestCase {
     }
 
     public static class Point3Derived extends Point3 {
-        @DataBoundConstructor
-        public Point3Derived() {
-        }
 
         @PostConstruct
         private void post1() {
@@ -323,9 +329,90 @@ public class DataBindingTest extends TestCase {
     }
 
     public void testFieldInjection() {
-        Point3Derived r = bind("{x:1,y:2,z:3} }",Point3Derived.class);
+        Point3Derived r = bind("{x:1,y:2,z:3,w:4} }",Point3Derived.class);
         r.assertValues();
         assertEquals(10,r.post);
+    }
+
+    public static class ValidatedBean {
+
+        @DataBound @Required @Positive
+        private Integer x;
+
+        @DataBound @NotNull
+        private String y;
+
+        private String z;
+
+        @DataBound
+        public void setZ(@Trim @NotBlank String z) {
+            this.z = z;
+        }
+
+        void assertValues() {
+            assertNotNull(x);
+            assertEquals(1,x.intValue());
+            assertEquals("2",y);
+            assertEquals("value",z);
+        }
+    }
+
+    public void testFieldInjectionWithValidation() {
+        bind("{x:1,y:'2',z:'  value  '}",ValidatedBean.class)
+          .assertValues();
+
+        try {
+            bind("{x:0,y:'2',z:'value'}", ValidatedBean.class);
+            fail("validation was expected to fail.");
+        } catch (IllegalArgumentException e) {
+            final ConstraintsValidationException violations = (ConstraintsValidationException) e.getCause();
+            for (ConstraintViolation x : violations.getViolations("x")) {
+                assertTrue(x.getConstraintDescriptor().getAnnotation() instanceof Positive);
+            }
+        }
+
+        try {
+            bind("{y:'ok',z:'value'}", ValidatedBean.class);
+            fail("validation was expected to fail.");
+        } catch (IllegalArgumentException e) {
+            // x is missing
+        }
+
+        try {
+            bind("{x:'2',y:'   ',z:'   '}", ValidatedBean.class);
+            fail("validation was expected to fail.");
+        } catch (IllegalArgumentException e) {
+            final ConstraintsValidationException violations = (ConstraintsValidationException) e.getCause();
+            for (ConstraintViolation x : violations.getViolations("x")) {
+                assertTrue(x.getConstraintDescriptor().getAnnotation() instanceof NotBlank);
+            }
+        }
+    }
+
+    @DataBound
+    public static class DataBoundBean {
+
+        @Required @Positive
+        private int x;
+
+        @NotBlank
+        private String y;
+
+        @Trim
+        private String z;
+
+        void assertValues() {
+            assertEquals(1,x);
+            assertEquals("2",y);
+            assertEquals(null,z);
+        }
+    }
+
+    public void testDataBoundBean() {
+        bind("{x:1,y:'2', z:'   '}", DataBoundBean.class)
+            .assertValues();
+
+        DataBoundBean.class.isAnnotationPresent(Restricted.class);
     }
 
     public void testInterceptor1() {
@@ -372,8 +459,6 @@ public class DataBindingTest extends TestCase {
 
     public static class AsymmetricProperty {
         private final List<Integer> items = new ArrayList<Integer>();
-        @DataBoundConstructor
-        public AsymmetricProperty() {}
 
         public List<Integer> getItems() {
             return items;
@@ -395,8 +480,6 @@ public class DataBindingTest extends TestCase {
     }
 
     public static class DerivedProperty extends AsymmetricProperty {
-        @DataBoundConstructor
-        public DerivedProperty() {}
 
         @Override
         public void setItems(Collection<Integer> v) {
