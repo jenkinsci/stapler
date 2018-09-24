@@ -810,51 +810,68 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     /**
      * Performs {@link DataBoundSetter} injections.
      *
+     * @param j
      * @param exclusions
      *      Properties that are already injected through the constructor, thus not subject of the setter injection.
      */
     private <T> T injectSetters(T r, JSONObject j, Collection<String> exclusions) {
         // try to assign rest of the properties
-        OUTER:
-        for (String key : (Set<String>)j.keySet()) {
-            if (!exclusions.contains(key)) {
-                try {
-                    // try field injection first
-                    for (Class c=r.getClass(); c!=null; c=c.getSuperclass()) {
-                        try {
-                            Field f = c.getDeclaredField(key);
-                            if (f.getAnnotation(DataBoundSetter.class)!=null) {
-                                f.setAccessible(true);
-                                f.set(r, bindJSON(f.getGenericType(), f.getType(), j.get(key)));
-                                continue OUTER;
-                            }
-                        } catch (NoSuchFieldException e) {
-                            // recurse into parents
-                        }
-                    }
+        final Set<String> keys = j.keySet();
 
-                    Method wm = findDataBoundSetter(r.getClass(), key);
-                    if (wm==null)   continue;
-
-                    Class<?>[] pt = wm.getParameterTypes();
-                    assert pt.length==1;
-
-                    // only invoking public methods for security reasons
-                    wm.invoke(r, bindJSON(wm.getGenericParameterTypes()[0], pt[0], j.get(key)));
-                } catch (IllegalAccessException e) {
-                    LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
-                } catch (InvocationTargetException e) {
-                    LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
-                }
-            }
+        // try field injection first
+        for (Class c=r.getClass(); c!=null; c=c.getSuperclass()) {
+            Arrays.stream(c.getDeclaredFields())
+                .filter(f -> f.isAnnotationPresent(DataBoundSetter.class))
+                .forEach(f -> {
+                    final String name = f.getName();
+                    if (exclusions.contains(name)) return;
+                    setField(r, j, name, f);
+                });
         }
 
-        final Set violations = validator.validate(r);
+        for (Class c = r.getClass() ; c!=null; c=c.getSuperclass()) {
+            Arrays.stream(c.getMethods())
+                .filter(m -> m.getParameterCount() == 1)
+                .filter(m -> m.getName().startsWith("set"))
+                .filter(m -> m.isAnnotationPresent(DataBoundSetter.class))
+                .forEach(m -> {
+                    String propertyName = Introspector.decapitalize(m.getName().substring(3));
+                    if (exclusions.contains(propertyName)) return;
+                    invokeSetter(r, j, propertyName, m);
+                });
+        }
+
+
+       final Set violations = validator.validate(r);
         if (!violations.isEmpty()) throw new ConstraintsValidationException(violations);
 
         invokePostConstruct(getWebApp().getMetaClass(r).getPostConstructMethods(), r);
 
         return r;
+    }
+
+    private <T> void setField(T r, JSONObject j, String name, Field f) {
+        final Object json = j.get(name);
+        if (json == null) return;
+        final Object value = bindJSON(f.getGenericType(), f.getType(), json);
+        try {
+            f.setAccessible(true);
+            f.set(r, value);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(WARNING, "Cannot access property " + name + " of " + r.getClass(), e);
+        }
+    }
+
+    private <T> void invokeSetter(T r, JSONObject j, String name, Method m)  {
+        final Object json = j.get(name);
+        if (json == null) return;
+        Class<?>[] pt = m.getParameterTypes();
+        final Object value = bindJSON(m.getGenericParameterTypes()[0], pt[0], j.get(name));
+        try {
+            m.invoke(r, value);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            LOGGER.log(WARNING, "Cannot access property " + name + " of " + r.getClass(), e);
+        }
     }
 
     private Method findDataBoundSetter(Class c, String name) {
