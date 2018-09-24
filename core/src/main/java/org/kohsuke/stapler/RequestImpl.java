@@ -36,6 +36,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.bind.BoundObjectTable;
@@ -59,6 +60,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -778,14 +780,16 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         Object[] args = new Object[names.length];
 
         // constructor
-        Constructor c = findConstructor(actualType, names.length);
-        Class[] types = c.getParameterTypes();
-        Type[] genTypes = c.getGenericParameterTypes();
+        final Constructor c = findConstructor(actualType, names.length);
+        final Parameter[] parameters = c.getParameters();
+        final Class[] types = c.getParameterTypes();
+        final Type[] genTypes = c.getGenericParameterTypes();
 
         // convert parameters
         for( int i=0; i<names.length; i++ ) {
             try {
-                args[i] = bindJSON(genTypes[i],types[i],j.get(names[i]));
+                final Object json = getJsonValueOrDefault(j, names[i], parameters[i]);
+                args[i] = bindJSON(genTypes[i],types[i], json);
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Failed to convert the "+names[i]+" parameter of the constructor "+c,e);
             }
@@ -877,6 +881,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     private Object getJsonValueOrDefault(JSONObject j, String name, AnnotatedElement e) {
         Object json = j.get(name);
+        if (json != null && e.getAnnotation(Trim.class) != null) {
+            json = StringUtils.trimToNull(json.toString());
+        }
         if (json == null) {
             final DefaultValue defaultValue = e.getAnnotation(DefaultValue.class);
             if (defaultValue != null) return defaultValue.value();

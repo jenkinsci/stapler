@@ -333,6 +333,11 @@ public class DataBindingTest extends TestCase {
 
     public static class BeanValidation {
 
+
+        @DataBoundSetter
+        @Trim @DefaultValue("test")
+        private String w;
+
         @DataBoundSetter
         @Positive @DefaultValue("1")
         private int x;
@@ -345,6 +350,7 @@ public class DataBindingTest extends TestCase {
         private String z;
 
         void assertValues() {
+            assertEquals("test",w);
             assertEquals(1,x);
             assertEquals("2",y);
             assertEquals("3",z);
@@ -370,6 +376,10 @@ public class DataBindingTest extends TestCase {
         r.assertValues();
     }
 
+    public void testFieldInjectionTrimToNull() {
+        BeanValidation r = bind("{w:'  ',x:1,y:'2',z:'3'} }", BeanValidation.class);
+        r.assertValues();
+    }
 
     public void testInterceptor1() {
         String r = bind("{x:1}", String.class, new BindInterceptor() {
