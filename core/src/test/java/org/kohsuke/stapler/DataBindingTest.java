@@ -334,7 +334,7 @@ public class DataBindingTest extends TestCase {
     public static class BeanValidation {
 
         @DataBoundSetter
-        @Positive
+        @Positive @DefaultValue("1")
         private int x;
 
         @DataBoundSetter
@@ -352,16 +352,22 @@ public class DataBindingTest extends TestCase {
     }
 
     public void testFieldInjectionWithValidation() {
-        BeanValidation r = bind("{x:1,y:'2',z:'3'} }",BeanValidation.class);
+        BeanValidation r = bind("{x:1,y:'2',z:'3'} }", BeanValidation.class);
         r.assertValues();
+    }
 
+    public void testFieldInjectionWithValidationFailure() {
         try {
             bind("{x:0,y:' ',z:'foo'} }", BeanValidation.class);
             fail("validation was expected to fail.");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getCause());
         }
+    }
 
+    public void testFieldInjectionWithDefaultValue() {
+        BeanValidation r = bind("{y:'2',z:'3'} }",BeanValidation.class);
+        r.assertValues();
     }
 
 

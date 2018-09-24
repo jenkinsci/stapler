@@ -53,6 +53,7 @@ import javax.validation.Validator;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -851,7 +852,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     private <T> void setField(T r, JSONObject j, String name, Field f) {
-        final Object json = j.get(name);
+        final Object json = getJsonValueOrDefault(j, name, f);
         if (json == null) return;
         final Object value = bindJSON(f.getGenericType(), f.getType(), json);
         try {
@@ -863,15 +864,24 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     private <T> void invokeSetter(T r, JSONObject j, String name, Method m)  {
-        final Object json = j.get(name);
+        final Object json = getJsonValueOrDefault(j, name, m.getParameters()[0]);
         if (json == null) return;
         Class<?>[] pt = m.getParameterTypes();
-        final Object value = bindJSON(m.getGenericParameterTypes()[0], pt[0], j.get(name));
+        final Object value = bindJSON(m.getGenericParameterTypes()[0], pt[0], json);
         try {
             m.invoke(r, value);
         } catch (IllegalAccessException | InvocationTargetException e) {
             LOGGER.log(WARNING, "Cannot access property " + name + " of " + r.getClass(), e);
         }
+    }
+
+    private Object getJsonValueOrDefault(JSONObject j, String name, AnnotatedElement e) {
+        Object json = j.get(name);
+        if (json == null) {
+            final DefaultValue defaultValue = e.getAnnotation(DefaultValue.class);
+            if (defaultValue != null) return defaultValue.value();
+        }
+        return json;
     }
 
     private Method findDataBoundSetter(Class c, String name) {
