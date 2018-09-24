@@ -891,26 +891,6 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return json;
     }
 
-    private Method findDataBoundSetter(Class c, String name) {
-        // look for public setter that has the matching name
-        for ( ; c!=null; c=c.getSuperclass()) {
-            for (Method m : c.getDeclaredMethods()) {
-                if (!Modifier.isPublic(m.getModifiers())
-                 || !m.getName().startsWith("set")
-                 || m.getParameterTypes().length!=1
-                 || !m.isAnnotationPresent(DataBoundSetter.class))
-                    continue;
-
-                String propertyName = Introspector.decapitalize(m.getName().substring(3));
-                if (!name.equals(propertyName))
-                    continue;   // not the name we are looking for
-
-                return m;
-            }
-        }
-        return null;
-    }
-
     /**
      * Invoke PostConstruct method from the base class to subtypes.
      */
