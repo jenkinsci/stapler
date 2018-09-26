@@ -697,9 +697,11 @@ public class Stapler extends HttpServlet {
                 else
                     throw e;    // unprocessed exception
             }
-            if(n==node || n==null) {
+            if (n == node) {
                 // if the proxy returns itself, assume that it doesn't want to proxy.
+            } else if (n == null) {
                 // if null, no one will handle the request
+                return false;
             } else {
                 // recursion helps debugging by leaving the trace in the stack.
                 invoke(req,rsp,n);

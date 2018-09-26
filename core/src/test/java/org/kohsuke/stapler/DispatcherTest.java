@@ -2,6 +2,7 @@ package org.kohsuke.stapler;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.HttpMethod;
+import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.TextPage;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
@@ -303,7 +304,52 @@ public class DispatcherTest extends JettyTestCase {
         }
     }
 
+    //===================================================================
 
+    public final StaplerProxyImpl staplerProxyOK = new StaplerProxyImpl(new IndexPage());
+    public final StaplerProxyImpl staplerProxyFail = new StaplerProxyImpl(null);
+
+    public class IndexPage {
+        public void doIndex(StaplerResponse rsp) {
+            throw HttpResponses.ok();
+        }
+    }
+
+    public class StaplerProxyImpl implements StaplerProxy {
+        private Object target;
+        public int counter = 0;
+        public StaplerProxyImpl(Object target) {
+            this.target = target;
+        }
+
+        @Override
+        public Object getTarget() {
+            counter++;
+            return target;
+        }
+
+        public void doIndex(StaplerResponse rsp) {
+            if (target != this) {
+                throw new IllegalStateException("should not be called");
+            }
+        }
+    }
+
+
+    public void testStaplerProxy() throws Exception {
+        WebClient wc = new WebClient();
+        Page p = wc.getPage(new URL(url, "staplerProxyOK"));
+        assertEquals(200, p.getWebResponse().getStatusCode());
+
+        try {
+            p = wc.getPage(new URL(url, "staplerProxyFail"));
+            fail("expected failure");
+        } catch (FailingHttpStatusCodeException ex) {
+            assertEquals(404, ex.getStatusCode());
+        }
+        assertTrue(staplerProxyOK.counter > 0);
+        assertTrue(staplerProxyFail.counter > 0);
+    }
 
 
 }
