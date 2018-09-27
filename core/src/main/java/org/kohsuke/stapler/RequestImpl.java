@@ -677,7 +677,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
                         return instantiate(actualType, j);
                     } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException("Failed to instantiate "+type+" from "+j,e);
+                        JSONObject sanitizedJson = getWebApp().getJsonInErrorMessageSanitizer().sanitize(j);
+                        throw new IllegalArgumentException("Failed to instantiate "+type+" from "+sanitizedJson,e);
                     }
                 } else {// collection conversion
                     if(j.has("stapler-class-bag")) {
