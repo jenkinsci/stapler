@@ -26,6 +26,9 @@ package org.kohsuke.stapler;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -64,6 +67,13 @@ public abstract class Dispatcher {
                 node==null?"null":'<'+node.toString()+'>',
                 node==null?"":" :"+node.getClass().getName(),
                 ((RequestImpl)req).tokens.assembleOriginalRestOfPath()));
+    }
+
+    public static void anonymizedTraceEval(StaplerRequest req, StaplerResponse rsp, Object node, String format, String... args) {
+        List<String> arg = new ArrayList<>();
+        arg.add(node == null ? "(null)" : node.getClass().getName());
+        arg.addAll(Arrays.asList(args));
+        EvaluationTrace.ApplicationTracer.trace(req, String.format(format, arg.toArray()));
     }
 
     public static void traceEval(StaplerRequest req, StaplerResponse rsp, Object node, String prefix, String suffix) {

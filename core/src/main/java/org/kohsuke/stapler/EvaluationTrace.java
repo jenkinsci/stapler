@@ -23,9 +23,13 @@
 
 package org.kohsuke.stapler;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.PrintWriter;
+import java.util.ServiceLoader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.kohsuke.stapler.Stapler.escape;
 
@@ -37,6 +41,8 @@ import static org.kohsuke.stapler.Stapler.escape;
  */
 public class EvaluationTrace {
     private final List<String> traces = new ArrayList<String>();
+
+    private static final Logger LOGGER = Logger.getLogger(EvaluationTrace.class.getName());
 
     public void trace(StaplerResponse rsp, String msg) {
         traces.add(msg);
@@ -61,4 +67,40 @@ public class EvaluationTrace {
      * Used for counting trace header.
      */
     private static final String KEY = EvaluationTrace.class.getName();
+
+    public abstract static class ApplicationTracer {
+        protected abstract void record(StaplerRequest req, String message);
+
+        public static void trace(StaplerRequest req, String message) {
+            List<ApplicationTracer> tracers = getTracers();
+            for (ApplicationTracer tracer : tracers) {
+                tracer.record(req, message);
+            }
+        }
+
+        private static List<ApplicationTracer> tracers;
+
+        @Nonnull
+        private static List<ApplicationTracer> getTracers() {
+            if (tracers == null) {
+                synchronized (ApplicationTracer.class) {
+                    if (tracers == null) {
+                        List<ApplicationTracer> t = new ArrayList<>();
+                        for (ApplicationTracer tracer : ServiceLoader.load(EvaluationTrace.ApplicationTracer.class, Stapler.getCurrent().getWebApp().getClassLoader())) {
+                            try {
+                                t.add(tracer);
+                            } catch (Exception e) {
+                                // robustness
+                                if (LOGGER.isLoggable(Level.FINE)) {
+                                    LOGGER.log(Level.FINE, "Exception thrown when notifying tracer", e);
+                                }
+                            }
+                        }
+                        tracers = t;
+                    }
+                }
+            }
+            return tracers;
+        }
+    }
 }

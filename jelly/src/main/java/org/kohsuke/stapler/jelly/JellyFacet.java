@@ -84,13 +84,14 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
 
                     req.tokens.next();
 
+                    // Null not expected here
+                    String src = next+".jelly";
+                    if (script instanceof JellyViewScript) {
+                        JellyViewScript jvs = (JellyViewScript) script;
+                        src = jvs.getName();
+                    }
+                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Jelly facet: %s", src);
                     if (traceable()) {
-                        // Null not expected here
-                        String src = next+".jelly";
-                        if (script instanceof JellyViewScript) {
-                            JellyViewScript jvs = (JellyViewScript) script;
-                            src = jvs.getName();
-                        }
                         trace(req,rsp,"-> %s on <%s>", src, node);
                     }
 

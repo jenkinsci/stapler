@@ -663,10 +663,12 @@ public class Stapler extends HttpServlet {
      * @see #invoke(RequestImpl, ResponseImpl, Object)
      */
     boolean tryInvoke(RequestImpl req, ResponseImpl rsp, Object node ) throws IOException, ServletException {
+        Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Dispatch");
         if(traceable())
             traceEval(req,rsp,node);
 
         if(node instanceof StaplerProxy) {
+            Dispatcher.anonymizedTraceEval(req,rsp,node,"%s: StaplerProxy.getTarget()");
             if(traceable())
                 traceEval(req,rsp,node,"((StaplerProxy)",").getTarget()");
             Object n = null;
@@ -699,6 +701,7 @@ public class Stapler extends HttpServlet {
                 int count = 0;
                 for (Object subject : list) {
                     if (subject==null)  continue;
+                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: StaplerOverridable.getOverrides()[i]");
                     if(traceable())
                         traceEval(req,rsp,node,"((StaplerOverridable)",").getOverrides()["+(count++)+']');
 
@@ -766,6 +769,7 @@ public class Stapler extends HttpServlet {
         }
 
         if(node instanceof StaplerFallback) {
+            Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: StaplerFallback.getStaplerFallback()");
             if(traceable())
                 traceEval(req,rsp,node,"((StaplerFallback)",").getStaplerFallback()");
             Object n;

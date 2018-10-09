@@ -124,6 +124,7 @@ public class MetaClass extends TearOffSupport {
                 } else {
                     dispatchers.add(new NameBasedDispatcher(name) {
                         public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+                            Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s", ff.getName());
                             if (traceable())
                                 trace(req, rsp, "-> <%s>.%s(...)", node, ff.getName());
                             return ff.bindAndInvokeAndServeResponse(node, req, rsp);
@@ -181,6 +182,7 @@ public class MetaClass extends TearOffSupport {
                     if(role!=null && !req.isUserInRole(role))
                         throw new IllegalAccessException("Needs to be in role "+role);
 
+                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s", f.getName());
                     if(traceable())
                         traceEval(req,rsp,node,f.getName());
                     req.getStapler().invoke(req, rsp, f.get(node));
@@ -204,6 +206,7 @@ public class MetaClass extends TearOffSupport {
 
             dispatchers.add(new NameBasedDispatcher(name) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s()", ff.getName());
                     if(traceable())
                         traceEval(req,rsp,node,ff.getName()+"()");
                     req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node));
@@ -223,6 +226,7 @@ public class MetaClass extends TearOffSupport {
             final Function ff = f.contextualize(new TraversalMethodContext(name));
             dispatchers.add(new NameBasedDispatcher(name) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(...)", ff.getName());
                     if(traceable())
                         traceEval(req,rsp,node,ff.getName()+"(...)");
                     req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node, req));
@@ -243,6 +247,7 @@ public class MetaClass extends TearOffSupport {
             dispatchers.add(new NameBasedDispatcher(name,1) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     String token = req.tokens.next();
+                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(String)", ff.getName());
                     if(traceable())
                         traceEval(req,rsp,node,ff.getName()+"(\""+token+"\")");
                     req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,token));
@@ -263,6 +268,7 @@ public class MetaClass extends TearOffSupport {
             dispatchers.add(new NameBasedDispatcher(name,1) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     int idx = req.tokens.nextAsInt();
+                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(int)", ff.getName());
                     if(traceable())
                         traceEval(req,rsp,node,ff.getName()+"("+idx+")");
                     req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,idx));
@@ -284,6 +290,7 @@ public class MetaClass extends TearOffSupport {
             dispatchers.add(new NameBasedDispatcher(name,1) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     long idx = req.tokens.nextAsLong();
+                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(long)", ff.getName());
                     if(traceable())
                         traceEval(req,rsp,node,ff.getName()+"("+idx+")");
                     req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,idx));
@@ -302,6 +309,7 @@ public class MetaClass extends TearOffSupport {
                         return false;
                     try {
                         int index = req.tokens.nextAsInt();
+                        Dispatcher.anonymizedTraceEval(req, rsp, node, "%s[idx]");
                         if (traceable())
                             traceEval(req, rsp, node, "", "[" + index + "]");
                         req.getStapler().invoke(req, rsp, klass.getArrayElement(node, index));
@@ -328,6 +336,7 @@ public class MetaClass extends TearOffSupport {
                         return false;
                     try {
                         String key = req.tokens.peek();
+                        Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Map access");
                         if(traceable())
                             traceEval(req,rsp,"",".get(\""+key+"\")");
 
@@ -366,6 +375,7 @@ public class MetaClass extends TearOffSupport {
                     if(!req.tokens.hasMore())
                         return false;
                     String token = req.tokens.next();
+                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#getDynamic(...)");
                     if(traceable())
                         traceEval(req,rsp,node,"getDynamic(\""+token+"\",...)");
 
@@ -392,6 +402,7 @@ public class MetaClass extends TearOffSupport {
             final Function ff = f.contextualize(new WebMethodContext(WebMethodContext.DYNAMIC));
             dispatchers.add(new Dispatcher() {
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#doDynamic(...)");
                     if(traceable())
                         trace(req,rsp,"-> <%s>.doDynamic(...)",node);
                     return ff.bindAndInvokeAndServeResponse(node,req,rsp);
@@ -456,6 +467,7 @@ public class MetaClass extends TearOffSupport {
 
             req.stapler.getWebApp().getCrumbIssuer().validateCrumb(req,req.getHeader("Crumb"));
 
+            Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s", f.getName());
             if(traceable())
                 trace(req,rsp,"-> <%s>.%s(...)",node, f.getName());
 

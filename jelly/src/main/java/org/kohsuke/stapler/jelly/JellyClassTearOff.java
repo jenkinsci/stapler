@@ -29,6 +29,7 @@ import org.kohsuke.stapler.AbstractTearOff;
 import static org.kohsuke.stapler.Dispatcher.trace;
 import static org.kohsuke.stapler.Dispatcher.traceable;
 
+import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.Facet;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
@@ -101,12 +102,13 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
         try {
             Script script = findScript("index.jelly");
             if(script!=null) {
+                String src = "index.jelly";
+                if (script instanceof JellyViewScript) {
+                    JellyViewScript jvs = (JellyViewScript) script;
+                    src = jvs.getName();
+                }
+                Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Jelly index: %s", src);
                 if(traceable()) {
-                    String src = "index.jelly";
-                    if (script instanceof JellyViewScript) {
-                        JellyViewScript jvs = (JellyViewScript) script;
-                        src = jvs.getName();
-                    }
                     trace(req,rsp,"-> %s on <%s>",src,node);
                 }
                 facet.scriptInvoker.invokeScript(req, rsp, script, node);
