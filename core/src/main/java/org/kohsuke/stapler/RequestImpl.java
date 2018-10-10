@@ -87,7 +87,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
      */
     public final TokenList tokens;
     /**
-     * Ancesotr nodes traversed so far.
+     * Ancestor nodes traversed so far.
      * This object is modified by {@link Stapler} as we parse through the URL.
      */
     public final List<AncestorImpl> ancestors;
@@ -677,7 +677,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
                         return instantiate(actualType, j);
                     } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException("Failed to instantiate "+type+" from "+j,e);
+                        JSONObject sanitizedJson = getWebApp().getJsonInErrorMessageSanitizer().sanitize(j);
+                        throw new IllegalArgumentException("Failed to instantiate "+type+" from "+sanitizedJson,e);
                     }
                 } else {// collection conversion
                     if(j.has("stapler-class-bag")) {
@@ -742,7 +743,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 if (converter==null)
                     throw new IllegalArgumentException("Unable to convert to "+l.itemType);
 
-                l.add(converter.convert(type,o));
+                l.add(converter.convert(l.itemType, o));
                 return l.toCollection();
             }
         }

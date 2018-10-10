@@ -28,7 +28,7 @@ public class DispatcherTest extends JettyTestCase {
     public class IndexDispatchByName {
         @WebMethod(name="")
         public HttpResponse doHelloWorld() {
-            return HttpResponses.plainText("Hello world");
+            return HttpResponses.text("Hello world");
         }
     }
 
@@ -38,7 +38,7 @@ public class DispatcherTest extends JettyTestCase {
     public void testIndexDispatchByName() throws Exception {
         WebClient wc = new WebClient();
         TextPage p = wc.getPage(new URL(url, "indexDispatchByName"));
-        assertEquals("Hello world\n", p.getContent());
+        assertEquals("Hello world", p.getContent());
     }
 
 
@@ -50,12 +50,12 @@ public class DispatcherTest extends JettyTestCase {
     public class VerbMatch {
         @WebMethod(name="") @GET
         public HttpResponse doGet() {
-            return HttpResponses.plainText("Got GET");
+            return HttpResponses.text("Got GET");
         }
 
         @WebMethod(name="") @POST
         public HttpResponse doPost() {
-            return HttpResponses.plainText("Got POST");
+            return HttpResponses.text("Got POST");
         }
     }
 
@@ -77,7 +77,7 @@ public class DispatcherTest extends JettyTestCase {
 
     private void check(WebClient wc, HttpMethod m) throws java.io.IOException {
         TextPage p = wc.getPage(new WebRequestSettings(new URL(url, "verbMatch/"), m));
-        assertEquals("Got "+m.name()+"\n", p.getContent());
+        assertEquals("Got " + m.name(), p.getContent());
     }
 
 
@@ -89,12 +89,12 @@ public class DispatcherTest extends JettyTestCase {
     public class ArbitraryWebMethodName {
         @WebMethod(name="")
         public HttpResponse notDoPrefix() {
-            return HttpResponses.plainText("I'm index");
+            return HttpResponses.text("I'm index");
         }
 
         // this method is implicitly web method by its name
         public HttpResponse doTheNeedful() {
-            return HttpResponses.plainText("DTN");
+            return HttpResponses.text("DTN");
         }
     }
 
@@ -102,10 +102,10 @@ public class DispatcherTest extends JettyTestCase {
     public void testArbitraryWebMethodName() throws Exception {
         WebClient wc = new WebClient();
         TextPage p = wc.getPage(new URL(url, "arbitraryWebMethodName"));
-        assertEquals("I'm index\n", p.getContent());
+        assertEquals("I'm index", p.getContent());
 
         p = wc.getPage(new URL(url, "arbitraryWebMethodName/theNeedful"));
-        assertEquals("DTN\n", p.getContent());
+        assertEquals("DTN", p.getContent());
 
     }
 
@@ -118,7 +118,7 @@ public class DispatcherTest extends JettyTestCase {
     public class InterceptorStage {
         @POST
         public HttpResponse doFoo(@JsonBody Point body) {
-            return HttpResponses.plainText(body.x+","+body.y);
+            return HttpResponses.text(body.x + "," + body.y);
         }
     }
 
@@ -142,7 +142,7 @@ public class DispatcherTest extends JettyTestCase {
         req.setAdditionalHeader("Content-Type","application/json");
         req.setRequestBody("{x:3,y:5}");
         TextPage p = wc.getPage(req);
-        assertEquals("3,5\n",p.getContent());
+        assertEquals("3,5",p.getContent());
 
     }
 
@@ -159,7 +159,7 @@ public class DispatcherTest extends JettyTestCase {
         req.setAdditionalHeader("Content-Type","application/json; charset=utf-8");
         req.setRequestBody("{x:3,y:5}");
         TextPage p = wc.getPage(req);
-        assertEquals("3,5\n",p.getContent());
+        assertEquals("3,5",p.getContent());
 
     }
 
@@ -170,14 +170,14 @@ public class DispatcherTest extends JettyTestCase {
     public class Inheritance {
         @WebMethod(name="foo")
         public HttpResponse doBar(@QueryParameter String q) {
-            return HttpResponses.plainText("base");
+            return HttpResponses.text("base");
         }
     }
 
     public class Inheritance2 extends Inheritance {
         @Override
         public HttpResponse doBar(String q) {
-            return HttpResponses.plainText(q);
+            return HttpResponses.text(q);
         }
     }
 
@@ -186,7 +186,7 @@ public class DispatcherTest extends JettyTestCase {
 
         // the request should get to the overriding method and it should still see all the annotations in the base type
         TextPage p = wc.getPage(new URL(url, "inheritance/foo?q=abc"));
-        assertEquals("abc\n", p.getContent());
+        assertEquals("abc", p.getContent());
 
         // doBar is a web method for 'foo', so bar endpoint shouldn't respond
         try {
@@ -204,14 +204,14 @@ public class DispatcherTest extends JettyTestCase {
 
         @POST
         public HttpResponse doAcme(StaplerRequest req) throws IOException {
-            return HttpResponses.plainText("POST: "+IOUtils.toString(req.getInputStream()));
+            return HttpResponses.text("POST: " + IOUtils.toString(req.getInputStream()));
         }
     }
 
     public class PutInheritanceImpl extends PutInheritance{
         @Override
         public HttpResponse doBar(StaplerRequest req) throws IOException {
-            return HttpResponses.plainText(IOUtils.toString(req.getInputStream())+" World!");
+            return HttpResponses.text(IOUtils.toString(req.getInputStream()) + " World!");
         }
     }
 
@@ -222,7 +222,7 @@ public class DispatcherTest extends JettyTestCase {
         WebRequestSettings wrs = new WebRequestSettings(new URL(url, "putInheritance/foo"), HttpMethod.PUT);
         wrs.setRequestBody("Hello");
         TextPage p = wc.getPage(wrs);
-        assertEquals("Hello World!\n", p.getContent());
+        assertEquals("Hello World!", p.getContent());
 
         // doBar is a web method for 'foo', so bar endpoint shouldn't respond
         try {
@@ -236,10 +236,41 @@ public class DispatcherTest extends JettyTestCase {
         wrs = new WebRequestSettings(new URL(url, "putInheritance/acme"), HttpMethod.POST);
         wrs.setRequestBody("Hello");
         p = wc.getPage(wrs);
-        assertEquals("POST: Hello\n", p.getContent());
+        assertEquals("POST: Hello", p.getContent());
     }
 
-
+    public void testInterfaceMethods() throws Exception {
+        WebClient wc = new WebClient();
+        try {
+            wc.getPage(new URL(url, "usesInterfaceMethods/foo"));
+            fail();
+        } catch (FailingHttpStatusCodeException x) {
+            assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, x.getStatusCode());
+        }
+        assertEquals("default", wc.getPage(new WebRequestSettings(new URL(url, "usesInterfaceMethods/foo"), HttpMethod.POST)).getWebResponse().getContentAsString().trim());
+        try {
+            wc.getPage(new URL(url, "overridesInterfaceMethods/foo"));
+            fail();
+        } catch (FailingHttpStatusCodeException x) {
+            assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, x.getStatusCode());
+        }
+        assertEquals("due to UnionAnnotatedElement it is even inherited", "overridden", wc.getPage(new WebRequestSettings(new URL(url, "overridesInterfaceMethods/foo"), HttpMethod.POST)).getWebResponse().getContentAsString().trim());
+    }
+    public interface InterfaceWithWebMethods {
+        @RequirePOST
+        default HttpResponse doFoo() {
+            return HttpResponses.plainText("default");
+        }
+    }
+    public class UsesInterfaceMethods implements InterfaceWithWebMethods {}
+    public class OverridesInterfaceMethods implements InterfaceWithWebMethods {
+        @Override
+        public HttpResponse doFoo() {
+            return HttpResponses.plainText("overridden");
+        }
+    }
+    public final UsesInterfaceMethods usesInterfaceMethods = new UsesInterfaceMethods();
+    public final OverridesInterfaceMethods overridesInterfaceMethods = new OverridesInterfaceMethods();
 
     //===================================================================
 
@@ -274,6 +305,30 @@ public class DispatcherTest extends JettyTestCase {
         assertEquals(1, requirePostOnBase.hit);
     }
 
+    public void testOverloads() throws Exception {
+        TextPage p = new WebClient().getPage(new URL(url, "overloaded/x"));
+        assertEquals("doX(StaplerRequest)", p.getContent());
+    }
+    public final Object overloaded = new Overloaded();
+    public static class Overloaded {
+        @Deprecated
+        public HttpResponse doX() {
+            return HttpResponses.text("doX()");
+        }
+        public HttpResponse doX(StaplerRequest req) {
+            return HttpResponses.text("doX(StaplerRequest)");
+        }
+        public HttpResponse doX(StaplerResponse rsp) {
+            return HttpResponses.text("doX(StaplerResponse)");
+        }
+        public HttpResponse doX(StaplerRequest req, StaplerResponse rsp) {
+            return HttpResponses.text("doX(StaplerRequest, StaplerResponse)");
+        }
+        @WebMethod(name = "x")
+        public HttpResponse x() {
+            return HttpResponses.text("x()");
+        }
+    }
 
     public final TestWithPublicField testWithPublicField = new TestWithPublicField();
 

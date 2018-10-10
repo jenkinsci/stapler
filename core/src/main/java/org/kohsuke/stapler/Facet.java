@@ -99,9 +99,9 @@ public abstract class Facet {
                 try {
                     r.add((T)c.newInstance());
                 } catch (InstantiationException e) {
-                    LOGGER.log(Level.WARNING, "Failed to instanticate "+c,e);
+                    LOGGER.log(Level.WARNING, "Failed to instantiate "+c,e);
                 } catch (IllegalAccessException e) {
-                    LOGGER.log(Level.WARNING, "Failed to instanticate "+c,e);
+                    LOGGER.log(Level.WARNING, "Failed to instantiate "+c,e);
                 }
             }
         }
@@ -110,6 +110,8 @@ public abstract class Facet {
 
     public static final Logger LOGGER = Logger.getLogger(Facet.class.getName());
 
+    public static boolean ALLOW_VIEW_NAME_PATH_TRAVERSAL = Boolean.getBoolean(Facet.class.getName() + ".allowViewNamePathTraversal");
+    
     /**
      * Creates a {@link RequestDispatcher} that handles the given view, or
      * return null if no such view was found.
@@ -143,5 +145,21 @@ public abstract class Facet {
      */
     public Klass<?> getKlass(Object o) {
         return null;
+    }
+    
+    /**
+     * Ensure the path that is passed is only the name of the file and not a path
+     */
+    protected boolean isBasename(String potentialPath){
+        if (ALLOW_VIEW_NAME_PATH_TRAVERSAL) {
+            return true;
+        } else {
+            if (potentialPath.contains("\\") || potentialPath.contains("/")) {
+                // prevent absolute path and folder traversal to find scripts
+                return false;
+            }
+            
+            return true;
+        }
     }
 }

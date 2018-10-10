@@ -136,7 +136,7 @@ public class Model<T> {
     /**
      * Does a property exist strictly in this class or its ancestors?
      */
-    /*package*/ final Predicate<String> HAS_PROPERTY_NAME_IN_ANCESTORY = new Predicate<String>() {
+    /*package*/ final Predicate<String> HAS_PROPERTY_NAME_IN_ANCESTRY = new Predicate<String>() {
         @Override
         public boolean apply(@Nullable String name) {
             for (Model m=Model.this; m!=null; m=m.superModel)
@@ -189,11 +189,7 @@ public class Model<T> {
      *      Controls which portion of the object graph will be sent to the writer.
      */
     public void writeTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
-        try {
-            writer.type(null,object.getClass());
-        } catch (AbstractMethodError _) {
-            // legacy client that doesn't understand this
-        }
+        writer.type(null,object.getClass());
         writer.startObject();
         writeNestedObjectTo(object, pruner, writer);
         writer.endObject();

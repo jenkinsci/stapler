@@ -33,7 +33,7 @@ public class BindInterceptor {
      * Called for each object conversion, after the actual subtype to instantiate is determined.
      *
      * @param actualType
-     *      The type to instnatiate
+     *      The type to instantiate
      * @param json
      *      JSON object to be mapped to Java object.
      * @return

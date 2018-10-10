@@ -56,9 +56,10 @@ public class HttpVerbInterceptor extends Interceptor {
         for (Annotation a : target.getAnnotations()) {
             Class<? extends Annotation> t = a.annotationType();
             InterceptorAnnotation ia = t.getAnnotation(InterceptorAnnotation.class);
-            if (ia !=null && ia.value()==HttpVerbInterceptor.class) {
-                if (t.getName().endsWith(method))
+            if (ia != null && ia.value() == HttpVerbInterceptor.class) {
+                if (t.getSimpleName().equals(method)) {
                     return true;
+                }
             }
         }
         return false;

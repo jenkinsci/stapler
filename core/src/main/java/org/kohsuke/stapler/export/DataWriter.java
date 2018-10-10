@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.export;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -65,9 +66,13 @@ public interface DataWriter {
      *      The actual type of the object being written.
      *      Null if the object is synthetic and has no valid Java type
      */
-    void type(@Nullable Type expected, @Nullable Class actual) throws IOException;
+    default void type(@Nullable Type expected, @Nullable Class actual) throws IOException {}
     void startObject() throws IOException;
     void endObject() throws IOException;
+
+    default @Nonnull ExportConfig getExportConfig() {
+        return new ExportConfig();
+    }
 
     /**
      * Recommended property name to write out the 'type' parameter of {@link #type(Type,Class)}

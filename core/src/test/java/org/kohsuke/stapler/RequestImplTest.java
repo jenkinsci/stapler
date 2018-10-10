@@ -29,6 +29,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.servlet.ReadListener;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import java.io.ByteArrayInputStream;
@@ -45,7 +46,7 @@ import java.util.Enumeration;
 public class RequestImplTest {
 
     @Test
-    public void test_mutipart_formdata() throws IOException, ServletException {
+    public void test_multipart_formdata() throws IOException, ServletException {
         final Stapler stapler = new Stapler();
         final byte[] buf = generateMultipartData();
         final ByteArrayInputStream is = new ByteArrayInputStream(buf);
@@ -82,7 +83,20 @@ public class RequestImplTest {
                     @Override
                     public int read(byte[] b, int off, int len) throws IOException {
                         return is.read(b, off, len);
-                    }                    
+                    }
+                    @Override
+                    public boolean isFinished() {
+                        return is.available() != 0;
+                    }
+                    @Override
+                    public boolean isReady() {
+                        return true;
+                    }
+                    @Override
+                    public void setReadListener(ReadListener readListener) {
+                        // ignored
+                    }
+                    
                 };
             }
         };

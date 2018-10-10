@@ -545,7 +545,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * {@link GroovyClosureScript} so that it can use this builder as the delegation target.
      *
      * <p>
-     * This method instanciates the class (if not done so already for this request),
+     * This method instantiates the class (if not done so already for this request),
      * and return it.
      */
     public Object taglib(Class type) throws IllegalAccessException, InstantiationException, IOException, SAXException {

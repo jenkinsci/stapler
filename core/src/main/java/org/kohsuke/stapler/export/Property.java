@@ -23,9 +23,6 @@
 
 package org.kohsuke.stapler.export;
 
-import org.jvnet.tiger_types.Types;
-import org.kohsuke.stapler.export.TreePruner.ByDepth;
-
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -41,6 +38,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nonnull;
+
+import org.jvnet.tiger_types.Types;
+import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 /**
  * Exposes one {@link Exported exposed property} of {@link ExportedBean} to
@@ -126,38 +127,30 @@ public abstract class Property implements Comparable<Property> {
      * @param pruner
      *      Determines how to prune the object graph tree.
      */
+    @SuppressWarnings("unchecked")
     public void writeTo(Object object, TreePruner pruner, DataWriter writer) throws IOException {
         TreePruner child = pruner.accept(object, this);
         if (child==null)        return;
 
-        Object d = safeGetValue(object);
+        Object d = writer.getExportConfig().getExportInterceptor().getValue(this,object, writer.getExportConfig());
 
-        if (d==null && skipNull) { // don't write anything
+        if ((d==null && skipNull) || d == ExportInterceptor.SKIP) { // don't write anything
             return;
         }
         if (merge) {
             // merged property will get all its properties written here
             if (d != null) {
-                Model model = owner.get(d.getClass(), parent.type, name);
-                model.writeNestedObjectTo(d, new FilteringTreePruner(parent.HAS_PROPERTY_NAME_IN_ANCESTORY,child), writer);
+                Class<?> objectType = d.getClass();
+                Model model = owner.getOrNull(objectType, parent.type, name);
+                if (model == null && !writer.getExportConfig().isSkipIfFail()) {
+                    throw new NotExportableException(objectType);
+                } else if (model != null) {
+                    model.writeNestedObjectTo(d, new FilteringTreePruner(parent.HAS_PROPERTY_NAME_IN_ANCESTRY,child), writer);
+                }
             }
         } else {
             writer.name(name);
             writeValue(type, d, child, writer);
-        }
-    }
-
-    private Object safeGetValue(Object o) throws IOException {
-        try {
-            return getValue(o);
-        } catch (IllegalAccessException e) {
-            IOException x = new IOException("Failed to write " + name);
-            x.initCause(e);
-            throw x;
-        } catch (InvocationTargetException e) {
-            IOException x = new IOException("Failed to write " + name);
-            x.initCause(e);
-            throw x;
         }
     }
 
@@ -172,11 +165,11 @@ public abstract class Property implements Comparable<Property> {
      * Writes one value of the property to {@link DataWriter}.
      */
     private void writeValue(Type expected, Object value, TreePruner pruner, DataWriter writer) throws IOException {
-        writeValue(expected,value,pruner,writer,false);
+        writeValue(expected,value,pruner,writer,writer.getExportConfig().isSkipIfFail());
     }
 
     private void writeBuffered(Type expected, Object value, TreePruner pruner, DataWriter writer) throws IOException {
-        BufferedDataWriter buffer = new BufferedDataWriter();
+        BufferedDataWriter buffer = new BufferedDataWriter(writer.getExportConfig());
         try {
             writeValue(expected, value, pruner, buffer, true);
             buffer.finished();
@@ -191,6 +184,7 @@ public abstract class Property implements Comparable<Property> {
     /**
      * Writes one value of the property to {@link DataWriter}.
      */
+    @SuppressWarnings("unchecked")
     private void writeValue(Type expected, Object value, TreePruner pruner, DataWriter writer, boolean skipIfFail) throws IOException {
         if(value==null) {
             writer.valueNull();
@@ -204,10 +198,8 @@ public abstract class Property implements Comparable<Property> {
 
         Class c = value.getClass();
 
-        Model model;
-        try {
-            model = owner.get(c, parent.type, name);
-        } catch (NotExportableException ex) {
+        Model model = owner.getOrNull(c, parent.type, name);
+        if (model == null) {
             if(STRING_TYPES.contains(c)) {
                 writer.value(value.toString());
                 return;
@@ -248,7 +240,7 @@ public abstract class Property implements Comparable<Property> {
                 if (verboseMap!=null) {// verbose form
                     writer.startArray();
                     for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
-                        BufferedDataWriter buffer = new BufferedDataWriter();
+                        BufferedDataWriter buffer = new BufferedDataWriter(writer.getExportConfig());
                         try {
                             writeStartObjectNullType(buffer);
                             buffer.name(verboseMap[0]);
@@ -268,7 +260,7 @@ public abstract class Property implements Comparable<Property> {
                 } else {// compact form
                     writeStartObjectNullType(writer);
                     for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
-                        BufferedDataWriter buffer = new BufferedDataWriter();
+                        BufferedDataWriter buffer = new BufferedDataWriter(writer.getExportConfig());
                         try {
                             buffer.name(e.getKey().toString());
                             writeValue(null, e.getValue(), pruner, buffer);
@@ -303,22 +295,27 @@ public abstract class Property implements Comparable<Property> {
                 return;
             }
 
-            throw ex;
-        }
-
-        try {
+            throw new NotExportableException(c);
+        } else {
             writer.type(expected, value.getClass());
-        } catch (AbstractMethodError _) {
-            // legacy impl that doesn't understand it
+            writer.startObject();
+            model.writeNestedObjectTo(value, pruner, writer);
+            writer.endObject();
         }
-
-
-        writer.startObject();
-        model.writeNestedObjectTo(value, pruner, writer);
-        writer.endObject();
     }
 
     private static class BufferedDataWriter implements DataWriter {
+        private final ExportConfig exportConfig;
+
+        private BufferedDataWriter(ExportConfig exportConfig) {
+            this.exportConfig = exportConfig;
+        }
+
+        @Override
+        public @Nonnull ExportConfig getExportConfig() {
+            return exportConfig;
+        }
+
         enum Op {name, valuePrimitive, value, valueNull, startArray, endArray, type, startObject, endObject}
         static class Step {
             final Op op;
@@ -394,9 +391,7 @@ public abstract class Property implements Comparable<Property> {
                     w.endArray();
                     break;
                 case type:
-                    try {
-                        w.type((Type) step.args[0], (Class) step.args[1]);
-                    } catch (AbstractMethodError ignored) {}
+                    w.type((Type) step.args[0], (Class) step.args[1]);
                     break;
                 case startObject:
                     w.startObject();
@@ -412,18 +407,14 @@ public abstract class Property implements Comparable<Property> {
     }
 
     private void writeStartObjectNullType(DataWriter writer) throws IOException {
-        try {
-            writer.type(null,null);
-        } catch (AbstractMethodError _) {
-            // legacy client that doesn't understand this
-        }
+        writer.type(null,null);
         writer.startObject();
     }
 
     /**
      * Gets the value of this property from the bean.
      */
-    protected abstract Object getValue(Object bean) throws IllegalAccessException, InvocationTargetException;
+    public abstract Object getValue(Object bean) throws IllegalAccessException, InvocationTargetException;
 
     /*package*/ static final Set<Class> STRING_TYPES = new HashSet<Class>(Arrays.asList(
         String.class,

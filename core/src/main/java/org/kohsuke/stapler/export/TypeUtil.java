@@ -58,7 +58,7 @@ public class TypeUtil {
             if (t instanceof Class)
                 return onClass((Class)t,param);
             if (t instanceof ParameterizedType)
-                return onParameterizdType( (ParameterizedType)t,param);
+                return onParameterizedType( (ParameterizedType)t,param);
             if(t instanceof GenericArrayType)
                 return onGenericArray((GenericArrayType)t,param);
             if(t instanceof WildcardType)
@@ -72,7 +72,7 @@ public class TypeUtil {
         }
 
         protected abstract T onClass(Class c, P param);
-        protected abstract T onParameterizdType(ParameterizedType p, P param);
+        protected abstract T onParameterizedType(ParameterizedType p, P param);
         protected abstract T onGenericArray(GenericArrayType g, P param);
         protected abstract T onVariable(TypeVariable v, P param);
         protected abstract T onWildcard(WildcardType w, P param);
@@ -86,7 +86,7 @@ public class TypeUtil {
             return c;
         }
 
-        public Class onParameterizdType(ParameterizedType p,Void _) {
+        public Class onParameterizedType(ParameterizedType p,Void _) {
             // TODO: why getRawType returns Type? not Class?
             return visit(p.getRawType(),null);
         }
@@ -137,7 +137,7 @@ public class TypeUtil {
             return null;
         }
 
-        public Type onParameterizdType(ParameterizedType p, Class sup) {
+        public Type onParameterizedType(ParameterizedType p, Class sup) {
             Class raw = (Class) p.getRawType();
             if(raw==sup) {
                 // p is of the form sup<...>
@@ -189,7 +189,7 @@ public class TypeUtil {
             return c;
         }
 
-        public Type onParameterizdType(ParameterizedType p, BinderArg args) {
+        public Type onParameterizedType(ParameterizedType p, BinderArg args) {
             Type[] params = p.getActualTypeArguments();
 
             boolean different = false;
@@ -529,7 +529,7 @@ public class TypeUtil {
     }
 
     /**
-     * JDK 5.0 has a bug of createing {@link GenericArrayType} where it shouldn't.
+     * JDK 5.0 has a bug of creating {@link GenericArrayType} where it shouldn't.
      * fix that manually to work around the problem.
      *
      * See bug 6202725.

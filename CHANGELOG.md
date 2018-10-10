@@ -1,7 +1,45 @@
 CHANGELOG
 ===
 
+##### 1.255
+Upcoming
+* [PR #136](https://github.com/stapler/stapler/pull/136) - log when a property is left out of serialised result due to exception
+Related to [JENKINS-48198](https://issues.jenkins-ci.org/browse/JENKINS-48198).
+
+##### 1.254
+Release date: Dec 15, 2017
+* [PR #135](https://github.com/stapler/stapler/pull/135) - allow customizing `RequirePOST` error pages
+
+##### 1.253
+Release date: Oct 20, 2017
+* [PR #127](https://github.com/stapler/stapler/pull/127) - performance optimizations
+* [PR #128](https://github.com/stapler/stapler/pull/128) - fixing binary incompatibility in 1.251
+* [PR #129](https://github.com/stapler/stapler/pull/129) - adding default implementations for some `DataWriter` methods
+* [PR #130](https://github.com/stapler/stapler/pull/130) - updated to Servlet API 3.1.0
+* [PR #134](https://github.com/stapler/stapler/pull/134) - updating various dependencies, better matching versions in Jenkins core
+
+##### 1.252
+Release date: Aug 03, 2017
+* [PR #113](https://github.com/stapler/stapler/pull/113) - **updated to Java 8** and testing some effects of that
+* [PR #117](https://github.com/stapler/stapler/pull/117) - made `ClassDescriptor` deterministic
+* [PR #118](https://github.com/stapler/stapler/pull/118) - deprecated `HttpResponses.html` and `.plainText` in favor of `.literalHtml` and `.text`.
+* [PR #123](https://github.com/stapler/stapler/pull/123) - lower Guava dep to 11 to match Jenkins core
+
+##### 1.251
+Release date: May 22, 2017
+* [PR #106](https://github.com/stapler/stapler/pull/106) -
+Support configurable stapler serialization behavior.
+Related to [JENKINS-40088](https://issues.jenkins-ci.org/browse/JENKINS-40088).
+* [Issue #109](https://github.com/stapler/stapler/issues/109) -
+Prevent `NullPointerException` in `IndexHtmlDispatcher` when index.html resource is provided in an interface.
+Fixes [JENKINS-43715](https://issues.jenkins-ci.org/browse/JENKINS-43715), regression in 1.249.
+* [PR #112](https://github.com/stapler/stapler/pull/112) -
+Prevent `NullPointerException` in `FilteringTreePruner` when child object in the tree is `null`.
+Related to [JENKINS-40979](https://issues.jenkins-ci.org/browse/JENKINS-40979).
+
 ##### 1.250
+Release date: January 20, 2017
+* [PR 103](https://github.com/stapler/stapler/pull/103) -
 Fix use of `static` methods in PR 96 in 1.249.
 
 ##### 1.249
@@ -52,4 +90,4 @@ Parallel request routing for Blue Ocean. This will allow BlueOcean or any Jenkin
 ##### 1.243
 Release date: April 29, 2016
 * [PR 74](https://github.com/stapler/stapler/pull/74/files) - 
-BeanInfo doesn't work when there's assymetry in getter vs setter
+BeanInfo doesn't work when there's asymmetry in getter vs setter

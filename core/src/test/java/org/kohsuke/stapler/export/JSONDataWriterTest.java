@@ -1,17 +1,15 @@
 package org.kohsuke.stapler.export;
 
-import org.junit.Test;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class JSONDataWriterTest {
-    private ExportConfig config = new ExportConfig()
-            .withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
+    private ExportConfig config = new ExportConfig().withFlavor(Flavor.JSON).withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
 
     private <T> String serialize(T bean, Class<T> clazz) throws IOException {
         StringWriter w = new StringWriter();

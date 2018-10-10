@@ -139,8 +139,8 @@ public class DataBindingTest extends TestCase {
         ScalarToArray r = bind("{a:'x',b:'y',c:5,d:6}", ScalarToArray.class);
         assertEquals("x",r.a[0]);
         assertEquals("y",r.b.get(0));
-        assertEquals(5,(int)r.c[0]);
-        assertEquals(6,(int)r.d.get(0));
+        assertEquals(Integer.valueOf(5), r.c[0]);
+        assertEquals(Integer.valueOf(6), r.d.get(0));
     }
 
     public static class ScalarToArray {
@@ -192,12 +192,12 @@ public class DataBindingTest extends TestCase {
     public void testRaw() {
         RawBinding r = bind("{x:{a:true,b:1},y:[1,2,3]}", RawBinding.class);
 
-        // array coersion on y
+        // array coercion on y
         RawBinding r2 = bind("{x:{a:true,b:1},y:{p:true}}", RawBinding.class);
         JSONObject o = (JSONObject)r2.y.get(0);
         assertTrue(o.getBoolean("p"));
 
-        // array coersion on y
+        // array coercion on y
         RawBinding r3 = bind("{x:{a:true,b:1},y:true}", RawBinding.class);
         assertTrue((Boolean)r3.y.get(0));
     }
@@ -406,7 +406,7 @@ public class DataBindingTest extends TestCase {
 
 
     /**
-     * Subyping and overriding a setter shouldn't hide it.
+     * Subtyping and overriding a setter shouldn't hide it.
      */
     public void testDerivedProperty() {
         DerivedProperty r = bind("{items:[1,3,5]}",DerivedProperty.class);

@@ -3,6 +3,8 @@ package org.kohsuke.stapler;
 import org.kohsuke.stapler.test.AbstractStaplerTest;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
+
 import java.io.IOException;
 
 import static javax.servlet.http.HttpServletResponse.*;
@@ -23,6 +25,16 @@ public class ResponseImplTest {
             when(rawResponse.getOutputStream()).thenReturn(new ServletOutputStream() {
                 public void write(int b) throws IOException {
                     throw new AssertionError();
+                }
+
+                @Override
+                public boolean isReady() {
+                    return false;
+                }
+
+                @Override
+                public void setWriteListener(WriteListener writeListener) {
+                    // ignores
                 }
             });
         }

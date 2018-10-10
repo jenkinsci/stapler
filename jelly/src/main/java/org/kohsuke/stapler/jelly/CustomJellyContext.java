@@ -107,11 +107,17 @@ class CustomJellyContext extends JellyContext {
         return tl;
     }
 
+    public static /* final */ boolean ESCAPE_BY_DEFAULT = Boolean.valueOf(System.getProperty(CustomJellyContext.class.getName() + ".escapeByDefault", "true"));
+
     private static class CustomXMLParser extends XMLParser implements ExpressionFactory {
         private ResourceBundle resourceBundle;
         @Override
         protected ExpressionFactory createExpressionFactory() {
             return this;
+        }
+
+        CustomXMLParser() {
+            this.setEscapeByDefault(ESCAPE_BY_DEFAULT);
         }
 
         public Expression createExpression(final String text) throws JellyException {

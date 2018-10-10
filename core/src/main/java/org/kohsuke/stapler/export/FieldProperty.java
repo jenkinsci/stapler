@@ -25,7 +25,6 @@ package org.kohsuke.stapler.export;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.io.IOException;
 
 /**
  * {@link Property} based on {@link Field}.
@@ -51,7 +50,7 @@ class FieldProperty extends Property {
         return parent.getJavadoc().getProperty(field.getName());
     }
 
-    protected Object getValue(Object object) throws IllegalAccessException {
+    public Object getValue(Object object) throws IllegalAccessException {
         return field.get(object);
     }
 }

@@ -29,7 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
-import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 
 /**
  * Buffered {@link FileWriter} that uses UTF-8.
@@ -49,7 +50,12 @@ public class AtomicFileWriter extends Writer {
     public AtomicFileWriter(File f) throws IOException {
         tmpFile = File.createTempFile("atomic",null,f.getParentFile());
         destFile = f;
-        core = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpFile),"UTF-8"));
+        core = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(
+                tmpFile.toPath(),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING, // empty file already created by createTempFile
+                StandardOpenOption.WRITE
+        ),"UTF-8"));
     }
 
     public void write(int c) throws IOException {

@@ -81,7 +81,7 @@ public class ClassDescriptorTest {
 
 
     /**
-     * D.x() overries B.x()
+     * D.x() overrides B.x()
      */
     @Test
     public void overridingMethod() throws Exception {

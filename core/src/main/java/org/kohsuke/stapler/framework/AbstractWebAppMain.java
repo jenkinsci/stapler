@@ -260,7 +260,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
     }
 
     /**
-     * Called during the destructino of the web app to perform
+     * Called during the destruction of the web app to perform
      * any clean up act on the application object.
      */
     protected void cleanUp(T app) {}

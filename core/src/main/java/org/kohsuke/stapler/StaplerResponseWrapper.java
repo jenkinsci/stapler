@@ -1,24 +1,22 @@
 package org.kohsuke.stapler;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.net.URL;
-import java.util.Locale;
+import net.sf.json.JsonConfig;
+import org.kohsuke.stapler.export.ExportConfig;
+import org.kohsuke.stapler.export.Flavor;
 
 import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.export.Flavor;
-
-import net.sf.json.JsonConfig;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Locale;
 
 /**
  * A basic wrapper for a StaplerResponse, e.g. in order to override some method.
@@ -139,9 +137,17 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
 
     /** {@inheritDoc} */
     @Override
+    @Deprecated
     public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor)
             throws ServletException, IOException {
         getWrapped().serveExposedBean(req, exposedBean, flavor);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void serveExposedBean(StaplerRequest req, Object exposedBean, ExportConfig exportConfig)
+            throws ServletException, IOException {
+        getWrapped().serveExposedBean(req, exposedBean, exportConfig);
     }
 
     /** {@inheritDoc} */
@@ -334,5 +340,47 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
     @Override
     public void setLocale(Locale loc) {
         getWrapped().setLocale(loc);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int getStatus() {
+        return getWrapped().getStatus();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getHeader(String name) {
+        return getWrapped().getHeader(name);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Collection<String> getHeaders(String name) {
+        return getWrapped().getHeaders(name);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Collection<String> getHeaderNames() {
+        return getWrapped().getHeaderNames();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getContentType() {
+        return getWrapped().getContentType();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setCharacterEncoding(String charset) {
+        getWrapped().setCharacterEncoding(charset);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setContentLengthLong(long len) {
+        getWrapped().setContentLengthLong(len);
     }
 }

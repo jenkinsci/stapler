@@ -42,7 +42,7 @@ public interface StaplerFallback {
      * @return
      *      If null or {@code this} is returned, stapler behaves as if the object
      *      didn't implement this interface (which means the request processing
-     *      failes with 404.)
+     *      fails with 404.)
      */
     Object getStaplerFallback();
 }

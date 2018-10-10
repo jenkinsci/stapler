@@ -41,7 +41,7 @@ import java.util.Map;
  * </p>
  * <pre>
  * HttpResponse doXyz(&#64;Header("Accept") AcceptHeader accept, ...) {
- *     swtich (accept.select("application/json","text/xml")) {
+ *     switch (accept.select("application/json","text/xml")) {
  *     case "application/json":
  *         ...
  *     case "text/html":
