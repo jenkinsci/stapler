@@ -1,6 +1,15 @@
 CHANGELOG
 ===
 
+##### 1.255
+Upcoming
+* [PR #136](https://github.com/stapler/stapler/pull/136) - log when a property is left out of serialised result due to exception
+Related to [JENKINS-48198](https://issues.jenkins-ci.org/browse/JENKINS-48198).
+
+##### 1.254
+Release date: Dec 15, 2017
+* [PR #135](https://github.com/stapler/stapler/pull/135) - allow customizing `RequirePOST` error pages
+
 ##### 1.253
 Release date: Oct 20, 2017
 * [PR #127](https://github.com/stapler/stapler/pull/127) - performance optimizations
