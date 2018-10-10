@@ -134,6 +134,12 @@ public class WebApp {
      * Keyed by {@link ServletConfig#getServletName()}.
      */
     private final ConcurrentMap<String,Stapler> servlets = new ConcurrentHashMap<String,Stapler>();
+    
+    /**
+     * Give the application a way to customize the JSON before putting it inside Stacktrace when something wrong happened.
+     * By default it just returns the given JSON.
+     */
+    private JsonInErrorMessageSanitizer jsonInErrorMessageSanitizer;
 
     public WebApp(ServletContext context) {
         this.context = context;
@@ -288,5 +294,19 @@ public class WebApp {
      */
     public static WebApp getCurrent() {
         return Stapler.getCurrent().getWebApp();
+    }
+    
+    public JsonInErrorMessageSanitizer getJsonInErrorMessageSanitizer() {
+        if (jsonInErrorMessageSanitizer == null) {
+            return JsonInErrorMessageSanitizer.NOOP;
+        }
+        return jsonInErrorMessageSanitizer;
+    }
+    
+    /**
+     * Allow the application to customize the way the JSON are rendered in the stack trace in case of binding exception.
+     */
+    public void setJsonInErrorMessageSanitizer(JsonInErrorMessageSanitizer jsonInErrorMessageSanitizer) {
+        this.jsonInErrorMessageSanitizer = jsonInErrorMessageSanitizer;
     }
 }

@@ -68,6 +68,11 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
                 // and avoid serving both "foo" and "foo/" as relative URL semantics are drastically different
                 if (req.getRequestURI().endsWith("/"))      return false;
 
+                if (!isBasename(next)) {
+                    // potentially an attempt to make a folder traversal
+                    return false;
+                }
+
                 try {
                     Script script = tearOff.findScript(next);
                     if(script==null)
@@ -93,6 +98,7 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
                 }
             }
             public String toString() {
+                // or TOKEN.gsp
                 return "TOKEN.groovy for url=/TOKEN";
             }
         });

@@ -77,6 +77,11 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
                 // and avoid serving both "foo" and "foo/" as relative URL semantics are drastically different
                 if (req.tokens.endsWithSlash)      return false;
 
+                if (!isBasename(next)) {
+                    // potentially an attempt to make a folder traversal
+                    return false;
+                }
+
                 try {
                     Script script = tearOff.findScript(next+".jelly");
 

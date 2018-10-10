@@ -120,8 +120,20 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
                     if (req.tokens.countRemainingTokens()>1)    return false;
                     // and avoid serving both "foo" and "foo/" as relative URL semantics are drastically different
                     if (req.getRequestURI().endsWith("/"))      return false;
-
-                    return invokeScript(req, rsp, node, next, tearOff.findScript(next));
+                    
+                    if (!isBasename(next)) {
+                        // potentially an attempt to make a folder traversal
+                        return false;
+                    }
+    
+                    Script script = tearOff.findScript(next);
+    
+                    if (script == null) {
+                        // no script found
+                        return false;
+                    }
+                    
+                    return invokeScript(req, rsp, node, next, script);
                 }
             });
         }

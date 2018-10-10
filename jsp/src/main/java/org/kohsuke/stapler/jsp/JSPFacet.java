@@ -59,6 +59,11 @@ public class JSPFacet extends Facet {
 
                 Stapler stapler = req.getStapler();
 
+                if (!isBasename(next)) {
+                    // potentially an attempt to make a folder traversal
+                    return false;
+                }
+
                 // check static resources
                 RequestDispatcher disp = createRequestDispatcher(req,node.getClass(),node,next);
                 if(disp==null) {
