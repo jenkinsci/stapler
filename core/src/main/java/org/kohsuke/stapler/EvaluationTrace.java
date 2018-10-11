@@ -78,26 +78,24 @@ public class EvaluationTrace {
             }
         }
 
-        private static List<ApplicationTracer> tracers;
+        private static volatile List<ApplicationTracer> tracers;
 
         @Nonnull
         private static List<ApplicationTracer> getTracers() {
-            if (tracers == null) {
-                synchronized (ApplicationTracer.class) {
-                    if (tracers == null) {
-                        List<ApplicationTracer> t = new ArrayList<>();
-                        for (ApplicationTracer tracer : ServiceLoader.load(EvaluationTrace.ApplicationTracer.class, Stapler.getCurrent().getWebApp().getClassLoader())) {
-                            try {
-                                t.add(tracer);
-                            } catch (Exception e) {
-                                // robustness
-                                if (LOGGER.isLoggable(Level.FINE)) {
-                                    LOGGER.log(Level.FINE, "Exception thrown when notifying tracer", e);
-                                }
+            synchronized (ApplicationTracer.class) {
+                if (tracers == null) {
+                    List<ApplicationTracer> t = new ArrayList<>();
+                    for (ApplicationTracer tracer : ServiceLoader.load(EvaluationTrace.ApplicationTracer.class, Stapler.getCurrent().getWebApp().getClassLoader())) {
+                        try {
+                            t.add(tracer);
+                        } catch (Exception e) {
+                            // robustness
+                            if (LOGGER.isLoggable(Level.FINE)) {
+                                LOGGER.log(Level.FINE, "Exception thrown when notifying tracer", e);
                             }
                         }
-                        tracers = t;
                     }
+                    tracers = t;
                 }
             }
             return tracers;
