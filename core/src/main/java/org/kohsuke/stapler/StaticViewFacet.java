@@ -55,6 +55,7 @@ public class StaticViewFacet extends Facet {
 
                 req.tokens.next();
 
+                Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Static view: %s", next);
                 if (traceable()) {
                     // Null not expected here
                     trace(req,rsp,"-> %s on <%s>", next, node);

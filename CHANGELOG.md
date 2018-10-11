@@ -5,6 +5,7 @@ CHANGELOG
 Upcoming
 * [PR #136](https://github.com/stapler/stapler/pull/136) - log when a property is left out of serialised result due to exception
 Related to [JENKINS-48198](https://issues.jenkins-ci.org/browse/JENKINS-48198).
+* [PR #148](https://github.com/stapler/stapler/pull/148) - introduce `EvaluationTrace.ApplicationTracer` extension point
 * [PR #149](https://github.com/stapler/stapler/pull/149) - fix handling of a `null` return value from `StaplerProxy.getTarget`
 
 ##### 1.254.2

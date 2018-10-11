@@ -82,6 +82,7 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
 
                     req.tokens.next();
 
+                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Groovy facet: %s", next + ".groovy");
                     if(traceable())
                         trace(req,rsp,"Invoking "+next+".groovy"+" on "+node+" for "+req.tokens);
 

@@ -20,6 +20,7 @@ class IndexDispatcher extends Dispatcher {
         if (req.tokens.hasMore())
             return false;   // applicable only when there's no more token
 
+        Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Index: %s", f.getName());
         if (traceable())
             trace(req, rsp, "-> <%s>.%s(...)", node, f.getName());
 
