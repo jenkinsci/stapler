@@ -64,14 +64,15 @@
 <span class="sourceLineNo">056</span>        for (Annotation a : target.getAnnotations()) {<a name="line.56"></a>
 <span class="sourceLineNo">057</span>            Class&lt;? extends Annotation&gt; t = a.annotationType();<a name="line.57"></a>
 <span class="sourceLineNo">058</span>            InterceptorAnnotation ia = t.getAnnotation(InterceptorAnnotation.class);<a name="line.58"></a>
-<span class="sourceLineNo">059</span>            if (ia !=null &amp;&amp; ia.value()==HttpVerbInterceptor.class) {<a name="line.59"></a>
-<span class="sourceLineNo">060</span>                if (t.getName().endsWith(method))<a name="line.60"></a>
+<span class="sourceLineNo">059</span>            if (ia != null &amp;&amp; ia.value() == HttpVerbInterceptor.class) {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                if (t.getSimpleName().equals(method)) {<a name="line.60"></a>
 <span class="sourceLineNo">061</span>                    return true;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>            }<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        }<a name="line.63"></a>
-<span class="sourceLineNo">064</span>        return false;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    }<a name="line.65"></a>
-<span class="sourceLineNo">066</span>}<a name="line.66"></a>
+<span class="sourceLineNo">062</span>                }<a name="line.62"></a>
+<span class="sourceLineNo">063</span>            }<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        }<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        return false;<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    }<a name="line.66"></a>
+<span class="sourceLineNo">067</span>}<a name="line.67"></a>
 
 
 

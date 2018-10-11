@@ -63,72 +63,73 @@
 <span class="sourceLineNo">055</span><a name="line.55"></a>
 <span class="sourceLineNo">056</span>                req.tokens.next();<a name="line.56"></a>
 <span class="sourceLineNo">057</span><a name="line.57"></a>
-<span class="sourceLineNo">058</span>                if (traceable()) {<a name="line.58"></a>
-<span class="sourceLineNo">059</span>                    // Null not expected here<a name="line.59"></a>
-<span class="sourceLineNo">060</span>                    trace(req,rsp,"-&gt; %s on &lt;%s&gt;", next, node);<a name="line.60"></a>
-<span class="sourceLineNo">061</span>                }<a name="line.61"></a>
-<span class="sourceLineNo">062</span><a name="line.62"></a>
-<span class="sourceLineNo">063</span>                rsp.serveFile(req, res);<a name="line.63"></a>
-<span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>                return true;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>            }<a name="line.66"></a>
-<span class="sourceLineNo">067</span><a name="line.67"></a>
-<span class="sourceLineNo">068</span>            public String toString() {<a name="line.68"></a>
-<span class="sourceLineNo">069</span>                return "static file for url=/VIEW"+StringUtils.join(allowedExtensions,"|");<a name="line.69"></a>
-<span class="sourceLineNo">070</span>            }<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        });<a name="line.71"></a>
-<span class="sourceLineNo">072</span>    }<a name="line.72"></a>
-<span class="sourceLineNo">073</span><a name="line.73"></a>
-<span class="sourceLineNo">074</span>    /**<a name="line.74"></a>
-<span class="sourceLineNo">075</span>     * Determines if this resource can be served<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     */<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    protected URL findResource(Klass c, String fileName) {<a name="line.77"></a>
-<span class="sourceLineNo">078</span>        boolean ends = false;<a name="line.78"></a>
-<span class="sourceLineNo">079</span>        for (String ext : allowedExtensions) {<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            if (fileName.endsWith(ext)) {<a name="line.80"></a>
-<span class="sourceLineNo">081</span>                ends = true;<a name="line.81"></a>
-<span class="sourceLineNo">082</span>                break;<a name="line.82"></a>
-<span class="sourceLineNo">083</span>            }<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        }<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        if (!ends)  return null;<a name="line.85"></a>
-<span class="sourceLineNo">086</span><a name="line.86"></a>
-<span class="sourceLineNo">087</span>        for ( ; c!=null; c=c.getSuperClass()) {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            URL res = c.getResource(fileName);<a name="line.88"></a>
-<span class="sourceLineNo">089</span>            if (res!=null)  return res;<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        }<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        return null;<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass&lt;?&gt; type, Object it, String viewName) throws IOException {<a name="line.94"></a>
-<span class="sourceLineNo">095</span>        final Stapler stapler = request.getStapler();<a name="line.95"></a>
-<span class="sourceLineNo">096</span>        final URL res = findResource(type,viewName);<a name="line.96"></a>
-<span class="sourceLineNo">097</span>        if (res==null)      return null;<a name="line.97"></a>
-<span class="sourceLineNo">098</span><a name="line.98"></a>
-<span class="sourceLineNo">099</span>        return new RequestDispatcher() {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>            public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>                stapler.serveStaticResource((HttpServletRequest)request, new ResponseImpl(stapler, (HttpServletResponse) response), res, 0);<a name="line.101"></a>
-<span class="sourceLineNo">102</span>            }<a name="line.102"></a>
-<span class="sourceLineNo">103</span><a name="line.103"></a>
-<span class="sourceLineNo">104</span>            public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {<a name="line.104"></a>
-<span class="sourceLineNo">105</span>                throw new UnsupportedOperationException();<a name="line.105"></a>
-<span class="sourceLineNo">106</span>            }<a name="line.106"></a>
-<span class="sourceLineNo">107</span>        };<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    }<a name="line.108"></a>
-<span class="sourceLineNo">109</span><a name="line.109"></a>
-<span class="sourceLineNo">110</span>    @Override<a name="line.110"></a>
-<span class="sourceLineNo">111</span>    public void buildIndexDispatchers(MetaClass owner, List&lt;Dispatcher&gt; dispatchers) {<a name="line.111"></a>
-<span class="sourceLineNo">112</span>        URL res = findResource(owner.klass, "index.html");<a name="line.112"></a>
-<span class="sourceLineNo">113</span>        if (res!=null) {<a name="line.113"></a>
-<span class="sourceLineNo">114</span>            dispatchers.add(new IndexHtmlDispatcher(res));<a name="line.114"></a>
-<span class="sourceLineNo">115</span>        }<a name="line.115"></a>
-<span class="sourceLineNo">116</span>    }<a name="line.116"></a>
-<span class="sourceLineNo">117</span><a name="line.117"></a>
-<span class="sourceLineNo">118</span>    public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {<a name="line.118"></a>
-<span class="sourceLineNo">119</span>        URL res = findResource(nodeMetaClass.klass,"index.html");<a name="line.119"></a>
-<span class="sourceLineNo">120</span>        if (res==null)  return false;<a name="line.120"></a>
-<span class="sourceLineNo">121</span>        return new IndexHtmlDispatcher(res).dispatch(req,rsp,node);<a name="line.121"></a>
-<span class="sourceLineNo">122</span>    }<a name="line.122"></a>
-<span class="sourceLineNo">123</span>}<a name="line.123"></a>
+<span class="sourceLineNo">058</span>                Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Static view: %s", next);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>                if (traceable()) {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                    // Null not expected here<a name="line.60"></a>
+<span class="sourceLineNo">061</span>                    trace(req,rsp,"-&gt; %s on &lt;%s&gt;", next, node);<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                }<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>                rsp.serveFile(req, res);<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>                return true;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>            }<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>            public String toString() {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>                return "static file for url=/VIEW"+StringUtils.join(allowedExtensions,"|");<a name="line.70"></a>
+<span class="sourceLineNo">071</span>            }<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        });<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>    /**<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * Determines if this resource can be served<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     */<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    protected URL findResource(Klass c, String fileName) {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        boolean ends = false;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        for (String ext : allowedExtensions) {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>            if (fileName.endsWith(ext)) {<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                ends = true;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                break;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>            }<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        }<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        if (!ends)  return null;<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>        for ( ; c!=null; c=c.getSuperClass()) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>            URL res = c.getResource(fileName);<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            if (res!=null)  return res;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        }<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        return null;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass&lt;?&gt; type, Object it, String viewName) throws IOException {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        final Stapler stapler = request.getStapler();<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        final URL res = findResource(type,viewName);<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        if (res==null)      return null;<a name="line.98"></a>
+<span class="sourceLineNo">099</span><a name="line.99"></a>
+<span class="sourceLineNo">100</span>        return new RequestDispatcher() {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>            public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>                stapler.serveStaticResource((HttpServletRequest)request, new ResponseImpl(stapler, (HttpServletResponse) response), res, 0);<a name="line.102"></a>
+<span class="sourceLineNo">103</span>            }<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>            public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                throw new UnsupportedOperationException();<a name="line.106"></a>
+<span class="sourceLineNo">107</span>            }<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        };<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    }<a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">111</span>    @Override<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    public void buildIndexDispatchers(MetaClass owner, List&lt;Dispatcher&gt; dispatchers) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        URL res = findResource(owner.klass, "index.html");<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        if (res!=null) {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            dispatchers.add(new IndexHtmlDispatcher(res));<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        }<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    }<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>    public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        URL res = findResource(nodeMetaClass.klass,"index.html");<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        if (res==null)  return false;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        return new IndexHtmlDispatcher(res).dispatch(req,rsp,node);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    }<a name="line.123"></a>
+<span class="sourceLineNo">124</span>}<a name="line.124"></a>
 
 
 

@@ -76,80 +76,87 @@
 <span class="sourceLineNo">068</span>                // and avoid serving both "foo" and "foo/" as relative URL semantics are drastically different<a name="line.68"></a>
 <span class="sourceLineNo">069</span>                if (req.getRequestURI().endsWith("/"))      return false;<a name="line.69"></a>
 <span class="sourceLineNo">070</span><a name="line.70"></a>
-<span class="sourceLineNo">071</span>                try {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>                    Script script = tearOff.findScript(next);<a name="line.72"></a>
-<span class="sourceLineNo">073</span>                    if(script==null)<a name="line.73"></a>
-<span class="sourceLineNo">074</span>                        script = gsp.findScript(next);<a name="line.74"></a>
-<span class="sourceLineNo">075</span>                    if (script==null)<a name="line.75"></a>
-<span class="sourceLineNo">076</span>                        return false;   // no Groovy script found<a name="line.76"></a>
-<span class="sourceLineNo">077</span><a name="line.77"></a>
-<span class="sourceLineNo">078</span>                    req.tokens.next();<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>                    if(traceable())<a name="line.80"></a>
-<span class="sourceLineNo">081</span>                        trace(req,rsp,"Invoking "+next+".groovy"+" on "+node+" for "+req.tokens);<a name="line.81"></a>
+<span class="sourceLineNo">071</span>                if (!isBasename(next)) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                    // potentially an attempt to make a folder traversal<a name="line.72"></a>
+<span class="sourceLineNo">073</span>                    return false;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                }<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>                try {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>                    Script script = tearOff.findScript(next);<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                    if(script==null)<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                        script = gsp.findScript(next);<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                    if (script==null)<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                        return false;   // no Groovy script found<a name="line.81"></a>
 <span class="sourceLineNo">082</span><a name="line.82"></a>
-<span class="sourceLineNo">083</span>                    WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, rsp, script, node);<a name="line.83"></a>
+<span class="sourceLineNo">083</span>                    req.tokens.next();<a name="line.83"></a>
 <span class="sourceLineNo">084</span><a name="line.84"></a>
-<span class="sourceLineNo">085</span>                    return true;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>                } catch (RuntimeException e) {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>                    throw e;<a name="line.87"></a>
-<span class="sourceLineNo">088</span>                } catch (IOException e) {<a name="line.88"></a>
-<span class="sourceLineNo">089</span>                    throw e;<a name="line.89"></a>
-<span class="sourceLineNo">090</span>                } catch (Exception e) {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>                    throw new ServletException(e);<a name="line.91"></a>
-<span class="sourceLineNo">092</span>                }<a name="line.92"></a>
-<span class="sourceLineNo">093</span>            }<a name="line.93"></a>
-<span class="sourceLineNo">094</span>            public String toString() {<a name="line.94"></a>
-<span class="sourceLineNo">095</span>                return "TOKEN.groovy for url=/TOKEN";<a name="line.95"></a>
-<span class="sourceLineNo">096</span>            }<a name="line.96"></a>
-<span class="sourceLineNo">097</span>        });<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    }<a name="line.98"></a>
-<span class="sourceLineNo">099</span><a name="line.99"></a>
-<span class="sourceLineNo">100</span>    public Collection&lt;Class&lt;GroovyClassTearOff&gt;&gt; getClassTearOffTypes() {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        return TEAROFF_TYPES;<a name="line.101"></a>
-<span class="sourceLineNo">102</span>    }<a name="line.102"></a>
-<span class="sourceLineNo">103</span><a name="line.103"></a>
-<span class="sourceLineNo">104</span>    public Collection&lt;String&gt; getScriptExtensions() {<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        return EXTENSION;<a name="line.105"></a>
-<span class="sourceLineNo">106</span>    }<a name="line.106"></a>
-<span class="sourceLineNo">107</span><a name="line.107"></a>
-<span class="sourceLineNo">108</span>    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass type, Object it, String viewName) throws IOException {<a name="line.108"></a>
-<span class="sourceLineNo">109</span>        MetaClass mc = request.stapler.getWebApp().getMetaClass(type);<a name="line.109"></a>
-<span class="sourceLineNo">110</span>        return createDispatcher(it, viewName, mc);<a name="line.110"></a>
-<span class="sourceLineNo">111</span>    }<a name="line.111"></a>
-<span class="sourceLineNo">112</span><a name="line.112"></a>
-<span class="sourceLineNo">113</span>    private RequestDispatcher createDispatcher(Object it, String viewName, MetaClass mc) throws IOException {<a name="line.113"></a>
-<span class="sourceLineNo">114</span>        RequestDispatcher d = mc.loadTearOff(GroovyClassTearOff.class).createDispatcher(it, viewName);<a name="line.114"></a>
-<span class="sourceLineNo">115</span>        if (d==null)<a name="line.115"></a>
-<span class="sourceLineNo">116</span>            d = mc.loadTearOff(GroovyServerPageTearOff.class).createDispatcher(it, viewName);<a name="line.116"></a>
-<span class="sourceLineNo">117</span>        return d;<a name="line.117"></a>
+<span class="sourceLineNo">085</span>                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Groovy facet: %s", next + ".groovy");<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                    if(traceable())<a name="line.86"></a>
+<span class="sourceLineNo">087</span>                        trace(req,rsp,"Invoking "+next+".groovy"+" on "+node+" for "+req.tokens);<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>                    WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, rsp, script, node);<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>                    return true;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                } catch (RuntimeException e) {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                    throw e;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                } catch (IOException e) {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                    throw e;<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                } catch (Exception e) {<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                    throw new ServletException(e);<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                }<a name="line.98"></a>
+<span class="sourceLineNo">099</span>            }<a name="line.99"></a>
+<span class="sourceLineNo">100</span>            public String toString() {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                // or TOKEN.gsp<a name="line.101"></a>
+<span class="sourceLineNo">102</span>                return "TOKEN.groovy for url=/TOKEN";<a name="line.102"></a>
+<span class="sourceLineNo">103</span>            }<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        });<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>    public Collection&lt;Class&lt;GroovyClassTearOff&gt;&gt; getClassTearOffTypes() {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        return TEAROFF_TYPES;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    }<a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">111</span>    public Collection&lt;String&gt; getScriptExtensions() {<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        return EXTENSION;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    }<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">115</span>    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass type, Object it, String viewName) throws IOException {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        MetaClass mc = request.stapler.getWebApp().getMetaClass(type);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        return createDispatcher(it, viewName, mc);<a name="line.117"></a>
 <span class="sourceLineNo">118</span>    }<a name="line.118"></a>
 <span class="sourceLineNo">119</span><a name="line.119"></a>
-<span class="sourceLineNo">120</span>    @Override<a name="line.120"></a>
-<span class="sourceLineNo">121</span>    public void buildIndexDispatchers(MetaClass owner, List&lt;Dispatcher&gt; dispatchers) {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>        try {<a name="line.122"></a>
-<span class="sourceLineNo">123</span>            if (owner.loadTearOff(JellyClassTearOff.class).findScript("index")!=null) {<a name="line.123"></a>
-<span class="sourceLineNo">124</span>                super.buildIndexDispatchers(owner, dispatchers);<a name="line.124"></a>
-<span class="sourceLineNo">125</span>            }<a name="line.125"></a>
-<span class="sourceLineNo">126</span>        } catch (JellyException e) {<a name="line.126"></a>
-<span class="sourceLineNo">127</span>            LOGGER.log(Level.WARNING, "Failed to parse index.groovy for "+owner, e);<a name="line.127"></a>
-<span class="sourceLineNo">128</span>        }<a name="line.128"></a>
-<span class="sourceLineNo">129</span>    }<a name="line.129"></a>
-<span class="sourceLineNo">130</span><a name="line.130"></a>
-<span class="sourceLineNo">131</span>    public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {<a name="line.131"></a>
-<span class="sourceLineNo">132</span>        RequestDispatcher d = createDispatcher(node,"index", nodeMetaClass);<a name="line.132"></a>
-<span class="sourceLineNo">133</span><a name="line.133"></a>
-<span class="sourceLineNo">134</span>        if (d!=null) {<a name="line.134"></a>
-<span class="sourceLineNo">135</span>            d.forward(req, rsp);<a name="line.135"></a>
-<span class="sourceLineNo">136</span>            return true;<a name="line.136"></a>
-<span class="sourceLineNo">137</span>        }<a name="line.137"></a>
-<span class="sourceLineNo">138</span>        return false;<a name="line.138"></a>
-<span class="sourceLineNo">139</span>    }<a name="line.139"></a>
+<span class="sourceLineNo">120</span>    private RequestDispatcher createDispatcher(Object it, String viewName, MetaClass mc) throws IOException {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        RequestDispatcher d = mc.loadTearOff(GroovyClassTearOff.class).createDispatcher(it, viewName);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        if (d==null)<a name="line.122"></a>
+<span class="sourceLineNo">123</span>            d = mc.loadTearOff(GroovyServerPageTearOff.class).createDispatcher(it, viewName);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        return d;<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>    @Override<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    public void buildIndexDispatchers(MetaClass owner, List&lt;Dispatcher&gt; dispatchers) {<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        try {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>            if (owner.loadTearOff(JellyClassTearOff.class).findScript("index")!=null) {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>                super.buildIndexDispatchers(owner, dispatchers);<a name="line.131"></a>
+<span class="sourceLineNo">132</span>            }<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        } catch (JellyException e) {<a name="line.133"></a>
+<span class="sourceLineNo">134</span>            LOGGER.log(Level.WARNING, "Failed to parse index.groovy for "+owner, e);<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        }<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+<span class="sourceLineNo">138</span>    public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        RequestDispatcher d = createDispatcher(node,"index", nodeMetaClass);<a name="line.139"></a>
 <span class="sourceLineNo">140</span><a name="line.140"></a>
-<span class="sourceLineNo">141</span>    private static final Set&lt;Class&lt;GroovyClassTearOff&gt;&gt; TEAROFF_TYPES = Collections.singleton(GroovyClassTearOff.class);<a name="line.141"></a>
-<span class="sourceLineNo">142</span><a name="line.142"></a>
-<span class="sourceLineNo">143</span>    private static final Set&lt;String&gt; EXTENSION = Collections.singleton(".groovy");<a name="line.143"></a>
-<span class="sourceLineNo">144</span>}<a name="line.144"></a>
+<span class="sourceLineNo">141</span>        if (d!=null) {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>            d.forward(req, rsp);<a name="line.142"></a>
+<span class="sourceLineNo">143</span>            return true;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        }<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        return false;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    }<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>    private static final Set&lt;Class&lt;GroovyClassTearOff&gt;&gt; TEAROFF_TYPES = Collections.singleton(GroovyClassTearOff.class);<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>    private static final Set&lt;String&gt; EXTENSION = Collections.singleton(".groovy");<a name="line.150"></a>
+<span class="sourceLineNo">151</span>}<a name="line.151"></a>
 
 
 

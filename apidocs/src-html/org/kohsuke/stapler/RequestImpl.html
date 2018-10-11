@@ -685,368 +685,369 @@
 <span class="sourceLineNo">677</span><a name="line.677"></a>
 <span class="sourceLineNo">678</span>                        return instantiate(actualType, j);<a name="line.678"></a>
 <span class="sourceLineNo">679</span>                    } catch (IllegalArgumentException e) {<a name="line.679"></a>
-<span class="sourceLineNo">680</span>                        throw new IllegalArgumentException("Failed to instantiate "+type+" from "+j,e);<a name="line.680"></a>
-<span class="sourceLineNo">681</span>                    }<a name="line.681"></a>
-<span class="sourceLineNo">682</span>                } else {// collection conversion<a name="line.682"></a>
-<span class="sourceLineNo">683</span>                    if(j.has("stapler-class-bag")) {<a name="line.683"></a>
-<span class="sourceLineNo">684</span>                        // this object is a hash from class names to their parameters<a name="line.684"></a>
-<span class="sourceLineNo">685</span>                        // build them into a collection via Lister<a name="line.685"></a>
-<span class="sourceLineNo">686</span><a name="line.686"></a>
-<span class="sourceLineNo">687</span>                        ClassLoader cl = stapler.getWebApp().getClassLoader();<a name="line.687"></a>
-<span class="sourceLineNo">688</span>                        for (Map.Entry&lt;String,Object&gt; e : (Set&lt;Map.Entry&lt;String,Object&gt;&gt;)j.entrySet()) {<a name="line.688"></a>
-<span class="sourceLineNo">689</span>                            Object v = e.getValue();<a name="line.689"></a>
-<span class="sourceLineNo">690</span><a name="line.690"></a>
-<span class="sourceLineNo">691</span>                            String className = e.getKey().replace('-','.'); // decode JSON-safe class name escaping<a name="line.691"></a>
-<span class="sourceLineNo">692</span>                            try {<a name="line.692"></a>
-<span class="sourceLineNo">693</span>                                Class&lt;?&gt; itemType = cl.loadClass(className);<a name="line.693"></a>
-<span class="sourceLineNo">694</span>                                if (v instanceof JSONObject) {<a name="line.694"></a>
-<span class="sourceLineNo">695</span>                                    l.add(bindJSON(itemType, (JSONObject) v));<a name="line.695"></a>
-<span class="sourceLineNo">696</span>                                }<a name="line.696"></a>
-<span class="sourceLineNo">697</span>                                if (v instanceof JSONArray) {<a name="line.697"></a>
-<span class="sourceLineNo">698</span>                                    for(Object i : bindJSONToList(itemType, (JSONArray) v))<a name="line.698"></a>
-<span class="sourceLineNo">699</span>                                        l.add(i);<a name="line.699"></a>
-<span class="sourceLineNo">700</span>                                }<a name="line.700"></a>
-<span class="sourceLineNo">701</span>                            } catch (ClassNotFoundException e1) {<a name="line.701"></a>
-<span class="sourceLineNo">702</span>                                // ignore unrecognized element<a name="line.702"></a>
-<span class="sourceLineNo">703</span>                            }<a name="line.703"></a>
-<span class="sourceLineNo">704</span>                        }<a name="line.704"></a>
-<span class="sourceLineNo">705</span>                    } else if (Enum.class.isAssignableFrom(l.itemType)) {<a name="line.705"></a>
-<span class="sourceLineNo">706</span>                        // this is a hash of element names as enum constant names<a name="line.706"></a>
-<span class="sourceLineNo">707</span>                        for (Map.Entry&lt;String,Object&gt; e : (Set&lt;Map.Entry&lt;String,Object&gt;&gt;)j.entrySet()) {<a name="line.707"></a>
-<span class="sourceLineNo">708</span>                            Object v = e.getValue();<a name="line.708"></a>
-<span class="sourceLineNo">709</span>                            if (v==null || (v instanceof Boolean &amp;&amp; !(Boolean)v))<a name="line.709"></a>
-<span class="sourceLineNo">710</span>                                continue;       // skip if the value is null or false<a name="line.710"></a>
-<span class="sourceLineNo">711</span><a name="line.711"></a>
-<span class="sourceLineNo">712</span>                            l.add(Enum.valueOf(l.itemType,e.getKey()));<a name="line.712"></a>
-<span class="sourceLineNo">713</span>                        }<a name="line.713"></a>
-<span class="sourceLineNo">714</span>                    } else {<a name="line.714"></a>
-<span class="sourceLineNo">715</span>                        // only one value given to the collection<a name="line.715"></a>
-<span class="sourceLineNo">716</span>                        l.add(new TypePair(l.itemGenericType,l.itemType).convertJSON(j));<a name="line.716"></a>
-<span class="sourceLineNo">717</span>                    }<a name="line.717"></a>
-<span class="sourceLineNo">718</span>                    return l.toCollection();<a name="line.718"></a>
-<span class="sourceLineNo">719</span>                }<a name="line.719"></a>
-<span class="sourceLineNo">720</span>            }<a name="line.720"></a>
-<span class="sourceLineNo">721</span>            if (o instanceof JSONArray) {<a name="line.721"></a>
-<span class="sourceLineNo">722</span>                if (l == null)<a name="line.722"></a>
-<span class="sourceLineNo">723</span>                    throw new WrongTypeException(String.format("Got type array but no lister class found for type %s", type));<a name="line.723"></a>
-<span class="sourceLineNo">724</span>                JSONArray a = (JSONArray) o;<a name="line.724"></a>
-<span class="sourceLineNo">725</span>                TypePair itemType = new TypePair(l.itemGenericType,l.itemType);<a name="line.725"></a>
-<span class="sourceLineNo">726</span>                for (Object item : a)<a name="line.726"></a>
-<span class="sourceLineNo">727</span>                    l.add(itemType.convertJSON(item));<a name="line.727"></a>
-<span class="sourceLineNo">728</span>                return l.toCollection();<a name="line.728"></a>
-<span class="sourceLineNo">729</span>            }<a name="line.729"></a>
-<span class="sourceLineNo">730</span><a name="line.730"></a>
-<span class="sourceLineNo">731</span>            if(Enum.class.isAssignableFrom(type))<a name="line.731"></a>
-<span class="sourceLineNo">732</span>                return Enum.valueOf(type,o.toString());<a name="line.732"></a>
-<span class="sourceLineNo">733</span><a name="line.733"></a>
-<span class="sourceLineNo">734</span>            if (l==null) {// single value conversion<a name="line.734"></a>
-<span class="sourceLineNo">735</span>                Converter converter = Stapler.lookupConverter(type);<a name="line.735"></a>
-<span class="sourceLineNo">736</span>                if (converter==null)<a name="line.736"></a>
-<span class="sourceLineNo">737</span>                    throw new IllegalArgumentException("Unable to convert to "+type);<a name="line.737"></a>
-<span class="sourceLineNo">738</span><a name="line.738"></a>
-<span class="sourceLineNo">739</span>                return converter.convert(type,o);<a name="line.739"></a>
-<span class="sourceLineNo">740</span>            } else {// single value in a collection<a name="line.740"></a>
-<span class="sourceLineNo">741</span>                Converter converter = Stapler.lookupConverter(l.itemType);<a name="line.741"></a>
-<span class="sourceLineNo">742</span>                if (converter==null)<a name="line.742"></a>
-<span class="sourceLineNo">743</span>                    throw new IllegalArgumentException("Unable to convert to "+l.itemType);<a name="line.743"></a>
-<span class="sourceLineNo">744</span><a name="line.744"></a>
-<span class="sourceLineNo">745</span>                l.add(converter.convert(l.itemType, o));<a name="line.745"></a>
-<span class="sourceLineNo">746</span>                return l.toCollection();<a name="line.746"></a>
-<span class="sourceLineNo">747</span>            }<a name="line.747"></a>
-<span class="sourceLineNo">748</span>        }<a name="line.748"></a>
-<span class="sourceLineNo">749</span>    }<a name="line.749"></a>
-<span class="sourceLineNo">750</span><a name="line.750"></a>
-<span class="sourceLineNo">751</span>    /**<a name="line.751"></a>
-<span class="sourceLineNo">752</span>     * Called after the actual type of the binding is figured out.<a name="line.752"></a>
-<span class="sourceLineNo">753</span>     */<a name="line.753"></a>
-<span class="sourceLineNo">754</span>    private Object instantiate(Class actualType, JSONObject j) {<a name="line.754"></a>
-<span class="sourceLineNo">755</span>        Object r = bindInterceptor.instantiate(actualType,j);<a name="line.755"></a>
-<span class="sourceLineNo">756</span>        if (r!=BindInterceptor.DEFAULT) return r;<a name="line.756"></a>
-<span class="sourceLineNo">757</span>        for (BindInterceptor bi : getWebApp().bindInterceptors) {<a name="line.757"></a>
-<span class="sourceLineNo">758</span>            r = bi.instantiate(actualType,j);<a name="line.758"></a>
-<span class="sourceLineNo">759</span>            if (r!=BindInterceptor.DEFAULT) return r;<a name="line.759"></a>
-<span class="sourceLineNo">760</span>        }<a name="line.760"></a>
-<span class="sourceLineNo">761</span><a name="line.761"></a>
-<span class="sourceLineNo">762</span>        if (actualType==JSONObject.class || actualType==JSON.class) return actualType.cast(j);<a name="line.762"></a>
-<span class="sourceLineNo">763</span><a name="line.763"></a>
-<span class="sourceLineNo">764</span>        String[] names = new ClassDescriptor(actualType).loadConstructorParamNames();<a name="line.764"></a>
-<span class="sourceLineNo">765</span><a name="line.765"></a>
-<span class="sourceLineNo">766</span>        // the actual arguments to invoke the constructor with.<a name="line.766"></a>
-<span class="sourceLineNo">767</span>        Object[] args = new Object[names.length];<a name="line.767"></a>
-<span class="sourceLineNo">768</span><a name="line.768"></a>
-<span class="sourceLineNo">769</span>        // constructor<a name="line.769"></a>
-<span class="sourceLineNo">770</span>        Constructor c = findConstructor(actualType, names.length);<a name="line.770"></a>
-<span class="sourceLineNo">771</span>        Class[] types = c.getParameterTypes();<a name="line.771"></a>
-<span class="sourceLineNo">772</span>        Type[] genTypes = c.getGenericParameterTypes();<a name="line.772"></a>
-<span class="sourceLineNo">773</span><a name="line.773"></a>
-<span class="sourceLineNo">774</span>        // convert parameters<a name="line.774"></a>
-<span class="sourceLineNo">775</span>        for( int i=0; i&lt;names.length; i++ ) {<a name="line.775"></a>
-<span class="sourceLineNo">776</span>            try {<a name="line.776"></a>
-<span class="sourceLineNo">777</span>                args[i] = bindJSON(genTypes[i],types[i],j.get(names[i]));<a name="line.777"></a>
-<span class="sourceLineNo">778</span>            } catch (IllegalArgumentException e) {<a name="line.778"></a>
-<span class="sourceLineNo">779</span>                throw new IllegalArgumentException("Failed to convert the "+names[i]+" parameter of the constructor "+c,e);<a name="line.779"></a>
-<span class="sourceLineNo">780</span>            }<a name="line.780"></a>
-<span class="sourceLineNo">781</span>        }<a name="line.781"></a>
-<span class="sourceLineNo">782</span><a name="line.782"></a>
-<span class="sourceLineNo">783</span>        Object o = injectSetters(invokeConstructor(c, args), j, Arrays.asList(names));<a name="line.783"></a>
-<span class="sourceLineNo">784</span>        o = bindResolve(o,j);<a name="line.784"></a>
-<span class="sourceLineNo">785</span><a name="line.785"></a>
-<span class="sourceLineNo">786</span>        return o;<a name="line.786"></a>
-<span class="sourceLineNo">787</span>    }<a name="line.787"></a>
-<span class="sourceLineNo">788</span><a name="line.788"></a>
-<span class="sourceLineNo">789</span>    /**<a name="line.789"></a>
-<span class="sourceLineNo">790</span>     * Calls {@link DataBoundResolvable#bindResolve(StaplerRequest, JSONObject)} if the object has it.<a name="line.790"></a>
-<span class="sourceLineNo">791</span>     */<a name="line.791"></a>
-<span class="sourceLineNo">792</span>    private Object bindResolve(Object o, JSONObject src) {<a name="line.792"></a>
-<span class="sourceLineNo">793</span>        if (o instanceof DataBoundResolvable) {<a name="line.793"></a>
-<span class="sourceLineNo">794</span>            DataBoundResolvable dbr = (DataBoundResolvable) o;<a name="line.794"></a>
-<span class="sourceLineNo">795</span>            o = dbr.bindResolve(this,src);<a name="line.795"></a>
-<span class="sourceLineNo">796</span>        }<a name="line.796"></a>
-<span class="sourceLineNo">797</span>        return o;<a name="line.797"></a>
-<span class="sourceLineNo">798</span>    }<a name="line.798"></a>
-<span class="sourceLineNo">799</span><a name="line.799"></a>
-<span class="sourceLineNo">800</span>    /**<a name="line.800"></a>
-<span class="sourceLineNo">801</span>     * Performs {@link DataBoundSetter} injections.<a name="line.801"></a>
-<span class="sourceLineNo">802</span>     *<a name="line.802"></a>
-<span class="sourceLineNo">803</span>     * @param exclusions<a name="line.803"></a>
-<span class="sourceLineNo">804</span>     *      Properties that are already injected through the constructor, thus not subject of the setter injection.<a name="line.804"></a>
-<span class="sourceLineNo">805</span>     */<a name="line.805"></a>
-<span class="sourceLineNo">806</span>    private &lt;T&gt; T injectSetters(T r, JSONObject j, Collection&lt;String&gt; exclusions) {<a name="line.806"></a>
-<span class="sourceLineNo">807</span>        // try to assign rest of the properties<a name="line.807"></a>
-<span class="sourceLineNo">808</span>        OUTER:<a name="line.808"></a>
-<span class="sourceLineNo">809</span>        for (String key : (Set&lt;String&gt;)j.keySet()) {<a name="line.809"></a>
-<span class="sourceLineNo">810</span>            if (!exclusions.contains(key)) {<a name="line.810"></a>
-<span class="sourceLineNo">811</span>                try {<a name="line.811"></a>
-<span class="sourceLineNo">812</span>                    // try field injection first<a name="line.812"></a>
-<span class="sourceLineNo">813</span>                    for (Class c=r.getClass(); c!=null; c=c.getSuperclass()) {<a name="line.813"></a>
-<span class="sourceLineNo">814</span>                        try {<a name="line.814"></a>
-<span class="sourceLineNo">815</span>                            Field f = c.getDeclaredField(key);<a name="line.815"></a>
-<span class="sourceLineNo">816</span>                            if (f.getAnnotation(DataBoundSetter.class)!=null) {<a name="line.816"></a>
-<span class="sourceLineNo">817</span>                                f.setAccessible(true);<a name="line.817"></a>
-<span class="sourceLineNo">818</span>                                f.set(r, bindJSON(f.getGenericType(), f.getType(), j.get(key)));<a name="line.818"></a>
-<span class="sourceLineNo">819</span>                                continue OUTER;<a name="line.819"></a>
-<span class="sourceLineNo">820</span>                            }<a name="line.820"></a>
-<span class="sourceLineNo">821</span>                        } catch (NoSuchFieldException e) {<a name="line.821"></a>
-<span class="sourceLineNo">822</span>                            // recurse into parents<a name="line.822"></a>
-<span class="sourceLineNo">823</span>                        }<a name="line.823"></a>
-<span class="sourceLineNo">824</span>                    }<a name="line.824"></a>
-<span class="sourceLineNo">825</span><a name="line.825"></a>
-<span class="sourceLineNo">826</span>                    Method wm = findDataBoundSetter(r.getClass(), key);<a name="line.826"></a>
-<span class="sourceLineNo">827</span>                    if (wm==null)   continue;<a name="line.827"></a>
-<span class="sourceLineNo">828</span><a name="line.828"></a>
-<span class="sourceLineNo">829</span>                    Class&lt;?&gt;[] pt = wm.getParameterTypes();<a name="line.829"></a>
-<span class="sourceLineNo">830</span>                    assert pt.length==1;<a name="line.830"></a>
-<span class="sourceLineNo">831</span><a name="line.831"></a>
-<span class="sourceLineNo">832</span>                    // only invoking public methods for security reasons<a name="line.832"></a>
-<span class="sourceLineNo">833</span>                    wm.invoke(r, bindJSON(wm.getGenericParameterTypes()[0], pt[0], j.get(key)));<a name="line.833"></a>
-<span class="sourceLineNo">834</span>                } catch (IllegalAccessException e) {<a name="line.834"></a>
-<span class="sourceLineNo">835</span>                    LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);<a name="line.835"></a>
-<span class="sourceLineNo">836</span>                } catch (InvocationTargetException e) {<a name="line.836"></a>
-<span class="sourceLineNo">837</span>                    LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);<a name="line.837"></a>
-<span class="sourceLineNo">838</span>                }<a name="line.838"></a>
-<span class="sourceLineNo">839</span>            }<a name="line.839"></a>
-<span class="sourceLineNo">840</span>        }<a name="line.840"></a>
-<span class="sourceLineNo">841</span><a name="line.841"></a>
-<span class="sourceLineNo">842</span>        invokePostConstruct(getWebApp().getMetaClass(r).getPostConstructMethods(), r);<a name="line.842"></a>
-<span class="sourceLineNo">843</span><a name="line.843"></a>
-<span class="sourceLineNo">844</span>        return r;<a name="line.844"></a>
-<span class="sourceLineNo">845</span>    }<a name="line.845"></a>
-<span class="sourceLineNo">846</span><a name="line.846"></a>
-<span class="sourceLineNo">847</span>    private Method findDataBoundSetter(Class c, String name) {<a name="line.847"></a>
-<span class="sourceLineNo">848</span>        // look for public setter that has the matching name<a name="line.848"></a>
-<span class="sourceLineNo">849</span>        for ( ; c!=null; c=c.getSuperclass()) {<a name="line.849"></a>
-<span class="sourceLineNo">850</span>            for (Method m : c.getDeclaredMethods()) {<a name="line.850"></a>
-<span class="sourceLineNo">851</span>                if (!Modifier.isPublic(m.getModifiers())<a name="line.851"></a>
-<span class="sourceLineNo">852</span>                 || !m.getName().startsWith("set")<a name="line.852"></a>
-<span class="sourceLineNo">853</span>                 || m.getParameterTypes().length!=1<a name="line.853"></a>
-<span class="sourceLineNo">854</span>                 || !m.isAnnotationPresent(DataBoundSetter.class))<a name="line.854"></a>
-<span class="sourceLineNo">855</span>                    continue;<a name="line.855"></a>
-<span class="sourceLineNo">856</span><a name="line.856"></a>
-<span class="sourceLineNo">857</span>                String propertyName = Introspector.decapitalize(m.getName().substring(3));<a name="line.857"></a>
-<span class="sourceLineNo">858</span>                if (!name.equals(propertyName))<a name="line.858"></a>
-<span class="sourceLineNo">859</span>                    continue;   // not the name we are looking for<a name="line.859"></a>
-<span class="sourceLineNo">860</span><a name="line.860"></a>
-<span class="sourceLineNo">861</span>                return m;<a name="line.861"></a>
-<span class="sourceLineNo">862</span>            }<a name="line.862"></a>
-<span class="sourceLineNo">863</span>        }<a name="line.863"></a>
-<span class="sourceLineNo">864</span>        return null;<a name="line.864"></a>
-<span class="sourceLineNo">865</span>    }<a name="line.865"></a>
-<span class="sourceLineNo">866</span><a name="line.866"></a>
-<span class="sourceLineNo">867</span>    /**<a name="line.867"></a>
-<span class="sourceLineNo">868</span>     * Invoke PostConstruct method from the base class to subtypes.<a name="line.868"></a>
-<span class="sourceLineNo">869</span>     */<a name="line.869"></a>
-<span class="sourceLineNo">870</span>    private void invokePostConstruct(SingleLinkedList&lt;MethodRef&gt; methods, Object r) {<a name="line.870"></a>
-<span class="sourceLineNo">871</span>        if (methods.isEmpty())  return;<a name="line.871"></a>
-<span class="sourceLineNo">872</span><a name="line.872"></a>
-<span class="sourceLineNo">873</span>        invokePostConstruct(methods.tail,r);<a name="line.873"></a>
-<span class="sourceLineNo">874</span>        try {<a name="line.874"></a>
-<span class="sourceLineNo">875</span>            methods.head.invoke(r);<a name="line.875"></a>
-<span class="sourceLineNo">876</span>        } catch (InvocationTargetException e) {<a name="line.876"></a>
-<span class="sourceLineNo">877</span>            throw new IllegalArgumentException("Unable to post-construct "+r,e);<a name="line.877"></a>
-<span class="sourceLineNo">878</span>        } catch (IllegalAccessException e) {<a name="line.878"></a>
-<span class="sourceLineNo">879</span>            throw (Error)new IllegalAccessError().initCause(e);<a name="line.879"></a>
-<span class="sourceLineNo">880</span>        }<a name="line.880"></a>
-<span class="sourceLineNo">881</span><a name="line.881"></a>
-<span class="sourceLineNo">882</span>    }<a name="line.882"></a>
-<span class="sourceLineNo">883</span><a name="line.883"></a>
-<span class="sourceLineNo">884</span>    /**<a name="line.884"></a>
-<span class="sourceLineNo">885</span>     * Gets the type of the field/property designate by the given name.<a name="line.885"></a>
-<span class="sourceLineNo">886</span>     */<a name="line.886"></a>
-<span class="sourceLineNo">887</span>    private TypePair getPropertyType(Object bean, String name) throws IllegalAccessException, InvocationTargetException {<a name="line.887"></a>
-<span class="sourceLineNo">888</span>        try {<a name="line.888"></a>
-<span class="sourceLineNo">889</span>            PropertyDescriptor propDescriptor = PropertyUtils.getPropertyDescriptor(bean, name);<a name="line.889"></a>
-<span class="sourceLineNo">890</span>            if(propDescriptor!=null) {<a name="line.890"></a>
-<span class="sourceLineNo">891</span>                Method m = propDescriptor.getWriteMethod();<a name="line.891"></a>
-<span class="sourceLineNo">892</span>                if(m!=null)<a name="line.892"></a>
-<span class="sourceLineNo">893</span>                    return new TypePair(m.getGenericParameterTypes()[0], m.getParameterTypes()[0]);<a name="line.893"></a>
-<span class="sourceLineNo">894</span>            }<a name="line.894"></a>
-<span class="sourceLineNo">895</span>        } catch (NoSuchMethodException e) {<a name="line.895"></a>
-<span class="sourceLineNo">896</span>            // no such property<a name="line.896"></a>
-<span class="sourceLineNo">897</span>        }<a name="line.897"></a>
-<span class="sourceLineNo">898</span><a name="line.898"></a>
-<span class="sourceLineNo">899</span>        // try a field<a name="line.899"></a>
-<span class="sourceLineNo">900</span>        try {<a name="line.900"></a>
-<span class="sourceLineNo">901</span>            return new TypePair(bean.getClass().getField(name));<a name="line.901"></a>
-<span class="sourceLineNo">902</span>        } catch (NoSuchFieldException e) {<a name="line.902"></a>
-<span class="sourceLineNo">903</span>            // no such field<a name="line.903"></a>
-<span class="sourceLineNo">904</span>        }<a name="line.904"></a>
-<span class="sourceLineNo">905</span><a name="line.905"></a>
-<span class="sourceLineNo">906</span>        return null;<a name="line.906"></a>
-<span class="sourceLineNo">907</span>    }<a name="line.907"></a>
-<span class="sourceLineNo">908</span><a name="line.908"></a>
-<span class="sourceLineNo">909</span>    /**<a name="line.909"></a>
-<span class="sourceLineNo">910</span>     * Sets the property/field value of the given name, by performing a value type conversion if necessary.<a name="line.910"></a>
-<span class="sourceLineNo">911</span>     */<a name="line.911"></a>
-<span class="sourceLineNo">912</span>    private static void copyProperty(Object bean, String name, Object value) throws IllegalAccessException, InvocationTargetException {<a name="line.912"></a>
-<span class="sourceLineNo">913</span>        PropertyDescriptor propDescriptor;<a name="line.913"></a>
-<span class="sourceLineNo">914</span>        try {<a name="line.914"></a>
-<span class="sourceLineNo">915</span>            propDescriptor =<a name="line.915"></a>
-<span class="sourceLineNo">916</span>                PropertyUtils.getPropertyDescriptor(bean, name);<a name="line.916"></a>
-<span class="sourceLineNo">917</span>        } catch (NoSuchMethodException e) {<a name="line.917"></a>
-<span class="sourceLineNo">918</span>            propDescriptor = null;<a name="line.918"></a>
-<span class="sourceLineNo">919</span>        }<a name="line.919"></a>
-<span class="sourceLineNo">920</span>        if ((propDescriptor != null) &amp;&amp;<a name="line.920"></a>
-<span class="sourceLineNo">921</span>            (propDescriptor.getWriteMethod() == null)) {<a name="line.921"></a>
-<span class="sourceLineNo">922</span>            propDescriptor = null;<a name="line.922"></a>
-<span class="sourceLineNo">923</span>        }<a name="line.923"></a>
-<span class="sourceLineNo">924</span>        if (propDescriptor != null) {<a name="line.924"></a>
-<span class="sourceLineNo">925</span>            Converter converter = Stapler.lookupConverter(propDescriptor.getPropertyType());<a name="line.925"></a>
-<span class="sourceLineNo">926</span>            if (converter != null)<a name="line.926"></a>
-<span class="sourceLineNo">927</span>                value = converter.convert(propDescriptor.getPropertyType(), value);<a name="line.927"></a>
-<span class="sourceLineNo">928</span>            try {<a name="line.928"></a>
-<span class="sourceLineNo">929</span>                PropertyUtils.setSimpleProperty(bean, name, value);<a name="line.929"></a>
-<span class="sourceLineNo">930</span>            } catch (NoSuchMethodException e) {<a name="line.930"></a>
-<span class="sourceLineNo">931</span>                throw new NoSuchMethodError(e.getMessage());<a name="line.931"></a>
-<span class="sourceLineNo">932</span>            }<a name="line.932"></a>
-<span class="sourceLineNo">933</span>            return;<a name="line.933"></a>
-<span class="sourceLineNo">934</span>        }<a name="line.934"></a>
-<span class="sourceLineNo">935</span><a name="line.935"></a>
-<span class="sourceLineNo">936</span>        // try a field<a name="line.936"></a>
-<span class="sourceLineNo">937</span>        try {<a name="line.937"></a>
-<span class="sourceLineNo">938</span>            Field field = bean.getClass().getField(name);<a name="line.938"></a>
-<span class="sourceLineNo">939</span>            Converter converter = ConvertUtils.lookup(field.getType());<a name="line.939"></a>
-<span class="sourceLineNo">940</span>            if (converter != null)<a name="line.940"></a>
-<span class="sourceLineNo">941</span>                value = converter.convert(field.getType(), value);<a name="line.941"></a>
-<span class="sourceLineNo">942</span>            field.set(bean,value);<a name="line.942"></a>
-<span class="sourceLineNo">943</span>        } catch (NoSuchFieldException e) {<a name="line.943"></a>
-<span class="sourceLineNo">944</span>            // no such field<a name="line.944"></a>
-<span class="sourceLineNo">945</span>        }<a name="line.945"></a>
-<span class="sourceLineNo">946</span>    }<a name="line.946"></a>
-<span class="sourceLineNo">947</span><a name="line.947"></a>
-<span class="sourceLineNo">948</span>    private void parseMultipartFormData() throws ServletException {<a name="line.948"></a>
-<span class="sourceLineNo">949</span>        if(parsedFormData!=null)    return;<a name="line.949"></a>
-<span class="sourceLineNo">950</span><a name="line.950"></a>
-<span class="sourceLineNo">951</span>        parsedFormData = new HashMap&lt;String,FileItem&gt;();<a name="line.951"></a>
-<span class="sourceLineNo">952</span>        parsedFormDataFormFields = new HashMap&lt;String, String&gt;();<a name="line.952"></a>
-<span class="sourceLineNo">953</span>        ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());<a name="line.953"></a>
-<span class="sourceLineNo">954</span>        try {<a name="line.954"></a>
-<span class="sourceLineNo">955</span>            for( FileItem fi : (List&lt;FileItem&gt;)upload.parseRequest(this) ) {<a name="line.955"></a>
-<span class="sourceLineNo">956</span>                parsedFormData.put(fi.getFieldName(),fi);<a name="line.956"></a>
-<span class="sourceLineNo">957</span>                if (fi.isFormField()) {<a name="line.957"></a>
-<span class="sourceLineNo">958</span>                    parsedFormDataFormFields.put(fi.getFieldName(),fi.getString());<a name="line.958"></a>
-<span class="sourceLineNo">959</span>                }<a name="line.959"></a>
-<span class="sourceLineNo">960</span>            }<a name="line.960"></a>
-<span class="sourceLineNo">961</span>        } catch (FileUploadException e) {<a name="line.961"></a>
-<span class="sourceLineNo">962</span>            throw new ServletException(e);<a name="line.962"></a>
-<span class="sourceLineNo">963</span>        }<a name="line.963"></a>
-<span class="sourceLineNo">964</span>    }<a name="line.964"></a>
-<span class="sourceLineNo">965</span><a name="line.965"></a>
-<span class="sourceLineNo">966</span>    /**<a name="line.966"></a>
-<span class="sourceLineNo">967</span>     * A version of parseMultipartFormData() that doesn't throw exceptions.<a name="line.967"></a>
-<span class="sourceLineNo">968</span>     */<a name="line.968"></a>
-<span class="sourceLineNo">969</span>    private Map&lt;String, String&gt; getFormDataFormFields() {<a name="line.969"></a>
-<span class="sourceLineNo">970</span>        try {<a name="line.970"></a>
-<span class="sourceLineNo">971</span>            parseMultipartFormData();<a name="line.971"></a>
-<span class="sourceLineNo">972</span>        } catch (Exception e) {<a name="line.972"></a>
-<span class="sourceLineNo">973</span>            LOGGER.log(SEVERE, "Error parsing multipart/form-data.", e);<a name="line.973"></a>
-<span class="sourceLineNo">974</span>        }<a name="line.974"></a>
-<span class="sourceLineNo">975</span>        return parsedFormDataFormFields;<a name="line.975"></a>
-<span class="sourceLineNo">976</span>    }<a name="line.976"></a>
-<span class="sourceLineNo">977</span><a name="line.977"></a>
-<span class="sourceLineNo">978</span>    public JSONObject getSubmittedForm() throws ServletException {<a name="line.978"></a>
-<span class="sourceLineNo">979</span>        if(structuredForm==null) {<a name="line.979"></a>
-<span class="sourceLineNo">980</span>            String p = null;<a name="line.980"></a>
-<span class="sourceLineNo">981</span>            boolean isSubmission; // for error diagnosis, if something is submitted, set to true<a name="line.981"></a>
-<span class="sourceLineNo">982</span><a name="line.982"></a>
-<span class="sourceLineNo">983</span>            if(isMultipart()) {<a name="line.983"></a>
-<span class="sourceLineNo">984</span>                isSubmission=true;<a name="line.984"></a>
-<span class="sourceLineNo">985</span>                parseMultipartFormData();<a name="line.985"></a>
-<span class="sourceLineNo">986</span>                FileItem item = parsedFormData.get("json");<a name="line.986"></a>
-<span class="sourceLineNo">987</span>                if(item!=null) {<a name="line.987"></a>
-<span class="sourceLineNo">988</span>                    if (item.getContentType() == null &amp;&amp; getCharacterEncoding() != null) {<a name="line.988"></a>
-<span class="sourceLineNo">989</span>                        // JENKINS-11543: If client doesn't set charset per part, use request encoding<a name="line.989"></a>
-<span class="sourceLineNo">990</span>                        try {<a name="line.990"></a>
-<span class="sourceLineNo">991</span>                            p = item.getString(getCharacterEncoding());<a name="line.991"></a>
-<span class="sourceLineNo">992</span>                        } catch (java.io.UnsupportedEncodingException uee) {<a name="line.992"></a>
-<span class="sourceLineNo">993</span>                            LOGGER.log(WARNING, "Request has unsupported charset, using default for 'json' parameter", uee);<a name="line.993"></a>
-<span class="sourceLineNo">994</span>                            p = item.getString();<a name="line.994"></a>
-<span class="sourceLineNo">995</span>                        }<a name="line.995"></a>
-<span class="sourceLineNo">996</span>                    } else {<a name="line.996"></a>
-<span class="sourceLineNo">997</span>                        p = item.getString();<a name="line.997"></a>
-<span class="sourceLineNo">998</span>                    }<a name="line.998"></a>
-<span class="sourceLineNo">999</span>                }<a name="line.999"></a>
-<span class="sourceLineNo">1000</span>            } else {<a name="line.1000"></a>
-<span class="sourceLineNo">1001</span>                p = getParameter("json");<a name="line.1001"></a>
-<span class="sourceLineNo">1002</span>                isSubmission = !getParameterMap().isEmpty();<a name="line.1002"></a>
-<span class="sourceLineNo">1003</span>            }<a name="line.1003"></a>
-<span class="sourceLineNo">1004</span>            <a name="line.1004"></a>
-<span class="sourceLineNo">1005</span>            if(p==null || p.length() == 0) {<a name="line.1005"></a>
-<span class="sourceLineNo">1006</span>                // no data submitted<a name="line.1006"></a>
-<span class="sourceLineNo">1007</span>                try {<a name="line.1007"></a>
-<span class="sourceLineNo">1008</span>                    StaplerResponse rsp = Stapler.getCurrentResponse();<a name="line.1008"></a>
-<span class="sourceLineNo">1009</span>                    if(isSubmission)<a name="line.1009"></a>
-<span class="sourceLineNo">1010</span>                        rsp.sendError(SC_BAD_REQUEST,"This page expects a form submission");<a name="line.1010"></a>
-<span class="sourceLineNo">1011</span>                    else<a name="line.1011"></a>
-<span class="sourceLineNo">1012</span>                        rsp.sendError(SC_BAD_REQUEST,"Nothing is submitted");<a name="line.1012"></a>
-<span class="sourceLineNo">1013</span>                    throw new ServletException("This page expects a form submission but had only " + getParameterMap());<a name="line.1013"></a>
-<span class="sourceLineNo">1014</span>                } catch (IOException e) {<a name="line.1014"></a>
-<span class="sourceLineNo">1015</span>                    throw new ServletException(e);<a name="line.1015"></a>
-<span class="sourceLineNo">1016</span>                }<a name="line.1016"></a>
-<span class="sourceLineNo">1017</span>            }<a name="line.1017"></a>
-<span class="sourceLineNo">1018</span>            try {<a name="line.1018"></a>
-<span class="sourceLineNo">1019</span>                structuredForm = JSONObject.fromObject(p);<a name="line.1019"></a>
-<span class="sourceLineNo">1020</span>            } catch (JSONException e) {<a name="line.1020"></a>
-<span class="sourceLineNo">1021</span>                throw new ServletException("Failed to parse JSON:" + p, e);<a name="line.1021"></a>
-<span class="sourceLineNo">1022</span>            }<a name="line.1022"></a>
-<span class="sourceLineNo">1023</span>        }<a name="line.1023"></a>
-<span class="sourceLineNo">1024</span>        return structuredForm;<a name="line.1024"></a>
-<span class="sourceLineNo">1025</span>    }<a name="line.1025"></a>
-<span class="sourceLineNo">1026</span><a name="line.1026"></a>
-<span class="sourceLineNo">1027</span>    private boolean isMultipart() {<a name="line.1027"></a>
-<span class="sourceLineNo">1028</span>        String ct = getContentType();<a name="line.1028"></a>
-<span class="sourceLineNo">1029</span>        return (ct!=null &amp;&amp; ct.startsWith("multipart/"));<a name="line.1029"></a>
-<span class="sourceLineNo">1030</span>    }<a name="line.1030"></a>
-<span class="sourceLineNo">1031</span><a name="line.1031"></a>
-<span class="sourceLineNo">1032</span>    public FileItem getFileItem(String name) throws ServletException, IOException {<a name="line.1032"></a>
-<span class="sourceLineNo">1033</span>        parseMultipartFormData();<a name="line.1033"></a>
-<span class="sourceLineNo">1034</span>        if(parsedFormData==null)    return null;<a name="line.1034"></a>
-<span class="sourceLineNo">1035</span>        FileItem item = parsedFormData.get(name);<a name="line.1035"></a>
-<span class="sourceLineNo">1036</span>        if(item==null || item.isFormField())    return null;<a name="line.1036"></a>
-<span class="sourceLineNo">1037</span>        return item;<a name="line.1037"></a>
-<span class="sourceLineNo">1038</span>    }<a name="line.1038"></a>
-<span class="sourceLineNo">1039</span><a name="line.1039"></a>
-<span class="sourceLineNo">1040</span>    private static final Logger LOGGER = Logger.getLogger(RequestImpl.class.getName());<a name="line.1040"></a>
-<span class="sourceLineNo">1041</span>}<a name="line.1041"></a>
+<span class="sourceLineNo">680</span>                        JSONObject sanitizedJson = getWebApp().getJsonInErrorMessageSanitizer().sanitize(j);<a name="line.680"></a>
+<span class="sourceLineNo">681</span>                        throw new IllegalArgumentException("Failed to instantiate "+type+" from "+sanitizedJson,e);<a name="line.681"></a>
+<span class="sourceLineNo">682</span>                    }<a name="line.682"></a>
+<span class="sourceLineNo">683</span>                } else {// collection conversion<a name="line.683"></a>
+<span class="sourceLineNo">684</span>                    if(j.has("stapler-class-bag")) {<a name="line.684"></a>
+<span class="sourceLineNo">685</span>                        // this object is a hash from class names to their parameters<a name="line.685"></a>
+<span class="sourceLineNo">686</span>                        // build them into a collection via Lister<a name="line.686"></a>
+<span class="sourceLineNo">687</span><a name="line.687"></a>
+<span class="sourceLineNo">688</span>                        ClassLoader cl = stapler.getWebApp().getClassLoader();<a name="line.688"></a>
+<span class="sourceLineNo">689</span>                        for (Map.Entry&lt;String,Object&gt; e : (Set&lt;Map.Entry&lt;String,Object&gt;&gt;)j.entrySet()) {<a name="line.689"></a>
+<span class="sourceLineNo">690</span>                            Object v = e.getValue();<a name="line.690"></a>
+<span class="sourceLineNo">691</span><a name="line.691"></a>
+<span class="sourceLineNo">692</span>                            String className = e.getKey().replace('-','.'); // decode JSON-safe class name escaping<a name="line.692"></a>
+<span class="sourceLineNo">693</span>                            try {<a name="line.693"></a>
+<span class="sourceLineNo">694</span>                                Class&lt;?&gt; itemType = cl.loadClass(className);<a name="line.694"></a>
+<span class="sourceLineNo">695</span>                                if (v instanceof JSONObject) {<a name="line.695"></a>
+<span class="sourceLineNo">696</span>                                    l.add(bindJSON(itemType, (JSONObject) v));<a name="line.696"></a>
+<span class="sourceLineNo">697</span>                                }<a name="line.697"></a>
+<span class="sourceLineNo">698</span>                                if (v instanceof JSONArray) {<a name="line.698"></a>
+<span class="sourceLineNo">699</span>                                    for(Object i : bindJSONToList(itemType, (JSONArray) v))<a name="line.699"></a>
+<span class="sourceLineNo">700</span>                                        l.add(i);<a name="line.700"></a>
+<span class="sourceLineNo">701</span>                                }<a name="line.701"></a>
+<span class="sourceLineNo">702</span>                            } catch (ClassNotFoundException e1) {<a name="line.702"></a>
+<span class="sourceLineNo">703</span>                                // ignore unrecognized element<a name="line.703"></a>
+<span class="sourceLineNo">704</span>                            }<a name="line.704"></a>
+<span class="sourceLineNo">705</span>                        }<a name="line.705"></a>
+<span class="sourceLineNo">706</span>                    } else if (Enum.class.isAssignableFrom(l.itemType)) {<a name="line.706"></a>
+<span class="sourceLineNo">707</span>                        // this is a hash of element names as enum constant names<a name="line.707"></a>
+<span class="sourceLineNo">708</span>                        for (Map.Entry&lt;String,Object&gt; e : (Set&lt;Map.Entry&lt;String,Object&gt;&gt;)j.entrySet()) {<a name="line.708"></a>
+<span class="sourceLineNo">709</span>                            Object v = e.getValue();<a name="line.709"></a>
+<span class="sourceLineNo">710</span>                            if (v==null || (v instanceof Boolean &amp;&amp; !(Boolean)v))<a name="line.710"></a>
+<span class="sourceLineNo">711</span>                                continue;       // skip if the value is null or false<a name="line.711"></a>
+<span class="sourceLineNo">712</span><a name="line.712"></a>
+<span class="sourceLineNo">713</span>                            l.add(Enum.valueOf(l.itemType,e.getKey()));<a name="line.713"></a>
+<span class="sourceLineNo">714</span>                        }<a name="line.714"></a>
+<span class="sourceLineNo">715</span>                    } else {<a name="line.715"></a>
+<span class="sourceLineNo">716</span>                        // only one value given to the collection<a name="line.716"></a>
+<span class="sourceLineNo">717</span>                        l.add(new TypePair(l.itemGenericType,l.itemType).convertJSON(j));<a name="line.717"></a>
+<span class="sourceLineNo">718</span>                    }<a name="line.718"></a>
+<span class="sourceLineNo">719</span>                    return l.toCollection();<a name="line.719"></a>
+<span class="sourceLineNo">720</span>                }<a name="line.720"></a>
+<span class="sourceLineNo">721</span>            }<a name="line.721"></a>
+<span class="sourceLineNo">722</span>            if (o instanceof JSONArray) {<a name="line.722"></a>
+<span class="sourceLineNo">723</span>                if (l == null)<a name="line.723"></a>
+<span class="sourceLineNo">724</span>                    throw new WrongTypeException(String.format("Got type array but no lister class found for type %s", type));<a name="line.724"></a>
+<span class="sourceLineNo">725</span>                JSONArray a = (JSONArray) o;<a name="line.725"></a>
+<span class="sourceLineNo">726</span>                TypePair itemType = new TypePair(l.itemGenericType,l.itemType);<a name="line.726"></a>
+<span class="sourceLineNo">727</span>                for (Object item : a)<a name="line.727"></a>
+<span class="sourceLineNo">728</span>                    l.add(itemType.convertJSON(item));<a name="line.728"></a>
+<span class="sourceLineNo">729</span>                return l.toCollection();<a name="line.729"></a>
+<span class="sourceLineNo">730</span>            }<a name="line.730"></a>
+<span class="sourceLineNo">731</span><a name="line.731"></a>
+<span class="sourceLineNo">732</span>            if(Enum.class.isAssignableFrom(type))<a name="line.732"></a>
+<span class="sourceLineNo">733</span>                return Enum.valueOf(type,o.toString());<a name="line.733"></a>
+<span class="sourceLineNo">734</span><a name="line.734"></a>
+<span class="sourceLineNo">735</span>            if (l==null) {// single value conversion<a name="line.735"></a>
+<span class="sourceLineNo">736</span>                Converter converter = Stapler.lookupConverter(type);<a name="line.736"></a>
+<span class="sourceLineNo">737</span>                if (converter==null)<a name="line.737"></a>
+<span class="sourceLineNo">738</span>                    throw new IllegalArgumentException("Unable to convert to "+type);<a name="line.738"></a>
+<span class="sourceLineNo">739</span><a name="line.739"></a>
+<span class="sourceLineNo">740</span>                return converter.convert(type,o);<a name="line.740"></a>
+<span class="sourceLineNo">741</span>            } else {// single value in a collection<a name="line.741"></a>
+<span class="sourceLineNo">742</span>                Converter converter = Stapler.lookupConverter(l.itemType);<a name="line.742"></a>
+<span class="sourceLineNo">743</span>                if (converter==null)<a name="line.743"></a>
+<span class="sourceLineNo">744</span>                    throw new IllegalArgumentException("Unable to convert to "+l.itemType);<a name="line.744"></a>
+<span class="sourceLineNo">745</span><a name="line.745"></a>
+<span class="sourceLineNo">746</span>                l.add(converter.convert(l.itemType, o));<a name="line.746"></a>
+<span class="sourceLineNo">747</span>                return l.toCollection();<a name="line.747"></a>
+<span class="sourceLineNo">748</span>            }<a name="line.748"></a>
+<span class="sourceLineNo">749</span>        }<a name="line.749"></a>
+<span class="sourceLineNo">750</span>    }<a name="line.750"></a>
+<span class="sourceLineNo">751</span><a name="line.751"></a>
+<span class="sourceLineNo">752</span>    /**<a name="line.752"></a>
+<span class="sourceLineNo">753</span>     * Called after the actual type of the binding is figured out.<a name="line.753"></a>
+<span class="sourceLineNo">754</span>     */<a name="line.754"></a>
+<span class="sourceLineNo">755</span>    private Object instantiate(Class actualType, JSONObject j) {<a name="line.755"></a>
+<span class="sourceLineNo">756</span>        Object r = bindInterceptor.instantiate(actualType,j);<a name="line.756"></a>
+<span class="sourceLineNo">757</span>        if (r!=BindInterceptor.DEFAULT) return r;<a name="line.757"></a>
+<span class="sourceLineNo">758</span>        for (BindInterceptor bi : getWebApp().bindInterceptors) {<a name="line.758"></a>
+<span class="sourceLineNo">759</span>            r = bi.instantiate(actualType,j);<a name="line.759"></a>
+<span class="sourceLineNo">760</span>            if (r!=BindInterceptor.DEFAULT) return r;<a name="line.760"></a>
+<span class="sourceLineNo">761</span>        }<a name="line.761"></a>
+<span class="sourceLineNo">762</span><a name="line.762"></a>
+<span class="sourceLineNo">763</span>        if (actualType==JSONObject.class || actualType==JSON.class) return actualType.cast(j);<a name="line.763"></a>
+<span class="sourceLineNo">764</span><a name="line.764"></a>
+<span class="sourceLineNo">765</span>        String[] names = new ClassDescriptor(actualType).loadConstructorParamNames();<a name="line.765"></a>
+<span class="sourceLineNo">766</span><a name="line.766"></a>
+<span class="sourceLineNo">767</span>        // the actual arguments to invoke the constructor with.<a name="line.767"></a>
+<span class="sourceLineNo">768</span>        Object[] args = new Object[names.length];<a name="line.768"></a>
+<span class="sourceLineNo">769</span><a name="line.769"></a>
+<span class="sourceLineNo">770</span>        // constructor<a name="line.770"></a>
+<span class="sourceLineNo">771</span>        Constructor c = findConstructor(actualType, names.length);<a name="line.771"></a>
+<span class="sourceLineNo">772</span>        Class[] types = c.getParameterTypes();<a name="line.772"></a>
+<span class="sourceLineNo">773</span>        Type[] genTypes = c.getGenericParameterTypes();<a name="line.773"></a>
+<span class="sourceLineNo">774</span><a name="line.774"></a>
+<span class="sourceLineNo">775</span>        // convert parameters<a name="line.775"></a>
+<span class="sourceLineNo">776</span>        for( int i=0; i&lt;names.length; i++ ) {<a name="line.776"></a>
+<span class="sourceLineNo">777</span>            try {<a name="line.777"></a>
+<span class="sourceLineNo">778</span>                args[i] = bindJSON(genTypes[i],types[i],j.get(names[i]));<a name="line.778"></a>
+<span class="sourceLineNo">779</span>            } catch (IllegalArgumentException e) {<a name="line.779"></a>
+<span class="sourceLineNo">780</span>                throw new IllegalArgumentException("Failed to convert the "+names[i]+" parameter of the constructor "+c,e);<a name="line.780"></a>
+<span class="sourceLineNo">781</span>            }<a name="line.781"></a>
+<span class="sourceLineNo">782</span>        }<a name="line.782"></a>
+<span class="sourceLineNo">783</span><a name="line.783"></a>
+<span class="sourceLineNo">784</span>        Object o = injectSetters(invokeConstructor(c, args), j, Arrays.asList(names));<a name="line.784"></a>
+<span class="sourceLineNo">785</span>        o = bindResolve(o,j);<a name="line.785"></a>
+<span class="sourceLineNo">786</span><a name="line.786"></a>
+<span class="sourceLineNo">787</span>        return o;<a name="line.787"></a>
+<span class="sourceLineNo">788</span>    }<a name="line.788"></a>
+<span class="sourceLineNo">789</span><a name="line.789"></a>
+<span class="sourceLineNo">790</span>    /**<a name="line.790"></a>
+<span class="sourceLineNo">791</span>     * Calls {@link DataBoundResolvable#bindResolve(StaplerRequest, JSONObject)} if the object has it.<a name="line.791"></a>
+<span class="sourceLineNo">792</span>     */<a name="line.792"></a>
+<span class="sourceLineNo">793</span>    private Object bindResolve(Object o, JSONObject src) {<a name="line.793"></a>
+<span class="sourceLineNo">794</span>        if (o instanceof DataBoundResolvable) {<a name="line.794"></a>
+<span class="sourceLineNo">795</span>            DataBoundResolvable dbr = (DataBoundResolvable) o;<a name="line.795"></a>
+<span class="sourceLineNo">796</span>            o = dbr.bindResolve(this,src);<a name="line.796"></a>
+<span class="sourceLineNo">797</span>        }<a name="line.797"></a>
+<span class="sourceLineNo">798</span>        return o;<a name="line.798"></a>
+<span class="sourceLineNo">799</span>    }<a name="line.799"></a>
+<span class="sourceLineNo">800</span><a name="line.800"></a>
+<span class="sourceLineNo">801</span>    /**<a name="line.801"></a>
+<span class="sourceLineNo">802</span>     * Performs {@link DataBoundSetter} injections.<a name="line.802"></a>
+<span class="sourceLineNo">803</span>     *<a name="line.803"></a>
+<span class="sourceLineNo">804</span>     * @param exclusions<a name="line.804"></a>
+<span class="sourceLineNo">805</span>     *      Properties that are already injected through the constructor, thus not subject of the setter injection.<a name="line.805"></a>
+<span class="sourceLineNo">806</span>     */<a name="line.806"></a>
+<span class="sourceLineNo">807</span>    private &lt;T&gt; T injectSetters(T r, JSONObject j, Collection&lt;String&gt; exclusions) {<a name="line.807"></a>
+<span class="sourceLineNo">808</span>        // try to assign rest of the properties<a name="line.808"></a>
+<span class="sourceLineNo">809</span>        OUTER:<a name="line.809"></a>
+<span class="sourceLineNo">810</span>        for (String key : (Set&lt;String&gt;)j.keySet()) {<a name="line.810"></a>
+<span class="sourceLineNo">811</span>            if (!exclusions.contains(key)) {<a name="line.811"></a>
+<span class="sourceLineNo">812</span>                try {<a name="line.812"></a>
+<span class="sourceLineNo">813</span>                    // try field injection first<a name="line.813"></a>
+<span class="sourceLineNo">814</span>                    for (Class c=r.getClass(); c!=null; c=c.getSuperclass()) {<a name="line.814"></a>
+<span class="sourceLineNo">815</span>                        try {<a name="line.815"></a>
+<span class="sourceLineNo">816</span>                            Field f = c.getDeclaredField(key);<a name="line.816"></a>
+<span class="sourceLineNo">817</span>                            if (f.getAnnotation(DataBoundSetter.class)!=null) {<a name="line.817"></a>
+<span class="sourceLineNo">818</span>                                f.setAccessible(true);<a name="line.818"></a>
+<span class="sourceLineNo">819</span>                                f.set(r, bindJSON(f.getGenericType(), f.getType(), j.get(key)));<a name="line.819"></a>
+<span class="sourceLineNo">820</span>                                continue OUTER;<a name="line.820"></a>
+<span class="sourceLineNo">821</span>                            }<a name="line.821"></a>
+<span class="sourceLineNo">822</span>                        } catch (NoSuchFieldException e) {<a name="line.822"></a>
+<span class="sourceLineNo">823</span>                            // recurse into parents<a name="line.823"></a>
+<span class="sourceLineNo">824</span>                        }<a name="line.824"></a>
+<span class="sourceLineNo">825</span>                    }<a name="line.825"></a>
+<span class="sourceLineNo">826</span><a name="line.826"></a>
+<span class="sourceLineNo">827</span>                    Method wm = findDataBoundSetter(r.getClass(), key);<a name="line.827"></a>
+<span class="sourceLineNo">828</span>                    if (wm==null)   continue;<a name="line.828"></a>
+<span class="sourceLineNo">829</span><a name="line.829"></a>
+<span class="sourceLineNo">830</span>                    Class&lt;?&gt;[] pt = wm.getParameterTypes();<a name="line.830"></a>
+<span class="sourceLineNo">831</span>                    assert pt.length==1;<a name="line.831"></a>
+<span class="sourceLineNo">832</span><a name="line.832"></a>
+<span class="sourceLineNo">833</span>                    // only invoking public methods for security reasons<a name="line.833"></a>
+<span class="sourceLineNo">834</span>                    wm.invoke(r, bindJSON(wm.getGenericParameterTypes()[0], pt[0], j.get(key)));<a name="line.834"></a>
+<span class="sourceLineNo">835</span>                } catch (IllegalAccessException e) {<a name="line.835"></a>
+<span class="sourceLineNo">836</span>                    LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);<a name="line.836"></a>
+<span class="sourceLineNo">837</span>                } catch (InvocationTargetException e) {<a name="line.837"></a>
+<span class="sourceLineNo">838</span>                    LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);<a name="line.838"></a>
+<span class="sourceLineNo">839</span>                }<a name="line.839"></a>
+<span class="sourceLineNo">840</span>            }<a name="line.840"></a>
+<span class="sourceLineNo">841</span>        }<a name="line.841"></a>
+<span class="sourceLineNo">842</span><a name="line.842"></a>
+<span class="sourceLineNo">843</span>        invokePostConstruct(getWebApp().getMetaClass(r).getPostConstructMethods(), r);<a name="line.843"></a>
+<span class="sourceLineNo">844</span><a name="line.844"></a>
+<span class="sourceLineNo">845</span>        return r;<a name="line.845"></a>
+<span class="sourceLineNo">846</span>    }<a name="line.846"></a>
+<span class="sourceLineNo">847</span><a name="line.847"></a>
+<span class="sourceLineNo">848</span>    private Method findDataBoundSetter(Class c, String name) {<a name="line.848"></a>
+<span class="sourceLineNo">849</span>        // look for public setter that has the matching name<a name="line.849"></a>
+<span class="sourceLineNo">850</span>        for ( ; c!=null; c=c.getSuperclass()) {<a name="line.850"></a>
+<span class="sourceLineNo">851</span>            for (Method m : c.getDeclaredMethods()) {<a name="line.851"></a>
+<span class="sourceLineNo">852</span>                if (!Modifier.isPublic(m.getModifiers())<a name="line.852"></a>
+<span class="sourceLineNo">853</span>                 || !m.getName().startsWith("set")<a name="line.853"></a>
+<span class="sourceLineNo">854</span>                 || m.getParameterTypes().length!=1<a name="line.854"></a>
+<span class="sourceLineNo">855</span>                 || !m.isAnnotationPresent(DataBoundSetter.class))<a name="line.855"></a>
+<span class="sourceLineNo">856</span>                    continue;<a name="line.856"></a>
+<span class="sourceLineNo">857</span><a name="line.857"></a>
+<span class="sourceLineNo">858</span>                String propertyName = Introspector.decapitalize(m.getName().substring(3));<a name="line.858"></a>
+<span class="sourceLineNo">859</span>                if (!name.equals(propertyName))<a name="line.859"></a>
+<span class="sourceLineNo">860</span>                    continue;   // not the name we are looking for<a name="line.860"></a>
+<span class="sourceLineNo">861</span><a name="line.861"></a>
+<span class="sourceLineNo">862</span>                return m;<a name="line.862"></a>
+<span class="sourceLineNo">863</span>            }<a name="line.863"></a>
+<span class="sourceLineNo">864</span>        }<a name="line.864"></a>
+<span class="sourceLineNo">865</span>        return null;<a name="line.865"></a>
+<span class="sourceLineNo">866</span>    }<a name="line.866"></a>
+<span class="sourceLineNo">867</span><a name="line.867"></a>
+<span class="sourceLineNo">868</span>    /**<a name="line.868"></a>
+<span class="sourceLineNo">869</span>     * Invoke PostConstruct method from the base class to subtypes.<a name="line.869"></a>
+<span class="sourceLineNo">870</span>     */<a name="line.870"></a>
+<span class="sourceLineNo">871</span>    private void invokePostConstruct(SingleLinkedList&lt;MethodRef&gt; methods, Object r) {<a name="line.871"></a>
+<span class="sourceLineNo">872</span>        if (methods.isEmpty())  return;<a name="line.872"></a>
+<span class="sourceLineNo">873</span><a name="line.873"></a>
+<span class="sourceLineNo">874</span>        invokePostConstruct(methods.tail,r);<a name="line.874"></a>
+<span class="sourceLineNo">875</span>        try {<a name="line.875"></a>
+<span class="sourceLineNo">876</span>            methods.head.invoke(r);<a name="line.876"></a>
+<span class="sourceLineNo">877</span>        } catch (InvocationTargetException e) {<a name="line.877"></a>
+<span class="sourceLineNo">878</span>            throw new IllegalArgumentException("Unable to post-construct "+r,e);<a name="line.878"></a>
+<span class="sourceLineNo">879</span>        } catch (IllegalAccessException e) {<a name="line.879"></a>
+<span class="sourceLineNo">880</span>            throw (Error)new IllegalAccessError().initCause(e);<a name="line.880"></a>
+<span class="sourceLineNo">881</span>        }<a name="line.881"></a>
+<span class="sourceLineNo">882</span><a name="line.882"></a>
+<span class="sourceLineNo">883</span>    }<a name="line.883"></a>
+<span class="sourceLineNo">884</span><a name="line.884"></a>
+<span class="sourceLineNo">885</span>    /**<a name="line.885"></a>
+<span class="sourceLineNo">886</span>     * Gets the type of the field/property designate by the given name.<a name="line.886"></a>
+<span class="sourceLineNo">887</span>     */<a name="line.887"></a>
+<span class="sourceLineNo">888</span>    private TypePair getPropertyType(Object bean, String name) throws IllegalAccessException, InvocationTargetException {<a name="line.888"></a>
+<span class="sourceLineNo">889</span>        try {<a name="line.889"></a>
+<span class="sourceLineNo">890</span>            PropertyDescriptor propDescriptor = PropertyUtils.getPropertyDescriptor(bean, name);<a name="line.890"></a>
+<span class="sourceLineNo">891</span>            if(propDescriptor!=null) {<a name="line.891"></a>
+<span class="sourceLineNo">892</span>                Method m = propDescriptor.getWriteMethod();<a name="line.892"></a>
+<span class="sourceLineNo">893</span>                if(m!=null)<a name="line.893"></a>
+<span class="sourceLineNo">894</span>                    return new TypePair(m.getGenericParameterTypes()[0], m.getParameterTypes()[0]);<a name="line.894"></a>
+<span class="sourceLineNo">895</span>            }<a name="line.895"></a>
+<span class="sourceLineNo">896</span>        } catch (NoSuchMethodException e) {<a name="line.896"></a>
+<span class="sourceLineNo">897</span>            // no such property<a name="line.897"></a>
+<span class="sourceLineNo">898</span>        }<a name="line.898"></a>
+<span class="sourceLineNo">899</span><a name="line.899"></a>
+<span class="sourceLineNo">900</span>        // try a field<a name="line.900"></a>
+<span class="sourceLineNo">901</span>        try {<a name="line.901"></a>
+<span class="sourceLineNo">902</span>            return new TypePair(bean.getClass().getField(name));<a name="line.902"></a>
+<span class="sourceLineNo">903</span>        } catch (NoSuchFieldException e) {<a name="line.903"></a>
+<span class="sourceLineNo">904</span>            // no such field<a name="line.904"></a>
+<span class="sourceLineNo">905</span>        }<a name="line.905"></a>
+<span class="sourceLineNo">906</span><a name="line.906"></a>
+<span class="sourceLineNo">907</span>        return null;<a name="line.907"></a>
+<span class="sourceLineNo">908</span>    }<a name="line.908"></a>
+<span class="sourceLineNo">909</span><a name="line.909"></a>
+<span class="sourceLineNo">910</span>    /**<a name="line.910"></a>
+<span class="sourceLineNo">911</span>     * Sets the property/field value of the given name, by performing a value type conversion if necessary.<a name="line.911"></a>
+<span class="sourceLineNo">912</span>     */<a name="line.912"></a>
+<span class="sourceLineNo">913</span>    private static void copyProperty(Object bean, String name, Object value) throws IllegalAccessException, InvocationTargetException {<a name="line.913"></a>
+<span class="sourceLineNo">914</span>        PropertyDescriptor propDescriptor;<a name="line.914"></a>
+<span class="sourceLineNo">915</span>        try {<a name="line.915"></a>
+<span class="sourceLineNo">916</span>            propDescriptor =<a name="line.916"></a>
+<span class="sourceLineNo">917</span>                PropertyUtils.getPropertyDescriptor(bean, name);<a name="line.917"></a>
+<span class="sourceLineNo">918</span>        } catch (NoSuchMethodException e) {<a name="line.918"></a>
+<span class="sourceLineNo">919</span>            propDescriptor = null;<a name="line.919"></a>
+<span class="sourceLineNo">920</span>        }<a name="line.920"></a>
+<span class="sourceLineNo">921</span>        if ((propDescriptor != null) &amp;&amp;<a name="line.921"></a>
+<span class="sourceLineNo">922</span>            (propDescriptor.getWriteMethod() == null)) {<a name="line.922"></a>
+<span class="sourceLineNo">923</span>            propDescriptor = null;<a name="line.923"></a>
+<span class="sourceLineNo">924</span>        }<a name="line.924"></a>
+<span class="sourceLineNo">925</span>        if (propDescriptor != null) {<a name="line.925"></a>
+<span class="sourceLineNo">926</span>            Converter converter = Stapler.lookupConverter(propDescriptor.getPropertyType());<a name="line.926"></a>
+<span class="sourceLineNo">927</span>            if (converter != null)<a name="line.927"></a>
+<span class="sourceLineNo">928</span>                value = converter.convert(propDescriptor.getPropertyType(), value);<a name="line.928"></a>
+<span class="sourceLineNo">929</span>            try {<a name="line.929"></a>
+<span class="sourceLineNo">930</span>                PropertyUtils.setSimpleProperty(bean, name, value);<a name="line.930"></a>
+<span class="sourceLineNo">931</span>            } catch (NoSuchMethodException e) {<a name="line.931"></a>
+<span class="sourceLineNo">932</span>                throw new NoSuchMethodError(e.getMessage());<a name="line.932"></a>
+<span class="sourceLineNo">933</span>            }<a name="line.933"></a>
+<span class="sourceLineNo">934</span>            return;<a name="line.934"></a>
+<span class="sourceLineNo">935</span>        }<a name="line.935"></a>
+<span class="sourceLineNo">936</span><a name="line.936"></a>
+<span class="sourceLineNo">937</span>        // try a field<a name="line.937"></a>
+<span class="sourceLineNo">938</span>        try {<a name="line.938"></a>
+<span class="sourceLineNo">939</span>            Field field = bean.getClass().getField(name);<a name="line.939"></a>
+<span class="sourceLineNo">940</span>            Converter converter = ConvertUtils.lookup(field.getType());<a name="line.940"></a>
+<span class="sourceLineNo">941</span>            if (converter != null)<a name="line.941"></a>
+<span class="sourceLineNo">942</span>                value = converter.convert(field.getType(), value);<a name="line.942"></a>
+<span class="sourceLineNo">943</span>            field.set(bean,value);<a name="line.943"></a>
+<span class="sourceLineNo">944</span>        } catch (NoSuchFieldException e) {<a name="line.944"></a>
+<span class="sourceLineNo">945</span>            // no such field<a name="line.945"></a>
+<span class="sourceLineNo">946</span>        }<a name="line.946"></a>
+<span class="sourceLineNo">947</span>    }<a name="line.947"></a>
+<span class="sourceLineNo">948</span><a name="line.948"></a>
+<span class="sourceLineNo">949</span>    private void parseMultipartFormData() throws ServletException {<a name="line.949"></a>
+<span class="sourceLineNo">950</span>        if(parsedFormData!=null)    return;<a name="line.950"></a>
+<span class="sourceLineNo">951</span><a name="line.951"></a>
+<span class="sourceLineNo">952</span>        parsedFormData = new HashMap&lt;String,FileItem&gt;();<a name="line.952"></a>
+<span class="sourceLineNo">953</span>        parsedFormDataFormFields = new HashMap&lt;String, String&gt;();<a name="line.953"></a>
+<span class="sourceLineNo">954</span>        ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());<a name="line.954"></a>
+<span class="sourceLineNo">955</span>        try {<a name="line.955"></a>
+<span class="sourceLineNo">956</span>            for( FileItem fi : (List&lt;FileItem&gt;)upload.parseRequest(this) ) {<a name="line.956"></a>
+<span class="sourceLineNo">957</span>                parsedFormData.put(fi.getFieldName(),fi);<a name="line.957"></a>
+<span class="sourceLineNo">958</span>                if (fi.isFormField()) {<a name="line.958"></a>
+<span class="sourceLineNo">959</span>                    parsedFormDataFormFields.put(fi.getFieldName(),fi.getString());<a name="line.959"></a>
+<span class="sourceLineNo">960</span>                }<a name="line.960"></a>
+<span class="sourceLineNo">961</span>            }<a name="line.961"></a>
+<span class="sourceLineNo">962</span>        } catch (FileUploadException e) {<a name="line.962"></a>
+<span class="sourceLineNo">963</span>            throw new ServletException(e);<a name="line.963"></a>
+<span class="sourceLineNo">964</span>        }<a name="line.964"></a>
+<span class="sourceLineNo">965</span>    }<a name="line.965"></a>
+<span class="sourceLineNo">966</span><a name="line.966"></a>
+<span class="sourceLineNo">967</span>    /**<a name="line.967"></a>
+<span class="sourceLineNo">968</span>     * A version of parseMultipartFormData() that doesn't throw exceptions.<a name="line.968"></a>
+<span class="sourceLineNo">969</span>     */<a name="line.969"></a>
+<span class="sourceLineNo">970</span>    private Map&lt;String, String&gt; getFormDataFormFields() {<a name="line.970"></a>
+<span class="sourceLineNo">971</span>        try {<a name="line.971"></a>
+<span class="sourceLineNo">972</span>            parseMultipartFormData();<a name="line.972"></a>
+<span class="sourceLineNo">973</span>        } catch (Exception e) {<a name="line.973"></a>
+<span class="sourceLineNo">974</span>            LOGGER.log(SEVERE, "Error parsing multipart/form-data.", e);<a name="line.974"></a>
+<span class="sourceLineNo">975</span>        }<a name="line.975"></a>
+<span class="sourceLineNo">976</span>        return parsedFormDataFormFields;<a name="line.976"></a>
+<span class="sourceLineNo">977</span>    }<a name="line.977"></a>
+<span class="sourceLineNo">978</span><a name="line.978"></a>
+<span class="sourceLineNo">979</span>    public JSONObject getSubmittedForm() throws ServletException {<a name="line.979"></a>
+<span class="sourceLineNo">980</span>        if(structuredForm==null) {<a name="line.980"></a>
+<span class="sourceLineNo">981</span>            String p = null;<a name="line.981"></a>
+<span class="sourceLineNo">982</span>            boolean isSubmission; // for error diagnosis, if something is submitted, set to true<a name="line.982"></a>
+<span class="sourceLineNo">983</span><a name="line.983"></a>
+<span class="sourceLineNo">984</span>            if(isMultipart()) {<a name="line.984"></a>
+<span class="sourceLineNo">985</span>                isSubmission=true;<a name="line.985"></a>
+<span class="sourceLineNo">986</span>                parseMultipartFormData();<a name="line.986"></a>
+<span class="sourceLineNo">987</span>                FileItem item = parsedFormData.get("json");<a name="line.987"></a>
+<span class="sourceLineNo">988</span>                if(item!=null) {<a name="line.988"></a>
+<span class="sourceLineNo">989</span>                    if (item.getContentType() == null &amp;&amp; getCharacterEncoding() != null) {<a name="line.989"></a>
+<span class="sourceLineNo">990</span>                        // JENKINS-11543: If client doesn't set charset per part, use request encoding<a name="line.990"></a>
+<span class="sourceLineNo">991</span>                        try {<a name="line.991"></a>
+<span class="sourceLineNo">992</span>                            p = item.getString(getCharacterEncoding());<a name="line.992"></a>
+<span class="sourceLineNo">993</span>                        } catch (java.io.UnsupportedEncodingException uee) {<a name="line.993"></a>
+<span class="sourceLineNo">994</span>                            LOGGER.log(WARNING, "Request has unsupported charset, using default for 'json' parameter", uee);<a name="line.994"></a>
+<span class="sourceLineNo">995</span>                            p = item.getString();<a name="line.995"></a>
+<span class="sourceLineNo">996</span>                        }<a name="line.996"></a>
+<span class="sourceLineNo">997</span>                    } else {<a name="line.997"></a>
+<span class="sourceLineNo">998</span>                        p = item.getString();<a name="line.998"></a>
+<span class="sourceLineNo">999</span>                    }<a name="line.999"></a>
+<span class="sourceLineNo">1000</span>                }<a name="line.1000"></a>
+<span class="sourceLineNo">1001</span>            } else {<a name="line.1001"></a>
+<span class="sourceLineNo">1002</span>                p = getParameter("json");<a name="line.1002"></a>
+<span class="sourceLineNo">1003</span>                isSubmission = !getParameterMap().isEmpty();<a name="line.1003"></a>
+<span class="sourceLineNo">1004</span>            }<a name="line.1004"></a>
+<span class="sourceLineNo">1005</span>            <a name="line.1005"></a>
+<span class="sourceLineNo">1006</span>            if(p==null || p.length() == 0) {<a name="line.1006"></a>
+<span class="sourceLineNo">1007</span>                // no data submitted<a name="line.1007"></a>
+<span class="sourceLineNo">1008</span>                try {<a name="line.1008"></a>
+<span class="sourceLineNo">1009</span>                    StaplerResponse rsp = Stapler.getCurrentResponse();<a name="line.1009"></a>
+<span class="sourceLineNo">1010</span>                    if(isSubmission)<a name="line.1010"></a>
+<span class="sourceLineNo">1011</span>                        rsp.sendError(SC_BAD_REQUEST,"This page expects a form submission");<a name="line.1011"></a>
+<span class="sourceLineNo">1012</span>                    else<a name="line.1012"></a>
+<span class="sourceLineNo">1013</span>                        rsp.sendError(SC_BAD_REQUEST,"Nothing is submitted");<a name="line.1013"></a>
+<span class="sourceLineNo">1014</span>                    throw new ServletException("This page expects a form submission but had only " + getParameterMap());<a name="line.1014"></a>
+<span class="sourceLineNo">1015</span>                } catch (IOException e) {<a name="line.1015"></a>
+<span class="sourceLineNo">1016</span>                    throw new ServletException(e);<a name="line.1016"></a>
+<span class="sourceLineNo">1017</span>                }<a name="line.1017"></a>
+<span class="sourceLineNo">1018</span>            }<a name="line.1018"></a>
+<span class="sourceLineNo">1019</span>            try {<a name="line.1019"></a>
+<span class="sourceLineNo">1020</span>                structuredForm = JSONObject.fromObject(p);<a name="line.1020"></a>
+<span class="sourceLineNo">1021</span>            } catch (JSONException e) {<a name="line.1021"></a>
+<span class="sourceLineNo">1022</span>                throw new ServletException("Failed to parse JSON:" + p, e);<a name="line.1022"></a>
+<span class="sourceLineNo">1023</span>            }<a name="line.1023"></a>
+<span class="sourceLineNo">1024</span>        }<a name="line.1024"></a>
+<span class="sourceLineNo">1025</span>        return structuredForm;<a name="line.1025"></a>
+<span class="sourceLineNo">1026</span>    }<a name="line.1026"></a>
+<span class="sourceLineNo">1027</span><a name="line.1027"></a>
+<span class="sourceLineNo">1028</span>    private boolean isMultipart() {<a name="line.1028"></a>
+<span class="sourceLineNo">1029</span>        String ct = getContentType();<a name="line.1029"></a>
+<span class="sourceLineNo">1030</span>        return (ct!=null &amp;&amp; ct.startsWith("multipart/"));<a name="line.1030"></a>
+<span class="sourceLineNo">1031</span>    }<a name="line.1031"></a>
+<span class="sourceLineNo">1032</span><a name="line.1032"></a>
+<span class="sourceLineNo">1033</span>    public FileItem getFileItem(String name) throws ServletException, IOException {<a name="line.1033"></a>
+<span class="sourceLineNo">1034</span>        parseMultipartFormData();<a name="line.1034"></a>
+<span class="sourceLineNo">1035</span>        if(parsedFormData==null)    return null;<a name="line.1035"></a>
+<span class="sourceLineNo">1036</span>        FileItem item = parsedFormData.get(name);<a name="line.1036"></a>
+<span class="sourceLineNo">1037</span>        if(item==null || item.isFormField())    return null;<a name="line.1037"></a>
+<span class="sourceLineNo">1038</span>        return item;<a name="line.1038"></a>
+<span class="sourceLineNo">1039</span>    }<a name="line.1039"></a>
+<span class="sourceLineNo">1040</span><a name="line.1040"></a>
+<span class="sourceLineNo">1041</span>    private static final Logger LOGGER = Logger.getLogger(RequestImpl.class.getName());<a name="line.1041"></a>
+<span class="sourceLineNo">1042</span>}<a name="line.1042"></a>
 
 
 
