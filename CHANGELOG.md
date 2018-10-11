@@ -7,6 +7,18 @@ Upcoming
 Related to [JENKINS-48198](https://issues.jenkins-ci.org/browse/JENKINS-48198).
 * [PR #149](https://github.com/stapler/stapler/pull/149) - fix handling of a `null` return value from `StaplerProxy.getTarget`
 
+##### 1.254.2
+Public release date: Oct 10, 2018
+* [Jenkins SECURITY-867](https://jenkins.io/security/advisory/2018-10-10/#SECURITY-867)
+* [Jenkins SECURITY-765](https://jenkins.io/security/advisory/2018-10-10/#SECURITY-765): Add `JsonInErrorMessageSanitizer`
+* Jenkins security hardening SECURITY-989: Better match HTTP verb names
+* Jenkins security hardening SECURITY-857: Enable `escape-by-default` if unspecified.
+
+##### 1.254.1
+Public release date: Jul 18, 2018
+* [Jenkins SECURITY-914](https://jenkins.io/security/advisory/2018-07-18/#SECURITY-914)
+* [Jenkins SECURITY-390](https://jenkins.io/security/advisory/2018-07-18/#SECURITY-390)
+
 ##### 1.254
 Release date: Dec 15, 2017
 * [PR #135](https://github.com/stapler/stapler/pull/135) - allow customizing `RequirePOST` error pages
@@ -37,6 +49,18 @@ Fixes [JENKINS-43715](https://issues.jenkins-ci.org/browse/JENKINS-43715), regre
 * [PR #112](https://github.com/stapler/stapler/pull/112) -
 Prevent `NullPointerException` in `FilteringTreePruner` when child object in the tree is `null`.
 Related to [JENKINS-40979](https://issues.jenkins-ci.org/browse/JENKINS-40979).
+
+##### 1.250.2
+Public release date: Oct 10, 2018
+* [Jenkins SECURITY-867](https://jenkins.io/security/advisory/2018-10-10/#SECURITY-867)
+* [Jenkins SECURITY-765](https://jenkins.io/security/advisory/2018-10-10/#SECURITY-765): Add `JsonInErrorMessageSanitizer`
+* Jenkins security hardening SECURITY-989: Better match HTTP verb names
+* Jenkins security hardening SECURITY-857: Enable `escape-by-default` if unspecified.
+
+##### 1.250.1
+Public release date: Jul 18, 2018
+* [Jenkins SECURITY-914](https://jenkins.io/security/advisory/2018-07-18/#SECURITY-914)
+* [Jenkins SECURITY-390](https://jenkins.io/security/advisory/2018-07-18/#SECURITY-390)
 
 ##### 1.250
 Release date: January 20, 2017
