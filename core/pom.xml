@@ -26,6 +26,11 @@
   </build>
   <dependencies>
     <dependency>
+      <groupId>io.jenkins.fields</groupId>
+      <artifactId>fields</artifactId>
+      <version>1.0.0-20180620.094913-3</version>
+    </dependency>
+    <dependency>
       <groupId>javax.annotation</groupId>
       <artifactId>javax.annotation-api</artifactId>
       <version>1.2</version>

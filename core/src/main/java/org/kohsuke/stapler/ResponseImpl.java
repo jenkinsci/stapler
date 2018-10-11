@@ -344,7 +344,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
         // copy the response
         int code = con.getResponseCode();
-        setStatus(code,con.getResponseMessage());
+        sendError(code,con.getResponseMessage());
         Map<String,List<String>> rspHeaders = con.getHeaderFields();
         for (Entry<String, List<String>> header : rspHeaders.entrySet()) {
             if(header.getKey()==null)   continue;   // response line
