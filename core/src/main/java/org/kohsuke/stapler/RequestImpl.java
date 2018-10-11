@@ -491,6 +491,22 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     public void bindJSON(Object bean, JSONObject src) {
+
+        // First, invoke @DataBoundSetter to set default value for properties without a matching entry in json
+        for (Class c = bean.getClass() ; c!=null; c=c.getSuperclass()) {
+            Arrays.stream(c.getMethods())
+                .filter(m -> m.getParameterCount() == 1)
+                .filter(m -> m.getName().startsWith("set"))
+                .filter(m -> m.isAnnotationPresent(DataBoundSetter.class))
+                .forEach(m -> {
+                    String propertyName = Introspector.decapitalize(m.getName().substring(3));
+                    if (!src.containsKey(propertyName)) {
+                        // src doesn't set a value for this DataBoundSetter, so invoke it with @DefaultValue
+                        invokeSetter(bean, src, propertyName, m);
+                    }
+                });
+        }
+
         try {
             for( String key : (Set<String>)src.keySet() ) {
                 TypePair type = getPropertyType(bean, key);
