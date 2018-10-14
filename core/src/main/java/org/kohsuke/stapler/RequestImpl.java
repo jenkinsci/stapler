@@ -492,21 +492,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     public void bindJSON(Object bean, JSONObject src) {
 
-        // First, invoke @DataBoundSetter to set default value for properties without a matching entry in json
-        for (Class c = bean.getClass() ; c!=null; c=c.getSuperclass()) {
-            Arrays.stream(c.getMethods())
-                .filter(m -> m.getParameterCount() == 1)
-                .filter(m -> m.getName().startsWith("set"))
-                .filter(m -> m.isAnnotationPresent(DataBoundSetter.class))
-                .forEach(m -> {
-                    String propertyName = Introspector.decapitalize(m.getName().substring(3));
-                    if (!src.containsKey(propertyName)) {
-                        // src doesn't set a value for this DataBoundSetter, so invoke it with @DefaultValue
-                        invokeSetter(bean, src, propertyName, m);
-                    }
-                });
-        }
+        // First try using @DataBoundSetters.
+        // this ensure we set default value for properties without a matching entry in json
+        injectSetters(bean, src, Collections.EMPTY_LIST);
 
+        // The use javabean style setters for backward compatibility
         try {
             for( String key : (Set<String>)src.keySet() ) {
                 TypePair type = getPropertyType(bean, key);
@@ -531,6 +521,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 throw (Error)e;
             throw new RuntimeException(x);
         }
+
+        final Set violations = validator.validate(bean);
+        if (!violations.isEmpty()) throw new ConstraintsValidationException(violations);
     }
 
     public <T> List<T> bindJSONToList(Class<T> type, Object src) {
@@ -896,7 +889,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     private Object getJsonValueOrDefault(JSONObject j, String name, AnnotatedElement e) {
-        Object json = j.get(name);
+        Object json = j.remove(name);
         if (json != null && e.getAnnotation(Trim.class) != null) {
             json = StringUtils.trimToNull(json.toString());
         }
