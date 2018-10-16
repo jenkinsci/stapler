@@ -59,7 +59,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.text.ParseException;
@@ -79,7 +78,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.*;
-import static javax.servlet.http.HttpServletResponse.*;
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
 /**
  * {@link StaplerRequest} implementation.
@@ -547,6 +546,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     private <T> T invokeConstructor(Constructor<T> c, Object[] args) {
         try {
+            final Set violations = validator.forExecutables().validateConstructorParameters(c, args);
+            if (!violations.isEmpty()) throw new ConstraintsValidationException(violations);
+
             return c.newInstance(args);
         } catch (InstantiationException e) {
             InstantiationError x = new InstantiationError(e.getMessage());
@@ -804,7 +806,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             }
         }
 
-        Object o = injectSetters(invokeConstructor(c, args), j, Arrays.asList(names));
+        r = invokeConstructor(c, args);
+
+        Object o = injectSetters(r, j, Arrays.asList(names));
+
+        invokePostConstruct(getWebApp().getMetaClass(r).getPostConstructMethods(), r);
+
         o = bindResolve(o,j);
 
         return o;
@@ -854,13 +861,6 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     invokeSetter(r, j, propertyName, m);
                 });
         }
-
-
-       final Set violations = validator.validate(r);
-        if (!violations.isEmpty()) throw new ConstraintsValidationException(violations);
-
-        invokePostConstruct(getWebApp().getMetaClass(r).getPostConstructMethods(), r);
-
         return r;
     }
 
@@ -869,6 +869,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         if (json == null) return;
         final Object value = bindJSON(f.getGenericType(), f.getType(), json);
         try {
+            final Set violations = validator.validateValue(r.getClass(), name, value);
+            if (!violations.isEmpty()) throw new ConstraintsValidationException(violations);
+
             f.setAccessible(true);
             f.set(r, value);
         } catch (IllegalAccessException e) {
@@ -882,6 +885,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         Class<?>[] pt = m.getParameterTypes();
         final Object value = bindJSON(m.getGenericParameterTypes()[0], pt[0], json);
         try {
+            final Set violations = validator.forExecutables().validateParameters(r, m, new Object[]{value});
+            if (!violations.isEmpty()) throw new ConstraintsValidationException(violations);
+
             m.invoke(r, value);
         } catch (IllegalAccessException | InvocationTargetException e) {
             LOGGER.log(WARNING, "Cannot access property " + name + " of " + r.getClass(), e);
