@@ -71,6 +71,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -493,13 +494,14 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
         // First try using @DataBoundSetters.
         // this ensure we set default value for properties without a matching entry in json
-        injectSetters(bean, src, Collections.EMPTY_LIST);
+        final Set exclusions = injectSetters(bean, src, Collections.EMPTY_LIST);
 
-        // The use javabean style setters for backward compatibility
+        // On remaining keys, use javabean style setters for backward compatibility
         try {
-            for( String key : (Set<String>)src.keySet() ) {
+            for(String key : (Set<String>) src.keySet() ) {
+                if (exclusions.contains(key)) continue;
                 TypePair type = getPropertyType(bean, key);
-                if(type==null)
+                if (type==null)
                     continue;
 
                 try {
@@ -808,13 +810,13 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
         r = invokeConstructor(c, args);
 
-        Object o = injectSetters(r, j, Arrays.asList(names));
+        injectSetters(r, j, Arrays.asList(names));
 
         invokePostConstruct(getWebApp().getMetaClass(r).getPostConstructMethods(), r);
 
-        o = bindResolve(o,j);
+        r = bindResolve(r,j);
 
-        return o;
+        return r;
     }
 
     /**
@@ -834,10 +836,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
      * @param j
      * @param exclusions
      *      Properties that are already injected through the constructor, thus not subject of the setter injection.
+     * @return Properties that have been injected, and should not be excluded for further processing
      */
-    private <T> T injectSetters(T r, JSONObject j, Collection<String> exclusions) {
-        // try to assign rest of the properties
-        final Set<String> keys = j.keySet();
+    private <T> Set<String> injectSetters(T r, JSONObject j, Collection<String> exclusions) {
+        // assigned properties to be excluded from further processing
+        final Set<String> keys = new HashSet<>();
 
         // try field injection first
         for (Class c=r.getClass(); c!=null; c=c.getSuperclass()) {
@@ -847,6 +850,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     final String name = f.getName();
                     if (exclusions.contains(name)) return;
                     setField(r, j, name, f);
+                    keys.add(name);
                 });
         }
 
@@ -859,9 +863,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     String propertyName = Introspector.decapitalize(m.getName().substring(3));
                     if (exclusions.contains(propertyName)) return;
                     invokeSetter(r, j, propertyName, m);
+                    keys.add(propertyName);
                 });
         }
-        return r;
+        return keys;
     }
 
     private <T> void setField(T r, JSONObject j, String name, Field f) {
@@ -895,7 +900,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     private Object getJsonValueOrDefault(JSONObject j, String name, AnnotatedElement e) {
-        Object json = j.remove(name);
+        Object json = j.get(name);
         if (json != null && e.getAnnotation(Trim.class) != null) {
             json = StringUtils.trimToNull(json.toString());
         }
