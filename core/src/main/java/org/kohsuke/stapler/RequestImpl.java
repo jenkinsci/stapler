@@ -878,8 +878,13 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             if (!violations.isEmpty()) throw new ConstraintsValidationException(violations);
 
             f.setAccessible(true);
-            f.set(r, value);
-        } catch (IllegalAccessException e) {
+            final Object o = f.get(r);
+            if (o instanceof Replaceable) {
+                ((Replaceable) o).replaceBy(value);
+            } else {
+                f.set(r, value);
+            }
+        } catch (IllegalAccessException | IOException e) {
             LOGGER.log(WARNING, "Cannot access property " + name + " of " + r.getClass(), e);
         }
     }
