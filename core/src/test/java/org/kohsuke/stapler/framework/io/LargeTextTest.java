@@ -68,6 +68,7 @@ public class LargeTextTest {
         LargeText t;
         try (ByteBuffer bb = new ByteBuffer()) {
             bb.write(text.getBytes(), 0, text.length());
+
             t = new LargeText(bb, true);
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
