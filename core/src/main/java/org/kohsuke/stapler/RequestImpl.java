@@ -37,7 +37,6 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.lang.Klass;
@@ -49,6 +48,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.MessageInterpolator;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.beans.Introspector;
@@ -63,19 +63,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.*;
@@ -125,12 +113,27 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     private BindInterceptor bindInterceptor = BindInterceptor.NOOP;
 
+    /**
+     * JSR-303 validator used to check values bound to target components.
+     **/
     private static final Validator validator = Validation.byDefaultProvider()
-            .configure()
-            .messageInterpolator(new ParameterMessageInterpolator())
-            .buildValidatorFactory()
-            .getValidator();
+        .configure()
+        .messageInterpolator(findMessageInterpolator())
+        .buildValidatorFactory()
+        .getValidator();
 
+    /**
+     * HV000183 require javax-el in classpath or a custom {@link MessageInterpolator}, so to avoid a
+     * compile-time dependency we rely on service loader mechanism and runtime dependency on
+     * hibernate-validator.
+     */
+    private static MessageInterpolator findMessageInterpolator() {
+        final Iterator<MessageInterpolator> services = ServiceLoader.load(MessageInterpolator.class).iterator();
+        if (!services.hasNext()) return null; // Will use default interpolator
+        return services.next();
+    }
+
+    
     public RequestImpl(Stapler stapler, HttpServletRequest request, List<AncestorImpl> ancestors, TokenList tokens) {
         super(request);
         this.stapler = stapler;
