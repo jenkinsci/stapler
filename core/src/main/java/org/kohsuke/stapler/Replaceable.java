@@ -3,7 +3,7 @@ package org.kohsuke.stapler;
 import java.io.IOException;
 
 /**
- * A data structure that support replacing it's content.
+ * A data structure that support replacing its content.
  * Primarily used to support hudson.util.PersistedList, which can be exposed as public final fields, but still
  * (re)configured by stapler on structured form submission.
  *
