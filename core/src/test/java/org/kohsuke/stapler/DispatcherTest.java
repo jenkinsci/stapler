@@ -24,6 +24,13 @@ public class DispatcherTest extends JettyTestCase {
 
     public final IndexDispatchByName indexDispatchByName = new IndexDispatchByName();
 
+    @Override 
+    protected void setUp() throws Exception {
+        super.setUp();
+        MetaClass.LEGACY_GETTER_MODE = true;
+        MetaClass.LEGACY_WEB_METHOD_MODE = true;
+    }
+
     public class IndexDispatchByName {
         @WebMethod(name="")
         public HttpResponse doHelloWorld() {

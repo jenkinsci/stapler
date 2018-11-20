@@ -26,6 +26,7 @@ package org.kohsuke.stapler;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
@@ -37,6 +38,7 @@ import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.WrongMethodTypeException;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -45,6 +47,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static org.kohsuke.stapler.ReflectionUtils.*;
 
@@ -67,6 +70,11 @@ public abstract class Function {
      * Gets the human readable name of this function. Used to assist debugging.
      */
     public abstract String getDisplayName();
+
+    /**
+     * Gets the signature for this for use in lists
+     */
+    public abstract String getSignature();
 
     /**
      * Gets "className.methodName"
@@ -94,7 +102,27 @@ public abstract class Function {
      * Return type of the method.
      */
     public abstract Class getReturnType();
+    
+    /**
+     * Gets the type of checked exceptions. 
+     * <p>
+     * Take care that {@link RuntimeException} can be checked but it's not mandatory
+     */
+    public abstract Class[] getCheckedExceptionTypes();
+    
+    /**
+     * Returns the {@code Class} object representing the class or interface
+     * that declares the executable represented by this object.
+     * @see java.lang.reflect.Member#getDeclaringClass() 
+     */
+    public abstract Class getDeclaringClass();
 
+    /**
+     * Returns true if and only if the function is static.
+     * @return
+     */
+    public abstract boolean isStatic();
+    
     /**
      * Caller uses this method to tell {@link Function} about how it is being used.
      * By default, this methods ignores the given context by returning {@code this}.
@@ -299,6 +327,21 @@ public abstract class Function {
         }
 
         @Override
+        public String getSignature() {
+            String prefix = isStatic() ? "staticMethod" : "method";
+            String value = StringUtils.join(Arrays.asList(prefix, m.getDeclaringClass().getName(), getName()), ' ');
+            if (getParameterTypes().length > 0) {
+                value += " " + StringUtils.join(Arrays.stream(getParameterTypes()).map(Class::getName).collect(Collectors.toList()), ' ');
+            }
+            return value;
+        }
+
+        @Override
+        public boolean isStatic() {
+            return Modifier.isStatic(m.getModifiers());
+        }
+
+        @Override
         public String getQualifiedName() {
             return m.getDeclaringClass().getName()+'.'+getName();
         }
@@ -322,6 +365,16 @@ public abstract class Function {
             return m.getReturnType();
         }
 
+        @Override
+        public Class[] getCheckedExceptionTypes() {
+            return m.getExceptionTypes();
+        }
+    
+        @Override 
+        public Class getDeclaringClass() {
+            return m.getDeclaringClass();
+        }
+    
         protected MethodHandle handle() {
             if (handle==null) {
                 handle = MethodHandleFactory.get(m);
@@ -352,7 +405,7 @@ public abstract class Function {
     /**
      * Normal instance methods.
      */
-    static class InstanceFunction extends MethodFunction {
+    public static class InstanceFunction extends MethodFunction {
         public InstanceFunction(Method m) {
             super(m);
         }
