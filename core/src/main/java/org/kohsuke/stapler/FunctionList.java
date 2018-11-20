@@ -23,8 +23,21 @@
 
 package org.kohsuke.stapler;
 
+import org.kohsuke.stapler.interceptor.RequirePOST;
+import org.kohsuke.stapler.interceptor.RespondSuccess;
+import org.kohsuke.stapler.json.JsonBody;
+import org.kohsuke.stapler.json.JsonResponse;
+import org.kohsuke.stapler.json.SubmittedForm;
+import org.kohsuke.stapler.verb.DELETE;
+import org.kohsuke.stapler.verb.GET;
+import org.kohsuke.stapler.verb.POST;
+import org.kohsuke.stapler.verb.PUT;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.lang.annotation.Annotation;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Immutable list of {@link Function}s.
@@ -42,7 +55,7 @@ public final class FunctionList extends AbstractList<Function> {
         this.functions = functions.toArray(new Function[0]);
     }
 
-    private FunctionList filter(Filter f) {
+    /* internal */ FunctionList filter(Filter f) {
         List<Function> r = new ArrayList<Function>();
         for (Function m : functions)
             if (f.keep(m))
@@ -79,6 +92,13 @@ public final class FunctionList extends AbstractList<Function> {
 
     public interface Filter {
         boolean keep(Function m);
+
+        Filter ALWAYS_OK = new Filter(){
+            @Override 
+            public boolean keep(Function m) {
+                return true;
+            }
+        };
     }
 
     /**
@@ -129,7 +149,7 @@ public final class FunctionList extends AbstractList<Function> {
      * Returns {@link Function}s that are either explicitly {@link WebMethod} or
      * implicitly so (by having its name start with 'do')
      */
-    public FunctionList webMethods() {
+    public FunctionList webMethodsLegacy() {
         return filter(new Filter() {
             public boolean keep(Function m) {
                 return m.getName().startsWith("do") || m.getAnnotation(WebMethod.class)!=null;

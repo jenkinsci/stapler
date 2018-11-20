@@ -98,9 +98,19 @@ public class ProtectedClass {
                     }
 
                     @Override
+                    public String getSignature() {
+                        return f.getQualifiedName(); // doesn't really matter
+                    }
+
+                    @Override
                     public Object get(Object instance) throws IllegalAccessException {
                         // as we route requests, keep protecting objects
                         return w(super.get(u(instance)));
+                    }
+
+                    @Override
+                    public Class<?> getReturnType() {
+                        return f.getReturnType();
                     }
                 });
             }

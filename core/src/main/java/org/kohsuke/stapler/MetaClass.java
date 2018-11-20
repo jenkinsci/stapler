@@ -38,6 +38,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static javax.servlet.http.HttpServletResponse.*;
 
@@ -49,6 +51,8 @@ import static javax.servlet.http.HttpServletResponse.*;
  * @see WebApp#getMetaClass(Klass)
  */
 public class MetaClass extends TearOffSupport {
+    private static final Logger LOGGER = Logger.getLogger(MetaClass.class.getName());
+    
     /**
      * This meta class wraps this class
      *
@@ -110,33 +114,7 @@ public class MetaClass extends TearOffSupport {
             dispatchers.add(new HttpDeletableDispatcher());
 
         // check action <obj>.do<token>(...) and other WebMethods
-        for (Function f : node.methods.webMethods()) {
-            WebMethod a = f.getAnnotation(WebMethod.class);
-
-            String[] names;
-            if(a!=null && a.name().length>0)   names=a.name();
-            else    names=new String[]{camelize(f.getName().substring(2))}; // 'doFoo' -> 'foo'
-
-            for (String name : names) {
-                final Function ff = f.contextualize(new WebMethodContext(name));
-                if (name.length()==0) {
-                    dispatchers.add(new IndexDispatcher(ff));
-                } else {
-                    dispatchers.add(new NameBasedDispatcher(name) {
-                        public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
-                            Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s", ff.getName());
-                            if (traceable())
-                                trace(req, rsp, "-> <%s>.%s(...)", node, ff.getName());
-                            return ff.bindAndInvokeAndServeResponse(node, req, rsp);
-                        }
-
-                        public String toString() {
-                            return ff.getQualifiedName() + "(...) for url=/" + name + "/...";
-                        }
-                    });
-                }
-            }
-        }
+        registerDoToken(node);
 
         // check action <obj>.doIndex(...)
         for (Function f : node.methods.name("doIndex")) {
@@ -176,128 +154,224 @@ public class MetaClass extends TearOffSupport {
 
         // check public properties of the form NODE.TOKEN
         for (final FieldRef f : node.fields) {
+            final boolean accepted = webApp.getFilterForFields().keep(f);
+
             dispatchers.add(new NameBasedDispatcher(f.getName()) {
                 final String role = getProtectedRole(f);
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException {
-                    if(role!=null && !req.isUserInRole(role))
-                        throw new IllegalAccessException("Needs to be in role "+role);
+                    if (accepted) {
+                        if (role != null && !req.isUserInRole(role))
+                            throw new IllegalAccessException("Needs to be in role " + role);
 
-                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s", f.getName());
-                    if(traceable())
-                        traceEval(req,rsp,node,f.getName());
-                    req.getStapler().invoke(req, rsp, f.get(node));
-                    return true;
+                        Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s", f.getName());
+                        if (traceable())
+                            traceEval(req, rsp, node, f.getName());
+                        req.getStapler().invoke(req, rsp, f.get(node));
+                        return true;
+                    } else {
+                        return webApp.getFilteredFieldTriggerListener().onFieldTrigger(f, req, rsp, node, f.getQualifiedName());
+                    }
                 }
                 public String toString() {
-                    return String.format("%1$s for url=/%2$s/...",f.getQualifiedName(),f.getName());
+                    if (accepted) {
+                        return String.format("%3$s %1$s for url=/%2$s/...", f.getQualifiedName(), f.getName(), f.getReturnType());
+                    } else {
+                        return String.format("BLOCKED: %3$s %1$s for url=/%2$s/...", f.getQualifiedName(), f.getName(), f.getReturnType());
+                    }
                 }
             });
         }
 
         FunctionList getMethods = node.methods.prefix("get");
+        FunctionList filteredGetMethods;
+        if(LEGACY_GETTER_MODE || webApp.getFilterForGetMethods() == null){
+            LOGGER.log(Level.FINE, "Stapler is using the legacy GETTER_MODE");
+            filteredGetMethods = getMethods;
+        }else{
+            filteredGetMethods = getMethods.filter(webApp.getFilterForGetMethods());
+            if(LOGGER.isLoggable(Level.FINER)){
+                // to ease the debug
+                List<Function> excludedByNew = minus(getMethods, filteredGetMethods);
+    
+                if(!excludedByNew.isEmpty()){
+                    for (Function excluded : excludedByNew) {
+                        if(!excluded.getName().equals("getClass")){
+                            LOGGER.log(Level.FINER, "The following method is now blocked: {0}", excluded.getDisplayName());
+                        }
+                    }
+                }
+            }
+        }
 
         // check public selector methods of the form NODE.getTOKEN()
-        for (Function f : getMethods.signature()) {
+        for (final Function f : getMethods.signature()) {
             if(f.getName().length()<=3)
                 continue;
 
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             final Function ff = f.contextualize(new TraversalMethodContext(name));
+            final boolean isAccepted = filteredGetMethods.contains(f);
 
             dispatchers.add(new NameBasedDispatcher(name) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s()", ff.getName());
-                    if(traceable())
-                        traceEval(req,rsp,node,ff.getName()+"()");
-                    req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node));
-                    return true;
+                    if(isAccepted){
+                        Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s()", ff.getName());
+                        if(traceable())
+                            traceEval(req,rsp,node,ff.getName()+"()");
+                        req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node));
+                        return true;
+                    }else{
+                        return webApp.getFilteredGetterTriggerListener().onGetterTrigger(f, req, rsp, node, ff.getName()+"()");
+                    }
                 }
                 public String toString() {
-                    return String.format("%1$s() for url=/%2$s/...",ff.getQualifiedName(),name);
+                    if(isAccepted){
+                        return String.format("%3$s %1$s() for url=/%2$s/...",ff.getQualifiedName(),name, ff.getReturnType().getName());
+                    }else{
+                        return String.format("BLOCKED: %3$s %1$s() for url=/%2$s/...",ff.getQualifiedName(),name, ff.getReturnType().getName());
+                    }
                 }
             });
         }
 
         // check public selector methods of the form static NODE.getTOKEN(StaplerRequest)
-        for (Function f : getMethods.signature(StaplerRequest.class)) {
+        for (final Function f : getMethods.signature(StaplerRequest.class)) {
             if(f.getName().length()<=3)
                 continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             final Function ff = f.contextualize(new TraversalMethodContext(name));
+            final boolean isAccepted = filteredGetMethods.contains(f);
+
             dispatchers.add(new NameBasedDispatcher(name) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(...)", ff.getName());
-                    if(traceable())
-                        traceEval(req,rsp,node,ff.getName()+"(...)");
-                    req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node, req));
-                    return true;
+                    if(isAccepted){
+                        Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(...)", ff.getName());
+                        if(traceable())
+                            traceEval(req,rsp,node,ff.getName()+"(...)");
+                        req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node, req));
+                        return true;
+                    }else{
+                        return webApp.getFilteredGetterTriggerListener().onGetterTrigger(f, req, rsp, node, ff.getName()+"(...)");
+                    }
                 }
                 public String toString() {
-                    return String.format("%1$s(StaplerRequest) for url=/%2$s/...",ff.getQualifiedName(),name);
+                    if(isAccepted) {
+                        return String.format("%3$s %1$s(StaplerRequest) for url=/%2$s/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    }else{
+                        return String.format("BLOCKED: %3$s %1$s(StaplerRequest) for url=/%2$s/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    }
                 }
             });
         }
 
         // check public selector methods <obj>.get<Token>(String)
-        for (Function f : getMethods.signature(String.class)) {
+        for (final Function f : getMethods.signature(String.class)) {
             if(f.getName().length()<=3)
                 continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             final Function ff = f.contextualize(new TraversalMethodContext(name));
+            final boolean isAccepted = filteredGetMethods.contains(f);
+
             dispatchers.add(new NameBasedDispatcher(name,1) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    String token = req.tokens.next();
-                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(String)", ff.getName());
-                    if(traceable())
-                        traceEval(req,rsp,node,ff.getName()+"(\""+token+"\")");
-                    req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,token));
-                    return true;
+                    if(isAccepted){
+                        String token = req.tokens.next();
+                        Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(String)", ff.getName());
+                        if(traceable())
+                            traceEval(req,rsp,node,ff.getName()+"(\""+token+"\")");
+                        req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,token));
+                        return true;
+                    }else{
+                        String token = req.tokens.next();
+                        try{
+                            return webApp.getFilteredGetterTriggerListener().onGetterTrigger(f, req, rsp, node, ff.getName()+"(\""+token+"\")");
+                        }
+                        finally{
+                            req.tokens.prev();
+                        }
+                    }
                 }
                 public String toString() {
-                    return String.format("%1$s(String) for url=/%2$s/TOKEN/...",ff.getQualifiedName(),name);
+                    if(isAccepted) {
+                        return String.format("%3$s %1$s(String) for url=/%2$s/TOKEN/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    }else{
+                        return String.format("BLOCKED: %3$s %1$s(String) for url=/%2$s/TOKEN/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    }
                 }
             });
         }
 
         // check public selector methods <obj>.get<Token>(int)
-        for (Function f : getMethods.signature(int.class)) {
+        for (final Function f : getMethods.signature(int.class)) {
             if(f.getName().length()<=3)
                 continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             final Function ff = f.contextualize(new TraversalMethodContext(name));
+            final boolean isAccepted = filteredGetMethods.contains(f);
+
             dispatchers.add(new NameBasedDispatcher(name,1) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    int idx = req.tokens.nextAsInt();
-                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(int)", ff.getName());
-                    if(traceable())
-                        traceEval(req,rsp,node,ff.getName()+"("+idx+")");
-                    req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,idx));
-                    return true;
+                    if(isAccepted){
+                        int idx = req.tokens.nextAsInt();
+                        Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(int)", ff.getName());
+                        if(traceable())
+                            traceEval(req,rsp,node,ff.getName()+"("+idx+")");
+                        req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,idx));
+                        return true;
+                    }else{
+                        int idx = req.tokens.nextAsInt();
+                        try{
+                            return webApp.getFilteredGetterTriggerListener().onGetterTrigger(f, req, rsp, node, ff.getName()+"("+idx+")");
+                        }
+                        finally{
+                            req.tokens.prev();
+                        }
+                    }
                 }
                 public String toString() {
-                    return String.format("%1$s(int) for url=/%2$s/N/...",ff.getQualifiedName(),name);
+                    if(isAccepted){
+                        return String.format("%3$s %1$s(int) for url=/%2$s/N/...",ff.getQualifiedName(),name, ff.getReturnType().getName());
+                    }else{
+                        return String.format("BLOCKED: %3$s %1$s(int) for url=/%2$s/N/...",ff.getQualifiedName(),name, ff.getReturnType().getName());
+                    }
                 }
             });
         }
 
         // check public selector methods <obj>.get<Token>(long)
         // TF: I'm sure these for loop blocks could be dried out in some way.
-        for (Function f : getMethods.signature(long.class)) {
+        for (final Function f : getMethods.signature(long.class)) {
             if(f.getName().length()<=3)
                 continue;
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             final Function ff = f.contextualize(new TraversalMethodContext(name));
+            final boolean isAccepted = filteredGetMethods.contains(f);
+
             dispatchers.add(new NameBasedDispatcher(name,1) {
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    long idx = req.tokens.nextAsLong();
-                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(long)", ff.getName());
-                    if(traceable())
-                        traceEval(req,rsp,node,ff.getName()+"("+idx+")");
-                    req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,idx));
-                    return true;
+                    if(isAccepted){
+                        long idx = req.tokens.nextAsLong();
+                        Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(long)", ff.getName());
+                        if(traceable())
+                            traceEval(req,rsp,node,ff.getName()+"("+idx+")");
+                        req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,idx));
+                        return true;
+                    }else{
+                        long idx = req.tokens.nextAsLong();
+                        try{
+                            return webApp.getFilteredGetterTriggerListener().onGetterTrigger(f, req, rsp, node, ff.getName()+"("+idx+")");
+                        }
+                        finally{
+                            req.tokens.prev();
+                        }
+                    }
                 }
                 public String toString() {
-                    return String.format("%1$s(long) for url=/%2$s/N/...",ff.getQualifiedName(),name);
+                    if(isAccepted) {
+                        return String.format("%3$s %1$s(long) for url=/%2$s/N/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    }else{
+                        return String.format("BLOCKED: %3$s %1$s(long) for url=/%2$s/N/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    }
                 }
             });
         }
@@ -392,7 +466,7 @@ public class MetaClass extends TearOffSupport {
                     }
                 }
                 public String toString() {
-                    return String.format("%s(String,StaplerRequest,StaplerResponse) for url=/TOKEN/...",ff.getQualifiedName());
+                    return String.format("%2$s %s(String,StaplerRequest,StaplerResponse) for url=/TOKEN/...",ff.getQualifiedName(), ff.getReturnType().getName());
                 }
             });
         }
@@ -412,8 +486,87 @@ public class MetaClass extends TearOffSupport {
                 }
             });
         }
+
+        // provide a "last chance" for the application to add/remove dispatchers
+        DispatchersFilter dispatchersFilter = webApp.getDispatchersFilter();
+        if(dispatchersFilter != null){
+            dispatchersFilter.applyOn(this, node.methods, dispatchers);
+        }
     }
 
+    private void registerDoToken(KlassDescriptor<?> node){
+        final FunctionList filteredFunctions;
+        FunctionList functions;
+        if(LEGACY_WEB_METHOD_MODE || webApp.getFilterForDoActions() == null){
+            functions = node.methods.webMethodsLegacy();
+            filteredFunctions = functions;
+            LOGGER.log(Level.FINE, "Stapler is using the legacy METHOD_MODE");
+        } else {
+            functions = node.methods.webMethodsLegacy();
+            filteredFunctions = functions.filter(webApp.getFilterForDoActions());
+            if(LOGGER.isLoggable(Level.FINER)){
+                List<Function> excludedByNew = minus(functions, filteredFunctions);
+                
+                if(!excludedByNew.isEmpty()){
+                    for (Function excluded : excludedByNew) {
+                        LOGGER.log(Level.FINER, "The following method is now blocked: {0}", excluded.getDisplayName());
+                    }
+                }
+            }
+        }
+        
+        for (final Function f : functions) {
+            WebMethod a = f.getAnnotation(WebMethod.class);
+            
+            String[] names;
+            if(a!=null && a.name().length>0)   names=a.name();
+            else    names=new String[]{camelize(f.getName().substring(2))}; // 'doFoo' -> 'foo'
+            
+            for (String name : names) {
+                final Function ff = f.contextualize(new WebMethodContext(name));
+                if (name.length()==0) {
+                    dispatchers.add(new IndexDispatcher(ff));
+                } else {
+                    final boolean isAccepted = filteredFunctions.contains(f);
+                    dispatchers.add(new NameBasedDispatcher(name) {
+                        public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+                            if(isAccepted){
+                                Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s", ff.getName());
+                                if (traceable())
+                                    trace(req, rsp, "-> <%s>.%s(...)", node, ff.getName());
+                                return ff.bindAndInvokeAndServeResponse(node, req, rsp);
+                            }else{
+                                return webApp.getFilteredDoActionTriggerListener().onDoActionTrigger(f, req, rsp, node);
+                            }
+                        }
+                        
+                        public String toString() {
+                            if(isAccepted){
+                                return String.format("%1$s(...) for url=/%2$s/...", ff.getQualifiedName(), name);
+                            }else{
+                                return String.format("BLOCKED: %1$s(...) for url=/%2$s/...", ff.getQualifiedName(), name);
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    }
+    
+    /**
+     * Return (A - B)
+     */
+    private List<Function> minus(FunctionList a, FunctionList b){
+        List<Function> aMinusB = new ArrayList<>();
+        for(Function f : a){
+            if(!b.contains(f)){
+                aMinusB.add(f);
+            }
+        }
+    
+        return aMinusB;
+    }
+    
     /**
      * Returns all the methods in the ancestry chain annotated with {@link PostConstruct}
      * from those defined in the derived type toward those defined in the base type.
@@ -495,10 +648,20 @@ public class MetaClass extends TearOffSupport {
      * will take effect instantly.
      */
     public static boolean NO_CACHE = false;
+    /**
+     * In case the breaking changes are not desired. They are recommended for security reason.
+     */
+    public static boolean LEGACY_GETTER_MODE = false;
+    /**
+     * In case the breaking changes are not desired. They are recommended for security reason.
+     */
+    public static boolean LEGACY_WEB_METHOD_MODE = false;
 
     static {
         try {
             NO_CACHE = Boolean.getBoolean("stapler.jelly.noCache");
+            LEGACY_GETTER_MODE = Boolean.getBoolean("stapler.legacyGetterDispatcherMode");
+            LEGACY_WEB_METHOD_MODE = Boolean.getBoolean("stapler.legacyWebMethodDispatcherMode");
         } catch (SecurityException e) {
             // ignore.
         }

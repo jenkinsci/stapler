@@ -27,6 +27,11 @@ public class ForwardingFunction extends Function {
     }
 
     @Override
+    public boolean isStatic() {
+        return next.isStatic();
+    }
+
+    @Override
     public String getQualifiedName() {
         return next.getQualifiedName();
     }
@@ -40,6 +45,16 @@ public class ForwardingFunction extends Function {
         return next.getReturnType();
     }
 
+    @Override 
+    public Class[] getCheckedExceptionTypes() {
+        return next.getCheckedExceptionTypes();
+    }
+    
+    @Override 
+    public Class getDeclaringClass() {
+        return next.getDeclaringClass();
+    }
+    
     // can't really call next.contextualize()
     @Override
     public Function contextualize(Object usage) {
@@ -49,6 +64,11 @@ public class ForwardingFunction extends Function {
     @Override
     public Type[] getGenericParameterTypes() {
         return next.getGenericParameterTypes();
+    }
+
+    @Override
+    public String getSignature() {
+        return next.getSignature();
     }
 
     public Annotation[][] getParameterAnnotations() {

@@ -49,6 +49,9 @@ public @interface JsonResponse {
                 if (r instanceof JSONObject)
                     j = (JSONObject)r;
                 else
+                    // will fail in case of Array/List, please keep this behavior
+                    // to prevent top-level json array that has a vulnerability in certain browser
+                    // http://blog.jeremiahgrossman.com/2006/01/advanced-web-attack-techniques-using.html
                     j = JSONObject.fromObject(r);
 
                 return new JsonHttpResponse(j);
