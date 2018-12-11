@@ -182,7 +182,7 @@ public class MetaClass extends TearOffSupport {
             });
         }
 
-        FunctionList getMethods = node.methods.prefix("get");
+        FunctionList getMethods = node.methods.prefix("get").filter(m -> !m.getSignature().equals("method java.lang.Object getClass"));
         FunctionList filteredGetMethods;
         if(LEGACY_GETTER_MODE || webApp.getFilterForGetMethods() == null){
             LOGGER.log(Level.FINE, "Stapler is using the legacy GETTER_MODE");
