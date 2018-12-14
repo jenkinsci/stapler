@@ -195,9 +195,7 @@ public class MetaClass extends TearOffSupport {
     
                 if(!excludedByNew.isEmpty()){
                     for (Function excluded : excludedByNew) {
-                        if(!excluded.getName().equals("getClass")){
-                            LOGGER.log(Level.FINER, "The following method is now blocked: {0}", excluded.getDisplayName());
-                        }
+                        LOGGER.log(Level.FINER, "The following method is now blocked: {0}", excluded.getDisplayName());
                     }
                 }
             }
