@@ -366,6 +366,26 @@ public class DispatcherTest extends JettyTestCase {
         }
     }
 
+    public void testProtectedMethodDispatch() throws Exception {
+        WebClient wc = new WebClient();
+        wc.getPage(new URL(url, "public/value"));
+        try {
+            wc.getPage(new URL(url, "protected/value"));
+            fail("should not have allowed protected access");
+        } catch (FailingHttpStatusCodeException x) {
+            assertEquals(HttpServletResponse.SC_NOT_FOUND, x.getStatusCode());
+        }
+        try {
+            wc.getPage(new URL(url, "private/value"));
+            fail("should not have allowed private access");
+        } catch (FailingHttpStatusCodeException x) {
+            assertEquals(HttpServletResponse.SC_NOT_FOUND, x.getStatusCode());
+        }
+    }
+    public TestClass getPublic() {return new TestClass();}
+    protected TestClass getProtected() {return new TestClass();}
+    private TestClass getPrivate() {return new TestClass();}
+
     //===================================================================
 
     public final StaplerProxyImpl staplerProxyOK = new StaplerProxyImpl(new IndexPage());
