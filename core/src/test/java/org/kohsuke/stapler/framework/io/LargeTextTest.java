@@ -40,6 +40,7 @@ import java.nio.file.Path;
 
 import com.google.common.base.Strings;
 import org.apache.commons.io.output.NullOutputStream;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.jvnet.hudson.test.Issue;
 
@@ -47,6 +48,7 @@ public class LargeTextTest {
 
     @Issue("JENKINS-37664")
     @Test
+    @Ignore
     public void writeLogTo() throws Exception {
         assertEquals("", tail("", 0));
         assertEquals("abcde", tail("abcde", 0));
