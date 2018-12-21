@@ -80,6 +80,7 @@ public class LargeTextTest {
 
     @Issue("#141")
     @Test
+    @Ignore
     public void writeLogToWithLargeFile() throws Exception {
         Path path = Files.createTempFile("stapler-test", ".log.gz");
         long size = Integer.MAX_VALUE + 256L;
