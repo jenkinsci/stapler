@@ -25,6 +25,13 @@ public class DispatcherTest extends JettyTestCase {
 
     public final IndexDispatchByName indexDispatchByName = new IndexDispatchByName();
 
+    @Override 
+    protected void setUp() throws Exception {
+        super.setUp();
+        MetaClass.LEGACY_GETTER_MODE = true;
+        MetaClass.LEGACY_WEB_METHOD_MODE = true;
+    }
+
     public class IndexDispatchByName {
         @WebMethod(name="")
         public HttpResponse doHelloWorld() {
@@ -358,6 +365,26 @@ public class DispatcherTest extends JettyTestCase {
             assertEquals(HttpServletResponse.SC_OK, e.getStatusCode());
         }
     }
+
+    public void testProtectedMethodDispatch() throws Exception {
+        WebClient wc = new WebClient();
+        wc.getPage(new URL(url, "public/value"));
+        try {
+            wc.getPage(new URL(url, "protected/value"));
+            fail("should not have allowed protected access");
+        } catch (FailingHttpStatusCodeException x) {
+            assertEquals(HttpServletResponse.SC_NOT_FOUND, x.getStatusCode());
+        }
+        try {
+            wc.getPage(new URL(url, "private/value"));
+            fail("should not have allowed private access");
+        } catch (FailingHttpStatusCodeException x) {
+            assertEquals(HttpServletResponse.SC_NOT_FOUND, x.getStatusCode());
+        }
+    }
+    public TestClass getPublic() {return new TestClass();}
+    protected TestClass getProtected() {return new TestClass();}
+    private TestClass getPrivate() {return new TestClass();}
 
     //===================================================================
 

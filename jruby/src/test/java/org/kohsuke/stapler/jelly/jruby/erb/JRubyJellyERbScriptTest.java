@@ -39,7 +39,9 @@ public class JRubyJellyERbScriptTest extends StaplerJRubyTestCase {
         script.run(context, XMLOutput.createXMLOutput(out));
         assertEquals("<b>Hello from Jelly to ERB</b><i>\n" +
                 "  47\n" +
-                "</i>", out.toString());
+                "</i>", 
+                // to support windows
+                out.toString().replaceAll("\r\n", "\n"));
     }
 
     public void testThreadSafety() throws Exception {
@@ -52,7 +54,8 @@ public class JRubyJellyERbScriptTest extends StaplerJRubyTestCase {
         }
         for (int idx = 0; idx < num; ++idx) {
             threads[idx].join();
-            assertEquals("<b>Hello from Jelly to ERB" + idx + "</b><i>\n  47\n</i>", threads[idx].result);
+            // to support windows
+            assertEquals("<b>Hello from Jelly to ERB" + idx + "</b><i>\n  47\n</i>", threads[idx].result.replaceAll("\r\n", "\n"));
         }
     }
 

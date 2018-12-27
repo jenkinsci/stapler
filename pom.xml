@@ -9,7 +9,7 @@
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.256-SNAPSHOT</version>
+  <version>1.257-SNAPSHOT</version>
 
   <name>Stapler</name>
   <description>Stapler HTTP request handling engine</description>
@@ -201,6 +201,8 @@
           <version>2.18.1</version>
           <configuration>
             <trimStackTrace>false</trimStackTrace>
+            <!-- SUREFIRE-1588 workaround; too late for systemProperties: -->
+            <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
           </configuration>
         </plugin>
       </plugins>

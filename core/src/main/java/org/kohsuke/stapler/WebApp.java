@@ -25,6 +25,10 @@ package org.kohsuke.stapler;
 
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.bind.BoundObjectTable;
+import org.kohsuke.stapler.event.FilteredDoActionTriggerListener;
+import org.kohsuke.stapler.event.FilteredFieldTriggerListener;
+import org.kohsuke.stapler.event.FilteredGetterTriggerListener;
+import org.kohsuke.stapler.lang.FieldRef;
 import org.kohsuke.stapler.lang.KInstance;
 import org.kohsuke.stapler.lang.Klass;
 
@@ -134,6 +138,18 @@ public class WebApp {
      * Keyed by {@link ServletConfig#getServletName()}.
      */
     private final ConcurrentMap<String,Stapler> servlets = new ConcurrentHashMap<String,Stapler>();
+    
+    /**
+     * Give the application a possibility to filter the getterMethods
+     */
+    private FunctionList.Filter filterForGetMethods = FunctionList.Filter.ALWAYS_OK;
+    private FunctionList.Filter filterForDoActions = FunctionList.Filter.ALWAYS_OK;
+    private FieldRef.Filter filterForFields = FieldRef.Filter.ALWAYS_OK;
+    
+    private DispatchersFilter dispatchersFilter;
+    private FilteredDoActionTriggerListener filteredDoActionTriggerListener = FilteredDoActionTriggerListener.JUST_WARN;
+    private FilteredGetterTriggerListener filteredGetterTriggerListener = FilteredGetterTriggerListener.JUST_WARN;
+    private FilteredFieldTriggerListener filteredFieldTriggerListener = FilteredFieldTriggerListener.JUST_WARN;
     
     /**
      * Give the application a way to customize the JSON before putting it inside Stacktrace when something wrong happened.
@@ -258,6 +274,19 @@ public class WebApp {
             }
         }
     }
+    
+    /**
+     * Convenience maintenance method to clear all the cached information. It will force the MetaClass to be rebuilt.
+     * 
+     * <p>
+     * Take care that the generation of MetaClass information takes a bit of time and so 
+     * this call should not be called too often
+     */
+    public void clearMetaClassCache(){
+        synchronized (classMap) {
+            classMap.clear();
+        }
+    }
 
     void addStaplerServlet(String servletName, Stapler servlet) {
         if (servletName==null)  servletName=""; // be defensive
@@ -296,6 +325,80 @@ public class WebApp {
         return Stapler.getCurrent().getWebApp();
     }
     
+    public FunctionList.Filter getFilterForGetMethods() {
+        return filterForGetMethods;
+    }
+    
+    /**
+     * Allow the underlying application to filter the getXxx methods
+     */
+    public void setFilterForGetMethods(FunctionList.Filter filterForGetMethods) {
+        this.filterForGetMethods = filterForGetMethods;
+    }
+    
+    public FunctionList.Filter getFilterForDoActions() {
+        return filterForDoActions;
+    }
+    
+    /**
+     * Allow the underlying application to filter the doXxx actions
+     */
+    public void setFilterForDoActions(FunctionList.Filter filterForDoActions) {
+        this.filterForDoActions = filterForDoActions;
+    }
+
+    public FieldRef.Filter getFilterForFields() {
+        return filterForFields;
+    }
+
+    public void setFilterForFields(FieldRef.Filter filterForFields) {
+        this.filterForFields = filterForFields;
+    }
+
+    public DispatchersFilter getDispatchersFilter() {
+        return dispatchersFilter;
+    }
+    
+    public void setDispatchersFilter(DispatchersFilter dispatchersFilter) {
+        this.dispatchersFilter = dispatchersFilter;
+    }
+    
+    public FilteredDoActionTriggerListener getFilteredDoActionTriggerListener() {
+        return filteredDoActionTriggerListener;
+    }
+    
+    public void setFilteredDoActionTriggerListener(FilteredDoActionTriggerListener filteredDoActionTriggerListener) {
+        if (filteredDoActionTriggerListener == null) {
+            this.filteredDoActionTriggerListener = FilteredDoActionTriggerListener.JUST_WARN;
+        } else {
+            this.filteredDoActionTriggerListener = filteredDoActionTriggerListener;
+        }
+    }
+
+    public FilteredGetterTriggerListener getFilteredGetterTriggerListener() {
+        return filteredGetterTriggerListener;
+    }
+
+    public void setFilteredGetterTriggerListener(FilteredGetterTriggerListener filteredGetterTriggerListener) {
+        if (filteredGetterTriggerListener == null) {
+            this.filteredGetterTriggerListener = FilteredGetterTriggerListener.JUST_WARN;
+        } else {
+            this.filteredGetterTriggerListener = filteredGetterTriggerListener;
+        }
+    }
+
+    public FilteredFieldTriggerListener getFilteredFieldTriggerListener() {
+        return filteredFieldTriggerListener;
+    }
+
+    public void setFilteredFieldTriggerListener(FilteredFieldTriggerListener filteredFieldTriggerListener) {
+        if (filteredFieldTriggerListener == null) {
+            this.filteredFieldTriggerListener = FilteredFieldTriggerListener.JUST_WARN;
+        } else {
+            this.filteredFieldTriggerListener = filteredFieldTriggerListener;
+        }
+    }
+
     public JsonInErrorMessageSanitizer getJsonInErrorMessageSanitizer() {
         if (jsonInErrorMessageSanitizer == null) {
             return JsonInErrorMessageSanitizer.NOOP;

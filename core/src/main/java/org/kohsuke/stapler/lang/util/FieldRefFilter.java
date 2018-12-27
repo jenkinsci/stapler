@@ -24,6 +24,11 @@ public abstract class FieldRefFilter extends FieldRef {
     }
 
     @Override
+    public boolean isStatic() {
+        return getBase().isStatic();
+    }
+
+    @Override
     public String getQualifiedName() {
         return getBase().getQualifiedName();
     }
