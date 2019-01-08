@@ -234,7 +234,7 @@ public class LargeText {
         f.close();
         os.flush();
 
-        return os.getCount()+start;
+        return os.getByteCount()+start;
     }
 
     /**

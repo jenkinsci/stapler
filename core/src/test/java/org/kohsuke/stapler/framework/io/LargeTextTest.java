@@ -26,11 +26,22 @@
 
 package org.kohsuke.stapler.framework.io;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import com.google.common.base.Strings;
+import org.apache.commons.io.output.NullOutputStream;
+import org.junit.Ignore;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.jvnet.hudson.test.Issue;
 
 public class LargeTextTest {
@@ -53,13 +64,54 @@ public class LargeTextTest {
             // right
         }
     }
+
     String tail(String text, long start) throws IOException {
-        ByteBuffer bb = new ByteBuffer();
-        bb.write(text.getBytes(), 0, text.length());
-        LargeText t = new LargeText(bb, true);
+        LargeText t;
+        try (ByteBuffer bb = new ByteBuffer()) {
+            bb.write(text.getBytes(), 0, text.length());
+
+            t = new LargeText(bb, true);
+        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         assertEquals(text.length(), t.writeLogTo(start, baos));
         return baos.toString();
+    }
+
+    @Issue("#141")
+    @Test
+    @Ignore
+    public void writeLogToWithLargeFile() throws Exception {
+        Path path = Files.createTempFile("stapler-test", ".log.gz");
+        long size = Integer.MAX_VALUE + 256L;
+        writeLargeFile(path, size);
+
+        LargeText t = new LargeText(path.toFile(), StandardCharsets.US_ASCII, true);
+
+        try (OutputStream os = new NullOutputStream()) {
+            long writenCount = t.writeLogTo(0, os);
+
+            assertEquals(size, writenCount);
+        }
+
+        Files.delete(path);
+    }
+
+    private void writeLargeFile(Path path, long size) {
+        // Write the same data over and over again, so the bytes written is high, but the file is
+        // actually very small
+        int chunkSize = 1024;
+        byte[] bytesChunk = Strings.repeat("0", chunkSize).getBytes(StandardCharsets.US_ASCII);
+        try (OutputStream stream = new FileOutputStream(path.toFile())) {
+            long remaining = size;
+            while (remaining > chunkSize) {
+                stream.write(bytesChunk);
+                remaining -= chunkSize;
+            }
+            stream.write(bytesChunk, 0, (int) remaining);
+            stream.flush();
+        } catch (IOException e) {
+            fail(e.getMessage());
+        }
     }
 
 }
