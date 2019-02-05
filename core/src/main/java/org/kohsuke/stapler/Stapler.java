@@ -391,6 +391,10 @@ public class Stapler extends HttpServlet {
     private final LocaleDrivenResourceSelector resourcePathLocaleSelector = new LocaleDrivenResourceSelector() {
         @Override
         URL map(String path) throws IOException {
+            URL override = LocaleDrivenResourceProvider.lookupResource(path);
+            if (override != null) {
+                return override;
+            }
             return getResource(path);
         }
     };
@@ -409,6 +413,10 @@ public class Stapler extends HttpServlet {
     private final LocaleDrivenResourceSelector urlLocaleSelector = new LocaleDrivenResourceSelector() {
         @Override
         URL map(String url) throws IOException {
+            URL override = LocaleDrivenResourceProvider.lookupResource(url);
+            if (override != null) {
+                return override;
+            }
             return new URL(url);
         }
     };
