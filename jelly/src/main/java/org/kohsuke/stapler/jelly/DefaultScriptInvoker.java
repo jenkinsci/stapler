@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
+import org.dom4j.io.HTMLWriter;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -65,11 +66,15 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
 
     protected XMLOutput createXMLOutput(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException {
         // TODO: make XMLOutput auto-close OutputStream to avoid leak
-        HTMLWriterOutput hwo = HTMLWriterOutput.create(createOutputStream(req, rsp, script, it));
         String ct = rsp.getContentType();
-        if (ct != null && !ct.startsWith("text/html"))
-            hwo.useHTML(false);
-        return hwo;
+        XMLOutput output;
+        if (ct != null && !ct.startsWith("text/html")) {
+            output = XMLOutput.createXMLOutput(createOutputStream(req, rsp, script, it));
+        } else {
+            output = HTMLWriterOutput.create(createOutputStream(req, rsp, script, it));
+
+        }
+        return output;
     }
 
     private boolean doCompression(Script script) {

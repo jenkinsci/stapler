@@ -64,18 +64,11 @@ public class HTMLWriterOutput extends XMLOutput {
         hw.setEscapeText(escapeText);
         this.htmlWriter = hw;
         this.format = fmt;
+        format.setExpandEmptyElements(true);
     }
 
     @Override public void close() throws IOException {
         htmlWriter.close();
     }
 
-    /**
-     * False to turn off HTML handling and reenable {@code />} for any empty XML element.
-     * True to switch back to default mode with HTML handling.
-     */
-    public void useHTML(boolean enabled) {
-        htmlWriter.setEnabled(enabled);
-        format.setExpandEmptyElements(enabled);
-    }
 }
