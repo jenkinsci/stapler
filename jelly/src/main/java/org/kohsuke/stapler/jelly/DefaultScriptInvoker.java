@@ -24,14 +24,14 @@
 package org.kohsuke.stapler.jelly;
 
 import org.apache.commons.jelly.JellyContext;
-import org.apache.commons.jelly.JellyTagException;
-import org.apache.commons.jelly.Script;
-import org.apache.commons.jelly.XMLOutput;
-import org.apache.commons.jelly.XMLOutputFactory;
-import org.apache.commons.jelly.impl.TagScript;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.apache.commons.jelly.Script;
+import org.apache.commons.jelly.JellyTagException;
+import org.apache.commons.jelly.XMLOutput;
+import org.apache.commons.jelly.XMLOutputFactory;
+import org.apache.commons.jelly.impl.TagScript;
 
 import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
@@ -65,11 +65,15 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
 
     protected XMLOutput createXMLOutput(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException {
         // TODO: make XMLOutput auto-close OutputStream to avoid leak
-        HTMLWriterOutput hwo = HTMLWriterOutput.create(createOutputStream(req, rsp, script, it));
         String ct = rsp.getContentType();
-        if (ct != null && !ct.startsWith("text/html"))
-            hwo.useHTML(false);
-        return hwo;
+        XMLOutput output;
+        if (ct != null && !ct.startsWith("text/html")) {
+            output = XMLOutput.createXMLOutput(createOutputStream(req, rsp, script, it));
+        } else {
+            output = HTMLWriterOutput.create(createOutputStream(req, rsp, script, it));
+
+        }
+        return output;
     }
 
     private boolean doCompression(Script script) {
