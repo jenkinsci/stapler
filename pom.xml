@@ -357,7 +357,7 @@
               <dependency>
                 <groupId>io.jenkins.tools.incrementals</groupId>
                 <artifactId>incrementals-enforcer-rules</artifactId>
-                <version>1.0-beta-4</version>
+                <version>1.0-beta-5</version>
               </dependency>
             </dependencies>
           </plugin>
