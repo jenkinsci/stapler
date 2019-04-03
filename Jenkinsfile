@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage("Build") {
             steps {
-              sh 'mvn -B -Dmaven.test.failure.ignore -Dset.changelist clean install site'
+              sh "mvn -B -Dmaven.repo.local=${pwd tmp: true}/m2repo -Dmaven.test.failure.ignore -Dset.changelist clean install site"
             }
         }
     }
