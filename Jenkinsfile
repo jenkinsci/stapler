@@ -1,28 +1,9 @@
-pipeline {
-    agent {
-      docker 'maven:3.5-jdk-8'
+node('docker') {
+    deleteDir()
+    docker.image('maven:3.5-jdk-8').inside {
+        sh "MAVEN_OPTS-Xmx1024m mvn -B -Dmaven.repo.local=${pwd tmp: true}/m2repo -Dmaven.test.failure.ignore -Dset.changelist clean install site"
     }
-
-    environment {
-      MAVEN_OPTS = "-Xmx1024m"
-    }
-
-    stages {
-        stage("Build") {
-            steps {
-              sh "mvn -B -Dmaven.repo.local=${pwd tmp: true}/m2repo -Dmaven.test.failure.ignore -Dset.changelist clean install site"
-            }
-        }
-    }
-
-    post {
-        success {
-            archive "**/target/**/*-rc*/"
-            junit '**/target/surefire-reports/*.xml'
-            script { // TODO figure out how to release the agent before doing this
-                infra.maybePublishIncrementals()
-            }
-        }
-    }
-
+    archiveArtifacts '**/target/**/*-rc*/'
+    junit '**/target/surefire-reports/*.xml'
 }
+infra.maybePublishIncrementals()
