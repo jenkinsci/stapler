@@ -10,7 +10,7 @@ node('docker') {
             '''
         }
     }
-    archiveArtifacts '**/target/**/*-rc*/'
+    archiveArtifacts '**/target/*-rc*'
     junit '**/target/surefire-reports/*.xml'
 }
 infra.maybePublishIncrementals()
