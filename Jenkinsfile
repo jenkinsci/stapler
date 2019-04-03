@@ -10,15 +10,18 @@ pipeline {
     stages {
         stage("Build") {
             steps {
-              sh 'mvn -B -Dmaven.test.failure.ignore clean install site'
+              sh 'mvn -B -Dmaven.test.failure.ignore -Dset.changelist clean install site'
             }
         }
     }
 
     post {
         success {
-            archive "**/target/**/*.jar"
+            archive "**/target/**/*-rc*/"
             junit '**/target/surefire-reports/*.xml'
+            script { // TODO figure out how to release the agent before doing this
+                infra.maybePublishIncrementals()
+            }
         }
     }
 
