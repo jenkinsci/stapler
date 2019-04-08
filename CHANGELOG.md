@@ -1,6 +1,12 @@
 CHANGELOG
 ===
 
+##### 1.257
+Released: 2019-04-08
+* [PR #151](https://github.com/stapler/stapler/pull/151) - allow large log files to be downloaded
+* [PR #154](https://github.com/stapler/stapler/pull/154) - never consider `Object.getClass` for URL binding
+* [PR #156](https://github.com/stapler/stapler/pull/156) - JEP-216: SPI for localized resource lookup
+
 ##### 1.255
 Upcoming
 * [PR #136](https://github.com/stapler/stapler/pull/136) - log when a property is left out of serialised result due to exception
