@@ -182,7 +182,7 @@ public class MetaClass extends TearOffSupport {
             });
         }
 
-        FunctionList getMethods = node.methods.prefix("get");
+        FunctionList getMethods = node.methods.prefix("get").filter(m -> !m.getSignature().equals("method java.lang.Object getClass"));
         FunctionList filteredGetMethods;
         if(LEGACY_GETTER_MODE || webApp.getFilterForGetMethods() == null){
             LOGGER.log(Level.FINE, "Stapler is using the legacy GETTER_MODE");
@@ -195,9 +195,7 @@ public class MetaClass extends TearOffSupport {
     
                 if(!excludedByNew.isEmpty()){
                     for (Function excluded : excludedByNew) {
-                        if(!excluded.getName().equals("getClass")){
-                            LOGGER.log(Level.FINER, "The following method is now blocked: {0}", excluded.getDisplayName());
-                        }
+                        LOGGER.log(Level.FINER, "The following method is now blocked: {0}", excluded.getDisplayName());
                     }
                 }
             }
