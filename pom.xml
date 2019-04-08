@@ -206,6 +206,15 @@
             <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>io.jenkins.tools.incrementals</groupId>
+          <artifactId>incrementals-maven-plugin</artifactId>
+          <version>1.0-beta-7</version>
+          <configuration>
+            <generateBackupPoms>false</generateBackupPoms>
+            <updateNonincremental>false</updateNonincremental>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
