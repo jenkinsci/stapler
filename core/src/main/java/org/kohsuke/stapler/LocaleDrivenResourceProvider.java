@@ -63,7 +63,7 @@ public abstract class LocaleDrivenResourceProvider {
             localeDrivenResourceProviders = new ArrayList<>();
             for (LocaleDrivenResourceProvider provider : ServiceLoader.load(LocaleDrivenResourceProvider.class)) {
                 localeDrivenResourceProviders.add(provider);
-                LOGGER.log(Level.INFO, "Registered LocaleDrivenResourceProvider: " + provider);
+                LOGGER.fine(() -> "Registered LocaleDrivenResourceProvider: " + provider);
             }
         }
         return localeDrivenResourceProviders;
