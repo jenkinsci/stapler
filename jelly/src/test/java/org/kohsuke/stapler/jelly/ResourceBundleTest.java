@@ -25,7 +25,11 @@
 package org.kohsuke.stapler.jelly;
 
 import java.net.URL;
+import java.util.Locale;
 
+import org.jvnet.localizer.LocaleProvider;
+import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.test.JettyTestCase;
 
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -35,9 +39,39 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * Tests for {@link ResourceBundle}
  */
 public class ResourceBundleTest extends JettyTestCase{
+    private LocaleProvider newLocaleProvider = new LocaleProvider() {
+        public Locale get() {
+            Locale locale = null;
+            StaplerRequest req = Stapler.getCurrentRequest();
+            if(req != null) {
+                locale = req.getLocale();
+            }
+            if(locale == null) {
+                locale = Locale.getDefault();
+            }
+            return locale;
+        }
+    };
+    private LocaleProvider oldLocaleProvider;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        oldLocaleProvider = LocaleProvider.getProvider();
+        LocaleProvider.setProvider(newLocaleProvider);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        assert(newLocaleProvider == LocaleProvider.getProvider());
+        LocaleProvider.setProvider(oldLocaleProvider);
+        super.tearDown();
+    }
+
     public void testUtf8PropertyFile() throws Exception {
         WebClient wc = new WebClient();
-        wc.addRequestHeader("Accept-Language", "en-US");
+        wc.addRequestHeader("Accept-Language", "ja-JP");
         HtmlPage page = wc.getPage(new URL(url, "/"));
         assertEquals("日本語", page.getElementById("language").getTextContent());
     }
