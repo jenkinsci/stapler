@@ -24,13 +24,13 @@
     <module>jrebel</module>
   </modules>
 
-  <url>http://stapler.kohsuke.org/</url>
+  <url>https://stapler.kohsuke.org/</url>
 
   <licenses>
     <license>
       <name>2-clause BSD license</name>
       <distribution>repo</distribution>
-      <url>http://opensource.org/licenses/bsd-license.php</url>
+      <url>https://opensource.org/licenses/bsd-license</url>
     </license>
   </licenses>
   
@@ -67,14 +67,14 @@
   <repositories>
     <repository>
       <id>repo.jenkins-ci.org</id>
-      <url>http://repo.jenkins-ci.org/public/</url>
+      <url>https://repo.jenkins-ci.org/public/</url>
     </repository>
   </repositories>
 
   <pluginRepositories>
     <pluginRepository>
       <id>repo.jenkins-ci.org</id>
-      <url>http://repo.jenkins-ci.org/public/</url>
+      <url>https://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
   </pluginRepositories>
 
