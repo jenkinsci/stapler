@@ -24,17 +24,16 @@
 package org.kohsuke.stapler.jelly.groovy;
 
 import org.apache.commons.jelly.JellyException;
-import org.apache.commons.jelly.Script;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.Facet;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
-import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.jelly.JellyClassTearOff;
 import org.kohsuke.stapler.jelly.JellyCompatibleFacet;
 import org.kohsuke.stapler.jelly.JellyFacet;
+import org.kohsuke.stapler.jelly.ScriptInvoker;
 import org.kohsuke.stapler.lang.Klass;
 
 import javax.servlet.RequestDispatcher;
@@ -53,55 +52,11 @@ import java.util.logging.Level;
  */
 @MetaInfServices(Facet.class)
 public class GroovyFacet extends Facet implements JellyCompatibleFacet {
+
     public void buildViewDispatchers(final MetaClass owner, List<Dispatcher> dispatchers) {
-        dispatchers.add(new Dispatcher() {
-            final GroovyClassTearOff tearOff = owner.loadTearOff(GroovyClassTearOff.class);
-            final GroovyServerPageTearOff gsp = owner.loadTearOff(GroovyServerPageTearOff.class);
-
-            public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
-                // check Groovy view
-                String next = req.tokens.peek();
-                if(next==null)  return false;
-
-                // only match the end of the URL
-                if (req.tokens.countRemainingTokens()>1)    return false;
-                // and avoid serving both "foo" and "foo/" as relative URL semantics are drastically different
-                if (req.getRequestURI().endsWith("/"))      return false;
-
-                if (!isBasename(next)) {
-                    // potentially an attempt to make a folder traversal
-                    return false;
-                }
-
-                try {
-                    Script script = tearOff.findScript(next);
-                    if(script==null)
-                        script = gsp.findScript(next);
-                    if (script==null)
-                        return false;   // no Groovy script found
-
-                    req.tokens.next();
-
-                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Groovy facet: %s", next + ".groovy");
-                    if(traceable())
-                        trace(req,rsp,"Invoking "+next+".groovy"+" on "+node+" for "+req.tokens);
-
-                    WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, rsp, script, node);
-
-                    return true;
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (IOException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new ServletException(e);
-                }
-            }
-            public String toString() {
-                // or TOKEN.gsp
-                return "TOKEN.groovy for url=/TOKEN";
-            }
-        });
+        ScriptInvoker scriptInvoker = owner.webApp.getFacet(JellyFacet.class).scriptInvoker;
+        dispatchers.add(createValidatingDispatcher(owner.loadTearOff(GroovyClassTearOff.class), scriptInvoker));
+        dispatchers.add(createValidatingDispatcher(owner.loadTearOff(GroovyServerPageTearOff.class), scriptInvoker));
     }
 
     public Collection<Class<GroovyClassTearOff>> getClassTearOffTypes() {
@@ -113,14 +68,12 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
     }
 
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass type, Object it, String viewName) throws IOException {
-        MetaClass mc = request.stapler.getWebApp().getMetaClass(type);
-        return createDispatcher(it, viewName, mc);
-    }
-
-    private RequestDispatcher createDispatcher(Object it, String viewName, MetaClass mc) throws IOException {
-        RequestDispatcher d = mc.loadTearOff(GroovyClassTearOff.class).createDispatcher(it, viewName);
-        if (d==null)
-            d = mc.loadTearOff(GroovyServerPageTearOff.class).createDispatcher(it, viewName);
+        MetaClass owner = request.getWebApp().getMetaClass(type);
+        ScriptInvoker scriptExecutor = request.getWebApp().getFacet(JellyFacet.class).scriptInvoker;
+        RequestDispatcher d = createRequestDispatcher(owner.loadTearOff(GroovyClassTearOff.class), scriptExecutor, it, viewName);
+        if (d == null) {
+            d = createRequestDispatcher(owner.loadTearOff(GroovyServerPageTearOff.class), scriptExecutor, it, viewName);
+        }
         return d;
     }
 
@@ -136,13 +89,9 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
     }
 
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
-        RequestDispatcher d = createDispatcher(node,"index", nodeMetaClass);
-
-        if (d!=null) {
-            d.forward(req, rsp);
-            return true;
-        }
-        return false;
+        ScriptInvoker scriptExecutor = req.getWebApp().getFacet(JellyFacet.class).scriptInvoker;
+        return handleIndexRequest(nodeMetaClass.loadTearOff(GroovyClassTearOff.class), scriptExecutor, req, rsp, node) ||
+                handleIndexRequest(nodeMetaClass.loadTearOff(GroovyServerPageTearOff.class), scriptExecutor, req, rsp, node);
     }
 
     private static final Set<Class<GroovyClassTearOff>> TEAROFF_TYPES = Collections.singleton(GroovyClassTearOff.class);

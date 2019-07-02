@@ -32,6 +32,7 @@ public class GroovyServerPageTearOff extends AbstractTearOff<GroovyClassLoaderTe
     /**
      * Creates a {@link RequestDispatcher} that forwards to the jelly view, if available.
      */
+    @Deprecated
     public RequestDispatcher createDispatcher(Object it, String viewName) throws IOException {
         GroovierJellyScript s = findScript(viewName);
         if (s!=null)    return new JellyRequestDispatcher(it,s);
