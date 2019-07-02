@@ -27,8 +27,11 @@ import org.apache.commons.discovery.ResourceNameIterator;
 import org.apache.commons.discovery.resource.ClassLoaders;
 import org.apache.commons.discovery.resource.names.DiscoverServiceNames;
 import org.kohsuke.MetaInfServices;
+import org.kohsuke.stapler.event.FilteredDispatchTriggerListener;
 import org.kohsuke.stapler.lang.Klass;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -50,6 +53,7 @@ public abstract class Facet {
     /**
      * Adds {@link Dispatcher}s that look at one token and binds that
      * to the views associated with the 'it' object.
+     * @see #createValidatingDispatcher(AbstractTearOff, ScriptExecutor)
      */
     public abstract void buildViewDispatchers(MetaClass owner, List<Dispatcher> dispatchers);
 
@@ -89,18 +93,16 @@ public abstract class Facet {
                 String name = itr.nextResourceName();
                 if (!classNames.add(name))  continue;   // avoid duplication
                 
-                Class<?> c;
+                Class<? extends T> c;
                 try {
-                    c = cl.loadClass(name);
+                    c = cl.loadClass(name).asSubclass(type);
                 } catch (ClassNotFoundException e) {
                     LOGGER.log(Level.WARNING, "Failed to load "+name,e);
                     continue;
                 }
                 try {
-                    r.add((T)c.newInstance());
-                } catch (InstantiationException e) {
-                    LOGGER.log(Level.WARNING, "Failed to instantiate "+c,e);
-                } catch (IllegalAccessException e) {
+                    r.add(c.newInstance());
+                } catch (InstantiationException | IllegalAccessException e) {
                     LOGGER.log(Level.WARNING, "Failed to instantiate "+c,e);
                 }
             }
@@ -119,12 +121,13 @@ public abstract class Facet {
      * @param type
      *      If "it" is non-null, {@code it.getClass()}. Otherwise the class
      *      from which the view is searched.
+     * @see #createRequestDispatcher(AbstractTearOff, ScriptExecutor, Object, String)
      */
-    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName) throws IOException {
+    @CheckForNull public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName) throws IOException {
         return null;    // should be really abstract, but not
     }
 
-    public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
+    @CheckForNull public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
         return createRequestDispatcher(request,Klass.java(type),it,viewName);
     }
 
@@ -133,6 +136,7 @@ public abstract class Facet {
      *
      * @return
      *      true if the processing succeeds. Otherwise false.
+     * @see #handleIndexRequest(AbstractTearOff, ScriptExecutor, RequestImpl, ResponseImpl, Object)
      */
     public abstract boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException;
 
@@ -161,5 +165,134 @@ public abstract class Facet {
             
             return true;
         }
+    }
+
+    /**
+     * Creates a Dispatcher that integrates {@link DispatchValidator} with the provided script loader and executor.
+     * If an exception or one of its causes is a {@link CancelRequestHandlingException}, this will cause the
+     * Dispatcher to cancel and return false, thus allowing for further dispatchers to attempt to handle the request.
+     * This also requires validation to pass before any output can be written to the response.
+     * In any error case, the configured {@link FilteredDispatchTriggerListener} will be notified.
+     *
+     * @param scriptLoader   tear-off script loader to find views
+     * @param scriptExecutor script executor for rendering views
+     * @param <S>            type of script
+     * @return dispatcher that handles scripts
+     * @see WebApp#setDispatchValidator(DispatchValidator)
+     * @see WebApp#setFilteredDispatchTriggerListener(FilteredDispatchTriggerListener)
+     * @since TODO
+     */
+    @Nonnull protected <S> Dispatcher createValidatingDispatcher(@Nonnull AbstractTearOff<?, ? extends S, ?> scriptLoader,
+                                                                 @Nonnull ScriptExecutor<? super S> scriptExecutor) {
+        return new Dispatcher() {
+            @Override
+            public boolean dispatch(@Nonnull RequestImpl req, @Nonnull ResponseImpl rsp, @CheckForNull Object node) throws ServletException {
+                String next = req.tokens.peek();
+                if (next == null) {
+                    return false;
+                }
+                // only match end of URL
+                if (req.tokens.countRemainingTokens() > 1) {
+                    return false;
+                }
+                // avoid serving both foo and foo/ as they have different URL semantics
+                if (req.tokens.endsWithSlash) {
+                    return false;
+                }
+                // prevent potential path traversal
+                if (!isBasename(next)) {
+                    return false;
+                }
+                DispatchValidator validator = req.getWebApp().getDispatchValidator();
+                FilteredDispatchTriggerListener listener = req.getWebApp().getFilteredDispatchTriggerListener();
+                Boolean valid = validator.isDispatchAllowed(req, rsp, next, node);
+                if (valid != null && !valid) {
+                    return listener.onDispatchTrigger(req, rsp, node, next);
+                }
+                S script;
+                try {
+                    script = scriptLoader.findScript(next);
+                } catch (Exception e) {
+                    throw new ServletException(e);
+                }
+                if (script == null) {
+                    return false;
+                }
+                req.tokens.next();
+                anonymizedTraceEval(req, rsp, node, "%s: View: %s%s", next, scriptLoader.getDefaultScriptExtension());
+                if (traceable()) {
+                    trace(req, rsp, "-> %s on <%s>", next, node);
+                }
+                try {
+                    scriptExecutor.execute(req, rsp, script, node);
+                    return true;
+                } catch (Exception e) {
+                    req.tokens.prev();
+                    for (Throwable cause = e; cause != null; cause = cause.getCause()) {
+                        if (cause instanceof CancelRequestHandlingException) {
+                            return listener.onDispatchTrigger(req, rsp, node, next);
+                        }
+                    }
+                    throw new ServletException(e);
+                }
+            }
+
+            @Override
+            public String toString() {
+                return "VIEW" + scriptLoader.getDefaultScriptExtension() + " for url=/VIEW";
+            }
+        };
+    }
+
+    /**
+     * Handles an index request by dispatching a script.
+     * @since TODO
+     */
+    protected <S> boolean handleIndexRequest(@Nonnull AbstractTearOff<?, ? extends S, ?> scriptLoader,
+                                             @Nonnull ScriptExecutor<? super S> scriptExecutor,
+                                             @Nonnull RequestImpl req,
+                                             @Nonnull ResponseImpl rsp,
+                                             @CheckForNull Object node)
+            throws ServletException, IOException {
+        S script;
+        try {
+            script = scriptLoader.findScript("index");
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+        if (script == null) {
+            return false;
+        }
+        Dispatcher.anonymizedTraceEval(req, rsp, node, "Index: index%s", scriptLoader.getDefaultScriptExtension());
+        if (Dispatcher.traceable()) {
+            Dispatcher.trace(req, rsp, "-> index on <%s>", node);
+        }
+        try {
+            scriptExecutor.execute(req, rsp, script, node);
+            return true;
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+    }
+
+    /**
+     * Creates a RequestDispatcher that integrates with {@link DispatchValidator} and
+     * {@link FilteredDispatchTriggerListener}.
+     *
+     * @param scriptLoader   tear-off script loader for finding views
+     * @param scriptExecutor script executor for rendering views
+     * @param it             the model node being dispatched against
+     * @param viewName       name of the view to load and execute
+     * @param <S>            view type
+     * @return a RequestDispatcher that performs similar validation to {@link #createValidatingDispatcher(AbstractTearOff, ScriptExecutor)}
+     * @see WebApp#setDispatchValidator(DispatchValidator)
+     * @see WebApp#setFilteredDispatchTriggerListener(FilteredDispatchTriggerListener)
+     * @since TODO
+     */
+    @CheckForNull protected <S> RequestDispatcher createRequestDispatcher(@Nonnull AbstractTearOff<?, ? extends S, ?> scriptLoader,
+                                                                          @Nonnull ScriptExecutor<? super S> scriptExecutor,
+                                                                          @CheckForNull Object it,
+                                                                          @Nonnull String viewName) {
+        return ScriptRequestDispatcher.newRequestDispatcher(scriptLoader, scriptExecutor, viewName, it);
     }
 }

@@ -26,21 +26,20 @@ package org.kohsuke.stapler.jelly;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.AbstractTearOff;
-import static org.kohsuke.stapler.Dispatcher.trace;
-import static org.kohsuke.stapler.Dispatcher.traceable;
-
 import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.Facet;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.WebApp;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Logger;
+
+import static org.kohsuke.stapler.Dispatcher.trace;
+import static org.kohsuke.stapler.Dispatcher.traceable;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -98,6 +97,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
     /**
      * Serves <tt>index.jelly</tt> if it's available, and returns true.
      */
+    @Deprecated
     public boolean serveIndexJelly(StaplerRequest req, StaplerResponse rsp, Object node) throws ServletException, IOException {
         try {
             Script script = findScript("index.jelly");
@@ -123,6 +123,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
     /**
      * Creates a {@link RequestDispatcher} that forwards to the jelly view, if available.
      */
+    @Deprecated
     public RequestDispatcher createDispatcher(Object it, String viewName) throws IOException {
         try {
             // backward compatible behavior that expects full file name including ".jelly"
