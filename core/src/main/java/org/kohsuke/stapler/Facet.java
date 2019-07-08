@@ -168,6 +168,17 @@ public abstract class Facet {
     }
 
     /**
+     * For Facets that require a particular file extension to be put in any case.
+     * Just return an empty String if the Facet does not want to have such behavior.
+     * 
+     * If you do want to have an extension added, you must ensure you provide the dot at the first character position, 
+     * see JellyFacet
+     */
+    protected @Nonnull String getExtensionSuffix() {
+        return "";
+    } 
+
+    /**
      * Creates a Dispatcher that integrates {@link DispatchValidator} with the provided script loader and executor.
      * If an exception or one of its causes is a {@link CancelRequestHandlingException}, this will cause the
      * Dispatcher to cancel and return false, thus allowing for further dispatchers to attempt to handle the request.
@@ -211,7 +222,7 @@ public abstract class Facet {
                 }
                 S script;
                 try {
-                    script = scriptLoader.findScript(next);
+                    script = scriptLoader.findScript(next + getExtensionSuffix());
                 } catch (Exception e) {
                     throw new ServletException(e);
                 }

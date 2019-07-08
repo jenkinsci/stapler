@@ -33,6 +33,7 @@ import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.lang.Klass;
 
+import javax.annotation.Nonnull;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -74,6 +75,11 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
         } catch (JellyException e) {
             LOGGER.log(Level.WARNING, "Failed to parse index.jelly for "+owner, e);
         }
+    }
+
+    @Override 
+    protected @Nonnull String getExtensionSuffix() {
+        return ".jelly";
     }
 
     public Collection<Class<JellyClassTearOff>> getClassTearOffTypes() {
