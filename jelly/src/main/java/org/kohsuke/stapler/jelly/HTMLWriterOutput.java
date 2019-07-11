@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.util.logging.Logger;
 
 /**
  * Wrapper for XMLOutput using HTMLWriter that can turn off its HTML handling
@@ -40,6 +41,8 @@ import java.io.Writer;
 public class HTMLWriterOutput extends XMLOutput {
     private HTMLWriter htmlWriter;
     private OutputFormat format;
+
+    private static final Logger LOGGER = Logger.getLogger(HTMLWriterOutput.class.getName());
 
     public static HTMLWriterOutput create(OutputStream out) throws UnsupportedEncodingException {
         OutputFormat format = createFormat();
@@ -71,4 +74,8 @@ public class HTMLWriterOutput extends XMLOutput {
         htmlWriter.close();
     }
 
+    @Deprecated
+    public void useHTML(boolean enabled) {
+        LOGGER.fine("Deprecated: HTMLWriterOutput.useHtml() has been deprecated and its functionality removed.");
+    }
 }
