@@ -75,4 +75,11 @@ public class ResourceBundleTest extends JettyTestCase{
         HtmlPage page = wc.getPage(new URL(url, "/"));
         assertEquals("日本語", page.getElementById("language").getTextContent());
     }
+
+    public void testEncodedPropertyFile() throws Exception {
+        WebClient wc = new WebClient();
+        wc.addRequestHeader("Accept-Language", "ja-JP");
+        HtmlPage page = wc.getPage(new URL(url, "/encoded"));
+        assertEquals("日本語", page.getElementById("language").getTextContent());
+    }
 }

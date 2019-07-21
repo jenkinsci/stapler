@@ -1,0 +1,12 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:st="jelly:stapler" xmlns:j="jelly:core">
+<st:contentType value="text/html; charset=UTF-8" />
+<html>
+  <head>
+    <title>ResourceBundleTest encoded property file</title>
+  </head>
+  <body>
+    <div id="language">${%Language}</div>
+  </body>
+</html>
+</j:jelly>
