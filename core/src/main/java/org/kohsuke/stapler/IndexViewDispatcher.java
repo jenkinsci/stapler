@@ -27,6 +27,8 @@ class IndexViewDispatcher extends Dispatcher {
         if (req.tokens.hasMore())
             return false;
 
+        // always allow index views to be dispatched
+        req.getWebApp().getDispatchValidator().allowDispatch(req, rsp);
         return facet.handleIndexRequest(req, rsp, node, metaClass);
     }
 

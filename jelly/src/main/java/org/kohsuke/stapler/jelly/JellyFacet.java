@@ -24,7 +24,6 @@
 package org.kohsuke.stapler.jelly;
 
 import org.apache.commons.jelly.JellyException;
-import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.Dispatcher;
@@ -32,9 +31,9 @@ import org.kohsuke.stapler.Facet;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
-import org.kohsuke.stapler.TearOffSupport;
 import org.kohsuke.stapler.lang.Klass;
 
+import javax.annotation.Nonnull;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -64,58 +63,7 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
     public volatile ResourceBundleFactory resourceBundleFactory = ResourceBundleFactory.INSTANCE;
 
     public void buildViewDispatchers(final MetaClass owner, List<Dispatcher> dispatchers) {
-        dispatchers.add(new Dispatcher() {
-            final JellyClassTearOff tearOff = owner.loadTearOff(JellyClassTearOff.class);
-
-            public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
-                // check Jelly view
-                String next = req.tokens.peek();
-                if(next==null)  return false;
-
-                // only match the end of the URL
-                if (req.tokens.countRemainingTokens()>1)    return false;
-                // and avoid serving both "foo" and "foo/" as relative URL semantics are drastically different
-                if (req.tokens.endsWithSlash)      return false;
-
-                if (!isBasename(next)) {
-                    // potentially an attempt to make a folder traversal
-                    return false;
-                }
-
-                try {
-                    Script script = tearOff.findScript(next+".jelly");
-
-                    if(script==null)        return false;   // no Jelly script found
-
-                    req.tokens.next();
-
-                    // Null not expected here
-                    String src = next+".jelly";
-                    if (script instanceof JellyViewScript) {
-                        JellyViewScript jvs = (JellyViewScript) script;
-                        src = jvs.getName();
-                    }
-                    Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Jelly facet: %s", src);
-                    if (traceable()) {
-                        trace(req,rsp,"-> %s on <%s>", src, node);
-                    }
-
-                    scriptInvoker.invokeScript(req, rsp, script, node);
-
-                    return true;
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (IOException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new ServletException(e);
-                }
-            }
-
-            public String toString() {
-                return "VIEW.jelly for url=/VIEW";
-            }
-        });
+        dispatchers.add(createValidatingDispatcher(owner.loadTearOff(JellyClassTearOff.class), scriptInvoker));
     }
 
     @Override
@@ -129,6 +77,11 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
         }
     }
 
+    @Override 
+    protected @Nonnull String getExtensionSuffix() {
+        return ".jelly";
+    }
+
     public Collection<Class<JellyClassTearOff>> getClassTearOffTypes() {
         return TEAROFF_TYPES;
     }
@@ -138,12 +91,12 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
     }
 
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName) throws IOException {
-        TearOffSupport mc = request.stapler.getWebApp().getMetaClass(type);
-        return mc.loadTearOff(JellyClassTearOff.class).createDispatcher(it,viewName);
+        JellyClassTearOff scriptLoader = request.getWebApp().getMetaClass(type).loadTearOff(JellyClassTearOff.class);
+        return createRequestDispatcher(scriptLoader, scriptInvoker, it, viewName);
     }
 
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
-        return nodeMetaClass.loadTearOff(JellyClassTearOff.class).serveIndexJelly(req,rsp,node);
+        return handleIndexRequest(nodeMetaClass.loadTearOff(JellyClassTearOff.class), scriptInvoker, req, rsp, node);
     }
 
     /**

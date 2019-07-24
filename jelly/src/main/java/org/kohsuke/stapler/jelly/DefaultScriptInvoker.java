@@ -23,21 +23,21 @@
 
 package org.kohsuke.stapler.jelly;
 
+import org.apache.commons.jelly.JellyContext;
+import org.apache.commons.jelly.JellyTagException;
+import org.apache.commons.jelly.Script;
+import org.apache.commons.jelly.XMLOutput;
+import org.apache.commons.jelly.XMLOutputFactory;
+import org.apache.commons.jelly.impl.TagScript;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.apache.commons.jelly.Script;
-import org.apache.commons.jelly.JellyTagException;
-import org.apache.commons.jelly.XMLOutput;
-import org.apache.commons.jelly.XMLOutputFactory;
-import org.apache.commons.jelly.JellyContext;
-import org.apache.commons.jelly.impl.TagScript;
 
+import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.BufferedOutputStream;
-import java.io.FilterOutputStream;
 import java.io.Writer;
 import java.util.Enumeration;
 
@@ -81,25 +81,66 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         }
         return false;
     }
-    protected OutputStream createOutputStream(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException {
-        // do we want to do compression?
-        OutputStream output=null;
-        if (doCompression(script))
-            output = rsp.getCompressedOutputStream(req);
-        if(output==null)    // nope
-            output = new BufferedOutputStream(rsp.getOutputStream());
 
-        output = new FilterOutputStream(output) {
-            public void flush() {
+    private interface OutputStreamSupplier {
+        @Nonnull OutputStream get() throws IOException;
+    }
+
+    private class LazyOutputStreamSupplier implements OutputStreamSupplier {
+        private final OutputStreamSupplier supplier;
+        private volatile OutputStream out;
+
+        private LazyOutputStreamSupplier(OutputStreamSupplier supplier) {
+            this.supplier = supplier;
+        }
+
+        @Override
+        @Nonnull
+        public OutputStream get() throws IOException {
+            if (out == null) {
+                synchronized (this) {
+                    if (out == null) {
+                        out = supplier.get();
+                    }
+                }
+            }
+            return out;
+        }
+    }
+
+    protected OutputStream createOutputStream(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException {
+        OutputStreamSupplier out = new LazyOutputStreamSupplier(() -> {
+            req.getWebApp().getDispatchValidator().requireDispatchAllowed(req, rsp);
+            return doCompression(script) ? rsp.getCompressedOutputStream(req) : new BufferedOutputStream(rsp.getOutputStream());
+        });
+        return new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                out.get().write(b);
+            }
+
+            @Override
+            public void write(byte[] b) throws IOException {
+                out.get().write(b);
+            }
+
+            @Override
+            public void write(byte[] b, int off, int len) throws IOException {
+                out.get().write(b, off, len);
+            }
+
+            @Override
+            public void flush() throws IOException {
                 // flushing ServletOutputStream causes Tomcat to
                 // send out headers, making it impossible to set contentType from the script.
                 // so don't let Jelly flush.
             }
-            public void write(byte b[], int off, int len) throws IOException {
-                out.write(b, off, len);
+
+            @Override
+            public void close() throws IOException {
+                out.get().close();
             }
         };
-        return output;
     }
 
     protected void exportVariables(StaplerRequest req, StaplerResponse rsp, Script script, Object it, JellyContext context) {

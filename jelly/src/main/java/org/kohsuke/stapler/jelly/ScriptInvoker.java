@@ -24,11 +24,14 @@
 package org.kohsuke.stapler.jelly;
 
 import org.apache.commons.jelly.XMLOutput;
+import org.kohsuke.stapler.ScriptExecutor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import java.io.IOException;
 
 /**
@@ -37,7 +40,7 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  * @see JellyFacet#scriptInvoker
  */
-public interface ScriptInvoker {
+public interface ScriptInvoker extends ScriptExecutor<Script> {
     /**
      * Invokes the script and generates output to {@link StaplerResponse#getOutputStream()}.
      */
@@ -47,4 +50,9 @@ public interface ScriptInvoker {
      * Invokes the script and generates output to the specified output
      */
     void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it, XMLOutput out) throws IOException, JellyTagException;
+
+    @Override
+    default void execute(@Nonnull StaplerRequest req, @Nonnull StaplerResponse rsp, @Nonnull Script script, @CheckForNull Object it) throws IOException, JellyTagException {
+        invokeScript(req, rsp, script, it);
+    }
 }

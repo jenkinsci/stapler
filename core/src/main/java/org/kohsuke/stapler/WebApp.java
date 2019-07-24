@@ -28,6 +28,7 @@ import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.event.FilteredDoActionTriggerListener;
 import org.kohsuke.stapler.event.FilteredFieldTriggerListener;
 import org.kohsuke.stapler.event.FilteredGetterTriggerListener;
+import org.kohsuke.stapler.event.FilteredDispatchTriggerListener;
 import org.kohsuke.stapler.lang.FieldRef;
 import org.kohsuke.stapler.lang.KInstance;
 import org.kohsuke.stapler.lang.Klass;
@@ -145,12 +146,15 @@ public class WebApp {
     private FunctionList.Filter filterForGetMethods = FunctionList.Filter.ALWAYS_OK;
     private FunctionList.Filter filterForDoActions = FunctionList.Filter.ALWAYS_OK;
     private FieldRef.Filter filterForFields = FieldRef.Filter.ALWAYS_OK;
-    
+
     private DispatchersFilter dispatchersFilter;
     private FilteredDoActionTriggerListener filteredDoActionTriggerListener = FilteredDoActionTriggerListener.JUST_WARN;
     private FilteredGetterTriggerListener filteredGetterTriggerListener = FilteredGetterTriggerListener.JUST_WARN;
     private FilteredFieldTriggerListener filteredFieldTriggerListener = FilteredFieldTriggerListener.JUST_WARN;
-    
+
+    private DispatchValidator dispatchValidator = DispatchValidator.DEFAULT;
+    private FilteredDispatchTriggerListener filteredDispatchTriggerListener = FilteredDispatchTriggerListener.JUST_WARN;
+
     /**
      * Give the application a way to customize the JSON before putting it inside Stacktrace when something wrong happened.
      * By default it just returns the given JSON.
@@ -411,5 +415,33 @@ public class WebApp {
      */
     public void setJsonInErrorMessageSanitizer(JsonInErrorMessageSanitizer jsonInErrorMessageSanitizer) {
         this.jsonInErrorMessageSanitizer = jsonInErrorMessageSanitizer;
+    }
+
+    public DispatchValidator getDispatchValidator() {
+        if (dispatchValidator == null) {
+            dispatchValidator = DispatchValidator.DEFAULT;
+        }
+        return dispatchValidator;
+    }
+
+    /**
+     * Sets the validator used with facet dispatchers.
+     */
+    public void setDispatchValidator(DispatchValidator dispatchValidator) {
+        this.dispatchValidator = dispatchValidator;
+    }
+
+    public FilteredDispatchTriggerListener getFilteredDispatchTriggerListener() {
+        if (filteredDispatchTriggerListener == null) {
+            filteredDispatchTriggerListener = FilteredDispatchTriggerListener.JUST_WARN;
+        }
+        return filteredDispatchTriggerListener;
+    }
+
+    /**
+     * Sets the event listener used for reacting to filtered dispatch requests.
+     */
+    public void setFilteredDispatchTriggerListener(FilteredDispatchTriggerListener filteredDispatchTriggerListener) {
+        this.filteredDispatchTriggerListener = filteredDispatchTriggerListener;
     }
 }

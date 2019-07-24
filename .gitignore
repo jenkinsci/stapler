@@ -3,6 +3,7 @@
 *.iml
 *.iws
 target
+pom.xml.versionsBackup
 
 .project
 .settings/
