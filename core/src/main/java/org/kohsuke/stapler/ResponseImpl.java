@@ -289,14 +289,14 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
     private boolean acceptsGzip(HttpServletRequest req) {
         String acceptEncoding = req.getHeader("Accept-Encoding");
-        return acceptEncoding==null || !acceptEncoding.contains("gzip");
+        return acceptEncoding!=null && acceptEncoding.contains("gzip");
     }
 
     public OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException {
         if (mode!=null) // we already made the call and created OutputStream/Writer
             return getOutputStream();
 
-        if(acceptsGzip(req))
+        if(!acceptsGzip(req))
             return getOutputStream();   // compression not applicable here
 
         if (CompressionFilter.activate(req))
@@ -312,7 +312,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         if (mode!=null)
             return getWriter();
 
-        if(acceptsGzip(req))
+        if(!acceptsGzip(req))
             return getWriter();   // compression not available
 
         if (CompressionFilter.activate(req))
