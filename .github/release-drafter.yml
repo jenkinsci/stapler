@@ -1,0 +1,2 @@
+_extends: jenkinsci/.github
+tag-template: stapler-parent-$NEXT_MINOR_VERSION
