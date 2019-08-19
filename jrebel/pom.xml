@@ -35,19 +35,4 @@
     </dependency>
   </dependencies>
 
-  <!--
-  <repositories>
-    <repository>
-      <id>zt-repo</id>
-      <url>http://repos.zeroturnaround.com/nexus/content/groups/zt-public/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-        <checksumPolicy>ignore</checksumPolicy>
-      </releases>
-    </repository>
-  </repositories>
-  -->
 </project>
