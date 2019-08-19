@@ -52,7 +52,5 @@ public class ContentTypeTag extends AbstractStaplerTag {
         HttpServletResponse rsp = getResponse();
         if (rsp!=null)
             rsp.setContentType(contentType);
-        if (output instanceof HTMLWriterOutput)
-            ((HTMLWriterOutput)output).useHTML(contentType.startsWith("text/html"));
     }
 }
