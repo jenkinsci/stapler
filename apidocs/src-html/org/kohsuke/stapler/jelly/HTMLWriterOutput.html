@@ -38,55 +38,56 @@
 <span class="sourceLineNo">030</span>import java.io.OutputStream;<a name="line.30"></a>
 <span class="sourceLineNo">031</span>import java.io.UnsupportedEncodingException;<a name="line.31"></a>
 <span class="sourceLineNo">032</span>import java.io.Writer;<a name="line.32"></a>
-<span class="sourceLineNo">033</span><a name="line.33"></a>
-<span class="sourceLineNo">034</span>/**<a name="line.34"></a>
-<span class="sourceLineNo">035</span> * Wrapper for XMLOutput using HTMLWriter that can turn off its HTML handling<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * (if the Content-Type gets set to something other than text/html).<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * <a name="line.37"></a>
-<span class="sourceLineNo">038</span> * @author Alan.Harder@Sun.Com<a name="line.38"></a>
-<span class="sourceLineNo">039</span> */<a name="line.39"></a>
-<span class="sourceLineNo">040</span>public class HTMLWriterOutput extends XMLOutput {<a name="line.40"></a>
-<span class="sourceLineNo">041</span>    private HTMLWriter htmlWriter;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>    private OutputFormat format;<a name="line.42"></a>
-<span class="sourceLineNo">043</span><a name="line.43"></a>
-<span class="sourceLineNo">044</span>    public static HTMLWriterOutput create(OutputStream out) throws UnsupportedEncodingException {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        OutputFormat format = createFormat();<a name="line.45"></a>
-<span class="sourceLineNo">046</span>        return new HTMLWriterOutput(new HTMLWriter(out, format), format, false);<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    }<a name="line.47"></a>
-<span class="sourceLineNo">048</span><a name="line.48"></a>
-<span class="sourceLineNo">049</span>    public static HTMLWriterOutput create(Writer out, boolean escapeText) {<a name="line.49"></a>
-<span class="sourceLineNo">050</span>        OutputFormat format = createFormat();<a name="line.50"></a>
-<span class="sourceLineNo">051</span>        return new HTMLWriterOutput(new HTMLWriter(out, format), format, escapeText);<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
-<span class="sourceLineNo">053</span><a name="line.53"></a>
-<span class="sourceLineNo">054</span>    private static OutputFormat createFormat() {<a name="line.54"></a>
-<span class="sourceLineNo">055</span>        OutputFormat format = new OutputFormat();<a name="line.55"></a>
-<span class="sourceLineNo">056</span>        format.setXHTML(true);<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        // Only use short close for tags identified by HTMLWriter:<a name="line.57"></a>
-<span class="sourceLineNo">058</span>        format.setExpandEmptyElements(true);<a name="line.58"></a>
-<span class="sourceLineNo">059</span>        return format;<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    }<a name="line.60"></a>
-<span class="sourceLineNo">061</span><a name="line.61"></a>
-<span class="sourceLineNo">062</span>    private HTMLWriterOutput(HTMLWriter hw, OutputFormat fmt, boolean escapeText) {<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        super(hw);<a name="line.63"></a>
-<span class="sourceLineNo">064</span>        hw.setEscapeText(escapeText);<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        this.htmlWriter = hw;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        this.format = fmt;<a name="line.66"></a>
-<span class="sourceLineNo">067</span>    }<a name="line.67"></a>
-<span class="sourceLineNo">068</span><a name="line.68"></a>
-<span class="sourceLineNo">069</span>    @Override public void close() throws IOException {<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        htmlWriter.close();<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
-<span class="sourceLineNo">072</span><a name="line.72"></a>
-<span class="sourceLineNo">073</span>    /**<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     * False to turn off HTML handling and reenable {@code /&gt;} for any empty XML element.<a name="line.74"></a>
-<span class="sourceLineNo">075</span>     * True to switch back to default mode with HTML handling.<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     */<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    public void useHTML(boolean enabled) {<a name="line.77"></a>
-<span class="sourceLineNo">078</span>        htmlWriter.setEnabled(enabled);<a name="line.78"></a>
-<span class="sourceLineNo">079</span>        format.setExpandEmptyElements(enabled);<a name="line.79"></a>
-<span class="sourceLineNo">080</span>    }<a name="line.80"></a>
-<span class="sourceLineNo">081</span>}<a name="line.81"></a>
+<span class="sourceLineNo">033</span>import java.util.logging.Level;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import java.util.logging.Logger;<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>/**<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * Wrapper for XMLOutput using HTMLWriter that can turn off its HTML handling<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * (if the Content-Type gets set to something other than text/html).<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * <a name="line.39"></a>
+<span class="sourceLineNo">040</span> * @author Alan.Harder@Sun.Com<a name="line.40"></a>
+<span class="sourceLineNo">041</span> */<a name="line.41"></a>
+<span class="sourceLineNo">042</span>public class HTMLWriterOutput extends XMLOutput {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    private HTMLWriter htmlWriter;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    private OutputFormat format;<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>    private static final Logger LOGGER = Logger.getLogger(HTMLWriterOutput.class.getName());<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>    public static HTMLWriterOutput create(OutputStream out) throws UnsupportedEncodingException {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        OutputFormat format = createFormat();<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        return new HTMLWriterOutput(new HTMLWriter(out, format), format, false);<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    public static HTMLWriterOutput create(Writer out, boolean escapeText) {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        OutputFormat format = createFormat();<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        return new HTMLWriterOutput(new HTMLWriter(out, format), format, escapeText);<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    }<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>    private static OutputFormat createFormat() {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        OutputFormat format = new OutputFormat();<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        format.setXHTML(true);<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        // Only use short close for tags identified by HTMLWriter:<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        format.setExpandEmptyElements(true);<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        return format;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    }<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>    private HTMLWriterOutput(HTMLWriter hw, OutputFormat fmt, boolean escapeText) {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        super(hw);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        hw.setEscapeText(escapeText);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        this.htmlWriter = hw;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        this.format = fmt;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        format.setExpandEmptyElements(true);<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    }<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span>    @Override public void close() throws IOException {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        htmlWriter.close();<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    }<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>    @Deprecated<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    public void useHTML(boolean enabled) {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        LOGGER.log(Level. WARNING, null, new UnsupportedOperationException("Deprecated: HTMLWriterOutput.useHtml() has been deprecated and its functionality removed."));<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
+<span class="sourceLineNo">082</span>}<a name="line.82"></a>
 
 
 

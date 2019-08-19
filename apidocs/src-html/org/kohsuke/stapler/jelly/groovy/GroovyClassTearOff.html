@@ -61,13 +61,14 @@
 <span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
 <span class="sourceLineNo">054</span>     * Creates a {@link RequestDispatcher} that forwards to the jelly view, if available.<a name="line.54"></a>
 <span class="sourceLineNo">055</span>     */<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    public RequestDispatcher createDispatcher(Object it, String viewName) throws IOException {<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        Script script = findScript(viewName);<a name="line.57"></a>
-<span class="sourceLineNo">058</span>        if(script!=null)<a name="line.58"></a>
-<span class="sourceLineNo">059</span>            return new JellyRequestDispatcher(it,script);<a name="line.59"></a>
-<span class="sourceLineNo">060</span>        return null;<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    }<a name="line.61"></a>
-<span class="sourceLineNo">062</span>}<a name="line.62"></a>
+<span class="sourceLineNo">056</span>    @Deprecated<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    public RequestDispatcher createDispatcher(Object it, String viewName) throws IOException {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        Script script = findScript(viewName);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        if(script!=null)<a name="line.59"></a>
+<span class="sourceLineNo">060</span>            return new JellyRequestDispatcher(it,script);<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        return null;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    }<a name="line.62"></a>
+<span class="sourceLineNo">063</span>}<a name="line.63"></a>
 
 
 

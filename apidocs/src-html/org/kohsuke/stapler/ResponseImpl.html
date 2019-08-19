@@ -297,14 +297,14 @@
 <span class="sourceLineNo">289</span><a name="line.289"></a>
 <span class="sourceLineNo">290</span>    private boolean acceptsGzip(HttpServletRequest req) {<a name="line.290"></a>
 <span class="sourceLineNo">291</span>        String acceptEncoding = req.getHeader("Accept-Encoding");<a name="line.291"></a>
-<span class="sourceLineNo">292</span>        return acceptEncoding==null || !acceptEncoding.contains("gzip");<a name="line.292"></a>
+<span class="sourceLineNo">292</span>        return acceptEncoding!=null &amp;&amp; acceptEncoding.contains("gzip");<a name="line.292"></a>
 <span class="sourceLineNo">293</span>    }<a name="line.293"></a>
 <span class="sourceLineNo">294</span><a name="line.294"></a>
 <span class="sourceLineNo">295</span>    public OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException {<a name="line.295"></a>
 <span class="sourceLineNo">296</span>        if (mode!=null) // we already made the call and created OutputStream/Writer<a name="line.296"></a>
 <span class="sourceLineNo">297</span>            return getOutputStream();<a name="line.297"></a>
 <span class="sourceLineNo">298</span><a name="line.298"></a>
-<span class="sourceLineNo">299</span>        if(acceptsGzip(req))<a name="line.299"></a>
+<span class="sourceLineNo">299</span>        if(!acceptsGzip(req))<a name="line.299"></a>
 <span class="sourceLineNo">300</span>            return getOutputStream();   // compression not applicable here<a name="line.300"></a>
 <span class="sourceLineNo">301</span><a name="line.301"></a>
 <span class="sourceLineNo">302</span>        if (CompressionFilter.activate(req))<a name="line.302"></a>
@@ -320,7 +320,7 @@
 <span class="sourceLineNo">312</span>        if (mode!=null)<a name="line.312"></a>
 <span class="sourceLineNo">313</span>            return getWriter();<a name="line.313"></a>
 <span class="sourceLineNo">314</span><a name="line.314"></a>
-<span class="sourceLineNo">315</span>        if(acceptsGzip(req))<a name="line.315"></a>
+<span class="sourceLineNo">315</span>        if(!acceptsGzip(req))<a name="line.315"></a>
 <span class="sourceLineNo">316</span>            return getWriter();   // compression not available<a name="line.316"></a>
 <span class="sourceLineNo">317</span><a name="line.317"></a>
 <span class="sourceLineNo">318</span>        if (CompressionFilter.activate(req))<a name="line.318"></a>

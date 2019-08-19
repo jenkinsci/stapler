@@ -36,391 +36,423 @@
 <span class="sourceLineNo">028</span>import org.kohsuke.stapler.event.FilteredDoActionTriggerListener;<a name="line.28"></a>
 <span class="sourceLineNo">029</span>import org.kohsuke.stapler.event.FilteredFieldTriggerListener;<a name="line.29"></a>
 <span class="sourceLineNo">030</span>import org.kohsuke.stapler.event.FilteredGetterTriggerListener;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.kohsuke.stapler.lang.FieldRef;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.kohsuke.stapler.lang.KInstance;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.kohsuke.stapler.lang.Klass;<a name="line.33"></a>
-<span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>import javax.servlet.Filter;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import javax.servlet.ServletConfig;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import javax.servlet.ServletContext;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>import java.util.Map;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>import java.util.HashMap;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>import java.util.List;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>import java.util.Vector;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>import java.util.Hashtable;<a name="line.42"></a>
-<span class="sourceLineNo">043</span>import java.util.concurrent.ConcurrentHashMap;<a name="line.43"></a>
-<span class="sourceLineNo">044</span>import java.util.concurrent.ConcurrentMap;<a name="line.44"></a>
-<span class="sourceLineNo">045</span>import java.util.concurrent.CopyOnWriteArrayList;<a name="line.45"></a>
-<span class="sourceLineNo">046</span><a name="line.46"></a>
-<span class="sourceLineNo">047</span>/**<a name="line.47"></a>
-<span class="sourceLineNo">048</span> * Object scoped to the entire webapp. Mostly used for configuring behavior of Stapler.<a name="line.48"></a>
-<span class="sourceLineNo">049</span> *<a name="line.49"></a>
-<span class="sourceLineNo">050</span> * &lt;p&gt;<a name="line.50"></a>
-<span class="sourceLineNo">051</span> * In contrast, {@link Stapler} is a servlet, so there can be multiple instances per webapp.<a name="line.51"></a>
-<span class="sourceLineNo">052</span> *<a name="line.52"></a>
-<span class="sourceLineNo">053</span> * @author Kohsuke Kawaguchi<a name="line.53"></a>
-<span class="sourceLineNo">054</span> * @see WebApp#get(ServletContext)<a name="line.54"></a>
-<span class="sourceLineNo">055</span> * @see WebApp#getCurrent()  <a name="line.55"></a>
-<span class="sourceLineNo">056</span> * @see Stapler#getWebApp()<a name="line.56"></a>
-<span class="sourceLineNo">057</span> */<a name="line.57"></a>
-<span class="sourceLineNo">058</span>public class WebApp {<a name="line.58"></a>
-<span class="sourceLineNo">059</span>    /**<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     * Obtains the {@link WebApp} associated with the given {@link ServletContext}.<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     */<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    public static WebApp get(ServletContext context) {<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        Object o = context.getAttribute(WebApp.class.getName());<a name="line.63"></a>
-<span class="sourceLineNo">064</span>        if(o==null) {<a name="line.64"></a>
-<span class="sourceLineNo">065</span>            synchronized (WebApp.class) {<a name="line.65"></a>
-<span class="sourceLineNo">066</span>                o = context.getAttribute(WebApp.class.getName());<a name="line.66"></a>
-<span class="sourceLineNo">067</span>                if(o==null) {<a name="line.67"></a>
-<span class="sourceLineNo">068</span>                    o = new WebApp(context);<a name="line.68"></a>
-<span class="sourceLineNo">069</span>                    context.setAttribute(WebApp.class.getName(),o);<a name="line.69"></a>
-<span class="sourceLineNo">070</span>                }<a name="line.70"></a>
-<span class="sourceLineNo">071</span>            }<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        }<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        return (WebApp)o;<a name="line.73"></a>
-<span class="sourceLineNo">074</span>    }<a name="line.74"></a>
-<span class="sourceLineNo">075</span><a name="line.75"></a>
-<span class="sourceLineNo">076</span>    /**<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     * {@link ServletContext} for this webapp.<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     */<a name="line.78"></a>
-<span class="sourceLineNo">079</span>    public final ServletContext context;<a name="line.79"></a>
-<span class="sourceLineNo">080</span><a name="line.80"></a>
-<span class="sourceLineNo">081</span>    /**<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     * Duck-type wrappers for the given class.<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     */<a name="line.83"></a>
-<span class="sourceLineNo">084</span>    public final Map&lt;Class,Class[]&gt; wrappers = new HashMap&lt;Class,Class[]&gt;();<a name="line.84"></a>
-<span class="sourceLineNo">085</span><a name="line.85"></a>
-<span class="sourceLineNo">086</span>    /**<a name="line.86"></a>
-<span class="sourceLineNo">087</span>     * MIME type → encoding map that determines how static contents in the war file is served.<a name="line.87"></a>
-<span class="sourceLineNo">088</span>     */<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    public final Map&lt;String,String&gt; defaultEncodingForStaticResources = new HashMap&lt;String,String&gt;();<a name="line.89"></a>
-<span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>    /**<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     * Activated facets.<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     *<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     * TODO: is this really mutable?<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     */<a name="line.95"></a>
-<span class="sourceLineNo">096</span>    public final List&lt;Facet&gt; facets = new Vector&lt;Facet&gt;();<a name="line.96"></a>
-<span class="sourceLineNo">097</span><a name="line.97"></a>
-<span class="sourceLineNo">098</span>    /**<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     * Global {@link BindInterceptor}s.<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     *<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * These are consulted after {@link StaplerRequest#getBindInterceptor()} is consulted.<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     * Global bind interceptors are useful to register webapp-wide conversion logic local to the application.<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     * @since 1.220<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     */<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    public final List&lt;BindInterceptor&gt; bindInterceptors = new CopyOnWriteArrayList&lt;BindInterceptor&gt;();<a name="line.105"></a>
-<span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>    /**<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     * MIME type mapping from extensions (like "txt" or "jpg") to MIME types ("foo/bar").<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     *<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     * This overrides whatever mappings given in the servlet as far as stapler is concerned.<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     * This is case insensitive, and should be normalized to lower case.<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     */<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    public final Map&lt;String,String&gt; mimeTypes = new Hashtable&lt;String,String&gt;();<a name="line.113"></a>
-<span class="sourceLineNo">114</span><a name="line.114"></a>
-<span class="sourceLineNo">115</span>    private volatile ClassLoader classLoader;<a name="line.115"></a>
-<span class="sourceLineNo">116</span><a name="line.116"></a>
-<span class="sourceLineNo">117</span>    /**<a name="line.117"></a>
-<span class="sourceLineNo">118</span>     * All {@link MetaClass}es.<a name="line.118"></a>
-<span class="sourceLineNo">119</span>     *<a name="line.119"></a>
-<span class="sourceLineNo">120</span>     * Note that this permanently holds a strong reference to its key, i.e. is a memory leak.<a name="line.120"></a>
-<span class="sourceLineNo">121</span>     */<a name="line.121"></a>
-<span class="sourceLineNo">122</span>    private final Map&lt;Klass&lt;?&gt;,MetaClass&gt; classMap = new HashMap&lt;Klass&lt;?&gt;,MetaClass&gt;();<a name="line.122"></a>
-<span class="sourceLineNo">123</span><a name="line.123"></a>
-<span class="sourceLineNo">124</span>    /**<a name="line.124"></a>
-<span class="sourceLineNo">125</span>     * Handles objects that are exported.<a name="line.125"></a>
-<span class="sourceLineNo">126</span>     */<a name="line.126"></a>
-<span class="sourceLineNo">127</span>    public final BoundObjectTable boundObjectTable = new BoundObjectTable();<a name="line.127"></a>
-<span class="sourceLineNo">128</span><a name="line.128"></a>
-<span class="sourceLineNo">129</span>    private final CopyOnWriteArrayList&lt;HttpResponseRenderer&gt; responseRenderers = new CopyOnWriteArrayList&lt;HttpResponseRenderer&gt;();<a name="line.129"></a>
-<span class="sourceLineNo">130</span><a name="line.130"></a>
-<span class="sourceLineNo">131</span>    private CrumbIssuer crumbIssuer = CrumbIssuer.DEFAULT;<a name="line.131"></a>
-<span class="sourceLineNo">132</span><a name="line.132"></a>
-<span class="sourceLineNo">133</span>    /**<a name="line.133"></a>
-<span class="sourceLineNo">134</span>     * Provides access to {@link Stapler} servlet instances. This is useful<a name="line.134"></a>
-<span class="sourceLineNo">135</span>     * for sending a request over to stapler from a context outside Stapler,<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     * such as in {@link Filter}.<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     *<a name="line.137"></a>
-<span class="sourceLineNo">138</span>     * Keyed by {@link ServletConfig#getServletName()}.<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     */<a name="line.139"></a>
-<span class="sourceLineNo">140</span>    private final ConcurrentMap&lt;String,Stapler&gt; servlets = new ConcurrentHashMap&lt;String,Stapler&gt;();<a name="line.140"></a>
-<span class="sourceLineNo">141</span>    <a name="line.141"></a>
-<span class="sourceLineNo">142</span>    /**<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     * Give the application a possibility to filter the getterMethods<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     */<a name="line.144"></a>
-<span class="sourceLineNo">145</span>    private FunctionList.Filter filterForGetMethods = FunctionList.Filter.ALWAYS_OK;<a name="line.145"></a>
-<span class="sourceLineNo">146</span>    private FunctionList.Filter filterForDoActions = FunctionList.Filter.ALWAYS_OK;<a name="line.146"></a>
-<span class="sourceLineNo">147</span>    private FieldRef.Filter filterForFields = FieldRef.Filter.ALWAYS_OK;<a name="line.147"></a>
-<span class="sourceLineNo">148</span>    <a name="line.148"></a>
-<span class="sourceLineNo">149</span>    private DispatchersFilter dispatchersFilter;<a name="line.149"></a>
-<span class="sourceLineNo">150</span>    private FilteredDoActionTriggerListener filteredDoActionTriggerListener = FilteredDoActionTriggerListener.JUST_WARN;<a name="line.150"></a>
-<span class="sourceLineNo">151</span>    private FilteredGetterTriggerListener filteredGetterTriggerListener = FilteredGetterTriggerListener.JUST_WARN;<a name="line.151"></a>
-<span class="sourceLineNo">152</span>    private FilteredFieldTriggerListener filteredFieldTriggerListener = FilteredFieldTriggerListener.JUST_WARN;<a name="line.152"></a>
-<span class="sourceLineNo">153</span>    <a name="line.153"></a>
-<span class="sourceLineNo">154</span>    /**<a name="line.154"></a>
-<span class="sourceLineNo">155</span>     * Give the application a way to customize the JSON before putting it inside Stacktrace when something wrong happened.<a name="line.155"></a>
-<span class="sourceLineNo">156</span>     * By default it just returns the given JSON.<a name="line.156"></a>
-<span class="sourceLineNo">157</span>     */<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    private JsonInErrorMessageSanitizer jsonInErrorMessageSanitizer;<a name="line.158"></a>
-<span class="sourceLineNo">159</span><a name="line.159"></a>
-<span class="sourceLineNo">160</span>    public WebApp(ServletContext context) {<a name="line.160"></a>
-<span class="sourceLineNo">161</span>        this.context = context;<a name="line.161"></a>
-<span class="sourceLineNo">162</span>        // TODO: allow classloader to be given?<a name="line.162"></a>
-<span class="sourceLineNo">163</span>        facets.addAll(Facet.discoverExtensions(Facet.class, Thread.currentThread().getContextClassLoader(), getClass().getClassLoader()));<a name="line.163"></a>
-<span class="sourceLineNo">164</span>        responseRenderers.add(new HttpResponseRenderer.Default());<a name="line.164"></a>
-<span class="sourceLineNo">165</span>    }<a name="line.165"></a>
-<span class="sourceLineNo">166</span><a name="line.166"></a>
-<span class="sourceLineNo">167</span>    /**<a name="line.167"></a>
-<span class="sourceLineNo">168</span>     * Returns the 'app' object, which is the user-specified object that<a name="line.168"></a>
-<span class="sourceLineNo">169</span>     * sits at the root of the URL hierarchy and handles the request to '/'.<a name="line.169"></a>
-<span class="sourceLineNo">170</span>     */<a name="line.170"></a>
-<span class="sourceLineNo">171</span>    public Object getApp() {<a name="line.171"></a>
-<span class="sourceLineNo">172</span>        return context.getAttribute("app");<a name="line.172"></a>
-<span class="sourceLineNo">173</span>    }<a name="line.173"></a>
-<span class="sourceLineNo">174</span><a name="line.174"></a>
-<span class="sourceLineNo">175</span>    public void setApp(Object app) {<a name="line.175"></a>
-<span class="sourceLineNo">176</span>        context.setAttribute("app",app);<a name="line.176"></a>
+<span class="sourceLineNo">031</span>import org.kohsuke.stapler.event.FilteredDispatchTriggerListener;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.kohsuke.stapler.lang.FieldRef;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.kohsuke.stapler.lang.KInstance;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.kohsuke.stapler.lang.Klass;<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>import javax.servlet.Filter;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import javax.servlet.ServletConfig;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import javax.servlet.ServletContext;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import java.util.Map;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import java.util.HashMap;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import java.util.List;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import java.util.Vector;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import java.util.Hashtable;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>import java.util.concurrent.ConcurrentHashMap;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>import java.util.concurrent.ConcurrentMap;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>import java.util.concurrent.CopyOnWriteArrayList;<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>/**<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * Object scoped to the entire webapp. Mostly used for configuring behavior of Stapler.<a name="line.49"></a>
+<span class="sourceLineNo">050</span> *<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * &lt;p&gt;<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * In contrast, {@link Stapler} is a servlet, so there can be multiple instances per webapp.<a name="line.52"></a>
+<span class="sourceLineNo">053</span> *<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * @author Kohsuke Kawaguchi<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * @see WebApp#get(ServletContext)<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * @see WebApp#getCurrent()  <a name="line.56"></a>
+<span class="sourceLineNo">057</span> * @see Stapler#getWebApp()<a name="line.57"></a>
+<span class="sourceLineNo">058</span> */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>public class WebApp {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    /**<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * Obtains the {@link WebApp} associated with the given {@link ServletContext}.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    public static WebApp get(ServletContext context) {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        Object o = context.getAttribute(WebApp.class.getName());<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        if(o==null) {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>            synchronized (WebApp.class) {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>                o = context.getAttribute(WebApp.class.getName());<a name="line.67"></a>
+<span class="sourceLineNo">068</span>                if(o==null) {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>                    o = new WebApp(context);<a name="line.69"></a>
+<span class="sourceLineNo">070</span>                    context.setAttribute(WebApp.class.getName(),o);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>                }<a name="line.71"></a>
+<span class="sourceLineNo">072</span>            }<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        }<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        return (WebApp)o;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    }<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    /**<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * {@link ServletContext} for this webapp.<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     */<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    public final ServletContext context;<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>    /**<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * Duck-type wrappers for the given class.<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     */<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    public final Map&lt;Class,Class[]&gt; wrappers = new HashMap&lt;Class,Class[]&gt;();<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>    /**<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * MIME type → encoding map that determines how static contents in the war file is served.<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    public final Map&lt;String,String&gt; defaultEncodingForStaticResources = new HashMap&lt;String,String&gt;();<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>    /**<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * Activated facets.<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     *<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * TODO: is this really mutable?<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     */<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    public final List&lt;Facet&gt; facets = new Vector&lt;Facet&gt;();<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>    /**<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * Global {@link BindInterceptor}s.<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     *<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * These are consulted after {@link StaplerRequest#getBindInterceptor()} is consulted.<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * Global bind interceptors are useful to register webapp-wide conversion logic local to the application.<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * @since 1.220<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     */<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    public final List&lt;BindInterceptor&gt; bindInterceptors = new CopyOnWriteArrayList&lt;BindInterceptor&gt;();<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>    /**<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * MIME type mapping from extensions (like "txt" or "jpg") to MIME types ("foo/bar").<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     *<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * This overrides whatever mappings given in the servlet as far as stapler is concerned.<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * This is case insensitive, and should be normalized to lower case.<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     */<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    public final Map&lt;String,String&gt; mimeTypes = new Hashtable&lt;String,String&gt;();<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>    private volatile ClassLoader classLoader;<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>    /**<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * All {@link MetaClass}es.<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     *<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     * Note that this permanently holds a strong reference to its key, i.e. is a memory leak.<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     */<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    private final Map&lt;Klass&lt;?&gt;,MetaClass&gt; classMap = new HashMap&lt;Klass&lt;?&gt;,MetaClass&gt;();<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>    /**<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * Handles objects that are exported.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     */<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    public final BoundObjectTable boundObjectTable = new BoundObjectTable();<a name="line.128"></a>
+<span class="sourceLineNo">129</span><a name="line.129"></a>
+<span class="sourceLineNo">130</span>    private final CopyOnWriteArrayList&lt;HttpResponseRenderer&gt; responseRenderers = new CopyOnWriteArrayList&lt;HttpResponseRenderer&gt;();<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>    private CrumbIssuer crumbIssuer = CrumbIssuer.DEFAULT;<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>    /**<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * Provides access to {@link Stapler} servlet instances. This is useful<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     * for sending a request over to stapler from a context outside Stapler,<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * such as in {@link Filter}.<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     *<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * Keyed by {@link ServletConfig#getServletName()}.<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     */<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    private final ConcurrentMap&lt;String,Stapler&gt; servlets = new ConcurrentHashMap&lt;String,Stapler&gt;();<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    <a name="line.142"></a>
+<span class="sourceLineNo">143</span>    /**<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     * Give the application a possibility to filter the getterMethods<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     */<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    private FunctionList.Filter filterForGetMethods = FunctionList.Filter.ALWAYS_OK;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    private FunctionList.Filter filterForDoActions = FunctionList.Filter.ALWAYS_OK;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    private FieldRef.Filter filterForFields = FieldRef.Filter.ALWAYS_OK;<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>    private DispatchersFilter dispatchersFilter;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    private FilteredDoActionTriggerListener filteredDoActionTriggerListener = FilteredDoActionTriggerListener.JUST_WARN;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    private FilteredGetterTriggerListener filteredGetterTriggerListener = FilteredGetterTriggerListener.JUST_WARN;<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    private FilteredFieldTriggerListener filteredFieldTriggerListener = FilteredFieldTriggerListener.JUST_WARN;<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>    private DispatchValidator dispatchValidator = DispatchValidator.DEFAULT;<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    private FilteredDispatchTriggerListener filteredDispatchTriggerListener = FilteredDispatchTriggerListener.JUST_WARN;<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>    /**<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     * Give the application a way to customize the JSON before putting it inside Stacktrace when something wrong happened.<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     * By default it just returns the given JSON.<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     */<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    private JsonInErrorMessageSanitizer jsonInErrorMessageSanitizer;<a name="line.162"></a>
+<span class="sourceLineNo">163</span><a name="line.163"></a>
+<span class="sourceLineNo">164</span>    public WebApp(ServletContext context) {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        this.context = context;<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        // TODO: allow classloader to be given?<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        facets.addAll(Facet.discoverExtensions(Facet.class, Thread.currentThread().getContextClassLoader(), getClass().getClassLoader()));<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        responseRenderers.add(new HttpResponseRenderer.Default());<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    }<a name="line.169"></a>
+<span class="sourceLineNo">170</span><a name="line.170"></a>
+<span class="sourceLineNo">171</span>    /**<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     * Returns the 'app' object, which is the user-specified object that<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     * sits at the root of the URL hierarchy and handles the request to '/'.<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     */<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    public Object getApp() {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        return context.getAttribute("app");<a name="line.176"></a>
 <span class="sourceLineNo">177</span>    }<a name="line.177"></a>
 <span class="sourceLineNo">178</span><a name="line.178"></a>
-<span class="sourceLineNo">179</span>    public CrumbIssuer getCrumbIssuer() {<a name="line.179"></a>
-<span class="sourceLineNo">180</span>        return crumbIssuer;<a name="line.180"></a>
+<span class="sourceLineNo">179</span>    public void setApp(Object app) {<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        context.setAttribute("app",app);<a name="line.180"></a>
 <span class="sourceLineNo">181</span>    }<a name="line.181"></a>
 <span class="sourceLineNo">182</span><a name="line.182"></a>
-<span class="sourceLineNo">183</span>    public void setCrumbIssuer(CrumbIssuer crumbIssuer) {<a name="line.183"></a>
-<span class="sourceLineNo">184</span>        this.crumbIssuer = crumbIssuer;<a name="line.184"></a>
+<span class="sourceLineNo">183</span>    public CrumbIssuer getCrumbIssuer() {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        return crumbIssuer;<a name="line.184"></a>
 <span class="sourceLineNo">185</span>    }<a name="line.185"></a>
 <span class="sourceLineNo">186</span><a name="line.186"></a>
-<span class="sourceLineNo">187</span>    public CopyOnWriteArrayList&lt;HttpResponseRenderer&gt; getResponseRenderers() {<a name="line.187"></a>
-<span class="sourceLineNo">188</span>        return responseRenderers;<a name="line.188"></a>
+<span class="sourceLineNo">187</span>    public void setCrumbIssuer(CrumbIssuer crumbIssuer) {<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        this.crumbIssuer = crumbIssuer;<a name="line.188"></a>
 <span class="sourceLineNo">189</span>    }<a name="line.189"></a>
 <span class="sourceLineNo">190</span><a name="line.190"></a>
-<span class="sourceLineNo">191</span>    public ClassLoader getClassLoader() {<a name="line.191"></a>
-<span class="sourceLineNo">192</span>        ClassLoader cl = classLoader;<a name="line.192"></a>
-<span class="sourceLineNo">193</span>        if(cl==null)<a name="line.193"></a>
-<span class="sourceLineNo">194</span>            cl = Thread.currentThread().getContextClassLoader();<a name="line.194"></a>
-<span class="sourceLineNo">195</span>        if(cl==null)<a name="line.195"></a>
-<span class="sourceLineNo">196</span>            cl = Stapler.class.getClassLoader();<a name="line.196"></a>
-<span class="sourceLineNo">197</span>        return cl;<a name="line.197"></a>
-<span class="sourceLineNo">198</span>    }<a name="line.198"></a>
-<span class="sourceLineNo">199</span><a name="line.199"></a>
-<span class="sourceLineNo">200</span>    /**<a name="line.200"></a>
-<span class="sourceLineNo">201</span>     * If the facet of the given type exists, return it. Otherwise null.<a name="line.201"></a>
-<span class="sourceLineNo">202</span>     */<a name="line.202"></a>
-<span class="sourceLineNo">203</span>    public &lt;T extends Facet&gt; T getFacet(Class&lt;T&gt; type) {<a name="line.203"></a>
-<span class="sourceLineNo">204</span>        for (Facet f : facets)<a name="line.204"></a>
-<span class="sourceLineNo">205</span>            if(type==f.getClass())<a name="line.205"></a>
-<span class="sourceLineNo">206</span>                return type.cast(f);<a name="line.206"></a>
-<span class="sourceLineNo">207</span>        return null;<a name="line.207"></a>
-<span class="sourceLineNo">208</span>    }<a name="line.208"></a>
-<span class="sourceLineNo">209</span><a name="line.209"></a>
-<span class="sourceLineNo">210</span>    /**<a name="line.210"></a>
-<span class="sourceLineNo">211</span>     * Sets the classloader used by {@link StaplerRequest#bindJSON(Class, JSONObject)} and its sibling methods.<a name="line.211"></a>
-<span class="sourceLineNo">212</span>     */<a name="line.212"></a>
-<span class="sourceLineNo">213</span>    public void setClassLoader(ClassLoader classLoader) {<a name="line.213"></a>
-<span class="sourceLineNo">214</span>        this.classLoader = classLoader;<a name="line.214"></a>
-<span class="sourceLineNo">215</span>    }<a name="line.215"></a>
-<span class="sourceLineNo">216</span><a name="line.216"></a>
-<span class="sourceLineNo">217</span>    public MetaClass getMetaClass(Class c) {<a name="line.217"></a>
-<span class="sourceLineNo">218</span>        return getMetaClass(Klass.java(c));<a name="line.218"></a>
+<span class="sourceLineNo">191</span>    public CopyOnWriteArrayList&lt;HttpResponseRenderer&gt; getResponseRenderers() {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        return responseRenderers;<a name="line.192"></a>
+<span class="sourceLineNo">193</span>    }<a name="line.193"></a>
+<span class="sourceLineNo">194</span><a name="line.194"></a>
+<span class="sourceLineNo">195</span>    public ClassLoader getClassLoader() {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        ClassLoader cl = classLoader;<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        if(cl==null)<a name="line.197"></a>
+<span class="sourceLineNo">198</span>            cl = Thread.currentThread().getContextClassLoader();<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        if(cl==null)<a name="line.199"></a>
+<span class="sourceLineNo">200</span>            cl = Stapler.class.getClassLoader();<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        return cl;<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    }<a name="line.202"></a>
+<span class="sourceLineNo">203</span><a name="line.203"></a>
+<span class="sourceLineNo">204</span>    /**<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     * If the facet of the given type exists, return it. Otherwise null.<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     */<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    public &lt;T extends Facet&gt; T getFacet(Class&lt;T&gt; type) {<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        for (Facet f : facets)<a name="line.208"></a>
+<span class="sourceLineNo">209</span>            if(type==f.getClass())<a name="line.209"></a>
+<span class="sourceLineNo">210</span>                return type.cast(f);<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        return null;<a name="line.211"></a>
+<span class="sourceLineNo">212</span>    }<a name="line.212"></a>
+<span class="sourceLineNo">213</span><a name="line.213"></a>
+<span class="sourceLineNo">214</span>    /**<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     * Sets the classloader used by {@link StaplerRequest#bindJSON(Class, JSONObject)} and its sibling methods.<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     */<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    public void setClassLoader(ClassLoader classLoader) {<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        this.classLoader = classLoader;<a name="line.218"></a>
 <span class="sourceLineNo">219</span>    }<a name="line.219"></a>
-<span class="sourceLineNo">220</span>    <a name="line.220"></a>
-<span class="sourceLineNo">221</span>    public MetaClass getMetaClass(Klass&lt;?&gt; c) {<a name="line.221"></a>
-<span class="sourceLineNo">222</span>        if(c==null)     return null;<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        synchronized(classMap) {<a name="line.223"></a>
-<span class="sourceLineNo">224</span>            MetaClass mc = classMap.get(c);<a name="line.224"></a>
-<span class="sourceLineNo">225</span>            if(mc==null) {<a name="line.225"></a>
-<span class="sourceLineNo">226</span>                mc = new MetaClass(this,c);<a name="line.226"></a>
-<span class="sourceLineNo">227</span>                classMap.put(c,mc);<a name="line.227"></a>
-<span class="sourceLineNo">228</span>            }<a name="line.228"></a>
-<span class="sourceLineNo">229</span>            return mc;<a name="line.229"></a>
-<span class="sourceLineNo">230</span>        }<a name="line.230"></a>
-<span class="sourceLineNo">231</span>    }<a name="line.231"></a>
-<span class="sourceLineNo">232</span><a name="line.232"></a>
-<span class="sourceLineNo">233</span>    /**<a name="line.233"></a>
-<span class="sourceLineNo">234</span>     * Obtains a {@link MetaClass} that represents the type of the given object.<a name="line.234"></a>
-<span class="sourceLineNo">235</span>     *<a name="line.235"></a>
-<span class="sourceLineNo">236</span>     * &lt;p&gt;<a name="line.236"></a>
-<span class="sourceLineNo">237</span>     * This code consults all facets to handle scripting language objects correctly.<a name="line.237"></a>
-<span class="sourceLineNo">238</span>     */<a name="line.238"></a>
-<span class="sourceLineNo">239</span>    public MetaClass getMetaClass(Object o) {<a name="line.239"></a>
-<span class="sourceLineNo">240</span>        return getMetaClass(getKlass(o));<a name="line.240"></a>
-<span class="sourceLineNo">241</span>    }<a name="line.241"></a>
-<span class="sourceLineNo">242</span><a name="line.242"></a>
-<span class="sourceLineNo">243</span>    public Klass&lt;?&gt; getKlass(Object o) {<a name="line.243"></a>
-<span class="sourceLineNo">244</span>        if (o instanceof KInstance) {<a name="line.244"></a>
-<span class="sourceLineNo">245</span>            KInstance ki = (KInstance) o;<a name="line.245"></a>
-<span class="sourceLineNo">246</span>            Klass k = ki.getKlass();<a name="line.246"></a>
-<span class="sourceLineNo">247</span>            if (k!=null)<a name="line.247"></a>
-<span class="sourceLineNo">248</span>                return k;<a name="line.248"></a>
-<span class="sourceLineNo">249</span>        }<a name="line.249"></a>
-<span class="sourceLineNo">250</span><a name="line.250"></a>
-<span class="sourceLineNo">251</span>        for (Facet f : facets) {<a name="line.251"></a>
-<span class="sourceLineNo">252</span>            Klass&lt;?&gt; k = f.getKlass(o);<a name="line.252"></a>
-<span class="sourceLineNo">253</span>            if (k!=null)<a name="line.253"></a>
-<span class="sourceLineNo">254</span>                return k;<a name="line.254"></a>
-<span class="sourceLineNo">255</span>        }<a name="line.255"></a>
-<span class="sourceLineNo">256</span>        return Klass.java(o.getClass());<a name="line.256"></a>
-<span class="sourceLineNo">257</span>    }<a name="line.257"></a>
-<span class="sourceLineNo">258</span>    <a name="line.258"></a>
-<span class="sourceLineNo">259</span>    /**<a name="line.259"></a>
-<span class="sourceLineNo">260</span>     * Convenience maintenance method to clear all the cached scripts for the given tearoff type.<a name="line.260"></a>
-<span class="sourceLineNo">261</span>     *<a name="line.261"></a>
-<span class="sourceLineNo">262</span>     * &lt;p&gt;<a name="line.262"></a>
-<span class="sourceLineNo">263</span>     * This is useful when you want to have the scripts reloaded into the live system without<a name="line.263"></a>
-<span class="sourceLineNo">264</span>     * the performance penalty of {@link MetaClass#NO_CACHE}.<a name="line.264"></a>
+<span class="sourceLineNo">220</span><a name="line.220"></a>
+<span class="sourceLineNo">221</span>    public MetaClass getMetaClass(Class c) {<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        return getMetaClass(Klass.java(c));<a name="line.222"></a>
+<span class="sourceLineNo">223</span>    }<a name="line.223"></a>
+<span class="sourceLineNo">224</span>    <a name="line.224"></a>
+<span class="sourceLineNo">225</span>    public MetaClass getMetaClass(Klass&lt;?&gt; c) {<a name="line.225"></a>
+<span class="sourceLineNo">226</span>        if(c==null)     return null;<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        synchronized(classMap) {<a name="line.227"></a>
+<span class="sourceLineNo">228</span>            MetaClass mc = classMap.get(c);<a name="line.228"></a>
+<span class="sourceLineNo">229</span>            if(mc==null) {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>                mc = new MetaClass(this,c);<a name="line.230"></a>
+<span class="sourceLineNo">231</span>                classMap.put(c,mc);<a name="line.231"></a>
+<span class="sourceLineNo">232</span>            }<a name="line.232"></a>
+<span class="sourceLineNo">233</span>            return mc;<a name="line.233"></a>
+<span class="sourceLineNo">234</span>        }<a name="line.234"></a>
+<span class="sourceLineNo">235</span>    }<a name="line.235"></a>
+<span class="sourceLineNo">236</span><a name="line.236"></a>
+<span class="sourceLineNo">237</span>    /**<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     * Obtains a {@link MetaClass} that represents the type of the given object.<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     *<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     * &lt;p&gt;<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     * This code consults all facets to handle scripting language objects correctly.<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     */<a name="line.242"></a>
+<span class="sourceLineNo">243</span>    public MetaClass getMetaClass(Object o) {<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        return getMetaClass(getKlass(o));<a name="line.244"></a>
+<span class="sourceLineNo">245</span>    }<a name="line.245"></a>
+<span class="sourceLineNo">246</span><a name="line.246"></a>
+<span class="sourceLineNo">247</span>    public Klass&lt;?&gt; getKlass(Object o) {<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        if (o instanceof KInstance) {<a name="line.248"></a>
+<span class="sourceLineNo">249</span>            KInstance ki = (KInstance) o;<a name="line.249"></a>
+<span class="sourceLineNo">250</span>            Klass k = ki.getKlass();<a name="line.250"></a>
+<span class="sourceLineNo">251</span>            if (k!=null)<a name="line.251"></a>
+<span class="sourceLineNo">252</span>                return k;<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        }<a name="line.253"></a>
+<span class="sourceLineNo">254</span><a name="line.254"></a>
+<span class="sourceLineNo">255</span>        for (Facet f : facets) {<a name="line.255"></a>
+<span class="sourceLineNo">256</span>            Klass&lt;?&gt; k = f.getKlass(o);<a name="line.256"></a>
+<span class="sourceLineNo">257</span>            if (k!=null)<a name="line.257"></a>
+<span class="sourceLineNo">258</span>                return k;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        }<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        return Klass.java(o.getClass());<a name="line.260"></a>
+<span class="sourceLineNo">261</span>    }<a name="line.261"></a>
+<span class="sourceLineNo">262</span>    <a name="line.262"></a>
+<span class="sourceLineNo">263</span>    /**<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     * Convenience maintenance method to clear all the cached scripts for the given tearoff type.<a name="line.264"></a>
 <span class="sourceLineNo">265</span>     *<a name="line.265"></a>
-<span class="sourceLineNo">266</span>     * @see MetaClass#NO_CACHE<a name="line.266"></a>
-<span class="sourceLineNo">267</span>     */<a name="line.267"></a>
-<span class="sourceLineNo">268</span>    public void clearScripts(Class&lt;? extends AbstractTearOff&gt; clazz) {<a name="line.268"></a>
-<span class="sourceLineNo">269</span>        synchronized (classMap) {<a name="line.269"></a>
-<span class="sourceLineNo">270</span>            for (MetaClass v : classMap.values()) {<a name="line.270"></a>
-<span class="sourceLineNo">271</span>                AbstractTearOff t = v.getTearOff(clazz);<a name="line.271"></a>
-<span class="sourceLineNo">272</span>                if (t!=null)<a name="line.272"></a>
-<span class="sourceLineNo">273</span>                    t.clearScripts();<a name="line.273"></a>
-<span class="sourceLineNo">274</span>            }<a name="line.274"></a>
-<span class="sourceLineNo">275</span>        }<a name="line.275"></a>
-<span class="sourceLineNo">276</span>    }<a name="line.276"></a>
-<span class="sourceLineNo">277</span>    <a name="line.277"></a>
-<span class="sourceLineNo">278</span>    /**<a name="line.278"></a>
-<span class="sourceLineNo">279</span>     * Convenience maintenance method to clear all the cached information. It will force the MetaClass to be rebuilt.<a name="line.279"></a>
-<span class="sourceLineNo">280</span>     * <a name="line.280"></a>
-<span class="sourceLineNo">281</span>     * &lt;p&gt;<a name="line.281"></a>
-<span class="sourceLineNo">282</span>     * Take care that the generation of MetaClass information takes a bit of time and so <a name="line.282"></a>
-<span class="sourceLineNo">283</span>     * this call should not be called too often<a name="line.283"></a>
-<span class="sourceLineNo">284</span>     */<a name="line.284"></a>
-<span class="sourceLineNo">285</span>    public void clearMetaClassCache(){<a name="line.285"></a>
-<span class="sourceLineNo">286</span>        synchronized (classMap) {<a name="line.286"></a>
-<span class="sourceLineNo">287</span>            classMap.clear();<a name="line.287"></a>
-<span class="sourceLineNo">288</span>        }<a name="line.288"></a>
-<span class="sourceLineNo">289</span>    }<a name="line.289"></a>
-<span class="sourceLineNo">290</span><a name="line.290"></a>
-<span class="sourceLineNo">291</span>    void addStaplerServlet(String servletName, Stapler servlet) {<a name="line.291"></a>
-<span class="sourceLineNo">292</span>        if (servletName==null)  servletName=""; // be defensive<a name="line.292"></a>
-<span class="sourceLineNo">293</span>        servlets.put(servletName,servlet);<a name="line.293"></a>
-<span class="sourceLineNo">294</span>    }<a name="line.294"></a>
-<span class="sourceLineNo">295</span><a name="line.295"></a>
-<span class="sourceLineNo">296</span>    /**<a name="line.296"></a>
-<span class="sourceLineNo">297</span>     * Gets a reference to some {@link Stapler} servlet in this webapp.<a name="line.297"></a>
-<span class="sourceLineNo">298</span>     *<a name="line.298"></a>
-<span class="sourceLineNo">299</span>     * &lt;p&gt;<a name="line.299"></a>
-<span class="sourceLineNo">300</span>     * Most Stapler webapps will have one {@code &lt;servlet&gt;} entry in web.xml<a name="line.300"></a>
-<span class="sourceLineNo">301</span>     * and if that's the case, that'd be returned. In a fully general case,<a name="line.301"></a>
-<span class="sourceLineNo">302</span>     * a webapp can have multiple servlets and more than one of them can be<a name="line.302"></a>
-<span class="sourceLineNo">303</span>     * {@link Stapler}. This method returns one of those. Which one gets<a name="line.303"></a>
-<span class="sourceLineNo">304</span>     * returned is unspecified.<a name="line.304"></a>
-<span class="sourceLineNo">305</span>     *<a name="line.305"></a>
-<span class="sourceLineNo">306</span>     * &lt;p&gt;<a name="line.306"></a>
-<span class="sourceLineNo">307</span>     * This method is useful if you are in a {@link Filter} and using<a name="line.307"></a>
-<span class="sourceLineNo">308</span>     * Stapler to handle the current request. For example,<a name="line.308"></a>
+<span class="sourceLineNo">266</span>     * &lt;p&gt;<a name="line.266"></a>
+<span class="sourceLineNo">267</span>     * This is useful when you want to have the scripts reloaded into the live system without<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     * the performance penalty of {@link MetaClass#NO_CACHE}.<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     *<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     * @see MetaClass#NO_CACHE<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     */<a name="line.271"></a>
+<span class="sourceLineNo">272</span>    public void clearScripts(Class&lt;? extends AbstractTearOff&gt; clazz) {<a name="line.272"></a>
+<span class="sourceLineNo">273</span>        synchronized (classMap) {<a name="line.273"></a>
+<span class="sourceLineNo">274</span>            for (MetaClass v : classMap.values()) {<a name="line.274"></a>
+<span class="sourceLineNo">275</span>                AbstractTearOff t = v.getTearOff(clazz);<a name="line.275"></a>
+<span class="sourceLineNo">276</span>                if (t!=null)<a name="line.276"></a>
+<span class="sourceLineNo">277</span>                    t.clearScripts();<a name="line.277"></a>
+<span class="sourceLineNo">278</span>            }<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        }<a name="line.279"></a>
+<span class="sourceLineNo">280</span>    }<a name="line.280"></a>
+<span class="sourceLineNo">281</span>    <a name="line.281"></a>
+<span class="sourceLineNo">282</span>    /**<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     * Convenience maintenance method to clear all the cached information. It will force the MetaClass to be rebuilt.<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     * <a name="line.284"></a>
+<span class="sourceLineNo">285</span>     * &lt;p&gt;<a name="line.285"></a>
+<span class="sourceLineNo">286</span>     * Take care that the generation of MetaClass information takes a bit of time and so <a name="line.286"></a>
+<span class="sourceLineNo">287</span>     * this call should not be called too often<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     */<a name="line.288"></a>
+<span class="sourceLineNo">289</span>    public void clearMetaClassCache(){<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        synchronized (classMap) {<a name="line.290"></a>
+<span class="sourceLineNo">291</span>            classMap.clear();<a name="line.291"></a>
+<span class="sourceLineNo">292</span>        }<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    }<a name="line.293"></a>
+<span class="sourceLineNo">294</span><a name="line.294"></a>
+<span class="sourceLineNo">295</span>    void addStaplerServlet(String servletName, Stapler servlet) {<a name="line.295"></a>
+<span class="sourceLineNo">296</span>        if (servletName==null)  servletName=""; // be defensive<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        servlets.put(servletName,servlet);<a name="line.297"></a>
+<span class="sourceLineNo">298</span>    }<a name="line.298"></a>
+<span class="sourceLineNo">299</span><a name="line.299"></a>
+<span class="sourceLineNo">300</span>    /**<a name="line.300"></a>
+<span class="sourceLineNo">301</span>     * Gets a reference to some {@link Stapler} servlet in this webapp.<a name="line.301"></a>
+<span class="sourceLineNo">302</span>     *<a name="line.302"></a>
+<span class="sourceLineNo">303</span>     * &lt;p&gt;<a name="line.303"></a>
+<span class="sourceLineNo">304</span>     * Most Stapler webapps will have one {@code &lt;servlet&gt;} entry in web.xml<a name="line.304"></a>
+<span class="sourceLineNo">305</span>     * and if that's the case, that'd be returned. In a fully general case,<a name="line.305"></a>
+<span class="sourceLineNo">306</span>     * a webapp can have multiple servlets and more than one of them can be<a name="line.306"></a>
+<span class="sourceLineNo">307</span>     * {@link Stapler}. This method returns one of those. Which one gets<a name="line.307"></a>
+<span class="sourceLineNo">308</span>     * returned is unspecified.<a name="line.308"></a>
 <span class="sourceLineNo">309</span>     *<a name="line.309"></a>
-<span class="sourceLineNo">310</span>     * &lt;pre&gt;<a name="line.310"></a>
-<span class="sourceLineNo">311</span>     * WebApp.get(servletContext).getSomeStapler().invoke(<a name="line.311"></a>
-<span class="sourceLineNo">312</span>     *     request,response,<a name="line.312"></a>
-<span class="sourceLineNo">313</span>     *     someJavaObject,<a name="line.313"></a>
-<span class="sourceLineNo">314</span>     *     "/path/to/dispatch/request");<a name="line.314"></a>
-<span class="sourceLineNo">315</span>     * &lt;/pre&gt;<a name="line.315"></a>
-<span class="sourceLineNo">316</span>     */<a name="line.316"></a>
-<span class="sourceLineNo">317</span>    public Stapler getSomeStapler() {<a name="line.317"></a>
-<span class="sourceLineNo">318</span>        return servlets.values().iterator().next();<a name="line.318"></a>
-<span class="sourceLineNo">319</span>    }<a name="line.319"></a>
-<span class="sourceLineNo">320</span><a name="line.320"></a>
-<span class="sourceLineNo">321</span>    /**<a name="line.321"></a>
-<span class="sourceLineNo">322</span>     * Gets the current {@link WebApp} that the calling thread is associated with.<a name="line.322"></a>
-<span class="sourceLineNo">323</span>     */<a name="line.323"></a>
-<span class="sourceLineNo">324</span>    public static WebApp getCurrent() {<a name="line.324"></a>
-<span class="sourceLineNo">325</span>        return Stapler.getCurrent().getWebApp();<a name="line.325"></a>
-<span class="sourceLineNo">326</span>    }<a name="line.326"></a>
-<span class="sourceLineNo">327</span>    <a name="line.327"></a>
-<span class="sourceLineNo">328</span>    public FunctionList.Filter getFilterForGetMethods() {<a name="line.328"></a>
-<span class="sourceLineNo">329</span>        return filterForGetMethods;<a name="line.329"></a>
+<span class="sourceLineNo">310</span>     * &lt;p&gt;<a name="line.310"></a>
+<span class="sourceLineNo">311</span>     * This method is useful if you are in a {@link Filter} and using<a name="line.311"></a>
+<span class="sourceLineNo">312</span>     * Stapler to handle the current request. For example,<a name="line.312"></a>
+<span class="sourceLineNo">313</span>     *<a name="line.313"></a>
+<span class="sourceLineNo">314</span>     * &lt;pre&gt;<a name="line.314"></a>
+<span class="sourceLineNo">315</span>     * WebApp.get(servletContext).getSomeStapler().invoke(<a name="line.315"></a>
+<span class="sourceLineNo">316</span>     *     request,response,<a name="line.316"></a>
+<span class="sourceLineNo">317</span>     *     someJavaObject,<a name="line.317"></a>
+<span class="sourceLineNo">318</span>     *     "/path/to/dispatch/request");<a name="line.318"></a>
+<span class="sourceLineNo">319</span>     * &lt;/pre&gt;<a name="line.319"></a>
+<span class="sourceLineNo">320</span>     */<a name="line.320"></a>
+<span class="sourceLineNo">321</span>    public Stapler getSomeStapler() {<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        return servlets.values().iterator().next();<a name="line.322"></a>
+<span class="sourceLineNo">323</span>    }<a name="line.323"></a>
+<span class="sourceLineNo">324</span><a name="line.324"></a>
+<span class="sourceLineNo">325</span>    /**<a name="line.325"></a>
+<span class="sourceLineNo">326</span>     * Gets the current {@link WebApp} that the calling thread is associated with.<a name="line.326"></a>
+<span class="sourceLineNo">327</span>     */<a name="line.327"></a>
+<span class="sourceLineNo">328</span>    public static WebApp getCurrent() {<a name="line.328"></a>
+<span class="sourceLineNo">329</span>        return Stapler.getCurrent().getWebApp();<a name="line.329"></a>
 <span class="sourceLineNo">330</span>    }<a name="line.330"></a>
 <span class="sourceLineNo">331</span>    <a name="line.331"></a>
-<span class="sourceLineNo">332</span>    /**<a name="line.332"></a>
-<span class="sourceLineNo">333</span>     * Allow the underlying application to filter the getXxx methods<a name="line.333"></a>
-<span class="sourceLineNo">334</span>     */<a name="line.334"></a>
-<span class="sourceLineNo">335</span>    public void setFilterForGetMethods(FunctionList.Filter filterForGetMethods) {<a name="line.335"></a>
-<span class="sourceLineNo">336</span>        this.filterForGetMethods = filterForGetMethods;<a name="line.336"></a>
-<span class="sourceLineNo">337</span>    }<a name="line.337"></a>
-<span class="sourceLineNo">338</span>    <a name="line.338"></a>
-<span class="sourceLineNo">339</span>    public FunctionList.Filter getFilterForDoActions() {<a name="line.339"></a>
-<span class="sourceLineNo">340</span>        return filterForDoActions;<a name="line.340"></a>
+<span class="sourceLineNo">332</span>    public FunctionList.Filter getFilterForGetMethods() {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>        return filterForGetMethods;<a name="line.333"></a>
+<span class="sourceLineNo">334</span>    }<a name="line.334"></a>
+<span class="sourceLineNo">335</span>    <a name="line.335"></a>
+<span class="sourceLineNo">336</span>    /**<a name="line.336"></a>
+<span class="sourceLineNo">337</span>     * Allow the underlying application to filter the getXxx methods<a name="line.337"></a>
+<span class="sourceLineNo">338</span>     */<a name="line.338"></a>
+<span class="sourceLineNo">339</span>    public void setFilterForGetMethods(FunctionList.Filter filterForGetMethods) {<a name="line.339"></a>
+<span class="sourceLineNo">340</span>        this.filterForGetMethods = filterForGetMethods;<a name="line.340"></a>
 <span class="sourceLineNo">341</span>    }<a name="line.341"></a>
 <span class="sourceLineNo">342</span>    <a name="line.342"></a>
-<span class="sourceLineNo">343</span>    /**<a name="line.343"></a>
-<span class="sourceLineNo">344</span>     * Allow the underlying application to filter the doXxx actions<a name="line.344"></a>
-<span class="sourceLineNo">345</span>     */<a name="line.345"></a>
-<span class="sourceLineNo">346</span>    public void setFilterForDoActions(FunctionList.Filter filterForDoActions) {<a name="line.346"></a>
-<span class="sourceLineNo">347</span>        this.filterForDoActions = filterForDoActions;<a name="line.347"></a>
-<span class="sourceLineNo">348</span>    }<a name="line.348"></a>
-<span class="sourceLineNo">349</span><a name="line.349"></a>
-<span class="sourceLineNo">350</span>    public FieldRef.Filter getFilterForFields() {<a name="line.350"></a>
-<span class="sourceLineNo">351</span>        return filterForFields;<a name="line.351"></a>
+<span class="sourceLineNo">343</span>    public FunctionList.Filter getFilterForDoActions() {<a name="line.343"></a>
+<span class="sourceLineNo">344</span>        return filterForDoActions;<a name="line.344"></a>
+<span class="sourceLineNo">345</span>    }<a name="line.345"></a>
+<span class="sourceLineNo">346</span>    <a name="line.346"></a>
+<span class="sourceLineNo">347</span>    /**<a name="line.347"></a>
+<span class="sourceLineNo">348</span>     * Allow the underlying application to filter the doXxx actions<a name="line.348"></a>
+<span class="sourceLineNo">349</span>     */<a name="line.349"></a>
+<span class="sourceLineNo">350</span>    public void setFilterForDoActions(FunctionList.Filter filterForDoActions) {<a name="line.350"></a>
+<span class="sourceLineNo">351</span>        this.filterForDoActions = filterForDoActions;<a name="line.351"></a>
 <span class="sourceLineNo">352</span>    }<a name="line.352"></a>
 <span class="sourceLineNo">353</span><a name="line.353"></a>
-<span class="sourceLineNo">354</span>    public void setFilterForFields(FieldRef.Filter filterForFields) {<a name="line.354"></a>
-<span class="sourceLineNo">355</span>        this.filterForFields = filterForFields;<a name="line.355"></a>
+<span class="sourceLineNo">354</span>    public FieldRef.Filter getFilterForFields() {<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        return filterForFields;<a name="line.355"></a>
 <span class="sourceLineNo">356</span>    }<a name="line.356"></a>
 <span class="sourceLineNo">357</span><a name="line.357"></a>
-<span class="sourceLineNo">358</span>    public DispatchersFilter getDispatchersFilter() {<a name="line.358"></a>
-<span class="sourceLineNo">359</span>        return dispatchersFilter;<a name="line.359"></a>
+<span class="sourceLineNo">358</span>    public void setFilterForFields(FieldRef.Filter filterForFields) {<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        this.filterForFields = filterForFields;<a name="line.359"></a>
 <span class="sourceLineNo">360</span>    }<a name="line.360"></a>
-<span class="sourceLineNo">361</span>    <a name="line.361"></a>
-<span class="sourceLineNo">362</span>    public void setDispatchersFilter(DispatchersFilter dispatchersFilter) {<a name="line.362"></a>
-<span class="sourceLineNo">363</span>        this.dispatchersFilter = dispatchersFilter;<a name="line.363"></a>
+<span class="sourceLineNo">361</span><a name="line.361"></a>
+<span class="sourceLineNo">362</span>    public DispatchersFilter getDispatchersFilter() {<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        return dispatchersFilter;<a name="line.363"></a>
 <span class="sourceLineNo">364</span>    }<a name="line.364"></a>
 <span class="sourceLineNo">365</span>    <a name="line.365"></a>
-<span class="sourceLineNo">366</span>    public FilteredDoActionTriggerListener getFilteredDoActionTriggerListener() {<a name="line.366"></a>
-<span class="sourceLineNo">367</span>        return filteredDoActionTriggerListener;<a name="line.367"></a>
+<span class="sourceLineNo">366</span>    public void setDispatchersFilter(DispatchersFilter dispatchersFilter) {<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        this.dispatchersFilter = dispatchersFilter;<a name="line.367"></a>
 <span class="sourceLineNo">368</span>    }<a name="line.368"></a>
 <span class="sourceLineNo">369</span>    <a name="line.369"></a>
-<span class="sourceLineNo">370</span>    public void setFilteredDoActionTriggerListener(FilteredDoActionTriggerListener filteredDoActionTriggerListener) {<a name="line.370"></a>
-<span class="sourceLineNo">371</span>        if (filteredDoActionTriggerListener == null) {<a name="line.371"></a>
-<span class="sourceLineNo">372</span>            this.filteredDoActionTriggerListener = FilteredDoActionTriggerListener.JUST_WARN;<a name="line.372"></a>
-<span class="sourceLineNo">373</span>        } else {<a name="line.373"></a>
-<span class="sourceLineNo">374</span>            this.filteredDoActionTriggerListener = filteredDoActionTriggerListener;<a name="line.374"></a>
-<span class="sourceLineNo">375</span>        }<a name="line.375"></a>
-<span class="sourceLineNo">376</span>    }<a name="line.376"></a>
-<span class="sourceLineNo">377</span><a name="line.377"></a>
-<span class="sourceLineNo">378</span>    public FilteredGetterTriggerListener getFilteredGetterTriggerListener() {<a name="line.378"></a>
-<span class="sourceLineNo">379</span>        return filteredGetterTriggerListener;<a name="line.379"></a>
+<span class="sourceLineNo">370</span>    public FilteredDoActionTriggerListener getFilteredDoActionTriggerListener() {<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        return filteredDoActionTriggerListener;<a name="line.371"></a>
+<span class="sourceLineNo">372</span>    }<a name="line.372"></a>
+<span class="sourceLineNo">373</span>    <a name="line.373"></a>
+<span class="sourceLineNo">374</span>    public void setFilteredDoActionTriggerListener(FilteredDoActionTriggerListener filteredDoActionTriggerListener) {<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        if (filteredDoActionTriggerListener == null) {<a name="line.375"></a>
+<span class="sourceLineNo">376</span>            this.filteredDoActionTriggerListener = FilteredDoActionTriggerListener.JUST_WARN;<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        } else {<a name="line.377"></a>
+<span class="sourceLineNo">378</span>            this.filteredDoActionTriggerListener = filteredDoActionTriggerListener;<a name="line.378"></a>
+<span class="sourceLineNo">379</span>        }<a name="line.379"></a>
 <span class="sourceLineNo">380</span>    }<a name="line.380"></a>
 <span class="sourceLineNo">381</span><a name="line.381"></a>
-<span class="sourceLineNo">382</span>    public void setFilteredGetterTriggerListener(FilteredGetterTriggerListener filteredGetterTriggerListener) {<a name="line.382"></a>
-<span class="sourceLineNo">383</span>        if (filteredGetterTriggerListener == null) {<a name="line.383"></a>
-<span class="sourceLineNo">384</span>            this.filteredGetterTriggerListener = FilteredGetterTriggerListener.JUST_WARN;<a name="line.384"></a>
-<span class="sourceLineNo">385</span>        } else {<a name="line.385"></a>
-<span class="sourceLineNo">386</span>            this.filteredGetterTriggerListener = filteredGetterTriggerListener;<a name="line.386"></a>
-<span class="sourceLineNo">387</span>        }<a name="line.387"></a>
-<span class="sourceLineNo">388</span>    }<a name="line.388"></a>
-<span class="sourceLineNo">389</span><a name="line.389"></a>
-<span class="sourceLineNo">390</span>    public FilteredFieldTriggerListener getFilteredFieldTriggerListener() {<a name="line.390"></a>
-<span class="sourceLineNo">391</span>        return filteredFieldTriggerListener;<a name="line.391"></a>
+<span class="sourceLineNo">382</span>    public FilteredGetterTriggerListener getFilteredGetterTriggerListener() {<a name="line.382"></a>
+<span class="sourceLineNo">383</span>        return filteredGetterTriggerListener;<a name="line.383"></a>
+<span class="sourceLineNo">384</span>    }<a name="line.384"></a>
+<span class="sourceLineNo">385</span><a name="line.385"></a>
+<span class="sourceLineNo">386</span>    public void setFilteredGetterTriggerListener(FilteredGetterTriggerListener filteredGetterTriggerListener) {<a name="line.386"></a>
+<span class="sourceLineNo">387</span>        if (filteredGetterTriggerListener == null) {<a name="line.387"></a>
+<span class="sourceLineNo">388</span>            this.filteredGetterTriggerListener = FilteredGetterTriggerListener.JUST_WARN;<a name="line.388"></a>
+<span class="sourceLineNo">389</span>        } else {<a name="line.389"></a>
+<span class="sourceLineNo">390</span>            this.filteredGetterTriggerListener = filteredGetterTriggerListener;<a name="line.390"></a>
+<span class="sourceLineNo">391</span>        }<a name="line.391"></a>
 <span class="sourceLineNo">392</span>    }<a name="line.392"></a>
 <span class="sourceLineNo">393</span><a name="line.393"></a>
-<span class="sourceLineNo">394</span>    public void setFilteredFieldTriggerListener(FilteredFieldTriggerListener filteredFieldTriggerListener) {<a name="line.394"></a>
-<span class="sourceLineNo">395</span>        if (filteredFieldTriggerListener == null) {<a name="line.395"></a>
-<span class="sourceLineNo">396</span>            this.filteredFieldTriggerListener = FilteredFieldTriggerListener.JUST_WARN;<a name="line.396"></a>
-<span class="sourceLineNo">397</span>        } else {<a name="line.397"></a>
-<span class="sourceLineNo">398</span>            this.filteredFieldTriggerListener = filteredFieldTriggerListener;<a name="line.398"></a>
-<span class="sourceLineNo">399</span>        }<a name="line.399"></a>
-<span class="sourceLineNo">400</span>    }<a name="line.400"></a>
-<span class="sourceLineNo">401</span><a name="line.401"></a>
-<span class="sourceLineNo">402</span>    public JsonInErrorMessageSanitizer getJsonInErrorMessageSanitizer() {<a name="line.402"></a>
-<span class="sourceLineNo">403</span>        if (jsonInErrorMessageSanitizer == null) {<a name="line.403"></a>
-<span class="sourceLineNo">404</span>            return JsonInErrorMessageSanitizer.NOOP;<a name="line.404"></a>
-<span class="sourceLineNo">405</span>        }<a name="line.405"></a>
-<span class="sourceLineNo">406</span>        return jsonInErrorMessageSanitizer;<a name="line.406"></a>
-<span class="sourceLineNo">407</span>    }<a name="line.407"></a>
-<span class="sourceLineNo">408</span>    <a name="line.408"></a>
-<span class="sourceLineNo">409</span>    /**<a name="line.409"></a>
-<span class="sourceLineNo">410</span>     * Allow the application to customize the way the JSON are rendered in the stack trace in case of binding exception.<a name="line.410"></a>
-<span class="sourceLineNo">411</span>     */<a name="line.411"></a>
-<span class="sourceLineNo">412</span>    public void setJsonInErrorMessageSanitizer(JsonInErrorMessageSanitizer jsonInErrorMessageSanitizer) {<a name="line.412"></a>
-<span class="sourceLineNo">413</span>        this.jsonInErrorMessageSanitizer = jsonInErrorMessageSanitizer;<a name="line.413"></a>
-<span class="sourceLineNo">414</span>    }<a name="line.414"></a>
-<span class="sourceLineNo">415</span>}<a name="line.415"></a>
+<span class="sourceLineNo">394</span>    public FilteredFieldTriggerListener getFilteredFieldTriggerListener() {<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        return filteredFieldTriggerListener;<a name="line.395"></a>
+<span class="sourceLineNo">396</span>    }<a name="line.396"></a>
+<span class="sourceLineNo">397</span><a name="line.397"></a>
+<span class="sourceLineNo">398</span>    public void setFilteredFieldTriggerListener(FilteredFieldTriggerListener filteredFieldTriggerListener) {<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        if (filteredFieldTriggerListener == null) {<a name="line.399"></a>
+<span class="sourceLineNo">400</span>            this.filteredFieldTriggerListener = FilteredFieldTriggerListener.JUST_WARN;<a name="line.400"></a>
+<span class="sourceLineNo">401</span>        } else {<a name="line.401"></a>
+<span class="sourceLineNo">402</span>            this.filteredFieldTriggerListener = filteredFieldTriggerListener;<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        }<a name="line.403"></a>
+<span class="sourceLineNo">404</span>    }<a name="line.404"></a>
+<span class="sourceLineNo">405</span><a name="line.405"></a>
+<span class="sourceLineNo">406</span>    public JsonInErrorMessageSanitizer getJsonInErrorMessageSanitizer() {<a name="line.406"></a>
+<span class="sourceLineNo">407</span>        if (jsonInErrorMessageSanitizer == null) {<a name="line.407"></a>
+<span class="sourceLineNo">408</span>            return JsonInErrorMessageSanitizer.NOOP;<a name="line.408"></a>
+<span class="sourceLineNo">409</span>        }<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        return jsonInErrorMessageSanitizer;<a name="line.410"></a>
+<span class="sourceLineNo">411</span>    }<a name="line.411"></a>
+<span class="sourceLineNo">412</span>    <a name="line.412"></a>
+<span class="sourceLineNo">413</span>    /**<a name="line.413"></a>
+<span class="sourceLineNo">414</span>     * Allow the application to customize the way the JSON are rendered in the stack trace in case of binding exception.<a name="line.414"></a>
+<span class="sourceLineNo">415</span>     */<a name="line.415"></a>
+<span class="sourceLineNo">416</span>    public void setJsonInErrorMessageSanitizer(JsonInErrorMessageSanitizer jsonInErrorMessageSanitizer) {<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        this.jsonInErrorMessageSanitizer = jsonInErrorMessageSanitizer;<a name="line.417"></a>
+<span class="sourceLineNo">418</span>    }<a name="line.418"></a>
+<span class="sourceLineNo">419</span><a name="line.419"></a>
+<span class="sourceLineNo">420</span>    public DispatchValidator getDispatchValidator() {<a name="line.420"></a>
+<span class="sourceLineNo">421</span>        if (dispatchValidator == null) {<a name="line.421"></a>
+<span class="sourceLineNo">422</span>            dispatchValidator = DispatchValidator.DEFAULT;<a name="line.422"></a>
+<span class="sourceLineNo">423</span>        }<a name="line.423"></a>
+<span class="sourceLineNo">424</span>        return dispatchValidator;<a name="line.424"></a>
+<span class="sourceLineNo">425</span>    }<a name="line.425"></a>
+<span class="sourceLineNo">426</span><a name="line.426"></a>
+<span class="sourceLineNo">427</span>    /**<a name="line.427"></a>
+<span class="sourceLineNo">428</span>     * Sets the validator used with facet dispatchers.<a name="line.428"></a>
+<span class="sourceLineNo">429</span>     */<a name="line.429"></a>
+<span class="sourceLineNo">430</span>    public void setDispatchValidator(DispatchValidator dispatchValidator) {<a name="line.430"></a>
+<span class="sourceLineNo">431</span>        this.dispatchValidator = dispatchValidator;<a name="line.431"></a>
+<span class="sourceLineNo">432</span>    }<a name="line.432"></a>
+<span class="sourceLineNo">433</span><a name="line.433"></a>
+<span class="sourceLineNo">434</span>    public FilteredDispatchTriggerListener getFilteredDispatchTriggerListener() {<a name="line.434"></a>
+<span class="sourceLineNo">435</span>        if (filteredDispatchTriggerListener == null) {<a name="line.435"></a>
+<span class="sourceLineNo">436</span>            filteredDispatchTriggerListener = FilteredDispatchTriggerListener.JUST_WARN;<a name="line.436"></a>
+<span class="sourceLineNo">437</span>        }<a name="line.437"></a>
+<span class="sourceLineNo">438</span>        return filteredDispatchTriggerListener;<a name="line.438"></a>
+<span class="sourceLineNo">439</span>    }<a name="line.439"></a>
+<span class="sourceLineNo">440</span><a name="line.440"></a>
+<span class="sourceLineNo">441</span>    /**<a name="line.441"></a>
+<span class="sourceLineNo">442</span>     * Sets the event listener used for reacting to filtered dispatch requests.<a name="line.442"></a>
+<span class="sourceLineNo">443</span>     */<a name="line.443"></a>
+<span class="sourceLineNo">444</span>    public void setFilteredDispatchTriggerListener(FilteredDispatchTriggerListener filteredDispatchTriggerListener) {<a name="line.444"></a>
+<span class="sourceLineNo">445</span>        this.filteredDispatchTriggerListener = filteredDispatchTriggerListener;<a name="line.445"></a>
+<span class="sourceLineNo">446</span>    }<a name="line.446"></a>
+<span class="sourceLineNo">447</span>}<a name="line.447"></a>
 
 
 
