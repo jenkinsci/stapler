@@ -76,6 +76,6 @@ public class HTMLWriterOutput extends XMLOutput {
 
     @Deprecated
     public void useHTML(boolean enabled) {
-        LOGGER.fine("Deprecated: HTMLWriterOutput.useHtml() has been deprecated and its functionality removed.");
+        LOGGER.log(Level. WARNING, null, new UnsupportedOperationException("Deprecated: HTMLWriterOutput.useHtml() has been deprecated and its functionality removed."));
     }
 }
