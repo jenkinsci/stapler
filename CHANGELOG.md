@@ -1,6 +1,9 @@
 CHANGELOG
 ===
 
+##### 1.258 and newer
+Now in [GitHub releases](https://github.com/stapler/stapler/releases).
+
 ##### 1.257
 Released: 2019-04-08
 * [PR #151](https://github.com/stapler/stapler/pull/151) - allow large log files to be downloaded
