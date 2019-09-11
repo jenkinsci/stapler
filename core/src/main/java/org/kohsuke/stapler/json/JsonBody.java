@@ -33,7 +33,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *   return pt;
  * }
  *
- * public class Point { public int x, y; }
+ * public static class Point { public int x, y; }
  * </pre>
  *
  * Request:
@@ -41,7 +41,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * POST ..../double
  * Content-Type: application/json
  *
- * {x:10,y:5}
+ * {"x":10,"y":5}
  * </pre>
  *
  * Response:
@@ -49,7 +49,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * 200 OK
  * Content-Type: application/json;charset=UTF-8
  *
- * {x:20,y:10}
+ * {"x":20,"y":10}
  * </pre>
  *
  * @author Kohsuke Kawaguchi
