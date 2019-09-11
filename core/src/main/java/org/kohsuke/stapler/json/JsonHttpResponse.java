@@ -11,6 +11,7 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 
 /**
  * {@link JSONObject} as a response.
@@ -47,7 +48,9 @@ public class JsonHttpResponse extends HttpResponseException {
         }
         if (responseJson != null) {
             rsp.setContentType("application/json;charset=UTF-8");
-            responseJson.write(rsp.getCompressedWriter(req));
+            try (Writer w = rsp.getCompressedWriter(req)) {
+                responseJson.write(w);
+            }
         }
     }
 
