@@ -23,21 +23,8 @@
 
 package org.kohsuke.stapler;
 
-import org.kohsuke.stapler.interceptor.RequirePOST;
-import org.kohsuke.stapler.interceptor.RespondSuccess;
-import org.kohsuke.stapler.json.JsonBody;
-import org.kohsuke.stapler.json.JsonResponse;
-import org.kohsuke.stapler.json.SubmittedForm;
-import org.kohsuke.stapler.verb.DELETE;
-import org.kohsuke.stapler.verb.GET;
-import org.kohsuke.stapler.verb.POST;
-import org.kohsuke.stapler.verb.PUT;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.lang.annotation.Annotation;
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * Immutable list of {@link Function}s.
