@@ -26,6 +26,7 @@ package org.kohsuke.stapler.jelly;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.WebApp;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -37,6 +38,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 /**
  * Cache of localization strings.
@@ -132,6 +136,7 @@ public class ResourceBundle {
         resources.clear();
     }
 
+    @Nonnull
     protected Properties get(String key) {
         Properties props;
 
@@ -140,8 +145,20 @@ public class ResourceBundle {
             if(props!=null)     return props;
         }
 
+        props = getWithProperties(key);
+        if (props == null) {
+            props = getWithXml(key);
+            if (props == null) {
+                props = new Properties();
+            }
+        }
+        resources.put(key,wrapUp(key.length()>0 ? key.substring(1) : "",props));
+        return props;
+    }
+
+    @CheckForNull
+    protected Properties getWithProperties(String key) {
         // attempt to load
-        props = new Properties();
         String url = baseName + key + ".properties";
         InputStream in=null;
         try {
@@ -149,10 +166,13 @@ public class ResourceBundle {
             // an user reported that on IBM JDK, URL.openStream
             // returns null instead of IOException.
             // see http://www.nabble.com/WAS---Hudson-tt16026561.html
+        } catch (FileNotFoundException e) {
+            return null;
         } catch (IOException e) {
             // failed.
         }
 
+        Properties props = new Properties();
         if(in!=null) {
             try {
                 try {
@@ -165,7 +185,35 @@ public class ResourceBundle {
             }
         }
 
-        resources.put(key,wrapUp(key.length()>0 ? key.substring(1) : "",props));
+        return props;
+    }
+
+    protected Properties getWithXml(String key) {
+        // attempt to load from xml
+        String url = baseName + key + ".xml";
+        InputStream in=null;
+        try {
+            in = new URL(url).openStream();
+        } catch (FileNotFoundException e) {
+            return null;
+        } catch (IOException e) {
+            // failed.
+        }
+
+        Properties props = new Properties();
+        if (in == null) {
+            return props;
+        }
+        try {
+            try {
+                props.loadFromXML(in);
+            } finally {
+                in.close();
+            }
+        } catch (IOException e) {
+            throw new Error("Failed to load "+url, e);
+        }
+
         return props;
     }
 
