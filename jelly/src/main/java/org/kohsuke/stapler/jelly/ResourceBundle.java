@@ -190,7 +190,7 @@ public class ResourceBundle {
 
     protected Properties getWithXml(String key) {
         // attempt to load from xml
-        String url = baseName + key + ".xml";
+        String url = baseName + key + ".properties.xml";
         InputStream in=null;
         try {
             in = new URL(url).openStream();
