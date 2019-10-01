@@ -6,7 +6,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
+import net.sf.json.JSONObject;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.kohsuke.stapler.export.Flavor.JSON;
 
 public class JSONDataWriterTest {
     private ExportConfig config = new ExportConfig().withFlavor(Flavor.JSON).withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
@@ -71,6 +75,50 @@ public class JSONDataWriterTest {
         @Exported public final List<? extends Super> elements;
         public Supers(Super... elements) {
             this.elements = Arrays.asList(elements);
+        }
+    }
+
+    @Test
+    public void JSONObjectWithoutNullValue() throws IOException {
+        String json = "{'key':'value', 'optional':'present'}";
+
+        StringWriter w = new StringWriter();
+        ModelWithJsonField jsonModel = new ModelWithJsonField(json);
+
+        DataWriter writer = JSON.createDataWriter(jsonModel,w);
+        Model<ModelWithJsonField> model = new ModelBuilder().get(ModelWithJsonField.class);
+        model.writeTo(jsonModel, writer);
+
+        assertTrue("Generated JSON :"+w.toString()+ "is not a correct representation of :"+json,
+                   w.toString().contains("present"));
+    }
+
+    @Test
+    public void JSONObjectWithNullValue() throws IOException {
+        String json = "{'key':'value', 'optional':null}";
+
+        StringWriter w = new StringWriter();
+        ModelWithJsonField jsonModel = new ModelWithJsonField(json);
+
+        DataWriter writer = JSON.createDataWriter(jsonModel,w);
+        Model<ModelWithJsonField> model = new ModelBuilder().get(ModelWithJsonField.class);
+        model.writeTo(jsonModel, writer);
+
+        assertTrue("Generated JSON :"+w.toString()+ "is not a correct representation of :"+json, w.toString().contains(
+                "null"));
+    }
+
+    @ExportedBean
+    public class ModelWithJsonField {
+        private JSONObject json;
+
+        public ModelWithJsonField(String jsonAsString){
+            json = JSONObject.fromObject(jsonAsString);
+        }
+
+        @Exported(visibility=2)
+        public JSONObject getJson() {
+            return json;
         }
     }
 
