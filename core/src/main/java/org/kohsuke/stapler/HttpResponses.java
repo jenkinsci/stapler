@@ -37,6 +37,17 @@ import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
  * @author Kohsuke Kawaguchi
  */
 public class HttpResponses {
+
+    public interface ErrorDetailsFilter {
+        boolean showStack(final int code, final Throwable cause);
+    }
+
+    private static ErrorDetailsFilter errorDetailsFilter = (code, cause) -> true;
+
+    public static void setErrorDetailsFilter(ErrorDetailsFilter filter) {
+        errorDetailsFilter = filter;
+    }
+
     public static abstract class HttpResponseException extends RuntimeException implements HttpResponse {
         public HttpResponseException() {
         }
@@ -88,16 +99,19 @@ public class HttpResponses {
     }
 
     public static HttpResponseException error(final int code, final Throwable cause) {
-        return new HttpResponseException(cause) {
-            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
-                rsp.setStatus(code);
+        if (errorDetailsFilter != null && errorDetailsFilter.showStack(code, cause)) {
+            return new HttpResponseException(cause) {
+                public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                    rsp.setStatus(code);
 
-                rsp.setContentType("text/plain;charset=UTF-8");
-                PrintWriter w = new PrintWriter(rsp.getWriter());
-                cause.printStackTrace(w);
-                w.close();
-            }
-        };
+                    rsp.setContentType("text/plain;charset=UTF-8");
+                    PrintWriter w = new PrintWriter(rsp.getWriter());
+                    cause.printStackTrace(w);
+                    w.close();
+                }
+            };
+        }
+        return errorWithoutStack(code, cause.getMessage());
     }
 
     /**
