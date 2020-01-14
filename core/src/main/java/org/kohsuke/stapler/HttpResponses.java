@@ -38,15 +38,7 @@ import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
  */
 public class HttpResponses {
 
-    public interface ErrorDetailsFilter {
-        boolean showStack(final int code, final Throwable cause);
-    }
-
-    private static ErrorDetailsFilter errorDetailsFilter = (code, cause) -> true;
-
-    public static void setErrorDetailsFilter(ErrorDetailsFilter filter) {
-        errorDetailsFilter = filter;
-    }
+    public static boolean SHOW_STACK_TRACE = Boolean.getBoolean(HttpResponses.class.getName() + ".SHOW_STACK_TRACE");
 
     public static abstract class HttpResponseException extends RuntimeException implements HttpResponse {
         public HttpResponseException() {
@@ -99,7 +91,7 @@ public class HttpResponses {
     }
 
     public static HttpResponseException error(final int code, final Throwable cause) {
-        if (errorDetailsFilter != null && errorDetailsFilter.showStack(code, cause)) {
+        if (SHOW_STACK_TRACE) {
             return new HttpResponseException(cause) {
                 public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                     rsp.setStatus(code);
