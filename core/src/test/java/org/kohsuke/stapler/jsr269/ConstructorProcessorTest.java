@@ -95,7 +95,7 @@ public class ConstructorProcessorTest {
         List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
         assertEquals(1, diagnostics.size());
         String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
-        assertTrue(msg, msg.contains("Only one annotated constructor"));
+        assertTrue(msg, msg.contains(ConstructorProcessor.MESSAGE));
     }
 
     //issue-1779
@@ -115,7 +115,7 @@ public class ConstructorProcessorTest {
         List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
         assertEquals(1, diagnostics.size());
         String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
-        assertTrue(msg, msg.contains("Only one annotated constructor"));
+        assertTrue(msg, msg.contains(ConstructorProcessor.MESSAGE));
     }
 
     //issue-1779

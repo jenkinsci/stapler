@@ -3,7 +3,6 @@ package org.kohsuke.stapler.jsr269;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import javax.annotation.processing.FilerException;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -27,18 +26,23 @@ import javax.tools.Diagnostic;
 @SupportedAnnotationTypes("*")
 @MetaInfServices(Processor.class)
 public class ConstructorProcessor extends AbstractProcessorImpl {
+   /* private */ final static String MESSAGE = "Only one annotated constructor (@DataBoundConstructor annotation or @stapler-constructor javadoc) is permitted per class";
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try {
             ElementScanner6<Void, Void> scanner = new ElementScanner6<Void, Void>() {
+                boolean written;
+                boolean messagePrinted;
+                
                 @Override
                 public Void visitExecutable(ExecutableElement e, Void aVoid) {
                     if(e.getAnnotation(DataBoundConstructor.class)!=null) {
-                        write(e);
+                        writeOrAddOnlyOneMessage(e);
                     } else {
                         String javadoc = getJavadoc(e);
                         if(javadoc!=null && javadoc.contains("@stapler-constructor")) {
-                            write(e);
+                            writeOrAddOnlyOneMessage(e);
                         }
                     }
 
@@ -48,6 +52,16 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
                 @Override
                 public Void visitUnknown(Element e, Void aVoid) {
                     return DEFAULT_VALUE;
+                }
+
+                private void writeOrAddOnlyOneMessage(ExecutableElement e) {
+                    if (!written) {
+                        write(e);
+                        written = true;
+                    } else if (!messagePrinted){
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, MESSAGE, e);
+                        messagePrinted = true;
+                    }
                 }
             };
 
@@ -97,8 +111,6 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
             Properties p = new Properties();
             p.put("constructor",buf.toString());
             writePropertyFile(p, name);
-        } catch (FilerException fe) {
-            error(new IOException("Only one annotated constructor (@stapler-constructor or @DataBoundConstructor) is allowed per class", fe));
         } catch(IOException x) {
             error(x);
         }
