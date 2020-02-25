@@ -133,6 +133,4 @@ public class ConstructorProcessorTest {
         assertEquals(0, diagnostics.size());
     }
     // TODO nested classes use qualified rather than binary name
-    // TODO behavior when multiple @DataBoundConstructor's specified on a single class - error?
-
 }
