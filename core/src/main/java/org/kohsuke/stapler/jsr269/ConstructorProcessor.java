@@ -3,6 +3,7 @@ package org.kohsuke.stapler.jsr269;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import javax.annotation.processing.FilerException;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -96,7 +97,9 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
             Properties p = new Properties();
             p.put("constructor",buf.toString());
             writePropertyFile(p, name);
-        } catch (IOException x) {
+        } catch (FilerException fe) {
+            error(new IOException("Only one annotated constructor (@stapler-constructor or @DataBoundConstructor) is allowed per class", fe));
+        } catch(IOException x) {
             error(x);
         }
     }
