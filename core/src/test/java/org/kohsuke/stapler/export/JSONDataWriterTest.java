@@ -54,6 +54,12 @@ public class JSONDataWriterTest {
     }
 
     @Test
+    public void testEncodedChars() throws Exception {
+        assertEquals("{\"_class\":\"Encoded\",\"bar\":\"\\ud834\\udd1e\",\"foo\":\"\\u0000\"}",
+                serialize(new Encoded(), Encoded.class));
+    }
+
+    @Test
     public void testInheritance2() throws Exception { // JENKINS-13336
         assertEquals("{\"_class\":\"Sub2\",\"basic\":\"super\",\"generic\":\"sub2\"}",
                 serialize(new Sub2(), Sub2.class));
@@ -71,6 +77,18 @@ public class JSONDataWriterTest {
         @Exported public final List<? extends Super> elements;
         public Supers(Super... elements) {
             this.elements = Arrays.asList(elements);
+        }
+    }
+
+    @ExportedBean
+    public static class Encoded {
+        @Exported
+        public String getFoo() {
+            return "\u0000";
+        }
+        @Exported
+        public String getBar() {
+            return "\uD834\uDD1E";
         }
     }
 
