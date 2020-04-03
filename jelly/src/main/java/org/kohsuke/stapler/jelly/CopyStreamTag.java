@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.XMLOutput;
 import org.xml.sax.SAXException;
@@ -42,6 +43,7 @@ import java.net.URL;
  * @author Kohsuke Kawaguchi
  */
 @NoContent
+@SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "Legacy implementation copies stream with default encoding.")
 public class CopyStreamTag extends AbstractStaplerTag {
     private Reader in;
 
