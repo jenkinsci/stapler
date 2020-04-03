@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.Map;
 import java.io.File;
 import java.net.URLClassLoader;
@@ -62,6 +64,7 @@ public class MetaClassLoader extends TearOffSupport {
     /**
      * If non-null, delegate to this classloader.
      */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_REFACTORED_TO_BE_FINAL", justification = "Legacy switch.")
     public static MetaClassLoader debugLoader = null;
 
     /**

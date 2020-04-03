@@ -1,5 +1,7 @@
 package org.kohsuke.stapler.compression;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -117,5 +119,6 @@ public class CompressionFilter implements Filter {
      * Despite its name, this flag does <strong>not</strong> disable {@link CompressionFilter} itself!
      * Rather use {@code DefaultScriptInvoker.COMPRESS_BY_DEFAULT}.
      */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
     public static boolean DISABLED = Boolean.getBoolean(CompressionFilter.class.getName()+".disabled");
 }

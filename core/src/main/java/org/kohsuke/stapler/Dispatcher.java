@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -121,6 +123,7 @@ public abstract class Dispatcher {
      * and when the evaluation failed, special diagnostic 404 page will be rendered.
      * Useful for developer assistance.
      */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Used in JTH and others.")
     public static boolean TRACE = Boolean.getBoolean("stapler.trace");
 
     /**
@@ -130,6 +133,7 @@ public abstract class Dispatcher {
      * and when the evaluation failed, special diagnostic 404 page will be rendered.
      * Useful for developer assistance.
      */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
     public static boolean TRACE_PER_REQUEST = Boolean.getBoolean("stapler.trace.per-request");
 
     private static final Logger LOGGER = Logger.getLogger(Dispatcher.class.getName());

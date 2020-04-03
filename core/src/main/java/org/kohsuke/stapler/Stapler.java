@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -574,9 +575,9 @@ public class Stapler extends HttpServlet {
                     range = range.substring(6);
                     Matcher m = RANGE_SPEC.matcher(range);
                     if(m.matches()) {
-                        long s = Long.valueOf(m.group(1));
+                        long s = Long.parseLong(m.group(1));
                         long e = m.group(2).length()>0
-                                ? Long.valueOf(m.group(2))+1 //range set is inclusive
+                                ? Long.parseLong(m.group(2))+1 //range set is inclusive
                                 : contentLength; // unspecified value means "all the way to the end"
                         e = Math.min(e,contentLength);
 
@@ -719,8 +720,7 @@ public class Stapler extends HttpServlet {
             }
         }
 
-        // adds this node to ancestor list
-        AncestorImpl a = new AncestorImpl(req, node);
+        addToAncestorList(req, node);
 
         // try overrides
         if (node instanceof StaplerOverridable) {
@@ -818,6 +818,12 @@ public class Stapler extends HttpServlet {
         }
 
         return false;
+    }
+
+    @SuppressFBWarnings(value = "DLS_DEAD_LOCAL_STORE", justification = "Changes state.")
+    private void addToAncestorList(RequestImpl req, Object node) {
+        // adds this node to ancestor list
+        AncestorImpl a = new AncestorImpl(req, node);
     }
 
     /**

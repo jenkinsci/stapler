@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -69,6 +71,7 @@ public final class HttpRedirect extends RuntimeException implements HttpResponse
     /**
      * Redirect to "."
      */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy control.")
     public static HttpRedirect DOT = new HttpRedirect(".");
 
     /**
