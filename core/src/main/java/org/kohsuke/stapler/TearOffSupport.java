@@ -26,6 +26,7 @@ package org.kohsuke.stapler;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Allows "tear-off" objects to be linked to the parent object.
@@ -37,12 +38,10 @@ import java.util.Map;
  * @author Kohsuke Kawaguchi
  */
 public abstract class TearOffSupport {
-    private volatile Map<Class,Object> tearOffs;
+    private volatile Map<Class,Object> tearOffs = new ConcurrentHashMap<>();
 
     public final <T> T getTearOff(Class<T> t) {
-        Map<Class,Object> m = tearOffs;
-        if(m==null)     return null;
-        return (T)m.get(t);
+        return (T)tearOffs.get(t);
     }
 
     public final <T> T loadTearOff(Class<T> t) {
@@ -69,10 +68,7 @@ public abstract class TearOffSupport {
         return o;
     }
 
-    public synchronized <T> void setTearOff(Class<T> type, T instance) {
-        Map<Class,Object> m = tearOffs;
-        Map<Class,Object> r = m!=null ? new HashMap<Class, Object>(tearOffs) : new HashMap<Class,Object>();
-        r.put(type,instance);
-        tearOffs = r;
+    public <T> void setTearOff(Class<T> type, T instance) {
+        tearOffs.put(type,instance);
     }
 }

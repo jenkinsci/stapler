@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler.framework.io;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.FileWriter;
 import java.io.Writer;
 import java.io.File;
@@ -47,6 +49,7 @@ public class AtomicFileWriter extends Writer {
     private final File tmpFile;
     private final File destFile;
 
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Protected by checks at other layers.")
     public AtomicFileWriter(File f) throws IOException {
         tmpFile = File.createTempFile("atomic",null,f.getParentFile());
         destFile = f;
@@ -82,7 +85,10 @@ public class AtomicFileWriter extends Writer {
         close();
         if(destFile.exists() && !destFile.delete())
             throw new IOException("Unable to delete "+destFile);
-        tmpFile.renameTo(destFile);
+        boolean success = tmpFile.renameTo(destFile);
+        if (!success) {
+            throw new IOException("Unable to rename: " + destFile);
+        }
     }
 
     /**

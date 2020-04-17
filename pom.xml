@@ -93,12 +93,12 @@
     <!-- Defines a SpotBugs threshold. Use "Low" to discover low-priority bugs.
          Hint: SpotBugs considers some real NPE risks in Jenkins as low-priority issues, it is recommended to enable it in plugins.
       -->
-    <spotbugs.threshold>High</spotbugs.threshold>
+    <spotbugs.threshold>Medium</spotbugs.threshold>
     <!-- Defines a SpotBugs effort. Use "Max" to maximize the scan depth -->
     <spotbugs.effort>default</spotbugs.effort>
     <!-- Defines an optional SpotBugs excludes file.
          Generally it is recommended to use @SuppressFBWarnings annotation unless you want to ignore an entire class of issues -->
-    <spotbugs.excludeFilterFile></spotbugs.excludeFilterFile>
+    <spotbugs.excludeFilterFile>${project.basedir}/../src/spotbugs/spotbugs-excludes.xml</spotbugs.excludeFilterFile>
 
   </properties>
 

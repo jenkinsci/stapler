@@ -171,6 +171,7 @@ public class BoundObjectTable implements StaplerFallback {
             return v;
         }
 
+        @SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "This usage does not create synchronization problems.")
         public HttpResponse doEnableLogging() {
             if (DEBUG_LOGGING) {
                 this.logging = true;

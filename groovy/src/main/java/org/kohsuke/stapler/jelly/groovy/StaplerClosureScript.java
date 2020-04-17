@@ -1,5 +1,6 @@
 package org.kohsuke.stapler.jelly.groovy;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jvnet.localizer.LocaleProvider;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.jelly.ResourceBundle;
@@ -9,6 +10,7 @@ import java.net.URL;
 /**
  * @author Kohsuke Kawaguchi
  */
+@SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "The synchronization here doesn't make sense, but it's not causing problems.")
 public abstract class StaplerClosureScript extends GroovyClosureScript {
     /**
      * Where was this script loaded from?

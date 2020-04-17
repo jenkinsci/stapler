@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import javax.servlet.ServletException;
 import javax.servlet.RequestDispatcher;
 import java.io.IOException;
@@ -37,8 +39,8 @@ import java.util.Map.Entry;
  * @author Kohsuke Kawaguchi
  */
 public class ForwardToView extends RuntimeException implements HttpResponse {
+    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "A valid issue, but complicated to fix now. Not causing any observable problems.")
     private final DispatcherFactory factory;
-    private boolean optional;
     private final Map<String,Object> attributes = new HashMap<String, Object>();
 
     private interface DispatcherFactory {
@@ -86,16 +88,16 @@ public class ForwardToView extends RuntimeException implements HttpResponse {
      * Make this forwarding optional. Render nothing if a view doesn't exist.
      */
     public ForwardToView optional() {
-        optional = true;
         return this;
     }
 
+    @SuppressFBWarnings(value = "REQUESTDISPATCHER_FILE_DISCLOSURE", justification = "Forwarded to a view to handle correctly.")
     public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
         for (Entry<String, Object> e : attributes.entrySet())
             req.setAttribute(e.getKey(),e.getValue());
         RequestDispatcher rd = factory.get(req);
-        if (rd==null && optional)
-            return;
-        rd.forward(req, rsp);
+        if (rd != null) {
+            rd.forward(req, rsp);
+        }
     }
 }

@@ -32,6 +32,8 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +46,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
 import com.jcraft.jzlib.GZIPOutputStream;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.sf.json.JsonConfig;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.compression.CompressionFilter;
@@ -189,7 +192,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         }
 
         setStatus(statusCode);
-        setHeader("Location",url);
+        setHeader("Location", URLEncoder.encode(url, StandardCharsets.UTF_8.name()));
         getOutputStream().close();
     }
 
@@ -325,7 +328,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     public int reverseProxyTo(URL url, StaplerRequest req) throws IOException {
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        HttpURLConnection con = openConnection(url);
         con.setDoOutput(true);
 
         Enumeration h = req.getHeaderNames();
@@ -344,7 +347,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
         // copy the response
         int code = con.getResponseCode();
-        setStatus(code,con.getResponseMessage());
+        setStatus(con, code);
         Map<String,List<String>> rspHeaders = con.getHeaderFields();
         for (Entry<String, List<String>> header : rspHeaders.entrySet()) {
             if(header.getKey()==null)   continue;   // response line
@@ -356,6 +359,17 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         copyAndClose(con.getInputStream(), getOutputStream());
 
         return code;
+    }
+
+    @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Not relevant in this situation.")
+    private HttpURLConnection openConnection(URL url) throws IOException {
+        return (HttpURLConnection) url.openConnection();
+    }
+
+    @SuppressFBWarnings(value = "XSS_SERVLET", justification = "Not relevant in this situation.")
+    private void setStatus(HttpURLConnection con, int code) throws IOException {
+        // Should also fix the deprecation.
+        setStatus(code,con.getResponseMessage());
     }
 
     public void setJsonConfig(JsonConfig config) {

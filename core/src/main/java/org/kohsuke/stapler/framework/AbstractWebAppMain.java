@@ -24,6 +24,7 @@
 package org.kohsuke.stapler.framework;
 
 import com.google.common.util.concurrent.SettableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jvnet.localizer.LocaleProvider;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.Stapler;
@@ -177,7 +178,11 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      */
     protected boolean checkEnvironment() {
         home = getHomeDir().getAbsoluteFile();
-        home.mkdirs();
+        boolean success = home.mkdirs();
+        if (!success) {
+            LOGGER.warning("Failed to create home directory: " + home);
+            return false;
+        }
         LOGGER.info(getApplicationName()+" home directory: "+home);
 
         // check that home exists (as mkdirs could have failed silently), otherwise throw a meaningful error
@@ -212,6 +217,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      * People makes configuration mistakes, so we are trying to be nice
      * with those by doing {@link String#trim()}.
      */
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Home dir is configured by admin or app.")
     protected File getHomeDir() {
         // check JNDI for the home directory first
         String varName = getApplicationName().toUpperCase() + "_HOME";
@@ -248,6 +254,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      *
      * Override this method to change that behavior.
      */
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Home dir is configured by admin or app.")
     protected File getDefaultHomeDir() {
         return new File(new File(System.getProperty("user.home")),'.'+getApplicationName().toLowerCase());
     }

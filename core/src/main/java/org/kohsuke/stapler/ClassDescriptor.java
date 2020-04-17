@@ -385,7 +385,7 @@ public final class ClassDescriptor {
         }
     }
 
-    final class MethodMirror {
+    final static class MethodMirror {
         final Signature sig;
         final Method method;
 
@@ -398,7 +398,7 @@ public final class ClassDescriptor {
     /**
      * A method signature used to determine what methods override each other
      */
-    final class Signature {
+    final static class Signature {
         final String methodName;
         final Class[] parameters;
 
