@@ -4,6 +4,8 @@ import com.google.common.base.Function;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.beanutils.ConvertUtils;
 
 import java.beans.Introspector;
@@ -80,6 +82,7 @@ public class ConfigurationLoader {
      */
     public static ConfigurationLoader from(final Properties props) throws IOException {
         return new ConfigurationLoader(new Function<String, String>() {
+            @SuppressFBWarnings(value = "NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE", justification = "False positive. I don't know what spotbugs is doing here.")
             public String apply(String from) {
                 return props.getProperty(from);
             }

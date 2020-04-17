@@ -85,8 +85,8 @@ public final class AcceptHeader {
         @Override
         public String toString() {
             StringBuilder s = new StringBuilder(major +'/'+ minor);
-            for (String k : params.keySet())
-                s.append(";").append(k).append("=").append(params.get(k));
+            for (Map.Entry<String, String> k : params.entrySet())
+                s.append(";").append(k.getKey()).append("=").append(k.getValue());
             return s.toString();
         }
 

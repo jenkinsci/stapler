@@ -59,6 +59,7 @@ public class CopyStreamTag extends AbstractStaplerTag {
         this.in = new FileReader(f);
     }
 
+    @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Not relevant in this situation.")
     public void setUrl(URL url) throws IOException {
         setInputStream(url.openStream());
     }
@@ -80,17 +81,14 @@ public class CopyStreamTag extends AbstractStaplerTag {
                     int last = 0;
                     for (int i=0; i<len; i++ ) {
                         char ch = buf[i];
-                        switch(ch) {
-                        case '<':
-                            xmlOutput.characters(buf,last,i-last); // flush
-                            xmlOutput.characters(CHARS_LE,0,CHARS_LE.length);
-                            last = i+1;
-                            break;
-                        case '&':
+                        if (ch == '<') {
+                            xmlOutput.characters(buf, last, i - last); // flush
+                            xmlOutput.characters(CHARS_LE, 0, CHARS_LE.length);
+                            last = i + 1;
+                        } else if (ch == '&') {
                             xmlOutput.characters(buf,last,i-last); // flush
                             xmlOutput.characters(CHARS_AMP,0,CHARS_AMP.length);
                             last = i+1;
-                            break;
                         }
                     }
                     xmlOutput.characters(buf,last,len-last);

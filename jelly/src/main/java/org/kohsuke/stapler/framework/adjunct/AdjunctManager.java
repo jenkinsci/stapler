@@ -163,7 +163,7 @@ public class AdjunctManager {
                 return;
             }
             // remember URLs that we can serve. but don't remember error ones, as it might be unbounded
-            allowedResources.put(path,path);
+            allowedResources.putIfAbsent(path,path);
         }
 
         URL res = classLoader.getResource(path);

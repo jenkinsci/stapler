@@ -91,7 +91,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         @Nonnull OutputStream get() throws IOException;
     }
 
-    private class LazyOutputStreamSupplier implements OutputStreamSupplier {
+    private static class LazyOutputStreamSupplier implements OutputStreamSupplier {
         private final OutputStreamSupplier supplier;
         private volatile OutputStream out;
 

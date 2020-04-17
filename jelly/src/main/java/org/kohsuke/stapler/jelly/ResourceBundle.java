@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.WebApp;
 
@@ -145,7 +146,7 @@ public class ResourceBundle {
         String url = baseName + key + ".properties";
         InputStream in=null;
         try {
-            in = new URL(url).openStream();
+            in = openStream(url);
             // an user reported that on IBM JDK, URL.openStream
             // returns null instead of IOException.
             // see http://www.nabble.com/WAS---Hudson-tt16026561.html
@@ -167,6 +168,11 @@ public class ResourceBundle {
 
         resources.put(key,wrapUp(key.length()>0 ? key.substring(1) : "",props));
         return props;
+    }
+
+    @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Not relevant in this situation.")
+    private InputStream openStream(String url) throws IOException {
+        return new URL(url).openStream();
     }
 
     /**

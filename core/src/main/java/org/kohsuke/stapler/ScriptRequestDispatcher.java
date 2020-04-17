@@ -24,6 +24,8 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.servlet.RequestDispatcher;
@@ -102,6 +104,7 @@ class ScriptRequestDispatcher<S> implements RequestDispatcher {
     }
 
     @Override
+    @SuppressFBWarnings(value = "REQUESTDISPATCHER_FILE_DISCLOSURE", justification = "Forwarding the request to be handled correctly.")
     public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
         forward(request, response);
     }
