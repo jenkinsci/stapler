@@ -171,7 +171,7 @@ public class ResourceBundle {
     }
 
     @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Not relevant in this situation.")
-    private InputStream openStream(String url) throws IOException {
+    private static InputStream openStream(String url) throws IOException {
         return new URL(url).openStream();
     }
 
