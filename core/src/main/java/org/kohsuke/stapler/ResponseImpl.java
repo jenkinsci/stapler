@@ -362,7 +362,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Not relevant in this situation.")
-    private HttpURLConnection openConnection(URL url) throws IOException {
+    private static HttpURLConnection openConnection(URL url) throws IOException {
         return (HttpURLConnection) url.openConnection();
     }
 
