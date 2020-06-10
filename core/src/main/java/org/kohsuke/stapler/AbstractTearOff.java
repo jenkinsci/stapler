@@ -23,8 +23,16 @@
 
 package org.kohsuke.stapler;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Partial default implementation of tear-off class, for convenience of derived classes.
@@ -34,8 +42,21 @@ import java.util.Collection;
  * @author Kohsuke Kawaguchi
  */
 public abstract class AbstractTearOff<CLT,S,E extends Exception> extends CachingScriptLoader<S,E> {
+
+    private static final Logger LOGGER = Logger.getLogger(AbstractTearOff.class.getName());
+
     protected final MetaClass owner;
     protected final CLT classLoader;
+
+    private static final class ExpirableCacheHit<S> {
+        private final long timestamp;
+        private final S script;
+        ExpirableCacheHit(long timestamp, S script) {
+            this.timestamp = timestamp;
+            this.script = script;
+        }
+    }
+    private final Cache<URL, ExpirableCacheHit<S>> cachedScripts = CacheBuilder.newBuilder().softValues().build();
 
     protected AbstractTearOff(MetaClass owner, Class<CLT> cltClass) {
         this.owner = owner;
@@ -87,10 +108,73 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
             if(name.lastIndexOf('/')<dot)
                 res = getResource(name.substring(0, dot) + ".default" + name.substring(dot));
         }
-        if(res!=null)
-            return parseScript(res);
+        if (res != null) {
+            if (MetaClass.NO_CACHE) {
+                File file = fileOf(res);
+                if (file == null) {
+                    LOGGER.log(Level.FINE, "no file associated with {0}", res);
+                    return parseScript(res);
+                } else {
+                    long timestamp = file.lastModified();
+                    if (timestamp == 0) {
+                        LOGGER.log(Level.FINE, "no timestamp associated with {0}", file);
+                        return parseScript(res);
+                    } else {
+                        ExpirableCacheHit<S> cached = cachedScripts.getIfPresent(res);
+                        if (cached == null) {
+                            S script;
+                            if (LOGGER.isLoggable(Level.FINE)) {
+                                long start = System.nanoTime();
+                                try {
+                                    script = parseScript(res);
+                                } finally {
+                                    LOGGER.log(Level.FINE, "cache miss; took {0}ms to parse {1}", new Object[] {(System.nanoTime() - start) / 1_000_000, res});
+                                }
+                            } else {
+                                LOGGER.log(Level.FINE, "cache miss on {0}", res);
+                                script = parseScript(res);
+                            }
+                            cachedScripts.put(res, new ExpirableCacheHit<>(timestamp, script));
+                            return script;
+                        } else if (timestamp == cached.timestamp) {
+                            LOGGER.log(Level.FINE, "cache hit on {0}", res);
+                            return cached.script;
+                        } else {
+                            LOGGER.log(Level.FINE, "expired cache hit on {0}", res);
+                            S script = parseScript(res);
+                            cachedScripts.put(res, new ExpirableCacheHit<>(timestamp, script));
+                            return script;
+                        }
+                    }
+                }
+            } else {
+                LOGGER.log(Level.FINE, "standard CachingScriptLoader logic applies to {0}", res);
+                return parseScript(res);
+            }
+        }
 
         return null;
+    }
+
+    private static final Pattern JAR_URL = Pattern.compile("jar:(file:.+)!/.*");
+    private static File fileOf(URL res) {
+        try {
+            switch (res.getProtocol()) {
+            case "file":
+                return new File(res.toURI());
+            case "jar":
+                Matcher m = JAR_URL.matcher(res.toString());
+                if (m.matches()) {
+                    return new File(new URI(m.group(1)));
+                } else {
+                    return null;
+                }
+            default:
+                return null;
+            }
+        } catch (URISyntaxException | IllegalArgumentException x) {
+            return null; // caching is a best effort
+        }
     }
 
     protected final S loadScript(String name) throws E {
