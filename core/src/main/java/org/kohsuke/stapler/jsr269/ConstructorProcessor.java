@@ -14,6 +14,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementScanner6;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
@@ -32,7 +33,7 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try {
             ElementScanner6<Void, Void> scanner = new ElementScanner6<Void, Void>() {
-                boolean written;
+                Set<Element> enclosingElementsWritten = new HashSet<>();
                 boolean messagePrinted;
                 
                 @Override
@@ -55,9 +56,8 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
                 }
 
                 private void writeOrAddOnlyOneMessage(ExecutableElement e) {
-                    if (!written) {
+                    if (enclosingElementsWritten.add(e.getEnclosingElement())) {
                         write(e);
-                        written = true;
                     } else if (!messagePrinted){
                         processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, MESSAGE, e);
                         messagePrinted = true;
