@@ -35,7 +35,7 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
             ElementScanner6<Void, Void> scanner = new ElementScanner6<Void, Void>() {
                 Set<Element> enclosingElementsWritten = new HashSet<>();
                 boolean messagePrinted;
-                
+
                 @Override
                 public Void visitExecutable(ExecutableElement e, Void aVoid) {
                     if(e.getAnnotation(DataBoundConstructor.class)!=null) {
@@ -111,7 +111,7 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
             Properties p = new Properties();
             p.put("constructor",buf.toString());
             writePropertyFile(p, name);
-        } catch(IOException x) {
+        } catch (IOException x) {
             error(x);
         }
     }

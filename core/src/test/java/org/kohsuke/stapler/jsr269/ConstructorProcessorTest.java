@@ -81,7 +81,7 @@ public class ConstructorProcessorTest {
         assertTrue(msg, msg.contains("abstract"));
     }
 
-    //issue-1779
+    //issue-179
     @Test public void duplicatedConstructor1() {
         Compilation compilation = new Compilation();
         compilation.addSource("some.pkg.Stuff").
@@ -98,7 +98,7 @@ public class ConstructorProcessorTest {
         assertTrue(msg, msg.contains(ConstructorProcessor.MESSAGE));
     }
 
-    //issue-1779
+    //issue-179
     @Test public void duplicatedConstructor2() {
         Compilation compilation = new Compilation();
         compilation.addSource("some.pkg.Stuff").
@@ -107,7 +107,7 @@ public class ConstructorProcessorTest {
                 addLine("public class Stuff {").
                 addLine("  @DataBoundConstructor public Stuff() {}").
                 addLine("  /**").
-                addLine("    @stapler-constructor Another constructor"). 
+                addLine("    @stapler-constructor Another constructor").
                 addLine("   **/").
                 addLine("  public Stuff(int i) {}").
                 addLine("}");
@@ -118,7 +118,7 @@ public class ConstructorProcessorTest {
         assertTrue(msg, msg.contains(ConstructorProcessor.MESSAGE));
     }
 
-    //issue-1779
+    //issue-179
     @Test public void duplicatedButNotAnnotatedConstructor() {
         Compilation compilation = new Compilation();
         compilation.addSource("some.pkg.Stuff").
