@@ -81,12 +81,7 @@ public class ConfigurationLoader {
      * Loads the configuration from the specified {@link Properties} object.
      */
     public static ConfigurationLoader from(final Properties props) throws IOException {
-        return new ConfigurationLoader(new Function<String, String>() {
-            @SuppressFBWarnings(value = "NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE", justification = "False positive. I don't know what spotbugs is doing here.")
-            public String apply(String from) {
-                return props.getProperty(from);
-            }
-        });
+        return new ConfigurationLoader(from -> props.getProperty(from));
     }
 
     public static ConfigurationLoader from(final Map<String,String> props) throws IOException {

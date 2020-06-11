@@ -37,6 +37,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Locale;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -178,9 +180,10 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      */
     protected boolean checkEnvironment() {
         home = getHomeDir().getAbsoluteFile();
-        boolean success = home.mkdirs();
-        if (!success) {
-            LOGGER.warning("Failed to create home directory: " + home);
+        try {
+            Files.createDirectories(home.toPath());
+        } catch (IOException ioe) {
+            LOGGER.log(Level.WARNING, "Failed to create home directory: " + home, ioe);
             return false;
         }
         LOGGER.info(getApplicationName()+" home directory: "+home);

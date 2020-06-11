@@ -26,7 +26,6 @@ package org.kohsuke.stapler.jelly;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.TagLibrary;
@@ -50,8 +49,7 @@ public class JellyClassLoaderTearOff {
      */
     private volatile WeakReference<LoadingCache<String,TagLibrary>> taglibs;
 
-    @SuppressFBWarnings(value = "MS_PKGPROTECT", justification = "Part of the API, but we could investigate whether it's actually used.")
-    public static ExpressionFactory EXPRESSION_FACTORY = new JexlExpressionFactory();
+    static ExpressionFactory EXPRESSION_FACTORY = new JexlExpressionFactory();
 
     public JellyClassLoaderTearOff(MetaClassLoader owner) {
         this.owner = owner;

@@ -30,6 +30,7 @@ import org.xml.sax.SAXException;
 import org.jvnet.maven.jellydoc.annotation.NoContent;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -37,13 +38,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Copies a stream as text.
  * @author Kohsuke Kawaguchi
  */
 @NoContent
-@SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "Legacy implementation copies stream with default encoding.")
 public class CopyStreamTag extends AbstractStaplerTag {
     private Reader in;
 
@@ -52,11 +53,11 @@ public class CopyStreamTag extends AbstractStaplerTag {
     }
 
     public void setInputStream(InputStream in) {
-        this.in = new InputStreamReader(in);
+        this.in = new InputStreamReader(in, StandardCharsets.UTF_8);
     }
 
     public void setFile(File f) throws FileNotFoundException {
-        this.in = new FileReader(f);
+        this.in = new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8);
     }
 
     @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Not relevant in this situation.")

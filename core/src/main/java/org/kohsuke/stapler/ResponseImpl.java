@@ -192,10 +192,14 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         }
 
         setStatus(statusCode);
-        setHeader("Location", URLEncoder.encode(url, StandardCharsets.UTF_8.name()));
+        setLocation(url);
         getOutputStream().close();
     }
 
+    @SuppressFBWarnings(value = "HTTP_RESPONSE_SPLITTING", justification = "Already encoded and handled.")
+    private void setLocation(@Nonnull String url) {
+        setHeader("Location",url);
+    }
 
     public void serveFile(StaplerRequest req, URL resource, long expiration) throws ServletException, IOException {
         if(!stapler.serveStaticResource(req,this,resource,expiration))
