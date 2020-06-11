@@ -39,7 +39,7 @@ import java.util.Map.Entry;
  * @author Kohsuke Kawaguchi
  */
 public class ForwardToView extends RuntimeException implements HttpResponse {
-    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "A valid issue, but complicated to fix now. Not causing any observable problems.")
+    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "As an HttpResponse, this is not actually serialized.")
     private final DispatcherFactory factory;
     private final Map<String,Object> attributes = new HashMap<String, Object>();
 
