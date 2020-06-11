@@ -86,10 +86,7 @@ public class AtomicFileWriter extends Writer {
         close();
         if(destFile.exists() && !destFile.delete())
             throw new IOException("Unable to delete "+destFile);
-        boolean success = tmpFile.renameTo(destFile);
-        if (!success) {
-            throw new IOException("Unable to rename: " + destFile);
-        }
+        Files.move(tmpFile.toPath(), destFile.toPath());
     }
 
     /**
