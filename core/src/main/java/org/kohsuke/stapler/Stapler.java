@@ -98,7 +98,7 @@ public class Stapler extends HttpServlet {
 
     private /*final*/ ServletContext context;
 
-    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "A valid issue, but complicated to fix now. Not causing any observable problems.")
+    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "The Stapler class is not expected to be serialized.")
     private /*final*/ WebApp webApp;
 
     /**
@@ -395,7 +395,7 @@ public class Stapler extends HttpServlet {
         abstract URL map(String path) throws IOException;
     }
 
-    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "A valid issue, but complicated to fix now. Not causing any observable problems.")
+    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "The Stapler class is not expected to be serialized.")
     private final LocaleDrivenResourceSelector resourcePathLocaleSelector = new LocaleDrivenResourceSelector() {
         @Override
         URL map(String path) throws IOException {
@@ -418,7 +418,7 @@ public class Stapler extends HttpServlet {
     /**
      * {@link LocaleDrivenResourceSelector} that uses a complete URL as 'path'
      */
-    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "A valid issue, but complicated to fix now. Not causing any observable problems.")
+    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "The Stapler class is not expected to be serialized.")
     private final LocaleDrivenResourceSelector urlLocaleSelector = new LocaleDrivenResourceSelector() {
         @Override
         URL map(String url) throws IOException {
