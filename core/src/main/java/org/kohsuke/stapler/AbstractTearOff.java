@@ -25,9 +25,11 @@ package org.kohsuke.stapler;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
