@@ -105,13 +105,32 @@ class JSONDataWriter implements DataWriter {
         buf.append('\"');
         for( int i=0; i<v.length(); i++ ) {
             char c = v.charAt(i);
-            switch(c) {
-            case '"':   buf.append("\\\"");break;
-            case '\\':  buf.append("\\\\");break;
-            case '\n':  buf.append("\\n");break;
-            case '\r':  buf.append("\\r");break;
-            case '\t':  buf.append("\\t");break;
-            default:    buf.append(c);break;
+            if (Character.isISOControl(c) || Character.isHighSurrogate(c) || Character.isLowSurrogate(c)) {
+                // Control chars: strictly speaking, JSON spec expects only U+0000 through U+001F, but any char _may_ be escaped, so just do that for U+007F through U+009F too.
+                // Surrogate pair characters: https://docs.oracle.com/javase/6/docs/api/java/lang/Character.html#unicode
+                // JSON spec: https://tools.ietf.org/html/rfc8259#section-7
+                buf.append("\\u" + String.format("%04x", (int) c));
+            } else {
+                switch (c) {
+                    case '"':
+                        buf.append("\\\"");
+                        break;
+                    case '\\':
+                        buf.append("\\\\");
+                        break;
+                    case '\n':
+                        buf.append("\\n");
+                        break;
+                    case '\r':
+                        buf.append("\\r");
+                        break;
+                    case '\t':
+                        buf.append("\\t");
+                        break;
+                    default:
+                        buf.append(c);
+                        break;
+                }
             }
         }
         buf.append('\"');
