@@ -91,6 +91,7 @@
     <!-- It is strongly encouraged to leave it as true. Use false with care only in transient situations. -->
     <spotbugs.failOnError>true</spotbugs.failOnError>
     <!-- Defines a SpotBugs threshold. Use "Low" to discover low-priority bugs.
+         Hint: SpotBugs considers some real NPE risks in Jenkins as low-priority issues, it is recommended to enable it in plugins.
       -->
     <spotbugs.threshold>Medium</spotbugs.threshold>
     <!-- Defines a SpotBugs effort. Use "Max" to maximize the scan depth -->
