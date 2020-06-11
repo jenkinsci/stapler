@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler;
 
+import org.graalvm.compiler.core.common.SuppressFBWarnings;
+
 import java.net.URL;
 import java.util.Collection;
 
@@ -33,6 +35,7 @@ import java.util.Collection;
  *      ClassLoader tear-off.
  * @author Kohsuke Kawaguchi
  */
+@SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Intermediate troubleshooting.")
 public abstract class AbstractTearOff<CLT,S,E extends Exception> extends CachingScriptLoader<S,E> {
     protected final MetaClass owner;
     protected final CLT classLoader;
