@@ -734,7 +734,9 @@ public class Stapler extends HttpServlet {
             }
         }
 
-        addToAncestorList(req, node);
+        // adds this node to ancestor list
+        AncestorImpl ancestor = new AncestorImpl(req, node);
+        ancestor.addToOwner();
 
         // try overrides
         if (node instanceof StaplerOverridable) {
@@ -832,12 +834,6 @@ public class Stapler extends HttpServlet {
         }
 
         return false;
-    }
-
-    @SuppressFBWarnings(value = "DLS_DEAD_LOCAL_STORE", justification = "Changes state.")
-    private void addToAncestorList(RequestImpl req, Object node) {
-        // adds this node to ancestor list
-        AncestorImpl a = new AncestorImpl(req, node);
     }
 
     /**

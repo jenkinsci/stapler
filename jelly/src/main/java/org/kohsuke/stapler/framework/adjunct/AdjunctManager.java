@@ -32,6 +32,7 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * This application-scoped object that exposes djuncts to URL.
@@ -75,7 +76,7 @@ public class AdjunctManager {
     /**
      * Map used as a set to remember which resources can be served.
      */
-    private final ConcurrentHashMap<String,String> allowedResources = new ConcurrentHashMap<String,String>();
+    private final ConcurrentSkipListSet<String> allowedResources = new ConcurrentSkipListSet<>();
 
     private final ClassLoader classLoader;
 
@@ -157,13 +158,13 @@ public class AdjunctManager {
         String path = req.getRestOfPath();
         if (path.charAt(0)=='/') path = path.substring(1);
 
-        if(!allowedResources.containsKey(path)) {
+        if(!allowedResources.contains(path)) {
             if(!allowResourceToBeServed(path)) {
                 rsp.sendError(SC_FORBIDDEN);
                 return;
             }
             // remember URLs that we can serve. but don't remember error ones, as it might be unbounded
-            allowedResources.putIfAbsent(path,path);
+            allowedResources.add(path);
         }
 
         URL res = classLoader.getResource(path);
