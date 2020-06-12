@@ -23,8 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
 import java.io.IOException;
