@@ -14,6 +14,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementScanner6;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
@@ -26,18 +27,23 @@ import javax.tools.Diagnostic;
 @SupportedAnnotationTypes("*")
 @MetaInfServices(Processor.class)
 public class ConstructorProcessor extends AbstractProcessorImpl {
+   /* private */ final static String MESSAGE = "Only one annotated constructor (@DataBoundConstructor annotation or @stapler-constructor javadoc) is permitted per class";
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try {
             ElementScanner6<Void, Void> scanner = new ElementScanner6<Void, Void>() {
+                Set<Element> enclosingElementsWritten = new HashSet<>();
+                boolean messagePrinted;
+
                 @Override
                 public Void visitExecutable(ExecutableElement e, Void aVoid) {
                     if(e.getAnnotation(DataBoundConstructor.class)!=null) {
-                        write(e);
+                        writeOrAddOnlyOneMessage(e);
                     } else {
                         String javadoc = getJavadoc(e);
                         if(javadoc!=null && javadoc.contains("@stapler-constructor")) {
-                            write(e);
+                            writeOrAddOnlyOneMessage(e);
                         }
                     }
 
@@ -47,6 +53,15 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
                 @Override
                 public Void visitUnknown(Element e, Void aVoid) {
                     return DEFAULT_VALUE;
+                }
+
+                private void writeOrAddOnlyOneMessage(ExecutableElement e) {
+                    if (enclosingElementsWritten.add(e.getEnclosingElement())) {
+                        write(e);
+                    } else if (!messagePrinted){
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, MESSAGE, e);
+                        messagePrinted = true;
+                    }
                 }
             };
 
