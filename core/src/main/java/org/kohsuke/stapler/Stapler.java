@@ -319,6 +319,8 @@ public class Stapler extends HttpServlet {
 
         @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Protected by checks at other layers.")
         private long determineLastModified(URL jarURL) {
+            // TODO Fix this so that it works correctly. Needs to handle metacharacters
+            // Windows UNC, etc. Should use URL.toURI, Paths.get(URI), and Files.getLastModifiedTime.
             return new File(jarURL.getFile()).lastModified();
         }
     }
@@ -661,6 +663,7 @@ public class Stapler extends HttpServlet {
      */
     @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Protected by checks at other layers.")
     /*package for test*/ File toFile(URL url) {
+        // TODO Fix this so that it works correctly. Should use URI and Path.
         String urlstr = url.toExternalForm();
         if(!urlstr.startsWith("file:"))
             return null;

@@ -84,9 +84,11 @@ public class AtomicFileWriter extends Writer {
 
     public void commit() throws IOException {
         close();
-        if(destFile.exists() && !destFile.delete())
-            throw new IOException("Unable to delete "+destFile);
-        Files.move(tmpFile.toPath(), destFile.toPath());
+        Path destFilePath = destFile.toPath();
+        if (Files.exists(destFilePath)) {
+            Files.delete(destFilePath);
+        }
+        Files.move(tmpFile.toPath(), destFilePath);
     }
 
     /**
