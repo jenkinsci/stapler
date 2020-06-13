@@ -118,6 +118,15 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         return obj;
     }
 
+    private void closeOutput() throws IOException {
+        if (mode == OutputMode.BYTE || mode == null) {
+            getOutputStream().close();
+        } else if (mode == OutputMode.CHAR) {
+            getWriter().close();
+        }
+
+    }
+
     public void forward(Object it, String url, StaplerRequest request) throws ServletException, IOException {
         stapler.invoke(request, response, it, url);
     }
@@ -190,7 +199,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
         setStatus(statusCode);
         setHeader("Location",url);
-        getOutputStream().close();
+        closeOutput();
     }
 
 
