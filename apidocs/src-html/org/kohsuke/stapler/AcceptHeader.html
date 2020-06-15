@@ -93,8 +93,8 @@
 <span class="sourceLineNo">085</span>        @Override<a name="line.85"></a>
 <span class="sourceLineNo">086</span>        public String toString() {<a name="line.86"></a>
 <span class="sourceLineNo">087</span>            StringBuilder s = new StringBuilder(major +'/'+ minor);<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            for (String k : params.keySet())<a name="line.88"></a>
-<span class="sourceLineNo">089</span>                s.append(";").append(k).append("=").append(params.get(k));<a name="line.89"></a>
+<span class="sourceLineNo">088</span>            for (Map.Entry&lt;String, String&gt; k : params.entrySet())<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                s.append(";").append(k.getKey()).append("=").append(k.getValue());<a name="line.89"></a>
 <span class="sourceLineNo">090</span>            return s.toString();<a name="line.90"></a>
 <span class="sourceLineNo">091</span>        }<a name="line.91"></a>
 <span class="sourceLineNo">092</span><a name="line.92"></a>

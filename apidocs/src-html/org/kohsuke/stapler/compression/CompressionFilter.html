@@ -8,125 +8,128 @@
 <div class="sourceContainer">
 <pre><span class="sourceLineNo">001</span>package org.kohsuke.stapler.compression;<a name="line.1"></a>
 <span class="sourceLineNo">002</span><a name="line.2"></a>
-<span class="sourceLineNo">003</span>import javax.servlet.Filter;<a name="line.3"></a>
-<span class="sourceLineNo">004</span>import javax.servlet.FilterChain;<a name="line.4"></a>
-<span class="sourceLineNo">005</span>import javax.servlet.FilterConfig;<a name="line.5"></a>
-<span class="sourceLineNo">006</span>import javax.servlet.ServletContext;<a name="line.6"></a>
-<span class="sourceLineNo">007</span>import javax.servlet.ServletException;<a name="line.7"></a>
-<span class="sourceLineNo">008</span>import javax.servlet.ServletRequest;<a name="line.8"></a>
-<span class="sourceLineNo">009</span>import javax.servlet.ServletResponse;<a name="line.9"></a>
-<span class="sourceLineNo">010</span>import javax.servlet.http.HttpServletRequest;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import javax.servlet.http.HttpServletResponse;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.io.IOException;<a name="line.12"></a>
-<span class="sourceLineNo">013</span><a name="line.13"></a>
-<span class="sourceLineNo">014</span>/**<a name="line.14"></a>
-<span class="sourceLineNo">015</span> * Pimps up {@link HttpServletResponse} so that it understands "Content-Encoding: gzip" and compress the response.<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * <a name="line.16"></a>
-<span class="sourceLineNo">017</span> * &lt;p&gt;<a name="line.17"></a>
-<span class="sourceLineNo">018</span> * When exceptions are processed within web applications, different unrelated parts of the webapp can end up calling<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * {@link HttpServletResponse#getOutputStream()}. This fundamentally doesn't work with the notion that the application<a name="line.19"></a>
-<span class="sourceLineNo">020</span> * needs to process "Content-Encoding:gzip" on its own. Such app has to maintain a GZIP output stream on its own,<a name="line.20"></a>
-<span class="sourceLineNo">021</span> * since {@link HttpServletResponse} doesn't know that its output is written through a compressed stream.<a name="line.21"></a>
-<span class="sourceLineNo">022</span> *<a name="line.22"></a>
-<span class="sourceLineNo">023</span> * &lt;p&gt;<a name="line.23"></a>
-<span class="sourceLineNo">024</span> * Another place this break-down can be seen is when a servlet throws an exception that the container handles.<a name="line.24"></a>
-<span class="sourceLineNo">025</span> * It tries to render an error page, but of course it wouldn't know that "Content-Encoding:gzip" is set, so it<a name="line.25"></a>
-<span class="sourceLineNo">026</span> * will fail to write in the correct format.<a name="line.26"></a>
-<span class="sourceLineNo">027</span> * <a name="line.27"></a>
-<span class="sourceLineNo">028</span> * &lt;p&gt;<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * The only way to properly fix this is to make {@link HttpServletResponse} smart enough that it returns<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * the compression-transparent stream from {@link HttpServletResponse#getOutputStream()} (and it would also<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * have to process the exception thrown from the app.) This filter does exactly that.<a name="line.31"></a>
-<span class="sourceLineNo">032</span> *<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * @author Kohsuke Kawaguchi<a name="line.33"></a>
-<span class="sourceLineNo">034</span> */<a name="line.34"></a>
-<span class="sourceLineNo">035</span>public class CompressionFilter implements Filter {<a name="line.35"></a>
-<span class="sourceLineNo">036</span>    private ServletContext context;<a name="line.36"></a>
-<span class="sourceLineNo">037</span><a name="line.37"></a>
-<span class="sourceLineNo">038</span>    public void init(FilterConfig filterConfig) throws ServletException {<a name="line.38"></a>
-<span class="sourceLineNo">039</span>        context = filterConfig.getServletContext();<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    }<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>    public void doFilter(ServletRequest _req, ServletResponse _rsp, FilterChain filterChain) throws IOException, ServletException {<a name="line.42"></a>
-<span class="sourceLineNo">043</span>        Object old1 = swapAttribute(_req, CompressionFilter.class, true);<a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>        CompressionServletResponse rsp = new CompressionServletResponse(((HttpServletResponse) _rsp));<a name="line.45"></a>
-<span class="sourceLineNo">046</span>        Object old2 = swapAttribute(_req,CompressionServletResponse.class,rsp);<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>        try {<a name="line.48"></a>
-<span class="sourceLineNo">049</span>            filterChain.doFilter(_req, rsp);<a name="line.49"></a>
-<span class="sourceLineNo">050</span>        } catch (IOException e) {<a name="line.50"></a>
-<span class="sourceLineNo">051</span>            if (DISABLED)   throw e;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>            reportException(e,(HttpServletRequest)_req,rsp);<a name="line.52"></a>
-<span class="sourceLineNo">053</span>        } catch (ServletException e) {<a name="line.53"></a>
-<span class="sourceLineNo">054</span>            if (DISABLED)   throw e;<a name="line.54"></a>
-<span class="sourceLineNo">055</span>            reportException(e,(HttpServletRequest)_req,rsp);<a name="line.55"></a>
-<span class="sourceLineNo">056</span>        } catch (RuntimeException e) {<a name="line.56"></a>
-<span class="sourceLineNo">057</span>            if (DISABLED)   throw e;<a name="line.57"></a>
-<span class="sourceLineNo">058</span>            reportException(e,(HttpServletRequest)_req,rsp);<a name="line.58"></a>
-<span class="sourceLineNo">059</span>        } catch (Error e) {<a name="line.59"></a>
-<span class="sourceLineNo">060</span>            if (DISABLED)   throw e;<a name="line.60"></a>
-<span class="sourceLineNo">061</span>            reportException(e,(HttpServletRequest)_req,rsp);<a name="line.61"></a>
-<span class="sourceLineNo">062</span>        } finally {<a name="line.62"></a>
-<span class="sourceLineNo">063</span>            rsp.close();<a name="line.63"></a>
-<span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>            _req.setAttribute(CompressionFilter.class.getName(),old1);<a name="line.65"></a>
-<span class="sourceLineNo">066</span>            _req.setAttribute(CompressionServletResponse.class.getName(),old2);<a name="line.66"></a>
-<span class="sourceLineNo">067</span>        }<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    }<a name="line.68"></a>
-<span class="sourceLineNo">069</span><a name="line.69"></a>
-<span class="sourceLineNo">070</span>    private Object swapAttribute(ServletRequest req, Class&lt;?&gt; key, Object value) {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        Object old = req.getAttribute(key.getName());<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        req.setAttribute(key.getName(), value);<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        return old;<a name="line.73"></a>
-<span class="sourceLineNo">074</span>    }<a name="line.74"></a>
-<span class="sourceLineNo">075</span><a name="line.75"></a>
-<span class="sourceLineNo">076</span>    private void reportException(Throwable e, HttpServletRequest req, HttpServletResponse rsp) throws IOException, ServletException {<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        getUncaughtExceptionHandler(context).reportException(e, context, req, rsp);<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    }<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>    public void destroy() {<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
-<span class="sourceLineNo">082</span><a name="line.82"></a>
-<span class="sourceLineNo">083</span>    public static void setUncaughtExceptionHandler(ServletContext context, UncaughtExceptionHandler handler) {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        context.setAttribute(UncaughtExceptionHandler.class.getName(),handler);<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
-<span class="sourceLineNo">086</span><a name="line.86"></a>
-<span class="sourceLineNo">087</span>    public static UncaughtExceptionHandler getUncaughtExceptionHandler(ServletContext context) {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>        UncaughtExceptionHandler h = (UncaughtExceptionHandler) context.getAttribute(UncaughtExceptionHandler.class.getName());<a name="line.88"></a>
-<span class="sourceLineNo">089</span>        if (h==null)    h=UncaughtExceptionHandler.DEFAULT;<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        return h;<a name="line.90"></a>
-<span class="sourceLineNo">091</span>    }<a name="line.91"></a>
-<span class="sourceLineNo">092</span><a name="line.92"></a>
-<span class="sourceLineNo">093</span>    /**<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     * Is this request already wrapped into {@link CompressionFilter}?<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     */<a name="line.95"></a>
-<span class="sourceLineNo">096</span>    public static boolean has(ServletRequest req) {<a name="line.96"></a>
-<span class="sourceLineNo">097</span>        return req.getAttribute(CompressionServletResponse.class.getName())!=null;<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    }<a name="line.98"></a>
-<span class="sourceLineNo">099</span><a name="line.99"></a>
-<span class="sourceLineNo">100</span>    /**<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * Is this request already wrapped into {@link CompressionFilter},<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     * activate that, so that {@link ServletResponse#getOutputStream()} will return<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     * a stream that automatically handles compression.<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     */<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    public static boolean activate(ServletRequest req) throws IOException {<a name="line.105"></a>
-<span class="sourceLineNo">106</span>        CompressionServletResponse rsp = (CompressionServletResponse) req.getAttribute(CompressionServletResponse.class.getName());<a name="line.106"></a>
-<span class="sourceLineNo">107</span>        if (rsp!=null) {<a name="line.107"></a>
-<span class="sourceLineNo">108</span>            rsp.activate();<a name="line.108"></a>
-<span class="sourceLineNo">109</span>            return true;<a name="line.109"></a>
-<span class="sourceLineNo">110</span>        } else {<a name="line.110"></a>
-<span class="sourceLineNo">111</span>            return false;<a name="line.111"></a>
-<span class="sourceLineNo">112</span>        }<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    }<a name="line.113"></a>
-<span class="sourceLineNo">114</span><a name="line.114"></a>
-<span class="sourceLineNo">115</span>    /**<a name="line.115"></a>
-<span class="sourceLineNo">116</span>     * Disables the effect of {@link #setUncaughtExceptionHandler}, letting all errors be rethrown.<a name="line.116"></a>
-<span class="sourceLineNo">117</span>     * Despite its name, this flag does &lt;strong&gt;not&lt;/strong&gt; disable {@link CompressionFilter} itself!<a name="line.117"></a>
-<span class="sourceLineNo">118</span>     * Rather use {@code DefaultScriptInvoker.COMPRESS_BY_DEFAULT}.<a name="line.118"></a>
-<span class="sourceLineNo">119</span>     */<a name="line.119"></a>
-<span class="sourceLineNo">120</span>    public static boolean DISABLED = Boolean.getBoolean(CompressionFilter.class.getName()+".disabled");<a name="line.120"></a>
-<span class="sourceLineNo">121</span>}<a name="line.121"></a>
+<span class="sourceLineNo">003</span>import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;<a name="line.3"></a>
+<span class="sourceLineNo">004</span><a name="line.4"></a>
+<span class="sourceLineNo">005</span>import javax.servlet.Filter;<a name="line.5"></a>
+<span class="sourceLineNo">006</span>import javax.servlet.FilterChain;<a name="line.6"></a>
+<span class="sourceLineNo">007</span>import javax.servlet.FilterConfig;<a name="line.7"></a>
+<span class="sourceLineNo">008</span>import javax.servlet.ServletContext;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import javax.servlet.ServletException;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import javax.servlet.ServletRequest;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import javax.servlet.ServletResponse;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import javax.servlet.http.HttpServletRequest;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import javax.servlet.http.HttpServletResponse;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.io.IOException;<a name="line.14"></a>
+<span class="sourceLineNo">015</span><a name="line.15"></a>
+<span class="sourceLineNo">016</span>/**<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * Pimps up {@link HttpServletResponse} so that it understands "Content-Encoding: gzip" and compress the response.<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * <a name="line.18"></a>
+<span class="sourceLineNo">019</span> * &lt;p&gt;<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * When exceptions are processed within web applications, different unrelated parts of the webapp can end up calling<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * {@link HttpServletResponse#getOutputStream()}. This fundamentally doesn't work with the notion that the application<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * needs to process "Content-Encoding:gzip" on its own. Such app has to maintain a GZIP output stream on its own,<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * since {@link HttpServletResponse} doesn't know that its output is written through a compressed stream.<a name="line.23"></a>
+<span class="sourceLineNo">024</span> *<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * &lt;p&gt;<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * Another place this break-down can be seen is when a servlet throws an exception that the container handles.<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * It tries to render an error page, but of course it wouldn't know that "Content-Encoding:gzip" is set, so it<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * will fail to write in the correct format.<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * <a name="line.29"></a>
+<span class="sourceLineNo">030</span> * &lt;p&gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * The only way to properly fix this is to make {@link HttpServletResponse} smart enough that it returns<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * the compression-transparent stream from {@link HttpServletResponse#getOutputStream()} (and it would also<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * have to process the exception thrown from the app.) This filter does exactly that.<a name="line.33"></a>
+<span class="sourceLineNo">034</span> *<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * @author Kohsuke Kawaguchi<a name="line.35"></a>
+<span class="sourceLineNo">036</span> */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>public class CompressionFilter implements Filter {<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    private ServletContext context;<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>    public void init(FilterConfig filterConfig) throws ServletException {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        context = filterConfig.getServletContext();<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    }<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>    public void doFilter(ServletRequest _req, ServletResponse _rsp, FilterChain filterChain) throws IOException, ServletException {<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        Object old1 = swapAttribute(_req, CompressionFilter.class, true);<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>        CompressionServletResponse rsp = new CompressionServletResponse(((HttpServletResponse) _rsp));<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        Object old2 = swapAttribute(_req,CompressionServletResponse.class,rsp);<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>        try {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>            filterChain.doFilter(_req, rsp);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        } catch (IOException e) {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>            if (DISABLED)   throw e;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>            reportException(e,(HttpServletRequest)_req,rsp);<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        } catch (ServletException e) {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>            if (DISABLED)   throw e;<a name="line.56"></a>
+<span class="sourceLineNo">057</span>            reportException(e,(HttpServletRequest)_req,rsp);<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        } catch (RuntimeException e) {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>            if (DISABLED)   throw e;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>            reportException(e,(HttpServletRequest)_req,rsp);<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        } catch (Error e) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>            if (DISABLED)   throw e;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>            reportException(e,(HttpServletRequest)_req,rsp);<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        } finally {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>            rsp.close();<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>            _req.setAttribute(CompressionFilter.class.getName(),old1);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            _req.setAttribute(CompressionServletResponse.class.getName(),old2);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        }<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    }<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>    private Object swapAttribute(ServletRequest req, Class&lt;?&gt; key, Object value) {<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        Object old = req.getAttribute(key.getName());<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        req.setAttribute(key.getName(), value);<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        return old;<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    }<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>    private void reportException(Throwable e, HttpServletRequest req, HttpServletResponse rsp) throws IOException, ServletException {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        getUncaughtExceptionHandler(context).reportException(e, context, req, rsp);<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    }<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>    public void destroy() {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    }<a name="line.83"></a>
+<span class="sourceLineNo">084</span><a name="line.84"></a>
+<span class="sourceLineNo">085</span>    public static void setUncaughtExceptionHandler(ServletContext context, UncaughtExceptionHandler handler) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        context.setAttribute(UncaughtExceptionHandler.class.getName(),handler);<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>    public static UncaughtExceptionHandler getUncaughtExceptionHandler(ServletContext context) {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        UncaughtExceptionHandler h = (UncaughtExceptionHandler) context.getAttribute(UncaughtExceptionHandler.class.getName());<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        if (h==null)    h=UncaughtExceptionHandler.DEFAULT;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        return h;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>    /**<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * Is this request already wrapped into {@link CompressionFilter}?<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     */<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    public static boolean has(ServletRequest req) {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        return req.getAttribute(CompressionServletResponse.class.getName())!=null;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>    /**<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * Is this request already wrapped into {@link CompressionFilter},<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * activate that, so that {@link ServletResponse#getOutputStream()} will return<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * a stream that automatically handles compression.<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     */<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    public static boolean activate(ServletRequest req) throws IOException {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        CompressionServletResponse rsp = (CompressionServletResponse) req.getAttribute(CompressionServletResponse.class.getName());<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        if (rsp!=null) {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            rsp.activate();<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            return true;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        } else {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>            return false;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        }<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    }<a name="line.115"></a>
+<span class="sourceLineNo">116</span><a name="line.116"></a>
+<span class="sourceLineNo">117</span>    /**<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * Disables the effect of {@link #setUncaughtExceptionHandler}, letting all errors be rethrown.<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * Despite its name, this flag does &lt;strong&gt;not&lt;/strong&gt; disable {@link CompressionFilter} itself!<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * Rather use {@code DefaultScriptInvoker.COMPRESS_BY_DEFAULT}.<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    public static boolean DISABLED = Boolean.getBoolean(CompressionFilter.class.getName()+".disabled");<a name="line.123"></a>
+<span class="sourceLineNo">124</span>}<a name="line.124"></a>
 
 
 
