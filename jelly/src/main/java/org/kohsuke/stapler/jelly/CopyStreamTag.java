@@ -23,12 +23,14 @@
 
 package org.kohsuke.stapler.jelly;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.XMLOutput;
 import org.xml.sax.SAXException;
 import org.jvnet.maven.jellydoc.annotation.NoContent;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -36,6 +38,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Copies a stream as text.
@@ -50,13 +53,14 @@ public class CopyStreamTag extends AbstractStaplerTag {
     }
 
     public void setInputStream(InputStream in) {
-        this.in = new InputStreamReader(in);
+        this.in = new InputStreamReader(in, StandardCharsets.UTF_8);
     }
 
     public void setFile(File f) throws FileNotFoundException {
-        this.in = new FileReader(f);
+        this.in = new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8);
     }
 
+    @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Not relevant in this situation.")
     public void setUrl(URL url) throws IOException {
         setInputStream(url.openStream());
     }
@@ -78,17 +82,14 @@ public class CopyStreamTag extends AbstractStaplerTag {
                     int last = 0;
                     for (int i=0; i<len; i++ ) {
                         char ch = buf[i];
-                        switch(ch) {
-                        case '<':
-                            xmlOutput.characters(buf,last,i-last); // flush
-                            xmlOutput.characters(CHARS_LE,0,CHARS_LE.length);
-                            last = i+1;
-                            break;
-                        case '&':
+                        if (ch == '<') {
+                            xmlOutput.characters(buf, last, i - last); // flush
+                            xmlOutput.characters(CHARS_LE, 0, CHARS_LE.length);
+                            last = i + 1;
+                        } else if (ch == '&') {
                             xmlOutput.characters(buf,last,i-last); // flush
                             xmlOutput.characters(CHARS_AMP,0,CHARS_AMP.length);
                             last = i+1;
-                            break;
                         }
                     }
                     xmlOutput.characters(buf,last,len-last);

@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.discovery.ResourceNameIterator;
 import org.apache.commons.discovery.resource.ClassLoaders;
 import org.apache.commons.discovery.resource.names.DiscoverServiceNames;
@@ -112,6 +113,7 @@ public abstract class Facet {
 
     public static final Logger LOGGER = Logger.getLogger(Facet.class.getName());
 
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
     public static boolean ALLOW_VIEW_NAME_PATH_TRAVERSAL = Boolean.getBoolean(Facet.class.getName() + ".allowViewNamePathTraversal");
     
     /**

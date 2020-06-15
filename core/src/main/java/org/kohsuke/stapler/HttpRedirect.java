@@ -69,7 +69,7 @@ public final class HttpRedirect extends RuntimeException implements HttpResponse
     /**
      * Redirect to "."
      */
-    public static HttpRedirect DOT = new HttpRedirect(".");
+    public final static HttpRedirect DOT = new HttpRedirect(".");
 
     /**
      * Redirect to the context root

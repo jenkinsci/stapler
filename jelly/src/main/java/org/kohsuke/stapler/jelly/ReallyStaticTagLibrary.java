@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyTagException;
@@ -142,6 +143,7 @@ public class ReallyStaticTagLibrary extends TagLibrary {
     /**
      * If true, emit the location information.
      */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
     public static boolean EMIT_LOCATION = false;
 
     private static final String[] SUFFIX = {"src/main/resources/","src/test/resources/"};

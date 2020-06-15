@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.jelly.JellyContext;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
@@ -90,7 +91,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         @Nonnull OutputStream get() throws IOException;
     }
 
-    private class LazyOutputStreamSupplier implements OutputStreamSupplier {
+    private static class LazyOutputStreamSupplier implements OutputStreamSupplier {
         private final OutputStreamSupplier supplier;
         private volatile OutputStream out;
 
@@ -202,5 +203,6 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
      *
      * @see <a href="http://www.slideshare.net/guest22d4179/latency-trumps-all">Latency Trumps All</a>
      */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
     public static boolean COMPRESS_BY_DEFAULT = Boolean.parseBoolean(System.getProperty(DefaultScriptInvoker.class.getName()+".compress","true"));
 }

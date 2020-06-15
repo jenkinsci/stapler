@@ -85,6 +85,19 @@
     <changelist>-SNAPSHOT</changelist>
     <incrementals.url>https://repo.jenkins-ci.org/incrementals/</incrementals.url>
     <scmTag>HEAD</scmTag>
+
+    <spotbugs-maven-plugin.version>3.1.12</spotbugs-maven-plugin.version>
+    <!-- Whether the build should fail if SpotBugs finds any error. -->
+    <!-- It is strongly encouraged to leave it as true. Use false with care only in transient situations. -->
+    <spotbugs.failOnError>true</spotbugs.failOnError>
+    <!-- Defines a SpotBugs threshold. Use "Low" to discover low-priority bugs. -->
+    <spotbugs.threshold>Medium</spotbugs.threshold>
+    <!-- Defines a SpotBugs effort. Use "Max" to maximize the scan depth -->
+    <spotbugs.effort>default</spotbugs.effort>
+    <!-- Defines an optional SpotBugs excludes file.
+         Generally it is recommended to use @SuppressFBWarnings annotation unless you want to ignore an entire class of issues -->
+    <spotbugs.excludeFilterFile>${project.basedir}/../src/spotbugs/spotbugs-excludes.xml</spotbugs.excludeFilterFile>
+
   </properties>
 
   <build>
@@ -178,6 +191,35 @@
         <artifactId>maven-jellydoc-plugin</artifactId>
         <version>1.2</version>
       </plugin>
+      <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <configuration>
+          <failOnError>${spotbugs.failOnError}</failOnError>
+          <xmlOutput>true</xmlOutput>
+          <spotbugsXmlOutput>false</spotbugsXmlOutput>
+          <effort>${spotbugs.effort}</effort>
+          <threshold>${spotbugs.threshold}</threshold>
+          <!-- Empty by default, child POMs are expected to override if needed -->
+          <excludeFilterFile>${spotbugs.excludeFilterFile}</excludeFilterFile>
+          <plugins>
+            <plugin>
+              <groupId>com.h3xstream.findsecbugs</groupId>
+              <artifactId>findsecbugs-plugin</artifactId>
+              <version>1.10.1</version>
+            </plugin>
+          </plugins>
+        </configuration>
+        <executions>
+          <execution>
+            <id>spotbugs</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
     <pluginManagement>
       <plugins>
@@ -214,6 +256,11 @@
             <generateBackupPoms>false</generateBackupPoms>
             <updateNonincremental>false</updateNonincremental>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>com.github.spotbugs</groupId>
+          <artifactId>spotbugs-maven-plugin</artifactId>
+          <version>${spotbugs-maven-plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -288,6 +335,11 @@
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
       <version>3.2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+      <version>3.1.12</version>
     </dependency>
   </dependencies>
   </dependencyManagement>

@@ -15,6 +15,8 @@
  */
 package org.kohsuke.stapler.jelly.groovy;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,6 +28,7 @@ import java.net.URL;
  * @author Kohsuke Kawaguchi
  */
 class SimpleTemplateParser {
+    @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Not relevant in this situation.")
     protected String parse(URL res) throws IOException {
         return parse(new InputStreamReader(res.openStream(),"UTF-8"));
     }

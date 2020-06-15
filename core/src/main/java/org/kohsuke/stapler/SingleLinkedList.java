@@ -2,6 +2,7 @@ package org.kohsuke.stapler;
 
 import java.util.AbstractList;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Single linked list which allows sharing of the suffix.
@@ -35,6 +36,9 @@ public class SingleLinkedList<T> extends AbstractList<T> {
             }
 
             public T next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
                 T r = next.head;
                 next = next.tail;
                 return r;

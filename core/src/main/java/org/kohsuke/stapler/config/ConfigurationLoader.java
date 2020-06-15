@@ -4,6 +4,8 @@ import com.google.common.base.Function;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.beanutils.ConvertUtils;
 
 import java.beans.Introspector;
@@ -79,11 +81,7 @@ public class ConfigurationLoader {
      * Loads the configuration from the specified {@link Properties} object.
      */
     public static ConfigurationLoader from(final Properties props) throws IOException {
-        return new ConfigurationLoader(new Function<String, String>() {
-            public String apply(String from) {
-                return props.getProperty(from);
-            }
-        });
+        return new ConfigurationLoader(from -> props.getProperty(from));
     }
 
     public static ConfigurationLoader from(final Map<String,String> props) throws IOException {

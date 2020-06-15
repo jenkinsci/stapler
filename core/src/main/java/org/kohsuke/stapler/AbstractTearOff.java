@@ -25,6 +25,8 @@ package org.kohsuke.stapler;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -157,6 +159,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
     }
 
     private static final Pattern JAR_URL = Pattern.compile("jar:(file:.+)!/.*");
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Files are read from approved plugins, not from user input.")
     private static File fileOf(URL res) {
         try {
             switch (res.getProtocol()) {

@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +38,7 @@ import java.util.Map;
  *
  * @author Kohsuke Kawaguchi
  */
+@SuppressFBWarnings(value = "UG_SYNC_SET_UNSYNC_GET", justification = "Get is intentionally unsynchronized.")
 public abstract class TearOffSupport {
     private volatile Map<Class,Object> tearOffs;
 

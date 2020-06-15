@@ -49,7 +49,7 @@ public class JellyClassLoaderTearOff {
      */
     private volatile WeakReference<LoadingCache<String,TagLibrary>> taglibs;
 
-    public static ExpressionFactory EXPRESSION_FACTORY = new JexlExpressionFactory();
+    static ExpressionFactory EXPRESSION_FACTORY = new JexlExpressionFactory();
 
     public JellyClassLoaderTearOff(MetaClassLoader owner) {
         this.owner = owner;

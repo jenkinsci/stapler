@@ -81,11 +81,6 @@ public final class JellyBuilder extends GroovyObjectSupport {
      */
     private XMLOutput output;
 
-    /**
-     * Current {@link Tag} in which we are executing.
-     */
-    private Tag current;
-
     private JellyContext context;
 
     private final Map<Class,GroovyClosureScript> taglibs = new HashMap<Class,GroovyClosureScript>();

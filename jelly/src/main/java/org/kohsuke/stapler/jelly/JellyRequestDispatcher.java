@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.MetaClass;
@@ -61,6 +62,7 @@ public final class JellyRequestDispatcher implements RequestDispatcher {
         }
     }
 
+    @SuppressFBWarnings(value = "REQUESTDISPATCHER_FILE_DISCLOSURE", justification = "Forwarding the request to be handled correctly.")
     public void include(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
         forward(servletRequest,servletResponse);
     }

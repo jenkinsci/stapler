@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler.framework.io;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.FileWriter;
 import java.io.Writer;
 import java.io.File;
@@ -30,6 +32,7 @@ import java.io.IOException;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 /**
@@ -47,6 +50,7 @@ public class AtomicFileWriter extends Writer {
     private final File tmpFile;
     private final File destFile;
 
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Protected by checks at other layers.")
     public AtomicFileWriter(File f) throws IOException {
         tmpFile = File.createTempFile("atomic",null,f.getParentFile());
         destFile = f;
@@ -80,9 +84,11 @@ public class AtomicFileWriter extends Writer {
 
     public void commit() throws IOException {
         close();
-        if(destFile.exists() && !destFile.delete())
-            throw new IOException("Unable to delete "+destFile);
-        tmpFile.renameTo(destFile);
+        Path destFilePath = destFile.toPath();
+        if (Files.exists(destFilePath)) {
+            Files.delete(destFilePath);
+        }
+        Files.move(tmpFile.toPath(), destFilePath);
     }
 
     /**

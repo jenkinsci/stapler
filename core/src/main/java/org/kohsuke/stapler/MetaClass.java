@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.sf.json.JSONArray;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
@@ -645,14 +646,17 @@ public class MetaClass extends TearOffSupport {
      * Don't cache anything in memory, so that any change
      * will take effect instantly.
      */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_REFACTORED_TO_BE_FINAL", justification = "Legacy switch.")
     public static boolean NO_CACHE = false;
     /**
      * In case the breaking changes are not desired. They are recommended for security reason.
      */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_REFACTORED_TO_BE_FINAL", justification = "Legacy switch.")
     public static boolean LEGACY_GETTER_MODE = false;
     /**
      * In case the breaking changes are not desired. They are recommended for security reason.
      */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_REFACTORED_TO_BE_FINAL", justification = "Legacy switch.")
     public static boolean LEGACY_WEB_METHOD_MODE = false;
 
     static {
