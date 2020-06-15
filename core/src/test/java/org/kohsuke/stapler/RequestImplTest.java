@@ -29,6 +29,8 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.junit.Assert;
 import org.junit.Test;
+import org.jvnet.hudson.test.For;
+import org.jvnet.hudson.test.Issue;
 import org.mockito.Mockito;
 
 import net.sf.json.JSONObject;
@@ -37,13 +39,17 @@ import javax.servlet.ReadListener;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
 /**
  * @author <a href="mailto:tom.fennelly@gmail.com">tom.fennelly@gmail.com</a>
@@ -51,15 +57,42 @@ import java.util.Enumeration;
  */
 public class RequestImplTest {
 
+    @For(RequestImpl.class)
+    public static class SetterObject {
+        private List<String> choices;
+
+        @DataBoundConstructor
+        public SetterObject() {
+            choices = new ArrayList<String>();
+        }
+        
+        @SuppressWarnings("unchecked")
+        @DataBoundSetter
+        public void setChoices(Object choices) {
+            if (choices instanceof String) {
+                for (String choice : ((String) choices).split("\n")) {
+                    this.choices.add(choice);
+                }
+            } else {
+                this.choices = (List<String>) choices;
+            }
+        }
+
+        public List<String> getChoices() {
+            return choices;
+        }
+
+    }
+
+    @Issue("JENKINS-61438")
     @Test
     public void verify_JSON_bind_work_with_setter_that_accept_object_type() throws Exception {
         final Stapler stapler = new Stapler();
         stapler.setWebApp(new WebApp(Mockito.mock(ServletContext.class)));
-        final MockRequest mockRequest = mockRequest(generateMultipartData());
-        RequestImpl req = new RequestImpl(stapler, mockRequest, Collections.<AncestorImpl>emptyList(), null);
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        RequestImpl req = new RequestImpl(stapler, request, Collections.<AncestorImpl>emptyList(), null);
 
         JSONObject json = new JSONObject();
-        json.put("stapler-class", SetterObject.class.getName());
         json.put("$class", SetterObject.class.getName());
         json.put("choices", "1\n2\n3");
 
