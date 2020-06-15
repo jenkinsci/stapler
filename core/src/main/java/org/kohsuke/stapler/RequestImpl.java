@@ -734,16 +734,25 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
             if (l==null) {// single value conversion
                 Converter converter = Stapler.lookupConverter(type);
-                if (converter==null)
+                if (converter == null) {
+                    if (type == Object.class) {
+                        return o;
+                    }
                     throw new IllegalArgumentException("Unable to convert to "+type);
+                }
 
                 return converter.convert(type,o);
             } else {// single value in a collection
                 Converter converter = Stapler.lookupConverter(l.itemType);
-                if (converter==null)
-                    throw new IllegalArgumentException("Unable to convert to "+l.itemType);
-
-                l.add(converter.convert(l.itemType, o));
+                if (converter == null) {
+                    if (l.itemType == Object.class) {
+                        l.add(o);
+                    } else {
+                        throw new IllegalArgumentException("Unable to convert to "+l.itemType);
+                    }
+                } else {
+                    l.add(converter.convert(l.itemType, o));
+                }
                 return l.toCollection();
             }
         }
