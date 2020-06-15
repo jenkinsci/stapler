@@ -29,7 +29,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.junit.Assert;
 import org.junit.Test;
-import org.jvnet.hudson.test.For;
 import org.jvnet.hudson.test.Issue;
 import org.mockito.Mockito;
 
@@ -57,7 +56,6 @@ import java.util.List;
  */
 public class RequestImplTest {
 
-    @For(RequestImpl.class)
     public static class SetterObject {
         private List<String> choices;
 
@@ -65,7 +63,7 @@ public class RequestImplTest {
         public SetterObject() {
             choices = new ArrayList<String>();
         }
-        
+
         @SuppressWarnings("unchecked")
         @DataBoundSetter
         public void setChoices(Object choices) {
@@ -103,32 +101,9 @@ public class RequestImplTest {
     @Test
     public void test_multipart_formdata() throws IOException, ServletException {
         final Stapler stapler = new Stapler();
-        final MockRequest mockRequest = mockRequest(generateMultipartData());
-        
-        RequestImpl request = new RequestImpl(stapler, mockRequest, Collections.<AncestorImpl>emptyList(), null);
-
-        // Check that we can get the Form Fields. See https://github.com/stapler/stapler/issues/52
-        Assert.assertEquals("text1_val", request.getParameter("text1"));
-        Assert.assertEquals("text2_val", request.getParameter("text2"));
-        
-        // Check that we can get the file
-        FileItem fileItem = request.getFileItem("pomFile");
-        Assert.assertNotNull(fileItem);
-        
-        // Check getParameterValues
-        Assert.assertEquals("text1_val", request.getParameterValues("text1")[0]);
-        
-        // Check getParameterNames
-        Assert.assertTrue(Collections.list(request.getParameterNames()).contains("p1"));
-        Assert.assertTrue(Collections.list(request.getParameterNames()).contains("text1"));
-        
-        // Check getParameterMap
-        Assert.assertTrue(request.getParameterMap().containsKey("text1"));        
-    }
-
-    private MockRequest mockRequest(final byte[] buf) {
+        final byte[] buf = generateMultipartData();
         final ByteArrayInputStream is = new ByteArrayInputStream(buf);
-        return new MockRequest() {
+        final MockRequest mockRequest = new MockRequest() {
             @Override
             public String getContentType() {
                 return "multipart/form-data; boundary=mpboundary";
@@ -178,6 +153,26 @@ public class RequestImplTest {
                 };
             }
         };
+        
+        RequestImpl request = new RequestImpl(stapler, mockRequest, Collections.<AncestorImpl>emptyList(), null);
+
+        // Check that we can get the Form Fields. See https://github.com/stapler/stapler/issues/52
+        Assert.assertEquals("text1_val", request.getParameter("text1"));
+        Assert.assertEquals("text2_val", request.getParameter("text2"));
+        
+        // Check that we can get the file
+        FileItem fileItem = request.getFileItem("pomFile");
+        Assert.assertNotNull(fileItem);
+        
+        // Check getParameterValues
+        Assert.assertEquals("text1_val", request.getParameterValues("text1")[0]);
+        
+        // Check getParameterNames
+        Assert.assertTrue(Collections.list(request.getParameterNames()).contains("p1"));
+        Assert.assertTrue(Collections.list(request.getParameterNames()).contains("text1"));
+        
+        // Check getParameterMap
+        Assert.assertTrue(request.getParameterMap().containsKey("text1"));        
     }
 
     private byte[] generateMultipartData() throws IOException {
