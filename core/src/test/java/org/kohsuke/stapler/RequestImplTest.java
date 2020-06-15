@@ -60,6 +60,11 @@ public class RequestImplTest {
                 return "UTF-8";
             }
             @Override
+            public String getHeader(String name) {
+                // FILEUPLOAD-195/FILEUPLOAD-228: ignore FileUploadBase.CONTENT_LENGTH
+                return null;
+            }
+            @Override
             public int getContentLength() {
                 return buf.length;
             }
