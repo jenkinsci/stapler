@@ -32,6 +32,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
@@ -382,8 +383,7 @@ public class LargeText {
      * Represents the read session of the {@link Source}.
      * Methods generally follow the contracts of {@link InputStream}.
      */
-    private interface Session extends AutoCloseable {
-        void close() throws IOException;
+    private interface Session extends Closeable {
         void skip(long start) throws IOException;
         int read(byte[] buf) throws IOException;
         int read(byte[] buf, int offset, int length) throws IOException;
