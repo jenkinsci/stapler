@@ -10,7 +10,7 @@
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.261</version>
+  <version>${revision}${changelist}</version>
 
   <name>Stapler</name>
   <description>Stapler HTTP request handling engine</description>
@@ -38,7 +38,7 @@
     <connection>scm:git:git://github.com/stapler/stapler.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/stapler/stapler.git</developerConnection>
     <url>https://github.com/stapler/stapler</url>
-    <tag>stapler-parent-1.261</tag>
+    <tag>${scmTag}</tag>
   </scm>
 
   <distributionManagement>
@@ -81,7 +81,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.level>8</java.level>
-    <revision>1.261</revision>
+    <revision>1.262</revision>
     <changelist>-SNAPSHOT</changelist>
     <incrementals.url>https://repo.jenkins-ci.org/incrementals/</incrementals.url>
     <scmTag>HEAD</scmTag>
