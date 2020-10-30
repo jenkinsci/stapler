@@ -1,20 +1,12 @@
-node('docker') {
-    deleteDir()
+node('maven') {
     checkout scm
-    def tmp = pwd tmp: true
-    docker.image('maven:3.6.0-jdk-8').inside {
-        withEnv(['MAVEN_OPTS=-Xmx1024m', "TMP=$tmp"]) {
-            sh '''
-                alias _mvn='mvn -B -Dmaven.repo.local=$TMP/m2repo -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -e'
-                _mvn -Dset.changelist help:evaluate -Dexpression=changelist -Doutput=$TMP/changelist clean -Dmaven.test.failure.ignore install
-                _mvn -DskipTests install site
-            '''
-        }
-    }
+    sh '''
+        mvn -ntp -Dset.changelist -Dmaven.test.failure.ignore install
+        # Without -Dset.changelist (see 8edc206):
+        mvn -ntp -DskipTests install
+        mvn -ntp -DskipTests site
+    '''
     junit '**/target/surefire-reports/TEST-*.xml'
-    def changelist = readFile("$tmp/changelist")
-    dir("$tmp/m2repo") {
-        archiveArtifacts "**/*$changelist/*$changelist*"
-    }
+    infra.prepareToPublishIncrementals()
 }
 infra.maybePublishIncrementals()
