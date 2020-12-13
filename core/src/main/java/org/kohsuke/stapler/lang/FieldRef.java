@@ -82,7 +82,12 @@ public abstract class FieldRef extends AnnotatedRef {
 
             @Override
             public Object get(Object instance) throws IllegalAccessException {
-                return f.get(instance);
+                try {
+                    return f.get(instance);
+                } catch (IllegalAccessException e) {
+                    f.setAccessible(true);
+                    return f.get(instance);
+                }
             }
 
             @Override
