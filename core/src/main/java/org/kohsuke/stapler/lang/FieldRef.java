@@ -69,8 +69,6 @@ public abstract class FieldRef extends AnnotatedRef {
     }
 
     public static FieldRef wrap(final Field f) {
-        f.setAccessible(true);
-
         return new FieldRef() {
             @Override
             public <T extends Annotation> T getAnnotation(Class<T> type) {
