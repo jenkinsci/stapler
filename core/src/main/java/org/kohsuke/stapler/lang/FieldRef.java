@@ -6,7 +6,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -88,7 +87,7 @@ public abstract class FieldRef extends AnnotatedRef {
                 try {
                     return f.get(instance);
                 } catch (IllegalAccessException e) {
-                    LOGGER.log(Level.WARNING, "Please report to the respective component", e);
+                    LOGGER.warning(e.getClass().getName() + ": Please report to the respective component:\n " + e.getMessage());
                     f.setAccessible(true);
                     return f.get(instance);
                 }
