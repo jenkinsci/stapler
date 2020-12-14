@@ -87,7 +87,7 @@ public abstract class FieldRef extends AnnotatedRef {
                 try {
                     return f.get(instance);
                 } catch (IllegalAccessException e) {
-                    LOGGER.warning(e.getMessage() + ", please report to the respective component");
+                    LOGGER.log(Level.WARNING, "please report to the respective component", e);
                     f.setAccessible(true);
                     return f.get(instance);
                 }
