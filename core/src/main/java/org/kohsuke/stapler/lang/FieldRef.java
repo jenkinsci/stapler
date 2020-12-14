@@ -6,6 +6,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -15,6 +17,8 @@ import java.util.stream.Collectors;
  * @author Kohsuke Kawaguchi
  */
 public abstract class FieldRef extends AnnotatedRef {
+
+    private static final Logger LOGGER = Logger.getLogger(FieldRef.class.getName());
 
     public interface Filter {
         boolean keep(FieldRef m);
@@ -85,6 +89,7 @@ public abstract class FieldRef extends AnnotatedRef {
                 try {
                     return f.get(instance);
                 } catch (IllegalAccessException e) {
+                    LOGGER.warning(e.getMessage() + ", please report to the respective component");
                     f.setAccessible(true);
                     return f.get(instance);
                 }
