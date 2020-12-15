@@ -87,7 +87,7 @@ public abstract class FieldRef extends AnnotatedRef {
                 try {
                     return f.get(instance);
                 } catch (IllegalAccessException e) {
-                    LOGGER.warning(e.getClass().getName() + ": Please report to the respective component:\n " + e.getMessage());
+                    LOGGER.warning(e.getClass().getName() + ": Processing this request relies on deprecated behavior that will be disallowed in future releases of Java. See https://jenkins.io/redirect/stapler-reflective-access/ for more information. Details: " + e.getMessage());
                     f.setAccessible(true);
                     return f.get(instance);
                 }
