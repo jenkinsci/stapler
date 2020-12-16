@@ -1,5 +1,7 @@
 package org.kohsuke.stapler.lang;
 
+import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -59,7 +61,7 @@ public abstract class MethodRef extends AnnotatedRef {
                 try {
                     return m.invoke(_this, args);
                 } catch (IllegalAccessException e) {
-                    LOGGER.warning(e.getClass().getName() + ": Processing this request relies on deprecated behavior that will be disallowed in future releases of Java. See https://jenkins.io/redirect/stapler-reflective-access/ for more information. Details: " + e.getMessage());
+                    LOGGER.warning(IllegalReflectiveAccessLogHandler.get(e));
                     m.setAccessible(true);
                     return m.invoke(_this, args);
                 }
