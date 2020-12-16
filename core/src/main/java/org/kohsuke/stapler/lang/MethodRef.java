@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 
 /**
@@ -11,6 +12,9 @@ import javax.annotation.CheckForNull;
  * @since 1.220
  */
 public abstract class MethodRef extends AnnotatedRef {
+
+    private static final Logger LOGGER = Logger.getLogger(MethodRef.class.getName());
+
     /**
      * Returns true if this method is a 'public' method that should be used for routing requests.
      */
@@ -33,8 +37,6 @@ public abstract class MethodRef extends AnnotatedRef {
     public abstract Object invoke(Object _this, Object... args) throws InvocationTargetException, IllegalAccessException;
 
     public static MethodRef wrap(final Method m) {
-        m.setAccessible(true);
-
         return new MethodRef() {
             @Override
             public <T extends Annotation> T getAnnotation(Class<T> type) {
@@ -54,7 +56,13 @@ public abstract class MethodRef extends AnnotatedRef {
             
             @Override
             public Object invoke(Object _this, Object... args) throws InvocationTargetException, IllegalAccessException {
-                return m.invoke(_this,args);
+                try {
+                    return m.invoke(_this, args);
+                } catch (IllegalAccessException e) {
+                    LOGGER.warning(e.getClass().getName() + ": Processing this request relies on deprecated behavior that will be disallowed in future releases of Java. See https://jenkins.io/redirect/stapler-reflective-access/ for more information. Details: " + e.getMessage());
+                    m.setAccessible(true);
+                    return m.invoke(_this, args);
+                }
             }
         };
     }
