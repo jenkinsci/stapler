@@ -40,6 +40,7 @@ import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.MethodRef;
+import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -824,8 +825,13 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                         try {
                             Field f = c.getDeclaredField(key);
                             if (f.getAnnotation(DataBoundSetter.class)!=null) {
-                                f.setAccessible(true);
-                                f.set(r, bindJSON(f.getGenericType(), f.getType(), j.get(key)));
+                                try {
+                                    f.set(r, bindJSON(f.getGenericType(), f.getType(), j.get(key)));
+                                } catch(IllegalAccessException e) {
+                                    LOGGER.warning(IllegalReflectiveAccessLogHandler.get(e));
+                                    f.setAccessible(true);
+                                    f.set(r, bindJSON(f.getGenericType(), f.getType(), j.get(key)));
+                                }
                                 continue OUTER;
                             }
                         } catch (NoSuchFieldException e) {

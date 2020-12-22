@@ -1,6 +1,7 @@
 package org.kohsuke.stapler.lang;
 
 import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -87,7 +88,7 @@ public abstract class FieldRef extends AnnotatedRef {
                 try {
                     return f.get(instance);
                 } catch (IllegalAccessException e) {
-                    LOGGER.warning(e.getClass().getName() + ": Processing this request relies on deprecated behavior that will be disallowed in future releases of Java. See https://jenkins.io/redirect/stapler-reflective-access/ for more information. Details: " + e.getMessage());
+                    LOGGER.warning(IllegalReflectiveAccessLogHandler.get(e));
                     f.setAccessible(true);
                     return f.get(instance);
                 }
