@@ -40,6 +40,7 @@ import java.lang.reflect.InvocationTargetException;
  * @see POST
  * @see PUT
  * @see DELETE
+ * @see AnyVerb
  */
 public class HttpVerbInterceptor extends Interceptor {
     @Override
@@ -57,7 +58,7 @@ public class HttpVerbInterceptor extends Interceptor {
             Class<? extends Annotation> t = a.annotationType();
             InterceptorAnnotation ia = t.getAnnotation(InterceptorAnnotation.class);
             if (ia != null && ia.value() == HttpVerbInterceptor.class) {
-                if (t.getSimpleName().equals(method)) {
+                if (t.getSimpleName().equals(method) || t == AnyVerb.class) {
                     return true;
                 }
             }
