@@ -10,6 +10,8 @@ import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.json.JsonBody;
 import org.kohsuke.stapler.test.JettyTestCase;
+import org.kohsuke.stapler.verb.AnyVerb;
+import org.kohsuke.stapler.verb.DELETE;
 import org.kohsuke.stapler.verb.GET;
 import org.kohsuke.stapler.verb.POST;
 import org.kohsuke.stapler.verb.PUT;
@@ -87,6 +89,44 @@ public class DispatcherTest extends JettyTestCase {
         assertEquals("Got " + m.name(), p.getContent());
     }
 
+    //===================================================================
+
+    public final AnyVerbMatch anyVerbMatch = new AnyVerbMatch();
+
+    public class AnyVerbMatch {
+        @WebMethod(name = "")
+        @GET
+        public HttpResponse get() {
+            return HttpResponses.text("get()");
+        }
+
+        @WebMethod(name = "")
+        @AnyVerb
+        @DELETE
+        public HttpResponse routeAny(StaplerRequest req) { // name sorts after 'get'
+            return HttpResponses.text("Got " + req.getMethod());
+        }
+
+        @WebMethod(name = "")
+        @POST
+        public HttpResponse zzzz(StaplerRequest req) { // name sorts last, unused
+            return HttpResponses.text("never");
+        }
+
+    }
+
+    public void testAnyVerbMatch() throws Exception {
+        WebClient wc = new WebClient();
+
+        checkText(wc, HttpMethod.GET, "get()");
+        checkText(wc, HttpMethod.POST, "Got POST");
+        checkText(wc, HttpMethod.DELETE, "Got DELETE");
+    }
+
+    private void checkText(WebClient wc, HttpMethod m, String text) throws java.io.IOException {
+        TextPage p = wc.getPage(new WebRequestSettings(new URL(url, "anyVerbMatch/"), m));
+        assertEquals(text, p.getContent());
+    }
 
     //===================================================================
 

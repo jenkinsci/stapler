@@ -12,10 +12,9 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Explicitly allows any HTTP verb for {@link WebMethod}. This isn't just a
- * no-op in case it would be combined with a more restrictive verb, but
- * conceptually identical to not have any annotation, but friendlier for static
- * analysis.
+ * Explicitly allows any HTTP verb for {@link WebMethod}.
+ * While conceptually similar to not have any annotation, it's friendlier for static analysis.
+ * This isn't a no-op only in case it would be combined with a more restrictive verb annotation, as it will continue to allow any verb.
  *
  */
 @Target(METHOD)
