@@ -10,7 +10,6 @@ import java.util.List;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import com.google.common.collect.ImmutableList;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.xml.sax.InputSource;
@@ -50,7 +49,7 @@ public class XMLDataWriterTest extends TestCase {
 
         @Exported(visibility = 2)
         public Collection<Action> getActions() {
-            return ImmutableList.of(new ParameterAction(), new CauseAction());
+            return java.util.Arrays.asList(new ParameterAction(), new CauseAction());
         }
 
     }
