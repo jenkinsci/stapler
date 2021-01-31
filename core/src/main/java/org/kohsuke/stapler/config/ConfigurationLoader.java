@@ -1,6 +1,6 @@
 package org.kohsuke.stapler.config;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
