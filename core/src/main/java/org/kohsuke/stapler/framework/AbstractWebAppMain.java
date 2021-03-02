@@ -23,7 +23,7 @@
 
 package org.kohsuke.stapler.framework;
 
-import com.google.common.util.concurrent.SettableFuture;
+import java.util.concurrent.CompletableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jvnet.localizer.LocaleProvider;
 import org.kohsuke.stapler.StaplerRequest;
@@ -68,7 +68,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      */
     protected File home;
 
-    private SettableFuture<Object> initializer = SettableFuture.create();
+    private CompletableFuture<Object> initializer = new CompletableFuture<>();
 
     protected AbstractWebAppMain(Class<T> rootType) {
         this.rootType = rootType;
@@ -137,18 +137,18 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
         try {
             Object app = createApplication();
             context.setAttribute(APP, app);
-            initializer.set(app);
+            initializer.complete(app);
         } catch (Error e) {
             LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
-            initializer.setException(e);
+            initializer.completeExceptionally(e);
             throw e;
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
-            initializer.setException(e);
+            initializer.completeExceptionally(e);
             throw e;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
-            initializer.setException(e);
+            initializer.completeExceptionally(e);
             throw new Error(e);
         } finally {
             // in case the above catch clauses miss this.
