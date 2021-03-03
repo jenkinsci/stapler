@@ -34,12 +34,17 @@ import org.kohsuke.stapler.WebApp;
 import org.xml.sax.SAXException;
 import org.jvnet.maven.jellydoc.annotation.Required;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Tag that includes views of the object.
  *
  * @author Kohsuke Kawaguchi
  */
 public class IncludeTag extends TagSupport {
+    public static final Logger LOGGER = Logger.getLogger(IncludeTag.class.getName());
+
     private Object it;
 
     private String page;
@@ -48,7 +53,7 @@ public class IncludeTag extends TagSupport {
 
     private boolean optional;
 
-    private Class clazz;
+    private Class className;
 
     /**
      * Specifies the name of the JSP to be included.
@@ -79,9 +84,19 @@ public class IncludeTag extends TagSupport {
      *
      * By default this is "from.getClass()". This takes
      * precedence over the {@link #setFrom(Object)} method.
+     *
+     * This used to be called {@code setClass}, but that ended up causing
+     * problems with new commons-beanutils restrictions via
+     * {@code ConvertingWrapDynaBean} use in {@code JellyBuilder}.
      */
+    public void setClassName(Class clazz) {
+        this.className = clazz;
+    }
+
+    @Deprecated // TODO Remove this method?
     public void setClass(Class clazz) {
-        this.clazz = clazz;
+        LOGGER.log(Level.WARNING, "Unexpected call to #setClass", new Exception());
+        this.className = clazz;
     }
 
     /**
@@ -157,7 +172,7 @@ public class IncludeTag extends TagSupport {
     }
 
     private Class getScriptClass(Object it) {
-        if (clazz != null) return clazz;
+        if (className != null) return className;
         if (from != null) return from.getClass();
         else return it.getClass();
     }

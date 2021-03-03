@@ -29,6 +29,7 @@ import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.TagLibrary;
 import org.apache.commons.jelly.XMLOutput;
+import org.apache.commons.jelly.impl.DefaultTagFactory;
 import org.apache.commons.jelly.impl.TagScript;
 import org.xml.sax.Attributes;
 
@@ -104,6 +105,12 @@ public class StaplerTagLibrary extends TagLibrary {
                         getTagBody().run(context,output);
                 }
             };
+
+        if (name.equals("include")) {
+            final AttributeNameRewritingTagScript script = new AttributeNameRewritingTagScript("class", "className");
+            script.setTagFactory(new DefaultTagFactory(IncludeTag.class));
+            return script;
+        }
 
         return super.createTagScript(name, attributes);
     }
