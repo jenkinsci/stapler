@@ -37,8 +37,8 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 
-import com.google.common.base.Strings;
 import org.apache.commons.io.output.NullOutputStream;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -100,7 +100,7 @@ public class LargeTextTest {
         // Write the same data over and over again, so the bytes written is high, but the file is
         // actually very small
         int chunkSize = 1024;
-        byte[] bytesChunk = Strings.repeat("0", chunkSize).getBytes(StandardCharsets.US_ASCII);
+        byte[] bytesChunk = String.join("", Collections.nCopies(chunkSize, "0")).getBytes(StandardCharsets.US_ASCII);
         try (OutputStream stream = new FileOutputStream(path.toFile())) {
             long remaining = size;
             while (remaining > chunkSize) {
