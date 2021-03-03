@@ -23,6 +23,9 @@
 
 package org.kohsuke.stapler.jelly;
 
+import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.beanutils.SuppressPropertiesBeanIntrospector;
 import org.apache.commons.jelly.parser.XMLParser;
 import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.apache.commons.jelly.expression.Expression;
@@ -81,6 +84,12 @@ class CustomJellyContext extends JellyContext {
         // we achieve substantial performance improvement.
         registerTagLibrary("",ReallyStaticTagLibrary.INSTANCE);
         registerTagLibrary("this",ThisTagLibrary.INSTANCE);
+
+        // By default, Commons BeanUtils does not allow class level access. However, our existing
+        // Jelly templates rely on class level access. Therefore, we opt out of the default
+        // behavior.
+        PropertyUtilsBean propertyUtilsBean = BeanUtilsBean.getInstance().getPropertyUtils();
+        propertyUtilsBean.removeBeanIntrospector(SuppressPropertiesBeanIntrospector.SUPPRESS_CLASS);
     }
 
     @Override
