@@ -107,7 +107,9 @@ public class StaplerTagLibrary extends TagLibrary {
             };
 
         if (name.equals("include")) {
-            final AttributeNameRewritingTagScript script = new AttributeNameRewritingTagScript("class", "className");
+            // Retain backward compatibility with all views setting the obsolete 'class' attribute.
+            // See IncludeTag#setClazz for details.
+            final AttributeNameRewritingTagScript script = new AttributeNameRewritingTagScript("class", "clazz");
             script.setTagFactory(new DefaultTagFactory(IncludeTag.class));
             return script;
         }

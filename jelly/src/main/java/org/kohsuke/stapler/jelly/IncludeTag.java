@@ -53,7 +53,7 @@ public class IncludeTag extends TagSupport {
 
     private boolean optional;
 
-    private Class className;
+    private Class clazz;
 
     /**
      * Specifies the name of the JSP to be included.
@@ -89,14 +89,14 @@ public class IncludeTag extends TagSupport {
      * problems with new commons-beanutils restrictions via
      * {@code ConvertingWrapDynaBean} use in {@code JellyBuilder}.
      */
-    public void setClassName(Class clazz) {
-        this.className = clazz;
+    public void setClazz(Class clazz) {
+        this.clazz = clazz;
     }
 
     @Deprecated // TODO Remove this method?
     public void setClass(Class clazz) {
         LOGGER.log(Level.WARNING, "Unexpected call to #setClass", new Exception());
-        this.className = clazz;
+        this.clazz = clazz;
     }
 
     /**
@@ -172,7 +172,7 @@ public class IncludeTag extends TagSupport {
     }
 
     private Class getScriptClass(Object it) {
-        if (className != null) return className;
+        if (clazz != null) return clazz;
         if (from != null) return from.getClass();
         else return it.getClass();
     }
