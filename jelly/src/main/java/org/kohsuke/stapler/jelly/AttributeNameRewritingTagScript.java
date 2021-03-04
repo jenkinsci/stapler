@@ -8,7 +8,7 @@ import org.apache.commons.jelly.impl.TagScript;
  *
  */
 /* package */ class AttributeNameRewritingTagScript extends TagScript {
-    private String original;
+    private final String original;
     private final String replacement;
 
     public AttributeNameRewritingTagScript(String original, String replacement) {
