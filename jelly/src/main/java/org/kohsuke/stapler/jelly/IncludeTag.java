@@ -88,6 +88,8 @@ public class IncludeTag extends TagSupport {
      * This used to be called {@code setClass}, but that ended up causing
      * problems with new commons-beanutils restrictions via
      * {@code ConvertingWrapDynaBean} use in {@code JellyBuilder}.
+     * {@link StaplerTagLibrary} uses {@link AttributeNameRewritingTagScript}
+     * to ensure attempts to set {@code class} instead set {@code clazz}.
      */
     public void setClazz(Class clazz) {
         this.clazz = clazz;
