@@ -19,7 +19,8 @@ import org.apache.commons.jelly.impl.TagScript;
     @Override
     public void addAttribute(String name, Expression expression) {
         if (replacement.equals(name)) {
-            throw new IllegalArgumentException("The attribute '" + replacement + "' cannot be set on this element, set '" + original + "' instead");
+            // cf. TagScript#run
+            throw new IllegalArgumentException("This tag does not understand the '" + replacement + "' attribute");
         }
         if (original.equals(name)) {
             super.addAttribute(replacement, expression);
