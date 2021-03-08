@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
@@ -44,6 +45,9 @@ import java.util.logging.Logger;
  */
 public class IncludeTag extends TagSupport {
     public static final Logger LOGGER = Logger.getLogger(IncludeTag.class.getName());
+
+    @SuppressFBWarnings("MS_SHOULD_BE_FINAL")
+    public static /* non-final for script console */ boolean SKIP_LOGGING_CLASS_SETTER = Boolean.getBoolean(IncludeTag.class.getName() + ".skipLoggingClassSetter");
 
     private Object it;
 
@@ -89,7 +93,8 @@ public class IncludeTag extends TagSupport {
      * problems with new commons-beanutils restrictions via
      * {@code ConvertingWrapDynaBean} use in {@code JellyBuilder}.
      * {@link StaplerTagLibrary} uses {@link AttributeNameRewritingTagScript}
-     * to ensure attempts to set {@code class} instead set {@code clazz}.
+     * to ensure attempts to set {@code class} instead set {@code clazz}, and
+     * that attempts to set {@code clazz} directly that way fail.
      */
     public void setClazz(Class clazz) {
         this.clazz = clazz;
@@ -97,7 +102,9 @@ public class IncludeTag extends TagSupport {
 
     @Deprecated // TODO Remove this method?
     public void setClass(Class clazz) {
-        LOGGER.log(Level.WARNING, "Unexpected call to #setClass", new Exception());
+        if (!SKIP_LOGGING_CLASS_SETTER) {
+            LOGGER.log(Level.WARNING, "Unexpected call to #setClass", new Exception());
+        }
         this.clazz = clazz;
     }
 
