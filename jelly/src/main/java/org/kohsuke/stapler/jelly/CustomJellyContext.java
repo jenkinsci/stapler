@@ -23,6 +23,9 @@
 
 package org.kohsuke.stapler.jelly;
 
+import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.beanutils.SuppressPropertiesBeanIntrospector;
 import org.apache.commons.jelly.parser.XMLParser;
 import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.apache.commons.jelly.expression.Expression;
@@ -81,6 +84,12 @@ class CustomJellyContext extends JellyContext {
         // we achieve substantial performance improvement.
         registerTagLibrary("",ReallyStaticTagLibrary.INSTANCE);
         registerTagLibrary("this",ThisTagLibrary.INSTANCE);
+
+        if (DISABLE_BEANUTILS_CLASS_SUPPRESSION) {
+            /* In case our existing workarounds in StaplerTagLibrary for IncludeTag aren't enough */
+            PropertyUtilsBean propertyUtilsBean = BeanUtilsBean.getInstance().getPropertyUtils();
+            propertyUtilsBean.removeBeanIntrospector(SuppressPropertiesBeanIntrospector.SUPPRESS_CLASS);
+        }
     }
 
     @Override
@@ -108,6 +117,8 @@ class CustomJellyContext extends JellyContext {
     }
 
     public static /* final */ boolean ESCAPE_BY_DEFAULT = Boolean.valueOf(System.getProperty(CustomJellyContext.class.getName() + ".escapeByDefault", "true"));
+
+    private static final boolean DISABLE_BEANUTILS_CLASS_SUPPRESSION = Boolean.getBoolean(CustomJellyContext.class.getName() + ".disableBeanUtilsClassSuppression");
 
     private static class CustomXMLParser extends XMLParser implements ExpressionFactory {
         private ResourceBundle resourceBundle;
