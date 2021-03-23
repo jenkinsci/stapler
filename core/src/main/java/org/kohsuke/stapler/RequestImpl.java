@@ -71,6 +71,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static java.util.logging.Level.*;
 import static javax.servlet.http.HttpServletResponse.*;
@@ -118,6 +119,16 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     private Map<String, String> parsedFormDataFormFields;
 
     private BindInterceptor bindInterceptor = BindInterceptor.NOOP;
+
+    /**
+     * List of HTTP verbs of requests for which {@link #getSubmittedForm()} can legitimately be called.
+     * If that method is invoked during a request sent with a different verb, an exception will be thrown.
+     */
+    private static /* nonfinal for Jenkins script console */ List<String> ALLOWED_HTTP_VERBS_FOR_FORMS;
+
+    static {
+        ALLOWED_HTTP_VERBS_FOR_FORMS = Arrays.stream(System.getProperty(RequestImpl.class.getName() + ".ALLOWED_HTTP_VERBS_FOR_FORMS", "POST").split(",")).map(String::trim).collect(Collectors.toList());
+    }
 
     public RequestImpl(Stapler stapler, HttpServletRequest request, List<AncestorImpl> ancestors, TokenList tokens) {
         super(request);
@@ -986,6 +997,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     public JSONObject getSubmittedForm() throws ServletException {
+        final String method = this.getMethod();
+        if (!ALLOWED_HTTP_VERBS_FOR_FORMS.contains(method)) {
+            throw HttpResponses.errorWithoutStack(SC_BAD_REQUEST, "Form submission expected but a " + method + " request was sent");
+        }
         if(structuredForm==null) {
             String p = null;
             boolean isSubmission; // for error diagnosis, if something is submitted, set to true
