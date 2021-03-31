@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
@@ -34,12 +35,20 @@ import org.kohsuke.stapler.WebApp;
 import org.xml.sax.SAXException;
 import org.jvnet.maven.jellydoc.annotation.Required;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Tag that includes views of the object.
  *
  * @author Kohsuke Kawaguchi
  */
 public class IncludeTag extends TagSupport {
+    public static final Logger LOGGER = Logger.getLogger(IncludeTag.class.getName());
+
+    @SuppressFBWarnings("MS_SHOULD_BE_FINAL")
+    public static /* non-final for script console */ boolean SKIP_LOGGING_CLASS_SETTER = Boolean.getBoolean(IncludeTag.class.getName() + ".skipLoggingClassSetter");
+
     private Object it;
 
     private String page;
@@ -79,8 +88,23 @@ public class IncludeTag extends TagSupport {
      *
      * By default this is "from.getClass()". This takes
      * precedence over the {@link #setFrom(Object)} method.
+     *
+     * This used to be called {@code setClass}, but that ended up causing
+     * problems with new commons-beanutils restrictions via
+     * {@code ConvertingWrapDynaBean} use in {@code JellyBuilder}.
+     * {@link StaplerTagLibrary} uses {@link AttributeNameRewritingTagScript}
+     * to ensure attempts to set {@code class} instead set {@code clazz}, and
+     * that attempts to set {@code clazz} directly that way fail.
      */
+    public void setClazz(Class clazz) {
+        this.clazz = clazz;
+    }
+
+    @Deprecated // TODO Remove this method?
     public void setClass(Class clazz) {
+        if (!SKIP_LOGGING_CLASS_SETTER) {
+            LOGGER.log(Level.WARNING, "Unexpected call to #setClass", new Exception());
+        }
         this.clazz = clazz;
     }
 

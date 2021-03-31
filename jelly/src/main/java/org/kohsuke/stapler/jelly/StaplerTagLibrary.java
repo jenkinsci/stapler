@@ -23,12 +23,14 @@
 
 package org.kohsuke.stapler.jelly;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.TagLibrary;
 import org.apache.commons.jelly.XMLOutput;
+import org.apache.commons.jelly.impl.DefaultTagFactory;
 import org.apache.commons.jelly.impl.TagScript;
 import org.xml.sax.Attributes;
 
@@ -105,8 +107,20 @@ public class StaplerTagLibrary extends TagLibrary {
                 }
             };
 
+        if (!DISABLE_INCLUDE_TAG_CLASS_ATTRIBUTE_REWRITING && name.equals("include")) {
+            // Retain backward compatibility with all views setting the obsolete 'class' attribute.
+            // See IncludeTag#setClazz for details.
+            final AttributeNameRewritingTagScript script = new AttributeNameRewritingTagScript("class", "clazz");
+            script.setTagFactory(new DefaultTagFactory(IncludeTag.class));
+            return script;
+        }
+
         return super.createTagScript(name, attributes);
     }
 
     private static final String ONCE_TAG_KEY = "stapler.once";
+
+    // Disable the st:include compatibility workaround to allow testing
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Exposed for tests")
+    public static /* non-final */ boolean DISABLE_INCLUDE_TAG_CLASS_ATTRIBUTE_REWRITING = false;
 }
