@@ -1,8 +1,8 @@
 package org.kohsuke.stapler;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import java.net.URL;
 
@@ -25,7 +25,7 @@ public abstract class CachingScriptLoader<S, E extends Exception> {
      *
      * {@link Optional} is used as Google Collection doesn't allow null values in a map.
      */
-    private final LoadingCache<String,Optional<S>> scripts = CacheBuilder.newBuilder().softValues().build(new CacheLoader<String, Optional<S>>() {
+    private final LoadingCache<String,Optional<S>> scripts = Caffeine.newBuilder().softValues().build(new CacheLoader<String, Optional<S>>() {
         public Optional<S> load(String from) {
             try {
                 return Optional.create(loadScript(from));
@@ -59,7 +59,7 @@ public abstract class CachingScriptLoader<S, E extends Exception> {
         if (MetaClass.NO_CACHE) 
             return loadScript(name);
         else
-            return scripts.getUnchecked(name).get();
+            return scripts.get(name).get();
     }
 
     /**

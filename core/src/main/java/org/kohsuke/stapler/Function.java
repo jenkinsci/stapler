@@ -23,9 +23,9 @@
 
 package org.kohsuke.stapler;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
@@ -195,7 +195,7 @@ public abstract class Function {
                 }
 
                 // if the databinding method is provided, call that
-                Function binder = PARSE_METHODS.getUnchecked(t);
+                Function binder = PARSE_METHODS.get(t);
                 if (binder!=RETURN_NULL) {
                     arguments[i] = binder.bindAndInvoke(null,req,rsp);
                     continue;
@@ -226,7 +226,7 @@ public abstract class Function {
             throw new AssertionError(e);    // impossible
         }
 
-        PARSE_METHODS = CacheBuilder.newBuilder().weakKeys().build(new CacheLoader<Class,Function>() {
+        PARSE_METHODS = Caffeine.newBuilder().weakKeys().build(new CacheLoader<Class,Function>() {
             public Function load(Class from) {
                 // MethdFunction for invoking a static method as a static method
                 FunctionList methods = new ClassDescriptor(from).methods.name("fromStapler");

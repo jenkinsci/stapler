@@ -23,8 +23,8 @@
 
 package org.kohsuke.stapler;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.File;
@@ -58,7 +58,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
             this.script = script;
         }
     }
-    private final Cache<URL, ExpirableCacheHit<S>> cachedScripts = CacheBuilder.newBuilder().softValues().build();
+    private final Cache<URL, ExpirableCacheHit<S>> cachedScripts = Caffeine.newBuilder().softValues().build();
 
     protected AbstractTearOff(MetaClass owner, Class<CLT> cltClass) {
         this.owner = owner;
