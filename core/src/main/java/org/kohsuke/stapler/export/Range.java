@@ -1,7 +1,5 @@
 package org.kohsuke.stapler.export;
 
-import com.google.common.collect.Iterators;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
