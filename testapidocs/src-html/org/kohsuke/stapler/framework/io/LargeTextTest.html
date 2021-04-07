@@ -45,8 +45,8 @@
 <span class="sourceLineNo">037</span>import java.nio.charset.StandardCharsets;<a name="line.37"></a>
 <span class="sourceLineNo">038</span>import java.nio.file.Files;<a name="line.38"></a>
 <span class="sourceLineNo">039</span>import java.nio.file.Path;<a name="line.39"></a>
-<span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>import com.google.common.base.Strings;<a name="line.41"></a>
+<span class="sourceLineNo">040</span>import java.util.Collections;<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
 <span class="sourceLineNo">042</span>import org.apache.commons.io.output.NullOutputStream;<a name="line.42"></a>
 <span class="sourceLineNo">043</span>import org.junit.Ignore;<a name="line.43"></a>
 <span class="sourceLineNo">044</span>import org.junit.Test;<a name="line.44"></a>
@@ -108,7 +108,7 @@
 <span class="sourceLineNo">100</span>        // Write the same data over and over again, so the bytes written is high, but the file is<a name="line.100"></a>
 <span class="sourceLineNo">101</span>        // actually very small<a name="line.101"></a>
 <span class="sourceLineNo">102</span>        int chunkSize = 1024;<a name="line.102"></a>
-<span class="sourceLineNo">103</span>        byte[] bytesChunk = Strings.repeat("0", chunkSize).getBytes(StandardCharsets.US_ASCII);<a name="line.103"></a>
+<span class="sourceLineNo">103</span>        byte[] bytesChunk = String.join("", Collections.nCopies(chunkSize, "0")).getBytes(StandardCharsets.US_ASCII);<a name="line.103"></a>
 <span class="sourceLineNo">104</span>        try (OutputStream stream = new FileOutputStream(path.toFile())) {<a name="line.104"></a>
 <span class="sourceLineNo">105</span>            long remaining = size;<a name="line.105"></a>
 <span class="sourceLineNo">106</span>            while (remaining &gt; chunkSize) {<a name="line.106"></a>
