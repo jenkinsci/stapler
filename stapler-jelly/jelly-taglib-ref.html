@@ -283,13 +283,24 @@
 <td><doc>When loading the script, use the classloader from this object
  to locate the script. Otherwise defaults to "it" object.</doc></td></tr>
 <tr class="a">
-<td>class</td>
+<td>clazz</td>
 <td>java.lang.Class</td>
 <td><doc>When loading script, load from this class.
 
  By default this is "from.getClass()". This takes
- precedence over the org.kohsuke.stapler.jelly.IncludeTag.setFrom(Object) method.</doc></td></tr>
+ precedence over the org.kohsuke.stapler.jelly.IncludeTag.setFrom(Object) method.
+
+ This used to be called setClass, but that ended up causing
+ problems with new commons-beanutils restrictions via
+ ConvertingWrapDynaBean use in JellyBuilder.
+ org.kohsuke.stapler.jelly.StaplerTagLibrary uses org.kohsuke.stapler.jelly.AttributeNameRewritingTagScript
+ to ensure attempts to set class instead set clazz, and
+ that attempts to set clazz directly that way fail.</doc></td></tr>
 <tr class="b">
+<td>class</td>
+<td>java.lang.Class</td>
+<td><doc/></td></tr>
+<tr class="a">
 <td>optional</td>
 <td>boolean</td>
 <td><doc>If true, not finding the page is not an error.
@@ -297,15 +308,15 @@
 <div class="section">
 <h3>header<a name="header"></a></h3><doc>Adds an HTTP header to the response.</doc>
 <table border="0" class="bodyTable">
-<tr class="a">
+<tr class="b">
 <th>Attribute Name</th>
 <th>Type</th>
 <th>Description</th></tr>
-<tr class="b">
+<tr class="a">
 <td>name (required)</td>
 <td>String</td>
 <td><doc>Header name.</doc></td></tr>
-<tr class="a">
+<tr class="b">
 <td>value (required)</td>
 <td>String</td>
 <td><doc>Header value.</doc></td></tr></table>
@@ -314,19 +325,19 @@
 <h3>findAncestor<a name="findAncestor"></a></h3><doc>Finds the nearest tag (in the call stack) that has the given tag name,
  and sets that as a variable.</doc>
 <table border="0" class="bodyTable">
-<tr class="b">
+<tr class="a">
 <th>Attribute Name</th>
 <th>Type</th>
 <th>Description</th></tr>
-<tr class="a">
+<tr class="b">
 <td>var</td>
 <td>String</td>
 <td><doc>Variable name to set the discovered org.apache.commons.jelly.Tag object.</doc></td></tr>
-<tr class="b">
+<tr class="a">
 <td>tag</td>
 <td>String</td>
 <td><doc>QName of the tag to look for.</doc></td></tr>
-<tr class="a">
+<tr class="b">
 <td>namespaceContext</td>
 <td>java.util.Map</td>
 <td><doc/></td></tr></table>
@@ -334,15 +345,15 @@
 <div class="section">
 <h3>doctype<a name="doctype"></a></h3><doc>Writes out DOCTYPE declaration.</doc>
 <table border="0" class="bodyTable">
-<tr class="b">
+<tr class="a">
 <th>Attribute Name</th>
 <th>Type</th>
 <th>Description</th></tr>
-<tr class="a">
+<tr class="b">
 <td>publicId (required)</td>
 <td>String</td>
 <td><doc/></td></tr>
-<tr class="b">
+<tr class="a">
 <td>systemId (required)</td>
 <td>String</td>
 <td><doc/></td></tr></table>
@@ -350,23 +361,23 @@
 <div class="section">
 <h3>copyStream<a name="copyStream"></a></h3><doc>Copies a stream as text.</doc>
 <table border="0" class="bodyTable">
-<tr class="a">
+<tr class="b">
 <th>Attribute Name</th>
 <th>Type</th>
 <th>Description</th></tr>
-<tr class="b">
+<tr class="a">
 <td>reader</td>
 <td>Reader</td>
 <td><doc/></td></tr>
-<tr class="a">
+<tr class="b">
 <td>inputStream</td>
 <td>InputStream</td>
 <td><doc/></td></tr>
-<tr class="b">
+<tr class="a">
 <td>file</td>
 <td>File</td>
 <td><doc/></td></tr>
-<tr class="a">
+<tr class="b">
 <td>url</td>
 <td>URL</td>
 <td><doc/></td></tr></table>
@@ -374,11 +385,11 @@
 <div class="section">
 <h3>contentType<a name="contentType"></a></h3><doc>Set the HTTP Content-Type header of the page.</doc>
 <table border="0" class="bodyTable">
-<tr class="b">
+<tr class="a">
 <th>Attribute Name</th>
 <th>Type</th>
 <th>Description</th></tr>
-<tr class="a">
+<tr class="b">
 <td>value (required)</td>
 <td>String</td>
 <td><doc>The content-type value, such as "text/html".</doc></td></tr></table>
@@ -393,11 +404,11 @@
           <script/>
         </head> tag.</doc>
 <table border="0" class="bodyTable">
-<tr class="b">
+<tr class="a">
 <th>Attribute Name</th>
 <th>Type</th>
 <th>Description</th></tr>
-<tr class="a">
+<tr class="b">
 <td>var</td>
 <td>String</td>
 <td><doc>JavaScript variable name to set the proxy to.
@@ -408,7 +419,7 @@
 
  If this value is unspecified, the tag generates a JavaScript expression to create a proxy.</p>
         </doc></td></tr>
-<tr class="b">
+<tr class="a">
 <td>value (required)</td>
 <td>Object</td>
 <td><doc/></td></tr></table>
@@ -429,15 +440,15 @@
         <a>Textile markup</a>
       </doc>
 <table border="0" class="bodyTable">
-<tr class="a">
+<tr class="b">
 <th>Attribute Name</th>
 <th>Type</th>
 <th>Description</th></tr>
-<tr class="b">
+<tr class="a">
 <td>name (required)</td>
 <td>String</td>
 <td><doc>Name of the attribute.</doc></td></tr>
-<tr class="a">
+<tr class="b">
 <td>use</td>
 <td>String</td>
 <td><doc>If the attribute is required, specify use="required".
@@ -447,17 +458,17 @@
           <p>
  By default, use="optional" is assumed.</p>
         </doc></td></tr>
-<tr class="b">
+<tr class="a">
 <td>type</td>
 <td>String</td>
 <td><doc>If it makes sense, describe the Java type that the attribute
  expects as values.</doc></td></tr>
-<tr class="a">
+<tr class="b">
 <td>deprecated</td>
 <td>boolean</td>
 <td><doc>If the attribute is deprecated, set to true.
  Use of the deprecated attribute will cause a warning.</doc></td></tr>
-<tr class="b">
+<tr class="a">
 <td>since</td>
 <td>String</td>
 <td><doc>Used to track when the attribute was added to the API surface.</doc></td></tr></table></div><a name="jelly:attributeConstraints"></a>
@@ -472,26 +483,26 @@
         </head>
  to describe attributes of a tag.</doc>
 <table border="0" class="bodyTable">
-<tr class="a">
+<tr class="b">
 <th>Attribute Name</th>
 <th>Type</th>
 <th>Description</th></tr>
-<tr class="b">
+<tr class="a">
 <td>expr (required)</td>
 <td>String</td>
 <td><doc>Constraint expression.</doc></td></tr></table></div><a name="jelly:adjunct"></a>
 <div class="section">
 <h3>adjunct<a name="adjunct"></a></h3><doc>Writes out links to adjunct CSS and JavaScript, if not done so already.</doc>
 <table border="0" class="bodyTable">
-<tr class="a">
+<tr class="b">
 <th>Attribute Name</th>
 <th>Type</th>
 <th>Description</th></tr>
-<tr class="b">
+<tr class="a">
 <td>includes</td>
 <td>String</td>
 <td><doc>Comma-separated adjunct names.</doc></td></tr>
-<tr class="a">
+<tr class="b">
 <td>assumes</td>
 <td>String</td>
 <td><doc>Comma-separated adjunct names that are externally included in the page
@@ -501,15 +512,15 @@
     </div>
     <div id="footer">
       <div class="xright">&#169;  
-          2020
+          2021
     
           
   
 
   
   
-  &nbsp;| Last Published: 2020-12-22
-  &nbsp;| Version: 1.262
+  &nbsp;| Last Published: 2021-04-07
+  &nbsp;| Version: 1.263
 </div>
       <div class="clear">
         <hr/>

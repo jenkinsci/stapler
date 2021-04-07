@@ -260,12 +260,24 @@
  to locate the script. Otherwise defaults to "it" object.</xsd:documentation>
 </xsd:annotation>
 </xsd:attribute>
-<xsd:attribute name="class">
+<xsd:attribute name="clazz">
 <xsd:annotation>
 <xsd:documentation>When loading script, load from this class.
 
  By default this is "from.getClass()". This takes
- precedence over the org.kohsuke.stapler.jelly.IncludeTag.setFrom(Object) method.</xsd:documentation>
+ precedence over the org.kohsuke.stapler.jelly.IncludeTag.setFrom(Object) method.
+
+ This used to be called setClass, but that ended up causing
+ problems with new commons-beanutils restrictions via
+ ConvertingWrapDynaBean use in JellyBuilder.
+ org.kohsuke.stapler.jelly.StaplerTagLibrary uses org.kohsuke.stapler.jelly.AttributeNameRewritingTagScript
+ to ensure attempts to set class instead set clazz, and
+ that attempts to set clazz directly that way fail.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="class">
+<xsd:annotation>
+<xsd:documentation/>
 </xsd:annotation>
 </xsd:attribute>
 <xsd:attribute name="optional">
