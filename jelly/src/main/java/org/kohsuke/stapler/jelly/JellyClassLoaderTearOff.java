@@ -65,29 +65,29 @@ public class JellyClassLoaderTearOff {
         TagLibrary tl = m.computeIfAbsent(nsUri, key -> {
                     if(owner.parent!=null) {
                         // parent first
-                        TagLibrary taglib = owner.parent.loadTearOff(JellyClassLoaderTearOff.class).getTagLibrary(key);
+                        TagLibrary taglib = owner.parent.loadTearOff(JellyClassLoaderTearOff.class).getTagLibrary(nsUri);
                         if(taglib!=null)    return taglib;
                     }
 
-                    String taglibBasePath = trimHeadSlash(key);
+                    String taglibBasePath = trimHeadSlash(nsUri);
                     try {
                         URL res = owner.loader.getResource(taglibBasePath +"/taglib");
                         if(res!=null)
-                        return new CustomTagLibrary(createContext(),owner.loader,key,taglibBasePath);
+                        return new CustomTagLibrary(createContext(),owner.loader,nsUri,taglibBasePath);
                     } catch (IllegalArgumentException e) {
                         // if taglibBasePath doesn't even look like an URL, getResource throws IllegalArgumentException.
                         // see http://old.nabble.com/bug-1.331-to26145963.html
                     }
 
                     // support URIs like "this:it" or "this:instance". Note that "this" URI itself is registered elsewhere
-                    if (key.startsWith("this:"))
+                    if (nsUri.startsWith("this:"))
                         try {
-                            return new ThisTagLibrary(EXPRESSION_FACTORY.createExpression(key.substring(5)));
+                            return new ThisTagLibrary(EXPRESSION_FACTORY.createExpression(nsUri.substring(5)));
                         } catch (JellyException e) {
-                            throw new IllegalArgumentException("Illegal expression in the URI: "+key,e);
+                            throw new IllegalArgumentException("Illegal expression in the URI: "+nsUri,e);
                         }
 
-                    if (key.equals("jelly:stapler"))
+                    if (nsUri.equals("jelly:stapler"))
                         return new StaplerTagLibrary();
 
                     return NO_SUCH_TAGLIBRARY;    // "not found" is also cached.
