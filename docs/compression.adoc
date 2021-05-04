@@ -29,8 +29,9 @@ element of your view, like this:
 
 [source,code]
 ----
-  
-    
+<st:compress xmlns:st="jelly:stapler" ... other ns decls ...>
+  <html>
+    <head>
       ...
 ----
 
