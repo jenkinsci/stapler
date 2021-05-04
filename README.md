@@ -1,9 +1,8 @@
-
-* [What is Stapler?](docs/what-is.html)
-* [Getting Started](docs/getting-started.html)
+* [What is Stapler?](docs/what-is.adoc)
+* [Getting Started](docs/getting-started.adoc)
 * Developer Reference
-      * [URL binding reference](docs/reference.html)
-      * [HTTP compression](docs/compression.html)
-      * [Internationalization support](docs/i18n.html)
+      * [URL binding reference](docs/reference.adoc)
+      * [HTTP compression](docs/compression.adoc)
+      * [Internationalization support](docs/i18n.adoc)
       * [Javadoc](https://javadoc.jenkins.io/component/stapler/)
-      * [Stapler jelly tag library reference and XML Schema](docs/jelly-taglib-ref.html)
+      * [Stapler jelly tag library reference and XML Schema](docs/jelly-taglib-ref.adoc)

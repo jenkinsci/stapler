@@ -1,0 +1,38 @@
+== Static resources are sent with gzip
+
+When clients request static resources, stapler will send it with gzip as
+the content encoding whenever it can, to minimize the size of the data
+to be transferred. This only happens when the MIME type of the resource
+is "text/*", or the file extension is one of the well-known text file
+type.
+
+This happens all transparently, so there's nothing you nor the browser
+have to do.
+
+== Sending compressed stream from the `doXXX` methods
+
+If you are writing action methods that serve text content, and if you'd
+like to compress the stream, you can call
+`StaplerResponse.getCompressedOutputStream` (instead of
+`StaplerResponse.getOutputStream`) or
+`StaplerResponse.getCompressedWriter` (instead of
+`StaplerResponse.getWriter`) and then write to them normally.
+
+If the client doesn't support HTTP compression, these methods will
+silently revert to the normal uncompressed streams.
+
+== Using compression from Jelly view
+
+If your view script produces text content, and if you'd like to compress
+the stream, put `<st:compress xmlns:st="jelly:stapler">` as the root
+element of your view, like this:
+
+[source,code]
+----
+  
+    
+      ...
+----
+
+If the client doesn't support HTTP compression, stapler will silently
+revert to the normal uncompressed stream.

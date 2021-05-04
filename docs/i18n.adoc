@@ -1,0 +1,29 @@
+== i18n support
+
+Stapler depends on https://localizer.dev.java.net/[localizer] for the
+i18n support.
+
+=== i18n from Jelly view scripts
+
+For Jelly view scripts, the convention is to place localized message
+resource files by using the same base name. For example, if you are
+writing `foo.jelly`, its property files will be placed in files like
+`foo.properties` and `foo_ja.properties`.
+
+In this set up, Jelly view scripts can refer to message resources by
+using a special expression of the form `${%KEY(arg1,arg2,...)}`. The
+messages are formatted by using `MessageFormat`, and arguments are
+individually parsed as JEXL scripts. If there's no arguments,
+parenthesis can be omitted and thus it can be simply written as
+`${%KEY}`.
+
+If you need to refer to message resources from within a JEXL expression,
+you can use a string literal notation `"%KEY(arg1,arg2,...)"` or its
+argument-less short form `"%KEY"`. For example,
+`${obj.methodCall(1,true,"%Message")}`
+
+If the specified KEY is not available in the property files, the key
+itself will be used as a formatting string. The key can contain any
+character except '(' and '}'. This convenient defaulting allows you to
+skip writing `foo.properties` most of the time (that is, you'd only need
+property files for translations.)
