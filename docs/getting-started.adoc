@@ -10,15 +10,17 @@ First, put `stapler.jar` into your application's `WEB-INF/lib`
 directory. Then put the following XML into your `WEB-INF/web.xml` so
 that the stapler will be recognized by the container.
 
-[source,code]
+[source,xml]
 ----
-  Stapler
-  org.kohsuke.stapler.Stapler
+<servlet>
+  <servlet-name>Stapler</servlet-name>
+  <servlet-class>org.kohsuke.stapler.Stapler</servlet-class>
+</servlet>
 
-
-
-  Stapler
-  /
+<servlet-mapping>
+  <servlet-name>Stapler</servlet-name>
+  <url-pattern>/</url-pattern>
+</servlet-mapping>
 ----
 
 === Registering the root object
@@ -32,7 +34,7 @@ and use the helper method from `Stapler`.
 
 Specifically, you write the following class:
 
-[source,code]
+[source,java]
 ----
 package example;
 import org.kohsuke.stapler.Stapler;
@@ -51,9 +53,11 @@ public class WebAppMain implements ServletContextListener {
 You also have to put the following XML in `WEB-INF/web.xml` so that the
 container recognizes this class.
 
-[source,code]
+[source,xml]
 ----
-  example.WebAppMain
+<listener>
+  <listener-class>example.WebAppMain</listener-class>
+</listener>
 ----
 
 In this way, the `WebAppMain.contextInitialized` method is executed as
@@ -79,17 +83,16 @@ organized according to the class they are associated with.
 
 Here is a part of this index.jsp:
 
-[source,code]
+[source,xml]
 ----
-...
+<html>...<body>
   <%-- side files can include static resources. --%>
-  
+  <img src="logo.png">
 
-  Inventory
-  
-    ${i.value.title}
-
-  
+  <h2>Inventory</h2>
+  <c:forEach var="i" items="${it.items}">
+    <a href="items/${i.key}">${i.value.title}</a><br>
+  </c:forEach>
   ...
 ----
 
@@ -119,10 +122,10 @@ In our example, a BookStore has a map from the stock keeping unit (SKU)
 number to the corresponding Item object. The corresponding Java class
 looks like this:
 
-[source,code]
+[source,java]
 ----
 public class BookStore {
-    public Map/**/ getItems() {
+    public Map/*<String,Item>*/ getItems() {
         return items;
     }
     ...
@@ -179,7 +182,7 @@ call these methods "action methods".
 
 Action methods take the following signature:
 
-[source,code]
+[source,java]
 ----
 public void do[Name]( StaplerRequest request, StaplerResponse response ) {
     ...
@@ -198,7 +201,7 @@ the same way as you'd do in servlets. In the following example, we use a
 method on `StaplerResponse` to forward to another side JSP file to
 generate the response.
 
-[source,code]
+[source,java]
 ----
 public void doHello( StaplerRequest request, StaplerResponse response ) {
     ...

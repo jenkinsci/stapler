@@ -292,7 +292,7 @@ idea is that "it" works like "this" in Java.)
 For example, if your Jelly looks like the following, then it prints the
 name property of the current object.
 
-[source,code]
+[source,xml]
 ----
 <html><body>
   My name is ${it.name}

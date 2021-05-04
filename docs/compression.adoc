@@ -27,7 +27,7 @@ If your view script produces text content, and if you'd like to compress
 the stream, put `<st:compress xmlns:st="jelly:stapler">` as the root
 element of your view, like this:
 
-[source,code]
+[source,xml]
 ----
 <st:compress xmlns:st="jelly:stapler" ... other ns decls ...>
   <html>
