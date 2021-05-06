@@ -32,8 +32,8 @@ ____
 The exact manner of recursion depends on the signature of the type of
 the `node` parameter, and the following sections describe them in
 detail. Also see
-http://hudson.gotdns.com/wiki/display/HUDSON/Figuring+out+URL+binding+of+Stapler[a
-document in Hudson] that explains how you can see the actual evaluation
+https://wiki.jenkins.io/display/JENKINS/Figuring+out+URL+binding+of+Stapler[Figuring out URL binding of Stapler]
+that explains how you can see the actual evaluation
 process unfold in your own application by monitoring HTTP headers.
 
 === Evaluation of URL: Reference
@@ -61,7 +61,7 @@ ____
 ==== Stapler Proxy
 
 `node` can implement
-https://stapler.dev.java.net/nonav/javadoc/index.html?org/kohsuke/stapler/StaplerProxy.html[the
+https://javadoc.jenkins.io/component/stapler/org/kohsuke/stapler/StaplerProxy.html[the
 `StaplerProxy` interface] to delegate the UI processing to another
 object. There's also a provision for selectively doing this, so that
 `node` can intelligently decide if it wants to delegate to another

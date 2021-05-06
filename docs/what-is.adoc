@@ -1,3 +1,5 @@
+= What is Stapler?
+
 Stapler is a library that "staples" your application objects to URLs,
 making it easier to write web applications. The core idea of Stapler is
 to automatically assign URLs for your objects, creating an intuitive URL
