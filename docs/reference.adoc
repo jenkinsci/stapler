@@ -1,0 +1,300 @@
+== Reference
+
+This document explains the details of how Stapler "staples" your objects
+to URLs.
+
+The way Stapler works is some what like
+http://www-106.ibm.com/developerworks/java/library/j-jstl0211.html[Expression
+Language]; *it takes an object and URL, then evaluate the URL against
+the object. It repeats this process until it hits either a static
+resource, a view (such as JSP, Jelly, Groovy, etc.), or an action
+method.*
+
+This process can be best understood as a recursively defined
+mathematical function `evaluate(node,url)`. For example,
+link:stapler.png[the hypothetical application] depicted in
+link:what-is.html[the "getting started" document] could have an
+evaluation process like the following:
+
+____
+....
+Scenario: browser sends "POST /project/jaxb/docsAndFiles/upload HTTP/1.1"
+
+   evaluate(, "/project/jaxb/docsAndFiles/upload")
+-> evaluate(.getProject("jaxb"), "/docsAndFiles/upload")
+-> evaluate(, "/docsAndFiles/upload")
+-> evaluate(.getDocsAndFiles(), "/upload")
+-> evaluate(, "/upload")
+-> .doUpload(...)
+....
+____
+
+The exact manner of recursion depends on the signature of the type of
+the `node` parameter, and the following sections describe them in
+detail. Also see
+https://wiki.jenkins.io/display/JENKINS/Figuring+out+URL+binding+of+Stapler[Figuring out URL binding of Stapler]
+that explains how you can see the actual evaluation
+process unfold in your own application by monitoring HTTP headers.
+
+=== Evaluation of URL: Reference
+
+This section defines the `evaluate(node,url)` function. Possible
+branches are listed in the order of preference, so when the given `node`
+and `url` matches to multiple branches, earlier ones take precedence.
+
+____
+==== Notation
+
+We often use the notation `url[0], url[1], ...` to indicate the tokens
+of `url` separated by '/', and `url.size` to denote the number of such
+tokens. For example, if `url="/abc/def/"`, then
+`url[0]="abc", url[1]="def", url.size=2`. Similarly if `url="xyz"`, then
+`url[0]="xyz", url.size=1`
+
+List notation `[a,b,c,...]` is also used to describe `url`. Lower-case
+variables represent a single token, while upper-case variables represent
+variable-length tokens. For example, if we say `url=[a,W]` and the
+actual URL was "/abc/def/ghi", then `a="abc"` and `W="/def/ghi"`. If the
+actual URL was "/abc", then `a="abc"` and `W=""`.
+____
+
+==== Stapler Proxy
+
+`node` can implement
+https://javadoc.jenkins.io/component/stapler/org/kohsuke/stapler/StaplerProxy.html[the
+`StaplerProxy` interface] to delegate the UI processing to another
+object. There's also a provision for selectively doing this, so that
+`node` can intelligently decide if it wants to delegate to another
+object.
+
+Formally,
+
+____
+....
+evaluate(node,url) := evaluate(target,url)   — if target instanceof StaplerProxy, target=node.getTarget(), and target!=null
+....
+____
+
+==== Index View
+
+If there's no remaining URL, then a welcome page for the current object
+is served. A welcome page is a side-file of the `node` named `index.*`
+(such as `index.jsp`, `index.jelly`, etc.
+
+Formally,
+
+____
+....
+evaluate(node,[]) := renderView(node,"index")
+....
+____
+
+==== Action Method
+
+If `url` is of the form "/fooBar/...." and `node` has a public "action"
+method named `doFooBar(...)`, then this method is invoked.
+
+The action method is the final consumer of the request. This is is
+convenient for form submission handling, and/or implementing URLs that
+have side effects. Formally,
+
+____
+....
+evaluate(node,[x,W]) := node.doX(...)
+....
+____
+
+Stapler performs link:parameter-injection.html[parameter injections] on
+calling action methods.
+
+==== View
+
+If the remaining URL is "/xxxx/...." and a side file of the node named
+`xxxx` exists, then this view gets executed. Views normally have their
+view-specific extensions, like `xxxx.jelly` or `xxxx.groovy`.
+
+Formally,
+
+____
+....
+evaluate(node,[x,W]) := renderView(node,x)
+....
+____
+
+==== Index Action Method
+
+This is a slight variation of above. If there's no remaining URL and
+there's an action method called "doIndex", this method will be invoked.
+Formally,
+
+____
+....
+evaluate(node,[]) := node.doIndex(...)
+....
+____
+
+==== Public Field
+
+If `url` is "/fooBar/..." and `node` has a public field named "fooBar",
+then the object stored in `node.fooBar` will be evaluated against the
+rest of the URL. Formally,
+
+____
+....
+evaluate(node,[x,W]) := evaluate(node.x,W)
+....
+____
+
+==== Public Getter Method
+
+If `url` is "/fooBar/..." and `node` has a public getter method named
+"getFooBar()", then the object returned from `node.getFooBar()` will be
+evaluated against the rest of the URL.
+
+Stapler also looks for the public getter of the form
+"getXxxx(StaplerRequest)". If such a method exists, then this getter
+method is invoked in a similar way. This version allows the get method
+to take sophisticated action based on the current request (such as
+returning the object specific to the current user, or returning null if
+the user is not authenticated.)
+
+Formally,
+
+____
+....
+evaluate(node,[x,W]) := evaluate(node.getX(...),W)
+....
+____
+
+==== Public Getter Method with a String Argument
+
+If `url` is "/xxxx/yyyy/..." and `node` has a public method named
+"getXxxx(String arg)", then the object returned from
+`currentObject.getXxxx("yyyy")` will be evaluated against the rest of
+the URL "/...." recursively.
+
+Formally,
+
+____
+....
+evaluate(node,[x,y,W]) := evaluate(node.getX(y),W)
+....
+____
+
+==== Public Getter Method with an int Argument
+
+Really the same as above, except it takes `int` instead of `String`.
+
+____
+....
+evaluate(node,[x,y,W]) := evaluate(node.getX(y),W)   — if y is an integer
+....
+____
+
+==== Array
+
+If `node` is an array and `url` is "/nnnn/...." where nnnn is a number,
+then the object returned from `node[nnnn]` will be evaluated against the
+rest of the URL "/...." recursively.
+
+Formally,
+
+____
+....
+evaluate(node,[x,W]) := evaluate(node[x],W)   — if node instanceof Object[]
+....
+____
+
+==== List
+
+If `node` implements `java.util.List` and the URL is "/nnnn/...." where
+nnnn is a number, then the object returned from `node.get(nnnn)` will be
+evaluated against the rest of the URL "/...." recursively.
+
+Formally,
+
+____
+....
+evaluate(node,[x,W]) := evaluate(node.get(x),W)   — if node instanceof List
+....
+____
+
+==== Map
+
+If `node` implements `java.util.Map` and the URL is "/xxxx/....", then
+the object returned from `node.get("xxxx")` will be evaluated against
+the rest of the URL "/...." recursively.
+
+____
+....
+evaluate(node,[x,W]) := evaluate(node.get(x),W)   — if node instanceof Map
+....
+____
+
+==== Dynamic Getter Method
+
+If the current object has a public method
+`getDynamic(String,StaplerRequest,StaplerResponse)`, and the URL is
+"/xxxx/..." and then this method is invoked with "xxxx" as the first
+parameter. The object returned from this method will be evaluated
+against the rest of the URL "/...." recursively.
+
+This is convenient for a reason similar to above, except that this
+doesn't terminate the URL mapping.
+
+Formally,
+
+____
+....
+evaluate(node,[x,W]) := evaluate(node.getDynamic(x,request,response),W)
+....
+____
+
+==== Dynamic Action Method
+
+If the current object has a public "action" method
+`doDynamic(StaplerRequest,StaplerResponse)`, then this method is
+invoked. From within this method, the rest of the URL can be accessed by
+`StaplerRequest.getRestOfPath()`. This is convenient for an object that
+wants to control the URL mapping entirely on its own.
+
+The action method is the final consumer of the request.
+
+Formally,
+
+____
+....
+evaluate(node,url) := node.doDynamic(request,response)
+....
+____
+
+==== If None of the Above Works
+
+... then the client receives 404 NOT FOUND error.
+
+== Views
+
+A Java class can have associated "views", which are the inputs to
+template engines mainly used to render HTML. Views are placed as
+resources, organized by their class names. For example, views for the
+class `org.acme.foo.Bar` would be in the `/org/acme/foo/Bar/` folder,
+like `/org/acme/foo/Bar/index.jelly` or `/org/acme/foo/Bar/test.jelly`.
+This structure emphasizes the close tie between model objects and views.
+
+Views are inherited from base classes to subclasses.
+
+=== Jelly
+
+Jelly script can be used as view files. When they are executed, the
+variable "it" is set to the object for which the view is invoked. (The
+idea is that "it" works like "this" in Java.)
+
+For example, if your Jelly looks like the following, then it prints the
+name property of the current object.
+
+[source,xml]
+----
+<html><body>
+  My name is ${it.name}
+</body></html>
+----

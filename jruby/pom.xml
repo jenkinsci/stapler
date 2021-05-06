@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.kohsuke.stapler</groupId>
     <artifactId>stapler-parent</artifactId>
-    <version>${revision}${changelist}</version>
+    <version>${changelist}</version>
   </parent>
 
   <artifactId>stapler-jruby</artifactId>
@@ -72,6 +72,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.kohsuke.metainf-services</groupId>
