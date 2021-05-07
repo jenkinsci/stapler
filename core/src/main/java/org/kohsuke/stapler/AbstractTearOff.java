@@ -60,7 +60,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
             this.script = new SoftReference<>(script);
         }
     }
-    private final Map<URL, ExpirableCacheHit<S>> cachedScripts = new ConcurrentHashMap<>();
+    private final Map<String, ExpirableCacheHit<S>> cachedScripts = new ConcurrentHashMap<>();
 
     protected AbstractTearOff(MetaClass owner, Class<CLT> cltClass) {
         this.owner = owner;
@@ -124,7 +124,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
                         LOGGER.log(Level.FINE, "no timestamp associated with {0}", file);
                         return parseScript(res);
                     } else {
-                        ExpirableCacheHit<S> cached = cachedScripts.get(res);
+                        ExpirableCacheHit<S> cached = cachedScripts.get(res.toString());
                         if (cached == null) {
                             S script;
                             if (LOGGER.isLoggable(Level.FINE)) {
@@ -138,7 +138,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
                                 LOGGER.log(Level.FINE, "cache miss on {0}", res);
                                 script = parseScript(res);
                             }
-                            cachedScripts.put(res, new ExpirableCacheHit<>(timestamp, script));
+                            cachedScripts.put(res.toString(), new ExpirableCacheHit<>(timestamp, script));
                             return script;
                         } else {
                             S script;
@@ -155,7 +155,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
                             }
                             if (script == null) {
                                 script = parseScript(res);
-                                cachedScripts.put(res, new ExpirableCacheHit<>(timestamp, script));
+                                cachedScripts.put(res.toString(), new ExpirableCacheHit<>(timestamp, script));
                             }
                             return script;
                         }
