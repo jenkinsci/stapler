@@ -1,10 +1,11 @@
 package org.kohsuke.stapler;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.net.URL;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Convenient base class for caching loaded scripts.
@@ -22,20 +23,8 @@ public abstract class CachingScriptLoader<S, E extends Exception> {
      *
      * So it's important to allow Scripts to be garbage collected.
      * This is not an ideal fix, but it works.
-     *
-     * {@link Optional} is used as Google Collection doesn't allow null values in a map.
      */
-    private final LoadingCache<String,Optional<S>> scripts = CacheBuilder.newBuilder().softValues().build(new CacheLoader<String, Optional<S>>() {
-        public Optional<S> load(String from) {
-            try {
-                return Optional.create(loadScript(from));
-            } catch (RuntimeException e) {
-                throw e;    // pass through
-            } catch (Exception e) {
-                throw new ScriptLoadException(e);
-            }
-        }
-    });
+    private final Map<String, Optional<Reference<S>>> scripts = new ConcurrentHashMap<>();
 
     /**
      * Locates the view script of the given name.
@@ -56,10 +45,24 @@ public abstract class CachingScriptLoader<S, E extends Exception> {
      * @return null if none was found.
      */
     public S findScript(String name) throws E {
-        if (MetaClass.NO_CACHE) 
+        if (MetaClass.NO_CACHE) {
             return loadScript(name);
-        else
-            return scripts.getUnchecked(name).get();
+        } else {
+            Optional<Reference<S>> sr = scripts.get(name);
+            S s;
+            if (sr == null) { // never before computed
+                s = null;
+            } else if (!sr.isPresent()) { // cached as null
+                return null;
+            } else { // cached as non-null; may or may not still have value
+                s = sr.get().get();
+            }
+            if (s == null) { // needs to be computed
+                s = loadScript(name);
+                scripts.put(name, s == null ? Optional.empty() : Optional.of(new SoftReference<>(s)));
+            }
+            return s;
+        }
     }
 
     /**
@@ -70,8 +73,8 @@ public abstract class CachingScriptLoader<S, E extends Exception> {
     /**
      * Discards the cached script.
      */
-    public synchronized void clearScripts() {
-        scripts.invalidateAll();
+    public void clearScripts() {
+        scripts.clear();
     }
 
     protected abstract URL getResource(String name);
