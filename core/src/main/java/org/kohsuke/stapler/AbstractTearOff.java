@@ -23,14 +23,16 @@
 
 package org.kohsuke.stapler;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.File;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -52,13 +54,13 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
 
     private static final class ExpirableCacheHit<S> {
         private final long timestamp;
-        private final S script;
+        private final Reference<S> script;
         ExpirableCacheHit(long timestamp, S script) {
             this.timestamp = timestamp;
-            this.script = script;
+            this.script = new SoftReference<>(script);
         }
     }
-    private final Cache<URL, ExpirableCacheHit<S>> cachedScripts = CacheBuilder.newBuilder().softValues().build();
+    private final Map<String, ExpirableCacheHit<S>> cachedScripts = new ConcurrentHashMap<>();
 
     protected AbstractTearOff(MetaClass owner, Class<CLT> cltClass) {
         this.owner = owner;
@@ -122,7 +124,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
                         LOGGER.log(Level.FINE, "no timestamp associated with {0}", file);
                         return parseScript(res);
                     } else {
-                        ExpirableCacheHit<S> cached = cachedScripts.getIfPresent(res);
+                        ExpirableCacheHit<S> cached = cachedScripts.get(res.toString());
                         if (cached == null) {
                             S script;
                             if (LOGGER.isLoggable(Level.FINE)) {
@@ -136,15 +138,25 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
                                 LOGGER.log(Level.FINE, "cache miss on {0}", res);
                                 script = parseScript(res);
                             }
-                            cachedScripts.put(res, new ExpirableCacheHit<>(timestamp, script));
+                            cachedScripts.put(res.toString(), new ExpirableCacheHit<>(timestamp, script));
                             return script;
-                        } else if (timestamp == cached.timestamp) {
-                            LOGGER.log(Level.FINE, "cache hit on {0}", res);
-                            return cached.script;
                         } else {
-                            LOGGER.log(Level.FINE, "expired cache hit on {0}", res);
-                            S script = parseScript(res);
-                            cachedScripts.put(res, new ExpirableCacheHit<>(timestamp, script));
+                            S script;
+                            if (timestamp == cached.timestamp) {
+                                script = cached.script.get();
+                                if (script == null) {
+                                    LOGGER.log(Level.FINE, "cache hit on {0} but value collected", res);
+                                } else {
+                                    LOGGER.log(Level.FINE, "cache hit on {0}", res);
+                                }
+                            } else {
+                                LOGGER.log(Level.FINE, "expired cache hit on {0}", res);
+                                script = null;
+                            }
+                            if (script == null) {
+                                script = parseScript(res);
+                                cachedScripts.put(res.toString(), new ExpirableCacheHit<>(timestamp, script));
+                            }
                             return script;
                         }
                     }
