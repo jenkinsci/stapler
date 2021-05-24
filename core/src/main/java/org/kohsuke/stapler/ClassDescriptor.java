@@ -25,11 +25,12 @@ package org.kohsuke.stapler;
 
 import org.apache.commons.io.IOUtils;
 import org.jvnet.tiger_types.Types;
-import org.kohsuke.asm5.ClassReader;
-import org.kohsuke.asm5.ClassVisitor;
-import org.kohsuke.asm5.Label;
-import org.kohsuke.asm5.MethodVisitor;
-import org.kohsuke.asm5.Type;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +55,6 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
-import static org.kohsuke.asm5.Opcodes.ASM5;
 
 /**
  * Reflection information of a {@link Class}.
@@ -310,13 +310,13 @@ public final class ClassDescriptor {
 
             final TreeMap<Integer,String> localVars = new TreeMap<Integer,String>();
             ClassReader r = new ClassReader(clazz.openStream());
-            r.accept(new ClassVisitor(ASM5) {
+            r.accept(new ClassVisitor(Opcodes.ASM9) {
                 final String md = Type.getMethodDescriptor(m);
                 // First localVariable is "this" for non-static method
                 final int limit = (m.getModifiers() & Modifier.STATIC) != 0 ? 0 : 1;
                 @Override public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
                     if (methodName.equals(m.getName()) && desc.equals(md))
-                        return new MethodVisitor(ASM5) {
+                        return new MethodVisitor(Opcodes.ASM9) {
                             @Override public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
                                 if (index >= limit)
                                     localVars.put(index, name);
@@ -350,11 +350,11 @@ public final class ClassDescriptor {
             InputStream is = clazz.openStream();
             try {
                 ClassReader r = new ClassReader(is);
-                r.accept(new ClassVisitor(ASM5) {
+                r.accept(new ClassVisitor(Opcodes.ASM9) {
                     final String md = getConstructorDescriptor(m);
                     public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
                         if (methodName.equals("<init>") && desc.equals(md))
-                            return new MethodVisitor(ASM5) {
+                            return new MethodVisitor(Opcodes.ASM9) {
                                 @Override public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
                                     if (index>0)   // 0 is 'this'
                                         localVars.put(index, name);
