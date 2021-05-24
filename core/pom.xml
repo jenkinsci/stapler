@@ -88,11 +88,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.kohsuke</groupId>
-      <artifactId>asm5</artifactId>
-      <version>5.0.1</version>
-    </dependency>
-    <dependency>
       <groupId>org.jenkins-ci</groupId>
       <artifactId>annotation-indexer</artifactId>
       <version>1.10</version>

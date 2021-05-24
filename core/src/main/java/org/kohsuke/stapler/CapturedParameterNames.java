@@ -32,6 +32,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * to do than generating the same files that the annotation processor does.
  *
  * @author Kohsuke Kawaguchi
+ * @see CaptureParameterNameTransformation
  */
 @Retention(RUNTIME)
 public @interface CapturedParameterNames {
