@@ -25,6 +25,12 @@ package org.kohsuke.stapler;
 
 import org.apache.commons.io.IOUtils;
 import org.jvnet.tiger_types.Types;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,10 +52,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.logging.Logger;
-
-import static java.util.logging.Level.WARNING;
 import java.util.stream.Stream;
+
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.WARNING;
 
 /**
  * Reflection information of a {@link Class}.
@@ -186,10 +194,20 @@ public final class ClassDescriptor {
         CapturedParameterNames cpn = m.getAnnotation(CapturedParameterNames.class);
         if(cpn!=null)   return cpn.value();
 
-        // debug information, if present, is more trustworthy
+        // reflection is the most efficient and supported system
         String[] n = loadParameterNamesFromReflection(m);
         if (n != null) {
             return n;
+        }
+
+        // debug information, if present, is more trustworthy
+        try {
+            n = ASM.loadParametersFromAsm(m);
+            if (n!=null)    return n;
+        } catch (LinkageError e) {
+            LOGGER.log(FINE, "Incompatible ASM", e);
+        } catch (IOException e) {
+            LOGGER.log(WARNING, "Failed to load a class file", e);
         }
 
         // otherwise check the .stapler file
@@ -219,10 +237,20 @@ public final class ClassDescriptor {
         CapturedParameterNames cpn = m.getAnnotation(CapturedParameterNames.class);
         if(cpn!=null)   return cpn.value();
 
-        // debug information, if present, is more trustworthy
+        // reflection is the most efficient and supported system
         String[] n = loadParameterNamesFromReflection(m);
         if (n != null) {
             return n;
+        }
+
+        // debug information, if present, is more trustworthy
+        try {
+            n = ASM.loadParametersFromAsm(m);
+            if (n!=null)    return n;
+        } catch (LinkageError e) {
+            LOGGER.log(FINE, "Incompatible ASM", e);
+        } catch (IOException e) {
+            LOGGER.log(WARNING, "Failed to load a class file", e);
         }
 
         // couldn't find it
@@ -287,6 +315,98 @@ public final class ClassDescriptor {
         throw new NoStaplerConstructorException(
                 "Unable to find " + resourceName + ". " +
                         "Run 'mvn clean compile' once to run the annotation processor.");
+    }
+
+
+    /**
+     * Isolate the ASM dependency to its own class, as otherwise this seems to cause linkage error on the whole {@link ClassDescriptor}.
+     */
+    /*package*/ static class ASM {
+        /**
+         * Try to load parameter names from the debug info by using ASM.
+         */
+        private static String[] loadParametersFromAsm(final Method m) throws IOException {
+            final String[] paramNames = new String[m.getParameterTypes().length];
+            if (paramNames.length==0) return paramNames;
+            Class<?> c = m.getDeclaringClass();
+            URL clazz = c.getClassLoader().getResource(c.getName().replace('.', '/') + ".class");
+            if (clazz==null)    return null;
+
+            final TreeMap<Integer,String> localVars = new TreeMap<Integer,String>();
+            ClassReader r = new ClassReader(clazz.openStream());
+            r.accept(new ClassVisitor(Opcodes.ASM9) {
+                final String md = Type.getMethodDescriptor(m);
+                // First localVariable is "this" for non-static method
+                final int limit = (m.getModifiers() & Modifier.STATIC) != 0 ? 0 : 1;
+                @Override public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
+                    if (methodName.equals(m.getName()) && desc.equals(md))
+                        return new MethodVisitor(Opcodes.ASM9) {
+                            @Override public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+                                if (index >= limit)
+                                    localVars.put(index, name);
+                            }
+                        };
+                    else
+                        return null; // ignore this method
+                }
+            }, 0);
+
+            // Indexes may not be sequential, but first set of local variables are method params
+            int i = 0;
+            for (String s : localVars.values()) {
+                paramNames[i] = s;
+                if (++i == paramNames.length) return paramNames;
+            }
+            return null; // Not enough data found to fill array
+        }
+
+        /**
+         * Try to load parameter names from the debug info by using ASM.
+         */
+        private static String[] loadParametersFromAsm(final Constructor m) throws IOException {
+            final String[] paramNames = new String[m.getParameterTypes().length];
+            if (paramNames.length==0) return paramNames;
+            Class<?> c = m.getDeclaringClass();
+            URL clazz = c.getClassLoader().getResource(c.getName().replace('.', '/') + ".class");
+            if (clazz==null)    return null;
+
+            final TreeMap<Integer,String> localVars = new TreeMap<Integer,String>();
+            InputStream is = clazz.openStream();
+            try {
+                ClassReader r = new ClassReader(is);
+                r.accept(new ClassVisitor(Opcodes.ASM9) {
+                    final String md = getConstructorDescriptor(m);
+                    public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
+                        if (methodName.equals("<init>") && desc.equals(md))
+                            return new MethodVisitor(Opcodes.ASM9) {
+                                @Override public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+                                    if (index>0)   // 0 is 'this'
+                                        localVars.put(index, name);
+                                }
+                            };
+                        else
+                            return null; // ignore this method
+                    }
+                }, 0);
+            } finally {
+                is.close();
+            }
+
+            // Indexes may not be sequential, but first set of local variables are method params
+            int i = 0;
+            for (String s : localVars.values()) {
+                paramNames[i] = s;
+                if (++i == paramNames.length) return paramNames;
+            }
+            return null; // Not enough data found to fill array
+        }
+
+        private static String getConstructorDescriptor(Constructor c) {
+            StringBuilder buf = new StringBuilder("(");
+            for (Class p : c.getParameterTypes())
+                buf.append(Type.getDescriptor(p));
+            return buf.append(")V").toString();
+        }
     }
 
     final static class MethodMirror {
