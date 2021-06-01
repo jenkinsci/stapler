@@ -28,6 +28,32 @@ public class ClassDescriptorTest {
         assertEquals("[a, b, x]",Arrays.asList(names).toString());
     }
 
+    @Test public void loadParameterNamesFromReflection() throws Exception {
+        // collect test cases
+        Map<String,Method> testCases = new HashMap<String,Method>();
+        for (Method m : ClassDescriptorTest.class.getDeclaredMethods())
+            if (m.getName().startsWith("methodWith"))
+                testCases.put(m.getName().substring(10), m);
+        // expected results
+        Map<String,String[]> expected = new HashMap<String,String[]>();
+        expected.put("NoParams", new String[0]);
+        expected.put("NoParams_static", new String[0]);
+        expected.put("ManyParams", new String[] { "a", "b", "c", "d", "e", "f", "g", "h", "i" });
+        expected.put("Params_static", new String[] { "abc", "def", "ghi" });
+        // run tests
+        for (Map.Entry<String,String[]> entry : expected.entrySet()) {
+            Method testMethod = testCases.get(entry.getKey());
+            assertNotNull("Method missing for " + entry.getKey(), testMethod);
+            String[] result = ClassDescriptor.loadParameterNamesFromReflection(testMethod);
+            assertNotNull("Null result for " + entry.getKey(), result);
+            if (!Arrays.equals(entry.getValue(), result)) {
+                StringBuilder buf = new StringBuilder('|');
+                for (String s : result) buf.append(s).append('|');
+                fail("Unexpected result for " + entry.getKey() + ": " + buf);
+            }
+        }
+    }
+
     @Test public void loadParametersFromAsm() throws Exception {
         // get private method that is being tested
         Method lpfa = ClassDescriptor.ASM.class.getDeclaredMethod(

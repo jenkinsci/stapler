@@ -35,9 +35,11 @@ import org.objectweb.asm.Type;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.net.URL;
 import java.util.ArrayList;
@@ -52,6 +54,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
@@ -191,9 +194,15 @@ public final class ClassDescriptor {
         CapturedParameterNames cpn = m.getAnnotation(CapturedParameterNames.class);
         if(cpn!=null)   return cpn.value();
 
+        // reflection is the most efficient and supported system
+        String[] n = loadParameterNamesFromReflection(m);
+        if (n != null) {
+            return n;
+        }
+
         // debug information, if present, is more trustworthy
         try {
-            String[] n = ASM.loadParametersFromAsm(m);
+            n = ASM.loadParametersFromAsm(m);
             if (n!=null)    return n;
         } catch (LinkageError e) {
             LOGGER.log(FINE, "Incompatible ASM", e);
@@ -228,9 +237,15 @@ public final class ClassDescriptor {
         CapturedParameterNames cpn = m.getAnnotation(CapturedParameterNames.class);
         if(cpn!=null)   return cpn.value();
 
+        // reflection is the most efficient and supported system
+        String[] n = loadParameterNamesFromReflection(m);
+        if (n != null) {
+            return n;
+        }
+
         // debug information, if present, is more trustworthy
         try {
-            String[] n = ASM.loadParametersFromAsm(m);
+            n = ASM.loadParametersFromAsm(m);
             if (n!=null)    return n;
         } catch (LinkageError e) {
             LOGGER.log(FINE, "Incompatible ASM", e);
@@ -240,6 +255,15 @@ public final class ClassDescriptor {
 
         // couldn't find it
         return EMPTY_ARRAY;
+    }
+
+    static String[] loadParameterNamesFromReflection(final Executable m) {
+        Parameter[] ps = m.getParameters();
+        if (Stream.of(ps).allMatch(Parameter::isNamePresent)) {
+            return Stream.of(ps).map(Parameter::getName).toArray(String[]::new);
+        } else {
+            return null;
+        }
     }
 
     /**
