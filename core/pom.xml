@@ -95,7 +95,7 @@
     <dependency>
       <groupId>org.jenkins-ci</groupId>
       <artifactId>annotation-indexer</artifactId>
-      <version>1.10</version>
+      <version>1.14</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -108,7 +108,7 @@
     <dependency>
       <groupId>com.sun.xml.txw2</groupId>
       <artifactId>txw2</artifactId>
-      <version>20070624</version>
+      <version>20110809</version>
       <optional>true</optional>
     </dependency>
     <dependency>
