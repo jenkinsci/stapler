@@ -60,9 +60,6 @@
     <changelist>999999-SNAPSHOT</changelist>
     <scmTag>HEAD</scmTag>
     <spotbugs.excludeFilterFile>${project.basedir}/../src/spotbugs/spotbugs-excludes.xml</spotbugs.excludeFilterFile>
-
-    <!-- Generate metadata for reflection on method parameters -->
-    <maven.compiler.parameters>true</maven.compiler.parameters>
   </properties>
 
   <build>
@@ -90,6 +87,21 @@
               <!-- Detects as a false positive https://github.com/mojohaus/animal-sniffer/issues/18 -->
               <ignore>java.lang.invoke.MethodHandle</ignore>
             </ignores>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <executions>
+            <execution>
+              <goals>
+                <goal>compile</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <!-- Generate metadata for reflection on method parameters -->
+            <parameters>true</parameters>
           </configuration>
         </plugin>
       </plugins>
