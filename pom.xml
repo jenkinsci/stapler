@@ -89,14 +89,6 @@
             </ignores>
           </configuration>
         </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <configuration>
-            <!-- Generate metadata for reflection on method parameters -->
-            <parameters>true</parameters>
-          </configuration>
-        </plugin>
       </plugins>
     </pluginManagement>
   </build>
