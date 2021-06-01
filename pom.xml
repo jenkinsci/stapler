@@ -92,13 +92,6 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <executions>
-            <execution>
-              <goals>
-                <goal>compile</goal>
-              </goals>
-            </execution>
-          </executions>
           <configuration>
             <!-- Generate metadata for reflection on method parameters -->
             <parameters>true</parameters>
