@@ -4,11 +4,10 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.test.JettyTestCase;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.servlet.Context;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -16,15 +15,17 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import javax.servlet.DispatcherType;
 
 public class CompressionFilterTest extends JettyTestCase {
 
     @Override
-    protected void configure(Context context) {
+    protected void configure(ServletContextHandler context) {
         super.configure(context);
-        context.addFilter(CompressionFilter.class,"/*", Handler.DEFAULT);
+        context.addFilter(CompressionFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
     }
 
     public void testDoubleCompression() throws Exception {
