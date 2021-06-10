@@ -88,9 +88,9 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm</artifactId>
-      <version>9.1</version>
+      <groupId>org.kohsuke</groupId>
+      <artifactId>asm5</artifactId>
+      <version>5.0.1</version>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci</groupId>
