@@ -1185,10 +1185,30 @@ public class Stapler extends HttpServlet {
             if(ch=='&')
                 buf.append("&amp;");
             else
+            if (isControlCharacter(ch)) {
+                buf.append("&#");
+                buf.append(Integer.toString(ch, 10));
+                buf.append(';');
+            } else
                 buf.append(ch);
         }
         if (buf.length()==v.length())   return  v;  // unmodified
         return buf.toString();
+    }
+
+    /**
+     * Determine whether the character is a control character. Such control characters are only
+     * valid in certain contexts in XML 1.1 documents, and their usage is restricted and highly
+     * discouraged.
+     *
+     * @param c The character to check.
+     * @return Whether the character is a control character.
+     */
+    private static boolean isControlCharacter(char c) {
+        if (c == '\t' || c == '\n' || c == '\r' || (c >= ' ' && c <= '~') || c == 0x0085) {
+            return false;
+        }
+        return c >= 0x0001 && c <= 0x009F;
     }
 
     public static Object[] htmlSafeArguments(Object[] args) {

@@ -117,6 +117,21 @@ public class XMLDataWriterTest extends TestCase {
                 serialize(new X(), X.class));
     }
 
+    @ExportedBean
+    public static class Escape {
+        @Exported
+        public String foo =
+                "\u0001\u0008\t\n\u000B\u000C\r\u000E\u001F &<>A-Za-z0-9~\u007F\u0084\u0085\u0086\u009F\u00A0";
+    }
+
+    public void testEscape() throws Exception {
+        String s = serialize(new Escape(), Escape.class);
+        assertValidXML("<?xml version=\"1.1\"?>" + s);
+        assertEquals(
+                "<escape _class='Escape'><foo>&#1;&#8;\t\n&#11;&#12;\r&#14;&#31; &amp;&lt;&gt;A-Za-z0-9~&#127;&#132;\u0085&#134;&#159;\u00A0</foo></escape>",
+                s);
+    }
+
     @ExportedBean(defaultVisibility=2) public static abstract class Super {
         @Exported public String basic = "super";
         @Exported public abstract String generic();
