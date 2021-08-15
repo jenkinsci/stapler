@@ -2,13 +2,13 @@ package org.kohsuke.stapler.test;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import junit.framework.TestCase;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.WebApp;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.bio.SocketConnector;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.jetty.webapp.WebAppContext;
 
 import javax.servlet.ServletContext;
 import java.net.URL;
@@ -39,11 +39,11 @@ public abstract class JettyTestCase extends TestCase {
 
         server.setHandler(new WebAppContext("/noroot", ""));
 
-        final Context context = new Context(server, getContextPath(), Context.SESSIONS);
+        final ServletContextHandler context = new ServletContextHandler(server, getContextPath(), ServletContextHandler.SESSIONS);
         configure(context);
         server.setHandler(context);
 
-        SocketConnector connector = new SocketConnector();
+        ServerConnector connector = new ServerConnector(server);
         server.addConnector(connector);
         server.start();
 
@@ -68,7 +68,7 @@ public abstract class JettyTestCase extends TestCase {
     /**
      * Sets up how the servlet/filters are bound.
      */
-    protected void configure(Context context) {
+    protected void configure(ServletContextHandler context) {
         context.addServlet(new ServletHolder(new Stapler()), "/*");
     }
 

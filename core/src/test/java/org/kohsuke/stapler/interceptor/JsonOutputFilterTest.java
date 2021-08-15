@@ -4,13 +4,13 @@ import com.gargoylesoftware.htmlunit.AlertHandler;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.eclipse.jetty.util.ajax.JSON;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 import org.kohsuke.stapler.test.JettyTestCase;
-import org.mortbay.util.ajax.JSON;
 
 import java.io.IOException;
 import java.io.PrintWriter;
