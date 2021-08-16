@@ -9,6 +9,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import net.sf.json.JSONObject;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.kohsuke.stapler.export.Flavor.JSON;
@@ -112,8 +114,7 @@ public class JSONDataWriterTest {
         Model<ModelWithJsonField> model = new ModelBuilder().get(ModelWithJsonField.class);
         model.writeTo(jsonModel, writer);
 
-        assertTrue("Generated JSON :"+ w + "is not a correct representation of :"+json, w.toString().contains(
-                "null"));
+        assertThat("not a correct representation of " + json, w.toString(), containsString("null"));
     }
 
     @ExportedBean
