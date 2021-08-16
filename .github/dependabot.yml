@@ -17,3 +17,5 @@ updates:
       # Must remain within Jetty 9.x until Java 8 support is removed; ignore Jetty 10.x and Jetty 11.x updates
       - dependency-name: "org.eclipse.jetty:*"
         versions: [">=10.0.0"]
+      # Provided by the Web container, so aligned with Jetty.
+      - dependency-name: "javax.servlet:javax.servlet-api"
