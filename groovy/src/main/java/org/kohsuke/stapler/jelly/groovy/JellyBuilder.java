@@ -24,6 +24,7 @@
 package org.kohsuke.stapler.jelly.groovy;
 
 import groovy.lang.Closure;
+import groovy.lang.GString;
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingMethodException;
 import groovy.lang.MissingPropertyException;
@@ -80,11 +81,6 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * Current {@link XMLOutput}.
      */
     private XMLOutput output;
-
-    /**
-     * Current {@link Tag} in which we are executing.
-     */
-    private Tag current;
 
     private JellyContext context;
 
@@ -327,8 +323,12 @@ public final class JellyBuilder extends GroovyObjectSupport {
                 if (attributes != null) {
                     for (Entry e : attributes.entrySet()) {
                         Object v = e.getValue();
-                        if (v!=null)
+                        if (v != null) {
+                            if (v instanceof GString) {
+                                v = v.toString();
+                            }
                             tagScript.addAttribute(e.getKey().toString(), new ConstantExpression(v));
+                        }
                     }
                 }
 

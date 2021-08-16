@@ -1,12 +1,13 @@
 package org.kohsuke.stapler.lang;
 
 import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.logging.Logger;
 
 /**
  * Fields of {@link Klass}.
@@ -15,6 +16,8 @@ import java.util.stream.Collectors;
  * @author Kohsuke Kawaguchi
  */
 public abstract class FieldRef extends AnnotatedRef {
+
+    private static final Logger LOGGER = Logger.getLogger(FieldRef.class.getName());
 
     public interface Filter {
         boolean keep(FieldRef m);
@@ -69,8 +72,6 @@ public abstract class FieldRef extends AnnotatedRef {
     }
 
     public static FieldRef wrap(final Field f) {
-        f.setAccessible(true);
-
         return new FieldRef() {
             @Override
             public <T extends Annotation> T getAnnotation(Class<T> type) {
@@ -84,7 +85,13 @@ public abstract class FieldRef extends AnnotatedRef {
 
             @Override
             public Object get(Object instance) throws IllegalAccessException {
-                return f.get(instance);
+                try {
+                    return f.get(instance);
+                } catch (IllegalAccessException e) {
+                    LOGGER.warning(IllegalReflectiveAccessLogHandler.get(e));
+                    f.setAccessible(true);
+                    return f.get(instance);
+                }
             }
 
             @Override

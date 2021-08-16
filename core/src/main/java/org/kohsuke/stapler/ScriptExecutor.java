@@ -24,8 +24,8 @@
 
 package org.kohsuke.stapler;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Execution strategy for handling views written in other scripting languages.
@@ -38,5 +38,5 @@ public interface ScriptExecutor<S> {
     /**
      * Executes the given script on the given node and request, rendering output to the given response.
      */
-    void execute(@Nonnull StaplerRequest req, @Nonnull StaplerResponse rsp, @Nonnull S script, @CheckForNull Object it) throws Exception;
+    void execute(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp, @NonNull S script, @CheckForNull Object it) throws Exception;
 }

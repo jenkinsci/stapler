@@ -23,11 +23,13 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.ServiceLoader;
 
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
 
@@ -37,6 +39,12 @@ import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
  * @author Kohsuke Kawaguchi
  */
 public class HttpResponses {
+
+    public interface ErrorCustomizer {
+        @CheckForNull
+        HttpResponseException handleError(int code, Throwable cause);
+    }
+
     public static abstract class HttpResponseException extends RuntimeException implements HttpResponse {
         public HttpResponseException() {
         }
@@ -88,16 +96,26 @@ public class HttpResponses {
     }
 
     public static HttpResponseException error(final int code, final Throwable cause) {
-        return new HttpResponseException(cause) {
-            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
-                rsp.setStatus(code);
-
-                rsp.setContentType("text/plain;charset=UTF-8");
-                PrintWriter w = new PrintWriter(rsp.getWriter());
-                cause.printStackTrace(w);
-                w.close();
+        HttpResponseException responseException = null;
+        for (ErrorCustomizer handler : ServiceLoader.load(ErrorCustomizer.class)) {
+            responseException = handler.handleError(code, cause);
+            if (responseException != null) {
+                break;
             }
-        };
+        }
+        if (responseException == null) {
+            responseException = new HttpResponseException(cause) {
+                public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                    rsp.setStatus(code);
+
+                    rsp.setContentType("text/plain;charset=UTF-8");
+                    PrintWriter w = new PrintWriter(rsp.getWriter());
+                    cause.printStackTrace(w);
+                    w.close();
+                }
+            };
+        }
+        return responseException;
     }
 
     /**

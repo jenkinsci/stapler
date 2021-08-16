@@ -23,7 +23,7 @@
 
 package org.kohsuke.stapler.export;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Type;
@@ -48,7 +48,7 @@ class JSONDataWriter implements DataWriter {
     }
 
     @Override
-    public @Nonnull ExportConfig getExportConfig() {
+    public @NonNull ExportConfig getExportConfig() {
         return config;
     }
 
@@ -105,13 +105,36 @@ class JSONDataWriter implements DataWriter {
         buf.append('\"');
         for( int i=0; i<v.length(); i++ ) {
             char c = v.charAt(i);
-            switch(c) {
-            case '"':   buf.append("\\\"");break;
-            case '\\':  buf.append("\\\\");break;
-            case '\n':  buf.append("\\n");break;
-            case '\r':  buf.append("\\r");break;
-            case '\t':  buf.append("\\t");break;
-            default:    buf.append(c);break;
+            if (Character.isISOControl(c) || Character.isHighSurrogate(c) || Character.isLowSurrogate(c)) {
+                // Control chars: strictly speaking, JSON spec expects only U+0000 through U+001F, but any char _may_ be escaped, so just do that for U+007F through U+009F too.
+                // Surrogate pair characters: https://docs.oracle.com/javase/6/docs/api/java/lang/Character.html#unicode
+                // JSON spec: https://tools.ietf.org/html/rfc8259#section-7
+                buf.append("\\u");
+                buf.append(HEX[(c >> 12) & 0xf]);
+                buf.append(HEX[(c >> 8) & 0xf]);
+                buf.append(HEX[(c >> 4) & 0xf]);
+                buf.append(HEX[c & 0xf]);
+            } else {
+                switch (c) {
+                    case '"':
+                        buf.append("\\\"");
+                        break;
+                    case '\\':
+                        buf.append("\\\\");
+                        break;
+                    case '\n':
+                        buf.append("\\n");
+                        break;
+                    case '\r':
+                        buf.append("\\r");
+                        break;
+                    case '\t':
+                        buf.append("\\t");
+                        break;
+                    default:
+                        buf.append(c);
+                        break;
+                }
             }
         }
         buf.append('\"');
@@ -167,6 +190,8 @@ class JSONDataWriter implements DataWriter {
     public void endObject() throws IOException {
         close('}');
     }
+
+    private static final char[] HEX = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
     private static final char[] INDENT = new char[32];
     static {

@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.Map;
 import java.io.File;
 import java.net.URLClassLoader;
@@ -62,6 +64,7 @@ public class MetaClassLoader extends TearOffSupport {
     /**
      * If non-null, delegate to this classloader.
      */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_REFACTORED_TO_BE_FINAL", justification = "Legacy switch.")
     public static MetaClassLoader debugLoader = null;
 
     /**
@@ -72,6 +75,11 @@ public class MetaClassLoader extends TearOffSupport {
     private static final Map<ClassLoader,MetaClassLoader> classMap = new HashMap<ClassLoader,MetaClassLoader>();
 
     static {
+        debugLoader = createDebugLoader();
+    }
+
+    @SuppressFBWarnings(value = "DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED", justification = "Not used with an installed security manager.")
+    private static MetaClassLoader createDebugLoader() {
         try {
             String path = System.getProperty("stapler.resourcePath");
             if(path!=null) {
@@ -79,10 +87,11 @@ public class MetaClassLoader extends TearOffSupport {
                 URL[] urls = new URL[tokens.length];
                 for (int i=0; i<tokens.length; i++)
                     urls[i] = new File(tokens[i]).toURI().toURL();
-                debugLoader = new MetaClassLoader(new URLClassLoader(urls));
+                return new MetaClassLoader(new URLClassLoader(urls));
             }
         } catch (MalformedURLException e) {
             throw new Error(e);
         }
+        return null;
     }
 }

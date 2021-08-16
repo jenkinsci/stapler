@@ -58,6 +58,12 @@ public class JSONDataWriterTest {
     }
 
     @Test
+    public void testEncodedChars() throws Exception {
+        assertEquals("{\"_class\":\"Encoded\",\"bar\":\"\\ud834\\udd1e\",\"foo\":\"\\u0000\"}",
+                serialize(new Encoded(), Encoded.class));
+    }
+
+    @Test
     public void testInheritance2() throws Exception { // JENKINS-13336
         assertEquals("{\"_class\":\"Sub2\",\"basic\":\"super\",\"generic\":\"sub2\"}",
                 serialize(new Sub2(), Sub2.class));
@@ -89,7 +95,7 @@ public class JSONDataWriterTest {
         Model<ModelWithJsonField> model = new ModelBuilder().get(ModelWithJsonField.class);
         model.writeTo(jsonModel, writer);
 
-        assertTrue("Generated JSON :"+w.toString()+ "is not a correct representation of :"+json,
+        assertTrue("Generated JSON :"+ w + "is not a correct representation of :"+json,
                    w.toString().contains("present"));
     }
 
@@ -104,21 +110,33 @@ public class JSONDataWriterTest {
         Model<ModelWithJsonField> model = new ModelBuilder().get(ModelWithJsonField.class);
         model.writeTo(jsonModel, writer);
 
-        assertTrue("Generated JSON :"+w.toString()+ "is not a correct representation of :"+json, w.toString().contains(
+        assertTrue("Generated JSON :"+ w + "is not a correct representation of :"+json, w.toString().contains(
                 "null"));
     }
 
     @ExportedBean
-    public class ModelWithJsonField {
-        private JSONObject json;
+    public static class ModelWithJsonField {
+        private final JSONObject json;
 
-        public ModelWithJsonField(String jsonAsString){
+        public ModelWithJsonField(String jsonAsString) {
             json = JSONObject.fromObject(jsonAsString);
         }
 
-        @Exported(visibility=2)
+        @Exported(visibility = 2)
         public JSONObject getJson() {
             return json;
+        }
+    }
+
+    @ExportedBean
+    public static class Encoded {
+        @Exported
+        public String getFoo() {
+            return "\u0000";
+        }
+        @Exported
+        public String getBar() {
+            return "\uD834\uDD1E";
         }
     }
 

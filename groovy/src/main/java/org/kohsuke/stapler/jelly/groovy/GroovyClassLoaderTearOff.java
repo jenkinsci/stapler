@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly.groovy;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyCodeSource;
 import org.apache.commons.jelly.XMLOutput;
@@ -36,6 +37,7 @@ import java.net.URL;
 /**
  * @author Kohsuke Kawaguchi
  */
+@SuppressFBWarnings(value = "GROOVY_SHELL", justification = "from trusted sources")
 public class GroovyClassLoaderTearOff {
     private final MetaClassLoader owner;
 

@@ -23,8 +23,8 @@
 
 package org.kohsuke.stapler;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public abstract class LocaleDrivenResourceProvider {
      * @return the URL to the file, if it is to be overridden, null otherwise.
      */
     @CheckForNull
-    abstract public URL lookup(@Nonnull String path);
+    abstract public URL lookup(@NonNull String path);
 
     private static List<LocaleDrivenResourceProvider> localeDrivenResourceProviders;
 

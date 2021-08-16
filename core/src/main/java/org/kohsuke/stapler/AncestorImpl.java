@@ -45,12 +45,15 @@ class AncestorImpl implements Ancestor {
     AncestorImpl(RequestImpl req, Object object) {
         this.owner = req.ancestors;
         listIndex = owner.size();
-        owner.add(this);
         this.object = object;
         this.tokens = req.tokens.rawTokens;
         this.index = req.tokens.idx;
         this.endsWithSlash = req.tokens.endsWithSlash;
         this.contextPath = req.getContextPath();
+    }
+
+    void addToOwner() {
+        owner.add(this);
     }
 
     public Object getObject() {

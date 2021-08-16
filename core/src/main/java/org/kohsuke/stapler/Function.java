@@ -23,9 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
@@ -38,7 +35,6 @@ import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.WrongMethodTypeException;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -195,7 +191,7 @@ public abstract class Function {
                 }
 
                 // if the databinding method is provided, call that
-                Function binder = PARSE_METHODS.getUnchecked(t);
+                Function binder = PARSE_METHODS.get(t);
                 if (binder!=RETURN_NULL) {
                     arguments[i] = binder.bindAndInvoke(null,req,rsp);
                     continue;
@@ -216,7 +212,7 @@ public abstract class Function {
      * Computing map that discovers the static 'fromStapler' method from a class.
      * The discovered method will be returned as a Function so that the invocation can do parameter injections.
      */
-    private static final LoadingCache<Class,Function> PARSE_METHODS;
+    private static final ClassValue<Function> PARSE_METHODS;
     private static final Function RETURN_NULL;
 
     static {
@@ -226,8 +222,9 @@ public abstract class Function {
             throw new AssertionError(e);    // impossible
         }
 
-        PARSE_METHODS = CacheBuilder.newBuilder().weakKeys().build(new CacheLoader<Class,Function>() {
-            public Function load(Class from) {
+        PARSE_METHODS = new ClassValue<Function>() {
+            @Override
+            public Function computeValue(Class<?> from) {
                 // MethdFunction for invoking a static method as a static method
                 FunctionList methods = new ClassDescriptor(from).methods.name("fromStapler");
                 switch (methods.size()) {
@@ -259,7 +256,7 @@ public abstract class Function {
                     };
                 }
             }
-        });
+        };
     }
 
     /**

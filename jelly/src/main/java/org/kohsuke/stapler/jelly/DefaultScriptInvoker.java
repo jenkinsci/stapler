@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.jelly.JellyContext;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
@@ -33,7 +34,7 @@ import org.apache.commons.jelly.XMLOutput;
 import org.apache.commons.jelly.XMLOutputFactory;
 import org.apache.commons.jelly.impl.TagScript;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.servlet.ServletContext;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -87,10 +88,10 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
     }
 
     private interface OutputStreamSupplier {
-        @Nonnull OutputStream get() throws IOException;
+        @NonNull OutputStream get() throws IOException;
     }
 
-    private class LazyOutputStreamSupplier implements OutputStreamSupplier {
+    private static class LazyOutputStreamSupplier implements OutputStreamSupplier {
         private final OutputStreamSupplier supplier;
         private volatile OutputStream out;
 
@@ -99,7 +100,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         }
 
         @Override
-        @Nonnull
+        @NonNull
         public OutputStream get() throws IOException {
             if (out == null) {
                 synchronized (this) {
@@ -202,5 +203,6 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
      *
      * @see <a href="http://www.slideshare.net/guest22d4179/latency-trumps-all">Latency Trumps All</a>
      */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
     public static boolean COMPRESS_BY_DEFAULT = Boolean.parseBoolean(System.getProperty(DefaultScriptInvoker.class.getName()+".compress","true"));
 }

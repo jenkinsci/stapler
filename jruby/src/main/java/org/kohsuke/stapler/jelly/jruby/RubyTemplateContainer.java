@@ -1,5 +1,6 @@
 package org.kohsuke.stapler.jelly.jruby;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.jelly.Script;
 import org.jruby.RubyClass;
@@ -43,6 +44,7 @@ public class RubyTemplateContainer {
         this.container = container;
     }
 
+    @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Not relevant in this situation.")
     public Script parseScript(URL path) throws IOException {
         try {
             String template = IOUtils.toString(path.openStream(), "UTF-8");

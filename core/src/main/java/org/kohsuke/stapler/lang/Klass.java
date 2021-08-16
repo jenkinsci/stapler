@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Abstraction of class-like object, agnostic to languages.
@@ -63,7 +63,7 @@ public final class Klass<C> {
      *         May return empty list in the case of obsolete {@link #navigator}, which does not offer the method.
      * @since 1.246
      */
-    @Nonnull
+    @NonNull
     public List<FieldRef> getDeclaredFields() {
         return navigator.getDeclaredFields(clazz);
     }
@@ -93,7 +93,7 @@ public final class Klass<C> {
      *         May return empty list in the case of obsolete {@link #navigator}, which does not offer the method.
      * @since 1.246
      */
-    @Nonnull
+    @NonNull
     public List<Function> getFunctions() {
         return navigator.getFunctions(clazz);
     }

@@ -9,8 +9,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.ServletException;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -26,6 +24,32 @@ public class ClassDescriptorTest {
         assertEquals(0,ClassDescriptor.loadParameterNames(C.class.getConstructor()).length);
         String[] names = ClassDescriptor.loadParameterNames(C.class.getConstructor(int.class, int.class, String.class));
         assertEquals("[a, b, x]",Arrays.asList(names).toString());
+    }
+
+    @Test public void loadParameterNamesFromReflection() throws Exception {
+        // collect test cases
+        Map<String,Method> testCases = new HashMap<String,Method>();
+        for (Method m : ClassDescriptorTest.class.getDeclaredMethods())
+            if (m.getName().startsWith("methodWith"))
+                testCases.put(m.getName().substring(10), m);
+        // expected results
+        Map<String,String[]> expected = new HashMap<String,String[]>();
+        expected.put("NoParams", new String[0]);
+        expected.put("NoParams_static", new String[0]);
+        expected.put("ManyParams", new String[] { "a", "b", "c", "d", "e", "f", "g", "h", "i" });
+        expected.put("Params_static", new String[] { "abc", "def", "ghi" });
+        // run tests
+        for (Map.Entry<String,String[]> entry : expected.entrySet()) {
+            Method testMethod = testCases.get(entry.getKey());
+            assertNotNull("Method missing for " + entry.getKey(), testMethod);
+            String[] result = ClassDescriptor.loadParameterNamesFromReflection(testMethod);
+            assertNotNull("Null result for " + entry.getKey(), result);
+            if (!Arrays.equals(entry.getValue(), result)) {
+                StringBuilder buf = new StringBuilder('|');
+                for (String s : result) buf.append(s).append('|');
+                fail("Unexpected result for " + entry.getKey() + ": " + buf);
+            }
+        }
     }
 
     @Test public void loadParametersFromAsm() throws Exception {
@@ -93,7 +117,7 @@ public class ClassDescriptorTest {
         assertEquals(3, f.getAnnotation(AnnA.class).value());
         assertNotNull(f.getAnnotation(AnnB.class));
         // similarly parameter annotations should be fused together
-        assertSame(Nullable.class, f.getParameterAnnotations()[0][0].annotationType());
+        assertSame(AnnC.class, f.getParameterAnnotations()[0][0].annotationType());
 
         // method should be dispatched to D.x() which overrides B.x()
         assertEquals(2, f.bindAndInvoke(new D(), null, null, "Hello"));
@@ -101,7 +125,7 @@ public class ClassDescriptorTest {
 
     public static class B<T> {
         @AnnA @AnnB
-        public int x(@Nullable T t) { return 1; }
+        public int x(@AnnC T t) { return 1; }
     }
 
     public static class D extends B<String> {
@@ -118,5 +142,8 @@ public class ClassDescriptorTest {
     @interface AnnB {
         int value() default 0;
     }
-}
 
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface AnnC {}
+
+}

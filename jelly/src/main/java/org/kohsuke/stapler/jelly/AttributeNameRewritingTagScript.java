@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2010, Kohsuke Kawaguchi
+ * Copyright (c) 2021 CloudBees, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided
@@ -21,31 +21,34 @@
  * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.kohsuke.stapler;
+package org.kohsuke.stapler.jelly;
+
+import org.apache.commons.jelly.expression.Expression;
+import org.apache.commons.jelly.impl.TagScript;
 
 /**
- * Represents a T value or no value at all. Used to work around the lack of null value in the computing map.
+ * This class implements a {@link TagScript} that allows rewriting attribute names.
  *
- * @author Kohsuke Kawaguchi
  */
-final class Optional<T> {
-    private final T value;
+/* package */ class AttributeNameRewritingTagScript extends TagScript {
+    private final String original;
+    private final String replacement;
 
-    Optional(T value) {
-        this.value = value;
+    public AttributeNameRewritingTagScript(String original, String replacement) {
+        this.original = original;
+        this.replacement = replacement;
     }
 
-    public T get() { return value; }
-
-
-    private static Optional NONE = new Optional(null);
-
-    public static <T> Optional<T> none() {
-        return NONE;
-    }
-
-    public static <T> Optional<T> create(T value) {
-        if (value==null)    return NONE;    // cache
-        return new Optional<T>(value);
+    @Override
+    public void addAttribute(String name, Expression expression) {
+        if (replacement.equals(name)) {
+            // cf. TagScript#run
+            throw new IllegalArgumentException("This tag does not understand the '" + replacement + "' attribute");
+        }
+        if (original.equals(name)) {
+            super.addAttribute(replacement, expression);
+        } else {
+            super.addAttribute(name, expression);
+        }
     }
 }

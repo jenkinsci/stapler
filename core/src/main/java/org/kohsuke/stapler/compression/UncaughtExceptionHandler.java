@@ -1,5 +1,6 @@
 package org.kohsuke.stapler.compression;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.kohsuke.stapler.AttributeKey;
 
 import javax.servlet.ServletContext;
@@ -31,6 +32,7 @@ public interface UncaughtExceptionHandler {
 
 
     UncaughtExceptionHandler DEFAULT = new UncaughtExceptionHandler() {
+        @SuppressFBWarnings(value = "XSS_SERVLET", justification = "Covered by the escape() method.")
         public void reportException(Throwable e, ServletContext context, HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);

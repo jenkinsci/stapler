@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -97,6 +98,7 @@ public class Stapler extends HttpServlet {
 
     private /*final*/ ServletContext context;
 
+    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "The Stapler class is not expected to be serialized.")
     private /*final*/ WebApp webApp;
 
     /**
@@ -291,12 +293,12 @@ public class Stapler extends HttpServlet {
                 URL jarURL = ((JarURLConnection) connection).getJarFileURL();
                 if (jarURL.getProtocol().equals("file")) {
                     // Return the last modified time of the underlying file - saves some opening and closing
-                    return new File(jarURL.getFile()).lastModified();
+                    return determineLastModified(jarURL);
                 } else {
                     // Use the URL mechanism
                     URLConnection jarConn = null;
                     try {
-                        jarConn = jarURL.openConnection();
+                        jarConn = openConnection(jarURL);
                         return jarConn.getLastModified();
                     } catch (IOException e) {
                         return -1;
@@ -313,6 +315,13 @@ public class Stapler extends HttpServlet {
             } else {
                 return connection.getLastModified();
             }
+        }
+
+        @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Protected by checks at other layers.")
+        private long determineLastModified(URL jarURL) {
+            // TODO Fix this so that it works correctly. Needs to handle metacharacters
+            // Windows UNC, etc. Should use URL.toURI, Paths.get(URI), and Files.getLastModifiedTime.
+            return new File(jarURL.getFile()).lastModified();
         }
     }
 
@@ -388,6 +397,7 @@ public class Stapler extends HttpServlet {
         abstract URL map(String path) throws IOException;
     }
 
+    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "The Stapler class is not expected to be serialized.")
     private final LocaleDrivenResourceSelector resourcePathLocaleSelector = new LocaleDrivenResourceSelector() {
         @Override
         URL map(String path) throws IOException {
@@ -410,6 +420,7 @@ public class Stapler extends HttpServlet {
     /**
      * {@link LocaleDrivenResourceSelector} that uses a complete URL as 'path'
      */
+    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "The Stapler class is not expected to be serialized.")
     private final LocaleDrivenResourceSelector urlLocaleSelector = new LocaleDrivenResourceSelector() {
         @Override
         URL map(String url) throws IOException {
@@ -474,7 +485,7 @@ public class Stapler extends HttpServlet {
             // but we've heard a report from http://github.com/adreghiciu that some URLS backed by custom
             // protocol handlers can throw an exception as early as here. So treat this IOException
             // as "the resource pointed by URL is missing".
-            URLConnection con = url.openConnection();
+            URLConnection con = openConnection(url);
 
             OpenConnection c = new OpenConnection(con);
             // Some URLs backed by custom broken protocol handler can return null from getInputStream(),
@@ -487,6 +498,11 @@ public class Stapler extends HttpServlet {
             // Tomcat only reports a missing resource error here, from URLConnection.getInputStream()
             return null;
         }
+    }
+
+    @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Not relevant in this situation.")
+    private static URLConnection openConnection(URL url) throws IOException {
+        return url.openConnection();
     }
 
     /**
@@ -574,9 +590,9 @@ public class Stapler extends HttpServlet {
                     range = range.substring(6);
                     Matcher m = RANGE_SPEC.matcher(range);
                     if(m.matches()) {
-                        long s = Long.valueOf(m.group(1));
+                        long s = Long.parseLong(m.group(1));
                         long e = m.group(2).length()>0
-                                ? Long.valueOf(m.group(2))+1 //range set is inclusive
+                                ? Long.parseLong(m.group(2))+1 //range set is inclusive
                                 : contentLength; // unspecified value means "all the way to the end"
                         e = Math.min(e,contentLength);
 
@@ -645,7 +661,9 @@ public class Stapler extends HttpServlet {
      *
      * See http://weblogs.java.net/blog/kohsuke/archive/2007/04/how_to_convert.html
      */
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Protected by checks at other layers.")
     /*package for test*/ File toFile(URL url) {
+        // TODO Fix this so that it works correctly. Should use URI and Path.
         String urlstr = url.toExternalForm();
         if(!urlstr.startsWith("file:"))
             return null;
@@ -720,7 +738,8 @@ public class Stapler extends HttpServlet {
         }
 
         // adds this node to ancestor list
-        AncestorImpl a = new AncestorImpl(req, node);
+        AncestorImpl ancestor = new AncestorImpl(req, node);
+        ancestor.addToOwner();
 
         // try overrides
         if (node instanceof StaplerOverridable) {
@@ -852,6 +871,7 @@ public class Stapler extends HttpServlet {
     /**
      * Try to dispatch the request against the given node, and if it fails, report an error to the client.
      */
+    @SuppressFBWarnings(value = "XSS_SERVLET", justification = "Handled by the escape() method or implementing code.")
     void invoke(RequestImpl req, ResponseImpl rsp, Object node ) throws IOException, ServletException {
         if(node==null) {
             // node is null
@@ -891,7 +911,7 @@ public class Stapler extends HttpServlet {
             w.println("<p>Stapler processed this HTTP request as follows, but couldn't find the resource to consume the request");
             w.println("<pre>");
             EvaluationTrace.get(req).printHtml(w);
-            w.printf("<font color=red>-&gt; No matching rule was found on &lt;%s&gt; for \"%s\"</font>\n", escape(node.toString()), req.tokens.assembleOriginalRestOfPath());
+            w.printf("<font color=red>-&gt; No matching rule was found on &lt;%s&gt; for \"%s\"</font>%n", escape(node.toString()), req.tokens.assembleOriginalRestOfPath());
             w.println("</pre>");
             w.printf("<p>&lt;%s&gt; has the following URL mappings, in the order of preference:", escape(node.toString()));
             w.println("<ol>");
@@ -905,6 +925,7 @@ public class Stapler extends HttpServlet {
         }
     }
 
+    @SuppressFBWarnings(value = "REQUESTDISPATCHER_FILE_DISCLOSURE", justification = "Forwarding the request to be handled correctly.")
     public void forward(RequestDispatcher dispatcher, StaplerRequest req, HttpServletResponse rsp) throws ServletException, IOException {
         dispatcher.forward(req,new ResponseImpl(this,rsp));
     }

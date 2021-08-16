@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.discovery.ResourceNameIterator;
 import org.apache.commons.discovery.resource.ClassLoaders;
 import org.apache.commons.discovery.resource.names.DiscoverServiceNames;
@@ -30,8 +31,8 @@ import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.event.FilteredDispatchTriggerListener;
 import org.kohsuke.stapler.lang.Klass;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -112,6 +113,7 @@ public abstract class Facet {
 
     public static final Logger LOGGER = Logger.getLogger(Facet.class.getName());
 
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
     public static boolean ALLOW_VIEW_NAME_PATH_TRAVERSAL = Boolean.getBoolean(Facet.class.getName() + ".allowViewNamePathTraversal");
     
     /**
@@ -174,7 +176,7 @@ public abstract class Facet {
      * If you do want to have an extension added, you must ensure you provide the dot at the first character position, 
      * see JellyFacet
      */
-    protected @Nonnull String getExtensionSuffix() {
+    protected @NonNull String getExtensionSuffix() {
         return "";
     } 
 
@@ -193,11 +195,11 @@ public abstract class Facet {
      * @see WebApp#setFilteredDispatchTriggerListener(FilteredDispatchTriggerListener)
      * @since TODO
      */
-    @Nonnull protected <S> Dispatcher createValidatingDispatcher(@Nonnull AbstractTearOff<?, ? extends S, ?> scriptLoader,
-                                                                 @Nonnull ScriptExecutor<? super S> scriptExecutor) {
+    @NonNull protected <S> Dispatcher createValidatingDispatcher(@NonNull AbstractTearOff<?, ? extends S, ?> scriptLoader,
+                                                                 @NonNull ScriptExecutor<? super S> scriptExecutor) {
         return new Dispatcher() {
             @Override
-            public boolean dispatch(@Nonnull RequestImpl req, @Nonnull ResponseImpl rsp, @CheckForNull Object node) throws ServletException {
+            public boolean dispatch(@NonNull RequestImpl req, @NonNull ResponseImpl rsp, @CheckForNull Object node) throws ServletException {
                 String next = req.tokens.peek();
                 if (next == null) {
                     return false;
@@ -259,10 +261,10 @@ public abstract class Facet {
      * Handles an index request by dispatching a script.
      * @since TODO
      */
-    protected <S> boolean handleIndexRequest(@Nonnull AbstractTearOff<?, ? extends S, ?> scriptLoader,
-                                             @Nonnull ScriptExecutor<? super S> scriptExecutor,
-                                             @Nonnull RequestImpl req,
-                                             @Nonnull ResponseImpl rsp,
+    protected <S> boolean handleIndexRequest(@NonNull AbstractTearOff<?, ? extends S, ?> scriptLoader,
+                                             @NonNull ScriptExecutor<? super S> scriptExecutor,
+                                             @NonNull RequestImpl req,
+                                             @NonNull ResponseImpl rsp,
                                              @CheckForNull Object node)
             throws ServletException, IOException {
         S script;
@@ -300,10 +302,10 @@ public abstract class Facet {
      * @see WebApp#setFilteredDispatchTriggerListener(FilteredDispatchTriggerListener)
      * @since TODO
      */
-    @CheckForNull protected <S> RequestDispatcher createRequestDispatcher(@Nonnull AbstractTearOff<?, ? extends S, ?> scriptLoader,
-                                                                          @Nonnull ScriptExecutor<? super S> scriptExecutor,
+    @CheckForNull protected <S> RequestDispatcher createRequestDispatcher(@NonNull AbstractTearOff<?, ? extends S, ?> scriptLoader,
+                                                                          @NonNull ScriptExecutor<? super S> scriptExecutor,
                                                                           @CheckForNull Object it,
-                                                                          @Nonnull String viewName) {
+                                                                          @NonNull String viewName) {
         return ScriptRequestDispatcher.newRequestDispatcher(scriptLoader, scriptExecutor, viewName, it);
     }
 }

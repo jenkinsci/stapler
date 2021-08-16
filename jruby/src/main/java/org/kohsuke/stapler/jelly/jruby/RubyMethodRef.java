@@ -8,19 +8,19 @@ import org.kohsuke.stapler.lang.MethodRef;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * @author Kohsuke Kawaguchi
  */
 public class RubyMethodRef extends MethodRef {
-    @Nonnull
+    @NonNull
     private final RubyModule klass;
-    @Nonnull
+    @NonNull
     private final DynamicMethod method;
 
 
-    public RubyMethodRef(@Nonnull RubyModule klass, @Nonnull DynamicMethod method) {
+    public RubyMethodRef(@NonNull RubyModule klass, @NonNull DynamicMethod method) {
         this.klass = klass;
         this.method = method;
     }
@@ -30,7 +30,7 @@ public class RubyMethodRef extends MethodRef {
      * @return Ruby module, which stores the method reference
      * @since 1.248
      */
-    @Nonnull
+    @NonNull
     public RubyModule getKlass() {
         return klass;
     }
@@ -40,7 +40,7 @@ public class RubyMethodRef extends MethodRef {
      * @return Referenced method
      * @since 1.248
      */
-    @Nonnull
+    @NonNull
     public DynamicMethod getMethod() {
         return method;
     }

@@ -37,10 +37,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
-import com.google.common.base.Predicate;
+import java.util.function.Predicate;
 import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 /**
@@ -129,7 +129,7 @@ public class Model<T> {
      */
     /*package*/ final Predicate<String> HAS_PROPERTY_NAME = new Predicate<String>() {
         @Override
-        public boolean apply(@Nullable String name) {
+        public boolean test(@Nullable String name) {
             return propertyNames.contains(name);
         }
     };
@@ -138,7 +138,7 @@ public class Model<T> {
      */
     /*package*/ final Predicate<String> HAS_PROPERTY_NAME_IN_ANCESTRY = new Predicate<String>() {
         @Override
-        public boolean apply(@Nullable String name) {
+        public boolean test(@Nullable String name) {
             for (Model m=Model.this; m!=null; m=m.superModel)
                 if (m.propertyNames.contains(name))
                     return true;

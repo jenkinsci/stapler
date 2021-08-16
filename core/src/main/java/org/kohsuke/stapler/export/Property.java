@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import org.jvnet.tiger_types.Types;
 import org.kohsuke.stapler.export.TreePruner.ByDepth;
@@ -312,7 +312,7 @@ public abstract class Property implements Comparable<Property> {
         }
 
         @Override
-        public @Nonnull ExportConfig getExportConfig() {
+        public @NonNull ExportConfig getExportConfig() {
             return exportConfig;
         }
 

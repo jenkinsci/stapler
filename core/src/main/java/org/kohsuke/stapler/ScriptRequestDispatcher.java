@@ -24,8 +24,10 @@
 
 package org.kohsuke.stapler;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -45,9 +47,9 @@ class ScriptRequestDispatcher<S> implements RequestDispatcher {
 
     private static final Logger LOGGER = Logger.getLogger(ScriptRequestDispatcher.class.getName());
 
-    @CheckForNull static <S> ScriptRequestDispatcher<S> newRequestDispatcher(@Nonnull AbstractTearOff<?, ? extends S, ?> scriptLoader,
-                                                                             @Nonnull ScriptExecutor<? super S> scriptExecutor,
-                                                                             @Nonnull String viewName,
+    @CheckForNull static <S> ScriptRequestDispatcher<S> newRequestDispatcher(@NonNull AbstractTearOff<?, ? extends S, ?> scriptLoader,
+                                                                             @NonNull ScriptExecutor<? super S> scriptExecutor,
+                                                                             @NonNull String viewName,
                                                                              @CheckForNull Object node) {
         S script;
         try {
@@ -62,16 +64,16 @@ class ScriptRequestDispatcher<S> implements RequestDispatcher {
         return new ScriptRequestDispatcher<>(scriptLoader.getDefaultScriptExtension(), scriptExecutor, viewName, script, node);
     }
 
-    private final @Nonnull String defaultScriptExtension;
-    private final @Nonnull ScriptExecutor<? super S> scriptExecutor;
-    private final @Nonnull String viewName;
-    private final @Nonnull S script;
+    private final @NonNull String defaultScriptExtension;
+    private final @NonNull ScriptExecutor<? super S> scriptExecutor;
+    private final @NonNull String viewName;
+    private final @NonNull S script;
     private final @CheckForNull Object node;
 
-    private ScriptRequestDispatcher(@Nonnull String defaultScriptExtension,
-                                    @Nonnull ScriptExecutor<? super S> scriptExecutor,
-                                    @Nonnull String viewName,
-                                    @Nonnull S script,
+    private ScriptRequestDispatcher(@NonNull String defaultScriptExtension,
+                                    @NonNull ScriptExecutor<? super S> scriptExecutor,
+                                    @NonNull String viewName,
+                                    @NonNull S script,
                                     @CheckForNull Object node) {
         this.defaultScriptExtension = defaultScriptExtension;
         this.scriptExecutor = scriptExecutor;
@@ -102,6 +104,7 @@ class ScriptRequestDispatcher<S> implements RequestDispatcher {
     }
 
     @Override
+    @SuppressFBWarnings(value = "REQUESTDISPATCHER_FILE_DISCLOSURE", justification = "Forwarding the request to be handled correctly.")
     public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
         forward(request, response);
     }

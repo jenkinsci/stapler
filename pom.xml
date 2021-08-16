@@ -2,15 +2,15 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-    <groupId>org.kohsuke</groupId>
-    <artifactId>pom</artifactId>
-    <version>21</version>
+    <groupId>org.jenkins-ci</groupId>
+    <artifactId>jenkins</artifactId>
+    <version>1.65</version>
     <relativePath />
   </parent>
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler-parent</artifactId>
   <packaging>pom</packaging>
-  <version>${revision}${changelist}</version>
+  <version>${changelist}</version>
 
   <name>Stapler</name>
   <description>Stapler HTTP request handling engine</description>
@@ -24,7 +24,7 @@
     <module>jrebel</module>
   </modules>
 
-  <url>https://stapler.kohsuke.org/</url>
+  <url>https://github.com/stapler/stapler</url>
 
   <licenses>
     <license>
@@ -41,29 +41,6 @@
     <tag>${scmTag}</tag>
   </scm>
 
-  <distributionManagement>
-    <repository>
-      <id>maven.jenkins-ci.org</id>
-      <url>https://repo.jenkins-ci.org/releases/</url>
-    </repository>
-    <snapshotRepository>
-      <id>maven.jenkins-ci.org</id>
-      <url>https://repo.jenkins-ci.org/snapshots/</url>
-    </snapshotRepository>
-    <site>
-      <id>github-pages</id>
-      <url>gitsite:git@github.com/stapler/stapler.git</url>
-    </site>
-  </distributionManagement>
-
-  <developers>
-    <developer>
-      <name>Kohsuke Kawaguchi</name>
-      <id>kohsuke</id>
-      <email>kk@kohsuke.org</email>
-    </developer>
-  </developers>
-  
   <repositories>
     <repository>
       <id>repo.jenkins-ci.org</id>
@@ -79,190 +56,81 @@
   </pluginRepositories>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.level>8</java.level>
-    <revision>1.259</revision>
-    <changelist>-SNAPSHOT</changelist>
-    <incrementals.url>https://repo.jenkins-ci.org/incrementals/</incrementals.url>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> <!-- TODO move to parent POM -->
+    <changelist>999999-SNAPSHOT</changelist>
     <scmTag>HEAD</scmTag>
+    <spotbugs.excludeFilterFile>${project.basedir}/../src/spotbugs/spotbugs-excludes.xml</spotbugs.excludeFilterFile>
+    <jetty.version>9.4.43.v20210629</jetty.version>
   </properties>
 
   <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
-        <configuration>
-          <source>1.${java.level}</source>
-          <target>1.${java.level}</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <version>1.15</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <signature>
-            <groupId>org.codehaus.mojo.signature</groupId>
-            <artifactId>java1${java.level}</artifactId>
-            <version>1.0</version>
-          </signature>
-          <ignores>
-            <!-- Detects as a false positive https://github.com/mojohaus/animal-sniffer/issues/18 -->
-            <ignore>java.lang.invoke.MethodHandle</ignore>
-          </ignores>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.0.0-M1</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <requireJavaVersion>
-                  <version>[1.${java.level},)</version>
-                </requireJavaVersion>
-                <enforceBytecodeVersion>
-                  <maxJdkVersion>1.${java.level}</maxJdkVersion>
-                  <ignoreClasses>
-                    <!-- Bundled in jruby-complete: -->
-                    <string>com.headius.invokebinder.*</string>
-                  </ignoreClasses>
-                </enforceBytecodeVersion>
-                <requireUpperBoundDeps />
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>extra-enforcer-rules</artifactId>
-            <version>1.0-beta-4</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-      <plugin>
-        <artifactId>maven-release-plugin</artifactId>
-        <configuration>
-          <!-- work around for a bug in javadoc plugin that causes the release to fail. see MRELEASE-271 -->
-          <preparationGoals>clean install</preparationGoals>
-          <remoteTagging>true</remoteTagging>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-        <dependencies>
-          <dependency>
-            <groupId>org.kohsuke</groupId>
-            <artifactId>doxia-module-markdown</artifactId>
-            <version>1.0</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-      <plugin>
-        <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
-        <artifactId>maven-jellydoc-plugin</artifactId>
-        <version>1.2</version>
-      </plugin>
-    </plugins>
     <pluginManagement>
       <plugins>
         <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>2.5</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>2.4</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.10.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.18.1</version>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
           <configuration>
-            <trimStackTrace>false</trimStackTrace>
-            <!-- SUREFIRE-1588 workaround; too late for systemProperties: -->
-            <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+            <rules>
+              <enforceBytecodeVersion>
+                <ignoreClasses>
+                  <!-- Bundled in jruby-complete: -->
+                  <string>com.headius.invokebinder.*</string>
+                </ignoreClasses>
+              </enforceBytecodeVersion>
+            </rules>
           </configuration>
         </plugin>
         <plugin>
-          <groupId>io.jenkins.tools.incrementals</groupId>
-          <artifactId>incrementals-maven-plugin</artifactId>
-          <version>1.0-beta-7</version>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>animal-sniffer-maven-plugin</artifactId>
           <configuration>
-            <generateBackupPoms>false</generateBackupPoms>
-            <updateNonincremental>false</updateNonincremental>
+            <ignores>
+              <!-- Detects as a false positive https://github.com/mojohaus/animal-sniffer/issues/18 -->
+              <ignore>java.lang.invoke.MethodHandle</ignore>
+            </ignores>
           </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
   </build>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.7</version>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>license</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-      <plugin>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9.1</version>
-        <configuration>
-          <aggregate>true</aggregate>
-          <linksource>true</linksource>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
-
-
   <dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.kohsuke.metainf-services</groupId>
       <artifactId>metainf-services</artifactId>
-      <version>1.7</version>
+      <version>1.8</version>
     </dependency>
 
     <!-- test dependencies -->
     <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>jetty</artifactId>
-      <version>6.1.11</version>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+      <version>${jetty.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-util</artifactId>
+      <version>${jetty.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>${jetty.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-webapp</artifactId>
+      <version>${jetty.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.8.5</version>
+      <artifactId>mockito-core</artifactId>
+      <version>3.11.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -279,12 +147,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
       <version>3.2.2</version>
@@ -292,140 +154,4 @@
   </dependencies>
   </dependencyManagement>
 
-  <profiles>
-    <profile>
-      <!-- JEP-305 -->
-      <id>consume-incrementals</id>
-      <repositories>
-        <repository>
-          <id>incrementals</id>
-          <url>${incrementals.url}</url>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </repository>
-      </repositories>
-      <pluginRepositories>
-        <pluginRepository>
-          <id>incrementals</id>
-          <url>${incrementals.url}</url>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </pluginRepository>
-      </pluginRepositories>
-    </profile>
-    <profile>
-      <id>might-produce-incrementals</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>flatten-maven-plugin</artifactId>
-            <version>1.0.1</version>
-            <configuration>
-              <updatePomFile>true</updatePomFile>
-            </configuration>
-            <executions>
-              <execution>
-                <id>flatten</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>flatten</goal>
-                </goals>
-                <configuration>
-                  <flattenMode>oss</flattenMode>
-                  <outputDirectory>${project.build.directory}</outputDirectory>
-                  <flattenedPomFilename>${project.artifactId}-${project.version}.pom</flattenedPomFilename>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-enforcer-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>display-info</id>
-                <configuration>
-                  <rules>
-                    <requireMavenVersion>
-                      <version>[3.5.0,)</version>
-                      <message>3.5.0+ required to use Incrementals.</message>
-                    </requireMavenVersion>
-                    <rule implementation="io.jenkins.tools.incrementals.enforcer.RequireExtensionVersion">
-                      <version>[1.0-beta-4,)</version>
-                    </rule>
-                  </rules>
-                </configuration>
-              </execution>
-            </executions>
-            <dependencies>
-              <dependency>
-                <groupId>io.jenkins.tools.incrementals</groupId>
-                <artifactId>incrementals-enforcer-rules</artifactId>
-                <version>1.0-beta-5</version>
-              </dependency>
-            </dependencies>
-          </plugin>
-          <plugin>
-            <artifactId>maven-release-plugin</artifactId>
-            <configuration>
-              <completionGoals>incrementals:reincrementalify</completionGoals>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>produce-incrementals</id>
-      <activation>
-        <property>
-          <name>set.changelist</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <distributionManagement>
-        <repository>
-          <id>incrementals</id>
-          <url>${incrementals.url}</url>
-        </repository>
-      </distributionManagement>
-      <build>
-        <plugins>
-          <!-- Copied from jenkins-release: -->
-          <plugin>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>attach-test-sources</id>
-                <goals>
-                  <goal>test-jar-no-fork</goal>
-                </goals>
-                <configuration>
-                  <skipSource>${no-test-jar}</skipSource>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.kohsuke.MetaInfServices;
@@ -33,7 +34,7 @@ import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.lang.Klass;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -78,7 +79,7 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
     }
 
     @Override 
-    protected @Nonnull String getExtensionSuffix() {
+    protected @NonNull String getExtensionSuffix() {
         return ".jelly";
     }
 
@@ -122,6 +123,7 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
      * This flag will activate the Jelly evaluation trace.
      * It generates extra comments into HTML, indicating where the fragment was rendered.
      */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
     public static boolean TRACE = Boolean.getBoolean("stapler.jelly.trace");
 
     private static final Set<Class<JellyClassTearOff>> TEAROFF_TYPES = Collections.singleton(JellyClassTearOff.class);

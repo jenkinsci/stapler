@@ -44,6 +44,7 @@ import java.util.Set;
  * Groovy AST transformation that capture necessary parameter names.
  *
  * @author Kohsuke Kawaguchi
+ * @see CapturedParameterNames
  */
 @MetaInfServices
 @GroovyASTTransformation

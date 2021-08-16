@@ -32,6 +32,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
@@ -209,29 +210,29 @@ public class LargeText {
     public long writeLogTo(long start, OutputStream out) throws IOException {
         CountingOutputStream os = new CountingOutputStream(out);
 
-        Session f = source.open();
-        f.skip(start);
+        try (Session f = source.open()) {
+            f.skip(start);
 
-        if(completed) {
-            // write everything till EOF
-            byte[] buf = new byte[1024];
-            int sz;
-            while((sz=f.read(buf))>=0)
-                os.write(buf,0,sz);
-        } else {
-            ByteBuf buf = new ByteBuf(null,f);
-            HeadMark head = new HeadMark(buf);
-            TailMark tail = new TailMark(buf);
-            buf = null;
+            if (completed) {
+                // write everything till EOF
+                byte[] buf = new byte[1024];
+                int sz;
+                while ((sz = f.read(buf)) >= 0)
+                    os.write(buf, 0, sz);
+            } else {
+                ByteBuf buf = new ByteBuf(null, f);
+                HeadMark head = new HeadMark(buf);
+                TailMark tail = new TailMark(buf);
+                buf = null;
 
-            int readLines = 0;
-            while(tail.moveToNextLine(f) && readLines++ < MAX_LINES_READ) {
-                head.moveTo(tail,os);
+                int readLines = 0;
+                while (tail.moveToNextLine(f) && readLines++ < MAX_LINES_READ) {
+                    head.moveTo(tail, os);
+                }
+                head.finish(os);
             }
-            head.finish(os);
         }
 
-        f.close();
         os.flush();
 
         return os.getByteCount()+start;
@@ -382,8 +383,7 @@ public class LargeText {
      * Represents the read session of the {@link Source}.
      * Methods generally follow the contracts of {@link InputStream}.
      */
-    private interface Session {
-        void close() throws IOException;
+    private interface Session extends Closeable {
         void skip(long start) throws IOException;
         int read(byte[] buf) throws IOException;
         int read(byte[] buf, int offset, int length) throws IOException;
@@ -399,18 +399,22 @@ public class LargeText {
             this.file = new RandomAccessFile(file,"r");
         }
 
+        @Override
         public void close() throws IOException {
             file.close();
         }
 
+        @Override
         public void skip(long start) throws IOException {
             file.seek(file.getFilePointer()+start);
         }
 
+        @Override
         public int read(byte[] buf) throws IOException {
             return file.read(buf);
         }
 
+        @Override
         public int read(byte[] buf, int offset, int length) throws IOException {
             return file.read(buf,offset,length);
         }
@@ -430,20 +434,24 @@ public class LargeText {
             this.gz = new GZIPInputStream(Files.newInputStream(file.toPath(), StandardOpenOption.READ));
         }
 
+        @Override
         public void close() throws IOException {
             gz.close();
         }
 
+        @Override
         public void skip(long start) throws IOException {
             while (start > 0) {
                 start -= gz.skip(start);
             }
         }
 
+        @Override
         public int read(byte[] buf) throws IOException {
             return gz.read(buf);
         }
 
+        @Override
         public int read(byte[] buf, int offset, int length) throws IOException {
             return gz.read(buf,offset,length);
         }
@@ -521,11 +529,12 @@ public class LargeText {
             this.in = buf.newInputStream();
         }
 
-
+        @Override
         public void close() throws IOException {
             in.close();
         }
 
+        @Override
         public void skip(long start) throws IOException {
             while (start > 0) {
                 long diff = in.skip(start);
@@ -536,10 +545,12 @@ public class LargeText {
             }
         }
 
+        @Override
         public int read(byte[] buf) throws IOException {
             return in.read(buf);
         }
 
+        @Override
         public int read(byte[] buf, int offset, int length) throws IOException {
             return in.read(buf,offset,length);
         }

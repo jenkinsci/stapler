@@ -23,7 +23,8 @@
 
 package org.kohsuke.stapler.framework;
 
-import com.google.common.util.concurrent.SettableFuture;
+import java.util.concurrent.CompletableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jvnet.localizer.LocaleProvider;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.Stapler;
@@ -36,6 +37,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Locale;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -65,7 +68,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      */
     protected File home;
 
-    private SettableFuture<Object> initializer = SettableFuture.create();
+    private CompletableFuture<Object> initializer = new CompletableFuture<>();
 
     protected AbstractWebAppMain(Class<T> rootType) {
         this.rootType = rootType;
@@ -134,18 +137,18 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
         try {
             Object app = createApplication();
             context.setAttribute(APP, app);
-            initializer.set(app);
+            initializer.complete(app);
         } catch (Error e) {
             LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
-            initializer.setException(e);
+            initializer.completeExceptionally(e);
             throw e;
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
-            initializer.setException(e);
+            initializer.completeExceptionally(e);
             throw e;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
-            initializer.setException(e);
+            initializer.completeExceptionally(e);
             throw new Error(e);
         } finally {
             // in case the above catch clauses miss this.
@@ -177,7 +180,12 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      */
     protected boolean checkEnvironment() {
         home = getHomeDir().getAbsoluteFile();
-        home.mkdirs();
+        try {
+            Files.createDirectories(home.toPath());
+        } catch (IOException ioe) {
+            LOGGER.log(Level.WARNING, "Failed to create home directory: " + home, ioe);
+            return false;
+        }
         LOGGER.info(getApplicationName()+" home directory: "+home);
 
         // check that home exists (as mkdirs could have failed silently), otherwise throw a meaningful error
@@ -212,6 +220,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      * People makes configuration mistakes, so we are trying to be nice
      * with those by doing {@link String#trim()}.
      */
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Home dir is configured by admin or app.")
     protected File getHomeDir() {
         // check JNDI for the home directory first
         String varName = getApplicationName().toUpperCase() + "_HOME";
@@ -248,6 +257,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      *
      * Override this method to change that behavior.
      */
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Home dir is configured by admin or app.")
     protected File getDefaultHomeDir() {
         return new File(new File(System.getProperty("user.home")),'.'+getApplicationName().toLowerCase());
     }

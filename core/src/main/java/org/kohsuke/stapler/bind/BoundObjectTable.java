@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.bind;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
@@ -170,6 +171,7 @@ public class BoundObjectTable implements StaplerFallback {
             return v;
         }
 
+        @SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "This usage does not create synchronization problems.")
         public HttpResponse doEnableLogging() {
             if (DEBUG_LOGGING) {
                 this.logging = true;
@@ -239,6 +241,7 @@ public class BoundObjectTable implements StaplerFallback {
     /**
      * True to activate debug logging of session fragments.
      */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
     public static boolean DEBUG_LOGGING = Boolean.getBoolean(BoundObjectTable.class.getName()+".debugLog");
 
     private static final Logger LOGGER = Logger.getLogger(BoundObjectTable.class.getName());
