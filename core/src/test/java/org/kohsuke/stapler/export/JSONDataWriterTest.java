@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import net.sf.json.JSONObject;
 
@@ -100,6 +101,7 @@ public class JSONDataWriterTest {
     }
 
     @Test
+    @Ignore
     public void JSONObjectWithNullValue() throws IOException {
         String json = "{'key':'value', 'optional':null}";
 
