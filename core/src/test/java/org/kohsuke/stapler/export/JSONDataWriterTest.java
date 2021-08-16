@@ -121,7 +121,7 @@ public class JSONDataWriterTest {
         private final JSONObject json;
 
         public ModelWithJsonField(String jsonAsString) {
-            json = JSONObject.fromObject(jsonAsString);
+            json = JSONObject.fromObject(jsonAsString.replace('\'', '"'));
         }
 
         @Exported(visibility = 2)
