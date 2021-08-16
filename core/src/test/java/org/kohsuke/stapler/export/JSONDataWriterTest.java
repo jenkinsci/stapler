@@ -98,8 +98,7 @@ public class JSONDataWriterTest {
         Model<ModelWithJsonField> model = new ModelBuilder().get(ModelWithJsonField.class);
         model.writeTo(jsonModel, writer);
 
-        assertTrue("Generated JSON :"+ w + "is not a correct representation of :"+json,
-                   w.toString().contains("present"));
+        assertThat("not a correct representation of " + json, w.toString(), containsString("present"));
     }
 
     @Test
