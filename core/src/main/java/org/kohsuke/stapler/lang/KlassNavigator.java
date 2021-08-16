@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Strategy pattern to provide navigation across class-like objects in other languages of JVM.
@@ -86,7 +86,7 @@ public abstract class KlassNavigator<C> {
      *         By default this list is empty, {@link KlassNavigator} implementations are responsible to implement it.
      * @since 1.246
      */
-    @Nonnull
+    @NonNull
     public List<FieldRef> getDeclaredFields(C clazz) {
         return Collections.emptyList();
     }
@@ -98,7 +98,7 @@ public abstract class KlassNavigator<C> {
      *         By default this list is empty, {@link KlassNavigator} implementations are responsible to implement it.
      * @since 1.246
      */
-    @Nonnull
+    @NonNull
     public List<Function> getFunctions(C clazz) {
         return Collections.emptyList();
     }

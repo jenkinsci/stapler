@@ -4,7 +4,7 @@ import net.sf.json.JsonConfig;
 import org.kohsuke.stapler.export.ExportConfig;
 import org.kohsuke.stapler.export.Flavor;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
@@ -35,7 +35,7 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
     /**
      * Returns the wrapped instance
      */
-    @Nonnull
+    @NonNull
     public StaplerResponse getWrapped() {
         return wrapped;
     }

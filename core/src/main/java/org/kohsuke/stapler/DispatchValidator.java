@@ -24,8 +24,8 @@
 
 package org.kohsuke.stapler;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Validates dispatch requests. This validator is configured through {@link WebApp#setDispatchValidator(DispatchValidator)}
@@ -47,7 +47,7 @@ public interface DispatchValidator {
      * @param rsp the HTTP response
      * @return true if the request should be dispatched, false if not, or null if unknown or neutral
      */
-    @CheckForNull Boolean isDispatchAllowed(@Nonnull StaplerRequest req, @Nonnull StaplerResponse rsp);
+    @CheckForNull Boolean isDispatchAllowed(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp);
 
     /**
      * Checks if the given request and response should be allowed to dispatch a view on an optionally present node
@@ -59,7 +59,7 @@ public interface DispatchValidator {
      * @param node     the node being dispatched if present
      * @return true if the view should be allowed to dispatch, false if it should not, or null if unknown
      */
-    default @CheckForNull Boolean isDispatchAllowed(@Nonnull StaplerRequest req, @Nonnull StaplerResponse rsp, @Nonnull String viewName, @CheckForNull Object node) {
+    default @CheckForNull Boolean isDispatchAllowed(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp, @NonNull String viewName, @CheckForNull Object node) {
         return isDispatchAllowed(req, rsp);
     }
 
@@ -67,13 +67,13 @@ public interface DispatchValidator {
      * Allows the given request to be dispatched. Further calls to {@link #isDispatchAllowed(StaplerRequest, StaplerResponse)}
      * should return true for the same request.
      */
-    void allowDispatch(@Nonnull StaplerRequest req, @Nonnull StaplerResponse rsp);
+    void allowDispatch(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp);
 
     /**
      * Throws a {@link CancelRequestHandlingException} if the given request is not
      * {@linkplain #isDispatchAllowed(StaplerRequest, StaplerResponse) allowed}.
      */
-    default void requireDispatchAllowed(@Nonnull StaplerRequest req, @Nonnull StaplerResponse rsp) throws CancelRequestHandlingException {
+    default void requireDispatchAllowed(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp) throws CancelRequestHandlingException {
         Boolean allowed = isDispatchAllowed(req, rsp);
         if (allowed == null || !allowed) {
             throw new CancelRequestHandlingException();
@@ -85,12 +85,12 @@ public interface DispatchValidator {
      */
     DispatchValidator DEFAULT = new DispatchValidator() {
         @Override
-        public Boolean isDispatchAllowed(@Nonnull StaplerRequest req, @Nonnull StaplerResponse rsp) {
+        public Boolean isDispatchAllowed(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp) {
             return true;
         }
 
         @Override
-        public void allowDispatch(@Nonnull StaplerRequest req, @Nonnull StaplerResponse rsp) {
+        public void allowDispatch(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp) {
             // no-op
         }
     };

@@ -15,7 +15,7 @@ import java.util.ServiceLoader;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
 
-import javax.annotation.CheckForNull;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import org.kohsuke.stapler.HttpResponses;

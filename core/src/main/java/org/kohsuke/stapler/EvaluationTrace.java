@@ -23,7 +23,7 @@
 
 package org.kohsuke.stapler;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.PrintWriter;
@@ -80,7 +80,7 @@ public class EvaluationTrace {
 
         private static volatile List<ApplicationTracer> tracers;
 
-        @Nonnull
+        @NonNull
         private static List<ApplicationTracer> getTracers() {
             synchronized (ApplicationTracer.class) {
                 if (tracers == null) {

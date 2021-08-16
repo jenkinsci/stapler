@@ -26,7 +26,7 @@ package org.kohsuke.stapler.export;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerResponse;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.lang.reflect.Type;
 import java.util.Stack;
 import java.io.Writer;
@@ -69,7 +69,7 @@ final class XMLDataWriter implements DataWriter {
     }
 
     @Override
-    public @Nonnull ExportConfig getExportConfig() {
+    public @NonNull ExportConfig getExportConfig() {
         return exportConfig;
     }
 

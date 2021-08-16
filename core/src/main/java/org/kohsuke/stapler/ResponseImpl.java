@@ -38,7 +38,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -132,7 +132,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     @Override
-    public void sendRedirect(@Nonnull String url) throws IOException {
+    public void sendRedirect(@NonNull String url) throws IOException {
         // WebSphere doesn't apparently handle relative URLs, so
         // to be safe, always resolve relative URLs to absolute URLs by ourselves.
         // see http://www.nabble.com/Hudson%3A-1.262%3A-Broken-link-using-update-manager-to21067157.html
@@ -150,13 +150,13 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         super.sendRedirect(base);
     }
 
-    public void sendRedirect2(@Nonnull String url) throws IOException {
+    public void sendRedirect2(@NonNull String url) throws IOException {
         // Tomcat doesn't encode URL (servlet spec isn't very clear on it)
         // so do the encoding by ourselves
         sendRedirect(encode(url));
     }
 
-    public void sendRedirect(int statusCode, @Nonnull String url) throws IOException {
+    public void sendRedirect(int statusCode, @NonNull String url) throws IOException {
         if (statusCode==SC_MOVED_TEMPORARILY) {
             sendRedirect(url);  // to be safe, let the servlet container handles this default case
             return;
@@ -197,7 +197,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     @SuppressFBWarnings(value = "HTTP_RESPONSE_SPLITTING", justification = "Already encoded and handled.")
-    private void setLocation(@Nonnull String url) {
+    private void setLocation(@NonNull String url) {
         setHeader("Location",url);
     }
 
@@ -396,7 +396,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     /**
      * Escapes non-ASCII characters.
      */
-    public static @Nonnull String encode(@Nonnull String s) {
+    public static @NonNull String encode(@NonNull String s) {
         try {
             boolean escaped = false;
 
