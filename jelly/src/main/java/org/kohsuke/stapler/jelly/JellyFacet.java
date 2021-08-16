@@ -34,7 +34,7 @@ import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.lang.Klass;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -79,7 +79,7 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
     }
 
     @Override 
-    protected @Nonnull String getExtensionSuffix() {
+    protected @NonNull String getExtensionSuffix() {
         return ".jelly";
     }
 
