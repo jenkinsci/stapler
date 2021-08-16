@@ -34,7 +34,7 @@ import org.apache.commons.jelly.XMLOutput;
 import org.apache.commons.jelly.XMLOutputFactory;
 import org.apache.commons.jelly.impl.TagScript;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.servlet.ServletContext;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -88,7 +88,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
     }
 
     private interface OutputStreamSupplier {
-        @Nonnull OutputStream get() throws IOException;
+        @NonNull OutputStream get() throws IOException;
     }
 
     private static class LazyOutputStreamSupplier implements OutputStreamSupplier {
@@ -100,7 +100,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         }
 
         @Override
-        @Nonnull
+        @NonNull
         public OutputStream get() throws IOException {
             if (out == null) {
                 synchronized (this) {

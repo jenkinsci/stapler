@@ -23,8 +23,8 @@
 
 package org.kohsuke.stapler.export;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
@@ -70,7 +70,7 @@ public interface DataWriter {
     void startObject() throws IOException;
     void endObject() throws IOException;
 
-    default @Nonnull ExportConfig getExportConfig() {
+    default @NonNull ExportConfig getExportConfig() {
         return new ExportConfig();
     }
 

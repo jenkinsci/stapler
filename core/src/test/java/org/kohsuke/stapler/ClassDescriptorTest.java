@@ -9,8 +9,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.ServletException;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -119,7 +117,7 @@ public class ClassDescriptorTest {
         assertEquals(3, f.getAnnotation(AnnA.class).value());
         assertNotNull(f.getAnnotation(AnnB.class));
         // similarly parameter annotations should be fused together
-        assertSame(Nullable.class, f.getParameterAnnotations()[0][0].annotationType());
+        assertSame(AnnC.class, f.getParameterAnnotations()[0][0].annotationType());
 
         // method should be dispatched to D.x() which overrides B.x()
         assertEquals(2, f.bindAndInvoke(new D(), null, null, "Hello"));
@@ -127,7 +125,7 @@ public class ClassDescriptorTest {
 
     public static class B<T> {
         @AnnA @AnnB
-        public int x(@Nullable T t) { return 1; }
+        public int x(@AnnC T t) { return 1; }
     }
 
     public static class D extends B<String> {
@@ -144,5 +142,8 @@ public class ClassDescriptorTest {
     @interface AnnB {
         int value() default 0;
     }
-}
 
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface AnnC {}
+
+}

@@ -25,9 +25,9 @@ package org.kohsuke.stapler.export;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Creates and maintains {@link Model}s, that are used to write out
@@ -42,7 +42,7 @@ public class ModelBuilder {
      */
     /*package*/ final Map<Class, Model> models = new ConcurrentHashMap<Class, Model>();
 
-    @Nonnull
+    @NonNull
     public <T> Model<T> get(Class<T> type) throws NotExportableException {
         return get(type, null, null);
     }
@@ -51,7 +51,7 @@ public class ModelBuilder {
      * @throws NotExportableException if type is not exportable
      * @return model
      */
-    @Nonnull
+    @NonNull
     public <T> Model<T> get(Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property) throws NotExportableException {
         Model<T> model = getOrNull(type, propertyOwner, property);
         if (model == null) {

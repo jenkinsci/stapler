@@ -23,7 +23,7 @@
 
 package org.kohsuke.stapler.export;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Type;
@@ -48,7 +48,7 @@ class JSONDataWriter implements DataWriter {
     }
 
     @Override
-    public @Nonnull ExportConfig getExportConfig() {
+    public @NonNull ExportConfig getExportConfig() {
         return config;
     }
 

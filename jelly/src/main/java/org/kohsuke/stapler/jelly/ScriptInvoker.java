@@ -30,8 +30,8 @@ import org.kohsuke.stapler.StaplerResponse;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 
 /**
@@ -52,7 +52,7 @@ public interface ScriptInvoker extends ScriptExecutor<Script> {
     void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it, XMLOutput out) throws IOException, JellyTagException;
 
     @Override
-    default void execute(@Nonnull StaplerRequest req, @Nonnull StaplerResponse rsp, @Nonnull Script script, @CheckForNull Object it) throws IOException, JellyTagException {
+    default void execute(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp, @NonNull Script script, @CheckForNull Object it) throws IOException, JellyTagException {
         invokeScript(req, rsp, script, it);
     }
 }
