@@ -216,4 +216,4 @@ rules of how URLs are evaluated against your application objects, see
 link:reference.html[the reference guide].
 
 If you have any suggestions on how to improve this documentation, please
-mailto:kk@kohsuke.org[let me know].
+create an issue on GitHub.
