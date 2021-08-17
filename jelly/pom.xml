@@ -39,7 +39,7 @@
     <dependency><!-- only needed for annotations, hence optional -->
       <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
       <artifactId>jellydoc-annotations</artifactId>
-      <version>1.2</version>
+      <version>1.5</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
