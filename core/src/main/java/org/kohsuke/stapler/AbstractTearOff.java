@@ -26,15 +26,9 @@ package org.kohsuke.stapler;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.File;
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,20 +41,8 @@ import java.util.regex.Pattern;
  */
 public abstract class AbstractTearOff<CLT,S,E extends Exception> extends CachingScriptLoader<S,E> {
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractTearOff.class.getName());
-
     protected final MetaClass owner;
     protected final CLT classLoader;
-
-    private static final class ExpirableCacheHit<S> {
-        private final long timestamp;
-        private final Reference<S> script;
-        ExpirableCacheHit(long timestamp, S script) {
-            this.timestamp = timestamp;
-            this.script = new SoftReference<>(script);
-        }
-    }
-    private final Map<String, ExpirableCacheHit<S>> cachedScripts = new ConcurrentHashMap<>();
 
     protected AbstractTearOff(MetaClass owner, Class<CLT> cltClass) {
         this.owner = owner;
@@ -113,58 +95,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
                 res = getResource(name.substring(0, dot) + ".default" + name.substring(dot));
         }
         if (res != null) {
-            if (MetaClass.NO_CACHE) {
-                File file = fileOf(res);
-                if (file == null) {
-                    LOGGER.log(Level.FINE, "no file associated with {0}", res);
-                    return parseScript(res);
-                } else {
-                    long timestamp = file.lastModified();
-                    if (timestamp == 0) {
-                        LOGGER.log(Level.FINE, "no timestamp associated with {0}", file);
-                        return parseScript(res);
-                    } else {
-                        ExpirableCacheHit<S> cached = cachedScripts.get(res.toString());
-                        if (cached == null) {
-                            S script;
-                            if (LOGGER.isLoggable(Level.FINE)) {
-                                long start = System.nanoTime();
-                                try {
-                                    script = parseScript(res);
-                                } finally {
-                                    LOGGER.log(Level.FINE, "cache miss; took {0}ms to parse {1}", new Object[] {(System.nanoTime() - start) / 1_000_000, res});
-                                }
-                            } else {
-                                LOGGER.log(Level.FINE, "cache miss on {0}", res);
-                                script = parseScript(res);
-                            }
-                            cachedScripts.put(res.toString(), new ExpirableCacheHit<>(timestamp, script));
-                            return script;
-                        } else {
-                            S script;
-                            if (timestamp == cached.timestamp) {
-                                script = cached.script.get();
-                                if (script == null) {
-                                    LOGGER.log(Level.FINE, "cache hit on {0} but value collected", res);
-                                } else {
-                                    LOGGER.log(Level.FINE, "cache hit on {0}", res);
-                                }
-                            } else {
-                                LOGGER.log(Level.FINE, "expired cache hit on {0}", res);
-                                script = null;
-                            }
-                            if (script == null) {
-                                script = parseScript(res);
-                                cachedScripts.put(res.toString(), new ExpirableCacheHit<>(timestamp, script));
-                            }
-                            return script;
-                        }
-                    }
-                }
-            } else {
-                LOGGER.log(Level.FINE, "standard CachingScriptLoader logic applies to {0}", res);
-                return parseScript(res);
-            }
+            return parseScript(res);
         }
 
         return null;
