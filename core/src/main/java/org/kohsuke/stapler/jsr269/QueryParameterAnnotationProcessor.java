@@ -71,11 +71,8 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
         FileObject f = createResource(t.getQualifiedName().toString().replace('.', '/') + "/" + m.getSimpleName() + ".stapler");
         notice("Generating " + f, m);
 
-        OutputStream os = f.openOutputStream();
-        try {
+        try (OutputStream os = f.openOutputStream()) {
             IOUtils.write(buf, os, "UTF-8");
-        } finally {
-            os.close();
         }
     }
 }

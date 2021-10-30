@@ -54,12 +54,9 @@ public class SourceGeneratingAnnotationProcessor extends AbstractProcessor {
             TypeElement te = (TypeElement) e;
             try {
                 JavaFileObject f = processingEnv.getFiler().createSourceFile(te.getQualifiedName() + "Gen", te);
-                Writer w = f.openWriter();
-                try {
+                try (Writer w = f.openWriter()) {
                     w.write("package " + processingEnv.getElementUtils().getPackageOf(te).getQualifiedName() + ";\n");
                     w.write("class " + te.getSimpleName() + "Gen {}");
-                } finally {
-                    w.close();
                 }
             } catch (IOException x) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, x.toString());

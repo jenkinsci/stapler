@@ -371,8 +371,7 @@ public final class ClassDescriptor {
             if (clazz==null)    return null;
 
             final TreeMap<Integer,String> localVars = new TreeMap<>();
-            InputStream is = clazz.openStream();
-            try {
+            try (InputStream is = clazz.openStream()) {
                 ClassReader r = new ClassReader(is);
                 r.accept(new ClassVisitor(Opcodes.ASM9) {
                     final String md = getConstructorDescriptor(m);
@@ -388,8 +387,6 @@ public final class ClassDescriptor {
                             return null; // ignore this method
                     }
                 }, 0);
-            } finally {
-                is.close();
             }
 
             // Indexes may not be sequential, but first set of local variables are method params

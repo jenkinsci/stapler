@@ -188,13 +188,10 @@ public class RequestImplTest {
         reqEntityBuilder.addTextBody("text1", "text1_val");
         reqEntityBuilder.addTextBody("text2", "text2_val");
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             reqEntityBuilder.build().writeTo(outputStream);
             outputStream.flush();
             return outputStream.toByteArray();
-        } finally {
-            outputStream.close();
         }
     }
 }
