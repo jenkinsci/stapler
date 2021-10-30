@@ -124,7 +124,7 @@ public class RequestImplTest {
 
             @Override
             public Enumeration getParameterNames() {
-                return Collections.enumeration(Arrays.asList("p1"));
+                return Collections.enumeration(Collections.singletonList("p1"));
             }
 
             @Override
