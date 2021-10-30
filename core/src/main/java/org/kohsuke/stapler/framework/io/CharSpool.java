@@ -39,7 +39,7 @@ public /*for now, until Hudson migration completes*/ final class CharSpool exten
     private char[] last = new char[1024];
     private int pos;
 
-    public void write(char cbuf[], int off, int len) {
+    public void write(char[] cbuf, int off, int len) {
         while(len>0) {
             int sz = Math.min(last.length-pos,len);
             System.arraycopy(cbuf,off,last,pos,sz);
