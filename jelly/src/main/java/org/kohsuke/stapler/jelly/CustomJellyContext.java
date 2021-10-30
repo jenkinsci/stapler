@@ -116,7 +116,7 @@ class CustomJellyContext extends JellyContext {
         return tl;
     }
 
-    public static /* final */ boolean ESCAPE_BY_DEFAULT = Boolean.valueOf(System.getProperty(CustomJellyContext.class.getName() + ".escapeByDefault", "true"));
+    public static /* final */ boolean ESCAPE_BY_DEFAULT = Boolean.parseBoolean(System.getProperty(CustomJellyContext.class.getName() + ".escapeByDefault", "true"));
 
     private static final boolean DISABLE_BEANUTILS_CLASS_SUPPRESSION = Boolean.getBoolean(CustomJellyContext.class.getName() + ".disableBeanUtilsClassSuppression");
 
