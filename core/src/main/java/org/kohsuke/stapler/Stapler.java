@@ -1146,9 +1146,7 @@ public class Stapler extends HttpServlet {
                 if(value==null) return null;
                 try {
                     return Stapler.getCurrentRequest().getFileItem(value.toString());
-                } catch (ServletException e) {
-                    throw new ConversionException(e);
-                } catch (IOException e) {
+                } catch (ServletException | IOException e) {
                     throw new ConversionException(e);
                 }
             }

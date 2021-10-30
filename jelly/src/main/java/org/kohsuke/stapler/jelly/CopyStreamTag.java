@@ -97,9 +97,7 @@ public class CopyStreamTag extends AbstractStaplerTag {
             } finally {
                 in.close();
             }
-        } catch (IOException e) {
-            throw new JellyTagException(e);
-        } catch (SAXException e) {
+        } catch (IOException | SAXException e) {
             throw new JellyTagException(e);
         }
     }

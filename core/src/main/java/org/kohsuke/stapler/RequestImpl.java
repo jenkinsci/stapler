@@ -347,9 +347,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     rsp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
                     return true;
                 }
-            } catch (NumberFormatException e) {
-                // just ignore and serve the content
-            } catch (ParseException e) {
+            } catch (NumberFormatException | ParseException e) {
                 // just ignore and serve the content
             }
         }
@@ -858,9 +856,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
                     // only invoking public methods for security reasons
                     wm.invoke(r, bindJSON(wm.getGenericParameterTypes()[0], pt[0], j.get(key)));
-                } catch (IllegalAccessException e) {
-                    LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
-                } catch (InvocationTargetException e) {
+                } catch (IllegalAccessException | InvocationTargetException e) {
                     LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
                 }
             }

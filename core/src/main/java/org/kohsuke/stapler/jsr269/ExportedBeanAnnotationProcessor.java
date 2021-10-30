@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.file.NoSuchFileException;
 import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -121,11 +122,8 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
 
         } catch (IOException x) {
             error(x);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | Error e) {
             // javac sucks at reporting errors in annotation processors
-            e.printStackTrace();
-            throw e;
-        } catch (Error e) {
             e.printStackTrace();
             throw e;
         }
@@ -147,9 +145,7 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
             while((line=in.readLine())!=null)
                 exposedBeanNames.add(line.trim());
             in.close();
-        } catch (FileNotFoundException e) {
-            // no existing file, which is fine
-        } catch (java.nio.file.NoSuchFileException e) {
+        } catch (FileNotFoundException | NoSuchFileException e) {
             // no existing file, which is fine
         }
     }

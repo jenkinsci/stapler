@@ -81,9 +81,7 @@ public class AdjunctTag extends AbstractStaplerTag {
                 a.assumeIncluded(assumes);
             if (includes!=null)
                 a.generate(out, includes);
-        } catch (IOException e) {
-            throw new JellyTagException(e);
-        } catch (SAXException e) {
+        } catch (IOException | SAXException e) {
             throw new JellyTagException(e);
         }
     }

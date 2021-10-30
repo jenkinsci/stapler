@@ -75,9 +75,7 @@ public abstract class AnnotationHandler<T extends Annotation> {
                 if (ip!=null) {
                     try {
                         h = ip.value().newInstance();
-                    } catch (InstantiationException e) {
-                        throw new ServletException("Failed to instantiate parameter injector for "+at,e);
-                    } catch (IllegalAccessException e) {
+                    } catch (InstantiationException | IllegalAccessException e) {
                         throw new ServletException("Failed to instantiate parameter injector for "+at,e);
                     }
                 } else {
