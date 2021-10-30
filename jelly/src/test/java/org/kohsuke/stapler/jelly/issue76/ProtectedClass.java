@@ -129,9 +129,8 @@ public class ProtectedClass {
 
         @Override
         public List<Function> getFunctions(ProtectedClass clazz) {
-            List<Function> r = new ArrayList<>();
             // insert this at the top to make sure that shadows doIndex in subtypes
-            r.addAll(new FunctionList(JAVA.getFunctions(Protection.class)).name("doIndex"));
+            List<Function> r = new ArrayList<>(new FunctionList(JAVA.getFunctions(Protection.class)).name("doIndex"));
             // expose all the functions from the base type
             for (Function f : JAVA.getFunctions(clazz.c)) {
                 r.add(protect(f));
