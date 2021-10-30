@@ -576,7 +576,7 @@ public class Stapler extends HttpServlet {
                 // Need to duplicate this logic from ResponseImpl.getCompressedOutputStream,
                 // since we want to set content length if we are not using encoding.
                 String acceptEncoding = req.getHeader("Accept-Encoding");
-                if (acceptEncoding != null && acceptEncoding.indexOf("gzip") != -1) {
+                if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
                     // with gzip compression, Content-Length header needs to indicate the # of bytes after compression,
                     // so we can't compute it upfront.
                     out = rsp.getCompressedOutputStream(req);
