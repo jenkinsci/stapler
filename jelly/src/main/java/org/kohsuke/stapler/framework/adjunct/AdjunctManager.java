@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
- * This application-scoped object that exposes djuncts to URL.
+ * This application-scoped object that exposes adjuncts to URL.
  *
  * <p>
  * Adjuncts are packaging of JavaScript, CSS, and other static assets in jar files with dependency
