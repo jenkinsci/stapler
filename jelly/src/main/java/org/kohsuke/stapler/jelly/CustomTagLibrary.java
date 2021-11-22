@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.Script;
@@ -33,10 +34,17 @@ import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.MetaClassLoader;
 import org.xml.sax.Attributes;
 
+import java.io.File;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * {@link TagLibrary} that loads tags from tag files in a directory.
@@ -60,7 +68,16 @@ public final class CustomTagLibrary extends TagLibrary {
     /**
      * Compiled tag files.
      */
-    private final Map<String,Script> scripts = new Hashtable<String,Script>();
+    private final Map<String,ExpirableCacheHit<Script>> scripts = new ConcurrentHashMap<>();
+
+    private static final class ExpirableCacheHit<S> {
+        private final long timestamp;
+        private final Reference<S> script;
+        ExpirableCacheHit(long timestamp, S script) {
+            this.timestamp = timestamp;
+            this.script = new SoftReference<>(script);
+        }
+    }
 
     private final List<JellyTagFileLoader> loaders;
 
@@ -107,11 +124,29 @@ public final class CustomTagLibrary extends TagLibrary {
      */
     private Script load(String name) throws JellyException {
 
-        Script script = scripts.get(name);
-        if(script!=null && !MetaClass.NO_CACHE)
-            return script;
+        ExpirableCacheHit<Script> cachedScript = scripts.get(name);
 
-        script=null;
+        if (cachedScript != null) {
+            if (!MetaClass.NO_CACHE) {
+                return cachedScript.script.get();
+            }
+
+            URL res = classLoader.getResource(basePath + '/' + name + ".jellytag");
+            if (res == null) {
+                res = classLoader.getResource(basePath + '/' + name + ".jelly");
+            }
+            if (res != null) {
+                File file = fileOf(res);
+                if (file != null) {
+                    long timestamp = file.lastModified();
+                    if (timestamp == cachedScript.timestamp) {
+                        return cachedScript.script.get();
+                    }
+                }
+            }
+        }
+
+        Script script =null;
         if(MetaClassLoader.debugLoader!=null)
             script = load(name, MetaClassLoader.debugLoader.loader);
         if(script==null)
@@ -127,20 +162,49 @@ public final class CustomTagLibrary extends TagLibrary {
             res = classLoader.getResource(basePath + '/' + name + ".jelly");
         if(res!=null) {
             script = loadJellyScript(res);
-            scripts.put(name,script);
+            File file = fileOf(res);
+            if (file == null) {
+                throw new IllegalStateException("file should not be null here");
+            }
+            scripts.put(name, new ExpirableCacheHit<>(file.lastModified(), script));
             return script;
         }
 
         for (JellyTagFileLoader loader : loaders) {
             Script s = loader.load(this, name, classLoader);
             if(s!=null) {
-                scripts.put(name,s);
+                // can't determine timestamp here, will be cached in production mode
+                scripts.put(name, new ExpirableCacheHit<>(0, s));
                 return s;
             }
         }
 
         return null;
     }
+
+    private static final Pattern JAR_URL = Pattern.compile("jar:(file:.+)!/.*");
+
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Files are read from approved plugins, not from user input.")
+    private static File fileOf(URL res) {
+        try {
+            switch (res.getProtocol()) {
+                case "file":
+                    return new File(res.toURI());
+                case "jar":
+                    Matcher m = JAR_URL.matcher(res.toString());
+                    if (m.matches()) {
+                        return new File(new URI(m.group(1)));
+                    } else {
+                        return null;
+                    }
+                default:
+                    return null;
+            }
+        } catch (URISyntaxException | IllegalArgumentException x) {
+            return null; // caching is a best effort
+        }
+    }
+
 
     private Script loadJellyScript(URL res) throws JellyException {
         // compile script
