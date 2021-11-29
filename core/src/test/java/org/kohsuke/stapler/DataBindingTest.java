@@ -78,7 +78,7 @@ public class DataBindingTest extends TestCase {
         };
         mr.getParameterMap().put("a","123");
         mr.getParameterMap().put("b","string");
-        RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.<AncestorImpl>emptyList(), null);
+        RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.emptyList(), null);
         new Function.InstanceFunction(getClass().getMethod("doFromStaplerMethod",StaplerRequest.class,int.class,Binder.class))
                 .bindAndInvoke(this,req,null);
         assertEquals(42, new Function.InstanceFunction(getClass().getMethod("doStaticMethod")).bindAndInvoke(this, req, null));
@@ -172,7 +172,7 @@ public class DataBindingTest extends TestCase {
     private RequestImpl createFakeRequest() {
         Stapler s = new Stapler();
         s.setWebApp(new WebApp(new MockServletContext()));
-        return new RequestImpl(s, new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
+        return new RequestImpl(s, new MockRequest(), Collections.emptyList(), null);
     }
 
     private <T> T bind(JSONObject json, T bean) {

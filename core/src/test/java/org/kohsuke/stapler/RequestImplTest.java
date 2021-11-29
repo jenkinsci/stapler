@@ -86,7 +86,7 @@ public class RequestImplTest {
         final Stapler stapler = new Stapler();
         stapler.setWebApp(new WebApp(Mockito.mock(ServletContext.class)));
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-        RequestImpl req = new RequestImpl(stapler, request, Collections.<AncestorImpl>emptyList(), null);
+        RequestImpl req = new RequestImpl(stapler, request, Collections.emptyList(), null);
 
         JSONObject json = new JSONObject();
         json.put("$class", SetterObject.class.getName());
@@ -157,7 +157,7 @@ public class RequestImplTest {
             }
         };
         
-        RequestImpl request = new RequestImpl(stapler, mockRequest, Collections.<AncestorImpl>emptyList(), null);
+        RequestImpl request = new RequestImpl(stapler, mockRequest, Collections.emptyList(), null);
 
         // Check that we can get the Form Fields. See https://github.com/stapler/stapler/issues/52
         Assert.assertEquals("text1_val", request.getParameter("text1"));

@@ -78,7 +78,7 @@ public class RubyKlassNavigatorTest {
         final List<FieldRef> declaredFields = classInstance.getDeclaredFields();
 
         assumeThat("Access to fields in Ruby Modules has not been implemented yet",
-                declaredFields, not(IsEmptyCollection.<FieldRef>empty()));
+                declaredFields, not(IsEmptyCollection.empty()));
         for (FieldRef ref : declaredFields) {
             if ("fooField".equals(ref.getName())) {
                 //TODO: check fields once implemented in Stapler

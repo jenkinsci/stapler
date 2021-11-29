@@ -135,7 +135,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         super(request);
         this.stapler = stapler;
         this.ancestors = ancestors;
-        this.ancestorsView = Collections.<Ancestor>unmodifiableList(ancestors);
+        this.ancestorsView = Collections.unmodifiableList(ancestors);
         this.tokens = tokens;
         this.originalRequestURI = request.getRequestURI();
     }
@@ -206,7 +206,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             return super.getParameterNames();
         }
         
-        List<String> paramNames = Collections.<String>list(super.getParameterNames());
+        List<String> paramNames = Collections.list(super.getParameterNames());
         paramNames.addAll(data.keySet());
         
         return Collections.enumeration(paramNames);

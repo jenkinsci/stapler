@@ -575,7 +575,7 @@ public class MetaClass extends TearOffSupport {
      */
     public SingleLinkedList<MethodRef> getPostConstructMethods() {
         if (postConstructMethods ==null) {
-            SingleLinkedList<MethodRef> l = baseClass==null ? SingleLinkedList.<MethodRef>empty() : baseClass.getPostConstructMethods();
+            SingleLinkedList<MethodRef> l = baseClass==null ? SingleLinkedList.empty() : baseClass.getPostConstructMethods();
 
             for (MethodRef mr : klass.getDeclaredMethods()) {
                 if (mr.hasAnnotation(PostConstruct.class)) {
