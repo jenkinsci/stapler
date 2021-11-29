@@ -3,8 +3,6 @@ package org.kohsuke.stapler;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,8 +10,6 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.kohsuke.stapler.verb.GET;
-import org.kohsuke.stapler.verb.POST;
 
 /**
  * @author Alan Harder

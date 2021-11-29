@@ -23,10 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
-import org.kohsuke.MetaInfServices;
-
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;

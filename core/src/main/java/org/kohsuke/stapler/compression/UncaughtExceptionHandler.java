@@ -1,7 +1,6 @@
 package org.kohsuke.stapler.compression;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.kohsuke.stapler.AttributeKey;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;

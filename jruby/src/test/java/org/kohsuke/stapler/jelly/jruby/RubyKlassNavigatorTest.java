@@ -17,7 +17,6 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.*;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.jruby.RubyFixnum;
-import org.jruby.RubyInteger;
 import org.jruby.internal.runtime.methods.CallConfiguration;
 import org.jruby.internal.runtime.methods.DynamicMethod;
 import org.jruby.runtime.Block;

@@ -1,7 +1,6 @@
 package org.kohsuke.stapler.json;
 
 import net.sf.json.JSONObject;
-import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses.HttpResponseException;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
