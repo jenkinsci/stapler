@@ -145,7 +145,7 @@ class CustomJellyContext extends JellyContext {
                     int e=0;
                     do {
                         // copy the text preceding the match
-                        buf.append(text.substring(e,m.start()));
+                        buf.append(text,e,m.start());
 
                         String varName = "__resourceLiteral__"+resourceLiterals.size()+"__";
                         InternationalizedStringExpression exp = createI18nExp(unquote(m.group()));
