@@ -121,10 +121,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
             } else {
                 setApplicationObject();
             }
-        } catch (Error e) {
-            LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
-            throw e;
-        } catch (RuntimeException e) {
+        } catch (Error | RuntimeException e) {
             LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
             throw e;
         }
@@ -138,11 +135,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
             Object app = createApplication();
             context.setAttribute(APP, app);
             initializer.complete(app);
-        } catch (Error e) {
-            LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
-            initializer.completeExceptionally(e);
-            throw e;
-        } catch (RuntimeException e) {
+        } catch (Error | RuntimeException e) {
             LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
             initializer.completeExceptionally(e);
             throw e;

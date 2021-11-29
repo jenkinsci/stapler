@@ -82,19 +82,19 @@ public class WebApp {
     /**
      * Duck-type wrappers for the given class.
      */
-    public final Map<Class,Class[]> wrappers = new HashMap<Class,Class[]>();
+    public final Map<Class,Class[]> wrappers = new HashMap<>();
 
     /**
      * MIME type → encoding map that determines how static contents in the war file is served.
      */
-    public final Map<String,String> defaultEncodingForStaticResources = new HashMap<String,String>();
+    public final Map<String,String> defaultEncodingForStaticResources = new HashMap<>();
 
     /**
      * Activated facets.
      *
      * TODO: is this really mutable?
      */
-    public final List<Facet> facets = new Vector<Facet>();
+    public final List<Facet> facets = new Vector<>();
 
     /**
      * Global {@link BindInterceptor}s.
@@ -103,7 +103,7 @@ public class WebApp {
      * Global bind interceptors are useful to register webapp-wide conversion logic local to the application.
      * @since 1.220
      */
-    public final List<BindInterceptor> bindInterceptors = new CopyOnWriteArrayList<BindInterceptor>();
+    public final List<BindInterceptor> bindInterceptors = new CopyOnWriteArrayList<>();
 
     /**
      * MIME type mapping from extensions (like "txt" or "jpg") to MIME types ("foo/bar").
@@ -111,7 +111,7 @@ public class WebApp {
      * This overrides whatever mappings given in the servlet as far as stapler is concerned.
      * This is case insensitive, and should be normalized to lower case.
      */
-    public final Map<String,String> mimeTypes = new Hashtable<String,String>();
+    public final Map<String,String> mimeTypes = new Hashtable<>();
 
     private volatile ClassLoader classLoader;
 
@@ -120,14 +120,14 @@ public class WebApp {
      *
      * Note that this permanently holds a strong reference to its key, i.e. is a memory leak.
      */
-    private final Map<Klass<?>,MetaClass> classMap = new HashMap<Klass<?>,MetaClass>();
+    private final Map<Klass<?>,MetaClass> classMap = new HashMap<>();
 
     /**
      * Handles objects that are exported.
      */
     public final BoundObjectTable boundObjectTable = new BoundObjectTable();
 
-    private final CopyOnWriteArrayList<HttpResponseRenderer> responseRenderers = new CopyOnWriteArrayList<HttpResponseRenderer>();
+    private final CopyOnWriteArrayList<HttpResponseRenderer> responseRenderers = new CopyOnWriteArrayList<>();
 
     private CrumbIssuer crumbIssuer = CrumbIssuer.DEFAULT;
 
@@ -138,7 +138,7 @@ public class WebApp {
      *
      * Keyed by {@link ServletConfig#getServletName()}.
      */
-    private final ConcurrentMap<String,Stapler> servlets = new ConcurrentHashMap<String,Stapler>();
+    private final ConcurrentMap<String,Stapler> servlets = new ConcurrentHashMap<>();
     
     /**
      * Give the application a possibility to filter the getterMethods

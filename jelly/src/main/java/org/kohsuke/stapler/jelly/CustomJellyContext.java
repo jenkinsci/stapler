@@ -116,7 +116,7 @@ class CustomJellyContext extends JellyContext {
         return tl;
     }
 
-    public static /* final */ boolean ESCAPE_BY_DEFAULT = Boolean.valueOf(System.getProperty(CustomJellyContext.class.getName() + ".escapeByDefault", "true"));
+    public static /* final */ boolean ESCAPE_BY_DEFAULT = Boolean.parseBoolean(System.getProperty(CustomJellyContext.class.getName() + ".escapeByDefault", "true"));
 
     private static final boolean DISABLE_BEANUTILS_CLASS_SUPPRESSION = Boolean.getBoolean(CustomJellyContext.class.getName() + ".disableBeanUtilsClassSuppression");
 
@@ -141,11 +141,11 @@ class CustomJellyContext extends JellyContext {
                     // contains the resource literal, so pre-process them.
                     
                     final StringBuilder buf = new StringBuilder();
-                    final Map<String,InternationalizedStringExpression> resourceLiterals = new HashMap<String,InternationalizedStringExpression>();
+                    final Map<String,InternationalizedStringExpression> resourceLiterals = new HashMap<>();
                     int e=0;
                     do {
                         // copy the text preceding the match
-                        buf.append(text.substring(e,m.start()));
+                        buf.append(text,e,m.start());
 
                         String varName = "__resourceLiteral__"+resourceLiterals.size()+"__";
                         InternationalizedStringExpression exp = createI18nExp(unquote(m.group()));

@@ -40,7 +40,7 @@ import static org.kohsuke.stapler.Stapler.escape;
  * @author Kohsuke Kawaguchi
  */
 public class EvaluationTrace {
-    private final List<String> traces = new ArrayList<String>();
+    private final List<String> traces = new ArrayList<>();
 
     private static final Logger LOGGER = Logger.getLogger(EvaluationTrace.class.getName());
 

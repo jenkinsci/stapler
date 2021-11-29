@@ -4,7 +4,6 @@ import org.kohsuke.stapler.Function;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +73,7 @@ public final class Klass<C> {
      * @see Class#getFields()
      */
     public List<FieldRef> getFields() {
-        Map<String,FieldRef> fields = new LinkedHashMap<String,FieldRef>();
+        Map<String,FieldRef> fields = new LinkedHashMap<>();
         for (Klass<?> k = this; k!=null; k=k.getSuperClass()) {
             for (FieldRef f : k.getDeclaredFields()) {
                 String name = f.getName();
@@ -84,7 +83,7 @@ public final class Klass<C> {
             }
         }
 
-        return new ArrayList<FieldRef>(fields.values());
+        return new ArrayList<>(fields.values());
     }
 
     /**
@@ -138,6 +137,6 @@ public final class Klass<C> {
      * Creates {@link Klass} from a Java {@link Class}.
      */
     public static Klass<Class> java(Class c) {
-        return c == null ? null : new Klass<Class>(c, KlassNavigator.JAVA);
+        return c == null ? null : new Klass<>(c, KlassNavigator.JAVA);
     }
 }

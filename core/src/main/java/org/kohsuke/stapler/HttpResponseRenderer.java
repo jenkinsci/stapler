@@ -122,13 +122,7 @@ public abstract class HttpResponseRenderer {
                 HttpResponse r = (HttpResponse) response;
                 try {
                     r.generateResponse(req,rsp,node);
-                } catch (IOException e) {
-                    if (!handleHttpResponse(req,rsp,node,e))
-                        throw e;
-                } catch (RuntimeException e) {
-                    if (!handleHttpResponse(req,rsp,node,e))
-                        throw e;
-                } catch (ServletException e) {
+                } catch (IOException | ServletException | RuntimeException e) {
                     if (!handleHttpResponse(req,rsp,node,e))
                         throw e;
                 }

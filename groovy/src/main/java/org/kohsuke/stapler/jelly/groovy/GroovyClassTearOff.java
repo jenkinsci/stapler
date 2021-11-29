@@ -31,7 +31,6 @@ import org.kohsuke.stapler.jelly.JellyRequestDispatcher;
 import javax.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.net.URL;
-import java.util.logging.Logger;
 
 /**
  * @author Kohsuke Kawaguchi

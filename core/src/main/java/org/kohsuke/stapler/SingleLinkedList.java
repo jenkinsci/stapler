@@ -23,7 +23,7 @@ public class SingleLinkedList<T> extends AbstractList<T> {
      * Creates a new list by adding a new element as the head.
      */
     public SingleLinkedList<T> grow(T item) {
-        return new SingleLinkedList<T>(item,this);
+        return new SingleLinkedList<>(item,this);
     }
 
     @Override

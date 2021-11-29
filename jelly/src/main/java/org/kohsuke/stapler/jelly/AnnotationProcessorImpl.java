@@ -23,10 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
-import org.kohsuke.MetaInfServices;
-
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -48,7 +45,7 @@ import java.util.Set;
 @SuppressWarnings({"Since15"})
 //@MetaInfServices(Processor.class)
 public class AnnotationProcessorImpl extends AbstractProcessor {
-    private final Map<TypeElement,MissingViews> missingViews = new HashMap<TypeElement, MissingViews>();
+    private final Map<TypeElement,MissingViews> missingViews = new HashMap<>();
 
     private static class MissingViews extends HashSet<String> {}
 

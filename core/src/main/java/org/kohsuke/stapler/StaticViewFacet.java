@@ -21,7 +21,7 @@ import java.util.List;
  */
 // @MetaInfServices - this facet needs to be manually configured
 public class StaticViewFacet extends Facet {
-    private final List<String> allowedExtensions = new ArrayList<String>();
+    private final List<String> allowedExtensions = new ArrayList<>();
 
     public StaticViewFacet(String... allowedExtensions) {
         this(Arrays.asList(allowedExtensions));

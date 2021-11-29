@@ -25,7 +25,7 @@ public class Protection implements KInstance<ProtectedClass> {
      */
     @Override
     public Klass<ProtectedClass> getKlass() {
-        return new Klass<ProtectedClass>(new ProtectedClass(o.getClass()),ProtectedClass.NAVIGATOR);
+        return new Klass<>(new ProtectedClass(o.getClass()),ProtectedClass.NAVIGATOR);
     }
 
     /**

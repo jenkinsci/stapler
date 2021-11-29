@@ -32,7 +32,6 @@ import org.jvnet.maven.jellydoc.annotation.NoContent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -97,9 +96,7 @@ public class CopyStreamTag extends AbstractStaplerTag {
             } finally {
                 in.close();
             }
-        } catch (IOException e) {
-            throw new JellyTagException(e);
-        } catch (SAXException e) {
+        } catch (IOException | SAXException e) {
             throw new JellyTagException(e);
         }
     }

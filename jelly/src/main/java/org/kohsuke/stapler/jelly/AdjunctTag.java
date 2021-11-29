@@ -29,10 +29,8 @@ import org.kohsuke.stapler.framework.adjunct.AdjunctManager;
 import org.kohsuke.stapler.framework.adjunct.AdjunctsInPage;
 import org.xml.sax.SAXException;
 import org.jvnet.maven.jellydoc.annotation.NoContent;
-import org.jvnet.maven.jellydoc.annotation.Required;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -81,9 +79,7 @@ public class AdjunctTag extends AbstractStaplerTag {
                 a.assumeIncluded(assumes);
             if (includes!=null)
                 a.generate(out, includes);
-        } catch (IOException e) {
-            throw new JellyTagException(e);
-        } catch (SAXException e) {
+        } catch (IOException | SAXException e) {
             throw new JellyTagException(e);
         }
     }

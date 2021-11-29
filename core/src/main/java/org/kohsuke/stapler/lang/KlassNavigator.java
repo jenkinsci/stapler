@@ -165,7 +165,7 @@ public abstract class KlassNavigator<C> {
         @Override
         public Iterable<Klass<?>> getAncestors(Class clazz) {
             // TODO: shall we support interfaces?
-            List<Klass<?>> r = new ArrayList<Klass<?>>();
+            List<Klass<?>> r = new ArrayList<>();
             for (; clazz!=null; clazz=clazz.getSuperclass()) {
                 r.add(Klass.java(clazz));
             }

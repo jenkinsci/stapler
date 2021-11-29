@@ -16,7 +16,7 @@ public class TagLibNamespaceExportTest extends JettyTestCase {
         String content = page.getWebResponse().getContentAsString();
         System.out.println(content);
         assertTrue(content.contains("foo"));
-        assertTrue(!content.contains("bar"));
-        assertTrue(!content.contains("zot"));
+        assertFalse(content.contains("bar"));
+        assertFalse(content.contains("zot"));
     }
 }

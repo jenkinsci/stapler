@@ -84,7 +84,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
 
     private JellyContext context;
 
-    private final Map<Class,GroovyClosureScript> taglibs = new HashMap<Class,GroovyClosureScript>();
+    private final Map<Class,GroovyClosureScript> taglibs = new HashMap<>();
 
     private final StaplerRequest request;
     private StaplerResponse response;
@@ -507,7 +507,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
     }
 
     private String escape(String v) {
-        StringBuffer buf = new StringBuffer(v.length()+64);
+        StringBuilder buf = new StringBuilder(v.length()+64);
         for( int i=0; i<v.length(); i++ ) {
             char ch = v.charAt(i);
             if(ch=='<')

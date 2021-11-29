@@ -19,12 +19,10 @@ import java.util.Map;
  * @author Kohsuke Kawaguchi
  */
 class PoormansMultimap<K,V> {
-    private final HashMap<K,List<V>> store = new HashMap<K,List<V>>();
+    private final HashMap<K,List<V>> store = new HashMap<>();
 
     public void put(K k, V v) {
-        List<V> l = store.get(k);
-        if (l==null)
-            store.put(k,l=new ArrayList<V>());
+        List<V> l = store.computeIfAbsent(k, unused -> new ArrayList<>());
         l.add(v);
     }
 

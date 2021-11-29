@@ -29,10 +29,8 @@ import org.kohsuke.stapler.WebApp;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -55,7 +53,7 @@ public class ResourceBundle {
     /**
      * Loaded messages.
      */
-    private final Map<String,Properties> resources = new ConcurrentHashMap<String,Properties>();
+    private final Map<String,Properties> resources = new ConcurrentHashMap<>();
 
     public ResourceBundle(String baseName) {
         this.baseName = baseName;
@@ -214,7 +212,7 @@ public class ResourceBundle {
     /**
      * JDK internally converts new ISO-639 code back to old code. This table provides reverse mapping.
      */
-    private static final Map<String,String> ISO639_MAP = new HashMap<String, String>();
+    private static final Map<String,String> ISO639_MAP = new HashMap<>();
 
     static {
         ISO639_MAP.put("iw","he");

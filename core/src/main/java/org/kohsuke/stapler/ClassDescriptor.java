@@ -84,19 +84,18 @@ public final class ClassDescriptor {
         this.fields = clazz.getFields();
 
         // instance methods
-        List<MethodMirror> methods = new ArrayList<MethodMirror>();
-        findMethods(clazz,clazz,methods,new HashSet<Class>());
+        List<MethodMirror> methods = new ArrayList<>();
+        findMethods(clazz,clazz,methods,new HashSet<>());
 
         // organize them into groups
         Map<Signature,List<Method>> groups = new LinkedHashMap<>();
         for (MethodMirror m : methods) {
-            List<Method> v = groups.get(m.sig);
-            if (v==null)    groups.put(m.sig, v=new ArrayList<Method>());
+            List<Method> v = groups.computeIfAbsent(m.sig, unused -> new ArrayList<>());
             v.add(m.method);
         }
 
         // build functions from groups
-        List<Function> functions = new ArrayList<Function>();
+        List<Function> functions = new ArrayList<>();
         for (List<Method> m : groups.values()) {
             if (m.size()==1) {
                 Method one = m.get(0);
@@ -332,7 +331,7 @@ public final class ClassDescriptor {
             URL clazz = c.getClassLoader().getResource(c.getName().replace('.', '/') + ".class");
             if (clazz==null)    return null;
 
-            final TreeMap<Integer,String> localVars = new TreeMap<Integer,String>();
+            final TreeMap<Integer,String> localVars = new TreeMap<>();
             ClassReader r = new ClassReader(clazz.openStream());
             r.accept(new ClassVisitor(Opcodes.ASM9) {
                 final String md = Type.getMethodDescriptor(m);
@@ -370,9 +369,8 @@ public final class ClassDescriptor {
             URL clazz = c.getClassLoader().getResource(c.getName().replace('.', '/') + ".class");
             if (clazz==null)    return null;
 
-            final TreeMap<Integer,String> localVars = new TreeMap<Integer,String>();
-            InputStream is = clazz.openStream();
-            try {
+            final TreeMap<Integer,String> localVars = new TreeMap<>();
+            try (InputStream is = clazz.openStream()) {
                 ClassReader r = new ClassReader(is);
                 r.accept(new ClassVisitor(Opcodes.ASM9) {
                     final String md = getConstructorDescriptor(m);
@@ -388,8 +386,6 @@ public final class ClassDescriptor {
                             return null; // ignore this method
                     }
                 }, 0);
-            } finally {
-                is.close();
             }
 
             // Indexes may not be sequential, but first set of local variables are method params

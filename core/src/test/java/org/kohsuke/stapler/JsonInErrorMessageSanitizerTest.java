@@ -24,20 +24,7 @@
 package org.kohsuke.stapler;
 
 import junit.framework.TestCase;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.kohsuke.stapler.interceptor.JsonOutputFilter;
-
-import javax.annotation.PostConstruct;
-import java.lang.reflect.Type;
-import java.net.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
 
 public class JsonInErrorMessageSanitizerTest extends TestCase {
     public void testNoopToReturnCopy() {

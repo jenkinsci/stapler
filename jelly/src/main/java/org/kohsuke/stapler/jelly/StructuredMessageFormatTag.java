@@ -39,7 +39,7 @@ import java.util.List;
  * @author Kohsuke Kawaguchi
  */
 public class StructuredMessageFormatTag extends AbstractStaplerTag implements LocationAware {
-    private final List<Object> arguments = new ArrayList<Object>();
+    private final List<Object> arguments = new ArrayList<>();
 
     private String key;
     private ResourceBundle rb;

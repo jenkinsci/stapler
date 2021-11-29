@@ -18,7 +18,7 @@ public class Robot {
 
     public final List<Leg> legs = Arrays.asList(new Leg("left"),new Leg("right"));
 
-    public final Map<String,Button> buttons = new HashMap<String, Button>();
+    public final Map<String,Button> buttons = new HashMap<>();
 
     public Robot() {
         buttons.put("red", new Button("red"));

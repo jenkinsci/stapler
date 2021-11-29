@@ -8,6 +8,7 @@ import org.jruby.embed.ScriptingContainer;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Per-{@link ScriptingContainer} portion of {@link RubyTemplateLanguage}.
@@ -47,10 +48,10 @@ public class RubyTemplateContainer {
     @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Not relevant in this situation.")
     public Script parseScript(URL path) throws IOException {
         try {
-            String template = IOUtils.toString(path.openStream(), "UTF-8");
+            String template = IOUtils.toString(path.openStream(), StandardCharsets.UTF_8);
             return (Script) container.callMethod(scriptClass, "new", template);
         } catch (Exception e) {
-            throw (IOException) new IOException("Failed to parse "+path).initCause(e);
+            throw new IOException("Failed to parse " + path, e);
         }
     }
 }

@@ -65,11 +65,8 @@ abstract class AbstractProcessorImpl extends AbstractProcessor {
 
     protected void writePropertyFile(Properties p, String name) throws IOException {
         FileObject f = createResource(name);
-        OutputStream os = f.openOutputStream();
-        try {
+        try (OutputStream os = f.openOutputStream()) {
             p.store(os,null);
-        } finally {
-            os.close();
         }
     }
 

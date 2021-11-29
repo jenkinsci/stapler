@@ -30,6 +30,7 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.CoderResult;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.nio.*;
 import java.nio.ByteBuffer;
@@ -64,7 +65,7 @@ public class WriterOutputStream extends OutputStream {
         buf.put((byte)b);
     }
 
-    public void write(byte b[], int off, int len) throws IOException {
+    public void write(byte[] b, int off, int len) throws IOException {
         while(len>0) {
             if(buf.remaining()==0)
                 decode(false);
@@ -129,7 +130,7 @@ public class WriterOutputStream extends OutputStream {
             String encoding = System.getProperty("file.encoding");
             return Charset.forName(encoding);
         } catch (UnsupportedCharsetException e) {
-            return Charset.forName("UTF-8");
+            return StandardCharsets.UTF_8;
         }
     }
 }

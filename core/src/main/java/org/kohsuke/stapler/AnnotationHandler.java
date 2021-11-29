@@ -27,8 +27,6 @@ import org.apache.commons.beanutils.Converter;
 
 import javax.servlet.ServletException;
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -75,9 +73,7 @@ public abstract class AnnotationHandler<T extends Annotation> {
                 if (ip!=null) {
                     try {
                         h = ip.value().newInstance();
-                    } catch (InstantiationException e) {
-                        throw new ServletException("Failed to instantiate parameter injector for "+at,e);
-                    } catch (IllegalAccessException e) {
+                    } catch (InstantiationException | IllegalAccessException e) {
                         throw new ServletException("Failed to instantiate parameter injector for "+at,e);
                     }
                 } else {
@@ -94,7 +90,7 @@ public abstract class AnnotationHandler<T extends Annotation> {
         return null; // probably we should report an error
     }
 
-    private static final ConcurrentMap<Class<? extends Annotation>,AnnotationHandler> HANDLERS = new ConcurrentHashMap<Class<? extends Annotation>, AnnotationHandler>();
+    private static final ConcurrentMap<Class<? extends Annotation>,AnnotationHandler> HANDLERS = new ConcurrentHashMap<>();
 
     private static final AnnotationHandler NOT_HANDLER = new AnnotationHandler() {
         @Override

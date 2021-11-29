@@ -67,7 +67,7 @@ public class GroovierJellyScript implements Script {
         try {
             gcs = (StaplerClosureScript) InvokerHelper.createScript(clazz, new Binding());
         } catch (LinkageError e) {
-            throw (LinkageError)new LinkageError("Failed to run "+clazz+" from "+scriptURL).initCause(e);
+            throw new LinkageError("Failed to run " + clazz + " from " + scriptURL, e);
         }
         gcs.setDelegate(builder);
         gcs.scriptURL = scriptURL;

@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.beanutils.ConvertUtils;
 
 import java.beans.Introspector;
@@ -14,7 +13,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -81,15 +79,11 @@ public class ConfigurationLoader {
      * Loads the configuration from the specified {@link Properties} object.
      */
     public static ConfigurationLoader from(final Properties props) throws IOException {
-        return new ConfigurationLoader(from -> props.getProperty(from));
+        return new ConfigurationLoader(props::getProperty);
     }
 
     public static ConfigurationLoader from(final Map<String,String> props) throws IOException {
-        return new ConfigurationLoader(new Function<String, String>() {
-            public String apply(String from) {
-                return props.get(from);
-            }
-        });
+        return new ConfigurationLoader(props::get);
     }
 
     /**
@@ -107,11 +101,7 @@ public class ConfigurationLoader {
      * (that allows retrievals by both "path" and "PATH" to fill this gap.
      */
     public static ConfigurationLoader fromEnvironmentVariables() throws IOException {
-        TreeMap<String, String> m = new TreeMap<String, String>(new Comparator<String>() {
-            public int compare(String o1, String o2) {
-                return o1.compareToIgnoreCase(o2);
-            }
-        });
+        TreeMap<String, String> m = new TreeMap<>(String::compareToIgnoreCase);
         m.putAll(System.getenv());
         return from(m);
     }

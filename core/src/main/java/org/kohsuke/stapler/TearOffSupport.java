@@ -74,7 +74,7 @@ public abstract class TearOffSupport {
 
     public synchronized <T> void setTearOff(Class<T> type, T instance) {
         Map<Class,Object> m = tearOffs;
-        Map<Class,Object> r = m!=null ? new HashMap<Class, Object>(tearOffs) : new HashMap<Class,Object>();
+        Map<Class,Object> r = m!=null ? new HashMap<>(tearOffs) : new HashMap<>();
         r.put(type,instance);
         tearOffs = r;
     }

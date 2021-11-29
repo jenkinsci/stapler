@@ -61,16 +61,14 @@ public class RequestImplTest {
 
         @DataBoundConstructor
         public SetterObject() {
-            choices = new ArrayList<String>();
+            choices = new ArrayList<>();
         }
 
         @SuppressWarnings("unchecked")
         @DataBoundSetter
         public void setChoices(Object choices) {
             if (choices instanceof String) {
-                for (String choice : ((String) choices).split("\n")) {
-                    this.choices.add(choice);
-                }
+                Collections.addAll(this.choices, ((String) choices).split("\n"));
             } else {
                 this.choices = (List<String>) choices;
             }
@@ -88,7 +86,7 @@ public class RequestImplTest {
         final Stapler stapler = new Stapler();
         stapler.setWebApp(new WebApp(Mockito.mock(ServletContext.class)));
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-        RequestImpl req = new RequestImpl(stapler, request, Collections.<AncestorImpl>emptyList(), null);
+        RequestImpl req = new RequestImpl(stapler, request, Collections.emptyList(), null);
 
         JSONObject json = new JSONObject();
         json.put("$class", SetterObject.class.getName());
@@ -124,7 +122,7 @@ public class RequestImplTest {
 
             @Override
             public Enumeration getParameterNames() {
-                return Collections.enumeration(Arrays.asList("p1"));
+                return Collections.enumeration(Collections.singletonList("p1"));
             }
 
             @Override
@@ -159,7 +157,7 @@ public class RequestImplTest {
             }
         };
         
-        RequestImpl request = new RequestImpl(stapler, mockRequest, Collections.<AncestorImpl>emptyList(), null);
+        RequestImpl request = new RequestImpl(stapler, mockRequest, Collections.emptyList(), null);
 
         // Check that we can get the Form Fields. See https://github.com/stapler/stapler/issues/52
         Assert.assertEquals("text1_val", request.getParameter("text1"));
@@ -188,13 +186,10 @@ public class RequestImplTest {
         reqEntityBuilder.addTextBody("text1", "text1_val");
         reqEntityBuilder.addTextBody("text2", "text2_val");
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             reqEntityBuilder.build().writeTo(outputStream);
             outputStream.flush();
             return outputStream.toByteArray();
-        } finally {
-            outputStream.close();
         }
     }
 }

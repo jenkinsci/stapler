@@ -60,7 +60,7 @@ public final class CustomTagLibrary extends TagLibrary {
     /**
      * Compiled tag files.
      */
-    private final Map<String,Script> scripts = new Hashtable<String,Script>();
+    private final Map<String,Script> scripts = new Hashtable<>();
 
     private final List<JellyTagFileLoader> loaders;
 

@@ -49,16 +49,7 @@ public class CompressionFilter implements Filter {
 
         try {
             filterChain.doFilter(_req, rsp);
-        } catch (IOException e) {
-            if (DISABLED)   throw e;
-            reportException(e,(HttpServletRequest)_req,rsp);
-        } catch (ServletException e) {
-            if (DISABLED)   throw e;
-            reportException(e,(HttpServletRequest)_req,rsp);
-        } catch (RuntimeException e) {
-            if (DISABLED)   throw e;
-            reportException(e,(HttpServletRequest)_req,rsp);
-        } catch (Error e) {
+        } catch (IOException | Error | RuntimeException | ServletException e) {
             if (DISABLED)   throw e;
             reportException(e,(HttpServletRequest)_req,rsp);
         } finally {

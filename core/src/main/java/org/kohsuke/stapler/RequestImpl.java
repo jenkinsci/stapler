@@ -135,7 +135,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         super(request);
         this.stapler = stapler;
         this.ancestors = ancestors;
-        this.ancestorsView = Collections.<Ancestor>unmodifiableList(ancestors);
+        this.ancestorsView = Collections.unmodifiableList(ancestors);
         this.tokens = tokens;
         this.originalRequestURI = request.getRequestURI();
     }
@@ -206,7 +206,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             return super.getParameterNames();
         }
         
-        List<String> paramNames = Collections.<String>list(super.getParameterNames());
+        List<String> paramNames = Collections.list(super.getParameterNames());
         paramNames.addAll(data.keySet());
         
         return Collections.enumeration(paramNames);
@@ -347,9 +347,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     rsp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
                     return true;
                 }
-            } catch (NumberFormatException e) {
-                // just ignore and serve the content
-            } catch (ParseException e) {
+            } catch (NumberFormatException | ParseException e) {
                 // just ignore and serve the content
             }
         }
@@ -406,7 +404,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     public <T>
     List<T> bindParametersToList(Class<T> type, String prefix) {
-        List<T> r = new ArrayList<T>();
+        List<T> r = new ArrayList<>();
 
         int len = Integer.MAX_VALUE;
 
@@ -518,7 +516,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     public <T> List<T> bindJSONToList(Class<T> type, Object src) {
-        ArrayList<T> r = new ArrayList<T>();
+        ArrayList<T> r = new ArrayList<>();
         if (src instanceof JSONObject) {
             JSONObject j = (JSONObject) src;
             r.add(bindJSON(type,j));
@@ -858,9 +856,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
                     // only invoking public methods for security reasons
                     wm.invoke(r, bindJSON(wm.getGenericParameterTypes()[0], pt[0], j.get(key)));
-                } catch (IllegalAccessException e) {
-                    LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
-                } catch (InvocationTargetException e) {
+                } catch (IllegalAccessException | InvocationTargetException e) {
                     LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
                 }
             }
@@ -975,8 +971,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     private void parseMultipartFormData() throws ServletException {
         if(parsedFormData!=null)    return;
 
-        parsedFormData = new HashMap<String,FileItem>();
-        parsedFormDataFormFields = new HashMap<String, String>();
+        parsedFormData = new HashMap<>();
+        parsedFormDataFormFields = new HashMap<>();
         ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
         try {
             for( FileItem fi : (List<FileItem>)upload.parseRequest(this) ) {

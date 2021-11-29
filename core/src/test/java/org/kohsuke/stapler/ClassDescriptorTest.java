@@ -3,8 +3,6 @@ package org.kohsuke.stapler;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,8 +10,6 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.kohsuke.stapler.verb.GET;
-import org.kohsuke.stapler.verb.POST;
 
 /**
  * @author Alan Harder
@@ -28,12 +24,12 @@ public class ClassDescriptorTest {
 
     @Test public void loadParameterNamesFromReflection() throws Exception {
         // collect test cases
-        Map<String,Method> testCases = new HashMap<String,Method>();
+        Map<String,Method> testCases = new HashMap<>();
         for (Method m : ClassDescriptorTest.class.getDeclaredMethods())
             if (m.getName().startsWith("methodWith"))
                 testCases.put(m.getName().substring(10), m);
         // expected results
-        Map<String,String[]> expected = new HashMap<String,String[]>();
+        Map<String,String[]> expected = new HashMap<>();
         expected.put("NoParams", new String[0]);
         expected.put("NoParams_static", new String[0]);
         expected.put("ManyParams", new String[] { "a", "b", "c", "d", "e", "f", "g", "h", "i" });
@@ -45,7 +41,7 @@ public class ClassDescriptorTest {
             String[] result = ClassDescriptor.loadParameterNamesFromReflection(testMethod);
             assertNotNull("Null result for " + entry.getKey(), result);
             if (!Arrays.equals(entry.getValue(), result)) {
-                StringBuilder buf = new StringBuilder('|');
+                StringBuilder buf = new StringBuilder("|");
                 for (String s : result) buf.append(s).append('|');
                 fail("Unexpected result for " + entry.getKey() + ": " + buf);
             }
@@ -58,12 +54,12 @@ public class ClassDescriptorTest {
                 "loadParametersFromAsm", Method.class);
         lpfa.setAccessible(true);
         // collect test cases
-        Map<String,Method> testCases = new HashMap<String,Method>();
+        Map<String,Method> testCases = new HashMap<>();
         for (Method m : ClassDescriptorTest.class.getDeclaredMethods())
             if (m.getName().startsWith("methodWith"))
                 testCases.put(m.getName().substring(10), m);
         // expected results
-        Map<String,String[]> expected = new HashMap<String,String[]>();
+        Map<String,String[]> expected = new HashMap<>();
         expected.put("NoParams", new String[0]);
         expected.put("NoParams_static", new String[0]);
         expected.put("ManyParams", new String[] { "a", "b", "c", "d", "e", "f", "g", "h", "i" });
@@ -73,9 +69,9 @@ public class ClassDescriptorTest {
             Method testMethod = testCases.get(entry.getKey());
             assertNotNull("Method missing for " + entry.getKey(), testMethod);
             String[] result = (String[])lpfa.invoke(null, testMethod);
-            assertNotNull("Null result for " + entry.getKey());
+            assertNotNull("Null result for " + entry.getKey(), result);
             if (!Arrays.equals(entry.getValue(), result)) {
-                StringBuilder buf = new StringBuilder('|');
+                StringBuilder buf = new StringBuilder("|");
                 for (String s : result) buf.append(s).append('|');
                 fail("Unexpected result for " + entry.getKey() + ": " + buf);
             }

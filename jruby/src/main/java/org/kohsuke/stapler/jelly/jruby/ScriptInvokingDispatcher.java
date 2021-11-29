@@ -28,9 +28,7 @@ abstract class ScriptInvokingDispatcher extends Dispatcher {
             WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, rsp, script, node);
 
             return true;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (IOException e) {
+        } catch (RuntimeException | IOException e) {
             throw e;
         } catch (Exception e) {
             throw new ServletException(e);

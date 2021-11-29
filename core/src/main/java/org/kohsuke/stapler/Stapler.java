@@ -148,8 +148,8 @@ public class Stapler extends HttpServlet {
                 return;
             }
 
-            Map<String,URL> paths = new HashMap<String,URL>();
-            Stack<String> q = new Stack<String>();
+            Map<String,URL> paths = new HashMap<>();
+            Stack<String> q = new Stack<>();
             q.push("/");
             while (!q.isEmpty()) {
                 String dir = q.pop();
@@ -576,7 +576,7 @@ public class Stapler extends HttpServlet {
                 // Need to duplicate this logic from ResponseImpl.getCompressedOutputStream,
                 // since we want to set content length if we are not using encoding.
                 String acceptEncoding = req.getHeader("Accept-Encoding");
-                if (acceptEncoding != null && acceptEncoding.indexOf("gzip") != -1) {
+                if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
                     // with gzip compression, Content-Length header needs to indicate the # of bytes after compression,
                     // so we can't compute it upfront.
                     out = rsp.getCompressedOutputStream(req);
@@ -682,7 +682,7 @@ public class Stapler extends HttpServlet {
      * Performs stapler processing on the given root object and request URL.
      */
     public void invoke(HttpServletRequest req, HttpServletResponse rsp, Object root, String url) throws IOException, ServletException {
-        RequestImpl sreq = new RequestImpl(this, req, new ArrayList<AncestorImpl>(), new TokenList(url));
+        RequestImpl sreq = new RequestImpl(this, req, new ArrayList<>(), new TokenList(url));
         RequestImpl oreq = CURRENT_REQUEST.get();
         CURRENT_REQUEST.set(sreq);
 
@@ -1019,24 +1019,22 @@ public class Stapler extends HttpServlet {
      * HTTP date format. Notice that {@link SimpleDateFormat} is thread unsafe.
      */
     static final ThreadLocal<SimpleDateFormat> HTTP_DATE_FORMAT =
-        new ThreadLocal<SimpleDateFormat>() {
-            protected @Override SimpleDateFormat initialValue() {
+        ThreadLocal.withInitial(() -> {
                 // RFC1945 section 3.3 Date/Time Formats states that timezones must be in GMT
                 SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
                 format.setTimeZone(TimeZone.getTimeZone("GMT"));
                 return format;
-            }
-        };
+        });
 
-    /*package*/ static ThreadLocal<RequestImpl> CURRENT_REQUEST = new ThreadLocal<RequestImpl>();
-    /*package*/ static ThreadLocal<ResponseImpl> CURRENT_RESPONSE = new ThreadLocal<ResponseImpl>();
+    /*package*/ static ThreadLocal<RequestImpl> CURRENT_REQUEST = new ThreadLocal<>();
+    /*package*/ static ThreadLocal<ResponseImpl> CURRENT_RESPONSE = new ThreadLocal<>();
 
     private static final Logger LOGGER = Logger.getLogger(Stapler.class.getName());
 
     /**
      * Extensions that look like text files.
      */
-    private static final Set<String> TEXT_FILES = new HashSet<String>(Arrays.asList(
+    private static final Set<String> TEXT_FILES = new HashSet<>(Arrays.asList(
         "css","js","html","txt","java","htm","c","cpp","h","rb","pl","py","xml","json"
     ));
 
@@ -1052,7 +1050,7 @@ public class Stapler extends HttpServlet {
      * which is a security risk. Fix that by normalizing them.
      */
     static String canonicalPath(String path) {
-        List<String> r = new ArrayList<String>(Arrays.asList(path.split("/+")));
+        List<String> r = new ArrayList<>(Arrays.asList(path.split("/+")));
         for (int i=0; i<r.size(); ) {
             if (r.get(i).length()==0 || r.get(i).equals(".")) {
                 // empty token occurs for example, "".split("/+") is [""]
@@ -1146,9 +1144,7 @@ public class Stapler extends HttpServlet {
                 if(value==null) return null;
                 try {
                     return Stapler.getCurrentRequest().getFileItem(value.toString());
-                } catch (ServletException e) {
-                    throw new ConversionException(e);
-                } catch (IOException e) {
+                } catch (ServletException | IOException e) {
                     throw new ConversionException(e);
                 }
             }

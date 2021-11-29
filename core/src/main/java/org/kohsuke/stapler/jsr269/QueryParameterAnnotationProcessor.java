@@ -29,7 +29,7 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try {
             Set<? extends Element> params = roundEnv.getElementsAnnotatedWith(QueryParameter.class);
-            Set<ExecutableElement> methods = new HashSet<ExecutableElement>();
+            Set<ExecutableElement> methods = new HashSet<>();
 
             for (Element p : params) {
                 // at least in JDK7u3, if some of the annotation types doesn't resolve, they end up showing up
@@ -43,11 +43,8 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
             }
         } catch (IOException e) {
             error(e);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | Error e) {
             // javac sucks at reporting errors in annotation processors
-            e.printStackTrace();
-            throw e;
-        } catch (Error e) {
             e.printStackTrace();
             throw e;
         }
@@ -74,11 +71,8 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
         FileObject f = createResource(t.getQualifiedName().toString().replace('.', '/') + "/" + m.getSimpleName() + ".stapler");
         notice("Generating " + f, m);
 
-        OutputStream os = f.openOutputStream();
-        try {
+        try (OutputStream os = f.openOutputStream()) {
             IOUtils.write(buf, os, "UTF-8");
-        } finally {
-            os.close();
         }
     }
 }

@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
+import static org.junit.Assert.assertArrayEquals;
+
 /**
  * @author Kohsuke Kawaguchi
  */
@@ -76,7 +78,7 @@ public class DataBindingTest extends TestCase {
         };
         mr.getParameterMap().put("a","123");
         mr.getParameterMap().put("b","string");
-        RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.<AncestorImpl>emptyList(), null);
+        RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.emptyList(), null);
         new Function.InstanceFunction(getClass().getMethod("doFromStaplerMethod",StaplerRequest.class,int.class,Binder.class))
                 .bindAndInvoke(this,req,null);
         assertEquals(42, new Function.InstanceFunction(getClass().getMethod("doStaticMethod")).bindAndInvoke(this, req, null));
@@ -170,7 +172,7 @@ public class DataBindingTest extends TestCase {
     private RequestImpl createFakeRequest() {
         Stapler s = new Stapler();
         s.setWebApp(new WebApp(new MockServletContext()));
-        return new RequestImpl(s, new MockRequest(), Collections.<AncestorImpl>emptyList(), null);
+        return new RequestImpl(s, new MockRequest(), Collections.emptyList(), null);
     }
 
     private <T> T bind(JSONObject json, T bean) {
@@ -352,7 +354,7 @@ public class DataBindingTest extends TestCase {
         });
 
         String[] r = (String[]) req.bindJSON(String[].class, String[].class, JSONArray.fromObject("[{x:1},{x:2}]"));
-        assertTrue(Arrays.equals(r,new String[]{"1","2"}));
+        assertArrayEquals(r,new String[]{"1","2"});
     }
 
     public void testInterceptor3() {
@@ -367,11 +369,11 @@ public class DataBindingTest extends TestCase {
         });
 
         Object[] r = (Object[]) req.bindJSON(Object[].class, Object[].class, JSONArray.fromObject("[{$class:'"+Point.class.getName()+"'}]"));
-        assertTrue(Arrays.equals(r,new Object[]{new Point(1,2)}));
+        assertArrayEquals(r,new Object[]{new Point(1,2)});
     }
 
     public static class AsymmetricProperty {
-        private final List<Integer> items = new ArrayList<Integer>();
+        private final List<Integer> items = new ArrayList<>();
         @DataBoundConstructor
         public AsymmetricProperty() {}
 

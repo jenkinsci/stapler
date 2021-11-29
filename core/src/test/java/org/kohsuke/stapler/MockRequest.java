@@ -188,7 +188,7 @@ public class MockRequest implements HttpServletRequest {
         throw new UnsupportedOperationException();
     }
 
-    public Map<String,String> parameters = new HashMap<String,String>();
+    public Map<String,String> parameters = new HashMap<>();
 
     public String getParameter(String name) {
         return parameters.get(name);

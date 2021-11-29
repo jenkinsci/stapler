@@ -17,7 +17,6 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.*;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.jruby.RubyFixnum;
-import org.jruby.RubyInteger;
 import org.jruby.internal.runtime.methods.CallConfiguration;
 import org.jruby.internal.runtime.methods.DynamicMethod;
 import org.jruby.runtime.Block;
@@ -46,7 +45,7 @@ public class RubyKlassNavigatorTest {
         final MyRubyModule myModule = new MyRubyModule(ruby.getRuntime(), new MyRubyClass(ruby.getRuntime()), true);
 
 
-        final Klass<RubyModule> classInstance = new Klass<RubyModule>(myModule, navigator);
+        final Klass<RubyModule> classInstance = new Klass<>(myModule, navigator);
         
         final List<MethodRef> declaredMethods = classInstance.getDeclaredMethods();
         for (MethodRef ref : declaredMethods) {
@@ -74,11 +73,11 @@ public class RubyKlassNavigatorTest {
         final MyRubyModule myModule = new MyRubyModule(ruby.getRuntime(), new MyRubyClass(ruby.getRuntime()), true);
 
 
-        final Klass<RubyModule> classInstance = new Klass<RubyModule>(myModule, navigator);
+        final Klass<RubyModule> classInstance = new Klass<>(myModule, navigator);
         final List<FieldRef> declaredFields = classInstance.getDeclaredFields();
 
         assumeThat("Access to fields in Ruby Modules has not been implemented yet",
-                declaredFields, not(IsEmptyCollection.<FieldRef>empty()));
+                declaredFields, not(IsEmptyCollection.empty()));
         for (FieldRef ref : declaredFields) {
             if ("fooField".equals(ref.getName())) {
                 //TODO: check fields once implemented in Stapler
@@ -102,7 +101,7 @@ public class RubyKlassNavigatorTest {
         final MyRubyModule myModule = new MyRubyModule(ruby.getRuntime(), new MyRubyClass(ruby.getRuntime()), true);
 
 
-        final Klass<RubyModule> classInstance = new Klass<RubyModule>(myModule, navigator);
+        final Klass<RubyModule> classInstance = new Klass<>(myModule, navigator);
         
         final List<Function> declaredFunctions = classInstance.getFunctions();
         for (Function ref : declaredFunctions) {

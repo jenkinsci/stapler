@@ -49,13 +49,13 @@ public class AdjunctsInPage {
     /**
      * All adjuncts that are already included in the page.
      */
-    private final Set<String> included = new HashSet<String>();
+    private final Set<String> included = new HashSet<>();
 
     /**
      * {@link Adjunct}s that haven't written to HTML yet because &lt;head>
      * tag hasn't been written yet.
      */
-    private final List<Adjunct> pending = new ArrayList<Adjunct>();
+    private final List<Adjunct> pending = new ArrayList<>();
     
     private final StaplerRequest request;
 
@@ -108,7 +108,7 @@ public class AdjunctsInPage {
      * so that it won't be loaded again.
      */
     public void generate(XMLOutput out, String... includes) throws IOException, SAXException {
-        List<Adjunct> needed = new ArrayList<Adjunct>();
+        List<Adjunct> needed = new ArrayList<>();
         for (String include : includes)
             findNeeded(include,needed);
 
@@ -126,7 +126,7 @@ public class AdjunctsInPage {
     }
 
     public void assumeIncluded(Collection<String> includes) throws IOException, SAXException {
-        List<Adjunct> needed = new ArrayList<Adjunct>();
+        List<Adjunct> needed = new ArrayList<>();
         for (String include : includes)
             findNeeded(include,needed);
     }

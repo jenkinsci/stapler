@@ -4,17 +4,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 import java.util.TreeMap;
-import javax.annotation.processing.SupportedSourceVersion;
-import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import net.java.dev.hickory.testing.Compilation;
 
@@ -63,7 +56,7 @@ class Utils {
         } catch (IOException x) {
             throw new AssertionError(x);
         }
-        return new TreeMap<Object,Object>(p).toString();
+        return new TreeMap<>(p).toString();
     }
 
     private Utils() {}

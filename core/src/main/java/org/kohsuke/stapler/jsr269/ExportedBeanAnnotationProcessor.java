@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.NoSuchFileException;
 import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -37,7 +39,7 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
         try {
             if (roundEnv.processingOver()) {
                 FileObject beans = createResource(STAPLER_BEAN_FILE);
-                PrintWriter w = new PrintWriter(new OutputStreamWriter(beans.openOutputStream(), "UTF-8"));
+                PrintWriter w = new PrintWriter(new OutputStreamWriter(beans.openOutputStream(), StandardCharsets.UTF_8));
                 for (String beanName : exposedBeanNames) {
                     w.println(beanName);
                 }
@@ -46,7 +48,7 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
             }
 
             // collect all exposed properties
-            PoormansMultimap<TypeElement, Element/*member decls*/> props = new PoormansMultimap<TypeElement,Element>();
+            PoormansMultimap<TypeElement, Element/*member decls*/> props = new PoormansMultimap<>();
 
             for (Element exported : roundEnv.getElementsAnnotatedWith(Exported.class)) {
                 Element type = exported.getEnclosingElement();
@@ -121,11 +123,8 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
 
         } catch (IOException x) {
             error(x);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | Error e) {
             // javac sucks at reporting errors in annotation processors
-            e.printStackTrace();
-            throw e;
-        } catch (Error e) {
             e.printStackTrace();
             throw e;
         }
@@ -138,18 +137,16 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
     }
 
     private void scanExisting() throws IOException {
-        exposedBeanNames = new TreeSet<String>();
+        exposedBeanNames = new TreeSet<>();
 
         try {
             FileObject beans = getResource(STAPLER_BEAN_FILE);
-            BufferedReader in = new BufferedReader(new InputStreamReader(beans.openInputStream(),"UTF-8"));
+            BufferedReader in = new BufferedReader(new InputStreamReader(beans.openInputStream(),StandardCharsets.UTF_8));
             String line;
             while((line=in.readLine())!=null)
                 exposedBeanNames.add(line.trim());
             in.close();
-        } catch (FileNotFoundException e) {
-            // no existing file, which is fine
-        } catch (java.nio.file.NoSuchFileException e) {
+        } catch (FileNotFoundException | NoSuchFileException e) {
             // no existing file, which is fine
         }
     }
