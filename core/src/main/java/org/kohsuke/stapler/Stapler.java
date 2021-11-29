@@ -1019,14 +1019,12 @@ public class Stapler extends HttpServlet {
      * HTTP date format. Notice that {@link SimpleDateFormat} is thread unsafe.
      */
     static final ThreadLocal<SimpleDateFormat> HTTP_DATE_FORMAT =
-        new ThreadLocal<SimpleDateFormat>() {
-            protected @Override SimpleDateFormat initialValue() {
+        ThreadLocal.withInitial(() -> {
                 // RFC1945 section 3.3 Date/Time Formats states that timezones must be in GMT
                 SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
                 format.setTimeZone(TimeZone.getTimeZone("GMT"));
                 return format;
-            }
-        };
+        });
 
     /*package*/ static ThreadLocal<RequestImpl> CURRENT_REQUEST = new ThreadLocal<>();
     /*package*/ static ThreadLocal<ResponseImpl> CURRENT_RESPONSE = new ThreadLocal<>();
