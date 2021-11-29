@@ -45,7 +45,7 @@ public class ClassDescriptorTest {
             String[] result = ClassDescriptor.loadParameterNamesFromReflection(testMethod);
             assertNotNull("Null result for " + entry.getKey(), result);
             if (!Arrays.equals(entry.getValue(), result)) {
-                StringBuilder buf = new StringBuilder('|');
+                StringBuilder buf = new StringBuilder("|");
                 for (String s : result) buf.append(s).append('|');
                 fail("Unexpected result for " + entry.getKey() + ": " + buf);
             }
@@ -75,7 +75,7 @@ public class ClassDescriptorTest {
             String[] result = (String[])lpfa.invoke(null, testMethod);
             assertNotNull("Null result for " + entry.getKey());
             if (!Arrays.equals(entry.getValue(), result)) {
-                StringBuilder buf = new StringBuilder('|');
+                StringBuilder buf = new StringBuilder("|");
                 for (String s : result) buf.append(s).append('|');
                 fail("Unexpected result for " + entry.getKey() + ": " + buf);
             }
