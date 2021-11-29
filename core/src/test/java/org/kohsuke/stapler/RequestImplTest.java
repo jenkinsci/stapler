@@ -68,9 +68,7 @@ public class RequestImplTest {
         @DataBoundSetter
         public void setChoices(Object choices) {
             if (choices instanceof String) {
-                for (String choice : ((String) choices).split("\n")) {
-                    this.choices.add(choice);
-                }
+                Collections.addAll(this.choices, ((String) choices).split("\n"));
             } else {
                 this.choices = (List<String>) choices;
             }
