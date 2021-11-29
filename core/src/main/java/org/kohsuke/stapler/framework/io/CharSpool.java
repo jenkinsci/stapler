@@ -55,7 +55,7 @@ public /*for now, until Hudson migration completes*/ final class CharSpool exten
             return;
 
         if(buf==null)
-            buf = new LinkedList<char[]>();
+            buf = new LinkedList<>();
         buf.add(last);
         last = new char[1024];
         pos = 0;

@@ -148,8 +148,8 @@ public class Stapler extends HttpServlet {
                 return;
             }
 
-            Map<String,URL> paths = new HashMap<String,URL>();
-            Stack<String> q = new Stack<String>();
+            Map<String,URL> paths = new HashMap<>();
+            Stack<String> q = new Stack<>();
             q.push("/");
             while (!q.isEmpty()) {
                 String dir = q.pop();
@@ -682,7 +682,7 @@ public class Stapler extends HttpServlet {
      * Performs stapler processing on the given root object and request URL.
      */
     public void invoke(HttpServletRequest req, HttpServletResponse rsp, Object root, String url) throws IOException, ServletException {
-        RequestImpl sreq = new RequestImpl(this, req, new ArrayList<AncestorImpl>(), new TokenList(url));
+        RequestImpl sreq = new RequestImpl(this, req, new ArrayList<>(), new TokenList(url));
         RequestImpl oreq = CURRENT_REQUEST.get();
         CURRENT_REQUEST.set(sreq);
 
@@ -1028,15 +1028,15 @@ public class Stapler extends HttpServlet {
             }
         };
 
-    /*package*/ static ThreadLocal<RequestImpl> CURRENT_REQUEST = new ThreadLocal<RequestImpl>();
-    /*package*/ static ThreadLocal<ResponseImpl> CURRENT_RESPONSE = new ThreadLocal<ResponseImpl>();
+    /*package*/ static ThreadLocal<RequestImpl> CURRENT_REQUEST = new ThreadLocal<>();
+    /*package*/ static ThreadLocal<ResponseImpl> CURRENT_RESPONSE = new ThreadLocal<>();
 
     private static final Logger LOGGER = Logger.getLogger(Stapler.class.getName());
 
     /**
      * Extensions that look like text files.
      */
-    private static final Set<String> TEXT_FILES = new HashSet<String>(Arrays.asList(
+    private static final Set<String> TEXT_FILES = new HashSet<>(Arrays.asList(
         "css","js","html","txt","java","htm","c","cpp","h","rb","pl","py","xml","json"
     ));
 
@@ -1052,7 +1052,7 @@ public class Stapler extends HttpServlet {
      * which is a security risk. Fix that by normalizing them.
      */
     static String canonicalPath(String path) {
-        List<String> r = new ArrayList<String>(Arrays.asList(path.split("/+")));
+        List<String> r = new ArrayList<>(Arrays.asList(path.split("/+")));
         for (int i=0; i<r.size(); ) {
             if (r.get(i).length()==0 || r.get(i).equals(".")) {
                 // empty token occurs for example, "".split("/+") is [""]

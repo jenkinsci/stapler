@@ -63,7 +63,7 @@ class Utils {
         } catch (IOException x) {
             throw new AssertionError(x);
         }
-        return new TreeMap<Object,Object>(p).toString();
+        return new TreeMap<>(p).toString();
     }
 
     private Utils() {}

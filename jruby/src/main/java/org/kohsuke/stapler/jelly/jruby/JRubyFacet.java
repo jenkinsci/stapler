@@ -42,7 +42,7 @@ import static java.util.logging.Level.FINE;
  */
 @MetaInfServices(Facet.class)
 public class JRubyFacet extends Facet implements JellyCompatibleFacet {
-    /*package*/ final List<RubyTemplateLanguage> languages = new CopyOnWriteArrayList<RubyTemplateLanguage>();
+    /*package*/ final List<RubyTemplateLanguage> languages = new CopyOnWriteArrayList<>();
 
     /**
      * There are all kinds of downsides in doing this, but for the time being we just use one scripting container.
@@ -55,9 +55,9 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
      * {@link RubyTemplateContainer}s keyed by their {@linkplain RubyTemplateLanguage#getScriptExtension() extensions}.
      * (since {@link #container} is a singleton per {@link JRubyFacet}, this is also just one map.
      */
-    private final Map<String,RubyTemplateContainer> templateContainers = new HashMap<String, RubyTemplateContainer>();
+    private final Map<String,RubyTemplateContainer> templateContainers = new HashMap<>();
 
-    private final Collection<Class<? extends AbstractRubyTearOff>> tearOffTypes = new CopyOnWriteArrayList<Class<? extends AbstractRubyTearOff>>();
+    private final Collection<Class<? extends AbstractRubyTearOff>> tearOffTypes = new CopyOnWriteArrayList<>();
 
     public JRubyFacet() {
         // TODO: is this too early? Shall we allow registrations later?
@@ -96,7 +96,7 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
     }
 
     private Klass<RubyModule> makeKlass(RubyModule o) {
-        return new Klass<RubyModule>(o,navigator);
+        return new Klass<>(o,navigator);
     }
 
     public synchronized MetaClass getClassInfo(RubyClass r) {
@@ -151,7 +151,7 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
     }
 
     public Collection<String> getScriptExtensions() {
-        List<String> r = new ArrayList<String>();
+        List<String> r = new ArrayList<>();
         for (RubyTemplateLanguage l : languages)
             r.add(l.getScriptExtension());
         return r;

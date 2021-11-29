@@ -141,7 +141,7 @@ class CustomJellyContext extends JellyContext {
                     // contains the resource literal, so pre-process them.
                     
                     final StringBuilder buf = new StringBuilder();
-                    final Map<String,InternationalizedStringExpression> resourceLiterals = new HashMap<String,InternationalizedStringExpression>();
+                    final Map<String,InternationalizedStringExpression> resourceLiterals = new HashMap<>();
                     int e=0;
                     do {
                         // copy the text preceding the match

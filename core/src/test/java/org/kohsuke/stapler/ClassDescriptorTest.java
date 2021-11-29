@@ -28,12 +28,12 @@ public class ClassDescriptorTest {
 
     @Test public void loadParameterNamesFromReflection() throws Exception {
         // collect test cases
-        Map<String,Method> testCases = new HashMap<String,Method>();
+        Map<String,Method> testCases = new HashMap<>();
         for (Method m : ClassDescriptorTest.class.getDeclaredMethods())
             if (m.getName().startsWith("methodWith"))
                 testCases.put(m.getName().substring(10), m);
         // expected results
-        Map<String,String[]> expected = new HashMap<String,String[]>();
+        Map<String,String[]> expected = new HashMap<>();
         expected.put("NoParams", new String[0]);
         expected.put("NoParams_static", new String[0]);
         expected.put("ManyParams", new String[] { "a", "b", "c", "d", "e", "f", "g", "h", "i" });
@@ -58,12 +58,12 @@ public class ClassDescriptorTest {
                 "loadParametersFromAsm", Method.class);
         lpfa.setAccessible(true);
         // collect test cases
-        Map<String,Method> testCases = new HashMap<String,Method>();
+        Map<String,Method> testCases = new HashMap<>();
         for (Method m : ClassDescriptorTest.class.getDeclaredMethods())
             if (m.getName().startsWith("methodWith"))
                 testCases.put(m.getName().substring(10), m);
         // expected results
-        Map<String,String[]> expected = new HashMap<String,String[]>();
+        Map<String,String[]> expected = new HashMap<>();
         expected.put("NoParams", new String[0]);
         expected.put("NoParams_static", new String[0]);
         expected.put("ManyParams", new String[] { "a", "b", "c", "d", "e", "f", "g", "h", "i" });

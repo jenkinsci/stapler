@@ -61,7 +61,7 @@ public class RequestImplTest {
 
         @DataBoundConstructor
         public SetterObject() {
-            choices = new ArrayList<String>();
+            choices = new ArrayList<>();
         }
 
         @SuppressWarnings("unchecked")

@@ -44,7 +44,7 @@ public class JRebelFacet extends Facet {
                     return PRIORITY_DEFAULT;
                 }
             });
-            metaClasses = new HashMap<Class, MetaClass>();
+            metaClasses = new HashMap<>();
         }
     }
 

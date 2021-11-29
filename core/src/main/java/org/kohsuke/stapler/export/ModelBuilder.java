@@ -40,7 +40,7 @@ public class ModelBuilder {
      * Registration happens in {@link Model#Model(ModelBuilder, Class, Class, String)} so that cyclic references
      * are handled correctly.
      */
-    /*package*/ final Map<Class, Model> models = new ConcurrentHashMap<Class, Model>();
+    /*package*/ final Map<Class, Model> models = new ConcurrentHashMap<>();
 
     @NonNull
     public <T> Model<T> get(Class<T> type) throws NotExportableException {
@@ -70,7 +70,7 @@ public class ModelBuilder {
     public <T> Model<T> getOrNull(Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property) {
         Model<T> m = models.get(type);
         if(m==null && type.getAnnotation(ExportedBean.class) != null) {
-            m = new Model<T>(this, type, propertyOwner, property);
+            m = new Model<>(this, type, propertyOwner, property);
         }
         return m;
     }

@@ -94,7 +94,7 @@ public abstract class AnnotationHandler<T extends Annotation> {
         return null; // probably we should report an error
     }
 
-    private static final ConcurrentMap<Class<? extends Annotation>,AnnotationHandler> HANDLERS = new ConcurrentHashMap<Class<? extends Annotation>, AnnotationHandler>();
+    private static final ConcurrentMap<Class<? extends Annotation>,AnnotationHandler> HANDLERS = new ConcurrentHashMap<>();
 
     private static final AnnotationHandler NOT_HANDLER = new AnnotationHandler() {
         @Override

@@ -112,7 +112,7 @@ public class BoundObjectTable implements StaplerFallback {
      * Per-session table that remembers all the bound instances.
      */
     public static class Table {
-        private final Map<String,Ref> entries = new HashMap<String,Ref>();
+        private final Map<String,Ref> entries = new HashMap<>();
         private boolean logging;
 
         private synchronized Bound add(Ref ref) {

@@ -71,7 +71,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * @see Adjunct
  */
 public class AdjunctManager {
-    private final ConcurrentHashMap<String, Adjunct> adjuncts = new ConcurrentHashMap<String,Adjunct>();
+    private final ConcurrentHashMap<String, Adjunct> adjuncts = new ConcurrentHashMap<>();
 
     /**
      * Map used as a set to remember which resources can be served.

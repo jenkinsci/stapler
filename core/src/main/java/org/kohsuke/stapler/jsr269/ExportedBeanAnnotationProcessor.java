@@ -46,7 +46,7 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
             }
 
             // collect all exposed properties
-            PoormansMultimap<TypeElement, Element/*member decls*/> props = new PoormansMultimap<TypeElement,Element>();
+            PoormansMultimap<TypeElement, Element/*member decls*/> props = new PoormansMultimap<>();
 
             for (Element exported : roundEnv.getElementsAnnotatedWith(Exported.class)) {
                 Element type = exported.getEnclosingElement();
@@ -138,7 +138,7 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
     }
 
     private void scanExisting() throws IOException {
-        exposedBeanNames = new TreeSet<String>();
+        exposedBeanNames = new TreeSet<>();
 
         try {
             FileObject beans = getResource(STAPLER_BEAN_FILE);

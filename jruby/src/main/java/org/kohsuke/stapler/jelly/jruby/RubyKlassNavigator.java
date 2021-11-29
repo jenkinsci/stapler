@@ -54,7 +54,7 @@ public class RubyKlassNavigator extends KlassNavigator<RubyModule> {
 
     @Override
     public Iterable<Klass<?>> getAncestors(RubyModule clazz) {
-        List<Klass<?>> r = new ArrayList<Klass<?>>();
+        List<Klass<?>> r = new ArrayList<>();
         for (RubyModule anc : (List<RubyModule>)(List)clazz.getAncestorList()) {
             r.add(wrap(anc));
         }
@@ -69,7 +69,7 @@ public class RubyKlassNavigator extends KlassNavigator<RubyModule> {
 
     @Override
     public List<MethodRef> getDeclaredMethods(RubyModule clazz) {
-        List<MethodRef> r = new ArrayList<MethodRef>();
+        List<MethodRef> r = new ArrayList<>();
         for (DynamicMethod m : clazz.getMethods().values()) {
             // TODO: not sure if this is entirely correct
             if (m.getImplementationClass()==clazz)
@@ -101,7 +101,7 @@ public class RubyKlassNavigator extends KlassNavigator<RubyModule> {
     }
     
     public Klass<RubyModule> wrap(RubyModule m) {
-        return m==null ? null : new Klass<RubyModule>(m,this);
+        return m==null ? null : new Klass<>(m,this);
     }
 
     /**

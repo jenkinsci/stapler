@@ -73,7 +73,7 @@ public class Adjunct {
     /**
      * List of fully qualified adjunct names that are required before this adjunct.
      */
-    public final List<String> required = new ArrayList<String>();
+    public final List<String> required = new ArrayList<>();
 
     private final boolean hasCss;
     private final boolean hasJavaScript;

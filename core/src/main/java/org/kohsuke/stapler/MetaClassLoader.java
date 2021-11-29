@@ -72,7 +72,7 @@ public class MetaClassLoader extends TearOffSupport {
      *
      * Note that this permanently holds a strong reference to its key, i.e. is a memory leak.
      */
-    private static final Map<ClassLoader,MetaClassLoader> classMap = new HashMap<ClassLoader,MetaClassLoader>();
+    private static final Map<ClassLoader,MetaClassLoader> classMap = new HashMap<>();
 
     static {
         debugLoader = createDebugLoader();

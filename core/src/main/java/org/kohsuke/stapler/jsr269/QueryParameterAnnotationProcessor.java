@@ -29,7 +29,7 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try {
             Set<? extends Element> params = roundEnv.getElementsAnnotatedWith(QueryParameter.class);
-            Set<ExecutableElement> methods = new HashSet<ExecutableElement>();
+            Set<ExecutableElement> methods = new HashSet<>();
 
             for (Element p : params) {
                 // at least in JDK7u3, if some of the annotation types doesn't resolve, they end up showing up

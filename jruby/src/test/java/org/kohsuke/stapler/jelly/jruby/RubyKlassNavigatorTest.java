@@ -46,7 +46,7 @@ public class RubyKlassNavigatorTest {
         final MyRubyModule myModule = new MyRubyModule(ruby.getRuntime(), new MyRubyClass(ruby.getRuntime()), true);
 
 
-        final Klass<RubyModule> classInstance = new Klass<RubyModule>(myModule, navigator);
+        final Klass<RubyModule> classInstance = new Klass<>(myModule, navigator);
         
         final List<MethodRef> declaredMethods = classInstance.getDeclaredMethods();
         for (MethodRef ref : declaredMethods) {
@@ -74,7 +74,7 @@ public class RubyKlassNavigatorTest {
         final MyRubyModule myModule = new MyRubyModule(ruby.getRuntime(), new MyRubyClass(ruby.getRuntime()), true);
 
 
-        final Klass<RubyModule> classInstance = new Klass<RubyModule>(myModule, navigator);
+        final Klass<RubyModule> classInstance = new Klass<>(myModule, navigator);
         final List<FieldRef> declaredFields = classInstance.getDeclaredFields();
 
         assumeThat("Access to fields in Ruby Modules has not been implemented yet",
@@ -102,7 +102,7 @@ public class RubyKlassNavigatorTest {
         final MyRubyModule myModule = new MyRubyModule(ruby.getRuntime(), new MyRubyClass(ruby.getRuntime()), true);
 
 
-        final Klass<RubyModule> classInstance = new Klass<RubyModule>(myModule, navigator);
+        final Klass<RubyModule> classInstance = new Klass<>(myModule, navigator);
         
         final List<Function> declaredFunctions = classInstance.getFunctions();
         for (Function ref : declaredFunctions) {

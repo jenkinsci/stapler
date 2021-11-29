@@ -107,7 +107,7 @@ public class ConfigurationLoader {
      * (that allows retrievals by both "path" and "PATH" to fill this gap.
      */
     public static ConfigurationLoader fromEnvironmentVariables() throws IOException {
-        TreeMap<String, String> m = new TreeMap<String, String>(new Comparator<String>() {
+        TreeMap<String, String> m = new TreeMap<>(new Comparator<String>() {
             public int compare(String o1, String o2) {
                 return o1.compareToIgnoreCase(o2);
             }

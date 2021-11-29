@@ -48,7 +48,7 @@ import java.util.Set;
 @SuppressWarnings({"Since15"})
 //@MetaInfServices(Processor.class)
 public class AnnotationProcessorImpl extends AbstractProcessor {
-    private final Map<TypeElement,MissingViews> missingViews = new HashMap<TypeElement, MissingViews>();
+    private final Map<TypeElement,MissingViews> missingViews = new HashMap<>();
 
     private static class MissingViews extends HashSet<String> {}
 

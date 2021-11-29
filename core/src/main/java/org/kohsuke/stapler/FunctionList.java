@@ -43,7 +43,7 @@ public final class FunctionList extends AbstractList<Function> {
     }
 
     /* internal */ FunctionList filter(Filter f) {
-        List<Function> r = new ArrayList<Function>();
+        List<Function> r = new ArrayList<>();
         for (Function m : functions)
             if (f.keep(m))
                 r.add(m);
@@ -63,7 +63,7 @@ public final class FunctionList extends AbstractList<Function> {
      * Compute set unions of two lists.
      */
     public FunctionList union(FunctionList that) {
-        Set<Function> combined = new LinkedHashSet<Function>();
+        Set<Function> combined = new LinkedHashSet<>();
         combined.addAll(Arrays.asList(this.functions));
         combined.addAll(Arrays.asList(that.functions));
         return new FunctionList(combined);

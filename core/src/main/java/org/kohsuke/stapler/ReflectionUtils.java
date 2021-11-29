@@ -42,7 +42,7 @@ public class ReflectionUtils {
         return defaultPrimitiveValue.get(type);
     }
 
-    private static final Map<Class,Object> defaultPrimitiveValue = new HashMap<Class, Object>();
+    private static final Map<Class,Object> defaultPrimitiveValue = new HashMap<>();
     static {
         defaultPrimitiveValue.put(boolean.class,false);
         defaultPrimitiveValue.put(int.class,0);
@@ -59,7 +59,7 @@ public class ReflectionUtils {
         if (b.length==0)    return a;
 
         // slow path
-        List<Annotation> combined = new ArrayList<Annotation>(a.length+b.length);
+        List<Annotation> combined = new ArrayList<>(a.length+b.length);
         combined.addAll(Arrays.asList(a));
 
         OUTER:

@@ -41,7 +41,7 @@ import java.util.Map.Entry;
 public class ForwardToView extends RuntimeException implements HttpResponse {
     @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "As an HttpResponse, this is not actually serialized.")
     private final DispatcherFactory factory;
-    private final Map<String,Object> attributes = new HashMap<String, Object>();
+    private final Map<String,Object> attributes = new HashMap<>();
 
     private interface DispatcherFactory {
         RequestDispatcher get(StaplerRequest req) throws IOException;

@@ -406,7 +406,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     public <T>
     List<T> bindParametersToList(Class<T> type, String prefix) {
-        List<T> r = new ArrayList<T>();
+        List<T> r = new ArrayList<>();
 
         int len = Integer.MAX_VALUE;
 
@@ -518,7 +518,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     public <T> List<T> bindJSONToList(Class<T> type, Object src) {
-        ArrayList<T> r = new ArrayList<T>();
+        ArrayList<T> r = new ArrayList<>();
         if (src instanceof JSONObject) {
             JSONObject j = (JSONObject) src;
             r.add(bindJSON(type,j));
@@ -975,8 +975,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     private void parseMultipartFormData() throws ServletException {
         if(parsedFormData!=null)    return;
 
-        parsedFormData = new HashMap<String,FileItem>();
-        parsedFormDataFormFields = new HashMap<String, String>();
+        parsedFormData = new HashMap<>();
+        parsedFormDataFormFields = new HashMap<>();
         ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
         try {
             for( FileItem fi : (List<FileItem>)upload.parseRequest(this) ) {

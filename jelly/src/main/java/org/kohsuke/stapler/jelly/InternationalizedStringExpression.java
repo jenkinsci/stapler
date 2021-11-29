@@ -73,7 +73,7 @@ public class InternationalizedStringExpression extends ExpressionSupport {
             return;
         }
 
-        List<Expression> args = new ArrayList<Expression>();
+        List<Expression> args = new ArrayList<>();
         key = text.substring(0,idx);
         text = text.substring(idx+1);   // at this point text="arg,arg)"
         while(text.length()>0) {

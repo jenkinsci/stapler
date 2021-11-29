@@ -54,7 +54,7 @@ public class ProtectedClass {
 
         private Klass<ProtectedClass> protect(Klass<?/*should be Class*/> c) {
             if (c==null)    return null;
-            return new Klass<ProtectedClass>(new ProtectedClass((Class)c.clazz), NAVIGATOR);
+            return new Klass<>(new ProtectedClass((Class)c.clazz), NAVIGATOR);
         }
 
         // no view
@@ -65,7 +65,7 @@ public class ProtectedClass {
 
         @Override
         public Iterable<Klass<?>> getAncestors(ProtectedClass clazz) {
-            List<Klass<?>> r = new ArrayList<Klass<?>>();
+            List<Klass<?>> r = new ArrayList<>();
             for (Klass<?> c : JAVA.getAncestors(clazz.c)) {
                 r.add(protect(c));
             }
@@ -89,7 +89,7 @@ public class ProtectedClass {
 
         @Override
         public List<FieldRef> getDeclaredFields(ProtectedClass clazz) {
-            List<FieldRef> r = new ArrayList<FieldRef>();
+            List<FieldRef> r = new ArrayList<>();
             for (final FieldRef f : JAVA.getDeclaredFields(clazz.c)) {
                 r.add(new FieldRefFilter() {
                     @Override
@@ -129,7 +129,7 @@ public class ProtectedClass {
 
         @Override
         public List<Function> getFunctions(ProtectedClass clazz) {
-            List<Function> r = new ArrayList<Function>();
+            List<Function> r = new ArrayList<>();
             // insert this at the top to make sure that shadows doIndex in subtypes
             r.addAll(new FunctionList(JAVA.getFunctions(Protection.class)).name("doIndex"));
             // expose all the functions from the base type

@@ -47,12 +47,12 @@ import java.util.Stack;
  * @author Kohsuke Kawaguchi
  */
 public class SchemaGenerator {
-    private final Stack<Model> queue = new Stack<Model>();
-    private final Set<Model> written = new HashSet<Model>();
+    private final Stack<Model> queue = new Stack<>();
+    private final Set<Model> written = new HashSet<>();
     /**
      * Enumerations to be generated.
      */
-    private final Set<Class> enums = new HashSet<Class>();
+    private final Set<Class> enums = new HashSet<>();
 
     private final ModelBuilder builder;
     private final Model<?> top;

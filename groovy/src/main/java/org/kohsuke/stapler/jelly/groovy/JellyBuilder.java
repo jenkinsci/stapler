@@ -84,7 +84,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
 
     private JellyContext context;
 
-    private final Map<Class,GroovyClosureScript> taglibs = new HashMap<Class,GroovyClosureScript>();
+    private final Map<Class,GroovyClosureScript> taglibs = new HashMap<>();
 
     private final StaplerRequest request;
     private StaplerResponse response;

@@ -82,8 +82,8 @@ public abstract class Facet {
     }
 
     public static <T> List<T> discoverExtensions(Class<T> type, ClassLoader... cls) {
-        List<T> r = new ArrayList<T>();
-        Set<String> classNames = new HashSet<String>();
+        List<T> r = new ArrayList<>();
+        Set<String> classNames = new HashSet<>();
 
         for (ClassLoader cl : cls) {
             ClassLoaders classLoaders = new ClassLoaders();

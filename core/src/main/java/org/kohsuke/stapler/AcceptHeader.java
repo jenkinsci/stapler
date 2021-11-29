@@ -57,7 +57,7 @@ import java.util.Map;
  * @see <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1">definition of Accept header</a>
  */
 public final class AcceptHeader {
-    private final List<Atom> atoms = new ArrayList<Atom>();
+    private final List<Atom> atoms = new ArrayList<>();
     private final String ranges;
 
     /**
@@ -78,7 +78,7 @@ public final class AcceptHeader {
     protected static class Atom {
         private final String major;
         private final String minor;
-        private final Map<String, String> params = new HashMap<String, String>();
+        private final Map<String, String> params = new HashMap<>();
 
         private final float q;
 

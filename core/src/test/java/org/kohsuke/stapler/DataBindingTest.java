@@ -371,7 +371,7 @@ public class DataBindingTest extends TestCase {
     }
 
     public static class AsymmetricProperty {
-        private final List<Integer> items = new ArrayList<Integer>();
+        private final List<Integer> items = new ArrayList<>();
         @DataBoundConstructor
         public AsymmetricProperty() {}
 

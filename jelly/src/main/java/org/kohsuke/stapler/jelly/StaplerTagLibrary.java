@@ -98,7 +98,7 @@ public class StaplerTagLibrary extends TagLibrary {
                     HttpServletRequest request = (HttpServletRequest)context.getVariable("request");
                     Set<String> executedScripts = (Set<String>) request.getAttribute(ONCE_TAG_KEY);
                     if(executedScripts==null)
-                        request.setAttribute(ONCE_TAG_KEY,executedScripts=new HashSet<String>());
+                        request.setAttribute(ONCE_TAG_KEY,executedScripts=new HashSet<>());
 
                     String key = getFileName()+':'+getLineNumber()+':'+getColumnNumber();
 
