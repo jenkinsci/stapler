@@ -27,6 +27,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 
 /**
  * JSON writer.
@@ -195,7 +196,6 @@ class JSONDataWriter implements DataWriter {
 
     private static final char[] INDENT = new char[32];
     static {
-        for (int i=0; i<INDENT.length; i++)
-            INDENT[i] = ' ';
+        Arrays.fill(INDENT, ' ');
     }
 }
