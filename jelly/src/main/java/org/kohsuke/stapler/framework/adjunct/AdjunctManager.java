@@ -156,6 +156,9 @@ public class AdjunctManager {
      */
     public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         String path = req.getRestOfPath();
+        if (path.length() == 0) {
+            throw HttpResponses.error(SC_NOT_FOUND,new IllegalArgumentException("No adjunct provided"));
+        }
         if (path.charAt(0)=='/') path = path.substring(1);
 
         if(!allowedResources.contains(path)) {
