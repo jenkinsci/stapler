@@ -17,6 +17,7 @@ import org.kohsuke.stapler.verb.PUT;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -211,14 +212,14 @@ public class DispatcherTest extends JettyTestCase {
 
         @POST
         public HttpResponse doAcme(StaplerRequest req) throws IOException {
-            return HttpResponses.text("POST: " + IOUtils.toString(req.getInputStream()));
+            return HttpResponses.text("POST: " + IOUtils.toString(req.getInputStream(), StandardCharsets.UTF_8));
         }
     }
 
     public class PutInheritanceImpl extends PutInheritance{
         @Override
         public HttpResponse doBar(StaplerRequest req) throws IOException {
-            return HttpResponses.text(IOUtils.toString(req.getInputStream()) + " World!");
+            return HttpResponses.text(IOUtils.toString(req.getInputStream(), StandardCharsets.UTF_8) + " World!");
         }
     }
 
@@ -266,14 +267,14 @@ public class DispatcherTest extends JettyTestCase {
     public interface InterfaceWithWebMethods {
         @RequirePOST
         default HttpResponse doFoo() {
-            return HttpResponses.plainText("default");
+            return HttpResponses.text("default");
         }
     }
     public class UsesInterfaceMethods implements InterfaceWithWebMethods {}
     public class OverridesInterfaceMethods implements InterfaceWithWebMethods {
         @Override
         public HttpResponse doFoo() {
-            return HttpResponses.plainText("overridden");
+            return HttpResponses.text("overridden");
         }
     }
     public final UsesInterfaceMethods usesInterfaceMethods = new UsesInterfaceMethods();

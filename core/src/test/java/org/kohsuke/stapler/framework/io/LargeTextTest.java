@@ -87,7 +87,7 @@ public class LargeTextTest {
 
         LargeText t = new LargeText(path.toFile(), StandardCharsets.US_ASCII, true);
 
-        try (OutputStream os = new NullOutputStream()) {
+        try (OutputStream os = NullOutputStream.NULL_OUTPUT_STREAM) {
             long writenCount = t.writeLogTo(0, os);
 
             assertEquals(size, writenCount);

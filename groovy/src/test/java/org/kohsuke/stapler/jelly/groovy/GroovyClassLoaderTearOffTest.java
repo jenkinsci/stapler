@@ -9,6 +9,7 @@ import org.kohsuke.stapler.test.AbstractStaplerTest;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -21,16 +22,16 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
             MetaClassLoader mcl = webApp.getMetaClass(Foo.class).classLoader;
             GroovyClassLoaderTearOff t = mcl.getTearOff(GroovyClassLoaderTearOff.class);
             
-            FileUtils.writeStringToFile(f,"context.setVariable('x',1)");
+            FileUtils.writeStringToFile(f,"context.setVariable('x',1)",StandardCharsets.UTF_8);
 
             JellyContext context = new JellyContext();
             XMLOutput w = XMLOutput.createXMLOutput(System.out);
-            t.parse(f.toURL()).run(context, w);
+            t.parse(f.toURI().toURL()).run(context, w);
             assertEquals(1,context.getVariable("x"));
 
             // reload different content in the same URL, make sure new class gets loaded
-            FileUtils.writeStringToFile(f,"context.setVariable('x',2)");
-            t.parse(f.toURL()).run(context, w);
+            FileUtils.writeStringToFile(f,"context.setVariable('x',2)",StandardCharsets.UTF_8);
+            t.parse(f.toURI().toURL()).run(context, w);
             assertEquals(2, context.getVariable("x"));
         } finally {
             f.delete();

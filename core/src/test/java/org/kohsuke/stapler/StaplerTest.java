@@ -48,7 +48,7 @@ public class StaplerTest extends TestCase {
         String a = "\\\\vboxsvr\\root";
         assertToFile(a,
                 new URL("file://vboxsvr/root/"),
-                new File(a).toURL()
+                new File(a).toURI().toURL()
         );
 
         // whitespace + UNC
@@ -56,7 +56,7 @@ public class StaplerTest extends TestCase {
         assertToFile(a,
                 new URL("file://vboxsvr/root/documents and files"),
                 new URL("file://vboxsvr/root/documents%20and%20files"),
-                new File(a).toURL()
+                new File(a).toURI().toURL()
         );
 
 
