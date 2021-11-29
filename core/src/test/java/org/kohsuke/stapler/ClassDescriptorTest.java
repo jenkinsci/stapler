@@ -73,7 +73,7 @@ public class ClassDescriptorTest {
             Method testMethod = testCases.get(entry.getKey());
             assertNotNull("Method missing for " + entry.getKey(), testMethod);
             String[] result = (String[])lpfa.invoke(null, testMethod);
-            assertNotNull("Null result for " + entry.getKey());
+            assertNotNull("Null result for " + entry.getKey(), result);
             if (!Arrays.equals(entry.getValue(), result)) {
                 StringBuilder buf = new StringBuilder("|");
                 for (String s : result) buf.append(s).append('|');
