@@ -74,7 +74,7 @@ public class ReflectionUtils {
             combined.add(x);
         }
 
-        return combined.toArray(new Annotation[combined.size()]);
+        return combined.toArray(new Annotation[0]);
     }
 
 }

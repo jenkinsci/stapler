@@ -82,7 +82,7 @@ public class InternationalizedStringExpression extends ExpressionSupport {
             text = text.substring(token.length()+1);
         }
 
-        this.arguments = args.toArray(new Expression[args.size()]);
+        this.arguments = args.toArray(new Expression[0]);
     }
     
     public List<Expression> getArguments() {

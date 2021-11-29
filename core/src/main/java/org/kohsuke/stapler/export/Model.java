@@ -109,7 +109,7 @@ public class Model<T> {
             }
         }
 
-        this.properties = properties.toArray(new Property[properties.size()]);
+        this.properties = properties.toArray(new Property[0]);
         Arrays.sort(this.properties);
         for (Property p : properties)
             this.propertyNames.add(p.name);
