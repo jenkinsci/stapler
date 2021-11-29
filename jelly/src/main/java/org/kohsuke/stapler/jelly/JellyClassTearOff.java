@@ -137,9 +137,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
                 return new JellyRequestDispatcher(it,script);
             return null;
         } catch (JellyException e) {
-            IOException io = new IOException(e.getMessage());
-            io.initCause(e);
-            throw io;
+            throw new IOException(e.getMessage(), e);
         }
     }
 

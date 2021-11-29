@@ -51,7 +51,7 @@ public class RubyTemplateContainer {
             String template = IOUtils.toString(path.openStream(), StandardCharsets.UTF_8);
             return (Script) container.callMethod(scriptClass, "new", template);
         } catch (Exception e) {
-            throw (IOException) new IOException("Failed to parse "+path).initCause(e);
+            throw new IOException("Failed to parse " + path, e);
         }
     }
 }

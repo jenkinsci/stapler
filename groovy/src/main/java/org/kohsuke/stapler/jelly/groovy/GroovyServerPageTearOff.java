@@ -25,7 +25,7 @@ public class GroovyServerPageTearOff extends AbstractTearOff<GroovyClassLoaderTe
         try {
             return classLoader.parseGSP(res);
         } catch (ClassNotFoundException e) {
-            throw (IOException)new IOException("Failed to compile "+res).initCause(e);
+            throw new IOException("Failed to compile " + res, e);
         }
     }
 
