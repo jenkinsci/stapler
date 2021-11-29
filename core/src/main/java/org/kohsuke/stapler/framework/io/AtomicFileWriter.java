@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -59,7 +60,7 @@ public class AtomicFileWriter extends Writer {
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING, // empty file already created by createTempFile
                 StandardOpenOption.WRITE
-        ),"UTF-8"));
+        ),StandardCharsets.UTF_8));
     }
 
     public void write(int c) throws IOException {

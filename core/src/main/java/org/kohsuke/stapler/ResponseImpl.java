@@ -403,7 +403,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
             StringBuilder out = new StringBuilder(s.length());
 
             ByteArrayOutputStream buf = new ByteArrayOutputStream();
-            OutputStreamWriter w = new OutputStreamWriter(buf,"UTF-8");
+            OutputStreamWriter w = new OutputStreamWriter(buf,StandardCharsets.UTF_8);
 
             for (int i = 0; i < s.length(); i++) {
                 int c = (int) s.charAt(i);

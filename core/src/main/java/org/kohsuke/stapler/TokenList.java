@@ -25,7 +25,7 @@ package org.kohsuke.stapler;
 
 import java.util.StringTokenizer;
 import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Tokenized path portion of the URL.
@@ -149,7 +149,6 @@ public final class TokenList {
         int i = s.indexOf('%');
         if (i < 0) return s;
 
-        try {
             // to properly handle non-ASCII characters, decoded bytes need to be stored and translated in bulk.
             // this complex set up is necessary for us to work gracefully if 's' already contains decoded non-ASCII chars.
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -168,18 +167,15 @@ public final class TokenList {
                     }
                 } else {
                     if (baos.size()>0) {
-                        buf.append(new String(baos.toByteArray(),"UTF-8"));
+                        buf.append(new String(baos.toByteArray(),StandardCharsets.UTF_8));
                         baos.reset();
                     }
                     buf.append(c);
                 }
             }
             if (baos.size()>0)
-                buf.append(new String(baos.toByteArray(),"UTF-8"));
+                buf.append(new String(baos.toByteArray(),StandardCharsets.UTF_8));
             return buf.toString();
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError(e); // UTF-8 is mandatory encoding
-        }
     }
 
     private static int fromHex(char upper) {

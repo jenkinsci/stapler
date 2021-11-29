@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -30,7 +31,7 @@ import java.net.URL;
 class SimpleTemplateParser {
     @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Not relevant in this situation.")
     protected String parse(URL res) throws IOException {
-        return parse(new InputStreamReader(res.openStream(),"UTF-8"));
+        return parse(new InputStreamReader(res.openStream(),StandardCharsets.UTF_8));
     }
 
     /**

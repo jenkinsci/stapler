@@ -40,7 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -148,7 +148,7 @@ public class Adjunct {
         InputStream is = classLoader.getResourceAsStream(resName);
         if (is == null)     return false;
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(is,UTF8));
+        BufferedReader in = new BufferedReader(new InputStreamReader(is,StandardCharsets.UTF_8));
         String line;
         while((line=in.readLine())!=null) {
             Matcher m = INCLUDE.matcher(line);
@@ -166,7 +166,7 @@ public class Adjunct {
         InputStream is = classLoader.getResourceAsStream(resName);
         if (is == null)     return null;
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(is,UTF8));
+        BufferedReader in = new BufferedReader(new InputStreamReader(is,StandardCharsets.UTF_8));
         String line;
         StringBuilder buf = new StringBuilder();
         while((line=in.readLine())!=null) {
@@ -217,5 +217,4 @@ public class Adjunct {
      * <@include fully.qualified.name>
      */
     private static final Pattern HTML_INCLUDE = Pattern.compile("<@include (\\S+)>");
-    private static final Charset UTF8 = Charset.forName("UTF-8");
 }
