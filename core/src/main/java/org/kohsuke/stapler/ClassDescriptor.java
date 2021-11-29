@@ -90,8 +90,7 @@ public final class ClassDescriptor {
         // organize them into groups
         Map<Signature,List<Method>> groups = new LinkedHashMap<>();
         for (MethodMirror m : methods) {
-            List<Method> v = groups.get(m.sig);
-            if (v==null)    groups.put(m.sig, v=new ArrayList<>());
+            List<Method> v = groups.computeIfAbsent(m.sig, unused -> new ArrayList<>());
             v.add(m.method);
         }
 
