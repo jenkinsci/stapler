@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
+import static org.junit.Assert.assertArrayEquals;
+
 /**
  * @author Kohsuke Kawaguchi
  */
@@ -352,7 +354,7 @@ public class DataBindingTest extends TestCase {
         });
 
         String[] r = (String[]) req.bindJSON(String[].class, String[].class, JSONArray.fromObject("[{x:1},{x:2}]"));
-        assertTrue(Arrays.equals(r,new String[]{"1","2"}));
+        assertArrayEquals(r,new String[]{"1","2"});
     }
 
     public void testInterceptor3() {
@@ -367,7 +369,7 @@ public class DataBindingTest extends TestCase {
         });
 
         Object[] r = (Object[]) req.bindJSON(Object[].class, Object[].class, JSONArray.fromObject("[{$class:'"+Point.class.getName()+"'}]"));
-        assertTrue(Arrays.equals(r,new Object[]{new Point(1,2)}));
+        assertArrayEquals(r,new Object[]{new Point(1,2)});
     }
 
     public static class AsymmetricProperty {
