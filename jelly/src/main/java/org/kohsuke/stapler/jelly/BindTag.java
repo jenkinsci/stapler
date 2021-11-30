@@ -60,6 +60,7 @@ public class BindTag extends AbstractStaplerTag {
         this.javaObject = o;
     }
 
+    @Override
     public void doTag(XMLOutput out) throws JellyTagException {
         // make sure we get the supporting script in place
         ensureDependencies(out);

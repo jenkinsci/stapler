@@ -88,10 +88,12 @@ public class ThisTagLibrary extends TagLibrary {
     }
 
     public static final ThisTagLibrary INSTANCE = new ThisTagLibrary(new ExpressionSupport() {
+        @Override
         public String getExpressionText() {
             return "it";
         }
 
+        @Override
         public Object evaluate(JellyContext context) {
             return context.getVariable("it");
         }

@@ -34,6 +34,7 @@ public class JavaScriptProxyTest extends JettyTestCase {
 
         WebClient wc = new WebClient();
         wc.setAlertHandler(new AlertHandler() {
+            @Override
             public void handleAlert(Page page, String message) {
                 msg[0] = message;
             }

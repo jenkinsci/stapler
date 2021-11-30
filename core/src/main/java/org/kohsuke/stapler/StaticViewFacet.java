@@ -38,8 +38,10 @@ public class StaticViewFacet extends Facet {
         allowedExtensions.add(ext);
     }
 
+    @Override
     public void buildViewDispatchers(final MetaClass owner, List<Dispatcher> dispatchers) {
         dispatchers.add(new Dispatcher() {
+            @Override
             public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                 // check Jelly view
                 String next = req.tokens.peek();
@@ -66,6 +68,7 @@ public class StaticViewFacet extends Facet {
                 return true;
             }
 
+            @Override
             public String toString() {
                 return "static file for url=/VIEW"+StringUtils.join(allowedExtensions,"|");
             }
@@ -92,16 +95,19 @@ public class StaticViewFacet extends Facet {
         return null;
     }
 
+    @Override
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName) throws IOException {
         final Stapler stapler = request.getStapler();
         final URL res = findResource(type,viewName);
         if (res==null)      return null;
 
         return new RequestDispatcher() {
+            @Override
             public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
                 stapler.serveStaticResource((HttpServletRequest)request, new ResponseImpl(stapler, (HttpServletResponse) response), res, 0);
             }
 
+            @Override
             public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
                 throw new UnsupportedOperationException();
             }
@@ -116,6 +122,7 @@ public class StaticViewFacet extends Facet {
         }
     }
 
+    @Override
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
         URL res = findResource(nodeMetaClass.klass,"index.html");
         if (res==null)  return false;

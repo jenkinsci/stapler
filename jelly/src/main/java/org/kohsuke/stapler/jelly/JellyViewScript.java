@@ -76,11 +76,13 @@ public final class JellyViewScript implements Script {
         this.base = base;
     }
 
+    @Override
     public Script compile() throws JellyException {
         base = base.compile();
         return this;
     }
 
+    @Override
     public void run(JellyContext context, XMLOutput output) throws JellyTagException {
         Thread t = Thread.currentThread();
         String n = t.getName();

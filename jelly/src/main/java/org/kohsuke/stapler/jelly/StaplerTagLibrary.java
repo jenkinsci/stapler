@@ -69,6 +69,7 @@ public class StaplerTagLibrary extends TagLibrary {
         // performance optimization
         if (name.equals("documentation"))
             return new TagScript() {
+                @Override
                 public void run(JellyContext context, XMLOutput output) throws JellyTagException {
                     // noop
                 }
@@ -84,6 +85,7 @@ public class StaplerTagLibrary extends TagLibrary {
                 /**
                  * Adds {@link XMLOutput} to the context.
                  */
+                @Override
                 public void run(JellyContext context, XMLOutput output) throws JellyTagException {
                     context.setVariable(getAttribute("var").evaluateAsString(context),output);
                 }
@@ -94,6 +96,7 @@ public class StaplerTagLibrary extends TagLibrary {
                 /**
                  * Adds {@link XMLOutput} to the context.
                  */
+                @Override
                 public void run(JellyContext context, XMLOutput output) throws JellyTagException {
                     HttpServletRequest request = (HttpServletRequest)context.getVariable("request");
                     Set<String> executedScripts = (Set<String>) request.getAttribute(ONCE_TAG_KEY);

@@ -37,6 +37,7 @@ import org.jvnet.maven.jellydoc.annotation.Required;
  * @author Kohsuke Kawaguchi
  */
 public class AttributeConstraintsTag extends TagSupport {
+    @Override
     public void doTag(XMLOutput output) {
         // noop
     }

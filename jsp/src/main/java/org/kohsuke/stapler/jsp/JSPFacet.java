@@ -46,8 +46,10 @@ import java.io.IOException;
  */
 @MetaInfServices
 public class JSPFacet extends Facet {
+    @Override
     public void buildViewDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
         dispatchers.add(new Dispatcher() {
+            @Override
             public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                 String next = req.tokens.peek();
                 if(next==null)  return false;
@@ -80,12 +82,14 @@ public class JSPFacet extends Facet {
                 stapler.forward(disp,req,rsp);
                 return true;
             }
+            @Override
             public String toString() {
                 return "TOKEN.jsp for url=/TOKEN/...";
             }
         });
     }
 
+    @Override
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass type, Object it, String viewName) throws IOException {
         ServletContext context = request.stapler.getServletContext();
 
@@ -105,6 +109,7 @@ public class JSPFacet extends Facet {
     }
 
 
+    @Override
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
         Stapler stapler = req.stapler;
         

@@ -54,6 +54,7 @@ public class RackDispatcher extends Dispatcher {
         return true;
     }
 
+    @Override
     public String toString() {
         return "call(env) to delegate to Rack-compatible Ruby objects";
     }

@@ -37,10 +37,12 @@ import java.io.IOException;
 public class CompressionFilter implements Filter {
     private ServletContext context;
 
+    @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         context = filterConfig.getServletContext();
     }
 
+    @Override
     public void doFilter(ServletRequest _req, ServletResponse _rsp, FilterChain filterChain) throws IOException, ServletException {
         Object old1 = swapAttribute(_req, CompressionFilter.class, true);
 
@@ -70,6 +72,7 @@ public class CompressionFilter implements Filter {
         getUncaughtExceptionHandler(context).reportException(e, context, req, rsp);
     }
 
+    @Override
     public void destroy() {
     }
 

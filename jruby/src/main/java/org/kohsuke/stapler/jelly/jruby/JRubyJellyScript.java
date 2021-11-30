@@ -29,11 +29,13 @@ public abstract class JRubyJellyScript implements Script {
     protected JRubyJellyScript() {
     }
 
+    @Override
     public Script compile() throws JellyException {
         return this;
     }
 
     // this method is implemented in Ruby
+    @Override
     public abstract void run(JellyContext context, XMLOutput output) throws JellyTagException;
 
     /**
@@ -52,10 +54,12 @@ public abstract class JRubyJellyScript implements Script {
             final Ruby runtime = ((IRubyObject)rcon).getRuntime();
 
             tagScript.setTagBody(new Script() {
+                @Override
                 public Script compile() throws JellyException {
                     return this;
                 }
 
+                @Override
                 public void run(JellyContext context, XMLOutput output) throws JellyTagException {
                     JellyContext oc = rcon.getJellyContext();
                     XMLOutput oo = rcon.getOutput();

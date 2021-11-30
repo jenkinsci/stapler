@@ -46,14 +46,17 @@ public /*for now, until Hudson migration completes*/ class LineEndNormalizingWri
         super(out);
     }
 
+    @Override
     public void write(char[] cbuf) throws IOException {
         write(cbuf, 0, cbuf.length);
     }
 
+    @Override
     public void write(String str) throws IOException {
         write(str,0,str.length());
     }
 
+    @Override
     public void write(int c) throws IOException {
         if(!seenCR && c==LF)
             super.write("\r\n");
@@ -62,6 +65,7 @@ public /*for now, until Hudson migration completes*/ class LineEndNormalizingWri
         seenCR = (c==CR);
     }
 
+    @Override
     public void write(char[] cbuf, int off, int len) throws IOException {
         int end = off+len;
         int writeBegin = off;
@@ -80,6 +84,7 @@ public /*for now, until Hudson migration completes*/ class LineEndNormalizingWri
         super.write(cbuf,writeBegin,end-writeBegin);
     }
 
+    @Override
     public void write(String str, int off, int len) throws IOException {
         int end = off+len;
         int writeBegin = off;

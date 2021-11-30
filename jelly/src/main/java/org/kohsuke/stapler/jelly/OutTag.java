@@ -48,6 +48,7 @@ public class OutTag extends TagSupport {
         this.value = value;
     }
 
+    @Override
     public void doTag(XMLOutput output) throws MissingAttributeException, JellyTagException {
         final String text = value.evaluateAsString(context);
         if (text != null) {

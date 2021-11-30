@@ -48,6 +48,7 @@ public class ContentTypeTag extends AbstractStaplerTag {
         this.contentType = contentType;
     }
 
+    @Override
     public void doTag(XMLOutput output) throws MissingAttributeException, JellyTagException {
         HttpServletResponse rsp = getResponse();
         if (rsp!=null)

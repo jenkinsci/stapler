@@ -50,6 +50,7 @@ import java.util.logging.Logger;
  * @author Kohsuke Kawaguchi
  */
 public class BoundObjectTable implements StaplerFallback {
+    @Override
     public Table getStaplerFallback() {
         return resolve(false);
     }
@@ -131,18 +132,22 @@ public class BoundObjectTable implements StaplerFallback {
             if (logging)    LOGGER.info(String.format("%s binding %s for %s", toString(), target, id));
 
             return new Bound() {
+                @Override
                 public void release() {
                    Table.this.release(id);
                 }
 
+                @Override
                 public String getURL() {
                     return Stapler.getCurrentRequest().getContextPath()+PREFIX+id;
                 }
 
+                @Override
                 public Object getTarget() {
                     return target;
                 }
 
+                @Override
                 public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                     rsp.sendRedirect2(getURL());
                 }
@@ -195,9 +200,11 @@ public class BoundObjectTable implements StaplerFallback {
          * Objects with well-known URLs cannot be released, as their URL bindings are controlled
          * implicitly by the application.
          */
+        @Override
         public void release() {
         }
 
+        @Override
         public String getURL() {
             return Stapler.getCurrentRequest().getContextPath()+url;
         }
@@ -207,6 +214,7 @@ public class BoundObjectTable implements StaplerFallback {
             return target;
         }
 
+        @Override
         public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
             rsp.sendRedirect2(getURL());
         }
@@ -225,6 +233,7 @@ public class BoundObjectTable implements StaplerFallback {
         StrongRef(Object o) {
             this.o = o;
         }
+        @Override
         public Object get() {
             return o;
         }

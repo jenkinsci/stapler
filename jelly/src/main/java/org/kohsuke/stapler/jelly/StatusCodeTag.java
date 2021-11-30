@@ -48,6 +48,7 @@ public class StatusCodeTag extends AbstractStaplerTag {
         this.code = code;
     }
 
+    @Override
     public void doTag(XMLOutput output) throws JellyTagException {
         getResponse().setStatus(code);
     }

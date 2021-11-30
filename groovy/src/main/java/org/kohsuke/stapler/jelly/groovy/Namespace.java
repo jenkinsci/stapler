@@ -52,6 +52,7 @@ public class Namespace extends GroovyObjectSupport {
         this.prefix = prefix==null ? "" : prefix;
     }
 
+    @Override
     public Object invokeMethod(String localName, Object args) {
         builder.doInvokeMethod(new QName(nsUri,localName,prefix),args);
         return null;
@@ -76,6 +77,7 @@ public class Namespace extends GroovyObjectSupport {
     }
 
     private class ProxyImpl extends GroovyObjectSupport implements InvocationHandler {
+        @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             Class<?> decl = method.getDeclaringClass();
             if (decl==Object.class || decl==GroovyObject.class)

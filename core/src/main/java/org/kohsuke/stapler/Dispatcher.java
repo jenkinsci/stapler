@@ -57,6 +57,7 @@ public abstract class Dispatcher {
     /**
      * Diagnostic string that explains this dispatch rule.
      */
+    @Override
     public abstract String toString();
 
 

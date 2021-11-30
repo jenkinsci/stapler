@@ -55,14 +55,17 @@ public abstract class AttributeKey<T> {
      */
     public static <T> AttributeKey<T> requestScoped() {
         return new AttributeKey<T>() {
+            @Override
             public T get(HttpServletRequest req) {
                 return (T)req.getAttribute(name);
             }
 
+            @Override
             public void set(HttpServletRequest req, T value) {
                 req.setAttribute(name, value);
             }
 
+            @Override
             public void remove(HttpServletRequest req) {
                 req.removeAttribute(name);
             }
@@ -74,16 +77,19 @@ public abstract class AttributeKey<T> {
      */
     public static <T> AttributeKey<T> sessionScoped() {
         return new AttributeKey<T>() {
+            @Override
             public T get(HttpServletRequest req) {
                 HttpSession s = req.getSession(false);
                 if (s==null)    return null;
                 return (T)s.getAttribute(name);
             }
 
+            @Override
             public void set(HttpServletRequest req, T value) {
                 req.getSession().setAttribute(name, value);
             }
 
+            @Override
             public void remove(HttpServletRequest req) {
                 HttpSession s = req.getSession(false);
                 if (s!=null)
@@ -97,14 +103,17 @@ public abstract class AttributeKey<T> {
      */
     public static <T> AttributeKey<T> appScoped() {
         return new AttributeKey<T>() {
+            @Override
             public T get(HttpServletRequest req) {
                 return (T) getContext(req).getAttribute(name);
             }
 
+            @Override
             public void set(HttpServletRequest req, T value) {
                 getContext(req).setAttribute(name, value);
             }
 
+            @Override
             public void remove(HttpServletRequest req) {
                 getContext(req).removeAttribute(name);
             }

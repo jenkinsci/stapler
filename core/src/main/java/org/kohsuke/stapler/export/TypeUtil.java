@@ -83,25 +83,30 @@ public class TypeUtil {
      * Implements the logic for {@link #erasure(Type)}.
      */
     private static final TypeVisitor<Class,Void> eraser = new TypeVisitor<Class,Void>() {
+        @Override
         public Class onClass(Class c,Void _) {
             return c;
         }
 
+        @Override
         public Class onParameterizedType(ParameterizedType p,Void _) {
             // TODO: why getRawType returns Type? not Class?
             return visit(p.getRawType(),null);
         }
 
+        @Override
         public Class onGenericArray(GenericArrayType g,Void _) {
             return Array.newInstance(
                 visit(g.getGenericComponentType(),null),
                 0 ).getClass();
         }
 
+        @Override
         public Class onVariable(TypeVariable v,Void _) {
             return visit(v.getBounds()[0],null);
         }
 
+        @Override
         public Class onWildcard(WildcardType w,Void _) {
             return visit(w.getUpperBounds()[0],null);
         }
@@ -117,6 +122,7 @@ public class TypeUtil {
     }
 
     private static final TypeVisitor<Type,Class> baseClassFinder = new TypeVisitor<Type,Class>() {
+        @Override
         public Type onClass(Class c, Class sup) {
             // t is a raw type
             if(sup==c)
@@ -138,6 +144,7 @@ public class TypeUtil {
             return null;
         }
 
+        @Override
         public Type onParameterizedType(ParameterizedType p, Class sup) {
             Class raw = (Class) p.getRawType();
             if(raw==sup) {
@@ -158,15 +165,18 @@ public class TypeUtil {
             }
         }
 
+        @Override
         public Type onGenericArray(GenericArrayType g, Class sup) {
             // not clear what I should do here
             return null;
         }
 
+        @Override
         public Type onVariable(TypeVariable v, Class sup) {
             return visit(v.getBounds()[0],sup);
         }
 
+        @Override
         public Type onWildcard(WildcardType w, Class sup) {
             // not clear what I should do here
             return null;
@@ -186,10 +196,12 @@ public class TypeUtil {
     };
 
     private static final TypeVisitor<Type,BinderArg> binder = new TypeVisitor<Type,BinderArg>() {
+        @Override
         public Type onClass(Class c, BinderArg args) {
             return c;
         }
 
+        @Override
         public Type onParameterizedType(ParameterizedType p, BinderArg args) {
             Type[] params = p.getActualTypeArguments();
 
@@ -210,6 +222,7 @@ public class TypeUtil {
             return new ParameterizedTypeImpl( (Class<?>)p.getRawType(), params, newOwner );
         }
 
+        @Override
         public Type onGenericArray(GenericArrayType g, BinderArg types) {
             Type c = visit(g.getGenericComponentType(),types);
             if(c==g.getGenericComponentType())  return g;
@@ -217,10 +230,12 @@ public class TypeUtil {
             return new GenericArrayTypeImpl(c);
         }
 
+        @Override
         public Type onVariable(TypeVariable v, BinderArg types) {
             return types.replace(v);
         }
 
+        @Override
         public Type onWildcard(WildcardType w, BinderArg types) {
             // TODO: this is probably still incorrect
             // bind( "? extends T" ) with T= "? extends Foo" should be "? extends Foo",
@@ -328,14 +343,17 @@ public class TypeUtil {
 
         }
 
+        @Override
         public Type[] getActualTypeArguments() {
             return actualTypeArguments.clone();
         }
 
+        @Override
         public Class<?> getRawType() {
             return rawType;
         }
 
+        @Override
         public Type getOwnerType() {
             return ownerType;
         }
@@ -391,6 +409,7 @@ public class TypeUtil {
                     (rawType == null ? 0 : rawType.hashCode());
         }
 
+        @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
 
@@ -448,10 +467,12 @@ public class TypeUtil {
          *         of this array
          * @since 1.5
          */
+        @Override
         public Type getGenericComponentType() {
             return genericComponentType; // return cached component type
         }
 
+        @Override
         public String toString() {
             Type componentType = getGenericComponentType();
             StringBuilder sb = new StringBuilder();
@@ -491,18 +512,22 @@ public class TypeUtil {
             this.lb = lb;
         }
 
+        @Override
         public Type[] getUpperBounds() {
             return ub;
         }
 
+        @Override
         public Type[] getLowerBounds() {
             return lb;
         }
 
+        @Override
         public int hashCode() {
             return Arrays.hashCode(lb) ^ Arrays.hashCode(ub);
         }
 
+        @Override
         public boolean equals(Object obj) {
             if (obj instanceof WildcardType) {
                 WildcardType that = (WildcardType) obj;

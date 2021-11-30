@@ -38,18 +38,22 @@ class FieldProperty extends Property {
         this.field = field;
     }
 
+    @Override
     public Type getGenericType() {
         return field.getGenericType();
     }
 
+    @Override
     public Class getType() {
         return field.getType();
     }
 
+    @Override
     public String getJavadoc() {
         return parent.getJavadoc().getProperty(field.getName());
     }
 
+    @Override
     public Object getValue(Object object) throws IllegalAccessException {
         return field.get(object);
     }

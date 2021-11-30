@@ -53,6 +53,7 @@ class JSONDataWriter implements DataWriter {
         return config;
     }
 
+    @Override
     public void name(String name) throws IOException {
         comma();
         if (indent<0)   out.write('"'+name+"\":");
@@ -97,10 +98,12 @@ class JSONDataWriter implements DataWriter {
         indent--;
     }
 
+    @Override
     public void valuePrimitive(Object v) throws IOException {
         data(v.toString());
     }
 
+    @Override
     public void value(String v) throws IOException {
         StringBuilder buf = new StringBuilder(v.length());
         buf.append('\"');
@@ -142,6 +145,7 @@ class JSONDataWriter implements DataWriter {
         data(buf.toString());
     }
 
+    @Override
     public void valueNull() throws IOException {
         data("null");
     }
@@ -161,10 +165,12 @@ class JSONDataWriter implements DataWriter {
         out.write(symbol);
     }
 
+    @Override
     public void startArray() throws IOException {
         open('[');
     }
 
+    @Override
     public void endArray() throws IOException {
         close(']');
     }
@@ -174,6 +180,7 @@ class JSONDataWriter implements DataWriter {
         classAttr = config.getClassAttribute().print(expected, actual);
     }
 
+    @Override
     public void startObject() throws IOException {
         _startObject();
 
@@ -188,6 +195,7 @@ class JSONDataWriter implements DataWriter {
         open('{');
     }
 
+    @Override
     public void endObject() throws IOException {
         close('}');
     }

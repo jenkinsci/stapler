@@ -53,20 +53,24 @@ import java.util.logging.Level;
 @MetaInfServices(Facet.class)
 public class GroovyFacet extends Facet implements JellyCompatibleFacet {
 
+    @Override
     public void buildViewDispatchers(final MetaClass owner, List<Dispatcher> dispatchers) {
         ScriptInvoker scriptInvoker = owner.webApp.getFacet(JellyFacet.class).scriptInvoker;
         dispatchers.add(createValidatingDispatcher(owner.loadTearOff(GroovyClassTearOff.class), scriptInvoker));
         dispatchers.add(createValidatingDispatcher(owner.loadTearOff(GroovyServerPageTearOff.class), scriptInvoker));
     }
 
+    @Override
     public Collection<Class<GroovyClassTearOff>> getClassTearOffTypes() {
         return TEAROFF_TYPES;
     }
 
+    @Override
     public Collection<String> getScriptExtensions() {
         return EXTENSION;
     }
 
+    @Override
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass type, Object it, String viewName) throws IOException {
         MetaClass owner = request.getWebApp().getMetaClass(type);
         ScriptInvoker scriptExecutor = request.getWebApp().getFacet(JellyFacet.class).scriptInvoker;
@@ -88,6 +92,7 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
         }
     }
 
+    @Override
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
         ScriptInvoker scriptExecutor = req.getWebApp().getFacet(JellyFacet.class).scriptInvoker;
         return handleIndexRequest(nodeMetaClass.loadTearOff(GroovyClassTearOff.class), scriptExecutor, req, rsp, node) ||

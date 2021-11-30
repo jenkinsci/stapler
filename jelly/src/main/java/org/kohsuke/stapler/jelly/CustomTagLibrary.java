@@ -73,17 +73,20 @@ public final class CustomTagLibrary extends TagLibrary {
         this.loaders = JellyTagFileLoader.discover(classLoader);
     }
 
+    @Override
     public TagScript createTagScript(String name, Attributes attributes) throws JellyException {
         final Script def = load(name);
         if(def==null) return null;
 
         return new CallTagLibScript() {
+            @Override
             protected Script resolveDefinition(JellyContext context) {
                 return def;
             }
         };
     }
 
+    @Override
     public Tag createTag(String name, Attributes attributes) throws JellyException {
         // IIUC, this method is only used by static tag to discover the correct tag at runtime,
         // and since stapler taglibs are always resolved statically, we shouldn't have to implement this method

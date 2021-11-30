@@ -131,6 +131,7 @@ class CustomJellyContext extends JellyContext {
             this.setEscapeByDefault(ESCAPE_BY_DEFAULT);
         }
 
+        @Override
         public Expression createExpression(final String text) throws JellyException {
             if(text.startsWith("%")) {
                 // this is a message resource reference
@@ -202,10 +203,12 @@ class CustomJellyContext extends JellyContext {
                 innerExpression = JellyClassLoaderTearOff.EXPRESSION_FACTORY.createExpression(exp);
             }
 
+            @Override
             public String getExpressionText() {
                 return text;
             }
 
+            @Override
             public Object evaluate(JellyContext context) {
                 context = new CustomJellyContext(context);
                 context.setVariables(resourceLiterals);

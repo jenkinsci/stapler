@@ -129,10 +129,12 @@ public class InternationalizedStringExpression extends ExpressionSupport {
         throw new JellyException(expressionText+" is missing ')' at the end");
     }
 
+    @Override
     public String getExpressionText() {
         return expressionText;
     }
 
+    @Override
     public Object evaluate(JellyContext context) {
         return format(evaluateArguments(context));
     }
@@ -158,10 +160,12 @@ public class InternationalizedStringExpression extends ExpressionSupport {
      */
     public Expression makeEscapingExpression() {
         return new ExpressionSupport() {
+            @Override
             public String getExpressionText() {
                 return expressionText;
             }
 
+            @Override
             public Object evaluate(JellyContext context) {
                 Object[] args = evaluateArguments(context);
                 args = Stapler.htmlSafeArguments(args);

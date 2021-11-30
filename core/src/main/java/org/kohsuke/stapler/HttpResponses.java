@@ -76,6 +76,7 @@ public class HttpResponses {
 
     public static HttpResponseException status(final int code) {
         return new HttpResponseException() {
+            @Override
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                 rsp.setStatus(code);
             }
@@ -105,6 +106,7 @@ public class HttpResponses {
         }
         if (responseException == null) {
             responseException = new HttpResponseException(cause) {
+                @Override
                 public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                     rsp.setStatus(code);
 
@@ -125,6 +127,7 @@ public class HttpResponses {
      */
     public static HttpResponseException errorWithoutStack(final int code, final String errorMessage) {
         return new HttpResponseException() {
+            @Override
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                 rsp.sendError(code, errorMessage);
             }
@@ -142,6 +145,7 @@ public class HttpResponses {
      */
     public static HttpResponseException redirectViaContextPath(final int statusCode, final String relative) {
         return new HttpResponseException() {
+            @Override
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                 StringBuilder sb = new StringBuilder(req.getContextPath());
                 if (!relative.startsWith("/"))  sb.append('/');
@@ -186,6 +190,7 @@ public class HttpResponses {
     }
 
     private static final HttpResponseException FORWARD_TO_PREVIOUS_PAGE = new HttpResponseException() {
+        @Override
         public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
             rsp.forwardToPreviousPage(req);
         }
@@ -214,6 +219,7 @@ public class HttpResponses {
      */
     public static HttpResponse staticResource(final URL resource, final long expiration) {
         return new HttpResponse() {
+            @Override
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                 rsp.serveFile(req,resource,expiration);
             }
@@ -226,6 +232,7 @@ public class HttpResponses {
     @Deprecated
     public static HttpResponse html(final String literalHtml) {
         return new HttpResponse() {
+            @Override
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                 rsp.setContentType("text/html;charset=UTF-8");
                 rsp.getWriter().println(literalHtml);
@@ -254,6 +261,7 @@ public class HttpResponses {
     @Deprecated
     public static HttpResponse plainText(final String plainText) {
         return new HttpResponse() {
+            @Override
             public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                 rsp.setContentType("text/plain;charset=UTF-8");
                 rsp.getWriter().println(plainText);

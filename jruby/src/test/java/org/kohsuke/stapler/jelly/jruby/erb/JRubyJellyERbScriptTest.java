@@ -69,6 +69,7 @@ public class JRubyJellyERbScriptTest extends StaplerJRubyTestCase {
             this.idx = idx;
         }
 
+        @Override
         public void run() {
             try {
                 MetaClass mc = webApp.getMetaClass(JRubyJellyERbScriptTest.class);

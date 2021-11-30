@@ -248,10 +248,12 @@ public final class JellyBuilder extends GroovyObjectSupport {
                     if(closure!=null) {
                         final Closure theClosure = closure;
                         body = new Script() {
+                            @Override
                             public Script compile() throws JellyException {
                                 return this;
                             }
 
+                            @Override
                             public void run(JellyContext context, XMLOutput output) throws JellyTagException {
                                 JellyContext oldc = setContext(context);
                                 XMLOutput oldo = setOutput(output);
@@ -451,6 +453,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
      *
      * @see JellyClassTearOff
      */
+    @Override
     public Object getProperty(String property) {
         try {
             return super.getProperty(property);
@@ -528,10 +531,12 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * {@link Script} that does nothing.
      */
     private static final Script NULL_SCRIPT = new Script() {
+        @Override
         public Script compile() {
             return this;
         }
 
+        @Override
         public void run(JellyContext context, XMLOutput output) {
         }
     };

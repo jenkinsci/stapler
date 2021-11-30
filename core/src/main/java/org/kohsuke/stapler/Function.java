@@ -315,10 +315,12 @@ public abstract class Function {
             // defer the resolution of MethodHandle so that a Function can be built to represent a non-public method
         }
 
+        @Override
         public final String getName() {
             return m.getName();
         }
 
+        @Override
         public final String getDisplayName() {
             return m.toGenericString();
         }
@@ -343,14 +345,17 @@ public abstract class Function {
             return m.getDeclaringClass().getName()+'.'+getName();
         }
 
+        @Override
         public <A extends Annotation> A getAnnotation(Class<A> annotation) {
             return m.getAnnotation(annotation);
         }
 
+        @Override
         public Annotation[] getAnnotations() {
             return m.getAnnotations();
         }
 
+        @Override
         public final String[] getParameterNames() {
             if(names==null)
                 names = ClassDescriptor.loadParameterNames(m);
@@ -407,6 +412,7 @@ public abstract class Function {
             super(m);
         }
 
+        @Override
         public Class[] getParameterTypes() {
             return m.getParameterTypes();
         }
@@ -416,6 +422,7 @@ public abstract class Function {
             return m.getGenericParameterTypes();
         }
 
+        @Override
         public Annotation[][] getParameterAnnotations() {
             return m.getParameterAnnotations();
         }
@@ -451,6 +458,7 @@ public abstract class Function {
             return x;
         }
 
+        @Override
         public Annotation[][] getParameterAnnotations() {
             Annotation[][] all = null;
             for (Method m : methods) {
@@ -475,6 +483,7 @@ public abstract class Function {
             super(m);
         }
 
+        @Override
         public Class[] getParameterTypes() {
             Class[] p = m.getParameterTypes();
             Class[] r = new Class[p.length-1];
@@ -490,6 +499,7 @@ public abstract class Function {
             return r;
         }
 
+        @Override
         public Annotation[][] getParameterAnnotations() {
             Annotation[][] a = m.getParameterAnnotations();
             Annotation[][] r = new Annotation[a.length-1][];

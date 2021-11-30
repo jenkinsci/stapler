@@ -99,6 +99,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      */
     protected abstract Object createApplication() throws Exception;
 
+    @Override
     public void contextInitialized(ServletContextEvent event) {
         try {
             context = event.getServletContext();
@@ -114,6 +115,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
                 context.setAttribute(APP,ph);
 
                 new Thread(getApplicationName()+" initialization thread") {
+                    @Override
                     public void run() {
                         setApplicationObject();
                     }
@@ -195,6 +197,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      */
     private void installLocaleProvider() {
         LocaleProvider.setProvider(new LocaleProvider() {
+            @Override
             public Locale get() {
                 Locale locale=null;
                 StaplerRequest req = Stapler.getCurrentRequest();
@@ -255,6 +258,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
         return new File(new File(System.getProperty("user.home")),'.'+getApplicationName().toLowerCase());
     }
 
+    @Override
     public void contextDestroyed(ServletContextEvent event) {
         Object o = event.getServletContext().getAttribute(APP);
         if(rootType.isInstance(o)) {

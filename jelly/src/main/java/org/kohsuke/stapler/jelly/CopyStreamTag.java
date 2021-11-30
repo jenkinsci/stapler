@@ -65,6 +65,7 @@ public class CopyStreamTag extends AbstractStaplerTag {
     }
 
 
+    @Override
     public void doTag(XMLOutput xmlOutput) throws JellyTagException {
         if(in==null)
             // In JEXL, failures evaluate to null, so if the input is meant to be

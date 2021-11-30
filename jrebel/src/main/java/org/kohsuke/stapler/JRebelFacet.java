@@ -25,8 +25,10 @@ public class JRebelFacet extends Facet {
     private Map<Class,MetaClass> metaClasses;
 
     public class ReloaderHook implements Runnable {
+        @Override
         public void run() {
             ReloaderFactory.getInstance().addClassReloadListener(new ClassEventListener() {
+                @Override
                 public void onClassEvent(int eventType, Class klass) {
                     synchronized (metaClasses) {
                         for (Entry<Class, MetaClass> e : metaClasses.entrySet()) {
@@ -40,6 +42,7 @@ public class JRebelFacet extends Facet {
                     ResponseImpl.MODEL_BUILDER = new ModelBuilder();
                 }
 
+                @Override
                 public int priority() {
                     return PRIORITY_DEFAULT;
                 }

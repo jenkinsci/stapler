@@ -48,6 +48,7 @@ abstract class NameBasedDispatcher extends Dispatcher {
         this(name,0);
     }
 
+    @Override
     public final boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
         throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
         if(!req.tokens.hasMore() || !req.tokens.peek().equals(name))

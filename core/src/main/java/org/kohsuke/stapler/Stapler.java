@@ -1129,6 +1129,7 @@ public class Stapler extends HttpServlet {
 
     static {
         CONVERT_UTILS.register(new Converter() {
+            @Override
             public Object convert(Class type, Object value) {
                 if(value==null) return null;
                 try {
@@ -1140,6 +1141,7 @@ public class Stapler extends HttpServlet {
         }, URL.class);
 
         CONVERT_UTILS.register(new Converter() {
+            @Override
             public FileItem convert(Class type, Object value) {
                 if(value==null) return null;
                 try {
@@ -1157,6 +1159,7 @@ public class Stapler extends HttpServlet {
     }
 
     private static final Converter ENUM_CONVERTER = new Converter() {
+        @Override
         public Object convert(Class type, Object value) {
             return Enum.valueOf(type,value.toString());
         }

@@ -34,6 +34,7 @@ import org.apache.commons.jelly.XMLOutput;
  * @author Kohsuke Kawaguchi
  */
 public class ParentScopeTag extends TagSupport {
+    @Override
     public void doTag(XMLOutput output) throws JellyTagException {
         getBody().run(context.getParent(), output);
     }

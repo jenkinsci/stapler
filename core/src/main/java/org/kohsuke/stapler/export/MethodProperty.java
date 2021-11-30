@@ -55,18 +55,22 @@ final class MethodProperty extends Property {
         return Introspector.decapitalize(name);
     }
 
+    @Override
     public Type getGenericType() {
         return method.getGenericReturnType();
     }
 
+    @Override
     public Class getType() {
         return method.getReturnType();
     }
 
+    @Override
     public String getJavadoc() {
         return parent.getJavadoc().getProperty(method.getName()+"()");
     }
 
+    @Override
     public Object getValue(Object object) throws IllegalAccessException, InvocationTargetException {
         try {
             return handle.invoke(object);

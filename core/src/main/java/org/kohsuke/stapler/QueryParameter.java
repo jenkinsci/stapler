@@ -60,6 +60,7 @@ public @interface QueryParameter {
     boolean fixEmpty() default false;
 
     class HandlerImpl extends AnnotationHandler<QueryParameter> {
+        @Override
         public Object parse(StaplerRequest request, QueryParameter a, Class type, String parameterName) throws ServletException {
             String name = a.value();
             if(name.length()==0)    name=parameterName;

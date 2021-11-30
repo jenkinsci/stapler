@@ -54,10 +54,12 @@ public class GroovierJellyScript implements Script {
         this.scriptURL = scriptURL;
     }
     
+    @Override
     public Script compile() {
         return this;
     }
 
+    @Override
     public void run(JellyContext context, XMLOutput output) throws JellyTagException {
         run(new JellyBuilder(context, output));
     }

@@ -125,6 +125,7 @@ public class ClassDescriptorTest {
     }
 
     public static class D extends B<String> {
+        @Override
         @AnnA(3)
         public int x(String t) { return 2; }
     }

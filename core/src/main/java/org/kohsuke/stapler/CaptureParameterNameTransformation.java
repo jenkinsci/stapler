@@ -49,6 +49,7 @@ import java.util.Set;
 @MetaInfServices
 @GroovyASTTransformation
 public class CaptureParameterNameTransformation implements ASTTransformation {
+    @Override
     public void visit(ASTNode[] nodes, SourceUnit source) {
         handleClasses(source.getAST().getClasses());
     }

@@ -52,6 +52,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
         facet = owner.webApp.getFacet(JellyFacet.class);
     }
 
+    @Override
     protected Script parseScript(URL res) throws JellyException {
         return new JellyViewScript(owner.klass, res, classLoader.createContext().compileScript(res));
     }

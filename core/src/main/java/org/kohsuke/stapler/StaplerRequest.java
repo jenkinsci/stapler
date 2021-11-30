@@ -90,6 +90,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * Returns the {@link ServletContext} object given to the stapler
      * dispatcher servlet.
      */
+    @Override
     ServletContext getServletContext();
 
     /**

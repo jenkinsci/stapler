@@ -192,6 +192,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
         }
     }
 
+    @Override
     protected final S loadScript(String name) throws E {
         S s = resolveScript(name);
         if (s!=null)    return s;
@@ -208,6 +209,7 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
      */
     protected abstract S parseScript(URL res) throws E;
 
+    @Override
     protected URL getResource(String name) {
         return owner.klass.getResource(name);
     }

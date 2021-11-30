@@ -109,6 +109,7 @@ public abstract class Property implements Comparable<Property> {
             this.verboseMap = s;
     }
 
+    @Override
     public int compareTo(Property that) {
         return this.name.compareTo(that.name);
     }

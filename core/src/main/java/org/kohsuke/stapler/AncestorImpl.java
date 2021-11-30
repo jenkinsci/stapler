@@ -56,10 +56,12 @@ class AncestorImpl implements Ancestor {
         owner.add(this);
     }
 
+    @Override
     public Object getObject() {
         return object;
     }
 
+    @Override
     public String getUrl() {
         StringBuilder buf = new StringBuilder(contextPath);
         for( int i=0; i<index; i++ ) {
@@ -70,6 +72,7 @@ class AncestorImpl implements Ancestor {
         return buf.toString();
     }
 
+    @Override
     public String getRestOfUrl() {
         StringBuilder buf = new StringBuilder();
         for( int i=index; i<tokens.length; i++ ) {
@@ -80,6 +83,7 @@ class AncestorImpl implements Ancestor {
         return buf.toString();
     }
 
+    @Override
     public String getFullUrl() {
         StringBuilder buf = new StringBuilder();
         StaplerRequest req = Stapler.getCurrentRequest();
@@ -93,6 +97,7 @@ class AncestorImpl implements Ancestor {
         return buf.toString();
     }
 
+    @Override
     public String getRelativePath() {
         StringBuilder buf = new StringBuilder();
         for( int i=index+(endsWithSlash?0:1); i<tokens.length; i++ ) {
@@ -103,10 +108,12 @@ class AncestorImpl implements Ancestor {
         return buf.toString();
     }
 
+    @Override
     public String getNextToken(int n) {
         return tokens[index+n];
     }
 
+    @Override
     public Ancestor getPrev() {
         if(listIndex==0)
             return null;
@@ -114,6 +121,7 @@ class AncestorImpl implements Ancestor {
             return owner.get(listIndex-1);
     }
 
+    @Override
     public Ancestor getNext() {
         if(listIndex==owner.size()-1)
             return null;

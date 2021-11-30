@@ -94,6 +94,7 @@ public class Include extends SimpleTagSupport {
         return getJspContext().getAttribute(name,PageContext.PAGE_SCOPE);
     }
 
+    @Override
     @SuppressFBWarnings(value = "REQUESTDISPATCHER_FILE_DISCLOSURE", justification = "Forwarding the request to be handled correctly.")
     public void doTag() throws JspException, IOException {
         Object it = getJspContext().getAttribute("it",PageContext.REQUEST_SCOPE);
@@ -142,6 +143,7 @@ class Wrapper extends HttpServletResponseWrapper {
         this.pw = w;
     }
 
+    @Override
     public PrintWriter getWriter() throws IOException {
         return pw;
     }

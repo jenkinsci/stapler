@@ -35,26 +35,31 @@ import org.kohsuke.stapler.StaplerResponse;
  */
 public enum Flavor {
     JSON("application/json;charset=UTF-8") {
+        @Override
         public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
             return new JSONDataWriter(w,config);
         }
     },
     JSONP("application/javascript;charset=UTF-8") {
+        @Override
         public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
             return new JSONDataWriter(w,config);
         }
     },
     PYTHON("text/x-python;charset=UTF-8") {
+        @Override
         public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
             return new PythonDataWriter(w,config);
         }
     },
     RUBY("text/x-ruby;charset=UTF-8") {
+        @Override
         public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
             return new RubyDataWriter(w,config);
         }
     },
     XML("application/xml;charset=UTF-8") {
+        @Override
         public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
             return new XMLDataWriter(bean,w,config);
         }
