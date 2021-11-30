@@ -29,160 +29,192 @@ import java.io.BufferedReader;
  * @author Kohsuke Kawaguchi
  */
 public class MockRequest implements HttpServletRequest {
+    @Override
     public String getAuthType() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Cookie[] getCookies() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public long getDateHeader(String name) {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getHeader(String name) {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Enumeration getHeaders(String name) {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Enumeration getHeaderNames() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public int getIntHeader(String name) {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getMethod() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getPathInfo() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getPathTranslated() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getContextPath() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getQueryString() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getRemoteUser() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean isUserInRole(String role) {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Principal getUserPrincipal() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getRequestedSessionId() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getRequestURI() {
         return "";
     }
 
+    @Override
     public StringBuffer getRequestURL() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getServletPath() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public HttpSession getSession(boolean create) {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public HttpSession getSession() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean isRequestedSessionIdValid() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean isRequestedSessionIdFromCookie() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean isRequestedSessionIdFromURL() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean isRequestedSessionIdFromUrl() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Object getAttribute(String name) {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Enumeration getAttributeNames() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getCharacterEncoding() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void setCharacterEncoding(String s) throws UnsupportedEncodingException {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public int getContentLength() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getContentType() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public ServletInputStream getInputStream() throws IOException {
         // TODO
         throw new UnsupportedOperationException();
@@ -190,90 +222,108 @@ public class MockRequest implements HttpServletRequest {
 
     public Map<String,String> parameters = new HashMap<>();
 
+    @Override
     public String getParameter(String name) {
         return parameters.get(name);
     }
 
+    @Override
     public Enumeration getParameterNames() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String[] getParameterValues(String name) {
         String v = getParameter(name);
         if (v==null)    return new String[0];
         return new String[]{v};
     }
 
+    @Override
     public Map getParameterMap() {
         return parameters;
     }
 
+    @Override
     public String getProtocol() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getScheme() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getServerName() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public int getServerPort() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public BufferedReader getReader() throws IOException {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getRemoteAddr() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getRemoteHost() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void setAttribute(String name, Object o) {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void removeAttribute(String name) {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Locale getLocale() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Enumeration getLocales() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean isSecure() {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public RequestDispatcher getRequestDispatcher(String path) {
         // TODO
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getRealPath(String path) {
         // TODO
         throw new UnsupportedOperationException();

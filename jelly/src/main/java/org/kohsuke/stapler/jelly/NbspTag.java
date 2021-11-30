@@ -37,6 +37,7 @@ import org.jvnet.maven.jellydoc.annotation.NoContent;
  */
 @NoContent
 public class NbspTag extends TagSupport {
+    @Override
     public void doTag(XMLOutput output) throws MissingAttributeException, JellyTagException {
         try {
             output.write("\u00A0"); // nbsp

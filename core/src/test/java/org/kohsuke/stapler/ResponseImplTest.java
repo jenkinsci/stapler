@@ -23,6 +23,7 @@ public class ResponseImplTest {
             when(rawRequest.getServerPort()).thenReturn(80);
             when(rawRequest.getRequestURI()).thenReturn("/foo/bar/zot");
             when(rawResponse.getOutputStream()).thenReturn(new ServletOutputStream() {
+                @Override
                 public void write(int b) throws IOException {
                     throw new AssertionError();
                 }

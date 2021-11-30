@@ -66,6 +66,7 @@ public class AdjunctTag extends AbstractStaplerTag {
         return r;
     }
 
+    @Override
     public void doTag(XMLOutput out) throws JellyTagException {
         AdjunctManager m = AdjunctManager.get(getServletContext());
         if(m==null) {

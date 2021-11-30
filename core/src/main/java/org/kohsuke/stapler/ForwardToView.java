@@ -49,6 +49,7 @@ public class ForwardToView extends RuntimeException implements HttpResponse {
 
     public ForwardToView(final RequestDispatcher dispatcher) {
         this.factory = new DispatcherFactory() {
+            @Override
             public RequestDispatcher get(StaplerRequest req) {
                 return dispatcher;
             }
@@ -57,6 +58,7 @@ public class ForwardToView extends RuntimeException implements HttpResponse {
 
     public ForwardToView(final Object it, final String view) {
         this.factory = new DispatcherFactory() {
+            @Override
             public RequestDispatcher get(StaplerRequest req) throws IOException {
                 return req.getView(it,view);
             }
@@ -65,6 +67,7 @@ public class ForwardToView extends RuntimeException implements HttpResponse {
 
     public ForwardToView(final Class c, final String view) {
         this.factory = new DispatcherFactory() {
+            @Override
             public RequestDispatcher get(StaplerRequest req) throws IOException {
                 return req.getView(c,view);
             }
@@ -91,6 +94,7 @@ public class ForwardToView extends RuntimeException implements HttpResponse {
         return this;
     }
 
+    @Override
     @SuppressFBWarnings(value = "REQUESTDISPATCHER_FILE_DISCLOSURE", justification = "Forwarded to a view to handle correctly.")
     public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
         for (Entry<String, Object> e : attributes.entrySet())

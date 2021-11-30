@@ -140,35 +140,43 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         this.originalRequestURI = request.getRequestURI();
     }
 
+    @Override
     public boolean isJavaScriptProxyCall() {
         String ct = getContentType();
         return ct!=null && ct.startsWith("application/x-stapler-method-invocation");
     }
 
+    @Override
     public BoundObjectTable getBoundObjectTable() {
         return stapler.getWebApp().boundObjectTable;
     }
 
+    @Override
     public String createJavaScriptProxy(Object toBeExported) {
         return getBoundObjectTable().bind(toBeExported).getProxyScript();
     }
 
+    @Override
     public Stapler getStapler() {
         return stapler;
     }
 
+    @Override
     public WebApp getWebApp() {
         return stapler.getWebApp();
     }
 
+    @Override
     public String getRestOfPath() {
         return tokens.assembleRestOfPath();
     }
 
+    @Override
     public String getOriginalRestOfPath() {
         return tokens.assembleOriginalRestOfPath();
     }
 
+    @Override
     public ServletContext getServletContext() {
         return stapler.getServletContext();
     }
@@ -238,6 +246,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return extValues;
     }
 
+    @Override
     public String getRequestURIWithQueryString() {
         String s = getRequestURI();
         String q = getQueryString();
@@ -245,6 +254,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return s;
     }
 
+    @Override
     public StringBuffer getRequestURLWithQueryString() {
         StringBuffer s = getRequestURL();
         String q = getQueryString();
@@ -252,14 +262,17 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return s;
     }
 
+    @Override
     public RequestDispatcher getView(Object it,String viewName) throws IOException {
         return getView(Klass.java(it.getClass()),it,viewName);
     }
 
+    @Override
     public RequestDispatcher getView(Class clazz, String viewName) throws IOException {
         return getView(Klass.java(clazz),null,viewName);
     }
 
+    @Override
     public RequestDispatcher getView(Klass<?> clazz, String viewName) throws IOException {
         return getView(clazz,null,viewName);
     }
@@ -274,6 +287,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return null;
     }
 
+    @Override
     public String getRootPath() {
         StringBuffer buf = super.getRequestURL();
         int idx = 0;
@@ -284,14 +298,17 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return buf.toString();
     }
 
+    @Override
     public String getReferer() {
         return getHeader("Referer");
     }
 
+    @Override
     public List<Ancestor> getAncestors() {
         return ancestorsView;
     }
 
+    @Override
     public Ancestor findAncestor(Class type) {
         for( int i = ancestors.size()-1; i>=0; i-- ) {
             AncestorImpl a = ancestors.get(i);
@@ -303,12 +320,14 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return null;
     }
 
+    @Override
     public <T> T findAncestorObject(Class<T> type) {
         Ancestor a = findAncestor(type);
         if(a==null) return null;
         return type.cast(a.getObject());
     }
 
+    @Override
     public Ancestor findAncestor(Object anc) {
         for( int i = ancestors.size()-1; i>=0; i-- ) {
             AncestorImpl a = ancestors.get(i);
@@ -320,18 +339,22 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return null;
     }
 
+    @Override
     public boolean hasParameter(String name) {
         return getParameter(name)!=null;
     }
 
+    @Override
     public String getOriginalRequestURI() {
         return originalRequestURI;
     }
 
+    @Override
     public boolean checkIfModified(long lastModified, StaplerResponse rsp) {
         return checkIfModified(lastModified,rsp,0);
     }
 
+    @Override
     public boolean checkIfModified(long lastModified, StaplerResponse rsp, long expiration) {
         if(lastModified<=0)
             return false;
@@ -363,36 +386,44 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return false;
     }
 
+    @Override
     public boolean checkIfModified(Date timestampOfResource, StaplerResponse rsp) {
         return checkIfModified(timestampOfResource.getTime(),rsp);
     }
 
+    @Override
     public boolean checkIfModified(Calendar timestampOfResource, StaplerResponse rsp) {
         return checkIfModified(timestampOfResource.getTimeInMillis(),rsp);
     }
 
+    @Override
     public BindInterceptor getBindInterceptor() {
         return bindInterceptor;
     }
 
+    @Override
     public BindInterceptor setBindListener(BindInterceptor bindListener) {
         return setBindInterceptor(bindListener);
     }
 
+    @Override
     public BindInterceptor setBindInterceptpr(BindInterceptor bindListener) {
         return setBindInterceptor(bindListener);
     }
 
+    @Override
     public BindInterceptor setBindInterceptor(BindInterceptor bindListener) {
         BindInterceptor o = this.bindInterceptor;
         this.bindInterceptor = bindListener;
         return o;
     }
 
+    @Override
     public void bindParameters(Object bean) {
         bindParameters(bean,"");
     }
 
+    @Override
     public void bindParameters(Object bean, String prefix) {
         Enumeration e = getParameterNames();
         while(e.hasMoreElements()) {
@@ -402,6 +433,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         }
     }
 
+    @Override
     public <T>
     List<T> bindParametersToList(Class<T> type, String prefix) {
         List<T> r = new ArrayList<>();
@@ -447,10 +479,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return r;
     }
 
+    @Override
     public <T> T bindParameters(Class<T> type, String prefix) {
         return bindParameters(type,prefix,0);
     }
 
+    @Override
     public <T> T bindParameters(Class<T> type, String prefix, int index) {
         String[] names = new ClassDescriptor(type).loadConstructorParamNames();
 
@@ -480,14 +514,17 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return invokeConstructor(c, args);
     }
 
+    @Override
     public <T> T bindJSON(Class<T> type, JSONObject src) {
         return type.cast(bindJSON(type, type, src));
     }
 
+    @Override
     public Object bindJSON(Type type, Class erasure, Object json) {
         return new TypePair(type,erasure).convertJSON(json);
     }
 
+    @Override
     public void bindJSON(Object bean, JSONObject src) {
         try {
             for( String key : (Set<String>)src.keySet() ) {
@@ -515,6 +552,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         }
     }
 
+    @Override
     public <T> List<T> bindJSONToList(Class<T> type, Object src) {
         ArrayList<T> r = new ArrayList<>();
         if (src instanceof JSONObject) {
@@ -998,6 +1036,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return parsedFormDataFormFields;
     }
 
+    @Override
     public JSONObject getSubmittedForm() throws ServletException {
         final String method = this.getMethod();
         if (!ALLOWED_HTTP_VERBS_FOR_FORMS.contains(method)) {
@@ -1056,6 +1095,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return (ct!=null && ct.startsWith("multipart/"));
     }
 
+    @Override
     public FileItem getFileItem(String name) throws ServletException, IOException {
         parseMultipartFormData();
         if(parsedFormData==null)    return null;

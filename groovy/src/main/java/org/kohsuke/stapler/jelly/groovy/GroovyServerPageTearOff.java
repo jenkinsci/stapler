@@ -21,6 +21,7 @@ public class GroovyServerPageTearOff extends AbstractTearOff<GroovyClassLoaderTe
         return ".gsp";
     }
 
+    @Override
     public GroovierJellyScript parseScript(URL res) throws IOException {
         try {
             return classLoader.parseGSP(res);

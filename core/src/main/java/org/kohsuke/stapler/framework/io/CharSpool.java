@@ -39,6 +39,7 @@ public /*for now, until Hudson migration completes*/ final class CharSpool exten
     private char[] last = new char[1024];
     private int pos;
 
+    @Override
     public void write(char[] cbuf, int off, int len) {
         while(len>0) {
             int sz = Math.min(last.length-pos,len);
@@ -61,15 +62,18 @@ public /*for now, until Hudson migration completes*/ final class CharSpool exten
         pos = 0;
     }
 
+    @Override
     public void write(int c) {
         renew();
         last[pos++] = (char)c;
     }
 
+    @Override
     public void flush() {
         // noop
     }
 
+    @Override
     public void close() {
         // noop
     }

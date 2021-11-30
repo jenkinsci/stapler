@@ -220,6 +220,7 @@ public final class AcceptHeader {
 
     // this performs databinding for @Header parameter injection
     public static class StaplerConverterImpl implements Converter {
+        @Override
         public Object convert(Class type, Object value) {
             return new AcceptHeader(value.toString());
         }

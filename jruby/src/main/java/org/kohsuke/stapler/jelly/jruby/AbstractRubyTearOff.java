@@ -26,6 +26,7 @@ public abstract class AbstractRubyTearOff extends AbstractTearOff<JRubyClassLoad
     @Override
     protected abstract String getDefaultScriptExtension();
 
+    @Override
     public Script parseScript(URL res) throws IOException {
         return WebApp.getCurrent().getFacet(JRubyFacet.class).parseScript(res);
     }

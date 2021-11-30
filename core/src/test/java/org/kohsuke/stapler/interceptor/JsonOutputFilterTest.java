@@ -30,6 +30,7 @@ public class JsonOutputFilterTest extends JettyTestCase {
         final String[] msg = new String[1];
         WebClient wc = new WebClient();
         wc.setAlertHandler(new AlertHandler() {
+            @Override
             public void handleAlert(Page page, String message) {
                 msg[0] = message;
             }
@@ -48,6 +49,7 @@ public class JsonOutputFilterTest extends JettyTestCase {
         final String[] msg = new String[1];
         WebClient wc = new WebClient();
         wc.setAlertHandler(new AlertHandler() {
+            @Override
             public void handleAlert(Page page, String message) {
                 msg[0] = message;
             }
@@ -66,6 +68,7 @@ public class JsonOutputFilterTest extends JettyTestCase {
         final String[] msg = new String[1];
         WebClient wc = new WebClient();
         wc.setAlertHandler(new AlertHandler() {
+            @Override
             public void handleAlert(Page page, String message) {
                 msg[0] = message;
             }

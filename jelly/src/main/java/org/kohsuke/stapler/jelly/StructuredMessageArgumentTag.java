@@ -34,6 +34,7 @@ import java.io.StringWriter;
  * @author Kohsuke Kawaguchi
  */
 public class StructuredMessageArgumentTag extends AbstractStaplerTag {
+    @Override
     public void doTag(XMLOutput output) throws JellyTagException {
         StructuredMessageFormatTag tag = (StructuredMessageFormatTag)findAncestorWithClass(StructuredMessageFormatTag.class);
         if(tag == null)

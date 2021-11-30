@@ -57,11 +57,13 @@ public class XMLDataWriterTest {
 
     @ExportedBean public static class ParameterAction implements Action, Iterable<ParameterValue>{
 
+        @Override
         public String getName() {
             return "foo";
         }
 
         //        @Exported(visibility = 2)
+        @Override
         public Iterator<ParameterValue> iterator() {
             return Collections.singleton(new ParameterValue()).iterator();
         }
@@ -74,6 +76,7 @@ public class XMLDataWriterTest {
 
     @ExportedBean public static class CauseAction implements Action{
 
+        @Override
         public String getName() {
             return "cause1";
         }
@@ -120,6 +123,7 @@ public class XMLDataWriterTest {
         @Exported public abstract String generic();
     }
     public static class Sub extends Super {
+        @Override
         public String generic() {return "sub";}
         @Exported public String specific() {return "sub";}
     }

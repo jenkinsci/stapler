@@ -374,6 +374,7 @@ public final class ClassDescriptor {
                 ClassReader r = new ClassReader(is);
                 r.accept(new ClassVisitor(Opcodes.ASM9) {
                     final String md = getConstructorDescriptor(m);
+                    @Override
                     public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
                         if (methodName.equals("<init>") && desc.equals(md))
                             return new MethodVisitor(Opcodes.ASM9) {

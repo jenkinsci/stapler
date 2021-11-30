@@ -82,6 +82,7 @@ public abstract class GroovyClosureScript extends Script {
         return delegate;
     }
 
+    @Override
     public Object invokeMethod(String name, Object args) {
         try {
             return delegate.invokeMethod(name,args);
@@ -90,6 +91,7 @@ public abstract class GroovyClosureScript extends Script {
         }
     }
 
+    @Override
     public Object getProperty(String property) {
         try {
             return delegate.getProperty(property);
@@ -98,6 +100,7 @@ public abstract class GroovyClosureScript extends Script {
         }
     }
 
+    @Override
     public void setProperty(String property, Object newValue) {
         try {
             delegate.setProperty(property,newValue);

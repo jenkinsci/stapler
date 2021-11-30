@@ -50,6 +50,7 @@ public class ModelTest {
 
     @ExportedBean
     public static class Impl implements GenericInterface<Integer> {
+        @Override
         @Exported
         public List<Integer> get() {
             return Collections.singletonList(42);

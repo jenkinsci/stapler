@@ -51,6 +51,7 @@ public final class HttpRedirect extends RuntimeException implements HttpResponse
         this.url = url;
     }
 
+    @Override
     public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
         rsp.sendRedirect(statusCode,url);
     }

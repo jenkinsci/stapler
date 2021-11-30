@@ -104,28 +104,34 @@ public class LargeText {
         this.charset = charset;
         if (transparentGunzip && GzipAwareSession.isGzipStream(file)) {
             this.source = new Source() {
+                @Override
                 public Session open() throws IOException {
                     return new GzipAwareSession(file);
                 }
     
+                @Override
                 public long length() {
                     return GzipAwareSession.getGzipStreamSize(file);
                 }
     
+                @Override
                 public boolean exists() {
                     return file.exists();
                 }
             };
         } else {
             this.source = new Source() {
+                @Override
                 public Session open() throws IOException {
                     return new FileSession(file);
                 }
     
+                @Override
                 public long length() {
                     return file.length();
                 }
     
+                @Override
                 public boolean exists() {
                     return file.exists();
                 }
@@ -141,14 +147,17 @@ public class LargeText {
     public LargeText(final ByteBuffer memory, Charset charset, boolean completed) {
         this.charset = charset;
         this.source = new Source() {
+            @Override
             public Session open() throws IOException {
                 return new BufferSession(memory);
             }
 
+            @Override
             public long length() {
                 return memory.length();
             }
 
+            @Override
             public boolean exists() {
                 return true;
             }
@@ -174,6 +183,7 @@ public class LargeText {
     public Reader readAll() throws IOException {
         return new InputStreamReader(new InputStream() {
             final Session session = source.open();
+            @Override
             public int read() throws IOException {
                 byte[] buf = new byte[1];
                 int n = session.read(buf);
@@ -181,10 +191,12 @@ public class LargeText {
                 else        return -1; // EOF
             }
 
+            @Override
             public int read(byte[] buf, int off, int len) throws IOException {
                 return session.read(buf,off,len);
             }
 
+            @Override
             public void close() throws IOException {
                 session.close();
             }

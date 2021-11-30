@@ -32,6 +32,7 @@ public class SetHeaderTag extends AbstractStaplerTag {
         this.value = value;
     }
 
+    @Override
     public void doTag(XMLOutput output) throws JellyTagException {
         if (name==null || value==null)  return;
         getResponse().setHeader(name,value);

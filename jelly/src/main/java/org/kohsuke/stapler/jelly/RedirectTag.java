@@ -51,6 +51,7 @@ public class RedirectTag extends TagSupport {
         this.url = url;
     }
 
+    @Override
     public void doTag(XMLOutput output) throws JellyTagException {
         try {
             Stapler.getCurrentResponse().sendRedirect2(url);

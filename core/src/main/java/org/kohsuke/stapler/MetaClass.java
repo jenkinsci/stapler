@@ -159,6 +159,7 @@ public class MetaClass extends TearOffSupport {
 
             dispatchers.add(new NameBasedDispatcher(f.getName()) {
                 final String role = getProtectedRole(f);
+                @Override
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException {
                     if (accepted) {
                         if (role != null && !req.isUserInRole(role))
@@ -173,6 +174,7 @@ public class MetaClass extends TearOffSupport {
                         return webApp.getFilteredFieldTriggerListener().onFieldTrigger(f, req, rsp, node, f.getQualifiedName());
                     }
                 }
+                @Override
                 public String toString() {
                     if (accepted) {
                         return String.format("%3$s %1$s for url=/%2$s/...", f.getQualifiedName(), f.getName(), f.getReturnType());
@@ -212,6 +214,7 @@ public class MetaClass extends TearOffSupport {
             final boolean isAccepted = filteredGetMethods.contains(f);
 
             dispatchers.add(new NameBasedDispatcher(name) {
+                @Override
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     if(isAccepted){
                         Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s()", ff.getName());
@@ -223,6 +226,7 @@ public class MetaClass extends TearOffSupport {
                         return webApp.getFilteredGetterTriggerListener().onGetterTrigger(f, req, rsp, node, ff.getName()+"()");
                     }
                 }
+                @Override
                 public String toString() {
                     if(isAccepted){
                         return String.format("%3$s %1$s() for url=/%2$s/...",ff.getQualifiedName(),name, ff.getReturnType().getName());
@@ -242,6 +246,7 @@ public class MetaClass extends TearOffSupport {
             final boolean isAccepted = filteredGetMethods.contains(f);
 
             dispatchers.add(new NameBasedDispatcher(name) {
+                @Override
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     if(isAccepted){
                         Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(...)", ff.getName());
@@ -253,6 +258,7 @@ public class MetaClass extends TearOffSupport {
                         return webApp.getFilteredGetterTriggerListener().onGetterTrigger(f, req, rsp, node, ff.getName()+"(...)");
                     }
                 }
+                @Override
                 public String toString() {
                     if(isAccepted) {
                         return String.format("%3$s %1$s(StaplerRequest) for url=/%2$s/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
@@ -272,6 +278,7 @@ public class MetaClass extends TearOffSupport {
             final boolean isAccepted = filteredGetMethods.contains(f);
 
             dispatchers.add(new NameBasedDispatcher(name,1) {
+                @Override
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     if(isAccepted){
                         String token = req.tokens.next();
@@ -290,6 +297,7 @@ public class MetaClass extends TearOffSupport {
                         }
                     }
                 }
+                @Override
                 public String toString() {
                     if(isAccepted) {
                         return String.format("%3$s %1$s(String) for url=/%2$s/TOKEN/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
@@ -309,6 +317,7 @@ public class MetaClass extends TearOffSupport {
             final boolean isAccepted = filteredGetMethods.contains(f);
 
             dispatchers.add(new NameBasedDispatcher(name,1) {
+                @Override
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     if(isAccepted){
                         int idx = req.tokens.nextAsInt();
@@ -327,6 +336,7 @@ public class MetaClass extends TearOffSupport {
                         }
                     }
                 }
+                @Override
                 public String toString() {
                     if(isAccepted){
                         return String.format("%3$s %1$s(int) for url=/%2$s/N/...",ff.getQualifiedName(),name, ff.getReturnType().getName());
@@ -347,6 +357,7 @@ public class MetaClass extends TearOffSupport {
             final boolean isAccepted = filteredGetMethods.contains(f);
 
             dispatchers.add(new NameBasedDispatcher(name,1) {
+                @Override
                 public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
                     if(isAccepted){
                         long idx = req.tokens.nextAsLong();
@@ -365,6 +376,7 @@ public class MetaClass extends TearOffSupport {
                         }
                     }
                 }
+                @Override
                 public String toString() {
                     if(isAccepted) {
                         return String.format("%3$s %1$s(long) for url=/%2$s/N/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
@@ -377,6 +389,7 @@ public class MetaClass extends TearOffSupport {
 
         if (klass.isArray()) {
             dispatchers.add(new Dispatcher() {
+                @Override
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                     if(!req.tokens.hasMore())
                         return false;
@@ -396,6 +409,7 @@ public class MetaClass extends TearOffSupport {
                         return false; // try next
                     }
                 }
+                @Override
                 public String toString() {
                     return "Array look-up for url=/N/...";
                 }
@@ -404,6 +418,7 @@ public class MetaClass extends TearOffSupport {
 
         if(klass.isMap()) {
             dispatchers.add(new Dispatcher() {
+                @Override
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
                     if(!req.tokens.hasMore())
                         return false;
@@ -428,6 +443,7 @@ public class MetaClass extends TearOffSupport {
                         return false; // try next
                     }
                 }
+                @Override
                 public String toString() {
                     return "Map.get(String) look-up for url=/TOKEN/...";
                 }
@@ -444,6 +460,7 @@ public class MetaClass extends TearOffSupport {
         for (Function f : getMethods.signatureStartsWith(String.class).name("getDynamic")) {
             final Function ff = f.contextualize(new TraversalMethodContext(TraversalMethodContext.DYNAMIC));
             dispatchers.add(new Dispatcher() {
+                @Override
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, IOException, ServletException {
                     if(!req.tokens.hasMore())
                         return false;
@@ -464,6 +481,7 @@ public class MetaClass extends TearOffSupport {
                         return false;
                     }
                 }
+                @Override
                 public String toString() {
                     return String.format("%2$s %s(String,StaplerRequest,StaplerResponse) for url=/TOKEN/...",ff.getQualifiedName(), ff.getReturnType().getName());
                 }
@@ -474,12 +492,14 @@ public class MetaClass extends TearOffSupport {
         for (Function f : node.methods.name("doDynamic")) {
             final Function ff = f.contextualize(new WebMethodContext(WebMethodContext.DYNAMIC));
             dispatchers.add(new Dispatcher() {
+                @Override
                 public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
                     Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#doDynamic(...)");
                     if(traceable())
                         trace(req,rsp,"-> <%s>.doDynamic(...)",node);
                     return ff.bindAndInvokeAndServeResponse(node,req,rsp);
                 }
+                @Override
                 public String toString() {
                     return String.format("%s(StaplerRequest,StaplerResponse) for any URL",ff.getQualifiedName());
                 }
@@ -528,6 +548,7 @@ public class MetaClass extends TearOffSupport {
                 } else {
                     final boolean isAccepted = filteredFunctions.contains(f);
                     dispatchers.add(new NameBasedDispatcher(name) {
+                        @Override
                         public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
                             if(isAccepted){
                                 Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s", ff.getName());
@@ -539,6 +560,7 @@ public class MetaClass extends TearOffSupport {
                             }
                         }
                         
+                        @Override
                         public String toString() {
                             if(isAccepted){
                                 return String.format("%1$s(...) for url=/%2$s/...", ff.getQualifiedName(), name);
@@ -613,6 +635,7 @@ public class MetaClass extends TearOffSupport {
             this.f = f;
         }
 
+        @Override
         public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
             if (!req.isJavaScriptProxyCall())
                 return false;
@@ -637,6 +660,7 @@ public class MetaClass extends TearOffSupport {
             return f.bindAndInvokeAndServeResponse(node,req,rsp,args);
         }
 
+        @Override
         public String toString() {
             return f.getQualifiedName()+"(...) for url=/"+name+"/...";
         }

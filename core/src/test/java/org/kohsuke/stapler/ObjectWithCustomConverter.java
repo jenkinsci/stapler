@@ -14,6 +14,7 @@ public class ObjectWithCustomConverter {
     }
 
     public static class StaplerConverterImpl implements Converter {
+        @Override
         public Object convert(Class type, Object value) {
             String[] tokens = value.toString().split(",");
             return new ObjectWithCustomConverter(

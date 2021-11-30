@@ -31,6 +31,7 @@ public interface UncaughtExceptionHandler {
 
 
     UncaughtExceptionHandler DEFAULT = new UncaughtExceptionHandler() {
+        @Override
         @SuppressFBWarnings(value = "XSS_SERVLET", justification = "Covered by the escape() method.")
         public void reportException(Throwable e, ServletContext context, HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
             StringWriter sw = new StringWriter();

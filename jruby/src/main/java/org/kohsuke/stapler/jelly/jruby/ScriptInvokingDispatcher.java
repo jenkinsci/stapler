@@ -35,6 +35,7 @@ abstract class ScriptInvokingDispatcher extends Dispatcher {
         }
     }
 
+    @Override
     public String toString() {
         return "TOKEN for url=/TOKEN/...";
     }

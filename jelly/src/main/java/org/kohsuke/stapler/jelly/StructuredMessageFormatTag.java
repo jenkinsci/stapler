@@ -53,6 +53,7 @@ public class StructuredMessageFormatTag extends AbstractStaplerTag implements Lo
         this.arguments.add(o);
     }
 
+    @Override
     public void doTag(XMLOutput output) throws JellyTagException {
         try {
             arguments.clear();
@@ -66,32 +67,40 @@ public class StructuredMessageFormatTag extends AbstractStaplerTag implements Lo
         }
     }
 
+    @Override
     public int getLineNumber() {
         return -1;
     }
 
+    @Override
     public void setLineNumber(int lineNumber) {
     }
 
+    @Override
     public int getColumnNumber() {
         return -1;
     }
 
+    @Override
     public void setColumnNumber(int columnNumber) {
     }
 
+    @Override
     public String getFileName() {
         return null;
     }
 
+    @Override
     public void setFileName(String fileName) {
         rb = ResourceBundle.load(fileName);
     }
 
+    @Override
     public String getElementName() {
         return null;
     }
 
+    @Override
     public void setElementName(String elementName) {
     }
 }

@@ -73,14 +73,17 @@ final class XMLDataWriter implements DataWriter {
         return exportConfig;
     }
 
+    @Override
     public void name(String name) {
         this.name = name;
     }
 
+    @Override
     public void valuePrimitive(Object v) throws IOException {
         value(v.toString());
     }
 
+    @Override
     public void value(String v) throws IOException {
         String n = adjustName();
         out.write('<'+n+'>');
@@ -88,16 +91,19 @@ final class XMLDataWriter implements DataWriter {
         out.write("</"+n+'>');
     }
 
+    @Override
     public void valueNull() {
         // use absence to indicate null.
     }
 
+    @Override
     public void startArray() {
         // use repeated element to display array
         // this means nested arrays are not supported
         isArray.push(true);
     }
 
+    @Override
     public void endArray() {
         isArray.pop();
     }
@@ -107,6 +113,7 @@ final class XMLDataWriter implements DataWriter {
         classAttr = config.getClassAttribute().print(expected, actual);
     }
 
+    @Override
     public void startObject() throws IOException {
         objectNames.push(name);
         out.write('<' + adjustName());
@@ -119,6 +126,7 @@ final class XMLDataWriter implements DataWriter {
         out.write('>');
     }
 
+    @Override
     public void endObject() throws IOException {
         isArray.pop();
         name = objectNames.pop();

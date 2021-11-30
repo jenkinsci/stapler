@@ -120,10 +120,12 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         return obj;
     }
 
+    @Override
     public void forward(Object it, String url, StaplerRequest request) throws ServletException, IOException {
         stapler.invoke(request, response, it, url);
     }
 
+    @Override
     public void forwardToPreviousPage(StaplerRequest request) throws ServletException, IOException {
         String referer = request.getHeader("Referer");
         if(referer==null)   referer=".";
@@ -149,12 +151,14 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         super.sendRedirect(base);
     }
 
+    @Override
     public void sendRedirect2(@NonNull String url) throws IOException {
         // Tomcat doesn't encode URL (servlet spec isn't very clear on it)
         // so do the encoding by ourselves
         sendRedirect(encode(url));
     }
 
+    @Override
     public void sendRedirect(int statusCode, @NonNull String url) throws IOException {
         if (statusCode==SC_MOVED_TEMPORARILY) {
             sendRedirect(url);  // to be safe, let the servlet container handles this default case
@@ -200,41 +204,50 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         setHeader("Location",url);
     }
 
+    @Override
     public void serveFile(StaplerRequest req, URL resource, long expiration) throws ServletException, IOException {
         if(!stapler.serveStaticResource(req,this,resource,expiration))
             sendError(SC_NOT_FOUND);
     }
 
+    @Override
     public void serveFile(StaplerRequest req, URL resource) throws ServletException, IOException {
         serveFile(req, resource, -1);
     }
 
+    @Override
     public void serveLocalizedFile(StaplerRequest request, URL res) throws ServletException, IOException {
         serveLocalizedFile(request,res,-1);
     }
 
+    @Override
     public void serveLocalizedFile(StaplerRequest request, URL res, long expiration) throws ServletException, IOException {
         if(!stapler.serveStaticResource(request, this, stapler.selectResourceByLocale(res,request.getLocale()), expiration))
             sendError(SC_NOT_FOUND);
     }
 
+    @Override
     public void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, long contentLength, String fileName) throws ServletException, IOException {
         if(!stapler.serveStaticResource(req,this,data,lastModified,expiration,contentLength,fileName))
             sendError(SC_NOT_FOUND);        
     }
 
+    @Override
     public void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, int contentLength, String fileName) throws ServletException, IOException {
         serveFile(req,data,lastModified,expiration,(long)contentLength,fileName);
     }
 
+    @Override
     public void serveFile(StaplerRequest req, InputStream data, long lastModified, long contentLength, String fileName) throws ServletException, IOException {
         serveFile(req,data,lastModified,-1,contentLength,fileName);
     }
 
+    @Override
     public void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName) throws ServletException, IOException {
         serveFile(req,data,lastModified,(long)contentLength,fileName);
     }
 
+    @Override
     @SuppressWarnings({"unchecked", "rawtypes"}) // API design flaw prevents this from type-checking
     public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException, IOException {
         serveExposedBean(req, exposedBean, new ExportConfig().withFlavor(flavor).withPrettyPrint(req.hasParameter("pretty")));
@@ -298,6 +311,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         return acceptEncoding!=null && acceptEncoding.contains("gzip");
     }
 
+    @Override
     public OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException {
         if (mode!=null) // we already made the call and created OutputStream/Writer
             return getOutputStream();
@@ -314,6 +328,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         return recordOutput(new FilterServletOutputStream(new GZIPOutputStream(super.getOutputStream()), super.getOutputStream()));
     }
 
+    @Override
     public Writer getCompressedWriter(HttpServletRequest req) throws IOException {
         if (mode!=null)
             return getWriter();
@@ -330,6 +345,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         return recordOutput(new PrintWriter(new OutputStreamWriter(new GZIPOutputStream(super.getOutputStream()),getCharacterEncoding())));
     }
 
+    @Override
     public int reverseProxyTo(URL url, StaplerRequest req) throws IOException {
         HttpURLConnection con = openConnection(url);
         con.setDoOutput(true);
@@ -375,10 +391,12 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         setStatus(code,con.getResponseMessage());
     }
 
+    @Override
     public void setJsonConfig(JsonConfig config) {
         jsonConfig = config;
     }
 
+    @Override
     public JsonConfig getJsonConfig() {
         if (jsonConfig == null) {
             jsonConfig = new JsonConfig();

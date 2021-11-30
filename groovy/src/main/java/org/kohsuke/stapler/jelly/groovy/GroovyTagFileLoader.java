@@ -37,6 +37,7 @@ import java.net.URL;
  */
 @MetaInfServices
 public class GroovyTagFileLoader extends JellyTagFileLoader {
+    @Override
     public Script load(CustomTagLibrary taglib, String name, ClassLoader classLoader) throws JellyException {
         URL res = classLoader.getResource(taglib.basePath + '/' + name + ".groovy");
         if(res==null)   return null;

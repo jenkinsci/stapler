@@ -107,6 +107,7 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
         return mc.klass.clazz instanceof RubyModule;
     }
 
+    @Override
     public void buildViewDispatchers(final MetaClass owner, List<Dispatcher> dispatchers) {
         for (final Class<? extends AbstractRubyTearOff> t : getClassTearOffTypes()) {
             dispatchers.add(new ScriptInvokingDispatcher() {
@@ -146,10 +147,12 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
         }
     }
 
+    @Override
     public Collection<Class<? extends AbstractRubyTearOff>> getClassTearOffTypes() {
         return tearOffTypes;
     }
 
+    @Override
     public Collection<String> getScriptExtensions() {
         List<String> r = new ArrayList<>();
         for (RubyTemplateLanguage l : languages)
@@ -158,6 +161,7 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
     }
 
 
+    @Override
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName) throws IOException {
         TearOffSupport mc = request.stapler.getWebApp().getMetaClass(type);
         return mc.loadTearOff(ERbClassTearOff.class).createDispatcher(it,viewName);
@@ -184,6 +188,7 @@ public class JRubyFacet extends Facet implements JellyCompatibleFacet {
         }
     }
 
+    @Override
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass mc) throws IOException, ServletException {
         ScriptDispatcher d = makeIndexDispatcher(mc);
         return d!=null && d.dispatch(req,rsp,node);

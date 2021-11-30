@@ -40,6 +40,7 @@ public class CompressTag extends AbstractStaplerTag {
      * Doesn't particularly do anything as the actual processing
      * happens at {@link DefaultScriptInvoker#invokeScript(StaplerRequest, StaplerResponse, Script, Object)} 
      */
+    @Override
     public void doTag(XMLOutput output) throws JellyTagException {
         getBody().run(getContext(),output);
     }

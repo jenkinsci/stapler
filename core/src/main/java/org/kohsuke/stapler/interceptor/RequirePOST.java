@@ -62,6 +62,7 @@ public @interface RequirePOST {
                     }
                 }
                 throw new InvocationTargetException(new HttpResponses.HttpResponseException() {
+                    @Override
                     public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                         rsp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
                         rsp.addHeader("Allow", "POST");

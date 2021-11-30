@@ -50,6 +50,7 @@ public class DoctypeTag extends AbstractStaplerTag {
         this.systemId = systemId;
     }
 
+    @Override
     public void doTag(XMLOutput output) throws JellyTagException {
         try {
             getResponse().getOutputStream().println("<!DOCTYPE html PUBLIC \""+publicId+"\" \""+systemId+"\">");

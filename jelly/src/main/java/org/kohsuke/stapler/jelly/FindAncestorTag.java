@@ -59,6 +59,7 @@ public class FindAncestorTag extends AbstractStaplerTag implements NamespaceAwar
         this.tag = tag;
     }
 
+    @Override
     public void doTag(XMLOutput output) throws JellyTagException {
         // I don't think anyone is using this, but if we need to resurrect this,
         // we need to tweak CustomTagLibrary class and build up the stack of elements being processed.
@@ -79,6 +80,7 @@ public class FindAncestorTag extends AbstractStaplerTag implements NamespaceAwar
 //        getContext().setVariable(var,tag);
     }
 
+    @Override
     public void setNamespaceContext(Map prefixToUriMap) {
         this.nsMap = prefixToUriMap;
     }

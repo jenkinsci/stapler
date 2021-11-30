@@ -16,6 +16,7 @@ class IndexDispatcher extends Dispatcher {
         this.f = f;
     }
 
+    @Override
     public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
         if (req.tokens.hasMore())
             return false;   // applicable only when there's no more token
@@ -27,6 +28,7 @@ class IndexDispatcher extends Dispatcher {
         return f.bindAndInvokeAndServeResponse(node, req, rsp);
     }
 
+    @Override
     public String toString() {
         return f.getQualifiedName() + "(...) for url=/";
     }

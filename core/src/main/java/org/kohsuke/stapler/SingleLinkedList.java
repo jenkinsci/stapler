@@ -31,10 +31,12 @@ public class SingleLinkedList<T> extends AbstractList<T> {
         return new Iterator<T>() {
             SingleLinkedList<T> next = SingleLinkedList.this;
 
+            @Override
             public boolean hasNext() {
                 return next!=EMPTY_LIST;
             }
 
+            @Override
             public T next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
@@ -44,6 +46,7 @@ public class SingleLinkedList<T> extends AbstractList<T> {
                 return r;
             }
 
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException();
             }

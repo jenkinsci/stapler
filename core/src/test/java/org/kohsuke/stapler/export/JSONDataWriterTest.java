@@ -42,6 +42,7 @@ public class JSONDataWriterTest {
         @Exported public abstract String generic();
     }
     public static class Sub extends Super {
+        @Override
         public String generic() {return "sub";}
         @Exported public String specific() {return "sub";}
     }

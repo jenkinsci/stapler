@@ -18,10 +18,12 @@ public class ForwardingFunction extends Function {
         this.next = next;
     }
 
+    @Override
     public String getName() {
         return next.getName();
     }
 
+    @Override
     public String getDisplayName() {
         return next.getDisplayName();
     }
@@ -36,6 +38,7 @@ public class ForwardingFunction extends Function {
         return next.getQualifiedName();
     }
 
+    @Override
     public Class[] getParameterTypes() {
         return next.getParameterTypes();
     }
@@ -71,18 +74,22 @@ public class ForwardingFunction extends Function {
         return next.getSignature();
     }
 
+    @Override
     public Annotation[][] getParameterAnnotations() {
         return next.getParameterAnnotations();
     }
 
+    @Override
     public String[] getParameterNames() {
         return next.getParameterNames();
     }
 
+    @Override
     public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException {
         return next.invoke(req, rsp, o, args);
     }
 
+    @Override
     public <A extends Annotation> A getAnnotation(Class<A> annotation) {
         return next.getAnnotation(annotation);
     }

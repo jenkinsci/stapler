@@ -63,6 +63,7 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
      */
     public volatile ResourceBundleFactory resourceBundleFactory = ResourceBundleFactory.INSTANCE;
 
+    @Override
     public void buildViewDispatchers(final MetaClass owner, List<Dispatcher> dispatchers) {
         dispatchers.add(createValidatingDispatcher(owner.loadTearOff(JellyClassTearOff.class), scriptInvoker));
     }
@@ -83,19 +84,23 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
         return ".jelly";
     }
 
+    @Override
     public Collection<Class<JellyClassTearOff>> getClassTearOffTypes() {
         return TEAROFF_TYPES;
     }
 
+    @Override
     public Collection<String> getScriptExtensions() {
         return EXTENSION;
     }
 
+    @Override
     public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName) throws IOException {
         JellyClassTearOff scriptLoader = request.getWebApp().getMetaClass(type).loadTearOff(JellyClassTearOff.class);
         return createRequestDispatcher(scriptLoader, scriptInvoker, it, viewName);
     }
 
+    @Override
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
         return handleIndexRequest(nodeMetaClass.loadTearOff(JellyClassTearOff.class), scriptInvoker, req, rsp, node);
     }

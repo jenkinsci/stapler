@@ -48,6 +48,7 @@ import java.util.Enumeration;
  * @author Kohsuke Kawaguchi
  */
 public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
+    @Override
     public void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException, JellyTagException {
         XMLOutput xmlOutput = createXMLOutput(req, rsp, script, it);
 
@@ -57,6 +58,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         xmlOutput.close();
     }
 
+    @Override
     public void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it, XMLOutput out) throws IOException, JellyTagException {
         JellyContext context = createContext(req,rsp,script,it);
         exportVariables(req, rsp, script, it, context);
@@ -177,6 +179,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         return context;
     }
 
+    @Override
     public XMLOutput createXMLOutput(Writer writer, boolean escapeText) {
         StaplerResponse rsp = Stapler.getCurrentResponse();
         String ct = rsp!=null ? rsp.getContentType() : "?";

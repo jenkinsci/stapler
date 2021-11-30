@@ -50,6 +50,7 @@ public final class JellyRequestDispatcher implements RequestDispatcher {
         facet = WebApp.getCurrent().getFacet(JellyFacet.class);
     }
 
+    @Override
     public void forward(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
         try {
             facet.scriptInvoker.invokeScript(
@@ -61,6 +62,7 @@ public final class JellyRequestDispatcher implements RequestDispatcher {
         }
     }
 
+    @Override
     @SuppressFBWarnings(value = "REQUESTDISPATCHER_FILE_DISCLOSURE", justification = "Forwarding the request to be handled correctly.")
     public void include(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
         forward(servletRequest,servletResponse);

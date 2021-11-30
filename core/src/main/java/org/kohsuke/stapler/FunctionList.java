@@ -55,6 +55,7 @@ public final class FunctionList extends AbstractList<Function> {
         return functions[index];
     }
 
+    @Override
     public int size() {
         return functions.length;
     }
@@ -93,6 +94,7 @@ public final class FunctionList extends AbstractList<Function> {
      */
     public FunctionList prefix(final String prefix) {
         return filter(new Filter() {
+            @Override
             public boolean keep(Function m) {
                 return m.getName().startsWith(prefix);
             }
@@ -104,6 +106,7 @@ public final class FunctionList extends AbstractList<Function> {
      */
     public FunctionList annotated(final Class<? extends Annotation> ann) {
         return filter(new Filter() {
+            @Override
             public boolean keep(Function m) {
                 return m.getAnnotation(ann)!=null;
             }
@@ -115,6 +118,7 @@ public final class FunctionList extends AbstractList<Function> {
      */
     public FunctionList name(final String name) {
         return filter(new Filter() {
+            @Override
             public boolean keep(Function m) {
                 return m.getName().equals(name);
             }
@@ -126,6 +130,7 @@ public final class FunctionList extends AbstractList<Function> {
      */
     public FunctionList signature(final Class... args) {
         return filter(new Filter() {
+            @Override
             public boolean keep(Function m) {
                 return Arrays.equals(m.getParameterTypes(), args);
             }
@@ -138,6 +143,7 @@ public final class FunctionList extends AbstractList<Function> {
      */
     public FunctionList webMethodsLegacy() {
         return filter(new Filter() {
+            @Override
             public boolean keep(Function m) {
                 return m.getName().startsWith("do") || m.getAnnotation(WebMethod.class)!=null;
             }
@@ -150,6 +156,7 @@ public final class FunctionList extends AbstractList<Function> {
      */
     public FunctionList signatureStartsWith(final Class... args) {
         return filter(new Filter() {
+            @Override
             public boolean keep(Function m) {
                 Class[] params = m.getParameterTypes();
                 if(params.length<args.length)  return false;

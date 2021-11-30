@@ -44,6 +44,7 @@ public class IsUserInRoleTag extends AbstractStaplerTag {
         this.role = role;
     }
 
+    @Override
     public void doTag(XMLOutput output) throws MissingAttributeException, JellyTagException {
         HttpServletRequest req = getRequest();
 

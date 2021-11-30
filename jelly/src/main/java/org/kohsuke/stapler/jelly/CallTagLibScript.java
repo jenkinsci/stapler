@@ -65,6 +65,7 @@ public abstract class CallTagLibScript extends TagScript {
 
         // <d:invokeBody> uses this to discover what to invoke
         newJellyContext.setVariable("org.apache.commons.jelly.body", new Script() {
+            @Override
             public Script compile() throws JellyException {
                 return this;
             }
@@ -92,6 +93,7 @@ public abstract class CallTagLibScript extends TagScript {
              * variables that are defined in the caller, which is again not what a normal programming language
              * does. But unfortunately, changing this is too pervasive.
              */
+            @Override
             public void run(JellyContext nestedContext, XMLOutput output) throws JellyTagException {
                 Map m = nestedContext.getVariables();
                 Object oldAttrs = m.put("attrs",context.getVariable("attrs"));
