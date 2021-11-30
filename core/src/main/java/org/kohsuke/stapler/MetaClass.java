@@ -612,7 +612,7 @@ public class MetaClass extends TearOffSupport {
     private String getProtectedRole(FieldRef f) {
         try {
             LimitedTo a = f.getAnnotation(LimitedTo.class);
-            return (a!=null)?a.value():null;
+            return a != null ? a.value() : null;
         } catch (LinkageError e) {
             return null;    // running in JDK 1.4
         }

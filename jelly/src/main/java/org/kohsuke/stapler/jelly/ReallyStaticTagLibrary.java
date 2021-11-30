@@ -94,7 +94,7 @@ public class ReallyStaticTagLibrary extends TagLibrary {
 
             @Override
             public void run(JellyContext context, XMLOutput output) throws JellyTagException {
-                Attributes actual = (allAttributesAreConstant && !EMIT_LOCATION) ? getSaxAttributes() : buildAttributes(context);
+                Attributes actual = allAttributesAreConstant && !EMIT_LOCATION ? getSaxAttributes() : buildAttributes(context);
 
                 try {
                     output.startElement(getNsUri(),getLocalName(),getElementName(),actual);
