@@ -47,6 +47,7 @@ public final class JellyViewScript implements Script {
      * @deprecated as of 1.177 
      *      Use {@link #fromKlass}
      */
+    @Deprecated
     public final Class from;
     
     public final Klass<?> fromKlass;
@@ -62,6 +63,7 @@ public final class JellyViewScript implements Script {
      * @deprecated as of 1.177
      *      use {@link #JellyViewScript(Klass, URL, Script)}
      */
+    @Deprecated
     public JellyViewScript(Class from, URL source, Script base) {
         this.from = from;
         this.fromKlass = Klass.java(from);

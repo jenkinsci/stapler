@@ -46,7 +46,7 @@ public class CompressionFilter implements Filter {
     public void doFilter(ServletRequest _req, ServletResponse _rsp, FilterChain filterChain) throws IOException, ServletException {
         Object old1 = swapAttribute(_req, CompressionFilter.class, true);
 
-        CompressionServletResponse rsp = new CompressionServletResponse(((HttpServletResponse) _rsp));
+        CompressionServletResponse rsp = new CompressionServletResponse((HttpServletResponse) _rsp);
         Object old2 = swapAttribute(_req,CompressionServletResponse.class,rsp);
 
         try {

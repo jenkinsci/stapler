@@ -423,7 +423,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
             OutputStreamWriter w = new OutputStreamWriter(buf,StandardCharsets.UTF_8);
 
             for (int i = 0; i < s.length(); i++) {
-                int c = (int) s.charAt(i);
+                int c = s.charAt(i);
                 if (c<128 && c!=' ') {
                     out.append((char) c);
                 } else {

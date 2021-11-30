@@ -978,8 +978,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         } catch (NoSuchMethodException e) {
             propDescriptor = null;
         }
-        if ((propDescriptor != null) &&
-            (propDescriptor.getWriteMethod() == null)) {
+        if (propDescriptor != null && propDescriptor.getWriteMethod() == null) {
             propDescriptor = null;
         }
         if (propDescriptor != null) {
@@ -1092,7 +1091,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     private boolean isMultipart() {
         String ct = getContentType();
-        return (ct!=null && ct.startsWith("multipart/"));
+        return ct != null && ct.startsWith("multipart/");
     }
 
     @Override

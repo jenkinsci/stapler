@@ -64,7 +64,7 @@ public @interface JsonBody {
         @Override
         public Object parse(StaplerRequest request, Annotation a, Class type, String parameterName) throws ServletException {
             String ct = request.getContentType();
-            if ((ct == null) || !ct.startsWith("application/json"))
+            if (ct == null || !ct.startsWith("application/json"))
                 throw new ServletException("Expected application/json but got "+ct);
 
             try {

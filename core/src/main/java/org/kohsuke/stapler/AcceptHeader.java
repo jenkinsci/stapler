@@ -132,8 +132,8 @@ public final class AcceptHeader {
                 return -1;
 
             int fitness;
-            fitness = (this.major.equals(that.major)) ? 10000 : 0;
-            fitness += (this.minor.equals(that.minor)) ? 1000 : 0;
+            fitness = this.major.equals(that.major) ? 10000 : 0;
+            fitness += this.minor.equals(that.minor) ? 1000 : 0;
 
             // parameter matches increase score
             for (String k : that.params.keySet()) {

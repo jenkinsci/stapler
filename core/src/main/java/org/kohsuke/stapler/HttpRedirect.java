@@ -63,6 +63,7 @@ public final class HttpRedirect extends RuntimeException implements HttpResponse
      * @deprecated
      *      Use {@link HttpResponses#redirectViaContextPath(String)}.
      */
+    @Deprecated
     public static HttpResponse fromContextPath(final String relative) {
         return HttpResponses.redirectViaContextPath(relative);
     }

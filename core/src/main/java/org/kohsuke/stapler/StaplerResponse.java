@@ -146,6 +146,7 @@ public interface StaplerResponse extends HttpServletResponse {
     /**
      * @deprecated use form with long contentLength
      */
+    @Deprecated
     void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, int contentLength, String fileName) throws ServletException, IOException;
 
     /**
@@ -161,6 +162,7 @@ public interface StaplerResponse extends HttpServletResponse {
     /**
      * @deprecated use form with long contentLength
      */
+    @Deprecated
     void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName) throws ServletException, IOException;
 
     /**

@@ -79,7 +79,7 @@ public @interface JsonOutputFilter {
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException, ServletException {
-            JsonOutputFilter annotation = target.getAnnotation((JsonOutputFilter.class));
+            JsonOutputFilter annotation = target.getAnnotation(JsonOutputFilter.class);
             if (annotation != null) {
                 JsonConfig config = new JsonConfig();
                 config.setJsonPropertyFilter(new FilterPropertyFilter(annotation.includes(), annotation.excludes()));
