@@ -177,6 +177,7 @@ public class InternationalizedStringExpression extends ExpressionSupport {
     /**
      * @deprecated Use {@link org.kohsuke.stapler.RawHtmlArgument}
      */
+    @Deprecated
     public static final class RawHtmlArgument extends org.kohsuke.stapler.RawHtmlArgument {
         public RawHtmlArgument(Object value) {
             super(value);

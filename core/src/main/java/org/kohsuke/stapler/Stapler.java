@@ -974,6 +974,7 @@ public class Stapler extends HttpServlet {
      * @deprecated
      *      Use {@link WebApp#setClassLoader(ClassLoader)}
      */
+    @Deprecated
     public static void setClassLoader( ServletContext context, ClassLoader classLoader ) {
         WebApp.get(context).setClassLoader(classLoader);
     }
@@ -982,6 +983,7 @@ public class Stapler extends HttpServlet {
      * @deprecated
      *      Use {@link WebApp#getClassLoader()}
      */
+    @Deprecated
     public static ClassLoader getClassLoader( ServletContext context ) {
         return WebApp.get(context).getClassLoader();
     }
@@ -990,6 +992,7 @@ public class Stapler extends HttpServlet {
      * @deprecated
      *      Use {@link WebApp#getClassLoader()}
      */
+    @Deprecated
     public ClassLoader getClassLoader() {
         return webApp.getClassLoader();
     }

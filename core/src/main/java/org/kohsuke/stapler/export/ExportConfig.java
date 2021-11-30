@@ -10,6 +10,7 @@ public class ExportConfig {
      * @deprecated
      *      Use getter and setter
      */
+    @Deprecated
     public boolean prettyPrint;
 
     private ClassAttributeBehaviour classAttribute = ClassAttributeBehaviour.IF_NEEDED;

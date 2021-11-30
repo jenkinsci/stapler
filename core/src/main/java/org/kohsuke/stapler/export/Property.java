@@ -158,6 +158,7 @@ public abstract class Property implements Comparable<Property> {
     /**
      * @deprecated as of 1.139
      */
+    @Deprecated
     public void writeTo(Object object, int depth, DataWriter writer) throws IOException {
         writeTo(object,new ByDepth(depth),writer);
     }

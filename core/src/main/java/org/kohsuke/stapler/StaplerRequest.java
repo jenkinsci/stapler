@@ -295,6 +295,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *      Instead of using prefix to group object among form parameter names,
      *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.
      */
+    @Deprecated
     void bindParameters( Object bean, String prefix );
 
     /**
@@ -328,6 +329,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *      Instead of using prefix to group object among form parameter names,
      *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.
      */
+    @Deprecated
     <T>
     List<T> bindParametersToList( Class<T> type, String prefix );
 
@@ -349,6 +351,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *      Instead of using prefix to group object among form parameter names,
      *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.
      */
+    @Deprecated
     <T>
     T bindParameters( Class<T> type, String prefix );
 
@@ -364,6 +367,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *      Instead of using prefix to group object among form parameter names,
      *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.
      */
+    @Deprecated
     <T>
     T bindParameters( Class<T> type, String prefix, int index );
 
@@ -467,12 +471,14 @@ public interface StaplerRequest extends HttpServletRequest {
      * @deprecated
      * Typo. Use {@link #setBindInterceptor(BindInterceptor)}
      */
+    @Deprecated
     BindInterceptor setBindListener(BindInterceptor bindListener);
 
     /**
      * @deprecated
      * Typo. Use {@link #setBindInterceptor(BindInterceptor)}
      */
+    @Deprecated
     BindInterceptor setBindInterceptpr(BindInterceptor bindListener);
 
     BindInterceptor setBindInterceptor(BindInterceptor bindListener);
