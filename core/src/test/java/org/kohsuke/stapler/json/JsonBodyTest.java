@@ -5,7 +5,6 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import java.net.URL;
-import static junit.framework.TestCase.assertEquals;
 import org.kohsuke.stapler.test.JettyTestCase;
 
 public class JsonBodyTest extends JettyTestCase {
