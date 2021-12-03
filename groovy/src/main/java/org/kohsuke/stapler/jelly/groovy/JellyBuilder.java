@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly.groovy;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import groovy.lang.Closure;
 import groovy.lang.GString;
 import groovy.lang.GroovyObjectSupport;
@@ -553,6 +554,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * This method instantiates the class (if not done so already for this request),
      * and return it.
      */
+    @SuppressFBWarnings("REFLC_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_CLASS")
     public Object taglib(Class type) throws IllegalAccessException, InstantiationException, IOException, SAXException {
         GroovyClosureScript o = taglibs.get(type);
         if(o==null) {
