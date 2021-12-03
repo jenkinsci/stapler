@@ -97,6 +97,7 @@
     </dependency>
   </dependencies>
   <properties>
+    <enforcer.skip>true</enforcer.skip>
     <skip.jruby.tests>${skipTests}</skip.jruby.tests>
   </properties>
 </project>
