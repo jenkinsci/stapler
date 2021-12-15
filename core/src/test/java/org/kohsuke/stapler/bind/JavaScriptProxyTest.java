@@ -42,11 +42,15 @@ public class JavaScriptProxyTest extends JettyTestCase {
         HtmlPage page = wc.getPage(new URL(url, "/"));
 
         page.executeJavaScript("v.foo(3,'test',callback);");
+        wc.getJavaScriptEngine().processPostponedActions();
+        wc.waitForBackgroundJavaScript(10000);
         assertEquals("string:test3",msg[0]);
         msg[0] = null;
 
         // test null unmarshalling and marshalling
         page.executeJavaScript("v.foo(0,null,callback);");
+        wc.getJavaScriptEngine().processPostponedActions();
+        wc.waitForBackgroundJavaScript(10000);
         assertEquals("object:null",msg[0]);
     }
 
@@ -57,6 +61,8 @@ public class JavaScriptProxyTest extends JettyTestCase {
         WebClient wc = new WebClient();
         HtmlPage page = wc.getPage(new URL(url, "/bindAnonymous"));
         page.executeJavaScript("v.xyz('hello');");
+        wc.getJavaScriptEngine().processPostponedActions();
+        wc.waitForBackgroundJavaScript(10000);
         assertEquals("hello",anonymousValue);
     }
 

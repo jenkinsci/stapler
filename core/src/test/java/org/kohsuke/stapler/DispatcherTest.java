@@ -5,7 +5,7 @@ import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.TextPage;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebRequestSettings;
+import com.gargoylesoftware.htmlunit.WebRequest;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.json.JsonBody;
@@ -84,7 +84,7 @@ public class DispatcherTest extends JettyTestCase {
     }
 
     private void check(WebClient wc, HttpMethod m) throws java.io.IOException {
-        TextPage p = wc.getPage(new WebRequestSettings(new URL(url, "verbMatch/"), m));
+        TextPage p = wc.getPage(new WebRequest(new URL(url, "verbMatch/"), m));
         assertEquals("Got " + m.name(), p.getContent());
     }
 
@@ -146,7 +146,7 @@ public class DispatcherTest extends JettyTestCase {
             assertEquals(404, e.getStatusCode());
         }
 
-        WebRequestSettings req = new WebRequestSettings(new URL(url, "interceptorStage/foo"), HttpMethod.POST);
+        WebRequest req = new WebRequest(new URL(url, "interceptorStage/foo"), HttpMethod.POST);
         req.setAdditionalHeader("Content-Type","application/json");
         req.setRequestBody("{x:3,y:5}");
         TextPage p = wc.getPage(req);
@@ -163,7 +163,7 @@ public class DispatcherTest extends JettyTestCase {
             assertEquals(404, e.getStatusCode());
         }
 
-        WebRequestSettings req = new WebRequestSettings(new URL(url, "interceptorStage/foo"), HttpMethod.POST);
+        WebRequest req = new WebRequest(new URL(url, "interceptorStage/foo"), HttpMethod.POST);
         req.setAdditionalHeader("Content-Type","application/json; charset=utf-8");
         req.setRequestBody("{x:3,y:5}");
         TextPage p = wc.getPage(req);
@@ -227,7 +227,7 @@ public class DispatcherTest extends JettyTestCase {
         WebClient wc = new WebClient();
 
         // the request should get to the overriding method and it should still see all the annotations in the base type
-        WebRequestSettings wrs = new WebRequestSettings(new URL(url, "putInheritance/foo"), HttpMethod.PUT);
+        WebRequest wrs = new WebRequest(new URL(url, "putInheritance/foo"), HttpMethod.PUT);
         wrs.setRequestBody("Hello");
         TextPage p = wc.getPage(wrs);
         assertEquals("Hello World!", p.getContent());
@@ -241,7 +241,7 @@ public class DispatcherTest extends JettyTestCase {
         }
 
         //Invoke Post as well
-        wrs = new WebRequestSettings(new URL(url, "putInheritance/acme"), HttpMethod.POST);
+        wrs = new WebRequest(new URL(url, "putInheritance/acme"), HttpMethod.POST);
         wrs.setRequestBody("Hello");
         p = wc.getPage(wrs);
         assertEquals("POST: Hello", p.getContent());
@@ -255,14 +255,14 @@ public class DispatcherTest extends JettyTestCase {
         } catch (FailingHttpStatusCodeException x) {
             assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, x.getStatusCode());
         }
-        assertEquals("default", wc.getPage(new WebRequestSettings(new URL(url, "usesInterfaceMethods/foo"), HttpMethod.POST)).getWebResponse().getContentAsString().trim());
+        assertEquals("default", wc.getPage(new WebRequest(new URL(url, "usesInterfaceMethods/foo"), HttpMethod.POST)).getWebResponse().getContentAsString().trim());
         try {
             wc.getPage(new URL(url, "overridesInterfaceMethods/foo"));
             fail();
         } catch (FailingHttpStatusCodeException x) {
             assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, x.getStatusCode());
         }
-        assertEquals("due to UnionAnnotatedElement it is even inherited", "overridden", wc.getPage(new WebRequestSettings(new URL(url, "overridesInterfaceMethods/foo"), HttpMethod.POST)).getWebResponse().getContentAsString().trim());
+        assertEquals("due to UnionAnnotatedElement it is even inherited", "overridden", wc.getPage(new WebRequest(new URL(url, "overridesInterfaceMethods/foo"), HttpMethod.POST)).getWebResponse().getContentAsString().trim());
     }
     public interface InterfaceWithWebMethods {
         @RequirePOST
@@ -309,7 +309,7 @@ public class DispatcherTest extends JettyTestCase {
         }
 
         // POST should succeed
-        wc.getPage(new WebRequestSettings(url, HttpMethod.POST));
+        wc.getPage(new WebRequest(url, HttpMethod.POST));
         assertEquals(1, requirePostOnBase.hit);
     }
 

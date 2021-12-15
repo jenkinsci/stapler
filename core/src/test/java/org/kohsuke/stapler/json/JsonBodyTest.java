@@ -2,7 +2,7 @@ package org.kohsuke.stapler.json;
 
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebRequestSettings;
+import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import java.net.URL;
 import org.kohsuke.stapler.test.JettyTestCase;
@@ -10,7 +10,7 @@ import org.kohsuke.stapler.test.JettyTestCase;
 public class JsonBodyTest extends JettyTestCase {
 
     public void testSmokes() throws Exception {
-        WebRequestSettings req = new WebRequestSettings(new URL(url, "double"), HttpMethod.POST);
+        WebRequest req = new WebRequest(new URL(url, "double"), HttpMethod.POST);
         req.setAdditionalHeader("Content-Type", "application/json");
         req.setRequestBody("{\"x\":10,\"y\":5}");
         WebResponse response = new WebClient().getPage(req).getWebResponse();

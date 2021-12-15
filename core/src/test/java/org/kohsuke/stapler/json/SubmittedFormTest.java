@@ -29,7 +29,7 @@ public class SubmittedFormTest extends JettyTestCase {
         HtmlPage page = wc.getPage(new URL(url, "/form.html"));
         HtmlForm f = page.getFormByName("main");
         f.getInputByName("json").setValueAttribute("{\"first\":\"Kohsuke\",\"last\":\"Kawaguchi\"}");
-        f.submit();
+        f.submit(null);
     }
 
     public HttpResponse doSubmit(@SubmittedForm JSONObject o) {

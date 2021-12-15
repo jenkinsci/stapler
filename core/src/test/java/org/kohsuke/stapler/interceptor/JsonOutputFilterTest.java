@@ -38,6 +38,8 @@ public class JsonOutputFilterTest extends JettyTestCase {
         HtmlPage page = wc.getPage(new URL(url, "/"));
 
         page.executeJavaScript("v.getSomeExcludedData(callback);");
+        wc.getJavaScriptEngine().processPostponedActions();
+        wc.waitForBackgroundJavaScript(10000);
 
         Map json = (Map)JSON.parse(msg[0]);
         assertTrue(json.containsKey("name"));
@@ -57,6 +59,8 @@ public class JsonOutputFilterTest extends JettyTestCase {
         HtmlPage page = wc.getPage(new URL(url, "/"));
 
         page.executeJavaScript("v.getSomeIncludedData(callback);");
+        wc.getJavaScriptEngine().processPostponedActions();
+        wc.waitForBackgroundJavaScript(10000);
 
         Map json = (Map)JSON.parse(msg[0]);
         assertTrue(json.containsKey("name"));
@@ -76,6 +80,8 @@ public class JsonOutputFilterTest extends JettyTestCase {
         HtmlPage page = wc.getPage(new URL(url, "/"));
 
         page.executeJavaScript("v.getSomeExcludedList(callback);");
+        wc.getJavaScriptEngine().processPostponedActions();
+        wc.waitForBackgroundJavaScript(10000);
 
         Object[] json = (Object[])JSON.parse(msg[0]);
         assertEquals(3, json.length);
