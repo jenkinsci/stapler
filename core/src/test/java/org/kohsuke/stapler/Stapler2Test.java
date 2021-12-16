@@ -26,8 +26,10 @@
 
 package org.kohsuke.stapler;
 
+import static org.junit.Assert.assertThrows;
+
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebResponse;
 import java.net.URL;
 import javax.servlet.http.HttpServletResponse;
 import org.jvnet.hudson.test.For;
@@ -40,16 +42,15 @@ public class Stapler2Test extends JettyTestCase {
     @Issue("SECURITY-390")
     public void testTraceXSS() throws Exception {
         WebClient wc = new WebClient();
-        wc.setThrowExceptionOnFailingStatusCode(false);
-        WebResponse rsp;
+        FailingHttpStatusCodeException exc;
         Dispatcher.TRACE = true;
         try {
-            rsp = wc.getPage(new URL(this.url, "thing/<button>/x")).getWebResponse();
+            exc = assertThrows(FailingHttpStatusCodeException.class, () -> wc.getPage(new URL(this.url, "thing/<button>/x")).getWebResponse());
         } finally {
             Dispatcher.TRACE = false;
         }
-        assertEquals(HttpServletResponse.SC_NOT_FOUND, rsp.getStatusCode());
-        String html = rsp.getContentAsString();
+        assertEquals(HttpServletResponse.SC_NOT_FOUND, exc.getStatusCode());
+        String html = exc.getResponse().getContentAsString();
         assertTrue(html, html.contains("&lt;button&gt;"));
         assertFalse(html, html.contains("<button>"));
     }

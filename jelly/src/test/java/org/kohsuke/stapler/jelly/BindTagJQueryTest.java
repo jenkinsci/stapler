@@ -33,6 +33,8 @@ public class BindTagJQueryTest extends JettyTestCase {
         //Check that prototype is included in the page
         assertFalse(content.contains("/am/org/kohsuke/stapler/framework/prototype/prototype.js"));
         page.executeJavaScript("v.foo('hello world', 2);");
+        wc.getJavaScriptEngine().processPostponedActions();
+        wc.waitForBackgroundJavaScript(10000);
         assertEquals("hello world",value);
         assertEquals(2, number);
     }

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
@@ -56,7 +57,6 @@
   </pluginRepositories>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> <!-- TODO move to parent POM -->
     <changelist>999999-SNAPSHOT</changelist>
     <scmTag>HEAD</scmTag>
     <spotbugs.excludeFilterFile>${project.basedir}/../src/spotbugs/spotbugs-excludes.xml</spotbugs.excludeFilterFile>
@@ -97,6 +97,11 @@
   <dependencyManagement>
   <dependencies>
     <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
       <groupId>org.kohsuke.metainf-services</groupId>
       <artifactId>metainf-services</artifactId>
       <version>1.8</version>
@@ -107,44 +112,41 @@
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-server</artifactId>
       <version>${jetty.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-util</artifactId>
       <version>${jetty.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlet</artifactId>
       <version>${jetty.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-webapp</artifactId>
       <version>${jetty.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <version>4.1.0</version>
-      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.main</groupId>
+      <artifactId>jenkins-test-harness-htmlunit</artifactId>
+      <version>56.vf1eabfc274f8</version>
     </dependency>
     <dependency>
       <groupId>org.jvnet.hudson</groupId>
-      <artifactId>htmlunit</artifactId>
-      <version>2.6-hudson-2</version>
-      <scope>test</scope>
-      <exclusions>
-      	<exclusion>
-	      	<!--  hides JDK DOM classes in Eclipse -->
-      		<groupId>xml-apis</groupId>
-      		<artifactId>xml-apis</artifactId>
-      	</exclusion>
-      </exclusions>
+      <artifactId>commons-jelly-tags-define</artifactId>
+      <version>1.0.1-hudson-20071021</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest</artifactId>
+      <version>2.2</version>
     </dependency>
     <dependency>
       <groupId>commons-collections</groupId>
@@ -154,4 +156,17 @@
   </dependencies>
   </dependencyManagement>
 
+  <dependencies>
+    <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+      <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
 </project>
