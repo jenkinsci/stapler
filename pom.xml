@@ -25,7 +25,7 @@
     <module>jrebel</module>
   </modules>
 
-  <url>https://github.com/stapler/stapler</url>
+  <url>https://github.com/jenkinsci/stapler</url>
 
   <licenses>
     <license>
@@ -36,9 +36,9 @@
   </licenses>
   
   <scm>
-    <connection>scm:git:git://github.com/stapler/stapler.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/stapler/stapler.git</developerConnection>
-    <url>https://github.com/stapler/stapler</url>
+    <connection>scm:git:https://github.com/jenkinsci/stapler.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/jenkinsci/stapler.git</developerConnection>
+    <url>https://github.com/jenkinsci/stapler</url>
     <tag>${scmTag}</tag>
   </scm>
 
