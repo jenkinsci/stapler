@@ -87,7 +87,7 @@ public class RubyKlassNavigatorTest {
         Assert.fail("Have not found 'fooField' in the returned field list");
     }
 
-    //TODO: fix the test when Ruby routing gets implemented (https://github.com/stapler/stapler/issues/87)
+    //TODO: fix the test when Ruby routing gets implemented (https://github.com/jenkinsci/stapler/issues/87)
     /**
      * Verifies that function retrieval do not fail horribly for {@link RubyModule}.
      * Effective use-case - Ruby Runtime Plugin for Jenkins.
@@ -111,7 +111,7 @@ public class RubyKlassNavigatorTest {
             }
         }
         
-        assumeThat("Routing of declared routable methods is not fully implemented (See https://github.com/stapler/stapler/issues/87)", 
+        assumeThat("Routing of declared routable methods is not fully implemented (See https://github.com/jenkinsci/stapler/issues/87)", 
                 ruby, not(anything("Nothing to do in this code")));
         Assert.fail("Have not found 'doDynamic' in the returned function list");
     }

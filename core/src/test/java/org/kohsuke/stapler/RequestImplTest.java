@@ -159,7 +159,7 @@ public class RequestImplTest {
         
         RequestImpl request = new RequestImpl(stapler, mockRequest, Collections.emptyList(), null);
 
-        // Check that we can get the Form Fields. See https://github.com/stapler/stapler/issues/52
+        // Check that we can get the Form Fields. See https://github.com/jenkinsci/stapler/issues/52
         Assert.assertEquals("text1_val", request.getParameter("text1"));
         Assert.assertEquals("text2_val", request.getParameter("text2"));
         
