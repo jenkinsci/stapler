@@ -25,6 +25,7 @@
 
 package org.kohsuke.stapler.framework.io;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import org.apache.commons.io.output.CountingOutputStream;
@@ -219,6 +220,7 @@ public class LargeText {
      *      the next write operation.
      * @throws EOFException if the start position is larger than the file size
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "https://github.com/spotbugs/spotbugs/issues/756")
     public long writeLogTo(long start, OutputStream out) throws IOException {
         CountingOutputStream os = new CountingOutputStream(out);
 
