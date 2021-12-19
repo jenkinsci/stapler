@@ -19,7 +19,7 @@ public class ConstructorProcessorTest {
                 addLine("public class Stuff {").
                 addLine("  @DataBoundConstructor public Stuff(int count, String name) {}").
                 addLine("}");
-        compilation.doCompile(null, "-source", "6");
+        compilation.doCompile(null, "-source", "8", "-Xlint:none");
         assertEquals(Collections.emptyList(), compilation.getDiagnostics());
         assertEquals("{constructor=count,name}", Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.stapler")));
     }
@@ -31,7 +31,7 @@ public class ConstructorProcessorTest {
                 addLine("public class Stuff {").
                 addLine("  /** @stapler-constructor */ public Stuff(String name, int count) {}").
                 addLine("}");
-        compilation.doCompile(null, "-source", "6");
+        compilation.doCompile(null, "-source", "8", "-Xlint:none");
         assertEquals(Collections.emptyList(), compilation.getDiagnostics());
         assertEquals("{constructor=name,count}", Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.stapler")));
     }
@@ -46,7 +46,7 @@ public class ConstructorProcessorTest {
                 addLine("}");
         compilation.addSource("some.pkg.package-info").
                 addLine("package some.pkg;");
-        compilation.doCompile(null, "-source", "6");
+        compilation.doCompile(null, "-source", "8", "-Xlint:none");
         assertEquals(Collections.emptyList(), compilation.getDiagnostics());
         assertEquals("{constructor=count,name}", Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.stapler")));
     }
@@ -59,7 +59,7 @@ public class ConstructorProcessorTest {
                 addLine("public class Stuff {").
                 addLine("  @DataBoundConstructor Stuff() {}").
                 addLine("}");
-        compilation.doCompile(null, "-source", "6");
+        compilation.doCompile(null, "-source", "8", "-Xlint:none");
         List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
         assertEquals(1, diagnostics.size());
         String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
@@ -74,7 +74,7 @@ public class ConstructorProcessorTest {
                 addLine("public abstract class Stuff {").
                 addLine("  @DataBoundConstructor public Stuff() {}").
                 addLine("}");
-        compilation.doCompile(null, "-source", "6");
+        compilation.doCompile(null, "-source", "8", "-Xlint:none");
         List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
         assertEquals(1, diagnostics.size());
         String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
@@ -91,7 +91,7 @@ public class ConstructorProcessorTest {
                 addLine("  @DataBoundConstructor public Stuff() {}").
                 addLine("  @DataBoundConstructor public Stuff(int i) {}").
                 addLine("}");
-        compilation.doCompile(null, "-source", "6");
+        compilation.doCompile(null, "-source", "8", "-Xlint:none");
         List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
         assertEquals(1, diagnostics.size());
         String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
@@ -111,7 +111,7 @@ public class ConstructorProcessorTest {
                 addLine("   **/").
                 addLine("  public Stuff(int i) {}").
                 addLine("}");
-        compilation.doCompile(null, "-source", "6");
+        compilation.doCompile(null, "-source", "8", "-Xlint:none");
         List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
         assertEquals(1, diagnostics.size());
         String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
@@ -128,7 +128,7 @@ public class ConstructorProcessorTest {
                 addLine("  @DataBoundConstructor public Stuff() {}").
                 addLine("  public Stuff(int i) {}").
                 addLine("}");
-        compilation.doCompile(null, "-source", "6");
+        compilation.doCompile(null, "-source", "8", "-Xlint:none");
         List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
         assertEquals(0, diagnostics.size());
     }

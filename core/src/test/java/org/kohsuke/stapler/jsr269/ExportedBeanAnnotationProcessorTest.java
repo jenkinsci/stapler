@@ -25,7 +25,7 @@ public class ExportedBeanAnnotationProcessorTest {
                 addLine("  /** This gets the display name. */").
                 addLine("  @Exported(name=\"name\") public String getDisplayName() {return null;}").
                 addLine("}");
-        compilation.doCompile(null, "-source", "6");
+        compilation.doCompile(null, "-source", "8", "-Xlint:none");
         assertEquals(Collections.emptyList(), compilation.getDiagnostics());
         assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, "META-INF/services/annotations/org.kohsuke.stapler.export.ExportedBean"));
         assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
@@ -40,7 +40,7 @@ public class ExportedBeanAnnotationProcessorTest {
                 addLine("@ExportedBean public class Stuff {").
                 addLine("  @Exported public int getCount() {return 0;}").
                 addLine("}");
-        compilation.doCompile(null, "-source", "6");
+        compilation.doCompile(null, "-source", "8", "-Xlint:none");
         assertEquals(Collections.emptyList(), compilation.getDiagnostics());
         assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, "META-INF/services/annotations/org.kohsuke.stapler.export.ExportedBean"));
         assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
@@ -59,7 +59,7 @@ public class ExportedBeanAnnotationProcessorTest {
                 addLine("public class Stuff extends " + Super.class.getCanonicalName() + " {").
                 addLine("  @Override public int getCount() {return 0;}").
                 addLine("}");
-        compilation.doCompile(null, "-source", "6");
+        compilation.doCompile(null, "-source", "8", "-Xlint:none");
         assertEquals(Collections.emptyList(), compilation.getDiagnostics());
         /* #7188605: broken in JDK 6u33 + org.jvnet.hudson:annotation-indexer:1.2:
         assertEquals("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, "META-INF/services/annotations/org.kohsuke.stapler.export.ExportedBean"));
@@ -78,7 +78,7 @@ public class ExportedBeanAnnotationProcessorTest {
                 addLine("@ExportedBean public class Stuff {").
                 addLine("  @Exported public int getCount() {return 0;}").
                 addLine("}");
-        compilation.doCompile(null, "-source", "6");
+        compilation.doCompile(null, "-source", "8", "-Xlint:none");
         assertEquals(Collections.emptyList(), compilation.getDiagnostics());
         assertEqualsCRLF("some.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
         compilation = new Compilation(compilation);
@@ -88,7 +88,7 @@ public class ExportedBeanAnnotationProcessorTest {
                 addLine("@ExportedBean public class MoreStuff {").
                 addLine("  @Exported public int getCount() {return 0;}").
                 addLine("}");
-        compilation.doCompile(null, "-source", "6");
+        compilation.doCompile(null, "-source", "8", "-Xlint:none");
         assertEquals(Collections.emptyList(), compilation.getDiagnostics());
         assertEqualsCRLF("some.pkg.MoreStuff\nsome.pkg.Stuff\n", Utils.getGeneratedResource(compilation, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
     }
