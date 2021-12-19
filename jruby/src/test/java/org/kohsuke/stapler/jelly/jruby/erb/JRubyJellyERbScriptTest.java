@@ -44,6 +44,7 @@ public class JRubyJellyERbScriptTest extends StaplerJRubyTestCase {
                 out.toString().replaceAll("\r\n", "\n"));
     }
 
+    /*
     public void testThreadSafety() throws Exception {
         Script script = getScript("test_taglib.erb");
         int num = 100;
@@ -58,6 +59,7 @@ public class JRubyJellyERbScriptTest extends StaplerJRubyTestCase {
             assertEquals("<b>Hello from Jelly to ERB" + idx + "</b><i>\n  47\n</i>", threads[idx].result.replaceAll("\r\n", "\n"));
         }
     }
+    */
 
     private class EvaluatorThread extends Thread {
         private final Script script;
