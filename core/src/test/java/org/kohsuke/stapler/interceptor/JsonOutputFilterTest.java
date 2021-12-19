@@ -4,13 +4,14 @@ import com.gargoylesoftware.htmlunit.AlertHandler;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import org.eclipse.jetty.util.ajax.JSON;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 import org.kohsuke.stapler.test.JettyTestCase;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONSerializer;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -41,7 +42,7 @@ public class JsonOutputFilterTest extends JettyTestCase {
         wc.getJavaScriptEngine().processPostponedActions();
         wc.waitForBackgroundJavaScript(10000);
 
-        Map json = (Map)JSON.parse(msg[0]);
+        Map json = (Map)JSONSerializer.toJSON(msg[0]);
         assertTrue(json.containsKey("name"));
         assertTrue(json.containsKey("description"));
         assertFalse(json.containsKey("secret"));
@@ -62,7 +63,7 @@ public class JsonOutputFilterTest extends JettyTestCase {
         wc.getJavaScriptEngine().processPostponedActions();
         wc.waitForBackgroundJavaScript(10000);
 
-        Map json = (Map)JSON.parse(msg[0]);
+        Map json = (Map)JSONSerializer.toJSON(msg[0]);
         assertTrue(json.containsKey("name"));
         assertFalse(json.containsKey("description"));
         assertFalse(json.containsKey("secret"));
@@ -83,8 +84,8 @@ public class JsonOutputFilterTest extends JettyTestCase {
         wc.getJavaScriptEngine().processPostponedActions();
         wc.waitForBackgroundJavaScript(10000);
 
-        Object[] json = (Object[])JSON.parse(msg[0]);
-        assertEquals(3, json.length);
+        JSONArray json = (JSONArray)JSONSerializer.toJSON(msg[0]);
+        assertEquals(3, json.size());
         for (Object o : json) {
             Map map = (Map)o;
             assertTrue(map.containsKey("name"));
