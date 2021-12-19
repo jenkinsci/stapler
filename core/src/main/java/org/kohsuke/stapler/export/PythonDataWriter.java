@@ -27,11 +27,11 @@ import java.io.Writer;
 import java.io.IOException;
 
 /**
- * Writes out the format that can be <tt>eval</tt>-ed from Python.
+ * Writes out the format that can be {@code eval}-ed from Python.
  *
  * <p>
  * Python uses the same list and map literal syntax as JavaScript.
- * The only difference is <tt>null</tt> vs <tt>None</tt>.
+ * The only difference is {@code null} vs {@code None}.
  *
  * @author Kohsuke Kawaguchi
  */

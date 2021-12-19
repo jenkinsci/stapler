@@ -23,7 +23,7 @@ import static java.lang.annotation.RetentionPolicy.*;
  *
  * <p>
  * The setter method is discovered through {@link Introspector}, so setter method name must match
- * the property name (such as <tt>setFoo</tt> for the <tt>foo</tt> property), and it needs to be public.
+ * the property name (such as {@code setFoo} for the {@code foo} property), and it needs to be public.
  *
  * <p>
  * The field is discovered through simple reflection, so its name must match the property name, but

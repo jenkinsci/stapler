@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents the <tt>Accept</tt> HTTP header and help server choose the right media type to serve.
+ * Represents the {@code Accept} HTTP header and help server choose the right media type to serve.
  *
  * <p>
  * Typical usage:

@@ -27,7 +27,7 @@ import static org.kohsuke.stapler.config.Configuration.UNSPECIFIED;
  *
  * <p>
  * Typical usage would be {@code MyConfig config=ConfigurationLoad.from(...).as(MyConfig.class)}
- * where the <tt>MyConfig</tt> interface defines a bunch of methods named after
+ * where the {@code MyConfig} interface defines a bunch of methods named after
  * the property name:
  *
  * <pre>

@@ -96,7 +96,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
     }
 
     /**
-     * Serves <tt>index.jelly</tt> if it's available, and returns true.
+     * Serves {@code index.jelly} if it's available, and returns true.
      */
     @Deprecated
     public boolean serveIndexJelly(StaplerRequest req, StaplerResponse rsp, Object node) throws ServletException, IOException {

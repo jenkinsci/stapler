@@ -75,7 +75,7 @@ public class MetaClass extends TearOffSupport {
 
     /**
      * Base metaclass.
-     * Note that <tt>baseClass.clazz==clazz.getSuperClass()</tt>
+     * Note that {@code baseClass.clazz==clazz.getSuperClass()}
      */
     public final MetaClass baseClass;
 

@@ -25,7 +25,7 @@ package org.kohsuke.stapler.export;
 
 /**
  * Interface that an exposed bean can implement, to do the equivalent
- * of <tt>writeReplace</tt> in Java serialization.
+ * of {@code writeReplace} in Java serialization.
  * @author Kohsuke Kawaguchi
  */
 public interface CustomExportedBean {
