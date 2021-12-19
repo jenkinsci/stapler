@@ -61,7 +61,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * <pre>{@code adjunct "org.kohsuke.stapler.bootstrap"}</pre>
  *
  * <p>
- * ... and this produces a series of <tt>style</tt> and <tt>script</tt> tags that include all the
+ * ... and this produces a series of {@code style} and {@code script} tags that include all the
  * necessary JavaScript, CSS, and their dependencies.
  *
  * <p>

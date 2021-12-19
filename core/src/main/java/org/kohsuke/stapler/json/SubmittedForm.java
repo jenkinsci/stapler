@@ -18,7 +18,7 @@ import static java.lang.annotation.RetentionPolicy.*;
  * Binds {@linkplain StaplerRequest#getSubmittedForm() the submitted form} to a parameter of a web-bound method.
  *
  * <p>
- * On a web-bound <tt>doXyz</tt> method, use this annotation on a parameter to get the submitted
+ * On a web-bound {@code doXyz} method, use this annotation on a parameter to get the submitted
  * structured form content and inject it as {@link JSONObject}.
  * For example,
  *

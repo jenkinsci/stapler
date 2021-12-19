@@ -27,12 +27,12 @@ import java.io.IOException;
 import java.io.Writer;
 
 /**
- * Writes out the format that can be <tt>eval</tt>-ed from Ruby.
+ * Writes out the format that can be {@code eval}-ed from Ruby.
  *
  * <p>
  * Ruby uses a similar list and map literal syntax as JavaScript.
- * The only differences are <tt>null</tt> vs <tt>nil</tt> and
- * <tt>key:value</tt> vs <tt>key => value</tt>.
+ * The only differences are {@code null} vs {@code nil} and
+ * {@code key:value} vs {@code key => value}.
  *
  * @author Kohsuke Kawaguchi, Jim Meyer
  */

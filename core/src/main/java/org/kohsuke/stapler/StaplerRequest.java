@@ -67,7 +67,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *
      * <p>
      * For example, if the requested URL is "foo/bar/zot/abc?def=ghi" and
-     * "foo/bar" portion matched <tt>bar.jsp</tt>, this method returns
+     * "foo/bar" portion matched {@code bar.jsp}, this method returns
      * "/zot/abc".
      *
      * <p>
@@ -115,7 +115,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *      <p>
      *      For Jelly, this also accepts absolute path name that starts
      *      with '/', such as "/foo/bar/zot.jelly". In this case,
-     *      <tt>it.getClass().getClassLoader()</tt> is searched for this script. 
+     *      {@code it.getClass().getClassLoader()} is searched for this script. 
      *
      * @return null
      *      if neither JSP nor Jelly is not found by the given name.
@@ -141,7 +141,7 @@ public interface StaplerRequest extends HttpServletRequest {
 
     /**
      * Gets the part of the request URL from protocol up to the context path.
-     * So typically it's something like <tt>http://foobar:8080/something</tt>
+     * So typically it's something like {@code http://foobar:8080/something}
      */
     String getRootPath();
 
@@ -210,15 +210,15 @@ public interface StaplerRequest extends HttpServletRequest {
      * This method can behave in three ways.
      *
      * <ol>
-     *  <li>If <tt>timestampOfResource</tt> is 0 or negative,
+     *  <li>If {@code timestampOfResource} is 0 or negative,
      *      this method just returns false.
      *
      *  <li>If "If-Modified-Since" header is sent and if it's bigger than
-     *      <tt>timestampOfResource</tt>, then this method sets
+     *      {@code timestampOfResource}, then this method sets
      *      {@link HttpServletResponse#SC_NOT_MODIFIED} as the response code
      *      and returns true.
      *
-     *  <li>Otherwise, "Last-Modified" header is added with <tt>timestampOfResource</tt> value,
+     *  <li>Otherwise, "Last-Modified" header is added with {@code timestampOfResource} value,
      *      and this method returns false.
      * </ol>
      *
@@ -265,7 +265,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * Binds form parameters to a bean by using introspection.
      *
      * For example, if there's a parameter called 'foo' that has value 'abc',
-     * then <tt>bean.setFoo('abc')</tt> will be invoked. This will be repeated
+     * then {@code bean.setFoo('abc')} will be invoked. This will be repeated
      * for all parameters. Parameters that do not have corresponding setters will
      * be simply ignored.
      *
@@ -288,7 +288,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * property name after the prefix is used.
      *
      * So for example, if the prefix is "foo.", then property name "foo.bar" with value
-     * "zot" will invoke <tt>bean.setBar("zot")</tt>.
+     * "zot" will invoke {@code bean.setBar("zot")}.
      *
      *
      * @deprecated
@@ -309,8 +309,8 @@ public interface StaplerRequest extends HttpServletRequest {
      * fill in multiple beans.
      *
      * <p>
-     * For example, if <tt>getParameterValues("foo")=={"abc","def"}</tt>
-     * and <tt>getParameterValues("bar")=={"5","3"}</tt>, then this method will
+     * For example, if {@code getParameterValues("foo")=={"abc","def"}}
+     * and {@code getParameterValues("bar")=={"5","3"}}, then this method will
      * return two objects (the first with "abc" and "5", the second with
      * "def" and "3".)
      *
@@ -400,7 +400,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *
      * <h3>Sub-typing</h3>
      * <p>
-     * In the above example, a new instance of <tt>Bar</tt> was created,
+     * In the above example, a new instance of {@code Bar} was created,
      * but you can also create a subtype of Bar by having the '$class' property in
      * JSON like this:
      *
@@ -414,7 +414,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * </pre>
      *
      * <p>
-     * The type that shows up in the constructor (<tt>Bar</tt> in this case)
+     * The type that shows up in the constructor ({@code Bar} in this case)
      * can be an interface or an abstract class.
      */
     <T>

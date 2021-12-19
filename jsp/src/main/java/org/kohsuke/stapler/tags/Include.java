@@ -47,7 +47,7 @@ import java.io.PrintWriter;
  * and includes the contents of it, just like {@code <jsp:include>}.
  *
  * <p>
- * For example, if the "it" object is an instance of the <tt>Foo</tt> class,
+ * For example, if the "it" object is an instance of the {@code Foo} class,
  * which looks like the following:
  *
  * <pre>{@code

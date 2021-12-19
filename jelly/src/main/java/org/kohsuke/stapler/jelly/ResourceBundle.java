@@ -46,7 +46,7 @@ public class ResourceBundle {
     /**
      * URL to load message resources from, except the ".properties" suffix.
      * <p>
-     * This is normally something like <tt>file://path/to/somewhere/org/acme/Foo</tt>.
+     * This is normally something like {@code file://path/to/somewhere/org/acme/Foo}.
      */
     private final String baseName;
 

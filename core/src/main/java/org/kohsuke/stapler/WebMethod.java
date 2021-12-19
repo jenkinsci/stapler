@@ -48,7 +48,7 @@ public @interface WebMethod {
      * URL names assigned to this method.
      *
      * <p>
-     * Normally, for <tt>doXyz</tt> method, the name is <tt>xyz</tt>,
+     * Normally, for {@code doXyz} method, the name is {@code xyz},
      * but you can use this to assign multiple names or non-default names.
      * Often useful for using names that contain non-identifier characters.
      */

@@ -45,8 +45,8 @@ public interface Ancestor {
      * {@link HttpServletRequest#getContextPath() context path},
      * and it ends without '/'. So, for example, if your web app
      * is deployed as "mywebapp" and this ancestor object is
-     * obtained from the app root object by <tt>getFoo().getBar(3)</tt>,
-     * then this string will be <tt>/mywebapp/foo/bar/3</tt>
+     * obtained from the app root object by {@code getFoo().getBar(3)},
+     * then this string will be {@code /mywebapp/foo/bar/3}
      *
      * <p>
      * Any ASCII-unsafe characters are escaped.
@@ -63,8 +63,8 @@ public interface Ancestor {
      * The returned string represents the portion of the request URL
      * that follows this ancestor. It starts and ends without '/'.
      * So, for example, if the request URL is "foo/bar/3" and this ancestor object is
-     * obtained from the app root object by <tt>getFoo()</tt>,
-     * then this string will be <tt>bar/3</tt>
+     * obtained from the app root object by {@code getFoo()},
+     * then this string will be {@code bar/3}
      */
     String getRestOfUrl();
 

@@ -338,7 +338,7 @@ public class Stapler extends HttpServlet {
          *
          * <p>
          * The syntax of the locale specific resource is the same as property file localization.
-         * So Japanese resource for <tt>foo.html</tt> would be named <tt>foo_ja.html</tt>.
+         * So Japanese resource for {@code foo.html} would be named {@code foo_ja.html}.
          *
          * @param path
          *      path/URL-like string that represents the path of the base resource,
