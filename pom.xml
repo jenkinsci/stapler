@@ -136,7 +136,7 @@
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
       <artifactId>jenkins-test-harness-htmlunit</artifactId>
-      <version>56.vf1eabfc274f8</version>
+      <version>66.v712ea44bccba</version>
     </dependency>
     <dependency>
       <groupId>org.jvnet.hudson</groupId>
