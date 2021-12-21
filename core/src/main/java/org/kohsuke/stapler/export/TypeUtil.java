@@ -84,30 +84,30 @@ public class TypeUtil {
      */
     private static final TypeVisitor<Class,Void> eraser = new TypeVisitor<Class,Void>() {
         @Override
-        public Class onClass(Class c,Void _) {
+        public Class onClass(Class c,Void unused) {
             return c;
         }
 
         @Override
-        public Class onParameterizedType(ParameterizedType p,Void _) {
+        public Class onParameterizedType(ParameterizedType p,Void unused) {
             // TODO: why getRawType returns Type? not Class?
             return visit(p.getRawType(),null);
         }
 
         @Override
-        public Class onGenericArray(GenericArrayType g,Void _) {
+        public Class onGenericArray(GenericArrayType g,Void unused) {
             return Array.newInstance(
                 visit(g.getGenericComponentType(),null),
                 0 ).getClass();
         }
 
         @Override
-        public Class onVariable(TypeVariable v,Void _) {
+        public Class onVariable(TypeVariable v,Void unused) {
             return visit(v.getBounds()[0],null);
         }
 
         @Override
-        public Class onWildcard(WildcardType w,Void _) {
+        public Class onWildcard(WildcardType w,Void unused) {
             return visit(w.getUpperBounds()[0],null);
         }
     };

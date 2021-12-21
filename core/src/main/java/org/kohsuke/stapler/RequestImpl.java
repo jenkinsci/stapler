@@ -455,7 +455,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             // use the designated constructor for databinding
             for( int i=0; i<len; i++ )
                 r.add(bindParameters(type,prefix,i));
-        } catch (NoStaplerConstructorException _) {
+        } catch (NoStaplerConstructorException unused) {
             // no designated data binding constructor. use reflection
             try {
                 for( int i=0; i<len; i++ ) {
