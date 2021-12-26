@@ -30,9 +30,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.framework.errors.NoHomeDirError;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -218,23 +215,8 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      */
     @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Home dir is configured by admin or app.")
     protected File getHomeDir() {
-        // check JNDI for the home directory first
+        // check the system property for the home directory first
         String varName = getApplicationName().toUpperCase() + "_HOME";
-        try {
-            InitialContext iniCtxt = new InitialContext();
-            Context env = (Context) iniCtxt.lookup("java:comp/env");
-            String value = (String) env.lookup(varName);
-            if(value!=null && value.trim().length()>0)
-                return new File(value.trim());
-            // look at one more place. See HUDSON-1314
-            value = (String) iniCtxt.lookup(varName);
-            if(value!=null && value.trim().length()>0)
-                return new File(value.trim());
-        } catch (NamingException e) {
-            // ignore
-        }
-
-        // finally check the system property
         String sysProp = System.getProperty(varName);
         if(sysProp!=null)
             return new File(sysProp.trim());
