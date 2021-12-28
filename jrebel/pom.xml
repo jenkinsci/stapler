@@ -24,15 +24,15 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.kohsuke.metainf-services</groupId>
+      <artifactId>metainf-services</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.zeroturnaround</groupId>
       <artifactId>jr-sdk</artifactId>
       <version>2.1.1</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.kohsuke.metainf-services</groupId>
-      <artifactId>metainf-services</artifactId>
-      <optional>true</optional>
     </dependency>
   </dependencies>
 
