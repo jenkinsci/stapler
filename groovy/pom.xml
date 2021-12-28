@@ -6,11 +6,11 @@
     <artifactId>stapler-parent</artifactId>
     <version>${changelist}</version>
   </parent>
-  
+
   <artifactId>stapler-groovy</artifactId>
   <name>Stapler Groovy module</name>
   <description>Groovy binding for Stapler</description>
-  
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -53,4 +53,3 @@
     </dependency>
   </dependencies>
 </project>
-

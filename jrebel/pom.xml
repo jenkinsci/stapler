@@ -6,11 +6,11 @@
     <artifactId>stapler-parent</artifactId>
     <version>${changelist}</version>
   </parent>
-  
+
   <artifactId>stapler-jrebel</artifactId>
   <name>Stapler JRebel module</name>
   <description>JRebel reloading support for Stapler</description>
-  
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
