@@ -6,25 +6,10 @@
     <artifactId>stapler-parent</artifactId>
     <version>${changelist}</version>
   </parent>
-  
+
   <artifactId>stapler</artifactId>
   <name>Stapler</name>
   <description>Stapler HTTP request handling engine</description>
-
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
   <dependencies>
     <dependency>
       <groupId>javax.annotation</groupId>
@@ -99,7 +84,7 @@
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
       <version>1.4</version>
-    </dependency>    
+    </dependency>
     <!-- optional REST support -->
     <dependency>
       <groupId>com.sun.xml.txw2</groupId>
@@ -181,5 +166,19 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-</project>
 
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
