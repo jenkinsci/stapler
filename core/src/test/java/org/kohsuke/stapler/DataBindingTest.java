@@ -1,10 +1,10 @@
 package org.kohsuke.stapler;
 
+import jakarta.annotation.PostConstruct;
 import junit.framework.TestCase;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import javax.annotation.PostConstruct;
 import java.lang.reflect.Type;
 import java.net.Proxy;
 import java.util.ArrayList;

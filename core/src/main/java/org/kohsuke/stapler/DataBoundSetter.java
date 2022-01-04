@@ -1,8 +1,8 @@
 package org.kohsuke.stapler;
 
+import jakarta.annotation.PostConstruct;
 import net.sf.json.JSONObject;
 
-import javax.annotation.PostConstruct;
 import java.beans.Introspector;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
