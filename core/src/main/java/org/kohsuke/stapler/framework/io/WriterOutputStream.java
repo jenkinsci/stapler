@@ -87,7 +87,8 @@ public class WriterOutputStream extends OutputStream {
 
     private void flushOutput() throws IOException {
         writer.write(out.array(),0,out.position());
-        out.clear();
+        // Downcasting to Buffer is needed to avoid NoSuchMethodError errors because Java 11 uses covariance in the ByteBuffer return type.
+        ((Buffer) out).clear();
     }
 
     @Override
@@ -96,7 +97,8 @@ public class WriterOutputStream extends OutputStream {
         flushOutput();
         writer.close();
 
-        buf.rewind();
+        // Downcasting to Buffer is needed to avoid NoSuchMethodError errors because Java 11 uses covariance in the ByteBuffer return type.
+        ((Buffer) buf).rewind();
     }
 
     /**
@@ -111,7 +113,8 @@ public class WriterOutputStream extends OutputStream {
      *      if true, tell the decoder that all the input bytes are ready.
      */
     private void decode(boolean last) throws IOException {
-        buf.flip();
+        // Downcasting to Buffer is needed to avoid NoSuchMethodError errors because Java 11 uses covariance in the ByteBuffer return type.
+        ((Buffer) buf).flip();
         while(true) {
             CoderResult r = decoder.decode(buf, out, last);
             if(r==CoderResult.OVERFLOW) {
