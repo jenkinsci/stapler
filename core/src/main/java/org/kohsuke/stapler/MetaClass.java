@@ -24,6 +24,7 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.annotation.PostConstruct;
 import net.sf.json.JSONArray;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
@@ -31,7 +32,6 @@ import org.kohsuke.stapler.lang.FieldRef;
 import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.MethodRef;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -601,7 +601,7 @@ public class MetaClass extends TearOffSupport {
             SingleLinkedList<MethodRef> l = baseClass==null ? SingleLinkedList.empty() : baseClass.getPostConstructMethods();
 
             for (MethodRef mr : klass.getDeclaredMethods()) {
-                if (mr.hasAnnotation(PostConstruct.class)) {
+                if (mr.hasAnnotation(PostConstruct.class) || mr.hasAnnotation(javax.annotation.PostConstruct.class)) {
                     l = l.grow(mr);
                 }
             }
