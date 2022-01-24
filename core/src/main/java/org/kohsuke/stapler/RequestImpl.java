@@ -698,13 +698,20 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 if(l==null) {// single value conversion
                     try {
                         Class actualType = type;
+                        boolean isArray = false;
                         String className = null;
                         if(j.has("stapler-class")) {
+                            if (j.optJSONArray("stapler-class") != null) {
+                                isArray = true;
+                            }
                             // deprecated as of 2.4-jenkins-4 but left here for a while until we are sure nobody uses this
                             className = j.getString("stapler-class");
                             LOGGER.log(FINE, "stapler-class is deprecated in favor of $class: {0}", className);
                         }
                         if(j.has("$class")) {
+                            if (j.optJSONArray("$class") != null) {
+                                isArray = true;
+                            }
                             className = j.getString("$class");
                         }
 
@@ -712,6 +719,14 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                             // sub-type is specified in JSON.
                             // note that this can come from malicious clients, so we need to make sure we don't have security issues.
 
+                            if (isArray) {
+                                throw new IllegalArgumentException(
+                                        "The frontend sent an unexpected list of classes ("
+                                                + className
+                                                + ") rather than an expected single class. See"
+                                                + " https://www.jenkins.io/doc/developer/views/table-to-div-migration/"
+                                                + " for more information.");
+                            }
                             ClassLoader cl = stapler.getWebApp().getClassLoader();
                             try {
                                 Class<?> subType = cl.loadClass(className);
