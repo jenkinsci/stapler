@@ -40,13 +40,7 @@
     <dependency>
       <groupId>org.jenkins-ci</groupId>
       <artifactId>commons-jelly</artifactId>
-      <version>1.1-jenkins-20120928</version>
-      <exclusions>
-        <exclusion>
-          <groupId>dom4j</groupId>
-          <artifactId>dom4j</artifactId>
-        </exclusion>
-      </exclusions>
+      <version>1.1-jenkins-20120928-rc86.268d6199cb_6f</version>
     </dependency>
     <dependency>
       <!-- only needed for annotations, hence optional -->
