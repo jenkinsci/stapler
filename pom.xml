@@ -45,7 +45,7 @@
     <changelist>999999-SNAPSHOT</changelist>
     <scmTag>HEAD</scmTag>
     <spotbugs.excludeFilterFile>${project.basedir}/../src/spotbugs/spotbugs-excludes.xml</spotbugs.excludeFilterFile>
-    <jetty.version>9.4.44.v20210927</jetty.version>
+    <jetty.version>9.4.45.v20220203</jetty.version>
   </properties>
 
   <dependencyManagement>
