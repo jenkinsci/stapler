@@ -1,6 +1,5 @@
 package org.kohsuke.stapler;
 
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.lang.Klass;
 
 import javax.servlet.RequestDispatcher;
@@ -70,7 +69,7 @@ public class StaticViewFacet extends Facet {
 
             @Override
             public String toString() {
-                return "static file for url=/VIEW"+StringUtils.join(allowedExtensions,"|");
+                return "static file for url=/VIEW" + String.join("|", allowedExtensions);
             }
         });
     }
