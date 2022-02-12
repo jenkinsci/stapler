@@ -1,13 +1,13 @@
 package org.kohsuke.stapler.lang;
 
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Fields of {@link Klass}.
@@ -107,7 +107,7 @@ public abstract class FieldRef extends AnnotatedRef {
             @Override
             public String getSignature() {
                 String prefix = isStatic() ? "staticField" : "field";
-                return StringUtils.join(Arrays.asList(prefix, f.getDeclaringClass().getName(), getName()), ' ');
+                return Stream.of(prefix, f.getDeclaringClass().getName(), getName()).collect(Collectors.joining(" "));
             }
 
             @Override

@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
@@ -44,6 +43,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.kohsuke.stapler.ReflectionUtils.*;
 
@@ -328,9 +328,9 @@ public abstract class Function {
         @Override
         public String getSignature() {
             String prefix = isStatic() ? "staticMethod" : "method";
-            String value = StringUtils.join(Arrays.asList(prefix, m.getDeclaringClass().getName(), getName()), ' ');
+            String value = Stream.of(prefix, m.getDeclaringClass().getName(), getName()).collect(Collectors.joining(" "));
             if (getParameterTypes().length > 0) {
-                value += " " + StringUtils.join(Arrays.stream(getParameterTypes()).map(Class::getName).collect(Collectors.toList()), ' ');
+                value += " " + Stream.of(getParameterTypes()).map(Class::getName).collect(Collectors.joining(" "));
             }
             return value;
         }
