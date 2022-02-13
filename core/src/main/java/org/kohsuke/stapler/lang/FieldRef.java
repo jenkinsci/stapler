@@ -6,8 +6,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Fields of {@link Klass}.
@@ -106,7 +104,7 @@ public abstract class FieldRef extends AnnotatedRef {
             @Override
             public String getSignature() {
                 String prefix = isStatic() ? "staticField" : "field";
-                return Stream.of(prefix, f.getDeclaringClass().getName(), getName()).collect(Collectors.joining(" "));
+                return String.join(" ", prefix, f.getDeclaringClass().getName(), getName());
             }
 
             @Override
