@@ -5,7 +5,7 @@ import org.junit.Assert;
 import org.kohsuke.stapler.lang.Klass;
 
 public class MetaClassTest extends TestCase {
-    public void testGetObjectProhibited() throws Exception {
+    public void testGetObjectProhibited() {
         MetaClass metaClass = new MetaClass(new WebApp(new MockServletContext()), Klass.java(Object.class));
 
         // ensure no getClass dispatcher for Object

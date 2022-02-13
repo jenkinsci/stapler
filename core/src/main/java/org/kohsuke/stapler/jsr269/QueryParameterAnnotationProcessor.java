@@ -1,6 +1,5 @@
 package org.kohsuke.stapler.jsr269;
 
-import org.apache.commons.io.IOUtils;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.QueryParameter;
 
@@ -15,13 +14,13 @@ import javax.lang.model.element.VariableElement;
 import javax.tools.FileObject;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * @author Kohsuke Kawaguchi
  */
-@SuppressWarnings({"Since15"})
 @SupportedAnnotationTypes("org.kohsuke.stapler.QueryParameter")
 @MetaInfServices(Processor.class)
 public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
@@ -61,7 +60,7 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
      *      Method whose parameter has {@link QueryParameter}
      */
     private void write(ExecutableElement m) throws IOException {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for( VariableElement p : m.getParameters() ) {
             if(buf.length()>0)  buf.append(',');
             buf.append(p.getSimpleName());
@@ -72,7 +71,7 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
         notice("Generating " + f, m);
 
         try (OutputStream os = f.openOutputStream()) {
-            IOUtils.write(buf, os, "UTF-8");
+            os.write(buf.toString().getBytes(StandardCharsets.UTF_8));
         }
     }
 }

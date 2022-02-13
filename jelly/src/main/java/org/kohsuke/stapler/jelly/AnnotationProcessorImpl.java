@@ -42,7 +42,6 @@ import java.util.Set;
 /**
  * @author Kohsuke Kawaguchi
  */
-@SuppressWarnings({"Since15"})
 //@MetaInfServices(Processor.class)
 public class AnnotationProcessorImpl extends AbstractProcessor {
     private final Map<TypeElement,MissingViews> missingViews = new HashMap<>();

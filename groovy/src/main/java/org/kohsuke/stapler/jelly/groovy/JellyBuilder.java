@@ -93,7 +93,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
     private final AdjunctManager adjunctManager;
 
     /**
-     * Cached {@Link AttributesImpl} instance.
+     * Cached {@link AttributesImpl} instance.
      */
     private final AttributesImpl attributes = new AttributesImpl();
 
@@ -171,7 +171,6 @@ public final class JellyBuilder extends GroovyObjectSupport {
         return null;
     }
 
-    @SuppressWarnings({"ChainOfInstanceofChecks"})
     protected void doInvokeMethod(QName name, Object args) {
         List list = InvokerHelper.asList(args);
 

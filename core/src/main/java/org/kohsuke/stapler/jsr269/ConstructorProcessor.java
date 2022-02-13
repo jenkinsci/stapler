@@ -23,7 +23,6 @@ import javax.tools.Diagnostic;
 /**
  * @author Kohsuke Kawaguchi
  */
-@SuppressWarnings({"Since15"})
 @SupportedAnnotationTypes("*")
 @MetaInfServices(Processor.class)
 public class ConstructorProcessor extends AbstractProcessorImpl {

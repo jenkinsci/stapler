@@ -39,10 +39,5 @@ public interface JsonInErrorMessageSanitizer {
     /**
      * Used by default when no other sanitizer are configured. Has no effect on the information, just returning a copy.
      */
-    JsonInErrorMessageSanitizer NOOP = new JsonInErrorMessageSanitizer() {
-        @Override
-        public JSONObject sanitize(JSONObject jsonData) {
-            return JSONObject.fromObject(jsonData);
-        }
-    };
+    JsonInErrorMessageSanitizer NOOP = JSONObject::fromObject;
 }

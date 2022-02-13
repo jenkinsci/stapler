@@ -35,16 +35,16 @@ import javax.xml.namespace.QName;
  * @author Kohsuke Kawaguchi
  */
 public interface XSD {
-    public static final String URI = "http://www.w3.org/2001/XMLSchema";
+    String URI = "http://www.w3.org/2001/XMLSchema";
 
     @XmlElement("schema")
-    public interface Schema extends TypedXmlWriter {
+    interface Schema extends TypedXmlWriter {
         Element element();
         ComplexType complexType();
         SimpleType simpleType();
     }
 
-    public interface Element extends Annotated {
+    interface Element extends Annotated {
         @XmlAttribute
         Element name(String v);
         @XmlAttribute
@@ -56,7 +56,7 @@ public interface XSD {
         Element maxOccurs(String v);
     }
 
-    public interface Attribute extends Annotated {
+    interface Attribute extends Annotated {
         @XmlAttribute
         Attribute name(String v);
         @XmlAttribute
@@ -65,7 +65,7 @@ public interface XSD {
         Attribute use(String v);
     }
 
-    public interface ComplexType extends TypedXmlWriter {
+    interface ComplexType extends TypedXmlWriter {
         @XmlAttribute
         ComplexType name(String v);
         ContentModel sequence();
@@ -73,21 +73,21 @@ public interface XSD {
         Attribute attribute();
     }
 
-    public interface ComplexContent extends TypedXmlWriter {
+    interface ComplexContent extends TypedXmlWriter {
         Restriction extension();
     }
 
-    public interface ContentModel extends TypedXmlWriter {
+    interface ContentModel extends TypedXmlWriter {
         Element element();
     }
 
-    public interface SimpleType extends TypedXmlWriter {
+    interface SimpleType extends TypedXmlWriter {
         @XmlAttribute
         SimpleType name(String v);
         Restriction restriction();
     }
 
-    public interface Restriction extends TypedXmlWriter {
+    interface Restriction extends TypedXmlWriter {
         @XmlAttribute
         Restriction base(QName t);
         // for simple type
@@ -96,20 +96,20 @@ public interface XSD {
         ContentModel sequence();
     }
 
-    public interface Enumeration extends TypedXmlWriter {
+    interface Enumeration extends TypedXmlWriter {
         @XmlAttribute
         void value(String v);
     }
 
-    public interface Annotated extends TypedXmlWriter {
+    interface Annotated extends TypedXmlWriter {
         Annotation annotation();
     }
 
-    public interface Annotation extends TypedXmlWriter {
+    interface Annotation extends TypedXmlWriter {
         void documentation(String value);
     }
 
-    public abstract class Types {
+    abstract class Types {
         public static final QName STRING = t("string");
         public static final QName BOOLEAN = t("boolean");
         public static final QName INT = t("int");

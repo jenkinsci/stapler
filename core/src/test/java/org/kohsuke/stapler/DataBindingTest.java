@@ -106,7 +106,7 @@ public class DataBindingTest extends TestCase {
         }
     }
 
-    public void testCustomConverter() throws Exception {
+    public void testCustomConverter() {
         ReferToObjectWithCustomConverter r = bind("{data:'1,2'}", ReferToObjectWithCustomConverter.class);
         assertEquals(r.data.x,1);
         assertEquals(r.data.y,2);
@@ -121,7 +121,7 @@ public class DataBindingTest extends TestCase {
         }
     }
 
-    public void testNullToFalse() throws Exception {
+    public void testNullToFalse() {
         TwoBooleans r = bind("{a:false}", TwoBooleans.class);
         assertFalse(r.a);
         assertFalse(r.b);
@@ -137,7 +137,7 @@ public class DataBindingTest extends TestCase {
         }
     }
 
-    public void testScalarToArray() throws Exception {
+    public void testScalarToArray() {
         ScalarToArray r = bind("{a:'x',b:'y',c:5,d:6}", ScalarToArray.class);
         assertEquals("x",r.a[0]);
         assertEquals("y",r.b.get(0));

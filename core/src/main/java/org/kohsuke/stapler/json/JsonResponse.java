@@ -33,7 +33,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @InterceptorAnnotation(JsonResponse.Handler.class)
 public @interface JsonResponse {
-    public static class Handler extends Interceptor {
+    class Handler extends Interceptor {
         private static final Logger logger = Logger.getLogger(Handler.class.getName());
 
         @Override

@@ -34,7 +34,6 @@ class IndexHtmlDispatcher extends Dispatcher {
 
     /**
      * Returns a {@link IndexHtmlDispatcher} if and only if the said class has {@code index.html} as a side-file.
-     * @param context
      * @param c Class from where to start the index.html inspection. Will go through class hierarchy (unless interface)
      * @return Index dispatcher or {@code null} if it cannot be found
      */

@@ -56,7 +56,7 @@ public @interface LimitedTo {
      */
     String value();
     
-    public static class Processor extends Interceptor {
+    class Processor extends Interceptor {
         private String role;
         @Override
         public void setTarget(Function target) {

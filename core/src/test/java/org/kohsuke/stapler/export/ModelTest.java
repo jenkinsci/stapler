@@ -44,7 +44,7 @@ public class ModelTest {
         assertEquals("Redundant properties discovered: " + model.getProperties(), 1, model.getProperties().size());
     }
 
-    public static interface GenericInterface<T extends Number> {
+    public interface GenericInterface<T extends Number> {
         Collection<T> get();
     }
 

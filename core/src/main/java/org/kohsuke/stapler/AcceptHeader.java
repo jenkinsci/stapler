@@ -152,8 +152,6 @@ public final class AcceptHeader {
 
     /**
      * Given a MIME type, find the entry from this Accept header that fits the best.
-     *
-     * @param mimeType
      */
     protected @Nullable Atom match(String mimeType) {
         Atom target = new Atom(mimeType);

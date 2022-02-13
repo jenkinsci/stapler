@@ -23,7 +23,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({METHOD,FIELD})
 @InterceptorAnnotation(RespondSuccess.Processor.class)
 public @interface RespondSuccess {
-    public static class Processor extends Interceptor {
+    class Processor extends Interceptor {
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException, ServletException {

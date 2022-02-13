@@ -115,7 +115,6 @@ public abstract class Function {
 
     /**
      * Returns true if and only if the function is static.
-     * @return
      */
     public abstract boolean isStatic();
     
@@ -328,7 +327,7 @@ public abstract class Function {
         @Override
         public String getSignature() {
             String prefix = isStatic() ? "staticMethod" : "method";
-            String value = Stream.of(prefix, m.getDeclaringClass().getName(), getName()).collect(Collectors.joining(" "));
+            String value = String.join(" ", prefix, m.getDeclaringClass().getName(), getName());
             if (getParameterTypes().length > 0) {
                 value += " " + Stream.of(getParameterTypes()).map(Class::getName).collect(Collectors.joining(" "));
             }

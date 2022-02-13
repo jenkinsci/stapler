@@ -22,7 +22,7 @@ public class ClassDescriptorTest {
         assertEquals("[a, b, x]",Arrays.asList(names).toString());
     }
 
-    @Test public void loadParameterNamesFromReflection() throws Exception {
+    @Test public void loadParameterNamesFromReflection() {
         // collect test cases
         Map<String,Method> testCases = new HashMap<>();
         for (Method m : ClassDescriptorTest.class.getDeclaredMethods())
@@ -78,7 +78,7 @@ public class ClassDescriptorTest {
         }
     }
 
-    @Test public void inheritedWebMethods() throws Exception {
+    @Test public void inheritedWebMethods() {
         // http://bugs.sun.com/view_bug.do?bug_id=6342411
         assertEquals(1, new ClassDescriptor(Sub.class).methods.name("doDynamic").signature(StaplerRequest.class, StaplerResponse.class).size());
     }
