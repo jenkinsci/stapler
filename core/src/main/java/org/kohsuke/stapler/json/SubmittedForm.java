@@ -35,7 +35,7 @@ import static java.lang.annotation.RetentionPolicy.*;
 @Documented
 @InjectedParameter(SubmittedForm.Handler.class)
 public @interface SubmittedForm {
-    public static class Handler extends AnnotationHandler {
+    class Handler extends AnnotationHandler {
         @Override
         public Object parse(StaplerRequest request, Annotation a, Class type, String parameterName) throws ServletException {
             return request.getSubmittedForm();

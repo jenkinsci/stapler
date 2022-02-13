@@ -60,7 +60,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @InjectedParameter(JsonBody.Handler.class)
 public @interface JsonBody {
-    public static class Handler extends AnnotationHandler {
+    class Handler extends AnnotationHandler {
         @Override
         public Object parse(StaplerRequest request, Annotation a, Class type, String parameterName) throws ServletException {
             String ct = request.getContentType();

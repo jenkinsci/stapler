@@ -23,7 +23,7 @@ public class NestedJsonTest extends TestCase {
         }
     }
 
-    public static interface Bar {}
+    public interface Bar {}
 
     public static final class BarImpl implements Bar {
         public final int i;

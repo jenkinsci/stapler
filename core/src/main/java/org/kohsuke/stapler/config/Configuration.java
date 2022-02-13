@@ -28,5 +28,5 @@ public @interface Configuration {
      */
     String defaultValue() default UNSPECIFIED;
 
-    static String UNSPECIFIED = "\u0000";
+    String UNSPECIFIED = "\u0000";
 }

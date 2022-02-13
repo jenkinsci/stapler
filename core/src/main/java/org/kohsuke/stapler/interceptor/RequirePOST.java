@@ -50,7 +50,7 @@ public @interface RequirePOST {
         @CheckForNull ForwardToView getForwardView();
     }
 
-    public static class Processor extends Interceptor {
+    class Processor extends Interceptor {
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException, ServletException {

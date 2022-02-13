@@ -75,7 +75,7 @@ public @interface JsonOutputFilter {
      */
     boolean ignoreDefaultExcludes() default false;
 
-    public static class Processor extends Interceptor {
+    class Processor extends Interceptor {
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException, ServletException {
@@ -94,7 +94,7 @@ public @interface JsonOutputFilter {
     /**
      * Json Property filter for handling the include and exclude.
      */
-    static class FilterPropertyFilter implements PropertyFilter {
+    class FilterPropertyFilter implements PropertyFilter {
 
         private Set<String> includes;
         private Set<String> excludes;
