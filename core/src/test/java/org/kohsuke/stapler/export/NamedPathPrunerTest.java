@@ -14,7 +14,7 @@ public class NamedPathPrunerTest extends TestCase {
         super(name);
     }
     
-    public void testParse() throws Exception {
+    public void testParse() {
         assertEquals("{a={}, b={c={}}}", NamedPathPruner.parse("a,b[c]").toString());
         assertEquals("{a={}, b={c={}, d={}}}", NamedPathPruner.parse("a,b[c,d]").toString());
         assertEquals("{a={}, b={c={}, d={}}, e={}}", NamedPathPruner.parse("a,b[c,d],e").toString());

@@ -82,7 +82,7 @@ public class RequestImplTest {
 
     @Issue("JENKINS-61438")
     @Test
-    public void verify_JSON_bind_work_with_setter_that_accept_object_type() throws Exception {
+    public void verify_JSON_bind_work_with_setter_that_accept_object_type() {
         final Stapler stapler = new Stapler();
         stapler.setWebApp(new WebApp(Mockito.mock(ServletContext.class)));
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);

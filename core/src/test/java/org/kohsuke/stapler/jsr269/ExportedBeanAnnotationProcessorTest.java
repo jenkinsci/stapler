@@ -69,7 +69,7 @@ public class ExportedBeanAnnotationProcessorTest {
         assertNull(Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.javadoc")));
     }
 
-    @Test public void incremental() throws Exception {
+    @Test public void incremental() {
         Compilation compilation = new Compilation();
         compilation.addSource("some.pkg.Stuff").
                 addLine("package some.pkg;").

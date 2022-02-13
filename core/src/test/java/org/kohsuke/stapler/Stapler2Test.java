@@ -40,7 +40,7 @@ import org.kohsuke.stapler.test.JettyTestCase;
 public class Stapler2Test extends JettyTestCase {
 
     @Issue("SECURITY-390")
-    public void testTraceXSS() throws Exception {
+    public void testTraceXSS() {
         WebClient wc = new WebClient();
         FailingHttpStatusCodeException exc;
         Dispatcher.TRACE = true;
