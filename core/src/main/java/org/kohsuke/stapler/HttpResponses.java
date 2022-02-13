@@ -87,7 +87,6 @@ public class HttpResponses {
      * Sends an error with a stack trace.
      * @see #errorWithoutStack
      */
-    @SuppressWarnings({"ThrowableInstanceNeverThrown"})
     public static HttpResponseException error(int code, String errorMessage) {
         return error(code,new Exception(errorMessage));
     }

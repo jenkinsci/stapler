@@ -171,7 +171,6 @@ public final class JellyBuilder extends GroovyObjectSupport {
         return null;
     }
 
-    @SuppressWarnings({"ChainOfInstanceofChecks"})
     protected void doInvokeMethod(QName name, Object args) {
         List list = InvokerHelper.asList(args);
 

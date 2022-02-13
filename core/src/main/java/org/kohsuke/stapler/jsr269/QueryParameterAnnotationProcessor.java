@@ -21,7 +21,6 @@ import java.util.Set;
 /**
  * @author Kohsuke Kawaguchi
  */
-@SuppressWarnings({"Since15"})
 @SupportedAnnotationTypes("org.kohsuke.stapler.QueryParameter")
 @MetaInfServices(Processor.class)
 public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {

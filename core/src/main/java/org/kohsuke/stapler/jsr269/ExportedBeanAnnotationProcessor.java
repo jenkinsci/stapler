@@ -27,7 +27,6 @@ import java.util.TreeSet;
 /**
  * @author Kohsuke Kawaguchi
  */
-@SuppressWarnings({"Since15"})
 @SupportedAnnotationTypes("org.kohsuke.stapler.export.Exported")
 @MetaInfServices(Processor.class)
 public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {

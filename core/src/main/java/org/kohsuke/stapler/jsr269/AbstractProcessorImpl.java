@@ -37,7 +37,6 @@ import static javax.tools.StandardLocation.*;
 /**
  * @author Kohsuke Kawaguchi
  */
-@SuppressWarnings({"Since15"})
 abstract class AbstractProcessorImpl extends AbstractProcessor {
     protected String toString(Throwable t) {
         StringWriter w = new StringWriter();
