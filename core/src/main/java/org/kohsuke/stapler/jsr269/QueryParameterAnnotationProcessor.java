@@ -60,7 +60,7 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
      *      Method whose parameter has {@link QueryParameter}
      */
     private void write(ExecutableElement m) throws IOException {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for( VariableElement p : m.getParameters() ) {
             if(buf.length()>0)  buf.append(',');
             buf.append(p.getSimpleName());
