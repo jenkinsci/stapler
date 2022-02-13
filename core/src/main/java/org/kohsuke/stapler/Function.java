@@ -115,7 +115,6 @@ public abstract class Function {
 
     /**
      * Returns true if and only if the function is static.
-     * @return
      */
     public abstract boolean isStatic();
     

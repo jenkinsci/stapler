@@ -39,7 +39,6 @@ public abstract class FieldRef extends AnnotatedRef {
 
     /**
      * Whether the field is static.
-     * @return
      */
     public abstract boolean isStatic();
 

@@ -473,7 +473,6 @@ public class LargeText {
         /**
          * Checks the first two bytes of the target file and return true if
          * they equal the GZIP magic number.
-         * @param file
          * @return true, if the first two bytes are the GZIP magic number.
          */
         public static boolean isGzipStream(File file) {
@@ -500,7 +499,6 @@ public class LargeText {
          * the GZIP magic number, the raw length of the file is returned.
          * 
          * @see #isGzipStream(File)
-         * @param file
          * @return the size of the uncompressed file content.
          */
         public static long getGzipStreamSize(File file) {
