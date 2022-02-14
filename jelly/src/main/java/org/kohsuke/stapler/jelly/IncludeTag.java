@@ -46,7 +46,7 @@ import java.util.logging.Logger;
 public class IncludeTag extends TagSupport {
     public static final Logger LOGGER = Logger.getLogger(IncludeTag.class.getName());
 
-    @SuppressFBWarnings("MS_SHOULD_BE_FINAL")
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "TODO needs triage")
     public static /* non-final for script console */ boolean SKIP_LOGGING_CLASS_SETTER = Boolean.getBoolean(IncludeTag.class.getName() + ".skipLoggingClassSetter");
 
     private Object it;
