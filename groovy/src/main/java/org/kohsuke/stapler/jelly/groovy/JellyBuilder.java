@@ -553,7 +553,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * This method instantiates the class (if not done so already for this request),
      * and return it.
      */
-    @SuppressFBWarnings("REFLC_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_CLASS")
+    @SuppressFBWarnings(value = "REFLC_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_CLASS", justification = "TODO needs triage")
     public Object taglib(Class type) throws IllegalAccessException, InstantiationException, IOException, SAXException {
         GroovyClosureScript o = taglibs.get(type);
         if(o==null) {

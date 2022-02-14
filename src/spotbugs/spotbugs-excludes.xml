@@ -1,19 +1,64 @@
 <FindBugsFilter>
+  <!--
+    Exclusions in this section have been triaged and determined to be false positives.
+  -->
   <Match>
-    <!--We don't care about this behavior.-->
-    <Bug pattern="CRLF_INJECTION_LOGS"/>
+    <Or>
+      <!-- We don't care about this behavior -->
+      <Bug pattern="CRLF_INJECTION_LOGS"/>
+      <!-- Jenkins handles this issue differently or doesn't care about it. -->
+      <Bug pattern="INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE"/>
+    </Or>
   </Match>
+  <!--
+    Here lies technical debt. Exclusions in this section have not yet been triaged. When working on
+    on this section, pick an exclusion to triage, then:
+    - If it is a false positive, add a @SuppressFBWarnings(value = "[…]", justification = "[…]")
+      annotation indicating the reason why it is a false positive, then remove the exclusion from
+      this section.
+    - If it is not a false positive, fix the bug, then remove the exclusion from this section.
+   -->
   <Match>
-    <!--Jenkins handles this issue differently or doesn't care about it.-->
-    <Bug pattern="INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE"/>
-  </Match>
-  <Match>
-    <Bug pattern="EI_EXPOSE_REP"/>
-  </Match>
-  <Match>
-    <Bug pattern="EI_EXPOSE_REP2"/>
-  </Match>
-  <Match>
-    <Bug pattern="MS_EXPOSE_REP"/>
+    <Confidence value="2"/>
+    <Or>
+      <And>
+        <Bug pattern="EI_EXPOSE_REP"/>
+        <Or>
+          <Class name="org.kohsuke.stapler.compression.CompressionServletResponse"/>
+          <Class name="org.kohsuke.stapler.framework.AbstractWebAppMain"/>
+          <Class name="org.kohsuke.stapler.jelly.groovy.GroovyClosureScript"/>
+          <Class name="org.kohsuke.stapler.jelly.groovy.GroovyFacet"/>
+          <Class name="org.kohsuke.stapler.jelly.groovy.GroovyServerPageScript"/>
+          <Class name="org.kohsuke.stapler.jelly.groovy.JellyBuilder"/>
+          <Class name="org.kohsuke.stapler.jelly.JellyFacet"/>
+          <Class name="org.kohsuke.stapler.MetaClass"/>
+          <Class name="org.kohsuke.stapler.RequestImpl"/>
+          <Class name="org.kohsuke.stapler.ResponseImpl"/>
+          <Class name="org.kohsuke.stapler.Stapler"/>
+          <Class name="org.kohsuke.stapler.StaplerResponseWrapper"/>
+          <Class name="org.kohsuke.stapler.WebApp"/>
+        </Or>
+      </And>
+      <And>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Or>
+          <Class name="org.kohsuke.stapler.compression.FilterServletOutputStream"/>
+          <Class name="org.kohsuke.stapler.export.SchemaGenerator"/>
+          <Class name="org.kohsuke.stapler.framework.adjunct.AdjunctManager"/>
+          <Class name="org.kohsuke.stapler.framework.io.WriterOutputStream"/>
+          <Class name="org.kohsuke.stapler.interceptor.JsonOutputFilter$FilterPropertyFilter"/>
+          <Class name="org.kohsuke.stapler.jelly.CustomTagLibrary"/>
+          <Class name="org.kohsuke.stapler.jelly.FindAncestorTag"/>
+          <Class name="org.kohsuke.stapler.jelly.groovy.GroovyClassLoaderTearOff"/>
+          <Class name="org.kohsuke.stapler.jelly.groovy.GroovyClosureScript"/>
+          <Class name="org.kohsuke.stapler.jelly.groovy.JellyBuilder"/>
+          <Class name="org.kohsuke.stapler.jelly.JellyClassLoaderTearOff"/>
+          <Class name="org.kohsuke.stapler.json.JsonHttpResponse"/>
+          <Class name="org.kohsuke.stapler.ResponseImpl"/>
+          <Class name="org.kohsuke.stapler.StaplerResponseWrapper"/>
+          <Class name="org.kohsuke.stapler.WebApp"/>
+        </Or>
+      </And>
+    </Or>
   </Match>
 </FindBugsFilter>
