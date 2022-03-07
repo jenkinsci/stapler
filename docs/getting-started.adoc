@@ -213,7 +213,7 @@ public void doHello( StaplerRequest request, StaplerResponse response ) {
 
 Hopefully, the basic concept of Stapler is easy to grasp. For the exact
 rules of how URLs are evaluated against your application objects, see
-link:reference.html[the reference guide].
+link:reference.adoc[the reference guide].
 
 If you have any suggestions on how to improve this documentation, please
 create an issue on GitHub.
