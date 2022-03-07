@@ -13,7 +13,7 @@ method.*
 This process can be best understood as a recursively defined
 mathematical function `evaluate(node,url)`. For example,
 link:stapler.png[the hypothetical application] depicted in
-link:what-is.html[the "getting started" document] could have an
+link:what-is.adoc[the "getting started" document] could have an
 evaluation process like the following:
 
 ____
