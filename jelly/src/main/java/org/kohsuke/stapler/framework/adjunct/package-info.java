@@ -41,7 +41,7 @@
  * dependencies among themselves, and grouping CSS and JavaScript together, so that a single "inclusion"
  * would include everything that a JavaScript library needs.
  *
- * <h3>What packagers do</h3>
+ * <h2>What packagers do</h2>
  * <ol>
  * <li>
  * Package JavaScript libraries as a jar file, including CSS and asset files, typically through Maven.
@@ -59,7 +59,7 @@
  * </ol>
  *
  *
- * <h3>What webapp developers do</h3>
+ * <h2>What webapp developers do</h2>
  * <ol>
  * <li>
  * Include adjunct jar files into WEB-INF/libs either directly or indirectly, typically via Maven.
@@ -75,13 +75,12 @@
  * </ol>
  *
  *
- * <h2>Adjunct</h2>
- * <h3>Name</h3>
+ * <h2>Adjunct naming</h2>
  * <p>
  * Adjuncts are identified by their fully qualified names, which is the package name + base name of the file name
  * (this is just like how a Java class gets its FQCN.)
  *
- * <h3>Expressing dependencies</h3>
+ * <h2>Expressing dependencies</h2>
  * <p>
  * Lines of the following form in JavaScript and CSS are interpreted by the adjunct framework to express
  * dependencies to other adjuncts. They have to start at the beginning of the line, without a leading whitespace.
@@ -93,7 +92,7 @@
  * HTML file can have the following line to indicate a dependency.
  * <pre>{@code <@include fully.qualified.adjunct.name>}</pre>
  *
- * <h3>Page injection</h3>
+ * <h2>Page injection</h2>
  * <p>
  * Stapler loads an adjunct into a page by generating a link tag and a script tag to load the JS and CSS files,
  * respectively. The URLs these tags point to are served by {@link AdjunctManager}. If an HTML file is a part of an adjunct,
