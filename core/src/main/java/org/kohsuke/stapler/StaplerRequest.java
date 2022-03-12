@@ -398,9 +398,8 @@ public interface StaplerRequest extends HttpServletRequest {
      *
      * <pre>new Foo(null,"text",true,new Bar(1,2))</pre>
      *
-     * <h3>Sub-typing</h3>
-     * <p>
-     * In the above example, a new instance of {@code Bar} was created,
+     * <p><strong>Sub-typing:</strong> In the above example,
+     * a new instance of {@code Bar} was created,
      * but you can also create a subtype of Bar by having the '$class' property in
      * JSON like this:
      *
