@@ -27,10 +27,17 @@ import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.XMLOutput;
+import org.codehaus.groovy.reflection.CachedClass;
+import org.codehaus.groovy.reflection.CachedMethod;
 import org.codehaus.groovy.runtime.InvokerHelper;
 import groovy.lang.Binding;
+import groovy.lang.MetaClassImpl;
+import groovy.lang.MutableMetaClass;
 
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Wraps a Groovy-driven Jelly script into {@link Script}
@@ -72,7 +79,52 @@ public class GroovierJellyScript implements Script {
             throw new LinkageError("Failed to run " + clazz + " from " + scriptURL, e);
         }
         gcs.setDelegate(builder);
+
+        // gettext() used to be called _() in earlier versions.
+        MutableMetaClass metaClass = new MetaClassImpl(clazz);
+        Arrays.stream(clazz.getMethods())
+                .filter(method -> method.getName().equals("gettext"))
+                .map(CachedMethod::find)
+                .map(method -> new AliasMetaMethod(method.getDeclaringClass(), method.getCachedMethod(), "_"))
+                .forEach(method -> metaClass.addMetaMethod(method));
+        metaClass.initialize();
+        gcs.setMetaClass(metaClass);
+
         gcs.scriptURL = scriptURL;
         gcs.run();
+    }
+
+    private static final class AliasMetaMethod extends CachedMethod {
+        private final String alias;
+
+        public AliasMetaMethod(CachedClass clazz, Method method, String alias) {
+            super(clazz, method);
+            this.alias = Objects.requireNonNull(alias);
+        }
+
+        @Override
+        public String getName() {
+            return alias;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            if (!super.equals(o)) {
+                return false;
+            }
+            AliasMetaMethod that = (AliasMetaMethod) o;
+            return Objects.equals(alias, that.alias);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), alias);
+        }
     }
 }

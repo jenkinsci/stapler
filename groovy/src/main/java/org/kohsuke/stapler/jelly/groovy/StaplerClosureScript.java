@@ -27,15 +27,15 @@ public abstract class StaplerClosureScript extends GroovyClosureScript {
      * Looks up the resource bundle with the given key, and returns that string,
      * or otherwise return 'text' as-is.
      */
-    public String _(String text) {
-        return _(text, EMPTY_ARRAY);
+    public String gettext(String text) {
+        return gettext(text, EMPTY_ARRAY);
     }
 
     /**
      * Looks up the resource bundle with the given key, formats with arguments,
      * then return that formatted string.
      */
-    public String _(String key, Object... args) {
+    public String gettext(String key, Object... args) {
 //        JellyBuilder b = (JellyBuilder)getDelegate();
 
         ResourceBundle resourceBundle = getResourceBundle();
