@@ -59,6 +59,10 @@
           <Class name="org.kohsuke.stapler.WebApp"/>
         </Or>
       </And>
+      <And>
+        <Bug pattern="SSD_DO_NOT_USE_INSTANCE_LOCK_ON_SHARED_STATIC_DATA"/>
+        <Class name="org.kohsuke.stapler.EvaluationTrace$ApplicationTracer"/>
+      </And>
     </Or>
   </Match>
 </FindBugsFilter>
