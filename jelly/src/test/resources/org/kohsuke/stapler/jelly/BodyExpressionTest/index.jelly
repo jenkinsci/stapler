@@ -1,0 +1,11 @@
+<j:jelly xmlns:st="jelly:stapler" xmlns:j="jelly:core">
+  <html>
+    <body>
+      <j:invokeStatic var="tz" className="java.util.TimeZone" method="getDefault"/>
+      <dl>
+        <dt>Timezone</dt>
+        <dd>${(tz.rawOffset + tz.DSTSavings) / 3600000}</dd>
+      </dl>
+    </body>
+  </html>
+</j:jelly>
