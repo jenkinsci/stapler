@@ -1,0 +1,8 @@
+<j:jelly xmlns:st="jelly:stapler" xmlns:j="jelly:core">
+  <html>
+    <body>
+      <j:invokeStatic var="tz" className="java.util.TimeZone" method="getDefault"/>
+      <div id="build-timeline-div" data-hour-local-timezone="${(tz.rawOffset + tz.DSTSavings) / 3600000}">Timezone</div>
+    </body>
+  </html>
+</j:jelly>

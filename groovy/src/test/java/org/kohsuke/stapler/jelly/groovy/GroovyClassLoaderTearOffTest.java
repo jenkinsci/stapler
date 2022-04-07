@@ -1,5 +1,11 @@
 package org.kohsuke.stapler.jelly.groovy;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+
 import java.io.ByteArrayOutputStream;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
@@ -64,5 +70,30 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
         }
     }
     
+    public void testTimeZone() throws IOException, JellyTagException {
+        Path tmp = Files.createTempFile("groovy", "groovy");
+
+        try {
+            MetaClassLoader mcl = webApp.getMetaClass(Foo.class).classLoader;
+            GroovyClassLoaderTearOff t = mcl.getTearOff(GroovyClassLoaderTearOff.class);
+
+            Files.write(tmp, "def tz = java.util.TimeZone.getDefault()\ncontext.setVariable('x', (tz.rawOffset + tz.DSTSavings) / 3600000)".getBytes(StandardCharsets.UTF_8));
+
+            JellyContext context = new JellyContext();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            XMLOutput w = XMLOutput.createXMLOutput(baos);
+            try {
+                t.parse(tmp.toUri().toURL()).run(context, w);
+            } finally {
+                w.close();
+            }
+            assertThat(baos.toString(), is(emptyString()));
+            assertThat(context.getVariable("x"), notNullValue());
+            assertThat(context.getVariable("x"), instanceOf(Number.class));
+        } finally {
+            Files.delete(tmp);
+        }
+    }
+
     public static class Foo {}
 }
