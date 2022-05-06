@@ -24,6 +24,10 @@
 package org.kohsuke.stapler.jelly;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.PropertyResourceBundle;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.WebApp;
 
@@ -153,14 +157,24 @@ public class ResourceBundle {
         }
 
         if(in!=null) {
+            PropertyResourceBundle propertyResourceBundle;
             try {
-                try {
-                    props.load(in);
-                } finally {
-                    in.close();
-                }
+                propertyResourceBundle = new PropertyResourceBundle(in);
             } catch (IOException e) {
                 throw new Error("Failed to load "+url,e);
+            } finally {
+                try {
+                    in.close();
+                } catch (IOException ignored) {}
+            }
+
+            Enumeration<String> keys = propertyResourceBundle.getKeys();
+            // TODO Java 9+ can use 'asIterator' and get rid of below collections conversion
+            List<String> keysAsSaneType = Collections.list(keys);
+
+            for (String localKey : keysAsSaneType) {
+                String value = propertyResourceBundle.getString(localKey);
+                props.put(localKey, value);
             }
         }
 
