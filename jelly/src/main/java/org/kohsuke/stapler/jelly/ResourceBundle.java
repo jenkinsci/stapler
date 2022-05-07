@@ -24,6 +24,8 @@
 package org.kohsuke.stapler.jelly;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.FileNotFoundException;
+import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -43,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Cache of localization strings.
- * 
+ *
  * @author Kohsuke Kawaguchi
  */
 public class ResourceBundle {
@@ -146,27 +148,8 @@ public class ResourceBundle {
         // attempt to load
         props = new Properties();
         String url = baseName + key + ".properties";
-        InputStream in=null;
-        try {
-            in = openStream(url);
-            // an user reported that on IBM JDK, URL.openStream
-            // returns null instead of IOException.
-            // see http://www.nabble.com/WAS---Hudson-tt16026561.html
-        } catch (IOException e) {
-            // failed.
-        }
-
-        if(in!=null) {
-            PropertyResourceBundle propertyResourceBundle;
-            try {
-                propertyResourceBundle = new PropertyResourceBundle(in);
-            } catch (IOException e) {
-                throw new Error("Failed to load "+url,e);
-            } finally {
-                try {
-                    in.close();
-                } catch (IOException ignored) {}
-            }
+        try (InputStream in = openStream(url)) {
+            PropertyResourceBundle propertyResourceBundle = new PropertyResourceBundle(in);
 
             Enumeration<String> keys = propertyResourceBundle.getKeys();
             // TODO Java 9+ can use 'asIterator' and get rid of below collections conversion
@@ -174,11 +157,16 @@ public class ResourceBundle {
 
             for (String localKey : keysAsSaneType) {
                 String value = propertyResourceBundle.getString(localKey);
-                props.put(localKey, value);
+                props.setProperty(localKey, value);
             }
+
+        } catch (FileNotFoundException ignored) {
+            // we fall back to the default properties file if a locale file is missing
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to load " + url, e);
         }
 
-        resources.put(key,wrapUp(key.length()>0 ? key.substring(1) : "",props));
+        resources.put(key,wrapUp(key.length()>0 ? key.substring(1) : "", props));
         return props;
     }
 
