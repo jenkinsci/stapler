@@ -163,7 +163,7 @@ public class ResourceBundle {
         } catch (FileNotFoundException ignored) {
             // we fall back to the default properties file if a locale file is missing
         } catch (IOException e) {
-            throw new UncheckedIOException("Failed to load " + url, e);
+            throw new UncheckedIOException("Failed to load " + url + ": " + e, e);
         }
 
         resources.put(key,wrapUp(key.length()>0 ? key.substring(1) : "", props));
