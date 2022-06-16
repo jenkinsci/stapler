@@ -40,6 +40,7 @@ public class ModelBuilder {
      * Registration happens in {@link Model#Model(ModelBuilder, Class, Class, String)} so that cyclic references
      * are handled correctly.
      */
+    // TODO unclear how to convert to ClassValue given registration from parent
     /*package*/ final Map<Class, Model> models = new ConcurrentHashMap<>();
 
     @NonNull

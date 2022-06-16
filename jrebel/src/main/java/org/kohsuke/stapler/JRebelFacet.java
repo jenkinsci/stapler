@@ -22,6 +22,7 @@ import static java.util.logging.Level.*;
  */
 @MetaInfServices
 public class JRebelFacet extends Facet {
+    // Not obviously convertible to ClassValue.
     private Map<Class,MetaClass> metaClasses;
 
     public class ReloaderHook implements Runnable {

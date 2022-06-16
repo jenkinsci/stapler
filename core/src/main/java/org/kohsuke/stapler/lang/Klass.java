@@ -16,7 +16,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * To support other JVM languages that use their own specific types to represent a class
  * (such as JRuby and Jython), we now use this object instead of {@link Class}. This allows
  * us to reuse much of the logic of class traversal/resource lookup across different languages.
- * 
+ * <em>But</em> after the removal of JRuby support, in practice this is used only for {@link Class}.
+ * <p>
  * This is a convenient tuple so that we can pass around a single argument instead of two.
  *
  * @param <C>

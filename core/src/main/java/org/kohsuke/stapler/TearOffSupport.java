@@ -26,8 +26,6 @@ package org.kohsuke.stapler;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Allows "tear-off" objects to be linked to the parent object.
@@ -38,44 +36,47 @@ import java.util.Map;
  *
  * @author Kohsuke Kawaguchi
  */
-@SuppressFBWarnings(value = "UG_SYNC_SET_UNSYNC_GET", justification = "Get is intentionally unsynchronized.")
 public abstract class TearOffSupport {
-    private volatile Map<Class,Object> tearOffs;
-
-    public final <T> T getTearOff(Class<T> t) {
-        Map<Class,Object> m = tearOffs;
-        if(m==null)     return null;
-        return (T)m.get(t);
-    }
-
-    public final <T> T loadTearOff(Class<T> t) {
-        T o = getTearOff(t);
-        if(o==null) {
+    private final ClassValue<Object> tearOffs = new ClassValue<Object>() {
+        @SuppressFBWarnings(value = "THROWS_METHOD_THROWS_RUNTIMEEXCEPTION", justification = "shut up")
+        @Override
+        protected Object computeValue(Class<?> type) {
             try {
-                o = t.getConstructor(getClass()).newInstance(this);
-                setTearOff(t,o);
+                return type.getConstructor(TearOffSupport.this.getClass()).newInstance(TearOffSupport.this);
             } catch (InstantiationException e) {
                 throw new InstantiationError(e.getMessage());
             } catch (IllegalAccessException e) {
                 throw new IllegalAccessError(e.getMessage());
             } catch (InvocationTargetException e) {
                 Throwable ex = e.getTargetException();
-                if(ex instanceof RuntimeException)
-                    throw (RuntimeException)ex;
-                if(ex instanceof Error)
-                    throw (Error)ex;
+                if (ex instanceof RuntimeException) {
+                    throw (RuntimeException) ex;
+                }
+                if (ex instanceof Error) {
+                    throw (Error) ex;
+                }
                 throw new Error(e);
             } catch (NoSuchMethodException e) {
                 throw new NoSuchMethodError(e.getMessage());
             }
         }
-        return o;
+    };
+
+    /**
+     * @deprecated Unused? Use {@link #loadTearOff}.
+     */
+    @Deprecated
+    public final <T> T getTearOff(Class<T> t) {
+        return loadTearOff(t);
     }
 
-    public synchronized <T> void setTearOff(Class<T> type, T instance) {
-        Map<Class,Object> m = tearOffs;
-        Map<Class,Object> r = m!=null ? new HashMap<>(tearOffs) : new HashMap<>();
-        r.put(type,instance);
-        tearOffs = r;
+    public final <T> T loadTearOff(Class<T> t) {
+        return t.cast(tearOffs.get(t));
     }
+
+    /**
+     * @deprecated Unused?
+     */
+    @Deprecated
+    public <T> void setTearOff(Class<T> type, T instance) {}
 }

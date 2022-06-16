@@ -17,7 +17,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Strategy pattern to provide navigation across class-like objects in other languages of JVM.
- *
+ * <p>
+ * After removal of JRuby support, {@link #JAVA} is the only implementation.
  * <p>
  * Implementations should be stateless and typically a singleton.
  *

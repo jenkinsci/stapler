@@ -67,7 +67,6 @@ import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -85,7 +84,20 @@ public final class JellyBuilder extends GroovyObjectSupport {
 
     private JellyContext context;
 
-    private final Map<Class,GroovyClosureScript> taglibs = new HashMap<>();
+    private final ClassValue<GroovyClosureScript> taglibs = new ClassValue<GroovyClosureScript>() {
+        @SuppressFBWarnings(value = "THROWS_METHOD_THROWS_RUNTIMEEXCEPTION", justification = "shut up")
+        @Override
+        protected GroovyClosureScript computeValue(Class<?> type) {
+            try {
+                GroovyClosureScript o = (GroovyClosureScript) type.newInstance();
+                o.setDelegate(JellyBuilder.this);
+                adjunct(type.getName());
+                return o;
+            } catch (Exception x) {
+                throw new RuntimeException(x);
+            }
+        }
+    };
 
     private final StaplerRequest request;
     private StaplerResponse response;
@@ -553,17 +565,8 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * This method instantiates the class (if not done so already for this request),
      * and return it.
      */
-    @SuppressFBWarnings(value = "REFLC_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_CLASS", justification = "TODO needs triage")
-    public Object taglib(Class type) throws IllegalAccessException, InstantiationException, IOException, SAXException {
-        GroovyClosureScript o = taglibs.get(type);
-        if(o==null) {
-            o = (GroovyClosureScript) type.newInstance();
-            o.setDelegate(this);
-            taglibs.put(type,o);
-
-            adjunct(type.getName());
-        }
-        return o;
+    public Object taglib(Class type) {
+        return taglibs.get(type);
     }
 
     /**
