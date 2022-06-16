@@ -78,5 +78,7 @@ public abstract class TearOffSupport {
      * @deprecated Unused?
      */
     @Deprecated
-    public <T> void setTearOff(Class<T> type, T instance) {}
+    public <T> void setTearOff(Class<T> type, T instance) {
+        throw new UnsupportedOperationException();
+    }
 }
