@@ -61,8 +61,6 @@ public class MetaClassLoader extends TearOffSupport {
 
     /**
      * All {@link MetaClass}es.
-     *
-     * Note that this permanently holds a strong reference to its key, i.e. is a memory leak.
      */
     private static final ClassLoaderValue<MetaClassLoader> classMap = new ClassLoaderValue<MetaClassLoader>() {
         @Override
