@@ -45,7 +45,7 @@
     <changelist>999999-SNAPSHOT</changelist>
     <scmTag>HEAD</scmTag>
     <spotbugs.excludeFilterFile>${project.basedir}/../src/spotbugs/spotbugs-excludes.xml</spotbugs.excludeFilterFile>
-    <jetty.version>9.4.46.v20220331</jetty.version>
+    <jetty.version>9.4.47.v20220610</jetty.version>
     <gitHubRepo>jenkinsci/stapler</gitHubRepo>
   </properties>
 
