@@ -225,15 +225,19 @@ public class WebApp {
     public MetaClass getMetaClass(Klass<?> c) {
         if(c==null)     return null;
         if (c.navigator == KlassNavigator.JAVA) {
-            if (classMap == null) {
-                classMap = new ClassValue<MetaClass>() {
-                    @Override
-                    protected MetaClass computeValue(Class<?> c) {
-                        return new MetaClass(WebApp.this, Klass.java(c));
-                    }
-                };
+            ClassValue<MetaClass> _classMap;
+            synchronized (this) {
+                if (classMap == null) {
+                    classMap = new ClassValue<MetaClass>() {
+                        @Override
+                        protected MetaClass computeValue(Class<?> c) {
+                            return new MetaClass(WebApp.this, Klass.java(c));
+                        }
+                    };
+                }
+                _classMap = classMap;
             }
-            return classMap.get(c.toJavaClass());
+            return _classMap.get(c.toJavaClass());
         } else {
             // probably now impossible outside tests
             return new MetaClass(this,c);
@@ -284,7 +288,7 @@ public class WebApp {
      * Take care that the generation of MetaClass information takes a bit of time and so 
      * this call should not be called too often
      */
-    public void clearMetaClassCache(){
+    public synchronized void clearMetaClassCache(){
         // No ClassValue.clear() method, so need to just null it out instead.
         classMap = null;
     }
