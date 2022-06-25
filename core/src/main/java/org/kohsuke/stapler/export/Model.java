@@ -29,7 +29,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -121,7 +120,7 @@ public class Model<T> {
      * Gets all the exported properties.
      */
     public List<Property> getProperties() {
-        return Collections.unmodifiableList(Arrays.asList(properties));
+        return List.of(properties);
     }
 
     /**

@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -35,7 +35,7 @@ public class XMLDataWriterTest {
 
         @Exported
         public Collection<Job> getJobs(){
-            return Collections.singleton(new Job());
+            return Set.of(new Job());
         }
     }
 
@@ -65,12 +65,12 @@ public class XMLDataWriterTest {
         //        @Exported(visibility = 2)
         @Override
         public Iterator<ParameterValue> iterator() {
-            return Collections.singleton(new ParameterValue()).iterator();
+            return Set.of(new ParameterValue()).iterator();
         }
 
         @Exported(visibility = 2)
         public List<ParameterValue> getParameters(){
-            return Collections.singletonList(new ParameterValue());
+            return List.of(new ParameterValue());
         }
     }
 

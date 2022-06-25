@@ -54,7 +54,7 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
             GroovyClassLoaderTearOff t = mcl.getTearOff(GroovyClassLoaderTearOff.class);
 
             Files.write(tmp, "output.write(_('localizable'))".getBytes(StandardCharsets.UTF_8));
-            Files.write(tmp.resolveSibling(tmp.getFileName().toString().replaceFirst("[.]groovy$", ".properties")), "localizable=Localizable".getBytes(StandardCharsets.ISO_8859_1));
+            Files.writeString(tmp.resolveSibling(tmp.getFileName().toString().replaceFirst("[.]groovy$", ".properties")), "localizable=Localizable", StandardCharsets.ISO_8859_1);
 
             JellyContext context = new JellyContext();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

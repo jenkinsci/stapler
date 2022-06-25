@@ -30,7 +30,7 @@ import org.kohsuke.stapler.WebApp;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
 
 /**
  * Handles to the object bound via {@link BoundObjectTable}.
@@ -71,13 +71,13 @@ public abstract class Bound implements HttpResponse {
         for (Method m : getTarget().getClass().getMethods()) {
             Collection<String> names;
             if (m.getName().startsWith("js")) {
-                names = Collections.singleton(camelize(m.getName().substring(2)));
+                names = Set.of(camelize(m.getName().substring(2)));
             } else {
                 JavaScriptMethod a = m.getAnnotation(JavaScriptMethod.class);
                 if (a!=null) {
                     names = Arrays.asList(a.name());
                     if (names.isEmpty())
-                        names = Collections.singleton(m.getName());
+                        names = Set.of(m.getName());
                 } else
                     continue;
             }

@@ -41,7 +41,6 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -131,7 +130,7 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
     @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
     public static boolean TRACE = Boolean.getBoolean("stapler.jelly.trace");
 
-    private static final Set<Class<JellyClassTearOff>> TEAROFF_TYPES = Collections.singleton(JellyClassTearOff.class);
+    private static final Set<Class<JellyClassTearOff>> TEAROFF_TYPES = Set.of(JellyClassTearOff.class);
 
-    private static final Set<String> EXTENSION = Collections.singleton(".jelly");
+    private static final Set<String> EXTENSION = Set.of(".jelly");
 }

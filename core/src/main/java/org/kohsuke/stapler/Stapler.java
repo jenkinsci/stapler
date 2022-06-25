@@ -52,7 +52,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
@@ -60,6 +59,7 @@ import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -671,11 +671,7 @@ public class Stapler extends HttpServlet {
         //  File(String) does fs.normalize, which is really forgiving in fixing up
         // malformed stuff. I couldn't make the other URL.toURI() or File(URI) work
         // in all the cases that we test
-        try {
-            return new File(URLDecoder.decode(urlstr.substring(5),"UTF-8"));
-        } catch (UnsupportedEncodingException x) {
-            throw new AssertionError(x);
-        }
+        return new File(URLDecoder.decode(urlstr.substring(5), StandardCharsets.UTF_8));
     }
 
     /**

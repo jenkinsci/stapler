@@ -36,7 +36,6 @@ import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.kohsuke.MetaInfServices;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -60,8 +59,8 @@ public class CaptureParameterNameTransformation implements ASTTransformation {
     }
 
     // set of annotation class names to capture
-    private static final Set<String> CONSTRUCTOR_ANN = Collections.singleton(DataBoundConstructor.class.getName());
-    private static final Set<String> INJECTED_PARAMETER_ANN = Collections.singleton(InjectedParameter.class.getName());
+    private static final Set<String> CONSTRUCTOR_ANN = Set.of(DataBoundConstructor.class.getName());
+    private static final Set<String> INJECTED_PARAMETER_ANN = Set.of(InjectedParameter.class.getName());
 
     private void handleMethods(List<MethodNode> methods) {
         for (MethodNode m : methods)

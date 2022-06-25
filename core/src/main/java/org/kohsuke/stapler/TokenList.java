@@ -168,14 +168,14 @@ public final class TokenList {
                     }
                 } else {
                     if (baos.size()>0) {
-                        buf.append(new String(baos.toByteArray(),StandardCharsets.UTF_8));
+                        buf.append(baos.toString(StandardCharsets.UTF_8));
                         baos.reset();
                     }
                     buf.append(c);
                 }
             }
             if (baos.size()>0)
-                buf.append(new String(baos.toByteArray(),StandardCharsets.UTF_8));
+                buf.append(baos.toString(StandardCharsets.UTF_8));
             return buf.toString();
     }
 

@@ -56,7 +56,7 @@ public class KlassTest {
         
         public Object doDynamic(String token) {
             // Just return something potentially routable
-            return new Integer(0);
+            return Integer.valueOf(0);
         }
     }
 }
