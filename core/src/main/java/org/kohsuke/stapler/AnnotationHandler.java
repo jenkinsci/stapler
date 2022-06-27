@@ -23,12 +23,11 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.beanutils.Converter;
 
 import javax.servlet.ServletException;
 import java.lang.annotation.Annotation;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Handles stapler parameter annotations by determining what values to inject for a method call.
@@ -68,20 +67,6 @@ public abstract class AnnotationHandler<T extends Annotation> {
         for (Annotation a : annotations) {
             Class<? extends Annotation> at = a.annotationType();
             AnnotationHandler h = HANDLERS.get(at);
-            if (h==null) {
-                InjectedParameter ip = at.getAnnotation(InjectedParameter.class);
-                if (ip!=null) {
-                    try {
-                        h = ip.value().newInstance();
-                    } catch (InstantiationException | IllegalAccessException e) {
-                        throw new ServletException("Failed to instantiate parameter injector for "+at,e);
-                    }
-                } else {
-                    h = NOT_HANDLER;
-                }
-                AnnotationHandler prev = HANDLERS.putIfAbsent(at, h);
-                if (prev!=null) h=prev;
-            }
             if (h==NOT_HANDLER)
                 continue;
             return h.parse(request,a,targetType,parameterName);
@@ -90,7 +75,22 @@ public abstract class AnnotationHandler<T extends Annotation> {
         return null; // probably we should report an error
     }
 
-    private static final ConcurrentMap<Class<? extends Annotation>,AnnotationHandler> HANDLERS = new ConcurrentHashMap<>();
+    private static final ClassValue<AnnotationHandler> HANDLERS = new ClassValue<AnnotationHandler>() {
+        @SuppressFBWarnings(value = "THROWS_METHOD_THROWS_RUNTIMEEXCEPTION", justification = "shut up")
+        @Override
+        protected AnnotationHandler computeValue(Class<?> at) {
+            InjectedParameter ip = at.getAnnotation(InjectedParameter.class);
+            if (ip != null) {
+                try {
+                    return ip.value().newInstance();
+                } catch (InstantiationException | IllegalAccessException e) {
+                    throw new RuntimeException("Failed to instantiate parameter injector for " + at, e);
+                }
+            } else {
+                return NOT_HANDLER;
+            }
+        }
+    };
 
     private static final AnnotationHandler NOT_HANDLER = new AnnotationHandler() {
         @Override

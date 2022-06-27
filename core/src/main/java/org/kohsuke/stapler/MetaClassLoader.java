@@ -25,12 +25,11 @@ package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import java.util.Map;
 import java.io.File;
+import java.lang.reflect.Proxy;
 import java.net.URLClassLoader;
 import java.net.URL;
 import java.net.MalformedURLException;
-import java.util.HashMap;
 
 /**
  * The stapler version of the {@link ClassLoader} object,
@@ -51,14 +50,7 @@ public class MetaClassLoader extends TearOffSupport {
         if(cl ==null)
             return null; // if no parent, delegate to the debug loader if available.
         
-        synchronized(classMap) {
-            MetaClassLoader mc = classMap.get(cl);
-            if(mc==null) {
-                mc = new MetaClassLoader(cl);
-                classMap.put(cl,mc);
-            }
-            return mc;
-        }
+        return classMap.get(cl);
     }
 
     /**
@@ -69,10 +61,13 @@ public class MetaClassLoader extends TearOffSupport {
 
     /**
      * All {@link MetaClass}es.
-     *
-     * Note that this permanently holds a strong reference to its key, i.e. is a memory leak.
      */
-    private static final Map<ClassLoader,MetaClassLoader> classMap = new HashMap<>();
+    private static final ClassLoaderValue<MetaClassLoader> classMap = new ClassLoaderValue<MetaClassLoader>() {
+        @Override
+        protected MetaClassLoader computeValue(ClassLoader cl) {
+            return new MetaClassLoader(cl);
+        }
+    };
 
     static {
         debugLoader = createDebugLoader();

@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -28,7 +27,7 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
 
         try {
             MetaClassLoader mcl = webApp.getMetaClass(Foo.class).classLoader;
-            GroovyClassLoaderTearOff t = mcl.getTearOff(GroovyClassLoaderTearOff.class);
+            GroovyClassLoaderTearOff t = mcl.loadTearOff(GroovyClassLoaderTearOff.class);
             
             Files.write(tmp, "context.setVariable('x',1)".getBytes(StandardCharsets.UTF_8));
 
@@ -51,7 +50,7 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
 
         try {
             MetaClassLoader mcl = webApp.getMetaClass(Foo.class).classLoader;
-            GroovyClassLoaderTearOff t = mcl.getTearOff(GroovyClassLoaderTearOff.class);
+            GroovyClassLoaderTearOff t = mcl.loadTearOff(GroovyClassLoaderTearOff.class);
 
             Files.write(tmp, "output.write(_('localizable'))".getBytes(StandardCharsets.UTF_8));
             Files.write(tmp.resolveSibling(tmp.getFileName().toString().replaceFirst("[.]groovy$", ".properties")), "localizable=Localizable".getBytes(StandardCharsets.ISO_8859_1));
@@ -75,7 +74,7 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
 
         try {
             MetaClassLoader mcl = webApp.getMetaClass(Foo.class).classLoader;
-            GroovyClassLoaderTearOff t = mcl.getTearOff(GroovyClassLoaderTearOff.class);
+            GroovyClassLoaderTearOff t = mcl.loadTearOff(GroovyClassLoaderTearOff.class);
 
             Files.write(tmp, "def tz = java.util.TimeZone.getDefault()\ncontext.setVariable('x', (tz.rawOffset + tz.DSTSavings) / 3600000)".getBytes(StandardCharsets.UTF_8));
 

@@ -44,6 +44,7 @@ import java.util.Hashtable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.kohsuke.stapler.lang.KlassNavigator;
 
 /**
  * Object scoped to the entire webapp. Mostly used for configuring behavior of Stapler.
@@ -80,8 +81,9 @@ public class WebApp {
     public final ServletContext context;
 
     /**
-     * Duck-type wrappers for the given class.
+     * @deprecated Unused?
      */
+    @Deprecated
     public final Map<Class,Class[]> wrappers = new HashMap<>();
 
     /**
@@ -117,10 +119,8 @@ public class WebApp {
 
     /**
      * All {@link MetaClass}es.
-     *
-     * Note that this permanently holds a strong reference to its key, i.e. is a memory leak.
      */
-    private final Map<Klass<?>,MetaClass> classMap = new HashMap<>();
+    private volatile ClassValue<MetaClass> classMap;
 
     /**
      * Handles objects that are exported.
@@ -224,13 +224,23 @@ public class WebApp {
     
     public MetaClass getMetaClass(Klass<?> c) {
         if(c==null)     return null;
-        synchronized(classMap) {
-            MetaClass mc = classMap.get(c);
-            if(mc==null) {
-                mc = new MetaClass(this,c);
-                classMap.put(c,mc);
+        if (c.navigator == KlassNavigator.JAVA) {
+            ClassValue<MetaClass> _classMap;
+            synchronized (this) {
+                if (classMap == null) {
+                    classMap = new ClassValue<MetaClass>() {
+                        @Override
+                        protected MetaClass computeValue(Class<?> c) {
+                            return new MetaClass(WebApp.this, Klass.java(c));
+                        }
+                    };
+                }
+                _classMap = classMap;
             }
-            return mc;
+            return _classMap.get(c.toJavaClass());
+        } else {
+            // probably now impossible outside tests
+            return new MetaClass(this,c);
         }
     }
 
@@ -261,22 +271,14 @@ public class WebApp {
     }
     
     /**
-     * Convenience maintenance method to clear all the cached scripts for the given tearoff type.
-     *
-     * <p>
-     * This is useful when you want to have the scripts reloaded into the live system without
-     * the performance penalty of {@link MetaClass#NO_CACHE}.
-     *
-     * @see MetaClass#NO_CACHE
+     * @deprecated Unused?
      */
+    @Deprecated
     public void clearScripts(Class<? extends AbstractTearOff> clazz) {
-        synchronized (classMap) {
-            for (MetaClass v : classMap.values()) {
-                AbstractTearOff t = v.getTearOff(clazz);
-                if (t!=null)
-                    t.clearScripts();
-            }
-        }
+        // ClassValue cannot enumerate entries.
+        // If really needed, could be implemented by keeping a WeakHashMap<Class, Boolean>
+        // of classes added to classMap by getMetaClass that we could enumerate.
+        clearMetaClassCache();
     }
     
     /**
@@ -286,10 +288,9 @@ public class WebApp {
      * Take care that the generation of MetaClass information takes a bit of time and so 
      * this call should not be called too often
      */
-    public void clearMetaClassCache(){
-        synchronized (classMap) {
-            classMap.clear();
-        }
+    public synchronized void clearMetaClassCache(){
+        // No ClassValue.clear() method, so need to just null it out instead.
+        classMap = null;
     }
 
     void addStaplerServlet(String servletName, Stapler servlet) {
