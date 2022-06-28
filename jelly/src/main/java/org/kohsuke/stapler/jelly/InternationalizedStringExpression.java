@@ -33,8 +33,6 @@ import org.kohsuke.stapler.Stapler;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Arrays;
 
 /**
  * Expression of the form "%messageName(arg1,arg2,...)" that represents
@@ -86,7 +84,7 @@ public class InternationalizedStringExpression extends ExpressionSupport {
     }
     
     public List<Expression> getArguments() {
-        return Collections.unmodifiableList(Arrays.asList(arguments));
+        return List.of(arguments);
     }
 
     /**

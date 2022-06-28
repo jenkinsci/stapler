@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -53,7 +52,7 @@ public class ModelTest {
         @Override
         @Exported
         public List<Integer> get() {
-            return Collections.singletonList(42);
+            return List.of(42);
         }
     }
 

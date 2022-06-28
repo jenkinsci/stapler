@@ -12,7 +12,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.util.ElementScanner6;
+import javax.lang.model.util.ElementScanner9;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Properties;
@@ -31,7 +31,7 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try {
-            ElementScanner6<Void, Void> scanner = new ElementScanner6<Void, Void>() {
+            ElementScanner9<Void, Void> scanner = new ElementScanner9<Void, Void>() {
                 Set<Element> enclosingElementsWritten = new HashSet<>();
                 boolean messagePrinted;
 

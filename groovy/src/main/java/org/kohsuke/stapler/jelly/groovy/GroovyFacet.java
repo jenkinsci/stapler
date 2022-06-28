@@ -40,7 +40,6 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -99,7 +98,7 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
                 handleIndexRequest(nodeMetaClass.loadTearOff(GroovyServerPageTearOff.class), scriptExecutor, req, rsp, node);
     }
 
-    private static final Set<Class<GroovyClassTearOff>> TEAROFF_TYPES = Collections.singleton(GroovyClassTearOff.class);
+    private static final Set<Class<GroovyClassTearOff>> TEAROFF_TYPES = Set.of(GroovyClassTearOff.class);
 
-    private static final Set<String> EXTENSION = Collections.singleton(".groovy");
+    private static final Set<String> EXTENSION = Set.of(".groovy");
 }
