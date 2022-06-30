@@ -46,7 +46,7 @@ public class MockServletContext implements ServletContext {
     }
 
     @Override
-    public Set getResourcePaths(String s) {
+    public Set<String> getResourcePaths(String s) {
         return null;
     }
 
@@ -76,12 +76,12 @@ public class MockServletContext implements ServletContext {
     }
 
     @Override
-    public Enumeration getServlets() {
+    public Enumeration<Servlet> getServlets() {
         return null;
     }
 
     @Override
-    public Enumeration getServletNames() {
+    public Enumeration<String> getServletNames() {
         return null;
     }
 
@@ -113,7 +113,7 @@ public class MockServletContext implements ServletContext {
     }
 
     @Override
-    public Enumeration getInitParameterNames() {
+    public Enumeration<String> getInitParameterNames() {
         return null;
     }
 
@@ -123,7 +123,7 @@ public class MockServletContext implements ServletContext {
     }
 
     @Override
-    public Enumeration getAttributeNames() {
+    public Enumeration<String> getAttributeNames() {
         return null;
     }
 
@@ -172,6 +172,11 @@ public class MockServletContext implements ServletContext {
 
     @Override
     public Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
+        return null;
+    }
+
+    @Override
+    public Dynamic addJspFile(String servletName, String jspFile) {
         return null;
     }
 
@@ -274,5 +279,32 @@ public class MockServletContext implements ServletContext {
     @Override
     public String getVirtualServerName() {
         return null;
+    }
+
+    @Override
+    public int getSessionTimeout() {
+        return 0;
+    }
+
+    @Override
+    public void setSessionTimeout(int sessionTimeout) {
+    }
+
+    @Override
+    public String getRequestCharacterEncoding() {
+        return null;
+    }
+
+    @Override
+    public void setRequestCharacterEncoding(String encoding) {
+    }
+
+    @Override
+    public String getResponseCharacterEncoding() {
+        return null;
+    }
+
+    @Override
+    public void setResponseCharacterEncoding(String encoding) {
     }
 }
