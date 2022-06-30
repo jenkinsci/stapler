@@ -20,3 +20,6 @@ updates:
         versions: [">=11.0.0"]
       # Provided by the Web container, so aligned with Jetty.
       - dependency-name: "jakarta.servlet:jakarta.servlet-api"
+      # Contains incompatible API changes and needs compatibility work.
+      - dependency-name: "jakarta.servlet.jsp:jakarta.servlet.jsp-api"
+        versions: [">=3.0.0"]
