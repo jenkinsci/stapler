@@ -2,6 +2,9 @@ package org.kohsuke.stapler.test;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import junit.framework.TestCase;
+import org.eclipse.jetty.http.UriCompliance;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -44,6 +47,8 @@ public abstract class JettyTestCase extends TestCase {
         server.setHandler(context);
 
         ServerConnector connector = new ServerConnector(server);
+        HttpConfiguration hc = connector.getConnectionFactory(HttpConnectionFactory.class).getHttpConfiguration();
+        hc.setUriCompliance(UriCompliance.LEGACY);
         server.addConnector(connector);
         server.start();
 

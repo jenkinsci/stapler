@@ -25,7 +25,7 @@
     <dependency>
       <groupId>org.jenkins-ci</groupId>
       <artifactId>commons-jelly</artifactId>
-      <version>1.1-jenkins-20220625</version>
+      <version>1.1-jenkins-20220630</version>
       <exclusions>
         <exclusion>
           <groupId>dom4j</groupId>
@@ -47,9 +47,9 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>3.1.0</version>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>4.0.4</version>
       <scope>provided</scope>
     </dependency>
 
