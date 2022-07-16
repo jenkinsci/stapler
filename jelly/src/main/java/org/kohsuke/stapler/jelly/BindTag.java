@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.XMLOutput;
 import org.jvnet.maven.jellydoc.annotation.NoContent;
@@ -76,10 +77,7 @@ public class BindTag extends AbstractStaplerTag {
                 if (varName == null) {
                     out.write("null");
                 } else {
-                    // TODO un-inline?
-                    out.startElement("script");
-                    out.write(varName + "=null;");
-                    out.endElement("script");
+                    writeScriptTag(out, null);
                 }
             } else {
                 Bound h = WebApp.getCurrent().boundObjectTable.bind(javaObject);
@@ -90,19 +88,23 @@ public class BindTag extends AbstractStaplerTag {
                     // Doing this is deprecated as it cannot be done with CSP enabled
                     out.write(h.getProxyScript());
                 } else {
-                    // TODO Find a better solution for CSP compliant bind scripts than binding another object
-                    Bound script = WebApp.getCurrent().boundObjectTable.bind(new BoundObjectTable.BindScript(h, varName));
-
-                    final AttributesImpl attributes = new AttributesImpl();
-                    attributes.addAttribute("", "src", "src", "", script.getURL());
-                    attributes.addAttribute("", "type", "type", "", "application/javascript");
-                    out.startElement("script", attributes);
-                    out.endElement("script");
+                    writeScriptTag(out, h);
                 }
             }
         } catch (SAXException e) {
             throw new JellyTagException(e);
         }
+    }
+
+    private void writeScriptTag(XMLOutput out, @CheckForNull Bound bound) throws SAXException {
+        // TODO Find a better solution for CSP compliant bind scripts than binding another object
+        Bound script = WebApp.getCurrent().boundObjectTable.bind(new BoundObjectTable.BindScript(bound, varName));
+
+        final AttributesImpl attributes = new AttributesImpl();
+        attributes.addAttribute("", "src", "src", "", script.getURL());
+        attributes.addAttribute("", "type", "type", "", "application/javascript");
+        out.startElement("script", attributes);
+        out.endElement("script");
     }
 
     /**
