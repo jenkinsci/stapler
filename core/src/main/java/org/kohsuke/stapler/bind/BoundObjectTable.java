@@ -24,6 +24,7 @@
 package org.kohsuke.stapler.bind;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.PrintWriter;
 import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
@@ -184,6 +185,23 @@ public class BoundObjectTable implements StaplerFallback {
             } else {
                 return HttpResponses.forbidden();
             }
+        }
+    }
+
+    public static final class BindScript {
+
+        private final Bound bound;
+        private final String variableName;
+
+        public BindScript(Bound bound, String variableName) {
+            this.bound = bound;
+            this.variableName = variableName;
+        }
+
+        public void doIndex(StaplerResponse rsp) throws IOException, ServletException {
+            rsp.setContentType("application/javascript");
+            final PrintWriter writer = rsp.getWriter();
+            writer.append(variableName).append(" = ").append(bound.getProxyScript()).append(";");
         }
     }
 

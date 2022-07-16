@@ -29,8 +29,10 @@ import org.jvnet.maven.jellydoc.annotation.NoContent;
 import org.jvnet.maven.jellydoc.annotation.Required;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.bind.Bound;
+import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.framework.adjunct.AdjunctsInPage;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * Binds a server-side object to client side so that JavaScript can call into server.
@@ -70,22 +72,33 @@ public class BindTag extends AbstractStaplerTag {
         a.doTag(out);
 
         try {
-            String expr;
             if (javaObject==null) {
-                expr = "null";
+                if (varName == null) {
+                    out.write("null");
+                } else {
+                    // TODO un-inline?
+                    out.startElement("script");
+                    out.write(varName + "=null;");
+                    out.endElement("script");
+                }
             } else {
                 Bound h = WebApp.getCurrent().boundObjectTable.bind(javaObject);
-                expr = h.getProxyScript();
-            }
 
-            if (varName==null) {
-                // this mode (of writing just the expression) needs to be used with caution because
-                // the adjunct tag above might produce <script> tag.
-                out.write(expr);
-            } else {
-                out.startElement("script");
-                out.write(varName + "=" + expr + ";");
-                out.endElement("script");
+                if (varName==null) {
+                    // this mode (of writing just the expression) needs to be used with caution because
+                    // the adjunct tag above might produce <script> tag.
+                    // Doing this is deprecated as it cannot be done with CSP enabled
+                    out.write(h.getProxyScript());
+                } else {
+                    // TODO Find a better solution for CSP compliant bind scripts than binding another object
+                    Bound script = WebApp.getCurrent().boundObjectTable.bind(new BoundObjectTable.BindScript(h, varName));
+
+                    final AttributesImpl attributes = new AttributesImpl();
+                    attributes.addAttribute("", "src", "src", "", script.getURL());
+                    attributes.addAttribute("", "type", "type", "", "application/javascript");
+                    out.startElement("script", attributes);
+                    out.endElement("script");
+                }
             }
         } catch (SAXException e) {
             throw new JellyTagException(e);
