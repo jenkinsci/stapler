@@ -55,52 +55,39 @@ import java.util.logging.Logger;
  */
 public class BoundObjectTable implements StaplerFallback {
 
-    /**
-     * Represents a script that can be rendered
-     */
-    private final class RenderableScript {
-        private final String variableName;
-
-        public RenderableScript(String variableName) {
-            this.variableName = variableName;
-        }
-
-        public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException {
-            final String id = StringUtils.removeStart(req.getRestOfPath(), "/");
-            rsp.setContentType("application/javascript");
-            final PrintWriter writer = rsp.getWriter();
-            final Table table = resolve(false);
-            if (table == null) {
-                rsp.sendError(404);
-                return;
-            }
-            Object object = table.resolve(id);
-            if (object == null) {
-                /* Support null bound objects */
-                writer.append(variableName).append(" = null;");
-                return;
-            }
-            final String script = Bound.getProxyScript(Stapler.getCurrentRequest().getContextPath() + PREFIX + id, object.getClass());
-            writer.append(variableName).append(" = ").append(script).append(";");
-        }
+    private static boolean isValidIdentifier(String variableName) {
+        // Ultimately this will be used as a JS identifier, so we need (a subset of) what's valid there.
+        // The primary purpose of this check however is to prevent injection attacks.
+        return variableName.matches("^[a-zA-Z_][a-zA-Z0-9_]*$");
     }
 
-    private final class ScriptRenderer {
-        private boolean isValidIdentifier(String variableName) {
-            // Ultimately this will be used as a JS identifier, so we need (a subset of) what's valid there.
-            // The primary purpose of this check however is to prevent injection attacks.
-            return variableName.matches("^[a-zA-Z_][a-zA-Z0-9_]*$");
+    public void doScript(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        final String variableNameAndId = StringUtils.removeStart(req.getRestOfPath(), "/");
+        if (!variableNameAndId.contains("/")) {
+            return;
         }
-        public RenderableScript getDynamic(String variableName) {
-            if (isValidIdentifier(variableName)) {
-                return new RenderableScript(variableName);
-            } else {
-                return null;
-            }
+        final String variableName = variableNameAndId.split("/")[0];
+        final String id = variableNameAndId.split("/")[1];
+
+        if (!isValidIdentifier(variableName)) {
+            return;
         }
-    }
-    public ScriptRenderer getScript() {
-        return new ScriptRenderer();
+
+        rsp.setContentType("application/javascript");
+        final PrintWriter writer = rsp.getWriter();
+        final Table table = resolve(false);
+        if (table == null) {
+            rsp.sendError(404);
+            return;
+        }
+        Object object = table.resolve(id);
+        if (object == null) {
+            /* Support null bound objects */
+            writer.append(variableName).append(" = null;");
+            return;
+        }
+        final String script = Bound.getProxyScript(Stapler.getCurrentRequest().getContextPath() + PREFIX + id, object.getClass());
+        writer.append(variableName).append(" = ").append(script).append(";");
     }
 
     @Override
