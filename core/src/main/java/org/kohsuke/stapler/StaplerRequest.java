@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import java.util.Set;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.fileupload.FileItem;
@@ -40,6 +41,7 @@ import java.util.List;
 
 import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.json.SubmittedForm;
 import org.kohsuke.stapler.lang.Klass;
@@ -515,6 +517,36 @@ public interface StaplerRequest extends HttpServletRequest {
      * a proxy on the client side.
      *
      * Short cut for {@code getBoundObjectTable().bind(toBeExported).getProxyScript()}
+     *
+     * @deprecated Use {@link #createJavaScriptProxyParameters(Object)} and invoke {@code makeStaplerProxy} yourself.
      */
+    @Deprecated(since = "TODO")
     String createJavaScriptProxy(Object toBeExported);
+
+    /**
+     * Return value of {@link #createJavaScriptProxyParameters(Object)}
+     */
+    final class RenderOnDemandParameters {
+        public final String proxyMethod; // TODO Is this useful to not need hard-coding 'makeStaplerProxy' in callers?
+        public final String url;
+        public final String crumb;
+        public final Set<String> methods;
+
+        public RenderOnDemandParameters(String proxyMethod, String url, String crumb, Set<String> methods) {
+            this.proxyMethod = proxyMethod;
+            this.url = url;
+            this.crumb = crumb;
+            this.methods = methods;
+        }
+
+        public String getMethodsString() { // TODO Probably better off in the caller?
+            return StringUtils.join(methods, ",");
+        }
+    }
+
+    /**
+     * Exports the given Java object as a JavaScript proxy and returns the parameters needed to call
+     * {@code makeStaplerProxy}.
+     */
+    RenderOnDemandParameters createJavaScriptProxyParameters(Object toBeExported);
 }

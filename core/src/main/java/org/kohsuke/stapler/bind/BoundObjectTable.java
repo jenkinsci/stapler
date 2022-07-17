@@ -27,6 +27,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintWriter;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
@@ -53,6 +54,55 @@ import java.util.logging.Logger;
  * @author Kohsuke Kawaguchi
  */
 public class BoundObjectTable implements StaplerFallback {
+
+    /**
+     * Represents a script that can be rendered
+     */
+    private final class RenderableScript {
+        private final String variableName;
+
+        public RenderableScript(String variableName) {
+            this.variableName = variableName;
+        }
+
+        public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException {
+            final String id = StringUtils.removeStart(req.getRestOfPath(), "/");
+            rsp.setContentType("application/javascript");
+            final PrintWriter writer = rsp.getWriter();
+            final Table table = resolve(false);
+            if (table == null) {
+                rsp.sendError(404);
+                return;
+            }
+            Object object = table.resolve(id);
+            if (object == null) {
+                /* Support null bound objects */
+                writer.append(variableName).append(" = null;");
+                return;
+            }
+            final String script = Bound.getProxyScript(Stapler.getCurrentRequest().getContextPath() + PREFIX + id, object.getClass());
+            writer.append(variableName).append(" = ").append(script).append(";");
+        }
+    }
+
+    private final class ScriptRenderer {
+        private boolean isValidIdentifier(String variableName) {
+            // Ultimately this will be used as a JS identifier, so we need (a subset of) what's valid there.
+            // The primary purpose of this check however is to prevent injection attacks.
+            return variableName.matches("^[a-zA-Z_][a-zA-Z0-9_]*$");
+        }
+        public RenderableScript getDynamic(String variableName) {
+            if (isValidIdentifier(variableName)) {
+                return new RenderableScript(variableName);
+            } else {
+                return null;
+            }
+        }
+    }
+    public ScriptRenderer getScript() {
+        return new ScriptRenderer();
+    }
+
     @Override
     public Table getStaplerFallback() {
         return resolve(false);
@@ -190,6 +240,9 @@ public class BoundObjectTable implements StaplerFallback {
         }
     }
 
+    /**
+     * Supports
+     */
     public static final class BindScript {
 
         private final Bound bound;
@@ -267,6 +320,7 @@ public class BoundObjectTable implements StaplerFallback {
     }
 
     public static final String PREFIX = "/$stapler/bound/";
+    public static final String SCRIPT_PREFIX = "/$stapler/bound/script/";
 
     /**
      * True to activate debug logging of session fragments.

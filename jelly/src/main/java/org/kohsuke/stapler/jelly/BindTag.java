@@ -30,7 +30,6 @@ import org.jvnet.maven.jellydoc.annotation.NoContent;
 import org.jvnet.maven.jellydoc.annotation.Required;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.bind.Bound;
-import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.framework.adjunct.AdjunctsInPage;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -97,11 +96,12 @@ public class BindTag extends AbstractStaplerTag {
     }
 
     private void writeScriptTag(XMLOutput out, @CheckForNull Bound bound) throws SAXException {
-        // TODO Find a better solution for CSP compliant bind scripts than binding another object
-        Bound script = WebApp.getCurrent().boundObjectTable.bind(new BoundObjectTable.BindScript(bound, varName));
-
         final AttributesImpl attributes = new AttributesImpl();
-        attributes.addAttribute("", "src", "src", "", script.getURL());
+        if (bound == null) {
+            attributes.addAttribute("", "src", "src", "", Bound.getProxyScriptUrl(varName, null));
+        } else {
+            attributes.addAttribute("", "src", "src", "", bound.getProxyScriptURL(varName));
+        }
         attributes.addAttribute("", "type", "type", "", "application/javascript");
         out.startElement("script", attributes);
         out.endElement("script");

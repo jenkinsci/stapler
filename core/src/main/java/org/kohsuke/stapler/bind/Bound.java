@@ -23,14 +23,16 @@
 
 package org.kohsuke.stapler.bind;
 
+import java.util.HashSet;
+import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.MetaClass;
+import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.WebApp;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
 
 /**
  * Handles to the object bound via {@link BoundObjectTable}.
@@ -63,33 +65,66 @@ public abstract class Bound implements HttpResponse {
      * talks back to the bound object that this handle represents.
      */
     public final String getProxyScript() {
-        StringBuilder buf = new StringBuilder("makeStaplerProxy('").append(getURL()).append("','").append(
-                WebApp.getCurrent().getCrumbIssuer().issueCrumb()
-        ).append("',[");
+        return getProxyScript(getURL(), getTarget().getClass());
+    }
 
-        boolean first=true;
-        for (Method m : getTarget().getClass().getMethods()) {
-            Collection<String> names;
+    /**
+     * Returns the URl to the proxy script for this {@link org.kohsuke.stapler.bind.Bound}
+     * @param variableName the variable to assign to the bound object
+     * @param bound the bound object, or {@code null} if none.
+     * @return
+     */
+    public static String getProxyScriptUrl(String variableName, Bound bound) {
+        if (bound == null) {
+            // TODO Should this hardocde a non-UUID to ensure null bind?
+            return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.PREFIX + variableName + "/null";
+        } else {
+            return bound.getProxyScriptURL(variableName);
+        }
+    }
+
+    /**
+     * Returns the URL for the standalone proxy script.
+     * @param variableName the name of the JS variable to assign
+     * @return
+     */
+    public final String getProxyScriptURL(String variableName) {
+        // TODO Probably wrong with WithWellKnownURL?
+        return getURL().replace(BoundObjectTable.PREFIX, BoundObjectTable.SCRIPT_PREFIX + variableName + "/");
+    }
+
+    private static Set<String> getBoundMethods(Class<?> clazz) {
+        Set<String> names = new HashSet<>();
+        for (Method m : clazz.getMethods()) {
             if (m.getName().startsWith("js")) {
-                names = Set.of(camelize(m.getName().substring(2)));
+                names.add(camelize(m.getName().substring(2)));
             } else {
                 JavaScriptMethod a = m.getAnnotation(JavaScriptMethod.class);
-                if (a!=null) {
-                    names = Arrays.asList(a.name());
-                    if (names.isEmpty())
-                        names = Set.of(m.getName());
-                } else
-                    continue;
-            }
-
-            for (String n : names) {
-                if (first)  first = false;
-                else        buf.append(',');
-                buf.append('\'').append(n).append('\'');
+                if (a != null) {
+                    if (a.name().length == 0) {
+                        names.add(m.getName());
+                    } else {
+                        names.addAll(Arrays.asList(a.name()));
+                    }
+                }
             }
         }
-        buf.append("])");
-        
+        return names;
+    }
+
+    /**
+     * Returns a list of all JS bound methods of the target's type.
+     * @return a list of all JS bound methods of the target's type
+     */
+    public final Set<String> getBoundMethods() {
+        return getBoundMethods(getTarget().getClass());
+    }
+
+    public static String getProxyScript(String url, Class<?> clazz) {
+        StringBuilder buf = new StringBuilder("makeStaplerProxy('").append(url).append("','").append(
+                WebApp.getCurrent().getCrumbIssuer().issueCrumb()
+        ).append("',[").append(
+                StringUtils.join(getBoundMethods(clazz).stream().map(n -> "'" + n + "'").toArray(String[]::new), ",")).append("])");
         return buf.toString();
     }
 
