@@ -23,8 +23,6 @@
 
 package org.kohsuke.stapler.bind;
 
-import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintWriter;
 import org.apache.commons.lang.StringUtils;
@@ -224,27 +222,6 @@ public class BoundObjectTable implements StaplerFallback {
             } else {
                 return HttpResponses.forbidden();
             }
-        }
-    }
-
-    /**
-     * Supports
-     */
-    public static final class BindScript {
-
-        private final Bound bound;
-        private final String variableName;
-
-        public BindScript(@CheckForNull Bound bound, @NonNull String variableName) {
-            this.bound = bound;
-            this.variableName = variableName;
-        }
-
-        public void doIndex(StaplerResponse rsp) throws IOException, ServletException {
-            rsp.setContentType("application/javascript");
-            final PrintWriter writer = rsp.getWriter();
-            final String script = bound == null ? "null" : bound.getProxyScript();
-            writer.append(variableName).append(" = ").append(script).append(";");
         }
     }
 
