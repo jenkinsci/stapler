@@ -12,7 +12,7 @@ import org.kohsuke.stapler.lang.KlassNavigator;
 import org.kohsuke.stapler.lang.MethodRef;
 import org.kohsuke.stapler.lang.util.FieldRefFilter;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;

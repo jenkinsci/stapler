@@ -6,7 +6,7 @@ import org.kohsuke.stapler.lang.Klass;
 import org.zeroturnaround.javarebel.ClassEventListener;
 import org.zeroturnaround.javarebel.ReloaderFactory;
 
-import javax.servlet.RequestDispatcher;
+import jakarta.servlet.RequestDispatcher;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

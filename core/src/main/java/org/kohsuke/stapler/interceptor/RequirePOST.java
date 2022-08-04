@@ -16,8 +16,8 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.verb.POST;
 

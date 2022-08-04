@@ -26,7 +26,7 @@ package org.kohsuke.stapler;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.beanutils.Converter;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.lang.annotation.Annotation;
 
 /**

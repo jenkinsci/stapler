@@ -35,10 +35,10 @@ import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.lang.Klass;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;

@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import javax.servlet.DispatcherType;
+import jakarta.servlet.DispatcherType;
 
 public class CompressionFilterTest extends JettyTestCase {
 

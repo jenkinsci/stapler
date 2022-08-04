@@ -32,25 +32,26 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.FileItem;
+import org.apache.commons.fileupload2.FileUploadException;
+import org.apache.commons.fileupload2.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload2.jaksrvlt.JakSrvltFileUpload;
 import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.MethodRef;
 import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -75,7 +76,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static java.util.logging.Level.*;
-import static javax.servlet.http.HttpServletResponse.*;
+import static jakarta.servlet.http.HttpServletResponse.*;
 
 /**
  * {@link StaplerRequest} implementation.
@@ -1025,7 +1026,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
         parsedFormData = new HashMap<>();
         parsedFormDataFormFields = new HashMap<>();
-        ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
+        JakSrvltFileUpload upload = new JakSrvltFileUpload(new DiskFileItemFactory());
         try {
             for( FileItem fi : upload.parseRequest(this)) {
                 parsedFormData.put(fi.getFieldName(),fi);
@@ -1072,6 +1073,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                         } catch (java.io.UnsupportedEncodingException uee) {
                             LOGGER.log(WARNING, "Request has unsupported charset, using default for 'json' parameter", uee);
                             p = item.getString();
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
                         }
                     } else {
                         p = item.getString();

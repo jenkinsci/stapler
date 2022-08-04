@@ -35,7 +35,7 @@ import org.apache.commons.jelly.XMLOutputFactory;
 import org.apache.commons.jelly.impl.TagScript;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;

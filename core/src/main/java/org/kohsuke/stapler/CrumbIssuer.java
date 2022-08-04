@@ -1,6 +1,6 @@
 package org.kohsuke.stapler;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import java.util.UUID;
 
 /**

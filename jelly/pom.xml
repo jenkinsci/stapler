@@ -25,7 +25,7 @@
     <dependency>
       <groupId>org.jenkins-ci</groupId>
       <artifactId>commons-jelly</artifactId>
-      <version>1.1-jenkins-20220630</version>
+      <version>1.1-jenkins-20220631-rc116.d3d764374a_27</version> <!-- TODO https://github.com/jenkinsci/jelly/pull/8 -->
       <exclusions>
         <exclusion>
           <groupId>dom4j</groupId>
@@ -49,7 +49,7 @@
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
-      <version>4.0.4</version>
+      <version>5.0.0</version>
       <scope>provided</scope>
     </dependency>
 

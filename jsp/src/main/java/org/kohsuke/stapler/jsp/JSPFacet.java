@@ -32,9 +32,9 @@ import org.kohsuke.stapler.Stapler;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.lang.Klass;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletContext;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletContext;
 import java.util.List;
 import java.util.logging.Level;
 import java.io.IOException;

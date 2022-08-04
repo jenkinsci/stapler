@@ -45,7 +45,7 @@
     <changelist>999999-SNAPSHOT</changelist>
     <scmTag>HEAD</scmTag>
     <spotbugs.excludeFilterFile>${project.basedir}/../src/spotbugs/spotbugs-excludes.xml</spotbugs.excludeFilterFile>
-    <jetty.version>10.0.11</jetty.version>
+    <jetty.version>11.0.11</jetty.version>
     <gitHubRepo>jenkinsci/stapler</gitHubRepo>
   </properties>
 
@@ -112,6 +112,13 @@
     <repository>
       <id>repo.jenkins-ci.org</id>
       <url>https://repo.jenkins-ci.org/public/</url>
+    </repository>
+    <repository>
+      <id>apache-snapshots</id>
+      <url>https://repository.apache.org/content/repositories/snapshots</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
   </repositories>
 

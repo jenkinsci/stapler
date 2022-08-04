@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.util.Collections;
 import java.util.List;
 

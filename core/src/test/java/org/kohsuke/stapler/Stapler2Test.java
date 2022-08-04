@@ -31,7 +31,7 @@ import static org.junit.Assert.assertThrows;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.WebClient;
 import java.net.URL;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import org.jvnet.hudson.test.For;
 import org.jvnet.hudson.test.Issue;
 import org.kohsuke.stapler.test.JettyTestCase;

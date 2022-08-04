@@ -30,9 +30,9 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.framework.errors.NoHomeDirError;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

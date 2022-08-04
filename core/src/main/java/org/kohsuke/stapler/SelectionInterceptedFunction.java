@@ -3,7 +3,7 @@ package org.kohsuke.stapler;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.lang.reflect.InvocationTargetException;
 
 /**

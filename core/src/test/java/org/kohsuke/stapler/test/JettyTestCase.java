@@ -13,7 +13,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.WebApp;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.net.URL;
 
 /**

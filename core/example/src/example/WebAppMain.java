@@ -2,8 +2,8 @@ package example;
 
 import org.kohsuke.stapler.Stapler;
 
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
 
 /**
  * This class is invoked by the container at the beginning

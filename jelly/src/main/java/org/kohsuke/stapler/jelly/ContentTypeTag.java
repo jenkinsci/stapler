@@ -29,7 +29,7 @@ import org.apache.commons.jelly.XMLOutput;
 import org.jvnet.maven.jellydoc.annotation.Required;
 import org.jvnet.maven.jellydoc.annotation.NoContent;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Set the HTTP Content-Type header of the page.

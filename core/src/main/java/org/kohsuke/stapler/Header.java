@@ -25,7 +25,7 @@ package org.kohsuke.stapler;
 
 import org.kohsuke.stapler.Header.HandlerImpl;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import static java.lang.annotation.ElementType.PARAMETER;
 import java.lang.annotation.Retention;

@@ -33,9 +33,9 @@ import org.kohsuke.stapler.lang.FieldRef;
 import org.kohsuke.stapler.lang.KInstance;
 import org.kohsuke.stapler.lang.Klass;
 
-import javax.servlet.Filter;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
+import jakarta.servlet.Filter;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;

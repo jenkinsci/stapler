@@ -20,6 +20,18 @@
     - If it is not a false positive, fix the bug, then remove the exclusion from this section.
    -->
   <Match>
+    <Or>
+      <Class name="javax.servlet.AsyncEvent"/>
+      <Class name="javax.servlet.http.HttpServletResponseWrapper"/>
+      <Class name="javax.servlet.ServletException"/>
+      <Class name="javax.servlet.ServletInputStream"/>
+      <Class name="javax.servlet.ServletOutputStream"/>
+      <Class name="javax.servlet.ServletRequestEvent"/>
+      <Class name="javax.servlet.ServletRequestWrapper"/>
+      <Class name="javax.servlet.ServletResponseWrapper"/>
+    </Or>
+  </Match>
+  <Match>
     <Confidence value="2"/>
     <Or>
       <And>

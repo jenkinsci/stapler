@@ -25,10 +25,10 @@ package org.kohsuke.stapler.framework.adjunct;
 
 import org.kohsuke.stapler.*;
 
-import javax.servlet.ServletException;
-import javax.servlet.ServletContext;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletContext;
+import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;

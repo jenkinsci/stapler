@@ -2,16 +2,16 @@ package org.kohsuke.stapler.compression;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import org.kohsuke.stapler.CompatibleFilter;
 
 /**
  * Pimps up {@link HttpServletResponse} so that it understands "Content-Encoding: gzip" and compress the response.
@@ -34,7 +34,7 @@ import java.io.IOException;
  *
  * @author Kohsuke Kawaguchi
  */
-public class CompressionFilter implements Filter {
+public class CompressionFilter implements CompatibleFilter {
     private ServletContext context;
 
     @Override

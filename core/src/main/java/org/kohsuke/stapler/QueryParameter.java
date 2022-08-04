@@ -25,7 +25,7 @@ package org.kohsuke.stapler;
 
 import org.kohsuke.stapler.QueryParameter.HandlerImpl;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.annotation.Documented;

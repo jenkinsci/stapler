@@ -40,9 +40,9 @@
     </dependency>
     <dependency>
       <!-- perhaps mark this dependency optional? -->
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-      <version>1.4</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-fileupload2</artifactId>
+      <version>2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
@@ -108,7 +108,7 @@
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
-      <version>4.0.4</version>
+      <version>5.0.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

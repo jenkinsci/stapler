@@ -8,7 +8,7 @@ import org.kohsuke.stapler.StaplerResponse;
 import java.lang.reflect.InvocationTargetException;
 import org.kohsuke.stapler.HttpResponses;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 /**
  * Intercepts the domain method call from Stapler.
