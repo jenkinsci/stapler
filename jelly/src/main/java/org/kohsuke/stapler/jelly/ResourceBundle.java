@@ -26,9 +26,6 @@ package org.kohsuke.stapler.jelly;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.FileNotFoundException;
 import java.io.UncheckedIOException;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.PropertyResourceBundle;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.WebApp;
@@ -138,28 +135,20 @@ public class ResourceBundle {
     }
 
     protected Properties get(String key) {
-        Properties props;
-
         if(!MetaClass.NO_CACHE) {
-            props = resources.get(key);
+            Properties props = resources.get(key);
             if(props!=null)     return props;
         }
 
         // attempt to load
-        props = new Properties();
+        Properties props = new Properties();
         String url = baseName + key + ".properties";
         try (InputStream in = openStream(url)) {
             PropertyResourceBundle propertyResourceBundle = new PropertyResourceBundle(in);
-
-            Enumeration<String> keys = propertyResourceBundle.getKeys();
-            // TODO Java 9+ can use 'asIterator' and get rid of below collections conversion
-            List<String> keysAsSaneType = Collections.list(keys);
-
-            for (String localKey : keysAsSaneType) {
-                String value = propertyResourceBundle.getString(localKey);
-                props.setProperty(localKey, value);
-            }
-
+            propertyResourceBundle
+                    .getKeys()
+                    .asIterator()
+                    .forEachRemaining(localKey -> props.setProperty(localKey, propertyResourceBundle.getString(localKey)));
         } catch (FileNotFoundException ignored) {
             // we fall back to the default properties file if a locale file is missing
         } catch (IOException e) {
