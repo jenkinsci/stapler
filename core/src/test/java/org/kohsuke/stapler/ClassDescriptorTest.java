@@ -49,10 +49,6 @@ public class ClassDescriptorTest {
     }
 
     @Test public void loadParametersFromAsm() throws Exception {
-        // get private method that is being tested
-        Method lpfa = ClassDescriptor.ASM.class.getDeclaredMethod(
-                "loadParametersFromAsm", Method.class);
-        lpfa.setAccessible(true);
         // collect test cases
         Map<String,Method> testCases = new HashMap<>();
         for (Method m : ClassDescriptorTest.class.getDeclaredMethods())
@@ -68,7 +64,7 @@ public class ClassDescriptorTest {
         for (Map.Entry<String,String[]> entry : expected.entrySet()) {
             Method testMethod = testCases.get(entry.getKey());
             assertNotNull("Method missing for " + entry.getKey(), testMethod);
-            String[] result = (String[])lpfa.invoke(null, testMethod);
+            String[] result = BytecodeReadingParanamer.lookupParameterNames(testMethod);
             assertNotNull("Null result for " + entry.getKey(), result);
             if (!Arrays.equals(entry.getValue(), result)) {
                 StringBuilder buf = new StringBuilder("|");
