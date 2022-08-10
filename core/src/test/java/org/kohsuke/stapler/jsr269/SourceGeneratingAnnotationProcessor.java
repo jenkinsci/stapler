@@ -41,7 +41,7 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import org.kohsuke.MetaInfServices;
 
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_11)
 @SupportedAnnotationTypes("org.kohsuke.stapler.jsr269.SourceGeneratingAnnotation")
 @MetaInfServices(Processor.class)
 public class SourceGeneratingAnnotationProcessor extends AbstractProcessor {
