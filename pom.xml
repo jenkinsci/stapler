@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
-    <version>1.87</version>
+    <version>1.88</version>
     <relativePath />
   </parent>
   <groupId>org.kohsuke.stapler</groupId>
@@ -85,11 +85,6 @@
         <groupId>org.kohsuke.metainf-services</groupId>
         <artifactId>metainf-services</artifactId>
         <version>1.9</version>
-      </dependency>
-      <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
-        <version>4.8.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
