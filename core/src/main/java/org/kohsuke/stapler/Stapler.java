@@ -98,10 +98,9 @@ public class Stapler extends HttpServlet {
 
     /**
      * Exceptions we don't want to print a stacktrace for because they are normal behaviour.
-     * [HUDSON-4834] A stack trace is too noisy for this; could just need to log in.
-     * (Could consider doing this for all AcegiSecurityException's.)
+     * [JENKINS-4834] A stack trace is too noisy for this; could just need to log in.
      */
-    private  static final List<String> EXCEPTIONS_DO_NOT_PRINT_STACKTRACE = Arrays.asList(
+    private  static final Set<String> EXCEPTIONS_DO_NOT_PRINT_STACKTRACE = Set.of(
             "org.acegisecurity.AccessDeniedException",
             "org.springframework.security.access.AccessDeniedException"
     );
