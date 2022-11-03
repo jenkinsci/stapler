@@ -24,7 +24,6 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -185,7 +184,6 @@ public class HttpResponses {
     /**
      * Redirects the user back to where he came from.
      */
-    @SuppressFBWarnings(value = "MS_EXPOSE_REP", justification = "TODO needs triage")
     public static HttpResponseException forwardToPreviousPage() {
         return FORWARD_TO_PREVIOUS_PAGE;
     }
