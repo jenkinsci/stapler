@@ -24,6 +24,7 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -106,6 +107,7 @@ public class HttpResponses {
         if (responseException == null) {
             responseException = new HttpResponseException(cause) {
                 @Override
+                @SuppressFBWarnings(value = "INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE", justification = "Jenkins handles this issue differently or doesn't care about it")
                 public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                     rsp.setStatus(code);
 

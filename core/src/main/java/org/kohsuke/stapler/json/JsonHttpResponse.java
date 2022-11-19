@@ -6,6 +6,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -30,6 +31,7 @@ public class JsonHttpResponse extends HttpResponseException {
         this.status = status;
     }
 
+    @SuppressFBWarnings(value = "INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE", justification = "Jenkins handles this issue differently or doesn't care about it")
     public JsonHttpResponse(Throwable t, int status) {
         StringWriter sw = new StringWriter();
         t.printStackTrace(new PrintWriter(sw));

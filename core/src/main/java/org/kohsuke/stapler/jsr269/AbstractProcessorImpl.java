@@ -22,6 +22,7 @@
  */
 package org.kohsuke.stapler.jsr269;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javax.annotation.processing.AbstractProcessor;
 import javax.lang.model.element.Element;
 import javax.tools.FileObject;
@@ -38,6 +39,7 @@ import static javax.tools.StandardLocation.*;
  * @author Kohsuke Kawaguchi
  */
 abstract class AbstractProcessorImpl extends AbstractProcessor {
+    @SuppressFBWarnings(value = "INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE", justification = "Jenkins handles this issue differently or doesn't care about it")
     protected String toString(Throwable t) {
         StringWriter w = new StringWriter();
         t.printStackTrace(new PrintWriter(w));
