@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler.jelly.groovy;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import groovy.lang.Closure;
 import groovy.lang.GString;
 import groovy.lang.GroovyObjectSupport;
@@ -85,7 +84,6 @@ public final class JellyBuilder extends GroovyObjectSupport {
     private JellyContext context;
 
     private final ClassValue<GroovyClosureScript> taglibs = new ClassValue<GroovyClosureScript>() {
-        @SuppressFBWarnings(value = "THROWS_METHOD_THROWS_RUNTIMEEXCEPTION", justification = "shut up")
         @Override
         protected GroovyClosureScript computeValue(Class<?> type) {
             try {
