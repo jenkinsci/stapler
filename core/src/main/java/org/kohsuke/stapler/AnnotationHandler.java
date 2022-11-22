@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.beanutils.Converter;
 
 import javax.servlet.ServletException;
@@ -76,7 +75,6 @@ public abstract class AnnotationHandler<T extends Annotation> {
     }
 
     private static final ClassValue<AnnotationHandler> HANDLERS = new ClassValue<AnnotationHandler>() {
-        @SuppressFBWarnings(value = "THROWS_METHOD_THROWS_RUNTIMEEXCEPTION", justification = "shut up")
         @Override
         protected AnnotationHandler computeValue(Class<?> at) {
             InjectedParameter ip = at.getAnnotation(InjectedParameter.class);
