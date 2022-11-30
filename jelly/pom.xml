@@ -88,7 +88,7 @@
     <dependency>
       <groupId>org.jenkins-ci</groupId>
       <artifactId>version-number</artifactId>
-      <version>1.10</version>
+      <version>1.11</version>
       <scope>test</scope>
     </dependency>
     <dependency>
