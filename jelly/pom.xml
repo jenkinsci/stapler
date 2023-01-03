@@ -12,7 +12,7 @@
   <description>Jelly binding for Stapler</description>
 
   <properties>
-    <maven-jellydoc-plugin.version>1.9</maven-jellydoc-plugin.version>
+    <maven-jellydoc-plugin.version>1.10</maven-jellydoc-plugin.version>
   </properties>
 
   <dependencies>
