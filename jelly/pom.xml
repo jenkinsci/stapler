@@ -109,7 +109,7 @@
     <dependency>
       <groupId>org.jvnet.hudson</groupId>
       <artifactId>commons-jelly-tags-define</artifactId>
-      <version>1.0.1-hudson-20071021</version>
+      <version>1.1-jenkins-20230124</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
