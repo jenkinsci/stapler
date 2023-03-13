@@ -363,6 +363,8 @@ attribute expects as values.
 
 |deprecated |boolean |If the attribute is deprecated, set to true. Use
 of the deprecated attribute will cause a warning.
+
+|since |String |Used to track when the attribute was added to the API surface.
 |===
 
 [#jelly:adjunct]##

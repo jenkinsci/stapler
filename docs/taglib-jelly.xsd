@@ -470,6 +470,11 @@
  Use of the deprecated attribute will cause a warning.</xsd:documentation>
 </xsd:annotation>
 </xsd:attribute>
+<xsd:attribute name="since">
+<xsd:annotation>
+<xsd:documentation>Used to track when the attribute was added to the API surface.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
 <xsd:attribute name="trim">
 <xsd:annotation>
 <xsd:documentation/>
