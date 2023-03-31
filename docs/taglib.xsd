@@ -1,403 +1,394 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="jelly:stapler" elementFormDefault="qualified">
-    <xsd:annotation>
-<xsd:documentation>Optional Jelly support, to write views in Jelly.</xsd:documentation>
-</xsd:annotation>
-    <xsd:element name="statusCode">
-<xsd:annotation>
-<xsd:documentation>Sets HTTP status code.
-        <p>This is generally useful for programatically creating the error page.</p>
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:attribute name="value" use="required">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-    <xsd:element name="redirect">
-<xsd:annotation>
-<xsd:documentation>Sends HTTP redirect.
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:attribute name="url" use="required">
-<xsd:annotation>
-<xsd:documentation>Sets the target URL to redirect to.</xsd:documentation>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-    <xsd:element name="parentScope">
-<xsd:annotation>
-<xsd:documentation>Executes the body in the parent scope.This is useful for creating a 'local' scope.
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:sequence>
-<xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
-</xsd:sequence>
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-    <xsd:element name="out">
-<xsd:annotation>
-<xsd:documentation>Tag that outputs the specified value but with escaping,so that you can escape a portion even if the org.apache.commons.jelly.XMLOutputis not escaping.
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:attribute name="value" use="required">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-    <xsd:element name="once">
-<xsd:annotation>
-<xsd:documentation>Tag that only evaluates its body once during the entire request processing.
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:sequence>
-<xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
-</xsd:sequence>
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-    <xsd:element name="nbsp">
-<xsd:annotation>
-<xsd:documentation>Writes out '&amp;nbsp;'.
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-    <xsd:element name="isUserInRole">
-<xsd:annotation>
-<xsd:documentation>
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:sequence>
-<xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
-</xsd:sequence>
-<xsd:attribute name="role" use="required">
-<xsd:annotation>
-<xsd:documentation>The name of the role against which the user is checked.</xsd:documentation>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-    <xsd:element name="include">
-<xsd:annotation>
-<xsd:documentation>Tag that includes views of the object.
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:attribute name="page" use="required">
-<xsd:annotation>
-<xsd:documentation>Specifies the name of the JSP to be included.</xsd:documentation>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="it">
-<xsd:annotation>
-<xsd:documentation>Specifies the object for which JSP will be included.Defaults to the "it" object in the current context.</xsd:documentation>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="from">
-<xsd:annotation>
-<xsd:documentation>When loading the script, use the classloader from this objectto locate the script. Otherwise defaults to "it" object.</xsd:documentation>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="class">
-<xsd:annotation>
-<xsd:documentation>When loading script, load from this class.By default this is "from.getClass()". This takesprecedence over the org.kohsuke.stapler.jelly.IncludeTag.setFrom(Object)method.</xsd:documentation>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="optional">
-<xsd:annotation>
-<xsd:documentation>If true, not finding the page is not an error.</xsd:documentation>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-    <xsd:element name="header">
-<xsd:annotation>
-<xsd:documentation>Adds an HTTP header to the response.
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:attribute name="name" use="required">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="value" use="required">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-    <xsd:element name="documentation">
-<xsd:annotation>
-<xsd:documentation>Documentation tag.
-        <p>At the runtime, this is no-op.</p>
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:sequence>
-<xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
-</xsd:sequence>
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-    <xsd:element name="doctype">
-<xsd:annotation>
-<xsd:documentation>Writes out DOCTYPE declaration.
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:attribute name="publicId" use="required">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="systemId" use="required">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-    <xsd:element name="copyStream">
-<xsd:annotation>
-<xsd:documentation>Copies a stream as text.
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:attribute name="reader">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="inputStream">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="file">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="url">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-    <xsd:element name="contentType">
-<xsd:annotation>
-<xsd:documentation>Set the HTTP Content-Type header of the page.
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:attribute name="value" use="required">
-<xsd:annotation>
-<xsd:documentation>The content-type value, such as "text/html".</xsd:documentation>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-    <xsd:element name="compress">
-<xsd:annotation>
-<xsd:documentation>Outer-most wrapper tag to indicate that the gzip compression is desirablefor this output.
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:sequence>
-<xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
-</xsd:sequence>
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-    <xsd:element name="adjunct">
-<xsd:annotation>
-<xsd:documentation>Writes out links to adjunct CSS and JavaScript, if not done so already.
-        <authortag>Kohsuke Kawaguchi</authortag>
-      </xsd:documentation>
-</xsd:annotation>
-<xsd:complexType mixed="true">
-<xsd:attribute name="includes" use="required">
-<xsd:annotation>
-<xsd:documentation>Comma-separated adjunct names.</xsd:documentation>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="trim">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-<xsd:attribute name="escapeText">
-<xsd:annotation>
-<xsd:documentation/>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:complexType>
-</xsd:element>
-  </xsd:schema>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tags>
+    <library name="org.kohsuke.stapler.jelly" prefix="jelly" uri="jelly:stapler">
+        <doc>Optional Jelly support, to write views in Jelly.</doc>
+        <tag className="StructuredMessageFormatTag" name="structuredMessageFormat">
+            <doc>Format message from a resource, but by using a nested children as arguments, instead of just using expressions.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="key" type="String" use="required">
+                <doc/>
+            </attribute>
+            <attribute name="lineNumber" type="int">
+                <doc/>
+            </attribute>
+            <attribute name="columnNumber" type="int">
+                <doc/>
+            </attribute>
+            <attribute name="fileName" type="String">
+                <doc/>
+            </attribute>
+            <attribute name="elementName" type="String">
+                <doc/>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="StructuredMessageArgumentTag" name="structuredMessageArgument">
+            <doc>Body is evaluated and is used as an argument for the surrounding
+                <head>
+                    <structuredmessageformat/>
+                </head> element.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="StatusCodeTag" name="statusCode" no-content="true">
+            <doc>Sets HTTP status code.
+
+
+                <p>
+                    This is generally useful for programatically creating the error page.</p>
+            </doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="value" type="int" use="required">
+                <doc>HTTP status code to send back.</doc>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="SetHeaderTag" name="setHeader" no-content="true">
+            <doc>Sets an HTTP header to the response.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <seetag>HeaderTag</seetag>
+            <attribute name="name" type="String" use="required">
+                <doc>Header name.</doc>
+            </attribute>
+            <attribute name="value" type="String" use="required">
+                <doc>Header value.</doc>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="RedirectTag" name="redirect" no-content="true">
+            <doc>Sends HTTP redirect.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="url" type="String" use="required">
+                <doc>Sets the target URL to redirect to. This just gets passed
+                    to org.kohsuke.stapler.StaplerResponse.sendRedirect2(String).</doc>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="ParentScopeTag" name="parentScope">
+            <doc>Executes the body in the parent scope.
+                This is useful for creating a 'local' scope.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="OutTag" name="out" no-content="true">
+            <doc>Tag that outputs the specified value but with escaping,
+                so that you can escape a portion even if the
+                org.apache.commons.jelly.XMLOutput is not escaping.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="value" type="Expression" use="required">
+                <doc/>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="NbspTag" name="nbsp" no-content="true">
+            <doc>Writes out '&amp;nbsp;'.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="IsUserInRoleTag" name="isUserInRole">
+            <doc/>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="role" type="String" use="required">
+                <doc>The name of the role against which the user is checked.</doc>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="IncludeTag" name="include">
+            <doc>Tag that includes views of the object.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="page" type="String" use="required">
+                <doc>Specifies the name of the JSP to be included.</doc>
+            </attribute>
+            <attribute name="it" type="Object">
+                <doc>Specifies the object for which JSP will be included.
+                    Defaults to the "it" object in the current context.</doc>
+            </attribute>
+            <attribute name="from" type="Object">
+                <doc>When loading the script, use the classloader from this object
+                    to locate the script. Otherwise defaults to "it" object.</doc>
+            </attribute>
+            <attribute name="clazz" type="java.lang.Class">
+                <doc>When loading script, load from this class.
+
+                    By default this is "from.getClass()". This takes
+                    precedence over the org.kohsuke.stapler.jelly.IncludeTag.setFrom(Object) method.
+
+                    This used to be called setClass, but that ended up causing
+                    problems with new commons-beanutils restrictions via
+                    ConvertingWrapDynaBean use in JellyBuilder.
+                    org.kohsuke.stapler.jelly.StaplerTagLibrary uses org.kohsuke.stapler.jelly.AttributeNameRewritingTagScript
+                    to ensure attempts to set class instead set clazz, and
+                    that attempts to set clazz directly that way fail.</doc>
+            </attribute>
+            <attribute name="class" type="java.lang.Class">
+                <doc/>
+            </attribute>
+            <attribute name="optional" type="boolean">
+                <doc>If true, not finding the page is not an error.
+                    (And in such a case, the body of the include tag is evaluated instead.)</doc>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="HeaderTag" name="header" no-content="true">
+            <doc>Adds an HTTP header to the response.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <seetag>SetHeaderTag</seetag>
+            <attribute name="name" type="String" use="required">
+                <doc>Header name.</doc>
+            </attribute>
+            <attribute name="value" type="String" use="required">
+                <doc>Header value.</doc>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="FindAncestorTag" name="findAncestor" no-content="true">
+            <doc>Finds the nearest tag (in the call stack) that has the given tag name,
+                and sets that as a variable.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="var" type="String">
+                <doc>Variable name to set the discovered org.apache.commons.jelly.Tag object.</doc>
+            </attribute>
+            <attribute name="tag" type="String">
+                <doc>QName of the tag to look for.</doc>
+            </attribute>
+            <attribute name="namespaceContext" type="java.util.Map">
+                <doc/>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="DoctypeTag" name="doctype" no-content="true">
+            <doc>Writes out DOCTYPE declaration.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="publicId" type="String" use="required">
+                <doc/>
+            </attribute>
+            <attribute name="systemId" type="String" use="required">
+                <doc/>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="CopyStreamTag" name="copyStream" no-content="true">
+            <doc>Copies a stream as text.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="reader" type="Reader">
+                <doc/>
+            </attribute>
+            <attribute name="inputStream" type="InputStream">
+                <doc/>
+            </attribute>
+            <attribute name="file" type="File">
+                <doc/>
+            </attribute>
+            <attribute name="url" type="URL">
+                <doc/>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="ContentTypeTag" name="contentType" no-content="true">
+            <doc>Set the HTTP Content-Type header of the page.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="value" type="String" use="required">
+                <doc>The content-type value, such as "text/html".</doc>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="CompressTag" name="compress">
+            <doc>Outer-most wrapper tag to indicate that the gzip compression is desirable
+                for this output.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="BindTag" name="bind" no-content="true">
+            <doc>Binds a server-side object to client side so that JavaScript can call into server.
+                This tag evaluates to a
+                <head>
+                    <script/>
+                </head> tag.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="var" type="String">
+                <doc>JavaScript variable name to set the proxy to.
+
+                    <p>
+                        This name can be arbitrary left hand side expression,
+                        such as "a[0]" or "a.b.c".
+
+                        If this value is unspecified, the tag generates a JavaScript expression to create a proxy.</p>
+                </doc>
+            </attribute>
+            <attribute name="value" type="Object" use="required">
+                <doc/>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="AttributeTag" name="attribute">
+            <doc>Documentation for an attribute of a Jelly tag file.
+
+
+                <p>
+                    This tag should be placed right inside </p>
+                <head>
+                    <documentation/>
+                </head>
+                to describe attributes of a tag. The body would describe
+                the meaning of an attribute in a natural language.
+                The description text can also use
+
+                <a>Textile markup</a>
+            </doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="name" type="String" use="required">
+                <doc>Name of the attribute.</doc>
+            </attribute>
+            <attribute name="use" type="String">
+                <doc>If the attribute is required, specify use="required".
+                    (This is modeled after XML Schema attribute declaration.)
+
+
+                    <p>
+                        By default, use="optional" is assumed.</p>
+                </doc>
+            </attribute>
+            <attribute name="type" type="String">
+                <doc>If it makes sense, describe the Java type that the attribute
+                    expects as values.</doc>
+            </attribute>
+            <attribute name="deprecated" type="boolean">
+                <doc>If the attribute is deprecated, set to true.
+                    Use of the deprecated attribute will cause a warning.</doc>
+            </attribute>
+            <attribute name="since" type="String">
+                <doc>Used to track when the attribute was added to the API surface.</doc>
+                <sincetag>1.247</sincetag>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="AttributeConstraintsTag" name="attributeConstraints">
+            <doc>DTD-like expression that specifies the constraints on attribute appearances.
+
+
+                <p>
+                    This tag should be placed right inside </p>
+                <head>
+                    <documentation/>
+                </head>
+                to describe attributes of a tag.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="expr" type="String" use="required">
+                <doc>Constraint expression.</doc>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+        <tag className="AdjunctTag" name="adjunct" no-content="true">
+            <doc>Writes out links to adjunct CSS and JavaScript, if not done so already.</doc>
+            <authortag>Kohsuke Kawaguchi</authortag>
+            <attribute name="includes" type="String">
+                <doc>Comma-separated adjunct names.</doc>
+            </attribute>
+            <attribute name="assumes" type="String">
+                <doc>Comma-separated adjunct names that are externally included in the page
+                    and should be suppressed.</doc>
+            </attribute>
+            <attribute name="trim" type="boolean">
+                <doc/>
+            </attribute>
+            <attribute name="escapeText" type="boolean">
+                <doc/>
+            </attribute>
+        </tag>
+    </library>
+</tags>
