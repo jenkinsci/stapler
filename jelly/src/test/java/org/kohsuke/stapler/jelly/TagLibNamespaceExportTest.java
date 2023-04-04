@@ -11,7 +11,7 @@ import java.net.URL;
  */
 public class TagLibNamespaceExportTest extends JettyTestCase {
     public void test1() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         HtmlPage page = wc.getPage(new URL(url, "/"));
         String content = page.getWebResponse().getContentAsString();
         System.out.println(content);

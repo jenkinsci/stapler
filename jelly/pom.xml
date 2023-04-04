@@ -107,12 +107,6 @@
       <version>${jelly.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.kohsuke.stapler</groupId>
-      <artifactId>stapler-adjunct-jquery</artifactId>
-      <version>1.12.4-0</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>

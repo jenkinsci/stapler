@@ -29,7 +29,7 @@ public class JsonOutputFilterTest extends JettyTestCase {
 
     public void testExclude() throws Exception {
         final String[] msg = new String[1];
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         wc.setAlertHandler(new AlertHandler() {
             @Override
             public void handleAlert(Page page, String message) {
@@ -50,7 +50,7 @@ public class JsonOutputFilterTest extends JettyTestCase {
 
     public void testInclude() throws Exception {
         final String[] msg = new String[1];
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         wc.setAlertHandler(new AlertHandler() {
             @Override
             public void handleAlert(Page page, String message) {
@@ -71,7 +71,7 @@ public class JsonOutputFilterTest extends JettyTestCase {
 
     public void testExcludeList() throws Exception {
         final String[] msg = new String[1];
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         wc.setAlertHandler(new AlertHandler() {
             @Override
             public void handleAlert(Page page, String message) {
@@ -117,14 +117,10 @@ public class JsonOutputFilterTest extends JettyTestCase {
     public void doIndex(StaplerResponse rsp) throws IOException {
         rsp.setContentType("text/html");
         PrintWriter w = rsp.getWriter();
-        w.println("<html><body><script src='prototype'></script><script src='script'></script>");
+        w.println("<html><body><script src='script'></script>");
         w.println("<script>var v = "+ WebApp.getCurrent().boundObjectTable.bind(this).getProxyScript()+";</script>");
-        w.println("<script>var callback = function(t){var x=t.responseObject(); alert(Object.toJSON(x)); };</script>");
+        w.println("<script>var callback = function(t){var x=t.responseObject(); alert(JSON.stringify(x)); };</script>");
         w.println("</body></html>");
-    }
-
-    public HttpResponse doPrototype() {
-        return HttpResponses.staticResource(getClass().getResource("/org/kohsuke/stapler/framework/prototype/prototype.js"));
     }
 
     public HttpResponse doScript() {

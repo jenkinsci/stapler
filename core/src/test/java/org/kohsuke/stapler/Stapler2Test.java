@@ -41,7 +41,7 @@ public class Stapler2Test extends JettyTestCase {
 
     @Issue("SECURITY-390")
     public void testTraceXSS() {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         FailingHttpStatusCodeException exc;
         Dispatcher.TRACE = true;
         try {

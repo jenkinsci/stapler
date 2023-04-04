@@ -18,7 +18,7 @@ public class Issue76Test extends JettyTestCase {
     public final Protection protectedRobot = new Protection(robot);
 
     public void testRouting() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         HtmlPage p = wc.getPage(new URL(url, "robot/head/eye/3/"));
         assertTrue(p.getWebResponse().getContentAsString().contains("This is eye 3"));
 

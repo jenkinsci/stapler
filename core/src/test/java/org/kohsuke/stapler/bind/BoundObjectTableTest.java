@@ -17,7 +17,7 @@ public class BoundObjectTableTest extends JettyTestCase {
      * Exports an object and see if it can be reached.
      */
     public void testExport() throws Exception {
-        TextPage page = new WebClient().getPage(new URL(url, "/bind"));
+        TextPage page = createWebClient().getPage(new URL(url, "/bind"));
         assertEquals("hello world",page.getContent());
     }
 
