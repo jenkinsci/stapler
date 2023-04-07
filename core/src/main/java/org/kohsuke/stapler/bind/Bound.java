@@ -38,7 +38,7 @@ import java.util.Set;
  * As {@link HttpResponse}, this object generates a redirect to the URL that it points to.
  *
  * @author Kohsuke Kawaguchi
- * @see MetaClass#buildDispatchers
+ * @see MetaClass# buildDispatchers
  */
 public abstract class Bound implements HttpResponse {
     /**

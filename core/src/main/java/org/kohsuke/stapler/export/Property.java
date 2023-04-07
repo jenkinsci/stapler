@@ -43,6 +43,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.jvnet.tiger_types.Types;
 import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
+import static java.lang.System.out;
+
 /**
  * Exposes one {@link Exported exposed property} of {@link ExportedBean} to
  * {@link DataWriter}.
@@ -108,6 +110,8 @@ public abstract class Property implements Comparable<Property> {
         else
             this.verboseMap = s;
     }
+
+
 
     @Override
     public int compareTo(Property that) {
@@ -378,7 +382,7 @@ public abstract class Property implements Comparable<Property> {
                     w.name((String) step.args[0]);
                     break;
                 case valuePrimitive:
-                    w.valuePrimitive(step.args[0]);
+                    valuePrimitive(step.args[0]);
                     break;
                 case value:
                     w.value((String) step.args[0]);
@@ -432,4 +436,24 @@ public abstract class Property implements Comparable<Property> {
         Float.class,
         Double.class
     ));
+
+    public void valuePrimitive(Object v) throws IOException {
+        if(v instanceof Boolean) {
+            if((Boolean)v)  data("True");
+            else            data("False");
+            return;
+        }
+        valuePrimitive(v);
+    }
+
+    protected void data(String v) throws IOException {
+        comma();
+        out.write(v.getBytes());
+    }
+
+    protected void comma() throws IOException {
+        out.write(',');
+    }
 }
+
+

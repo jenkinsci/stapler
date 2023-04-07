@@ -40,21 +40,21 @@ public @interface JsonResponse {
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException, ServletException {
             try {
-                final Object r = target.invoke(request, response, instance, arguments);
+                final Object resObj = target.invoke(request, response, instance, arguments);
 
-                JSONObject j;
-                if (r==null)
-                    j = null;
+                JSONObject jsonObj;
+                if (resObj==null)
+                    jsonObj = null;
                 else
-                if (r instanceof JSONObject)
-                    j = (JSONObject)r;
+                if (resObj instanceof JSONObject)
+                    jsonObj = (JSONObject)resObj;
                 else
                     // will fail in case of Array/List, please keep this behavior
                     // to prevent top-level json array that has a vulnerability in certain browser
                     // http://blog.jeremiahgrossman.com/2006/01/advanced-web-attack-techniques-using.html
-                    j = JSONObject.fromObject(r);
+                    jsonObj = JSONObject.fromObject(resObj);
 
-                return new JsonHttpResponse(j);
+                return new JsonHttpResponse(jsonObj);
             } catch (InvocationTargetException e) {
                 logger.log(Level.SEVERE, "Error processing request", e);
                 Throwable target = e.getTargetException();

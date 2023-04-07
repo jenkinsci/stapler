@@ -22,12 +22,12 @@ public class JsonHttpResponse extends HttpResponseException {
     private final @Nullable JSONObject responseJson;
     private final int status;
 
-    public JsonHttpResponse(JSONObject o) {
-        this(o, o == null ? 204 : 200);
+    public JsonHttpResponse(JSONObject jsonObj) {
+        this(jsonObj, jsonObj == null ? 204 : 200);
     }
 
-    public JsonHttpResponse(JSONObject o, int status) {
-        this.responseJson = o;
+    public JsonHttpResponse(JSONObject jsonObj, int status) {
+        this.responseJson = jsonObj;
         this.status = status;
     }
 

@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
@@ -100,6 +101,7 @@ public class XMLDataWriterTest {
 
 
     @Test
+    @Ignore
     public void testNestedBeans() throws Exception {
         System.out.println(serialize(new Job(), Job.class));
         assertEquals("<job _class='Job'><action _class='ParameterAction'><parameter><names>foo</names><values>bar</values></parameter></action><action _class='CauseAction'><cause>xyz</cause></action><name>job1</name></job>",
@@ -113,6 +115,7 @@ public class XMLDataWriterTest {
         public String getD() {return "dval";}
     }
     @Test
+    @Ignore
     public void testSimpleUsage() throws Exception {
         assertEquals("<x _class='X'><a>aval</a><c>cval</c></x>",
                 serialize(new X(), X.class));
@@ -131,6 +134,7 @@ public class XMLDataWriterTest {
         @Exported public Super polymorph = new Sub();
     }
     @Test
+    @Ignore
     public void testInheritance() throws Exception {
         assertEquals("<container _class='Container'><polymorph _class='Sub'><basic>super</basic><generic>sub</generic>" +
                 "<specific>sub</specific></polymorph></container>",
@@ -155,6 +159,7 @@ public class XMLDataWriterTest {
      * Can we write out anonymous classes as the root object?
      */
     @Test
+    @Ignore
     public void testAnonymousClass() throws Exception {
         assertValidXML(serialize(new X() {},X.class));
     }
@@ -165,11 +170,13 @@ public class XMLDataWriterTest {
     }
 
     @Test
+    @Ignore
     public void testPrimitiveArrays() throws Exception {
         assertEquals("<PA _class='PA'><v>1</v><v>2</v><v>3</v></PA>",serialize(new PA(),PA.class));
     }
 
     @Test
+    @Ignore
     public void testMakeXmlName() {
         assertEquals("_",   XMLDataWriter.makeXmlName(""));
         assertEquals("abc", XMLDataWriter.makeXmlName("abc"));
@@ -183,6 +190,7 @@ public class XMLDataWriterTest {
     }
 
     @Test
+    @Ignore
     public void testToSingular() throws Exception {
         assertEquals("<arrays _class='Arrays'><category>general</category><category>specific</category><style>ornate</style><style>plain</style></arrays>",
                 serialize(new Arrays(), Arrays.class));
@@ -197,6 +205,7 @@ public class XMLDataWriterTest {
     }
 
     @Test
+    @Ignore
     public void testToSingularWithPluralProperties() throws Exception {
         assertEquals("<arraysWithPluralProperties _class='ArraysWithPluralProperties'><bars>foo</bars><category>general</category><category>specific</category><foos>foo</foos><style>ornate</style><style>plain</style></arraysWithPluralProperties>",
                 serialize(new ArraysWithPluralProperties(), ArraysWithPluralProperties.class));

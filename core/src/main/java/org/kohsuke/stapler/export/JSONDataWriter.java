@@ -28,6 +28,13 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Abstract Class after Refactoring switch case
+ */
+
 
 /**
  * JSON writer.
@@ -41,6 +48,8 @@ class JSONDataWriter implements DataWriter {
 
     private int indent;
     private String classAttr;
+
+    private Map<Character, CharType> charMap = new HashMap<>();
 
     JSONDataWriter(Writer out, ExportConfig config) throws IOException {
         this.out = out;
@@ -74,6 +83,8 @@ class JSONDataWriter implements DataWriter {
         needComma = true;
     }
 
+
+
     /**
      * Prints indentation.
      */
@@ -103,13 +114,77 @@ class JSONDataWriter implements DataWriter {
         data(v.toString());
     }
 
+    class ControlChar extends CharType {
+        public String escape(char c) {
+            // Escape control character
+            return "\\u" + String.format("%04x", (int)c);
+        }
+    }
+
+    /**
+     * Implementation of abstract method after Refactoring
+     */
+    class QuoteChar extends CharType {
+        public String escape(char c) {
+            // Escape quote character
+            return "\\\"";
+        }
+    }
+
+    /**
+     * Implementation of abstract method after Refactoring
+     */
+    class BackslashChar extends CharType {
+        public String escape(char c) {
+            // Escape backslash character
+            return "\\\\";
+        }
+    }
+
+    /**
+     * Implementation of abstract method after Refactoring
+     */
+    class NewlineChar extends CharType {
+        public String escape(char c) {
+            // Escape newline character
+            return "\\n";
+        }
+    }
+
+    /**
+     * Implementation of abstract method after Refactoring
+     */
+    class ReturnChar extends CharType {
+        public String escape(char c) {
+            // Escape return character
+            return "\\r";
+        }
+    }
+
+    /**
+     * Implementation of abstract method after Refactoring
+     */
+    class TabChar extends CharType {
+        public String escape(char c) {
+            // Escape tab character
+            return "\\t";
+        }
+    }
+
+
     @Override
     public void value(String v) throws IOException {
         StringBuilder buf = new StringBuilder(v.length());
         buf.append('\"');
+        charMap.put('"', new QuoteChar());
+        charMap.put('\\', new BackslashChar());
+        charMap.put('\n', new NewlineChar());
+        charMap.put('\r', new ReturnChar());
+        charMap.put('\t', new TabChar());
         for( int i=0; i<v.length(); i++ ) {
             char c = v.charAt(i);
-            if (Character.isISOControl(c) || Character.isHighSurrogate(c) || Character.isLowSurrogate(c)) {
+            CharType charType = charMap.get(c);
+            if (charType == null) {
                 // Control chars: strictly speaking, JSON spec expects only U+0000 through U+001F, but any char _may_ be escaped, so just do that for U+007F through U+009F too.
                 // Surrogate pair characters: https://docs.oracle.com/javase/6/docs/api/java/lang/Character.html#unicode
                 // JSON spec: https://tools.ietf.org/html/rfc8259#section-7
@@ -119,31 +194,13 @@ class JSONDataWriter implements DataWriter {
                 buf.append(HEX[(c >> 4) & 0xf]);
                 buf.append(HEX[c & 0xf]);
             } else {
-                switch (c) {
-                    case '"':
-                        buf.append("\\\"");
-                        break;
-                    case '\\':
-                        buf.append("\\\\");
-                        break;
-                    case '\n':
-                        buf.append("\\n");
-                        break;
-                    case '\r':
-                        buf.append("\\r");
-                        break;
-                    case '\t':
-                        buf.append("\\t");
-                        break;
-                    default:
-                        buf.append(c);
-                        break;
-                }
+                buf.append(charType.escape(c));
             }
         }
         buf.append('\"');
         data(buf.toString());
     }
+
 
     @Override
     public void valueNull() throws IOException {

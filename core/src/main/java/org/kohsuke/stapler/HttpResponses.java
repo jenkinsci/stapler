@@ -107,19 +107,22 @@ public class HttpResponses {
         if (responseException == null) {
             responseException = new HttpResponseException(cause) {
                 @Override
-                @SuppressFBWarnings(value = "INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE", justification = "Jenkins handles this issue differently or doesn't care about it")
                 public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
-                    rsp.setStatus(code);
-
-                    rsp.setContentType("text/plain;charset=UTF-8");
-                    PrintWriter w = new PrintWriter(rsp.getWriter());
-                    cause.printStackTrace(w);
-                    w.close();
+                    generateDefaultErrorResponse(rsp, code, cause);
                 }
             };
         }
         return responseException;
     }
+
+    private static void generateDefaultErrorResponse(StaplerResponse rsp, int code, Throwable cause) throws IOException {
+        rsp.setStatus(code);
+        rsp.setContentType("text/plain;charset=UTF-8");
+        PrintWriter w = new PrintWriter(rsp.getWriter());
+        cause.printStackTrace(w);
+        w.close();
+    }
+
 
     /**
      * Sends an error without a stack trace.
