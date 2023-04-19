@@ -44,7 +44,7 @@
   <properties>
     <changelist>999999-SNAPSHOT</changelist>
     <scmTag>HEAD</scmTag>
-    <jetty.version>10.0.13</jetty.version>
+    <jetty.version>10.0.15</jetty.version>
     <gitHubRepo>jenkinsci/stapler</gitHubRepo>
   </properties>
 
