@@ -26,7 +26,7 @@ public class AncestorImplTest extends JettyTestCase {
 
     // issue 34
     public void testRestOfUrl() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         wc.getPage(new URL(url,"testRestOfUrl/bar/zot"));
     }
 

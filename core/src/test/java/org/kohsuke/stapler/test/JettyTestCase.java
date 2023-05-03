@@ -14,7 +14,11 @@ import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.WebApp;
 
 import javax.servlet.ServletContext;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 /**
  * Base test case for embedded Jetty.
@@ -75,6 +79,24 @@ public abstract class JettyTestCase extends TestCase {
      */
     protected void configure(ServletContextHandler context) {
         context.addServlet(new ServletHolder(new Stapler()), "/*");
+    }
+
+    /**
+     * Get the {@link WebClient} preconfigured for testing.
+     */
+    protected WebClient createWebClient() {
+        WebClient webClient = new WebClient();
+        webClient.getOptions().setFetchPolyfillEnabled(true);
+        return webClient;
+    }
+
+    /**
+     * Blocks until the ENTER key is hit.
+     * This is useful during debugging a test so that one can inspect the state through the web browser.
+     */
+    protected void interactiveBreak() throws IOException {
+        System.out.println("Jetty is running at " + url);
+        new BufferedReader(new InputStreamReader(System.in, Charset.defaultCharset())).readLine();
     }
 
     @Override

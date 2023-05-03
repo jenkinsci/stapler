@@ -14,7 +14,7 @@ import org.kohsuke.stapler.test.JettyTestCase;
 public class BodyExpressionTest extends JettyTestCase {
 
     public void testBodyExpression() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         HtmlPage page = wc.getPage(new URL(url, "/"));
 
         DomNodeList<DomElement> dts = page.getElementsByTagName("dt");
