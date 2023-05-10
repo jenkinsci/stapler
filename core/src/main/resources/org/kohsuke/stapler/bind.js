@@ -42,19 +42,22 @@ function makeStaplerProxy(url,staplerCrumb,methods) {
             })
             .then(function(response) {
                 if (response.ok) {
+                    var t = {
+                        status: response.status,
+                        statusText: response.statusText,
+                    };
                     if (response.headers.has('content-type') && response.headers.get('content-type').startsWith('application/json')) {
                         response.json().then(function(responseObject) {
-                            var t = {};
                             t.responseObject = function() {
                                 return responseObject;
                             };
+                            t.responseJSON = responseObject;
                             if (callback != null) {
                                 callback(t);
                             }
                         });
                     } else {
                         response.text().then(function(responseText) {
-                            var t = {};
                             t.responseText = responseText;
                             if (callback != null) {
                                 callback(t);
