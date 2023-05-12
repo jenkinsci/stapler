@@ -13,8 +13,8 @@
   <version>${changelist}</version>
   <packaging>pom</packaging>
 
-  <name>Stapler</name>
-  <description>Stapler HTTP request handling engine</description>
+  <name>Stapler Parent</name>
+  <description>Stapler aggregator and parent project</description>
 
   <url>https://github.com/jenkinsci/stapler</url>
 
