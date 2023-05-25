@@ -1,6 +1,6 @@
 package org.kohsuke.stapler;
 
-import com.gargoylesoftware.htmlunit.WebClient;
+import org.htmlunit.WebClient;
 import org.kohsuke.stapler.test.JettyTestCase;
 
 import java.net.URL;

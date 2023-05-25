@@ -1,8 +1,8 @@
 package org.kohsuke.stapler.jelly.issue76;
 
-import com.gargoylesoftware.htmlunit.TextPage;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.htmlunit.TextPage;
+import org.htmlunit.WebClient;
+import org.htmlunit.html.HtmlPage;
 import org.kohsuke.stapler.test.JettyTestCase;
 
 import java.net.URL;
