@@ -1,7 +1,7 @@
 package org.kohsuke.stapler.bind;
 
-import com.gargoylesoftware.htmlunit.TextPage;
-import com.gargoylesoftware.htmlunit.WebClient;
+import org.htmlunit.TextPage;
+import org.htmlunit.WebClient;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.test.JettyTestCase;

@@ -1,6 +1,6 @@
 package org.kohsuke.stapler.test;
 
-import com.gargoylesoftware.htmlunit.WebClient;
+import org.htmlunit.WebClient;
 import junit.framework.TestCase;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.HttpConfiguration;
