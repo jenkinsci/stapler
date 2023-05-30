@@ -1,8 +1,8 @@
 package org.kohsuke.stapler.json;
 
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlForm;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.htmlunit.WebClient;
+import org.htmlunit.html.HtmlForm;
+import org.htmlunit.html.HtmlPage;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
@@ -25,7 +25,7 @@ public class SubmittedFormTest extends JettyTestCase {
     }
 
     public void testMainFeature() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         HtmlPage page = wc.getPage(new URL(url, "/form.html"));
         HtmlForm f = page.getFormByName("main");
         f.getInputByName("json").setValueAttribute("{\"first\":\"Kohsuke\",\"last\":\"Kawaguchi\"}");

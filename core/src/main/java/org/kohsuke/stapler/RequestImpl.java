@@ -32,7 +32,9 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.fileupload.FileCountLimitExceededException;
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -127,6 +129,29 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
      * If that method is invoked during a request sent with a different verb, an exception will be thrown.
      */
     private static /* nonfinal for Jenkins script console */ List<String> ALLOWED_HTTP_VERBS_FOR_FORMS;
+
+    /**
+     * Limits the number of form fields that can be processed in one multipart/form-data request.
+     * Used to set {@link org.apache.commons.fileupload.servlet.ServletFileUpload#setFileCountMax(long)}.
+     * Despite the name, this applies to all form fields, not just actual file attachments.
+     * Set to {@code -1} to disable limits.
+     */
+    private static /* nonfinal for Jenkins script console */ int FILEUPLOAD_MAX_FILES = Integer.getInteger(RequestImpl.class.getName() + ".FILEUPLOAD_MAX_FILES", 1000);
+
+    /**
+     * Limits the size (in bytes) of individual fields that can be processed in one multipart/form-data request.
+     * Used to set {@link org.apache.commons.fileupload.servlet.ServletFileUpload#setFileSizeMax(long)}.
+     * Despite the name, this applies to all form fields, not just actual file attachments.
+     * Set to {@code -1} to disable limits.
+     */
+    private static /* nonfinal for Jenkins script console */ long FILEUPLOAD_MAX_FILE_SIZE = Long.getLong(RequestImpl.class.getName() + ".FILEUPLOAD_MAX_FILE_SIZE", -1);
+
+    /**
+     * Limits the total request size (in bytes) that can be processed in one multipart/form-data request.
+     * Used to set {@link org.apache.commons.fileupload.servlet.ServletFileUpload#setSizeMax(long)}.
+     * Set to {@code -1} to disable limits.
+     */
+    private static /* nonfinal for Jenkins script console */ long FILEUPLOAD_MAX_SIZE = Long.getLong(RequestImpl.class.getName() + ".FILEUPLOAD_MAX_SIZE", -1);
 
     static {
         ALLOWED_HTTP_VERBS_FOR_FORMS = Arrays.stream(System.getProperty(RequestImpl.class.getName() + ".ALLOWED_HTTP_VERBS_FOR_FORMS", "POST").split(",")).map(String::trim).collect(Collectors.toList());
@@ -1033,6 +1058,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         parsedFormData = new HashMap<>();
         parsedFormDataFormFields = new HashMap<>();
         ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
+
+        upload.setFileCountMax(FILEUPLOAD_MAX_FILES);
+        upload.setFileSizeMax(FILEUPLOAD_MAX_FILE_SIZE);
+        upload.setSizeMax(FILEUPLOAD_MAX_SIZE);
         try {
             for( FileItem fi : upload.parseRequest(this)) {
                 parsedFormData.put(fi.getFieldName(),fi);
@@ -1040,6 +1069,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     parsedFormDataFormFields.put(fi.getFieldName(),fi.getString());
                 }
             }
+        } catch (FileCountLimitExceededException e) {
+            throw new ServletException("File upload field count limit exceeded. Consider setting the Java system property " + RequestImpl.class.getName() + ".FILEUPLOAD_MAX_FILES to a value greater than " + FILEUPLOAD_MAX_FILES + ", or to -1 to disable this limit.", e);
+        } catch (FileUploadBase.FileSizeLimitExceededException e) {
+            throw new ServletException("File upload field size limit exceeded. Consider setting the Java system property " + RequestImpl.class.getName() + ".FILEUPLOAD_MAX_FILE_SIZE to a value greater than " + FILEUPLOAD_MAX_FILE_SIZE + ", or to -1 to disable this limit.", e);
+        } catch (FileUploadBase.SizeLimitExceededException e) {
+            throw new ServletException("File upload total size limit exceeded. Consider setting the Java system property " + RequestImpl.class.getName() + ".FILEUPLOAD_MAX_SIZE to a value greater than " + FILEUPLOAD_MAX_SIZE + ", or to -1 to disable this limit.", e);
         } catch (FileUploadException e) {
             throw new ServletException(e);
         }

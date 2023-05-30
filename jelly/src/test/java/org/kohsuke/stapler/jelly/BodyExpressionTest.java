@@ -1,11 +1,11 @@
 package org.kohsuke.stapler.jelly;
 
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.DomNodeList;
-import com.gargoylesoftware.htmlunit.html.HtmlDefinitionDescription;
-import com.gargoylesoftware.htmlunit.html.HtmlDefinitionTerm;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.htmlunit.WebClient;
+import org.htmlunit.html.DomElement;
+import org.htmlunit.html.DomNodeList;
+import org.htmlunit.html.HtmlDefinitionDescription;
+import org.htmlunit.html.HtmlDefinitionTerm;
+import org.htmlunit.html.HtmlPage;
 import hudson.util.VersionNumber;
 import io.jenkins.lib.versionnumber.JavaSpecificationVersion;
 import java.net.URL;
@@ -14,7 +14,7 @@ import org.kohsuke.stapler.test.JettyTestCase;
 public class BodyExpressionTest extends JettyTestCase {
 
     public void testBodyExpression() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         HtmlPage page = wc.getPage(new URL(url, "/"));
 
         DomNodeList<DomElement> dts = page.getElementsByTagName("dt");

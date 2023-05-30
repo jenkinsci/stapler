@@ -28,8 +28,8 @@ package org.kohsuke.stapler;
 
 import static org.junit.Assert.assertThrows;
 
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-import com.gargoylesoftware.htmlunit.WebClient;
+import org.htmlunit.FailingHttpStatusCodeException;
+import org.htmlunit.WebClient;
 import java.net.URL;
 import javax.servlet.http.HttpServletResponse;
 import org.jvnet.hudson.test.For;
@@ -41,7 +41,7 @@ public class Stapler2Test extends JettyTestCase {
 
     @Issue("SECURITY-390")
     public void testTraceXSS() {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         FailingHttpStatusCodeException exc;
         Dispatcher.TRACE = true;
         try {

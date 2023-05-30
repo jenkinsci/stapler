@@ -1,9 +1,9 @@
 package org.kohsuke.stapler.bind;
 
-import com.gargoylesoftware.htmlunit.AlertHandler;
-import com.gargoylesoftware.htmlunit.Page;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.htmlunit.AlertHandler;
+import org.htmlunit.Page;
+import org.htmlunit.WebClient;
+import org.htmlunit.html.HtmlPage;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerRequest;
@@ -32,7 +32,7 @@ public class JavaScriptProxyTest extends JettyTestCase {
 //        System.out.println(url);
 //        System.in.read();
 
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         wc.setAlertHandler(new AlertHandler() {
             @Override
             public void handleAlert(Page page, String message) {
@@ -58,7 +58,7 @@ public class JavaScriptProxyTest extends JettyTestCase {
      * Tests that an anonymous object can be bound.
      */
     public void testAnonymousBind() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         HtmlPage page = wc.getPage(new URL(url, "/bindAnonymous"));
         page.executeJavaScript("v.xyz('hello');");
         wc.getJavaScriptEngine().processPostponedActions();
@@ -75,7 +75,7 @@ public class JavaScriptProxyTest extends JettyTestCase {
         rsp.setContentType("text/html");
         String crumb = req.getWebApp().getCrumbIssuer().issueCrumb();
         PrintWriter w = rsp.getWriter();
-        w.println("<html><body><script src='prototype'></script><script src='script'></script>");
+        w.println("<html><body><script src='script'></script>");
         w.println("<script>var v = makeStaplerProxy('/','"+crumb+"',['foo','bar']);var callback = function(t){var x=t.responseObject();alert(typeof(x)+':'+x)};</script>");
         w.println("</body></html>");
     }
@@ -83,13 +83,9 @@ public class JavaScriptProxyTest extends JettyTestCase {
     public void doBindAnonymous(StaplerResponse rsp) throws IOException {
         rsp.setContentType("text/html");
         PrintWriter w = rsp.getWriter();
-        w.println("<html><body><script src='prototype'></script><script src='script'></script>");
+        w.println("<html><body><script src='script'></script>");
         w.println("<script>var v = "+ WebApp.getCurrent().boundObjectTable.bind(anonymous).getProxyScript()+";</script>");
         w.println("</body></html>");
-    }
-
-    public HttpResponse doPrototype() {
-        return HttpResponses.staticResource(getClass().getResource("/org/kohsuke/stapler/framework/prototype/prototype.js"));
     }
 
     public HttpResponse doScript() {

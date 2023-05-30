@@ -1,7 +1,7 @@
 package org.kohsuke.stapler.bind;
 
-import com.gargoylesoftware.htmlunit.TextPage;
-import com.gargoylesoftware.htmlunit.WebClient;
+import org.htmlunit.TextPage;
+import org.htmlunit.WebClient;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.test.JettyTestCase;
@@ -17,7 +17,7 @@ public class BoundObjectTableTest extends JettyTestCase {
      * Exports an object and see if it can be reached.
      */
     public void testExport() throws Exception {
-        TextPage page = new WebClient().getPage(new URL(url, "/bind"));
+        TextPage page = createWebClient().getPage(new URL(url, "/bind"));
         assertEquals("hello world",page.getContent());
     }
 

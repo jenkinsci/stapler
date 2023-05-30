@@ -1,11 +1,11 @@
 package org.kohsuke.stapler;
 
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-import com.gargoylesoftware.htmlunit.HttpMethod;
-import com.gargoylesoftware.htmlunit.Page;
-import com.gargoylesoftware.htmlunit.TextPage;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebRequest;
+import org.htmlunit.FailingHttpStatusCodeException;
+import org.htmlunit.HttpMethod;
+import org.htmlunit.Page;
+import org.htmlunit.TextPage;
+import org.htmlunit.WebClient;
+import org.htmlunit.WebRequest;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.json.JsonBody;
@@ -44,7 +44,7 @@ public class DispatcherTest extends JettyTestCase {
      * Makes sure @WebMethod(name="") has the intended effect of occupying the root of the object in the URL space.
      */
     public void testIndexDispatchByName() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         TextPage p = wc.getPage(new URL(url, "indexDispatchByName"));
         assertEquals("Hello world", p.getContent());
     }
@@ -71,7 +71,7 @@ public class DispatcherTest extends JettyTestCase {
      * Tests the dispatching of WebMethod based on verb
      */
     public void testVerbMatch() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
 
         check(wc, HttpMethod.GET);
         check(wc, HttpMethod.POST);
@@ -108,7 +108,7 @@ public class DispatcherTest extends JettyTestCase {
 
 
     public void testArbitraryWebMethodName() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         TextPage p = wc.getPage(new URL(url, "arbitraryWebMethodName"));
         assertEquals("I'm index", p.getContent());
 
@@ -138,7 +138,7 @@ public class DispatcherTest extends JettyTestCase {
      * POST annotation selection needs to happen before databinding of the parameter happens.
      */
     public void testInterceptorStage() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         try {
             wc.getPage(new URL(url, "interceptorStage/foo"));
             fail("Expected 404");
@@ -155,7 +155,7 @@ public class DispatcherTest extends JettyTestCase {
     }
 
     public void testInterceptorStageContentTypeWithCharset() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         try {
             wc.getPage(new URL(url, "interceptorStage/foo"));
             fail("Expected 404");
@@ -190,7 +190,7 @@ public class DispatcherTest extends JettyTestCase {
     }
 
     public void testInheritance() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
 
         // the request should get to the overriding method and it should still see all the annotations in the base type
         TextPage p = wc.getPage(new URL(url, "inheritance/foo?q=abc"));
@@ -224,7 +224,7 @@ public class DispatcherTest extends JettyTestCase {
     }
 
     public void testPutInheritance() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
 
         // the request should get to the overriding method and it should still see all the annotations in the base type
         WebRequest wrs = new WebRequest(new URL(url, "putInheritance/foo"), HttpMethod.PUT);
@@ -248,7 +248,7 @@ public class DispatcherTest extends JettyTestCase {
     }
 
     public void testInterfaceMethods() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         try {
             wc.getPage(new URL(url, "usesInterfaceMethods/foo"));
             fail();
@@ -298,7 +298,7 @@ public class DispatcherTest extends JettyTestCase {
     }
 
     public void testRequirePostOnBase() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         URL url = new URL(this.url, "requirePostOnBase/something");
 
         try {
@@ -314,7 +314,7 @@ public class DispatcherTest extends JettyTestCase {
     }
 
     public void testOverloads() throws Exception {
-        TextPage p = new WebClient().getPage(new URL(url, "overloaded/x"));
+        TextPage p = createWebClient().getPage(new URL(url, "overloaded/x"));
         assertEquals("doX(StaplerRequest)", p.getContent());
     }
     public final Object overloaded = new Overloaded();
@@ -357,7 +357,7 @@ public class DispatcherTest extends JettyTestCase {
     }
 
     public void testPublicFieldDispatch() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         URL url = new URL(this.url, "testWithPublicField/testClass/value/");
 
         try {
@@ -368,7 +368,7 @@ public class DispatcherTest extends JettyTestCase {
     }
 
     public void testProtectedMethodDispatch() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         wc.getPage(new URL(url, "public/value"));
         try {
             wc.getPage(new URL(url, "protected/value"));
@@ -420,7 +420,7 @@ public class DispatcherTest extends JettyTestCase {
 
 
     public void testStaplerProxy() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         Page p = wc.getPage(new URL(url, "staplerProxyOK"));
         assertEquals(200, p.getWebResponse().getStatusCode());
 

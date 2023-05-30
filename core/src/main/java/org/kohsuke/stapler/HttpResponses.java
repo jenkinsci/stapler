@@ -107,6 +107,7 @@ public class HttpResponses {
         if (responseException == null) {
             responseException = new HttpResponseException(cause) {
                 @Override
+                @SuppressFBWarnings(value = "INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE", justification = "Jenkins handles this issue differently or doesn't care about it")
                 public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
                     rsp.setStatus(code);
 
@@ -185,7 +186,6 @@ public class HttpResponses {
     /**
      * Redirects the user back to where he came from.
      */
-    @SuppressFBWarnings(value = "MS_EXPOSE_REP", justification = "TODO needs triage")
     public static HttpResponseException forwardToPreviousPage() {
         return FORWARD_TO_PREVIOUS_PAGE;
     }
