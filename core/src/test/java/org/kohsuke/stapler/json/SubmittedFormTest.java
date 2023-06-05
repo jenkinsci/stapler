@@ -28,7 +28,7 @@ public class SubmittedFormTest extends JettyTestCase {
         WebClient wc = createWebClient();
         HtmlPage page = wc.getPage(new URL(url, "/form.html"));
         HtmlForm f = page.getFormByName("main");
-        f.getInputByName("json").setValueAttribute("{\"first\":\"Kohsuke\",\"last\":\"Kawaguchi\"}");
+        f.getInputByName("json").setValue("{\"first\":\"Kohsuke\",\"last\":\"Kawaguchi\"}");
         f.submit(null);
     }
 
