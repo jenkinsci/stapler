@@ -102,10 +102,6 @@
       <id>repo.jenkins-ci.org</id>
       <url>https://repo.jenkins-ci.org/public/</url>
     </repository>
-    <repository>
-      <id>elementary-releases</id>
-      <url>https://repo.karuslabs.com/repository/elementary-releases/</url>
-    </repository>
   </repositories>
 
   <pluginRepositories>
