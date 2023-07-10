@@ -13,7 +13,7 @@
 
   <properties>
     <jelly.version>1.1-jenkins-20230124</jelly.version>
-    <maven-jellydoc-plugin.version>1.11</maven-jellydoc-plugin.version>
+    <jellydoc-maven-plugin.version>129.vf7c31dffdf17</jellydoc-maven-plugin.version>
   </properties>
 
   <dependencies>
@@ -34,9 +34,9 @@
     </dependency>
     <dependency>
       <!-- only needed for annotations, hence optional -->
-      <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
+      <groupId>io.jenkins.tools.maven</groupId>
       <artifactId>jellydoc-annotations</artifactId>
-      <version>${maven-jellydoc-plugin.version}</version>
+      <version>${jellydoc-maven-plugin.version}</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
@@ -112,9 +112,9 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
-        <artifactId>maven-jellydoc-plugin</artifactId>
-        <version>${maven-jellydoc-plugin.version}</version>
+        <groupId>io.jenkins.tools.maven</groupId>
+        <artifactId>jellydoc-maven-plugin</artifactId>
+        <version>${jellydoc-maven-plugin.version}</version>
         <dependencies>
           <dependency>
             <groupId>com.github.olivergondza</groupId>
@@ -132,8 +132,8 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
-            <artifactId>maven-jellydoc-plugin</artifactId>
+            <groupId>io.jenkins.tools.maven</groupId>
+            <artifactId>jellydoc-maven-plugin</artifactId>
             <dependencies>
               <dependency>
                 <groupId>com.github.olivergondza</groupId>
@@ -155,9 +155,9 @@
       <reporting>
         <plugins>
           <plugin>
-            <groupId>org.jvnet.maven-jellydoc-plugin</groupId>
-            <artifactId>maven-jellydoc-plugin</artifactId>
-            <version>${maven-jellydoc-plugin.version}</version>
+            <groupId>io.jenkins.tools.maven</groupId>
+            <artifactId>jellydoc-maven-plugin</artifactId>
+            <version>${jellydoc-maven-plugin.version}</version>
           </plugin>
         </plugins>
       </reporting>
