@@ -13,7 +13,7 @@
 
   <properties>
     <jelly.version>1.1-jenkins-20230124</jelly.version>
-    <jellydoc-maven-plugin.version>133.vcf3732399b_c1</jellydoc-maven-plugin.version>
+    <jellydoc-maven-plugin.version>137.v803fea_a_fb_c75</jellydoc-maven-plugin.version>
   </properties>
 
   <dependencies>
