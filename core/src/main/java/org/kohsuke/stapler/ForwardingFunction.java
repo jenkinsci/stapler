@@ -1,6 +1,6 @@
 package org.kohsuke.stapler;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;

@@ -2,12 +2,12 @@ package org.kohsuke.stapler;
 
 import org.kohsuke.stapler.test.AbstractStaplerTest;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
 
 import java.io.IOException;
 
-import static javax.servlet.http.HttpServletResponse.*;
+import static jakarta.servlet.http.HttpServletResponse.*;
 import static org.mockito.Mockito.*;
 
 /**

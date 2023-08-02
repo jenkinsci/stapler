@@ -36,8 +36,8 @@ import org.kohsuke.stapler.jelly.JellyFacet;
 import org.kohsuke.stapler.jelly.ScriptInvoker;
 import org.kohsuke.stapler.lang.Klass;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;

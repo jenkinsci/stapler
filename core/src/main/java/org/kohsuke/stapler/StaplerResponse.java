@@ -31,9 +31,9 @@ import org.kohsuke.stapler.export.Model;
 import org.kohsuke.stapler.export.NamedPathPruner;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

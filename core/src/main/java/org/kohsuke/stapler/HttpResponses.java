@@ -25,14 +25,14 @@ package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ServiceLoader;
 
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
+import static jakarta.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
 
 /**
  * Factory for {@link HttpResponse}.

@@ -25,7 +25,7 @@ package org.kohsuke.stapler;
 
 import org.apache.commons.beanutils.Converter;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.lang.annotation.Annotation;
 
 /**

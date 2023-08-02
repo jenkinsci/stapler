@@ -4,7 +4,7 @@ import org.kohsuke.stapler.AbstractTearOff;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.jelly.JellyRequestDispatcher;
 
-import javax.servlet.RequestDispatcher;
+import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.net.URL;
 

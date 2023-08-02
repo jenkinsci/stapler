@@ -23,7 +23,7 @@
 
 package org.kohsuke.stapler;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Information about ancestor of the "it" node.
