@@ -12,10 +12,16 @@
   <description>Stapler HTTP request handling engine</description>
 
   <properties>
+    <bridge-method-injector.version>1.27</bridge-method-injector.version>
     <commons-fileupload2.version>2.0.0-M1</commons-fileupload2.version>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.infradna.tool</groupId>
+      <artifactId>bridge-method-annotation</artifactId>
+      <version>${bridge-method-injector.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.jcraft</groupId>
       <artifactId>jzlib</artifactId>
@@ -187,6 +193,18 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>com.infradna.tool</groupId>
+        <artifactId>bridge-method-injector</artifactId>
+        <version>${bridge-method-injector.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>process</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <executions>

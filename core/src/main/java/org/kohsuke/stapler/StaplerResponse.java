@@ -30,8 +30,10 @@ import org.kohsuke.stapler.export.Flavor;
 import org.kohsuke.stapler.export.Model;
 import org.kohsuke.stapler.export.NamedPathPruner;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -244,4 +246,8 @@ public interface StaplerResponse extends HttpServletResponse {
      * @return the config
      */
     JsonConfig getJsonConfig();
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.ServletOutputStream.class, castRequired = true)
+    ServletOutputStream getOutputStream() throws IOException;
 }

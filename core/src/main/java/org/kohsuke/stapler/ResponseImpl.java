@@ -44,6 +44,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import com.jcraft.jzlib.GZIPOutputStream;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.sf.json.JsonConfig;
@@ -87,6 +88,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     @Override
+    @WithBridgeMethods(value = javax.servlet.ServletOutputStream.class, castRequired = true)
     public ServletOutputStream getOutputStream() throws IOException {
         if(mode==OutputMode.CHAR)
             throw new IllegalStateException("getWriter has already been called. Its call site is in the nested exception",origin);
@@ -107,7 +109,11 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     private <T extends ServletOutputStream> T recordOutput(T obj) {
-        this.output = obj;
+        if (obj instanceof javax.servlet.ServletOutputStream) {
+            this.output = obj;
+        } else {
+            this.output = javax.servlet.ServletOutputStream.fromJakartaServletOutputStream(obj);
+        }
         this.mode = OutputMode.BYTE;
         this.origin = new Throwable();
         return obj;
