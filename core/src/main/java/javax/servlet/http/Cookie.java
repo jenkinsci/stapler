@@ -18,6 +18,7 @@
 
 package javax.servlet.http;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -184,5 +185,24 @@ public class Cookie implements Cloneable, Serializable {
 
     public boolean isHttpOnly() {
         return isHttpOnly;
+    }
+
+    @SuppressFBWarnings(value = {"INSECURE_COOKIE", "HTTPONLY_COOKIE"}, justification = "intentional copying")
+    public static Cookie fromJakartaServletHttpCookie(jakarta.servlet.http.Cookie from) {
+        Cookie result = new Cookie(from.getName(), from.getValue());
+        if (from.getComment() != null) {
+            result.setComment(from.getComment());
+        }
+        if (from.getDomain() != null) {
+            result.setDomain(from.getDomain());
+        }
+        result.setMaxAge(from.getMaxAge());
+        if (from.getPath() != null) {
+            result.setPath(from.getPath());
+        }
+        result.setSecure(from.getSecure());
+        result.setVersion(from.getVersion());
+        result.setHttpOnly(from.isHttpOnly());
+        return result;
     }
 }

@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
@@ -50,6 +51,7 @@ import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
@@ -1158,6 +1160,20 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         FileItem item = parsedFormData.get(name);
         if(item==null || item.isFormField())    return null;
         return item;
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.http.Cookie[].class, adapterMethod = "convertCookies")
+    public Cookie[] getCookies() {
+        return super.getCookies();
+    }
+
+    private Object convertCookies(Cookie[] cookies, Class<?> type) {
+        javax.servlet.http.Cookie[] result = new javax.servlet.http.Cookie[cookies.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = javax.servlet.http.Cookie.fromJakartaServletHttpCookie(cookies[i]);
+        }
+        return result;
     }
 
     private static final Logger LOGGER = Logger.getLogger(RequestImpl.class.getName());

@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.fileupload2.core.FileItem;
@@ -30,6 +31,7 @@ import org.apache.commons.fileupload2.core.FileItem;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -517,4 +519,16 @@ public interface StaplerRequest extends HttpServletRequest {
      * Short cut for {@code getBoundObjectTable().bind(toBeExported).getProxyScript()}
      */
     String createJavaScriptProxy(Object toBeExported);
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.http.Cookie[].class, adapterMethod = "convertCookies")
+    Cookie[] getCookies();
+
+    private Object convertCookies(Cookie[] cookies, Class<?> type) {
+        javax.servlet.http.Cookie[] result = new javax.servlet.http.Cookie[cookies.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = javax.servlet.http.Cookie.fromJakartaServletHttpCookie(cookies[i]);
+        }
+        return result;
+    }
 }
