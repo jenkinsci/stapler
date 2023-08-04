@@ -50,18 +50,18 @@ public interface ServletRegistration extends Registration {
                 }
 
                 @Override
-                public boolean setInitParameter(String s, String s1) {
-                    return ServletRegistration.Dynamic.this.setInitParameter(s, s1);
+                public boolean setInitParameter(String name, String value) {
+                    return ServletRegistration.Dynamic.this.setInitParameter(name, value);
                 }
 
                 @Override
-                public String getInitParameter(String s) {
-                    return ServletRegistration.Dynamic.this.getInitParameter(s);
+                public String getInitParameter(String name) {
+                    return ServletRegistration.Dynamic.this.getInitParameter(name);
                 }
 
                 @Override
-                public Set<String> setInitParameters(Map<String, String> map) {
-                    return ServletRegistration.Dynamic.this.setInitParameters(map);
+                public Set<String> setInitParameters(Map<String, String> initParameters) {
+                    return ServletRegistration.Dynamic.this.setInitParameters(initParameters);
                 }
 
                 @Override
@@ -70,8 +70,8 @@ public interface ServletRegistration extends Registration {
                 }
 
                 @Override
-                public Set<String> addMapping(String... strings) {
-                    return ServletRegistration.Dynamic.this.addMapping(strings);
+                public Set<String> addMapping(String... urlPatterns) {
+                    return ServletRegistration.Dynamic.this.addMapping(urlPatterns);
                 }
 
                 @Override
@@ -85,30 +85,30 @@ public interface ServletRegistration extends Registration {
                 }
 
                 @Override
-                public void setAsyncSupported(boolean b) {
-                    ServletRegistration.Dynamic.this.setAsyncSupported(b);
+                public void setAsyncSupported(boolean isAsyncSupported) {
+                    ServletRegistration.Dynamic.this.setAsyncSupported(isAsyncSupported);
                 }
 
                 @Override
-                public void setLoadOnStartup(int i) {
-                    ServletRegistration.Dynamic.this.setLoadOnStartup(i);
+                public void setLoadOnStartup(int loadOnStartup) {
+                    ServletRegistration.Dynamic.this.setLoadOnStartup(loadOnStartup);
                 }
 
                 @Override
-                public Set<String> setServletSecurity(jakarta.servlet.ServletSecurityElement servletSecurityElement) {
+                public Set<String> setServletSecurity(jakarta.servlet.ServletSecurityElement constraint) {
                     // TODO
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
-                public void setMultipartConfig(jakarta.servlet.MultipartConfigElement multipartConfigElement) {
+                public void setMultipartConfig(jakarta.servlet.MultipartConfigElement multipartConfig) {
                     // TODO
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
-                public void setRunAsRole(String s) {
-                    ServletRegistration.Dynamic.this.setRunAsRole(s);
+                public void setRunAsRole(String roleName) {
+                    ServletRegistration.Dynamic.this.setRunAsRole(roleName);
                 }
             };
         }
@@ -224,18 +224,18 @@ public interface ServletRegistration extends Registration {
             }
 
             @Override
-            public boolean setInitParameter(String s, String s1) {
-                return ServletRegistration.this.setInitParameter(s, s1);
+            public boolean setInitParameter(String name, String value) {
+                return ServletRegistration.this.setInitParameter(name, value);
             }
 
             @Override
-            public String getInitParameter(String s) {
-                return ServletRegistration.this.getInitParameter(s);
+            public String getInitParameter(String name) {
+                return ServletRegistration.this.getInitParameter(name);
             }
 
             @Override
-            public Set<String> setInitParameters(Map<String, String> map) {
-                return ServletRegistration.this.setInitParameters(map);
+            public Set<String> setInitParameters(Map<String, String> initParameters) {
+                return ServletRegistration.this.setInitParameters(initParameters);
             }
 
             @Override
@@ -244,8 +244,8 @@ public interface ServletRegistration extends Registration {
             }
 
             @Override
-            public Set<String> addMapping(String... strings) {
-                return ServletRegistration.this.addMapping(strings);
+            public Set<String> addMapping(String... urlPatterns) {
+                return ServletRegistration.this.addMapping(urlPatterns);
             }
 
             @Override

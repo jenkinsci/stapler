@@ -84,8 +84,8 @@ public interface HttpSession {
             }
 
             @Override
-            public void setMaxInactiveInterval(int i) {
-                HttpSession.this.setMaxInactiveInterval(i);
+            public void setMaxInactiveInterval(int interval) {
+                HttpSession.this.setMaxInactiveInterval(interval);
             }
 
             @Override
@@ -99,13 +99,13 @@ public interface HttpSession {
             }
 
             @Override
-            public Object getAttribute(String s) {
-                return HttpSession.this.getAttribute(s);
+            public Object getAttribute(String name) {
+                return HttpSession.this.getAttribute(name);
             }
 
             @Override
-            public Object getValue(String s) {
-                return HttpSession.this.getValue(s);
+            public Object getValue(String name) {
+                return HttpSession.this.getValue(name);
             }
 
             @Override
@@ -119,23 +119,23 @@ public interface HttpSession {
             }
 
             @Override
-            public void setAttribute(String s, Object o) {
-                HttpSession.this.setAttribute(s, o);
+            public void setAttribute(String name, Object value) {
+                HttpSession.this.setAttribute(name, value);
             }
 
             @Override
-            public void putValue(String s, Object o) {
-                HttpSession.this.putValue(s, o);
+            public void putValue(String name, Object value) {
+                HttpSession.this.putValue(name, value);
             }
 
             @Override
-            public void removeAttribute(String s) {
-                HttpSession.this.removeAttribute(s);
+            public void removeAttribute(String name) {
+                HttpSession.this.removeAttribute(name);
             }
 
             @Override
-            public void removeValue(String s) {
-                HttpSession.this.removeValue(s);
+            public void removeValue(String name) {
+                HttpSession.this.removeValue(name);
             }
 
             @Override

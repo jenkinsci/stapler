@@ -42,8 +42,8 @@ public interface ServletConfig {
             }
 
             @Override
-            public String getInitParameter(String s) {
-                return ServletConfig.this.getInitParameter(s);
+            public String getInitParameter(String name) {
+                return ServletConfig.this.getInitParameter(name);
             }
 
             @Override

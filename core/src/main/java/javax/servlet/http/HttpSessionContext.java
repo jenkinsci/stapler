@@ -31,8 +31,8 @@ public interface HttpSessionContext {
     default jakarta.servlet.http.HttpSessionContext toJakartaHttpSessionContext() {
         return new jakarta.servlet.http.HttpSessionContext() {
             @Override
-            public jakarta.servlet.http.HttpSession getSession(String s) {
-                return HttpSessionContext.this.getSession(s).toJakartaHttpSession();
+            public jakarta.servlet.http.HttpSession getSession(String sessionId) {
+                return HttpSessionContext.this.getSession(sessionId).toJakartaHttpSession();
             }
 
             @Override

@@ -49,18 +49,18 @@ public interface Registration {
                 }
 
                 @Override
-                public boolean setInitParameter(String s, String s1) {
-                    return Registration.Dynamic.this.setInitParameter(s, s1);
+                public boolean setInitParameter(String name, String value) {
+                    return Registration.Dynamic.this.setInitParameter(name, value);
                 }
 
                 @Override
-                public String getInitParameter(String s) {
-                    return Registration.Dynamic.this.getInitParameter(s);
+                public String getInitParameter(String name) {
+                    return Registration.Dynamic.this.getInitParameter(name);
                 }
 
                 @Override
-                public Set<String> setInitParameters(Map<String, String> map) {
-                    return Registration.Dynamic.this.setInitParameters(map);
+                public Set<String> setInitParameters(Map<String, String> initParameters) {
+                    return Registration.Dynamic.this.setInitParameters(initParameters);
                 }
 
                 @Override
@@ -69,8 +69,8 @@ public interface Registration {
                 }
 
                 @Override
-                public void setAsyncSupported(boolean b) {
-                    Registration.Dynamic.this.setAsyncSupported(b);
+                public void setAsyncSupported(boolean isAsyncSupported) {
+                    Registration.Dynamic.this.setAsyncSupported(isAsyncSupported);
                 }
             };
         }
@@ -138,18 +138,18 @@ public interface Registration {
             }
 
             @Override
-            public boolean setInitParameter(String s, String s1) {
-                return Registration.this.setInitParameter(s, s1);
+            public boolean setInitParameter(String name, String value) {
+                return Registration.this.setInitParameter(name, value);
             }
 
             @Override
-            public String getInitParameter(String s) {
-                return Registration.this.getInitParameter(s);
+            public String getInitParameter(String name) {
+                return Registration.this.getInitParameter(name);
             }
 
             @Override
-            public Set<String> setInitParameters(Map<String, String> map) {
-                return Registration.this.setInitParameters(map);
+            public Set<String> setInitParameters(Map<String, String> initParameters) {
+                return Registration.this.setInitParameters(initParameters);
             }
 
             @Override

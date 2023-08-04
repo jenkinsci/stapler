@@ -33,8 +33,8 @@ public interface WriteListener extends EventListener {
             }
 
             @Override
-            public void onError(Throwable throwable) {
-                WriteListener.this.onError(throwable);
+            public void onError(Throwable t) {
+                WriteListener.this.onError(t);
             }
         };
     }

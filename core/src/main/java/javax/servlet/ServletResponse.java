@@ -80,28 +80,28 @@ public interface ServletResponse {
             }
 
             @Override
-            public void setCharacterEncoding(String s) {
-                ServletResponse.this.setCharacterEncoding(s);
+            public void setCharacterEncoding(String charset) {
+                ServletResponse.this.setCharacterEncoding(charset);
             }
 
             @Override
-            public void setContentLength(int i) {
-                ServletResponse.this.setContentLength(i);
+            public void setContentLength(int len) {
+                ServletResponse.this.setContentLength(len);
             }
 
             @Override
-            public void setContentLengthLong(long l) {
-                ServletResponse.this.setContentLengthLong(l);
+            public void setContentLengthLong(long len) {
+                ServletResponse.this.setContentLengthLong(len);
             }
 
             @Override
-            public void setContentType(String s) {
-                ServletResponse.this.setContentType(s);
+            public void setContentType(String type) {
+                ServletResponse.this.setContentType(type);
             }
 
             @Override
-            public void setBufferSize(int i) {
-                ServletResponse.this.setBufferSize(i);
+            public void setBufferSize(int size) {
+                ServletResponse.this.setBufferSize(size);
             }
 
             @Override
@@ -130,8 +130,8 @@ public interface ServletResponse {
             }
 
             @Override
-            public void setLocale(Locale locale) {
-                ServletResponse.this.setLocale(locale);
+            public void setLocale(Locale loc) {
+                ServletResponse.this.setLocale(loc);
             }
 
             @Override

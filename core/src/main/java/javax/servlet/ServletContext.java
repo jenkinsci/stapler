@@ -164,8 +164,8 @@ public interface ServletContext {
             }
 
             @Override
-            public jakarta.servlet.ServletContext getContext(String s) {
-                return ServletContext.this.getContext(s).toJakartaServletContext();
+            public jakarta.servlet.ServletContext getContext(String uripath) {
+                return ServletContext.this.getContext(uripath).toJakartaServletContext();
             }
 
             @Override
@@ -189,39 +189,39 @@ public interface ServletContext {
             }
 
             @Override
-            public String getMimeType(String s) {
-                return ServletContext.this.getMimeType(s);
+            public String getMimeType(String file) {
+                return ServletContext.this.getMimeType(file);
             }
 
             @Override
-            public Set<String> getResourcePaths(String s) {
-                return ServletContext.this.getResourcePaths(s);
+            public Set<String> getResourcePaths(String paths) {
+                return ServletContext.this.getResourcePaths(paths);
             }
 
             @Override
-            public URL getResource(String s) throws MalformedURLException {
-                return ServletContext.this.getResource(s);
+            public URL getResource(String path) throws MalformedURLException {
+                return ServletContext.this.getResource(path);
             }
 
             @Override
-            public InputStream getResourceAsStream(String s) {
-                return ServletContext.this.getResourceAsStream(s);
+            public InputStream getResourceAsStream(String path) {
+                return ServletContext.this.getResourceAsStream(path);
             }
 
             @Override
-            public jakarta.servlet.RequestDispatcher getRequestDispatcher(String s) {
-                return ServletContext.this.getRequestDispatcher(s).toJakartaRequestDispatcher();
+            public jakarta.servlet.RequestDispatcher getRequestDispatcher(String path) {
+                return ServletContext.this.getRequestDispatcher(path).toJakartaRequestDispatcher();
             }
 
             @Override
-            public jakarta.servlet.RequestDispatcher getNamedDispatcher(String s) {
-                return ServletContext.this.getNamedDispatcher(s).toJakartaRequestDispatcher();
+            public jakarta.servlet.RequestDispatcher getNamedDispatcher(String path) {
+                return ServletContext.this.getNamedDispatcher(path).toJakartaRequestDispatcher();
             }
 
             @Override
-            public jakarta.servlet.Servlet getServlet(String s) throws jakarta.servlet.ServletException {
+            public jakarta.servlet.Servlet getServlet(String name) throws jakarta.servlet.ServletException {
                 try {
-                    return ServletContext.this.getServlet(s).toJakartaServlet();
+                    return ServletContext.this.getServlet(name).toJakartaServlet();
                 } catch (ServletException e) {
                     throw new jakarta.servlet.ServletException(e);
                 }
@@ -240,23 +240,23 @@ public interface ServletContext {
             }
 
             @Override
-            public void log(String s) {
-                ServletContext.this.log(s);
+            public void log(String msg) {
+                ServletContext.this.log(msg);
             }
 
             @Override
-            public void log(Exception e, String s) {
-                ServletContext.this.log(e, s);
+            public void log(Exception exception, String msg) {
+                ServletContext.this.log(exception, msg);
             }
 
             @Override
-            public void log(String s, Throwable throwable) {
-                ServletContext.this.log(s, throwable);
+            public void log(String message, Throwable throwable) {
+                ServletContext.this.log(message, throwable);
             }
 
             @Override
-            public String getRealPath(String s) {
-                return ServletContext.this.getRealPath(s);
+            public String getRealPath(String path) {
+                return ServletContext.this.getRealPath(path);
             }
 
             @Override
@@ -265,8 +265,8 @@ public interface ServletContext {
             }
 
             @Override
-            public String getInitParameter(String s) {
-                return ServletContext.this.getInitParameter(s);
+            public String getInitParameter(String name) {
+                return ServletContext.this.getInitParameter(name);
             }
 
             @Override
@@ -275,13 +275,13 @@ public interface ServletContext {
             }
 
             @Override
-            public boolean setInitParameter(String s, String s1) {
-                return ServletContext.this.setInitParameter(s, s1);
+            public boolean setInitParameter(String name, String value) {
+                return ServletContext.this.setInitParameter(name, value);
             }
 
             @Override
-            public Object getAttribute(String s) {
-                return ServletContext.this.getAttribute(s);
+            public Object getAttribute(String name) {
+                return ServletContext.this.getAttribute(name);
             }
 
             @Override
@@ -290,13 +290,13 @@ public interface ServletContext {
             }
 
             @Override
-            public void setAttribute(String s, Object o) {
-                ServletContext.this.setAttribute(s, o);
+            public void setAttribute(String name, Object object) {
+                ServletContext.this.setAttribute(name, object);
             }
 
             @Override
-            public void removeAttribute(String s) {
-                ServletContext.this.removeAttribute(s);
+            public void removeAttribute(String name) {
+                ServletContext.this.removeAttribute(name);
             }
 
             @Override
@@ -305,39 +305,40 @@ public interface ServletContext {
             }
 
             @Override
-            public jakarta.servlet.ServletRegistration.Dynamic addServlet(String s, String s1) {
-                return ServletContext.this.addServlet(s, s1).toJakartaServletRegistrationDynamic();
+            public jakarta.servlet.ServletRegistration.Dynamic addServlet(String servletName, String className) {
+                return ServletContext.this.addServlet(servletName, className).toJakartaServletRegistrationDynamic();
             }
 
             @Override
-            public jakarta.servlet.ServletRegistration.Dynamic addServlet(String s, jakarta.servlet.Servlet servlet) {
+            public jakarta.servlet.ServletRegistration.Dynamic addServlet(
+                    String servletName, jakarta.servlet.Servlet servlet) {
                 return ServletContext.this
-                        .addServlet(s, Servlet.fromJakartaServlet(servlet))
+                        .addServlet(servletName, Servlet.fromJakartaServlet(servlet))
                         .toJakartaServletRegistrationDynamic();
             }
 
             @Override
             public jakarta.servlet.ServletRegistration.Dynamic addServlet(
-                    String s, Class<? extends jakarta.servlet.Servlet> aClass) {
+                    String servletName, Class<? extends jakarta.servlet.Servlet> servletClass) {
                 // TODO
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public jakarta.servlet.ServletRegistration.Dynamic addJspFile(String s, String s1) {
-                return ServletContext.this.addJspFile(s, s1).toJakartaServletRegistrationDynamic();
+            public jakarta.servlet.ServletRegistration.Dynamic addJspFile(String servletName, String jspFile) {
+                return ServletContext.this.addJspFile(servletName, jspFile).toJakartaServletRegistrationDynamic();
             }
 
             @Override
-            public <T extends jakarta.servlet.Servlet> T createServlet(Class<T> aClass)
+            public <T extends jakarta.servlet.Servlet> T createServlet(Class<T> clazz)
                     throws jakarta.servlet.ServletException {
                 // TODO
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public jakarta.servlet.ServletRegistration getServletRegistration(String s) {
-                return ServletContext.this.getServletRegistration(s).toJakartaServletRegistration();
+            public jakarta.servlet.ServletRegistration getServletRegistration(String servletName) {
+                return ServletContext.this.getServletRegistration(servletName).toJakartaServletRegistration();
             }
 
             @Override
@@ -348,34 +349,35 @@ public interface ServletContext {
             }
 
             @Override
-            public jakarta.servlet.FilterRegistration.Dynamic addFilter(String s, String s1) {
-                return ServletContext.this.addFilter(s, s1).toJakartaFilterRegistrationDynamic();
+            public jakarta.servlet.FilterRegistration.Dynamic addFilter(String filterName, String className) {
+                return ServletContext.this.addFilter(filterName, className).toJakartaFilterRegistrationDynamic();
             }
 
             @Override
-            public jakarta.servlet.FilterRegistration.Dynamic addFilter(String s, jakarta.servlet.Filter filter) {
+            public jakarta.servlet.FilterRegistration.Dynamic addFilter(
+                    String filterName, jakarta.servlet.Filter filter) {
                 return ServletContext.this
-                        .addFilter(s, Filter.fromJakartaFilter(filter))
+                        .addFilter(filterName, Filter.fromJakartaFilter(filter))
                         .toJakartaFilterRegistrationDynamic();
             }
 
             @Override
             public jakarta.servlet.FilterRegistration.Dynamic addFilter(
-                    String s, Class<? extends jakarta.servlet.Filter> aClass) {
+                    String filterName, Class<? extends jakarta.servlet.Filter> filterClass) {
                 // TODO
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public <T extends jakarta.servlet.Filter> T createFilter(Class<T> aClass)
+            public <T extends jakarta.servlet.Filter> T createFilter(Class<T> clazz)
                     throws jakarta.servlet.ServletException {
                 // TODO
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public jakarta.servlet.FilterRegistration getFilterRegistration(String s) {
-                return ServletContext.this.getFilterRegistration(s).toJakartaFilterRegistration();
+            public jakarta.servlet.FilterRegistration getFilterRegistration(String filterName) {
+                return ServletContext.this.getFilterRegistration(filterName).toJakartaFilterRegistration();
             }
 
             @Override
@@ -391,8 +393,8 @@ public interface ServletContext {
             }
 
             @Override
-            public void setSessionTrackingModes(Set<jakarta.servlet.SessionTrackingMode> set) {
-                ServletContext.this.setSessionTrackingModes(set.stream()
+            public void setSessionTrackingModes(Set<jakarta.servlet.SessionTrackingMode> sessionTrackingModes) {
+                ServletContext.this.setSessionTrackingModes(sessionTrackingModes.stream()
                         .map(SessionTrackingMode::fromJakartaSessionTrackingMode)
                         .collect(Collectors.toSet()));
             }
@@ -412,8 +414,8 @@ public interface ServletContext {
             }
 
             @Override
-            public void addListener(String s) {
-                ServletContext.this.addListener(s);
+            public void addListener(String className) {
+                ServletContext.this.addListener(className);
             }
 
             @Override
@@ -422,14 +424,14 @@ public interface ServletContext {
             }
 
             @Override
-            public void addListener(Class<? extends EventListener> aClass) {
-                ServletContext.this.addListener(aClass);
+            public void addListener(Class<? extends EventListener> listenerClass) {
+                ServletContext.this.addListener(listenerClass);
             }
 
             @Override
-            public <T extends EventListener> T createListener(Class<T> aClass) throws jakarta.servlet.ServletException {
+            public <T extends EventListener> T createListener(Class<T> clazz) throws jakarta.servlet.ServletException {
                 try {
-                    return ServletContext.this.createListener(aClass);
+                    return ServletContext.this.createListener(clazz);
                 } catch (ServletException e) {
                     throw new jakarta.servlet.ServletException(e);
                 }
@@ -446,8 +448,8 @@ public interface ServletContext {
             }
 
             @Override
-            public void declareRoles(String... strings) {
-                ServletContext.this.declareRoles(strings);
+            public void declareRoles(String... roleNames) {
+                ServletContext.this.declareRoles(roleNames);
             }
 
             @Override
@@ -461,8 +463,8 @@ public interface ServletContext {
             }
 
             @Override
-            public void setSessionTimeout(int i) {
-                ServletContext.this.setSessionTimeout(i);
+            public void setSessionTimeout(int sessionTimeout) {
+                ServletContext.this.setSessionTimeout(sessionTimeout);
             }
 
             @Override
@@ -471,8 +473,8 @@ public interface ServletContext {
             }
 
             @Override
-            public void setRequestCharacterEncoding(String s) {
-                ServletContext.this.setRequestCharacterEncoding(s);
+            public void setRequestCharacterEncoding(String encoding) {
+                ServletContext.this.setRequestCharacterEncoding(encoding);
             }
 
             @Override
@@ -481,8 +483,8 @@ public interface ServletContext {
             }
 
             @Override
-            public void setResponseCharacterEncoding(String s) {
-                ServletContext.this.setResponseCharacterEncoding(s);
+            public void setResponseCharacterEncoding(String encoding) {
+                ServletContext.this.setResponseCharacterEncoding(encoding);
             }
         };
     }

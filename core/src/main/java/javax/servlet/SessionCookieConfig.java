@@ -49,8 +49,8 @@ public interface SessionCookieConfig {
     default jakarta.servlet.SessionCookieConfig toJakartaSessionCookieConfig() {
         return new jakarta.servlet.SessionCookieConfig() {
             @Override
-            public void setName(String s) {
-                SessionCookieConfig.this.setName(s);
+            public void setName(String name) {
+                SessionCookieConfig.this.setName(name);
             }
 
             @Override
@@ -59,8 +59,8 @@ public interface SessionCookieConfig {
             }
 
             @Override
-            public void setDomain(String s) {
-                SessionCookieConfig.this.setDomain(s);
+            public void setDomain(String domain) {
+                SessionCookieConfig.this.setDomain(domain);
             }
 
             @Override
@@ -69,8 +69,8 @@ public interface SessionCookieConfig {
             }
 
             @Override
-            public void setPath(String s) {
-                SessionCookieConfig.this.setPath(s);
+            public void setPath(String path) {
+                SessionCookieConfig.this.setPath(path);
             }
 
             @Override
@@ -79,8 +79,8 @@ public interface SessionCookieConfig {
             }
 
             @Override
-            public void setComment(String s) {
-                SessionCookieConfig.this.setComment(s);
+            public void setComment(String comment) {
+                SessionCookieConfig.this.setComment(comment);
             }
 
             @Override
@@ -89,8 +89,8 @@ public interface SessionCookieConfig {
             }
 
             @Override
-            public void setHttpOnly(boolean b) {
-                SessionCookieConfig.this.setHttpOnly(b);
+            public void setHttpOnly(boolean httpOnly) {
+                SessionCookieConfig.this.setHttpOnly(httpOnly);
             }
 
             @Override
@@ -99,8 +99,8 @@ public interface SessionCookieConfig {
             }
 
             @Override
-            public void setSecure(boolean b) {
-                SessionCookieConfig.this.setSecure(b);
+            public void setSecure(boolean secure) {
+                SessionCookieConfig.this.setSecure(secure);
             }
 
             @Override
@@ -109,8 +109,8 @@ public interface SessionCookieConfig {
             }
 
             @Override
-            public void setMaxAge(int i) {
-                SessionCookieConfig.this.setMaxAge(i);
+            public void setMaxAge(int maxAge) {
+                SessionCookieConfig.this.setMaxAge(maxAge);
             }
 
             @Override

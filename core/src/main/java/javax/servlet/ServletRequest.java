@@ -110,8 +110,8 @@ public interface ServletRequest {
     default jakarta.servlet.ServletRequest toJakartaServletRequest() {
         return new jakarta.servlet.ServletRequest() {
             @Override
-            public Object getAttribute(String s) {
-                return ServletRequest.this.getAttribute(s);
+            public Object getAttribute(String name) {
+                return ServletRequest.this.getAttribute(name);
             }
 
             @Override
@@ -125,8 +125,8 @@ public interface ServletRequest {
             }
 
             @Override
-            public void setCharacterEncoding(String s) throws UnsupportedEncodingException {
-                ServletRequest.this.setCharacterEncoding(s);
+            public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
+                ServletRequest.this.setCharacterEncoding(env);
             }
 
             @Override
@@ -150,8 +150,8 @@ public interface ServletRequest {
             }
 
             @Override
-            public String getParameter(String s) {
-                return ServletRequest.this.getParameter(s);
+            public String getParameter(String name) {
+                return ServletRequest.this.getParameter(name);
             }
 
             @Override
@@ -160,8 +160,8 @@ public interface ServletRequest {
             }
 
             @Override
-            public String[] getParameterValues(String s) {
-                return ServletRequest.this.getParameterValues(s);
+            public String[] getParameterValues(String name) {
+                return ServletRequest.this.getParameterValues(name);
             }
 
             @Override
@@ -205,13 +205,13 @@ public interface ServletRequest {
             }
 
             @Override
-            public void setAttribute(String s, Object o) {
-                ServletRequest.this.setAttribute(s, o);
+            public void setAttribute(String name, Object o) {
+                ServletRequest.this.setAttribute(name, o);
             }
 
             @Override
-            public void removeAttribute(String s) {
-                ServletRequest.this.removeAttribute(s);
+            public void removeAttribute(String name) {
+                ServletRequest.this.removeAttribute(name);
             }
 
             @Override
@@ -230,13 +230,13 @@ public interface ServletRequest {
             }
 
             @Override
-            public jakarta.servlet.RequestDispatcher getRequestDispatcher(String s) {
-                return ServletRequest.this.getRequestDispatcher(s);
+            public jakarta.servlet.RequestDispatcher getRequestDispatcher(String path) {
+                return ServletRequest.this.getRequestDispatcher(path);
             }
 
             @Override
-            public String getRealPath(String s) {
-                return ServletRequest.this.getRealPath(s);
+            public String getRealPath(String path) {
+                return ServletRequest.this.getRealPath(path);
             }
 
             @Override

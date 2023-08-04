@@ -42,8 +42,8 @@ public interface FilterConfig {
             }
 
             @Override
-            public String getInitParameter(String s) {
-                return FilterConfig.this.getInitParameter(s);
+            public String getInitParameter(String name) {
+                return FilterConfig.this.getInitParameter(name);
             }
 
             @Override

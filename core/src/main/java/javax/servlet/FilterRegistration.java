@@ -47,18 +47,18 @@ public interface FilterRegistration extends Registration {
                 }
 
                 @Override
-                public boolean setInitParameter(String s, String s1) {
-                    return FilterRegistration.Dynamic.this.setInitParameter(s, s1);
+                public boolean setInitParameter(String name, String value) {
+                    return FilterRegistration.Dynamic.this.setInitParameter(name, value);
                 }
 
                 @Override
-                public String getInitParameter(String s) {
-                    return FilterRegistration.Dynamic.this.getInitParameter(s);
+                public String getInitParameter(String name) {
+                    return FilterRegistration.Dynamic.this.getInitParameter(name);
                 }
 
                 @Override
-                public Set<String> setInitParameters(Map<String, String> map) {
-                    return FilterRegistration.Dynamic.this.setInitParameters(map);
+                public Set<String> setInitParameters(Map<String, String> initParameters) {
+                    return FilterRegistration.Dynamic.this.setInitParameters(initParameters);
                 }
 
                 @Override
@@ -67,19 +67,21 @@ public interface FilterRegistration extends Registration {
                 }
 
                 @Override
-                public void setAsyncSupported(boolean b) {
-                    FilterRegistration.Dynamic.this.setAsyncSupported(b);
+                public void setAsyncSupported(boolean isAsyncSupported) {
+                    FilterRegistration.Dynamic.this.setAsyncSupported(isAsyncSupported);
                 }
 
                 @Override
                 public void addMappingForServletNames(
-                        EnumSet<jakarta.servlet.DispatcherType> enumSet, boolean b, String... strings) {
+                        EnumSet<jakarta.servlet.DispatcherType> dispatcherTypes,
+                        boolean isMatchAfter,
+                        String... servletNames) {
                     FilterRegistration.Dynamic.this.addMappingForServletNames(
-                            EnumSet.copyOf(enumSet.stream()
+                            EnumSet.copyOf(dispatcherTypes.stream()
                                     .map(DispatcherType::fromJakartaDispatcherType)
                                     .collect(Collectors.toSet())),
-                            b,
-                            strings);
+                            isMatchAfter,
+                            servletNames);
                 }
 
                 @Override
@@ -89,13 +91,15 @@ public interface FilterRegistration extends Registration {
 
                 @Override
                 public void addMappingForUrlPatterns(
-                        EnumSet<jakarta.servlet.DispatcherType> enumSet, boolean b, String... strings) {
+                        EnumSet<jakarta.servlet.DispatcherType> dispatcherTypes,
+                        boolean isMatchAfter,
+                        String... urlPatterns) {
                     FilterRegistration.Dynamic.this.addMappingForUrlPatterns(
-                            EnumSet.copyOf(enumSet.stream()
+                            EnumSet.copyOf(dispatcherTypes.stream()
                                     .map(DispatcherType::fromJakartaDispatcherType)
                                     .collect(Collectors.toSet())),
-                            b,
-                            strings);
+                            isMatchAfter,
+                            urlPatterns);
                 }
 
                 @Override
@@ -211,18 +215,18 @@ public interface FilterRegistration extends Registration {
             }
 
             @Override
-            public boolean setInitParameter(String s, String s1) {
-                return FilterRegistration.this.setInitParameter(s, s1);
+            public boolean setInitParameter(String name, String value) {
+                return FilterRegistration.this.setInitParameter(name, value);
             }
 
             @Override
-            public String getInitParameter(String s) {
-                return FilterRegistration.this.getInitParameter(s);
+            public String getInitParameter(String name) {
+                return FilterRegistration.this.getInitParameter(name);
             }
 
             @Override
-            public Set<String> setInitParameters(Map<String, String> map) {
-                return FilterRegistration.this.setInitParameters(map);
+            public Set<String> setInitParameters(Map<String, String> initParameters) {
+                return FilterRegistration.this.setInitParameters(initParameters);
             }
 
             @Override
@@ -232,13 +236,15 @@ public interface FilterRegistration extends Registration {
 
             @Override
             public void addMappingForServletNames(
-                    EnumSet<jakarta.servlet.DispatcherType> enumSet, boolean b, String... strings) {
+                    EnumSet<jakarta.servlet.DispatcherType> dispatcherTypes,
+                    boolean isMatchAfter,
+                    String... servletNames) {
                 FilterRegistration.this.addMappingForServletNames(
-                        EnumSet.copyOf(enumSet.stream()
+                        EnumSet.copyOf(dispatcherTypes.stream()
                                 .map(DispatcherType::fromJakartaDispatcherType)
                                 .collect(Collectors.toSet())),
-                        b,
-                        strings);
+                        isMatchAfter,
+                        servletNames);
             }
 
             @Override
@@ -248,13 +254,15 @@ public interface FilterRegistration extends Registration {
 
             @Override
             public void addMappingForUrlPatterns(
-                    EnumSet<jakarta.servlet.DispatcherType> enumSet, boolean b, String... strings) {
+                    EnumSet<jakarta.servlet.DispatcherType> dispatcherTypes,
+                    boolean isMatchAfter,
+                    String... urlPatterns) {
                 FilterRegistration.this.addMappingForUrlPatterns(
-                        EnumSet.copyOf(enumSet.stream()
+                        EnumSet.copyOf(dispatcherTypes.stream()
                                 .map(DispatcherType::fromJakartaDispatcherType)
                                 .collect(Collectors.toSet())),
-                        b,
-                        strings);
+                        isMatchAfter,
+                        urlPatterns);
             }
 
             @Override
