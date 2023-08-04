@@ -18,6 +18,7 @@
 
 package javax.servlet;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -82,8 +83,13 @@ public class ServletRequestWrapper implements ServletRequest {
     }
 
     @Override
-    public ServletInputStream getInputStream() throws IOException {
+    @WithBridgeMethods(value = ServletInputStream.class, adapterMethod = "fromJakartaServletInputStream")
+    public jakarta.servlet.ServletInputStream getInputStream() throws IOException {
         return this.request.getInputStream();
+    }
+
+    private Object fromJakartaServletInputStream(jakarta.servlet.ServletInputStream inputStream, Class<?> type) {
+        return ServletInputStream.fromJakartaServletInputStream(inputStream);
     }
 
     @Override
@@ -167,8 +173,13 @@ public class ServletRequestWrapper implements ServletRequest {
     }
 
     @Override
-    public RequestDispatcher getRequestDispatcher(String path) {
+    @WithBridgeMethods(value = RequestDispatcher.class, adapterMethod = "fromJakartaRequestDispatcher")
+    public jakarta.servlet.RequestDispatcher getRequestDispatcher(String path) {
         return this.request.getRequestDispatcher(path);
+    }
+
+    private Object fromJakartaRequestDispatcher(jakarta.servlet.RequestDispatcher requestDispatcher, Class<?> type) {
+        return RequestDispatcher.fromJakartaRequestDispatcher(requestDispatcher);
     }
 
     @Override
@@ -198,35 +209,40 @@ public class ServletRequestWrapper implements ServletRequest {
     }
 
     @Override
-    public ServletContext getServletContext() {
+    @WithBridgeMethods(value = ServletContext.class, adapterMethod = "fromJakartaServletContext")
+    public jakarta.servlet.ServletContext getServletContext() {
         return request.getServletContext();
     }
 
-    @Override
-    public AsyncContext startAsync() throws IllegalStateException {
-        return request.startAsync();
+    private Object fromJakartaServletContext(jakarta.servlet.ServletContext servletContext, Class<?> type) {
+        return ServletContext.fromJakartServletContext(servletContext);
     }
 
-    @Override
-    public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
-            throws IllegalStateException {
-        return request.startAsync(servletRequest, servletResponse);
-    }
+    // @Override
+    // public AsyncContext startAsync() throws IllegalStateException {
+    //    return request.startAsync();
+    // }
 
-    @Override
-    public boolean isAsyncStarted() {
-        return request.isAsyncStarted();
-    }
+    // @Override
+    // public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
+    //        throws IllegalStateException {
+    //    return request.startAsync(servletRequest, servletResponse);
+    // }
 
-    @Override
-    public boolean isAsyncSupported() {
-        return request.isAsyncSupported();
-    }
+    // @Override
+    // public boolean isAsyncStarted() {
+    //    return request.isAsyncStarted();
+    // }
 
-    @Override
-    public AsyncContext getAsyncContext() {
-        return request.getAsyncContext();
-    }
+    // @Override
+    // public boolean isAsyncSupported() {
+    //    return request.isAsyncSupported();
+    // }
+
+    // @Override
+    // public AsyncContext getAsyncContext() {
+    //    return request.getAsyncContext();
+    // }
 
     public boolean isWrapperFor(ServletRequest wrapped) {
         if (request == wrapped) {
@@ -240,9 +256,7 @@ public class ServletRequestWrapper implements ServletRequest {
 
     public boolean isWrapperFor(Class<?> wrappedType) {
         if (!ServletRequest.class.isAssignableFrom(wrappedType)) {
-            throw new IllegalArgumentException("Given class "
-                    + wrappedType.getName()
-                    + " not a subinterface of "
+            throw new IllegalArgumentException("Given class " + wrappedType.getName() + " not a subinterface of "
                     + ServletRequest.class.getName());
         }
         if (wrappedType.isAssignableFrom(request.getClass())) {
@@ -255,7 +269,12 @@ public class ServletRequestWrapper implements ServletRequest {
     }
 
     @Override
-    public DispatcherType getDispatcherType() {
+    @WithBridgeMethods(value = DispatcherType.class, adapterMethod = "fromJakartaDispatcherType")
+    public jakarta.servlet.DispatcherType getDispatcherType() {
         return request.getDispatcherType();
+    }
+
+    private Object fromJakartaDispatcherType(jakarta.servlet.DispatcherType dispatcherType, Class<?> type) {
+        return DispatcherType.fromJakartaDispatcherType(dispatcherType);
     }
 }

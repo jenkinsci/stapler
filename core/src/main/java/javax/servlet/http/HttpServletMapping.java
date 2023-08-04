@@ -45,7 +45,7 @@ public interface HttpServletMapping {
 
             @Override
             public jakarta.servlet.http.MappingMatch getMappingMatch() {
-                return HttpServletMapping.this.getMappingMatch().toJakartaMappingMatch();
+                return MappingMatch.toJakartaMappingMatch(HttpServletMapping.this.getMappingMatch());
             }
         };
     }

@@ -24,8 +24,8 @@ public enum MappingMatch {
     EXTENSION,
     PATH;
 
-    public jakarta.servlet.http.MappingMatch toJakartaMappingMatch() {
-        switch (MappingMatch.this) {
+    public static jakarta.servlet.http.MappingMatch toJakartaMappingMatch(MappingMatch from) {
+        switch (from) {
             case CONTEXT_ROOT:
                 return jakarta.servlet.http.MappingMatch.CONTEXT_ROOT;
             case DEFAULT:
@@ -37,7 +37,7 @@ public enum MappingMatch {
             case PATH:
                 return jakarta.servlet.http.MappingMatch.PATH;
             default:
-                throw new IllegalArgumentException("Unknown MappingMatch: " + MappingMatch.this);
+                throw new IllegalArgumentException("Unknown MappingMatch: " + from);
         }
     }
 

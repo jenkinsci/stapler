@@ -42,24 +42,16 @@ public class Cookie implements Cloneable, Serializable {
         }
     }
 
-    //
-    // The value of the cookie itself.
-    //
+    private String name;
+    private String value;
 
-    private String name; // NAME= ... "$Name" style is reserved
-    private String value; // value of NAME
+    private String comment;
 
-    //
-    // Attributes encoded in the header's cookie fields.
-    //
-
-    private String comment; // ;Comment=VALUE ... describes cookie's use
-    // ;Discard ... implied by maxAge < 0
-    private String domain; // ;Domain=VALUE ... domain that sees cookie
-    private int maxAge = -1; // ;Max-Age=VALUE ... cookies auto-expire
-    private String path; // ;Path=VALUE ... URLs that see the cookie
-    private boolean secure; // ;Secure ... e.g. use SSL
-    private int version = 0; // ;Version=1 ... means RFC 2109++ style
+    private String domain;
+    private int maxAge = -1;
+    private String path;
+    private boolean secure;
+    private int version = 0;
     private boolean isHttpOnly = false;
 
     public Cookie(String name, String value) {
@@ -68,15 +60,11 @@ public class Cookie implements Cloneable, Serializable {
         }
         if (!isToken(name)
                 || name.equalsIgnoreCase("Comment")
-                || // rfc2019
-                name.equalsIgnoreCase("Discard")
-                || // 2019++
-                name.equalsIgnoreCase("Domain")
+                || name.equalsIgnoreCase("Discard")
+                || name.equalsIgnoreCase("Domain")
                 || name.equalsIgnoreCase("Expires")
-                || // (old cookies)
-                name.equalsIgnoreCase("Max-Age")
-                || // rfc2019
-                name.equalsIgnoreCase("Path")
+                || name.equalsIgnoreCase("Max-Age")
+                || name.equalsIgnoreCase("Path")
                 || name.equalsIgnoreCase("Secure")
                 || name.equalsIgnoreCase("Version")
                 || name.startsWith("$")) {
@@ -100,7 +88,7 @@ public class Cookie implements Cloneable, Serializable {
     }
 
     public void setDomain(String domain) {
-        this.domain = domain.toLowerCase(Locale.ENGLISH); // IE allegedly needs this
+        this.domain = domain.toLowerCase(Locale.ENGLISH);
     }
 
     public String getDomain() {
@@ -151,13 +139,6 @@ public class Cookie implements Cloneable, Serializable {
         version = v;
     }
 
-    /*
-     * Tests a string and returns true if the string counts as a reserved token in the Java language.
-     *
-     * @param value the <code>String</code> to be tested
-     *
-     * @return <code>true</code> if the <code>String</code> is a reserved token; <code>false</code> otherwise
-     */
     private boolean isToken(String value) {
         int len = value.length();
         for (int i = 0; i < len; i++) {
@@ -187,7 +168,30 @@ public class Cookie implements Cloneable, Serializable {
         return isHttpOnly;
     }
 
-    @SuppressFBWarnings(value = {"INSECURE_COOKIE", "HTTPONLY_COOKIE"}, justification = "intentional copying")
+    @SuppressFBWarnings(
+            value = {"INSECURE_COOKIE", "HTTPONLY_COOKIE"},
+            justification = "intentional copying")
+    public static jakarta.servlet.http.Cookie toJakartaServletHttpCookie(Cookie from) {
+        jakarta.servlet.http.Cookie result = new jakarta.servlet.http.Cookie(from.getName(), from.getValue());
+        if (from.getComment() != null) {
+            result.setComment(from.getComment());
+        }
+        if (from.getDomain() != null) {
+            result.setDomain(from.getDomain());
+        }
+        result.setMaxAge(from.getMaxAge());
+        if (from.getPath() != null) {
+            result.setPath(from.getPath());
+        }
+        result.setSecure(from.getSecure());
+        result.setVersion(from.getVersion());
+        result.setHttpOnly(from.isHttpOnly());
+        return result;
+    }
+
+    @SuppressFBWarnings(
+            value = {"INSECURE_COOKIE", "HTTPONLY_COOKIE"},
+            justification = "intentional copying")
     public static Cookie fromJakartaServletHttpCookie(jakarta.servlet.http.Cookie from) {
         Cookie result = new Cookie(from.getName(), from.getValue());
         if (from.getComment() != null) {

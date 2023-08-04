@@ -21,8 +21,6 @@ package javax.servlet.http;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Map;
-import java.util.function.Supplier;
 import javax.servlet.ServletResponseWrapper;
 
 @SuppressFBWarnings(
@@ -145,13 +143,13 @@ public class HttpServletResponseWrapper extends ServletResponseWrapper implement
         return _getHttpServletResponse().getHeaderNames();
     }
 
-    @Override
-    public void setTrailerFields(Supplier<Map<String, String>> supplier) {
-        _getHttpServletResponse().setTrailerFields(supplier);
-    }
+    // @Override
+    // public void setTrailerFields(Supplier<Map<String, String>> supplier) {
+    //    _getHttpServletResponse().setTrailerFields(supplier);
+    // }
 
-    @Override
-    public Supplier<Map<String, String>> getTrailerFields() {
-        return _getHttpServletResponse().getTrailerFields();
-    }
+    // @Override
+    // public Supplier<Map<String, String>> getTrailerFields() {
+    //    return _getHttpServletResponse().getTrailerFields();
+    // }
 }

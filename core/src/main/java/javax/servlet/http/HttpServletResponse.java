@@ -18,6 +18,7 @@
 
 package javax.servlet.http;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -77,15 +78,11 @@ public interface HttpServletResponse extends ServletResponse {
 
     Collection<String> getHeaderNames();
 
-    default void setTrailerFields(Supplier<Map<String, String>> supplier) {}
+    // default void setTrailerFields(Supplier<Map<String, String>> supplier) {}
 
-    default Supplier<Map<String, String>> getTrailerFields() {
-        return null;
-    }
-
-    /*
-     * Server status codes; see RFC 2068.
-     */
+    // default Supplier<Map<String, String>> getTrailerFields() {
+    //    return null;
+    // }
 
     int SC_CONTINUE = 100;
 
@@ -253,8 +250,7 @@ public interface HttpServletResponse extends ServletResponse {
 
             @Override
             public void addCookie(jakarta.servlet.http.Cookie cookie) {
-                // TODO
-                throw new UnsupportedOperationException();
+                HttpServletResponse.this.addCookie(Cookie.fromJakartaServletHttpCookie(cookie));
             }
 
             @Override
@@ -359,12 +355,12 @@ public interface HttpServletResponse extends ServletResponse {
 
             @Override
             public void setTrailerFields(Supplier<Map<String, String>> supplier) {
-                HttpServletResponse.this.setTrailerFields(supplier);
+                throw new UnsupportedOperationException();
             }
 
             @Override
             public Supplier<Map<String, String>> getTrailerFields() {
-                return HttpServletResponse.this.getTrailerFields();
+                throw new UnsupportedOperationException();
             }
         };
     }
@@ -382,9 +378,14 @@ public interface HttpServletResponse extends ServletResponse {
             }
 
             @Override
-            public ServletOutputStream getOutputStream() throws IOException {
-                // TODO
-                throw new UnsupportedOperationException();
+            @WithBridgeMethods(value = ServletOutputStream.class, adapterMethod = "fromJakartaServletOutputStream")
+            public jakarta.servlet.ServletOutputStream getOutputStream() throws IOException {
+                return from.getOutputStream();
+            }
+
+            private Object fromJakartaServletOutputStream(
+                    jakarta.servlet.ServletOutputStream outputStream, Class<?> type) {
+                return ServletOutputStream.fromJakartaServletOutputStream(outputStream);
             }
 
             @Override
@@ -454,8 +455,7 @@ public interface HttpServletResponse extends ServletResponse {
 
             @Override
             public void addCookie(Cookie cookie) {
-                // TODO
-                throw new UnsupportedOperationException();
+                from.addCookie(Cookie.toJakartaServletHttpCookie(cookie));
             }
 
             @Override
@@ -558,15 +558,15 @@ public interface HttpServletResponse extends ServletResponse {
                 return from.getHeaderNames();
             }
 
-            @Override
-            public void setTrailerFields(Supplier<Map<String, String>> supplier) {
-                from.setTrailerFields(supplier);
-            }
+            // @Override
+            // public void setTrailerFields(Supplier<Map<String, String>> supplier) {
+            //    from.setTrailerFields(supplier);
+            // }
 
-            @Override
-            public Supplier<Map<String, String>> getTrailerFields() {
-                return from.getTrailerFields();
-            }
+            // @Override
+            // public Supplier<Map<String, String>> getTrailerFields() {
+            //    return from.getTrailerFields();
+            // }
 
             @Override
             public jakarta.servlet.ServletResponse toJakartaServletResponse() {

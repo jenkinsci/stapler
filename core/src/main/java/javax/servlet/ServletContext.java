@@ -437,8 +437,7 @@ public interface ServletContext {
 
             @Override
             public jakarta.servlet.descriptor.JspConfigDescriptor getJspConfigDescriptor() {
-                // TODO
-                throw new UnsupportedOperationException();
+                return ServletContext.this.getJspConfigDescriptor().toJakartaJspConfigDescriptor();
             }
 
             @Override
@@ -767,8 +766,7 @@ public interface ServletContext {
 
             @Override
             public JspConfigDescriptor getJspConfigDescriptor() {
-                // TODO
-                throw new UnsupportedOperationException();
+                return JspConfigDescriptor.fromJakartaJspConfigDescriptor(from.getJspConfigDescriptor());
             }
 
             @Override

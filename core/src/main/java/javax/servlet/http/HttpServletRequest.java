@@ -18,23 +18,22 @@
 
 package javax.servlet.http;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
-import javax.servlet.AsyncContext;
+import java.util.stream.Stream;
 import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 
 public interface HttpServletRequest extends ServletRequest {
     String BASIC_AUTH = "BASIC";
@@ -47,7 +46,8 @@ public interface HttpServletRequest extends ServletRequest {
 
     String getAuthType();
 
-    Cookie[] getCookies();
+    @WithBridgeMethods(Cookie[].class)
+    jakarta.servlet.http.Cookie[] getCookies();
 
     long getDateHeader(String name);
 
@@ -59,44 +59,41 @@ public interface HttpServletRequest extends ServletRequest {
 
     int getIntHeader(String name);
 
-    default HttpServletMapping getHttpServletMapping() {
-        return new HttpServletMapping() {
-            @Override
-            public String getMatchValue() {
-                return "";
-            }
+    //    default jakarta.servlet.http.HttpServletMapping getHttpServletMapping() {
+    //        return new jakarta.servlet.http.HttpServletMapping() {
+    //            @Override
+    //            public String getMatchValue() {
+    //                return "";
+    //            }
+    //
+    //            @Override
+    //            public String getPattern() {
+    //                return "";
+    //            }
+    //
+    //            @Override
+    //            public String getServletName() {
+    //                return "";
+    //            }
+    //
+    //            @Override
+    //            public jakarta.servlet.http.MappingMatch getMappingMatch() {
+    //                return null;
+    //            }
+    //
+    //            @Override
+    //            public String toString() {
+    //                return "MappingImpl{" + "matchValue=" + getMatchValue() + ", pattern=" + getPattern() + ",
+    // servletName="
+    //                        + getServletName() + ", mappingMatch=" + getMappingMatch() + "} HttpServletRequest {"
+    //                        + HttpServletRequest.this.toString() + '}';
+    //            }
+    //        };
+    //    }
 
-            @Override
-            public String getPattern() {
-                return "";
-            }
-
-            @Override
-            public String getServletName() {
-                return "";
-            }
-
-            @Override
-            public MappingMatch getMappingMatch() {
-                return null;
-            }
-
-            @Override
-            public String toString() {
-                return "MappingImpl{"
-                        + "matchValue="
-                        + getMatchValue()
-                        + ", pattern="
-                        + getPattern()
-                        + ", servletName="
-                        + getServletName()
-                        + ", mappingMatch="
-                        + getMappingMatch()
-                        + "} HttpServletRequest {"
-                        + HttpServletRequest.this.toString()
-                        + '}';
-            }
-        };
+    private Object fromJakartaHttpServletMapping(
+            jakarta.servlet.http.HttpServletMapping httpServletMapping, Class<?> type) {
+        return HttpServletMapping.fromJakartaHttpServletMapping(httpServletMapping);
     }
 
     String getMethod();
@@ -105,9 +102,9 @@ public interface HttpServletRequest extends ServletRequest {
 
     String getPathTranslated();
 
-    default PushBuilder newPushBuilder() {
-        return null;
-    }
+    // default PushBuilder newPushBuilder() {
+    //    return null;
+    // }
 
     String getContextPath();
 
@@ -127,9 +124,11 @@ public interface HttpServletRequest extends ServletRequest {
 
     String getServletPath();
 
-    HttpSession getSession(boolean create);
+    @WithBridgeMethods(HttpSession.class)
+    jakarta.servlet.http.HttpSession getSession(boolean create);
 
-    HttpSession getSession();
+    @WithBridgeMethods(HttpSession.class)
+    jakarta.servlet.http.HttpSession getSession();
 
     String changeSessionId();
 
@@ -144,23 +143,24 @@ public interface HttpServletRequest extends ServletRequest {
 
     boolean authenticate(HttpServletResponse response) throws IOException, ServletException;
 
-    void login(String username, String password) throws ServletException;
+    // void login(String username, String password) throws ServletException;
 
-    void logout() throws ServletException;
+    // void logout() throws ServletException;
 
-    Collection<Part> getParts() throws IOException, ServletException;
+    Collection<jakarta.servlet.http.Part> getParts() throws IOException, jakarta.servlet.ServletException;
 
-    Part getPart(String name) throws IOException, ServletException;
+    @WithBridgeMethods(Part.class)
+    jakarta.servlet.http.Part getPart(String name) throws IOException, jakarta.servlet.ServletException;
 
-    <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException;
+    // <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException;
 
-    default Map<String, String> getTrailerFields() {
-        return Collections.emptyMap();
-    }
+    // default Map<String, String> getTrailerFields() {
+    //    return Collections.emptyMap();
+    // }
 
-    default boolean isTrailerFieldsReady() {
-        return true;
-    }
+    // default boolean isTrailerFieldsReady() {
+    //    return true;
+    // }
 
     default jakarta.servlet.http.HttpServletRequest toJakartaHttpServletRequest() {
         return new jakarta.servlet.http.HttpServletRequest() {
@@ -286,7 +286,7 @@ public interface HttpServletRequest extends ServletRequest {
 
             @Override
             public jakarta.servlet.RequestDispatcher getRequestDispatcher(String s) {
-                return HttpServletRequest.this.getRequestDispatcher(s).toJakartaRequestDispatcher();
+                return HttpServletRequest.this.getRequestDispatcher(s);
             }
 
             @Override
@@ -316,7 +316,7 @@ public interface HttpServletRequest extends ServletRequest {
 
             @Override
             public jakarta.servlet.ServletContext getServletContext() {
-                return HttpServletRequest.this.getServletContext().toJakartaServletContext();
+                return HttpServletRequest.this.getServletContext();
             }
 
             @Override
@@ -335,12 +335,14 @@ public interface HttpServletRequest extends ServletRequest {
 
             @Override
             public boolean isAsyncStarted() {
-                return HttpServletRequest.this.isAsyncStarted();
+                // TODO
+                throw new UnsupportedOperationException();
             }
 
             @Override
             public boolean isAsyncSupported() {
-                return HttpServletRequest.this.isAsyncSupported();
+                // TODO
+                throw new UnsupportedOperationException();
             }
 
             @Override
@@ -351,7 +353,7 @@ public interface HttpServletRequest extends ServletRequest {
 
             @Override
             public jakarta.servlet.DispatcherType getDispatcherType() {
-                return HttpServletRequest.this.getDispatcherType().toJakartaDispatcherType();
+                return HttpServletRequest.this.getDispatcherType();
             }
 
             @Override
@@ -361,8 +363,7 @@ public interface HttpServletRequest extends ServletRequest {
 
             @Override
             public jakarta.servlet.http.Cookie[] getCookies() {
-                // TODO
-                throw new UnsupportedOperationException();
+                return HttpServletRequest.this.getCookies();
             }
 
             @Override
@@ -392,7 +393,7 @@ public interface HttpServletRequest extends ServletRequest {
 
             @Override
             public jakarta.servlet.http.HttpServletMapping getHttpServletMapping() {
-                return HttpServletRequest.this.getHttpServletMapping().toJakartaHttpServletMapping();
+                throw new UnsupportedOperationException();
             }
 
             @Override
@@ -463,12 +464,12 @@ public interface HttpServletRequest extends ServletRequest {
 
             @Override
             public jakarta.servlet.http.HttpSession getSession(boolean b) {
-                return HttpServletRequest.this.getSession(b).toJakartaHttpSession();
+                return HttpServletRequest.this.getSession(b);
             }
 
             @Override
             public jakarta.servlet.http.HttpSession getSession() {
-                return HttpServletRequest.this.getSession().toJakartaHttpSession();
+                return HttpServletRequest.this.getSession();
             }
 
             @Override
@@ -509,33 +510,23 @@ public interface HttpServletRequest extends ServletRequest {
 
             @Override
             public void login(String s, String s1) throws jakarta.servlet.ServletException {
-                try {
-                    HttpServletRequest.this.login(s, s1);
-                } catch (ServletException e) {
-                    throw new jakarta.servlet.ServletException(e);
-                }
+                throw new UnsupportedOperationException();
             }
 
             @Override
             public void logout() throws jakarta.servlet.ServletException {
-                try {
-                    HttpServletRequest.this.logout();
-                } catch (ServletException e) {
-                    throw new jakarta.servlet.ServletException(e);
-                }
+                throw new UnsupportedOperationException();
             }
 
             @Override
             public Collection<jakarta.servlet.http.Part> getParts()
                     throws IOException, jakarta.servlet.ServletException {
-                // TODO
-                throw new UnsupportedOperationException();
+                return HttpServletRequest.this.getParts();
             }
 
             @Override
             public jakarta.servlet.http.Part getPart(String s) throws IOException, jakarta.servlet.ServletException {
-                // TODO
-                throw new UnsupportedOperationException();
+                return HttpServletRequest.this.getPart(s);
             }
 
             @Override
@@ -547,12 +538,12 @@ public interface HttpServletRequest extends ServletRequest {
 
             @Override
             public Map<String, String> getTrailerFields() {
-                return HttpServletRequest.this.getTrailerFields();
+                throw new UnsupportedOperationException();
             }
 
             @Override
             public boolean isTrailerFieldsReady() {
-                return HttpServletRequest.this.isTrailerFieldsReady();
+                throw new UnsupportedOperationException();
             }
         };
     }
@@ -595,9 +586,14 @@ public interface HttpServletRequest extends ServletRequest {
             }
 
             @Override
-            public ServletInputStream getInputStream() throws IOException {
-                // TODO
-                throw new UnsupportedOperationException();
+            @WithBridgeMethods(value = ServletInputStream.class, adapterMethod = "fromJakartaServletInputStream")
+            public jakarta.servlet.ServletInputStream getInputStream() throws IOException {
+                return from.getInputStream();
+            }
+
+            private Object fromJakartaServletInputStream(
+                    jakarta.servlet.ServletInputStream inputStream, Class<?> type) {
+                return ServletInputStream.fromJakartaServletInputStream(inputStream);
             }
 
             @Override
@@ -681,8 +677,14 @@ public interface HttpServletRequest extends ServletRequest {
             }
 
             @Override
-            public RequestDispatcher getRequestDispatcher(String path) {
-                return RequestDispatcher.fromJakartaRequestDispatcher(from.getRequestDispatcher(path));
+            @WithBridgeMethods(value = RequestDispatcher.class, adapterMethod = "fromJakartaRequestDispatcher")
+            public jakarta.servlet.RequestDispatcher getRequestDispatcher(String path) {
+                return from.getRequestDispatcher(path);
+            }
+
+            private Object fromJakartaRequestDispatcher(
+                    jakarta.servlet.RequestDispatcher requestDispatcher, Class<?> type) {
+                return RequestDispatcher.fromJakartaRequestDispatcher(requestDispatcher);
             }
 
             @Override
@@ -711,42 +713,49 @@ public interface HttpServletRequest extends ServletRequest {
             }
 
             @Override
-            public ServletContext getServletContext() {
-                return ServletContext.fromJakartServletContext(from.getServletContext());
+            @WithBridgeMethods(value = ServletContext.class, adapterMethod = "fromJakartaServletContext")
+            public jakarta.servlet.ServletContext getServletContext() {
+                return from.getServletContext();
             }
 
-            @Override
-            public AsyncContext startAsync() throws IllegalStateException {
-                // TODO
-                throw new UnsupportedOperationException();
+            private Object fromJakartaServletContext(jakarta.servlet.ServletContext servletContext, Class<?> type) {
+                return ServletContext.fromJakartServletContext(servletContext);
             }
 
-            @Override
-            public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
-                    throws IllegalStateException {
-                // TODO
-                throw new UnsupportedOperationException();
-            }
+            // @Override
+            // public AsyncContext startAsync() throws IllegalStateException {
+            //    throw new UnsupportedOperationException();
+            // }
+
+            // @Override
+            // public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
+            //        throws IllegalStateException {
+            //    throw new UnsupportedOperationException();
+            // }
+
+            // @Override
+            // public boolean isAsyncStarted() {
+            //    return from.isAsyncStarted();
+            // }
+
+            // @Override
+            // public boolean isAsyncSupported() {
+            //    return from.isAsyncSupported();
+            // }
+
+            // @Override
+            // public AsyncContext getAsyncContext() {
+            //    throw new UnsupportedOperationException();
+            // }
 
             @Override
-            public boolean isAsyncStarted() {
-                return from.isAsyncStarted();
+            @WithBridgeMethods(value = DispatcherType.class, adapterMethod = "fromJakartaDispatcherType")
+            public jakarta.servlet.DispatcherType getDispatcherType() {
+                return from.getDispatcherType();
             }
 
-            @Override
-            public boolean isAsyncSupported() {
-                return from.isAsyncSupported();
-            }
-
-            @Override
-            public AsyncContext getAsyncContext() {
-                // TODO
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public DispatcherType getDispatcherType() {
-                return DispatcherType.fromJakartaDispatcherType(from.getDispatcherType());
+            private Object fromJakartaDispatcherType(jakarta.servlet.DispatcherType dispatcherType, Class<?> type) {
+                return DispatcherType.fromJakartaDispatcherType(dispatcherType);
             }
 
             @Override
@@ -755,9 +764,15 @@ public interface HttpServletRequest extends ServletRequest {
             }
 
             @Override
-            public Cookie[] getCookies() {
-                // TODO
-                throw new UnsupportedOperationException();
+            @WithBridgeMethods(value = Cookie[].class, adapterMethod = "fromJakartaCookies")
+            public jakarta.servlet.http.Cookie[] getCookies() {
+                return from.getCookies();
+            }
+
+            private Object fromJakartaCookies(jakarta.servlet.http.Cookie[] cookies, Class<?> type) {
+                return Stream.of(cookies)
+                        .map(Cookie::fromJakartaServletHttpCookie)
+                        .toArray(Cookie[]::new);
             }
 
             @Override
@@ -785,10 +800,10 @@ public interface HttpServletRequest extends ServletRequest {
                 return from.getIntHeader(name);
             }
 
-            @Override
-            public HttpServletMapping getHttpServletMapping() {
-                return HttpServletMapping.fromJakartaHttpServletMapping(from.getHttpServletMapping());
-            }
+            // @Override
+            // public jakarta.servlet.http.HttpServletMapping getHttpServletMapping() {
+            //    return from.getHttpServletMapping();
+            // }
 
             @Override
             public String getMethod() {
@@ -805,11 +820,10 @@ public interface HttpServletRequest extends ServletRequest {
                 return from.getPathTranslated();
             }
 
-            @Override
-            public PushBuilder newPushBuilder() {
-                // TODO
-                throw new UnsupportedOperationException();
-            }
+            // @Override
+            // public PushBuilder newPushBuilder() {
+            //    throw new UnsupportedOperationException();
+            // }
 
             @Override
             public String getContextPath() {
@@ -857,13 +871,19 @@ public interface HttpServletRequest extends ServletRequest {
             }
 
             @Override
-            public HttpSession getSession(boolean create) {
-                return HttpSession.fromJakartaHttpSession(from.getSession(create));
+            @WithBridgeMethods(value = HttpSession.class, adapterMethod = "fromJakartaHttpSession")
+            public jakarta.servlet.http.HttpSession getSession(boolean create) {
+                return from.getSession(create);
             }
 
             @Override
-            public HttpSession getSession() {
-                return HttpSession.fromJakartaHttpSession(from.getSession());
+            @WithBridgeMethods(value = HttpSession.class, adapterMethod = "fromJakartaHttpSession")
+            public jakarta.servlet.http.HttpSession getSession() {
+                return from.getSession();
+            }
+
+            private Object fromJakartaHttpSession(jakarta.servlet.http.HttpSession httpSession, Class<?> type) {
+                return HttpSession.fromJakartaHttpSession(httpSession);
             }
 
             @Override
@@ -900,52 +920,55 @@ public interface HttpServletRequest extends ServletRequest {
                 }
             }
 
+            // @Override
+            // public void login(String username, String password) throws ServletException {
+            //    try {
+            //        from.login(username, password);
+            //    } catch (jakarta.servlet.ServletException e) {
+            //        throw new ServletException(e);
+            //    }
+            // }
+
+            // @Override
+            // public void logout() throws ServletException {
+            //    try {
+            //        from.logout();
+            //    } catch (jakarta.servlet.ServletException e) {
+            //        throw new ServletException(e);
+            //    }
+            // }
+
             @Override
-            public void login(String username, String password) throws ServletException {
-                try {
-                    from.login(username, password);
-                } catch (jakarta.servlet.ServletException e) {
-                    throw new ServletException(e);
-                }
+            public Collection<jakarta.servlet.http.Part> getParts()
+                    throws IOException, jakarta.servlet.ServletException {
+                return from.getParts();
             }
 
             @Override
-            public void logout() throws ServletException {
-                try {
-                    from.logout();
-                } catch (jakarta.servlet.ServletException e) {
-                    throw new ServletException(e);
-                }
+            @WithBridgeMethods(value = Part.class, adapterMethod = "fromJakartaPart")
+            public jakarta.servlet.http.Part getPart(String name) throws IOException, jakarta.servlet.ServletException {
+                return from.getPart(name);
             }
 
-            @Override
-            public Collection<Part> getParts() throws IOException, ServletException {
-                // TODO
-                throw new UnsupportedOperationException();
+            private Object fromJakartaPart(jakarta.servlet.http.Part part, Class<?> type) {
+                return Part.fromJakartaPart(part);
             }
 
-            @Override
-            public Part getPart(String name) throws IOException, ServletException {
-                // TODO
-                throw new UnsupportedEncodingException();
-            }
+            // @Override
+            // public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass)
+            //        throws IOException, ServletException {
+            //    throw new UnsupportedOperationException();
+            // }
 
-            @Override
-            public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass)
-                    throws IOException, ServletException {
-                // TODO
-                throw new UnsupportedOperationException();
-            }
+            // @Override
+            // public Map<String, String> getTrailerFields() {
+            //    return from.getTrailerFields();
+            // }
 
-            @Override
-            public Map<String, String> getTrailerFields() {
-                return from.getTrailerFields();
-            }
-
-            @Override
-            public boolean isTrailerFieldsReady() {
-                return from.isTrailerFieldsReady();
-            }
+            // @Override
+            // public boolean isTrailerFieldsReady() {
+            //    return from.isTrailerFieldsReady();
+            // }
 
             @Override
             public jakarta.servlet.ServletRequest toJakartaServletRequest() {

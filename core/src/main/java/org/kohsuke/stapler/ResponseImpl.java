@@ -40,6 +40,7 @@ import java.util.Map.Entry;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
@@ -88,7 +89,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     @Override
-    @WithBridgeMethods(value = javax.servlet.ServletOutputStream.class, castRequired = true)
+    @WithBridgeMethods(value = javax.servlet.ServletOutputStream.class, adapterMethod = "fromJakartaServletOutputStream")
     public ServletOutputStream getOutputStream() throws IOException {
         if(mode==OutputMode.CHAR)
             throw new IllegalStateException("getWriter has already been called. Its call site is in the nested exception",origin);
@@ -96,6 +97,10 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
             recordOutput(super.getOutputStream());
         }
         return (ServletOutputStream)output;
+    }
+
+    private Object fromJakartaServletOutputStream(jakarta.servlet.ServletOutputStream outputStream, Class<?> type) {
+        return javax.servlet.ServletOutputStream.fromJakartaServletOutputStream(outputStream);
     }
 
     @Override
@@ -109,11 +114,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     private <T extends ServletOutputStream> T recordOutput(T obj) {
-        if (obj instanceof javax.servlet.ServletOutputStream) {
-            this.output = obj;
-        } else {
-            this.output = javax.servlet.ServletOutputStream.fromJakartaServletOutputStream(obj);
-        }
+        this.output = obj;
         this.mode = OutputMode.BYTE;
         this.origin = new Throwable();
         return obj;
@@ -136,6 +137,15 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         String referer = request.getHeader("Referer");
         if(referer==null)   referer=".";
         sendRedirect(referer);
+    }
+
+    /**
+     * @deprecated use {@link #addCookie(Cookie)}
+     */
+    @Deprecated
+    @Override
+    public void addCookie(javax.servlet.http.Cookie cookie) {
+        super.addCookie(javax.servlet.http.Cookie.toJakartaServletHttpCookie(cookie));
     }
 
     @Override
@@ -166,7 +176,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
     @Override
     public void sendRedirect(int statusCode, @NonNull String url) throws IOException {
-        if (statusCode==SC_MOVED_TEMPORARILY) {
+        if (statusCode == HttpServletResponse.SC_MOVED_TEMPORARILY) {
             sendRedirect(url);  // to be safe, let the servlet container handles this default case
             return;
         }
@@ -213,7 +223,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     @Override
     public void serveFile(StaplerRequest req, URL resource, long expiration) throws ServletException, IOException {
         if(!stapler.serveStaticResource(req,this,resource,expiration))
-            sendError(SC_NOT_FOUND);
+            sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 
     @Override
@@ -229,13 +239,13 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     @Override
     public void serveLocalizedFile(StaplerRequest request, URL res, long expiration) throws ServletException, IOException {
         if(!stapler.serveStaticResource(request, this, stapler.selectResourceByLocale(res,request.getLocale()), expiration))
-            sendError(SC_NOT_FOUND);
+            sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 
     @Override
     public void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, long contentLength, String fileName) throws ServletException, IOException {
         if(!stapler.serveStaticResource(req,this,data,lastModified,expiration,contentLength,fileName))
-            sendError(SC_NOT_FOUND);        
+            sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 
     @Override
@@ -334,6 +344,15 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         return recordOutput(new FilterServletOutputStream(new GZIPOutputStream(super.getOutputStream()), super.getOutputStream()));
     }
 
+    /**
+     * @deprecated use {@link #getCompressedWriter(HttpServletRequest)}
+     */
+    @Deprecated
+    @Override
+    public OutputStream getCompressedOutputStream(javax.servlet.http.HttpServletRequest req) throws IOException {
+        return getCompressedOutputStream(req.toJakartaHttpServletRequest());
+    }
+
     @Override
     public Writer getCompressedWriter(HttpServletRequest req) throws IOException {
         if (mode!=null)
@@ -349,6 +368,15 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         // see CompressionFilter for why this is not desirable
         setHeader("Content-Encoding","gzip");
         return recordOutput(new PrintWriter(new OutputStreamWriter(new GZIPOutputStream(super.getOutputStream()),getCharacterEncoding())));
+    }
+
+    /**
+     * @deprecated use {@link #getCompressedWriter(HttpServletRequest)}
+     */
+    @Deprecated
+    @Override
+    public Writer getCompressedWriter(javax.servlet.http.HttpServletRequest req) throws IOException {
+        return getCompressedWriter(req.toJakartaHttpServletRequest());
     }
 
     @Override

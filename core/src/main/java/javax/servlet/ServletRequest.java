@@ -18,6 +18,7 @@
 
 package javax.servlet;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -40,7 +41,8 @@ public interface ServletRequest {
 
     String getContentType();
 
-    ServletInputStream getInputStream() throws IOException;
+    @WithBridgeMethods(ServletInputStream.class)
+    jakarta.servlet.ServletInputStream getInputStream() throws IOException;
 
     String getParameter(String name);
 
@@ -74,8 +76,10 @@ public interface ServletRequest {
 
     boolean isSecure();
 
-    RequestDispatcher getRequestDispatcher(String path);
+    @WithBridgeMethods(RequestDispatcher.class)
+    jakarta.servlet.RequestDispatcher getRequestDispatcher(String path);
 
+    @Deprecated
     String getRealPath(String path);
 
     int getRemotePort();
@@ -86,20 +90,22 @@ public interface ServletRequest {
 
     int getLocalPort();
 
-    ServletContext getServletContext();
+    @WithBridgeMethods(ServletContext.class)
+    jakarta.servlet.ServletContext getServletContext();
 
-    AsyncContext startAsync() throws IllegalStateException;
+    // AsyncContext startAsync() throws IllegalStateException;
 
-    AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
-            throws IllegalStateException;
+    // AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws
+    // IllegalStateException;
 
-    boolean isAsyncStarted();
+    // boolean isAsyncStarted();
 
-    boolean isAsyncSupported();
+    // boolean isAsyncSupported();
 
-    AsyncContext getAsyncContext();
+    // AsyncContext getAsyncContext();
 
-    DispatcherType getDispatcherType();
+    @WithBridgeMethods(DispatcherType.class)
+    jakarta.servlet.DispatcherType getDispatcherType();
 
     default jakarta.servlet.ServletRequest toJakartaServletRequest() {
         return new jakarta.servlet.ServletRequest() {
@@ -225,7 +231,7 @@ public interface ServletRequest {
 
             @Override
             public jakarta.servlet.RequestDispatcher getRequestDispatcher(String s) {
-                return ServletRequest.this.getRequestDispatcher(s).toJakartaRequestDispatcher();
+                return ServletRequest.this.getRequestDispatcher(s);
             }
 
             @Override
@@ -255,7 +261,7 @@ public interface ServletRequest {
 
             @Override
             public jakarta.servlet.ServletContext getServletContext() {
-                return ServletRequest.this.getServletContext().toJakartaServletContext();
+                return ServletRequest.this.getServletContext();
             }
 
             @Override
@@ -274,12 +280,14 @@ public interface ServletRequest {
 
             @Override
             public boolean isAsyncStarted() {
-                return ServletRequest.this.isAsyncStarted();
+                // TODO
+                throw new UnsupportedOperationException();
             }
 
             @Override
             public boolean isAsyncSupported() {
-                return ServletRequest.this.isAsyncSupported();
+                // TODO
+                throw new UnsupportedOperationException();
             }
 
             @Override
@@ -290,7 +298,7 @@ public interface ServletRequest {
 
             @Override
             public jakarta.servlet.DispatcherType getDispatcherType() {
-                return ServletRequest.this.getDispatcherType().toJakartaDispatcherType();
+                return ServletRequest.this.getDispatcherType();
             }
         };
     }
@@ -333,9 +341,14 @@ public interface ServletRequest {
             }
 
             @Override
-            public ServletInputStream getInputStream() throws IOException {
-                // TODO
-                throw new UnsupportedOperationException();
+            @WithBridgeMethods(value = ServletInputStream.class, adapterMethod = "fromJakartaServletInputStream")
+            public jakarta.servlet.ServletInputStream getInputStream() throws IOException {
+                return from.getInputStream();
+            }
+
+            private Object fromJakartaServletInputStream(
+                    jakarta.servlet.ServletInputStream inputStream, Class<?> type) {
+                return ServletInputStream.fromJakartaServletInputStream(inputStream);
             }
 
             @Override
@@ -418,9 +431,14 @@ public interface ServletRequest {
                 return from.isSecure();
             }
 
-            @Override
-            public RequestDispatcher getRequestDispatcher(String path) {
-                return RequestDispatcher.fromJakartaRequestDispatcher(from.getRequestDispatcher(path));
+            @WithBridgeMethods(value = RequestDispatcher.class, adapterMethod = "fromJakartaRequestDispatcher")
+            public jakarta.servlet.RequestDispatcher getRequestDispatcher(String path) {
+                return from.getRequestDispatcher(path);
+            }
+
+            private Object fromJakartaRequestDispatcher(
+                    jakarta.servlet.RequestDispatcher requestDispatcher, Class<?> type) {
+                return RequestDispatcher.fromJakartaRequestDispatcher(requestDispatcher);
             }
 
             @Override
@@ -449,42 +467,49 @@ public interface ServletRequest {
             }
 
             @Override
-            public ServletContext getServletContext() {
-                return ServletContext.fromJakartServletContext(from.getServletContext());
+            @WithBridgeMethods(value = ServletContext.class, adapterMethod = "fromJakartaServletContext")
+            public jakarta.servlet.ServletContext getServletContext() {
+                return from.getServletContext();
             }
 
-            @Override
-            public AsyncContext startAsync() throws IllegalStateException {
-                // TODO
-                throw new UnsupportedOperationException();
+            private Object fromJakartaServletContext(jakarta.servlet.ServletContext servletContext, Class<?> type) {
+                return ServletContext.fromJakartServletContext(servletContext);
             }
 
-            @Override
-            public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
-                    throws IllegalStateException {
-                // TODO
-                throw new UnsupportedOperationException();
-            }
+            // @Override
+            // public AsyncContext startAsync() throws IllegalStateException {
+            //    throw new UnsupportedOperationException();
+            // }
+
+            // @Override
+            // public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
+            //        throws IllegalStateException {
+            //    throw new UnsupportedOperationException();
+            // }
+
+            // @Override
+            // public boolean isAsyncStarted() {
+            //    return from.isAsyncStarted();
+            // }
+
+            // @Override
+            // public boolean isAsyncSupported() {
+            //    return from.isAsyncSupported();
+            // }
+
+            // @Override
+            // public AsyncContext getAsyncContext() {
+            //    throw new UnsupportedOperationException();
+            // }
 
             @Override
-            public boolean isAsyncStarted() {
-                return from.isAsyncStarted();
+            @WithBridgeMethods(value = DispatcherType.class, adapterMethod = "fromJakartaDispatcherType")
+            public jakarta.servlet.DispatcherType getDispatcherType() {
+                return from.getDispatcherType();
             }
 
-            @Override
-            public boolean isAsyncSupported() {
-                return from.isAsyncSupported();
-            }
-
-            @Override
-            public AsyncContext getAsyncContext() {
-                // TODO
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public DispatcherType getDispatcherType() {
-                return DispatcherType.fromJakartaDispatcherType(from.getDispatcherType());
+            private Object fromJakartaDispatcherType(jakarta.servlet.DispatcherType dispatcherType, Class<?> type) {
+                return DispatcherType.fromJakartaDispatcherType(dispatcherType);
             }
 
             @Override

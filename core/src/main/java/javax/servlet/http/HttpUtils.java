@@ -19,15 +19,12 @@
 package javax.servlet.http;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Hashtable;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 import javax.servlet.ServletInputStream;
 
-/**
- * @deprecated As of Java(tm) Servlet API 2.3. These methods were only useful with the default
- *     encoding and have been moved to the request interfaces.
- */
 @Deprecated
 public class HttpUtils {
     private static final String LSTRING_FILE = "javax.servlet.http.LocalStrings";
@@ -36,7 +33,7 @@ public class HttpUtils {
     public HttpUtils() {}
 
     public static Hashtable<String, String[]> parseQueryString(String s) {
-        String valArray[] = null;
+        String[] valArray = null;
 
         if (s == null) {
             throw new IllegalArgumentException();
@@ -49,14 +46,12 @@ public class HttpUtils {
             String pair = st.nextToken();
             int pos = pair.indexOf('=');
             if (pos == -1) {
-                // XXX
-                // should give more detail about the illegal argument
                 throw new IllegalArgumentException();
             }
             String key = parseName(pair.substring(0, pos), sb);
             String val = parseName(pair.substring(pos + 1, pair.length()), sb);
             if (ht.containsKey(key)) {
-                String oldVals[] = ht.get(key);
+                String[] oldVals = ht.get(key);
                 valArray = new String[oldVals.length + 1];
                 for (int i = 0; i < oldVals.length; i++) {
                     valArray[i] = oldVals[i];
@@ -73,11 +68,7 @@ public class HttpUtils {
     }
 
     public static Hashtable<String, String[]> parsePostData(int len, ServletInputStream in) {
-        // XXX
-        // should a length of 0 be an IllegalArgumentException
-
         if (len <= 0) {
-            // cheap hack to return an empty hash
             return new Hashtable<>();
         }
 
@@ -85,9 +76,6 @@ public class HttpUtils {
             throw new IllegalArgumentException();
         }
 
-        //
-        // Make sure we read the entire POSTed body.
-        //
         byte[] postedBytes = new byte[len];
         try {
             int offset = 0;
@@ -105,24 +93,10 @@ public class HttpUtils {
             throw new IllegalArgumentException(e.getMessage());
         }
 
-        // XXX we shouldn't assume that the only kind of POST body
-        // is FORM data encoded using ASCII or ISO Latin/1 ... or
-        // that the body should always be treated as FORM data.
-        //
-
-        try {
-            String postedBody = new String(postedBytes, 0, len, "8859_1");
-            return parseQueryString(postedBody);
-        } catch (java.io.UnsupportedEncodingException e) {
-            // XXX function should accept an encoding parameter & throw this
-            // exception. Otherwise throw something expected.
-            throw new IllegalArgumentException(e.getMessage());
-        }
+        String postedBody = new String(postedBytes, 0, len, StandardCharsets.ISO_8859_1);
+        return parseQueryString(postedBody);
     }
 
-    /*
-     * Parse a name in the query string.
-     */
     private static String parseName(String s, StringBuilder sb) {
         sb.setLength(0);
         for (int i = 0; i < s.length(); i++) {
@@ -136,8 +110,6 @@ public class HttpUtils {
                         sb.append((char) Integer.parseInt(s.substring(i + 1, i + 3), 16));
                         i += 2;
                     } catch (NumberFormatException e) {
-                        // XXX
-                        // need to be more specific about illegal arg
                         throw new IllegalArgumentException();
                     } catch (StringIndexOutOfBoundsException e) {
                         String rest = s.substring(i);
@@ -161,20 +133,13 @@ public class HttpUtils {
         int port = req.getServerPort();
         String urlPath = req.getRequestURI();
 
-        // String servletPath = req.getServletPath ();
-        // String pathInfo = req.getPathInfo ();
-
-        url.append(scheme); // http, https
+        url.append(scheme);
         url.append("://");
         url.append(req.getServerName());
         if ((scheme.equals("http") && port != 80) || (scheme.equals("https") && port != 443)) {
             url.append(':');
             url.append(req.getServerPort());
         }
-        // if (servletPath != null)
-        // url.append (servletPath);
-        // if (pathInfo != null)
-        // url.append (pathInfo);
         url.append(urlPath);
 
         return url;

@@ -18,6 +18,7 @@
 
 package javax.servlet;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
@@ -27,7 +28,8 @@ public interface ServletResponse {
 
     String getContentType();
 
-    ServletOutputStream getOutputStream() throws IOException;
+    @WithBridgeMethods(ServletOutputStream.class)
+    jakarta.servlet.ServletOutputStream getOutputStream() throws IOException;
 
     PrintWriter getWriter() throws IOException;
 
@@ -152,9 +154,14 @@ public interface ServletResponse {
             }
 
             @Override
-            public ServletOutputStream getOutputStream() throws IOException {
-                // TODO
-                throw new UnsupportedOperationException();
+            @WithBridgeMethods(value = ServletOutputStream.class, adapterMethod = "fromJakartaServletOutputStream")
+            public jakarta.servlet.ServletOutputStream getOutputStream() throws IOException {
+                return from.getOutputStream();
+            }
+
+            private Object fromJakartaServletOutputStream(
+                    jakarta.servlet.ServletOutputStream outputStream, Class<?> type) {
+                return ServletOutputStream.fromJakartaServletOutputStream(outputStream);
             }
 
             @Override

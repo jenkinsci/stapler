@@ -24,8 +24,8 @@ public enum DispatcherType {
     ASYNC,
     ERROR;
 
-    public jakarta.servlet.DispatcherType toJakartaDispatcherType() {
-        switch (DispatcherType.this) {
+    public static jakarta.servlet.DispatcherType toJakartaDispatcherType(DispatcherType from) {
+        switch (from) {
             case FORWARD:
                 return jakarta.servlet.DispatcherType.FORWARD;
             case INCLUDE:
@@ -37,7 +37,7 @@ public enum DispatcherType {
             case ERROR:
                 return jakarta.servlet.DispatcherType.ERROR;
             default:
-                throw new IllegalArgumentException("Unknown DispatcherType: " + DispatcherType.this);
+                throw new IllegalArgumentException("Unknown DispatcherType: " + from);
         }
     }
 

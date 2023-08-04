@@ -18,6 +18,7 @@
 
 package javax.servlet;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
@@ -54,8 +55,13 @@ public class ServletResponseWrapper implements ServletResponse {
     }
 
     @Override
-    public ServletOutputStream getOutputStream() throws IOException {
+    @WithBridgeMethods(value = ServletOutputStream.class, adapterMethod = "fromJakartaServletOutputStream")
+    public jakarta.servlet.ServletOutputStream getOutputStream() throws IOException {
         return this.response.getOutputStream();
+    }
+
+    private Object fromJakartaServletOutputStream(jakarta.servlet.ServletOutputStream outputStream, Class<?> type) {
+        return ServletOutputStream.fromJakartaServletOutputStream(outputStream);
     }
 
     @Override
@@ -135,9 +141,7 @@ public class ServletResponseWrapper implements ServletResponse {
 
     public boolean isWrapperFor(Class<?> wrappedType) {
         if (!ServletResponse.class.isAssignableFrom(wrappedType)) {
-            throw new IllegalArgumentException("Given class "
-                    + wrappedType.getName()
-                    + " not a subinterface of "
+            throw new IllegalArgumentException("Given class " + wrappedType.getName() + " not a subinterface of "
                     + ServletResponse.class.getName());
         }
         if (wrappedType.isAssignableFrom(response.getClass())) {

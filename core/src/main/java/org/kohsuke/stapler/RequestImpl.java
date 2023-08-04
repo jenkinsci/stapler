@@ -51,6 +51,7 @@ import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
@@ -82,6 +83,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.logging.Level.*;
 import static jakarta.servlet.http.HttpServletResponse.*;
@@ -209,8 +211,13 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     @Override
+    @WithBridgeMethods(value = javax.servlet.ServletContext.class, adapterMethod = "fromJakartaServletContext")
     public ServletContext getServletContext() {
         return stapler.getServletContext();
+    }
+
+    private Object fromJakartaServletContext(ServletContext servletContext, Class<?> type) {
+        return javax.servlet.ServletContext.fromJakartServletContext(servletContext);
     }
 
     @Override
@@ -671,6 +678,19 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             } catch (NoSuchMethodException e) {
                 // ignore if there's no such property
             }
+        }
+    }
+
+    /**
+     * @deprecated use {@link #authenticate(HttpServletResponse)}
+     */
+    @Deprecated
+    @Override
+    public boolean authenticate(javax.servlet.http.HttpServletResponse response) throws IOException, javax.servlet.ServletException {
+        try {
+            return authenticate(response.toJakartaHttpServletResponse());
+        } catch (ServletException e) {
+            throw new javax.servlet.ServletException(e);
         }
     }
 
@@ -1163,17 +1183,23 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     @Override
-    @WithBridgeMethods(value = javax.servlet.http.Cookie[].class, adapterMethod = "convertCookies")
+    @WithBridgeMethods(value = javax.servlet.ServletInputStream.class, adapterMethod = "fromJakartaServletInputStream")
+    public ServletInputStream getInputStream() throws IOException {
+        return super.getInputStream();
+    }
+
+    private Object fromJakartaServletInputStream(ServletInputStream inputStream, Class<?> type) {
+        return javax.servlet.ServletInputStream.fromJakartaServletInputStream(inputStream);
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.http.Cookie[].class, adapterMethod = "fromJakartaCookies")
     public Cookie[] getCookies() {
         return super.getCookies();
     }
 
-    private Object convertCookies(Cookie[] cookies, Class<?> type) {
-        javax.servlet.http.Cookie[] result = new javax.servlet.http.Cookie[cookies.length];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = javax.servlet.http.Cookie.fromJakartaServletHttpCookie(cookies[i]);
-        }
-        return result;
+    private Object fromJakartaCookies(Cookie[] cookies, Class<?> type) {
+        return Stream.of(cookies).map(javax.servlet.http.Cookie::fromJakartaServletHttpCookie).toArray(javax.servlet.http.Cookie[]::new);
     }
 
     private static final Logger LOGGER = Logger.getLogger(RequestImpl.class.getName());

@@ -22,8 +22,8 @@ public enum SessionTrackingMode {
     URL,
     SSL;
 
-    public jakarta.servlet.SessionTrackingMode toJakartaSessionTrackingMode() {
-        switch (SessionTrackingMode.this) {
+    public static jakarta.servlet.SessionTrackingMode toJakartaSessionTrackingMode(SessionTrackingMode from) {
+        switch (from) {
             case COOKIE:
                 return jakarta.servlet.SessionTrackingMode.COOKIE;
             case URL:
@@ -31,7 +31,7 @@ public enum SessionTrackingMode {
             case SSL:
                 return jakarta.servlet.SessionTrackingMode.SSL;
             default:
-                throw new IllegalArgumentException("Unknown SessionTrackingMode: " + SessionTrackingMode.this);
+                throw new IllegalArgumentException("Unknown SessionTrackingMode: " + from);
         }
     }
 

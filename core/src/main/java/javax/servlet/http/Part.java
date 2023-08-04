@@ -41,4 +41,117 @@ public interface Part {
     Collection<String> getHeaders(String name);
 
     Collection<String> getHeaderNames();
+
+    default jakarta.servlet.http.Part toJakartaPart() {
+        return new jakarta.servlet.http.Part() {
+            @Override
+            public InputStream getInputStream() throws IOException {
+                return Part.this.getInputStream();
+            }
+
+            @Override
+            public String getContentType() {
+                return Part.this.getContentType();
+            }
+
+            @Override
+            public String getName() {
+                return Part.this.getName();
+            }
+
+            @Override
+            public String getSubmittedFileName() {
+                return Part.this.getSubmittedFileName();
+            }
+
+            @Override
+            public long getSize() {
+                return Part.this.getSize();
+            }
+
+            @Override
+            public void write(String fileName) throws IOException {
+                Part.this.write(fileName);
+            }
+
+            @Override
+            public void delete() throws IOException {
+                Part.this.delete();
+            }
+
+            @Override
+            public String getHeader(String name) {
+                return Part.this.getHeader(name);
+            }
+
+            @Override
+            public Collection<String> getHeaders(String name) {
+                return Part.this.getHeaders(name);
+            }
+
+            @Override
+            public Collection<String> getHeaderNames() {
+                return Part.this.getHeaderNames();
+            }
+        };
+    }
+
+    static Part fromJakartaPart(jakarta.servlet.http.Part from) {
+        return new Part() {
+            @Override
+            public InputStream getInputStream() throws IOException {
+                return from.getInputStream();
+            }
+
+            @Override
+            public String getContentType() {
+                return from.getContentType();
+            }
+
+            @Override
+            public String getName() {
+                return from.getName();
+            }
+
+            @Override
+            public String getSubmittedFileName() {
+                return from.getSubmittedFileName();
+            }
+
+            @Override
+            public long getSize() {
+                return from.getSize();
+            }
+
+            @Override
+            public void write(String fileName) throws IOException {
+                from.write(fileName);
+            }
+
+            @Override
+            public void delete() throws IOException {
+                from.delete();
+            }
+
+            @Override
+            public String getHeader(String name) {
+                return from.getHeader(name);
+            }
+
+            @Override
+            public Collection<String> getHeaders(String name) {
+                return from.getHeaders(name);
+            }
+
+            @Override
+            public Collection<String> getHeaderNames() {
+                return from.getHeaderNames();
+            }
+
+            @Override
+            public jakarta.servlet.http.Part toJakartaPart() {
+                return from;
+            }
+        };
+    }
 }
