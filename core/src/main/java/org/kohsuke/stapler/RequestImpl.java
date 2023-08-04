@@ -138,7 +138,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     /**
      * Limits the number of form fields that can be processed in one multipart/form-data request.
-     * Used to set {@link org.apache.commons.fileupload.servlet.ServletFileUpload#setFileCountMax(long)}.
+     * Used to set {@link org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload#setFileCountMax(long)}.
      * Despite the name, this applies to all form fields, not just actual file attachments.
      * Set to {@code -1} to disable limits.
      */
@@ -146,7 +146,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     /**
      * Limits the size (in bytes) of individual fields that can be processed in one multipart/form-data request.
-     * Used to set {@link org.apache.commons.fileupload.servlet.ServletFileUpload#setFileSizeMax(long)}.
+     * Used to set {@link org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload#setFileSizeMax(long)}.
      * Despite the name, this applies to all form fields, not just actual file attachments.
      * Set to {@code -1} to disable limits.
      */
@@ -154,7 +154,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     /**
      * Limits the total request size (in bytes) that can be processed in one multipart/form-data request.
-     * Used to set {@link org.apache.commons.fileupload.servlet.ServletFileUpload#setSizeMax(long)}.
+     * Used to set {@link org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload#setSizeMax(long)}.
      * Set to {@code -1} to disable limits.
      */
     private static /* nonfinal for Jenkins script console */ long FILEUPLOAD_MAX_SIZE = Long.getLong(RequestImpl.class.getName() + ".FILEUPLOAD_MAX_SIZE", -1);
