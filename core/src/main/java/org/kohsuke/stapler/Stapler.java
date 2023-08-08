@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.ConversionException;
@@ -1215,5 +1216,25 @@ public class Stapler extends HttpServlet {
             return o;
 
         return escape(o.toString());
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.ServletConfig.class, adapterMethod = "fromJakartaServletConfig")
+    public ServletConfig getServletConfig() {
+        return super.getServletConfig();
+    }
+
+    private Object fromJakartaServletConfig(ServletConfig servletConfig, Class<?> type) {
+        return javax.servlet.ServletConfig.fromJakartaServletConfig(servletConfig);
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.ServletContext.class, adapterMethod = "fromJakartaServletContext")
+    public ServletContext getServletContext() {
+        return super.getServletContext();
+    }
+
+    private Object fromJakartaServletContext(ServletContext servletContext, Class<?> type) {
+        return javax.servlet.ServletContext.fromJakartServletContext(servletContext);
     }
 }
