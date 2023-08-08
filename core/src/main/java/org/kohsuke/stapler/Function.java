@@ -180,11 +180,11 @@ public abstract class Function {
             // find the rest of the arguments. either known types, or with annotations
             for( int i=headArgs.length; i<types.length; i++ ) {
                 Class t = types[i];
-                if(t==StaplerRequest.class || t==HttpServletRequest.class) {
+                if (t == StaplerRequest.class || t == HttpServletRequest.class || t == javax.servlet.http.HttpServletRequest.class) {
                     arguments[i] = req;
                     continue;
                 }
-                if(t==StaplerResponse.class || t==HttpServletResponse.class) {
+                if (t == StaplerResponse.class || t == HttpServletResponse.class || t == javax.servlet.http.HttpServletResponse.class) {
                     arguments[i] = rsp;
                     continue;
                 }
