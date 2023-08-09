@@ -12,7 +12,7 @@
   <description>Stapler HTTP request handling engine</description>
 
   <properties>
-    <bridge-method-injector.version>1.27</bridge-method-injector.version>
+    <bridge-method-injector.version>1.28</bridge-method-injector.version>
     <commons-fileupload2.version>2.0.0-M1</commons-fileupload2.version>
   </properties>
 

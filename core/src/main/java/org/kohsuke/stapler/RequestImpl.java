@@ -302,16 +302,19 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     @Override
+    @WithBridgeMethods(value = javax.servlet.RequestDispatcher.class, adapterMethod = "fromJakartaRequestDispatcher")
     public RequestDispatcher getView(Object it,String viewName) throws IOException {
         return getView(Klass.java(it.getClass()),it,viewName);
     }
 
     @Override
+    @WithBridgeMethods(value = javax.servlet.RequestDispatcher.class, adapterMethod = "fromJakartaRequestDispatcher")
     public RequestDispatcher getView(Class clazz, String viewName) throws IOException {
         return getView(Klass.java(clazz),null,viewName);
     }
 
     @Override
+    @WithBridgeMethods(value = javax.servlet.RequestDispatcher.class, adapterMethod = "fromJakartaRequestDispatcher")
     public RequestDispatcher getView(Klass<?> clazz, String viewName) throws IOException {
         return getView(clazz,null,viewName);
     }
@@ -324,6 +327,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         }
 
         return null;
+    }
+
+    private Object fromJakartaRequestDispatcher(RequestDispatcher requestDispatcher, Class<?> type) {
+        return javax.servlet.RequestDispatcher.fromJakartaRequestDispatcher(requestDispatcher);
     }
 
     @Override

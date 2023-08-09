@@ -123,11 +123,13 @@ public interface StaplerRequest extends HttpServletRequest, javax.servlet.http.H
      * @return null
      *      if neither JSP nor Jelly is not found by the given name.
      */
+    @WithBridgeMethods(javax.servlet.RequestDispatcher.class)
     RequestDispatcher getView(Object it,String viewName) throws IOException;
 
     /**
      * Convenience method to call {@link #getView(Klass, String)} with {@link Class}.
      */
+    @WithBridgeMethods(javax.servlet.RequestDispatcher.class)
     RequestDispatcher getView(Class clazz,String viewName) throws IOException;
 
     /**
@@ -140,6 +142,7 @@ public interface StaplerRequest extends HttpServletRequest, javax.servlet.http.H
      * {@code getView(it.getClass(),viewName)} and {@code getView(it,viewName)}
      * aren't the same thing.
      */
+    @WithBridgeMethods(javax.servlet.RequestDispatcher.class)
     RequestDispatcher getView(Klass<?> clazz, String viewName) throws IOException;
 
     /**
