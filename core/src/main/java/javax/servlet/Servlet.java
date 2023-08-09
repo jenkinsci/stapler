@@ -19,6 +19,8 @@
 package javax.servlet;
 
 import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public interface Servlet {
     void init(ServletConfig config) throws ServletException;
@@ -34,9 +36,9 @@ public interface Servlet {
     default jakarta.servlet.Servlet toJakartaServlet() {
         return new jakarta.servlet.Servlet() {
             @Override
-            public void init(jakarta.servlet.ServletConfig servletConfig) throws jakarta.servlet.ServletException {
+            public void init(jakarta.servlet.ServletConfig config) throws jakarta.servlet.ServletException {
                 try {
-                    Servlet.this.init(ServletConfig.fromJakartaServletConfig(servletConfig));
+                    Servlet.this.init(ServletConfig.fromJakartaServletConfig(config));
                 } catch (ServletException e) {
                     throw new jakarta.servlet.ServletException(e);
                 }
@@ -48,13 +50,23 @@ public interface Servlet {
             }
 
             @Override
-            public void service(
-                    jakarta.servlet.ServletRequest servletRequest, jakarta.servlet.ServletResponse servletResponse)
+            public void service(jakarta.servlet.ServletRequest request, jakarta.servlet.ServletResponse response)
                     throws jakarta.servlet.ServletException, IOException {
                 try {
-                    Servlet.this.service(
-                            ServletRequest.fromJakartaServletRequest(servletRequest),
-                            ServletResponse.fromJakartaServletResponse(servletResponse));
+                    if (request instanceof jakarta.servlet.http.HttpServletRequest
+                            && response instanceof jakarta.servlet.http.HttpServletResponse) {
+                        jakarta.servlet.http.HttpServletRequest httpRequest =
+                                (jakarta.servlet.http.HttpServletRequest) request;
+                        jakarta.servlet.http.HttpServletResponse httpResponse =
+                                (jakarta.servlet.http.HttpServletResponse) response;
+                        Servlet.this.service(
+                                HttpServletRequest.fromJakartaHttpServletRequest(httpRequest),
+                                HttpServletResponse.fromJakartaHttpServletResponse(httpResponse));
+                    } else {
+                        Servlet.this.service(
+                                ServletRequest.fromJakartaServletRequest(request),
+                                ServletResponse.fromJakartaServletResponse(response));
+                    }
                 } catch (ServletException e) {
                     throw new jakarta.servlet.ServletException(e);
                 }
@@ -89,9 +101,16 @@ public interface Servlet {
             }
 
             @Override
-            public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+            public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
                 try {
-                    from.service(req.toJakartaServletRequest(), res.toJakartaServletResponse());
+                    if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
+                        HttpServletRequest httpRequest = (HttpServletRequest) request;
+                        HttpServletResponse httpResponse = (HttpServletResponse) response;
+                        from.service(
+                                httpRequest.toJakartaHttpServletRequest(), httpResponse.toJakartaHttpServletResponse());
+                    } else {
+                        from.service(request.toJakartaServletRequest(), response.toJakartaServletResponse());
+                    }
                 } catch (jakarta.servlet.ServletException e) {
                     throw new ServletException(e);
                 }

@@ -31,10 +31,20 @@ public interface CompatibleFilter extends Filter {
             javax.servlet.FilterChain chain)
             throws IOException, javax.servlet.ServletException {
         try {
-            doFilter(
-                    request.toJakartaServletRequest(),
-                    response.toJakartaServletResponse(),
-                    chain.toJakartaFilterChain());
+            if (request instanceof javax.servlet.http.HttpServletRequest
+                    && response instanceof javax.servlet.http.HttpServletResponse) {
+                javax.servlet.http.HttpServletRequest httpRequest = (HttpServletRequest) request;
+                javax.servlet.http.HttpServletResponse httpResponse = (HttpServletResponse) response;
+                doFilter(
+                        httpRequest.toJakartaHttpServletRequest(),
+                        httpResponse.toJakartaHttpServletResponse(),
+                        chain.toJakartaFilterChain());
+            } else {
+                doFilter(
+                        request.toJakartaServletRequest(),
+                        response.toJakartaServletResponse(),
+                        chain.toJakartaFilterChain());
+            }
         } catch (ServletException e) {
             throw new javax.servlet.ServletException(e);
         }

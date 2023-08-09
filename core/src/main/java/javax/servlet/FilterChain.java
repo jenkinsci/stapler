@@ -19,6 +19,8 @@
 package javax.servlet;
 
 import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public interface FilterChain {
     void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException;
@@ -26,13 +28,23 @@ public interface FilterChain {
     default jakarta.servlet.FilterChain toJakartaFilterChain() {
         return new jakarta.servlet.FilterChain() {
             @Override
-            public void doFilter(
-                    jakarta.servlet.ServletRequest servletRequest, jakarta.servlet.ServletResponse servletResponse)
+            public void doFilter(jakarta.servlet.ServletRequest request, jakarta.servlet.ServletResponse response)
                     throws IOException, jakarta.servlet.ServletException {
                 try {
-                    FilterChain.this.doFilter(
-                            ServletRequest.fromJakartaServletRequest(servletRequest),
-                            ServletResponse.fromJakartaServletResponse(servletResponse));
+                    if (request instanceof jakarta.servlet.http.HttpServletRequest
+                            && response instanceof jakarta.servlet.http.HttpServletResponse) {
+                        jakarta.servlet.http.HttpServletRequest httpRequest =
+                                (jakarta.servlet.http.HttpServletRequest) request;
+                        jakarta.servlet.http.HttpServletResponse httpResponse =
+                                (jakarta.servlet.http.HttpServletResponse) response;
+                        FilterChain.this.doFilter(
+                                HttpServletRequest.fromJakartaHttpServletRequest(httpRequest),
+                                HttpServletResponse.fromJakartaHttpServletResponse(httpResponse));
+                    } else {
+                        FilterChain.this.doFilter(
+                                ServletRequest.fromJakartaServletRequest(request),
+                                ServletResponse.fromJakartaServletResponse(response));
+                    }
                 } catch (ServletException e) {
                     throw new jakarta.servlet.ServletException(e);
                 }
@@ -46,7 +58,14 @@ public interface FilterChain {
             public void doFilter(ServletRequest request, ServletResponse response)
                     throws IOException, ServletException {
                 try {
-                    from.doFilter(request.toJakartaServletRequest(), response.toJakartaServletResponse());
+                    if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
+                        HttpServletRequest httpRequest = (HttpServletRequest) request;
+                        HttpServletResponse httpResponse = (HttpServletResponse) response;
+                        from.doFilter(
+                                httpRequest.toJakartaHttpServletRequest(), httpResponse.toJakartaHttpServletResponse());
+                    } else {
+                        from.doFilter(request.toJakartaServletRequest(), response.toJakartaServletResponse());
+                    }
                 } catch (jakarta.servlet.ServletException e) {
                     throw new ServletException(e);
                 }
