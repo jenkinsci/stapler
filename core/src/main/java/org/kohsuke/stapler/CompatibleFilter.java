@@ -33,8 +33,8 @@ public interface CompatibleFilter extends Filter {
         try {
             if (request instanceof javax.servlet.http.HttpServletRequest
                     && response instanceof javax.servlet.http.HttpServletResponse) {
-                javax.servlet.http.HttpServletRequest httpRequest = (HttpServletRequest) request;
-                javax.servlet.http.HttpServletResponse httpResponse = (HttpServletResponse) response;
+                javax.servlet.http.HttpServletRequest httpRequest = (javax.servlet.http.HttpServletRequest) request;
+                javax.servlet.http.HttpServletResponse httpResponse = (javax.servlet.http.HttpServletResponse) response;
                 doFilter(
                         httpRequest.toJakartaHttpServletRequest(),
                         httpResponse.toJakartaHttpServletResponse(),
