@@ -16,6 +16,7 @@
  */
 package org.apache.commons.fileupload;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,17 +25,15 @@ import java.io.UncheckedIOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.fileupload2.core.FileItemHeadersProvider;
 
 /**
  * <p> This class represents a file or form item that was received within a
  * <code>multipart/form-data</code> POST request.
  *
- * <p> After retrieving an instance of this class from a {@link
+ * <p> After retrieving an instance of this class from a {@code
  * org.apache.commons.fileupload.FileUpload FileUpload} instance (see
- * {@link org.apache.commons.fileupload.servlet.ServletFileUpload
+ * {@code org.apache.commons.fileupload.servlet.ServletFileUpload
  * #parseRequest(javax.servlet.http.HttpServletRequest)}), you may
  * either request all contents of the file at once using {@link #get()} or
  * request an {@link java.io.InputStream InputStream} with
@@ -216,7 +215,7 @@ public interface FileItem {
 
     /**
      * Sets the headers read from within an item.  Implementations of
-     * {@link FileItem} or {@link FileItemStream} should implement this
+     * {@link FileItem} or {@code FileItemStream} should implement this
      * interface to be able to get the raw headers found within the item
      * header block.
      *
