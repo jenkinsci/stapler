@@ -150,7 +150,7 @@ public class MetaClass extends TearOffSupport {
         for (Facet f : webApp.facets)
             f.buildIndexDispatchers(this, dispatchers);
 
-        Dispatcher d = IndexHtmlDispatcher.make(webApp.context, clazz);
+        Dispatcher d = IndexHtmlDispatcher.make(webApp.getServletContext(), clazz);
         if (d!=null)
             dispatchers.add(d);
 
