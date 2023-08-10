@@ -1181,12 +1181,17 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     @Override
+    @WithBridgeMethods(value = org.apache.commons.fileupload.FileItem.class, adapterMethod = "fromFileUpload2FileItem")
     public FileItem getFileItem(String name) throws ServletException, IOException {
         parseMultipartFormData();
         if(parsedFormData==null)    return null;
         FileItem item = parsedFormData.get(name);
         if(item==null || item.isFormField())    return null;
         return item;
+    }
+
+    private Object fromFileUpload2FileItem(FileItem fileItem, Class<?> type) {
+        return org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(fileItem);
     }
 
     @Override

@@ -504,6 +504,7 @@ public interface StaplerRequest extends HttpServletRequest, javax.servlet.http.H
      *      This includes the case where the name corresponds to a simple
      *      form field (like textbox, checkbox, etc.) 
      */
+    @WithBridgeMethods(org.apache.commons.fileupload.FileItem.class)
     FileItem getFileItem(String name) throws ServletException, IOException;
 
     /**
