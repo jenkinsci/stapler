@@ -76,6 +76,14 @@ public class WebApp {
     }
 
     /**
+     * @deprecated use {@link #get(ServletContext)}
+     */
+    @Deprecated
+    public static WebApp get(javax.servlet.ServletContext context) {
+        return get(context.toJakartaServletContext());
+    }
+
+    /**
      * {@link ServletContext} for this webapp.
      */
     public final ServletContext context;
