@@ -48,6 +48,7 @@ import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.MethodRef;
 import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
 
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -56,6 +57,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
@@ -303,6 +306,18 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     @Override
     @WithBridgeMethods(value = javax.servlet.RequestDispatcher.class, adapterMethod = "fromJakartaRequestDispatcher")
+    public RequestDispatcher getRequestDispatcher(String path) {
+        return super.getRequestDispatcher(path);
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.DispatcherType.class, adapterMethod = "fromJakartaDispatcherType")
+    public DispatcherType getDispatcherType() {
+        return super.getDispatcherType();
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.RequestDispatcher.class, adapterMethod = "fromJakartaRequestDispatcher")
     public RequestDispatcher getView(Object it,String viewName) throws IOException {
         return getView(Klass.java(it.getClass()),it,viewName);
     }
@@ -331,6 +346,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     private Object fromJakartaRequestDispatcher(RequestDispatcher requestDispatcher, Class<?> type) {
         return javax.servlet.RequestDispatcher.fromJakartaRequestDispatcher(requestDispatcher);
+    }
+
+    private Object fromJakartaDispatcherType(DispatcherType dispatcherType, Class<?> type) {
+        return javax.servlet.DispatcherType.fromJakartaDispatcherType(dispatcherType);
     }
 
     @Override
@@ -1212,6 +1231,32 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     private Object fromJakartaCookies(Cookie[] cookies, Class<?> type) {
         return Stream.of(cookies).map(javax.servlet.http.Cookie::fromJakartaServletHttpCookie).toArray(javax.servlet.http.Cookie[]::new);
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.http.HttpSession.class, adapterMethod = "fromJakartaHttpSession")
+    public HttpSession getSession(boolean create) {
+        return super.getSession(create);
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.http.HttpSession.class, adapterMethod = "fromJakartaHttpSession")
+    public HttpSession getSession() {
+        return super.getSession();
+    }
+
+    private Object fromJakartaHttpSession(HttpSession httpSession, Class<?> type) {
+        return javax.servlet.http.HttpSession.fromJakartaHttpSession(httpSession);
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.http.Part.class, adapterMethod = "fromJakartaPart")
+    public Part getPart(String name) throws IOException, ServletException {
+        return super.getPart(name);
+    }
+
+    private Object fromJakartaPart(Part part, Class<?> type) {
+        return javax.servlet.http.Part.fromJakartaPart(part);
     }
 
     private static final Logger LOGGER = Logger.getLogger(RequestImpl.class.getName());
