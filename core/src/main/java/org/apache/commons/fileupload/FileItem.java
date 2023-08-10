@@ -244,7 +244,7 @@ public interface FileItem {
             }
 
             @Override
-            public byte[] get() throws UncheckedIOException {
+            public byte[] get() {
                 return FileItem.this.get();
             }
 
@@ -315,10 +315,10 @@ public interface FileItem {
             public org.apache.commons.fileupload2.core.FileItem write(Path file) throws IOException {
                 try {
                     FileItem.this.write(file.toFile());
-                } catch (IOException e) {
-                    throw e;
                 } catch (UncheckedIOException e) {
                     throw e.getCause();
+                } catch (IOException e) {
+                    throw e;
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -364,6 +364,8 @@ public interface FileItem {
             public String getString(String encoding) throws UnsupportedEncodingException {
                 try {
                     return from.getString(Charset.forName(encoding));
+                } catch (UnsupportedEncodingException e) {
+                    throw e;
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }
