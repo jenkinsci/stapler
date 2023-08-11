@@ -1,8 +1,8 @@
 package org.kohsuke.stapler.jelly.issue76;
 
-import com.gargoylesoftware.htmlunit.TextPage;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.htmlunit.TextPage;
+import org.htmlunit.WebClient;
+import org.htmlunit.html.HtmlPage;
 import org.kohsuke.stapler.test.JettyTestCase;
 
 import java.net.URL;
@@ -18,7 +18,7 @@ public class Issue76Test extends JettyTestCase {
     public final Protection protectedRobot = new Protection(robot);
 
     public void testRouting() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         HtmlPage p = wc.getPage(new URL(url, "robot/head/eye/3/"));
         assertTrue(p.getWebResponse().getContentAsString().contains("This is eye 3"));
 

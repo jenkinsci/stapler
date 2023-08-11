@@ -1,14 +1,11 @@
 package org.kohsuke.stapler.jelly;
 
-import hudson.util.VersionNumber;
-import io.jenkins.lib.versionnumber.JavaSpecificationVersion;
 import java.net.URL;
 import java.util.Locale;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assume.assumeThat;
+import static org.hamcrest.core.Is.is;
 
 public class ResourceBundleTest {
 
@@ -46,9 +43,6 @@ public class ResourceBundleTest {
 
     @Test
     public void formatLocaleNonISO_8859_1_encoded_with_utf8() {
-        assumeThat("Requires Java 9+", true, is(JavaSpecificationVersion.forCurrentJVM()
-                .isNewerThan(new VersionNumber("8"))
-        ));
         String helloWorld = resourceBundle.format(Locale.TRADITIONAL_CHINESE, "hello_world");
 
         assertThat(helloWorld, is("你好世界！"));

@@ -1,135 +1,162 @@
 package org.kohsuke.stapler.jsr269;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.karuslabs.elementary.Results;
+import com.karuslabs.elementary.junit.JavacExtension;
+import com.karuslabs.elementary.junit.annotations.Inline;
+import com.karuslabs.elementary.junit.annotations.Options;
+import com.karuslabs.elementary.junit.annotations.Processors;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
-import net.java.dev.hickory.testing.Compilation;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class ConstructorProcessorTest {
+@ExtendWith(JavacExtension.class)
+@Options("-Werror")
+@Processors(ConstructorProcessor.class)
+class ConstructorProcessorTest {
 
-    @Test public void basicOutput() {
-        Compilation compilation = new Compilation();
-        compilation.addSource("some.pkg.Stuff").
-                addLine("package some.pkg;").
-                addLine("import org.kohsuke.stapler.DataBoundConstructor;").
-                addLine("public class Stuff {").
-                addLine("  @DataBoundConstructor public Stuff(int count, String name) {}").
-                addLine("}");
-        compilation.doCompile(null, "-source", "8", "-Xlint:none");
-        assertEquals(Collections.emptyList(), compilation.getDiagnostics());
-        assertEquals("{constructor=count,name}", Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.stapler")));
+    @Inline(
+            name = "some.pkg.Stuff",
+            source = {
+                "package some.pkg;",
+                "import org.kohsuke.stapler.DataBoundConstructor;",
+                "public class Stuff {",
+                "  @DataBoundConstructor public Stuff(int count, String name) {}",
+                "}",
+            })
+    @Test
+    void basicOutput(Results results) {
+        assertEquals(Collections.emptyList(), results.diagnostics);
+        assertEquals("{constructor=count,name}", Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
     }
 
-    @Test public void preAnnotationCompatibility() {
-        Compilation compilation = new Compilation();
-        compilation.addSource("some.pkg.Stuff").
-                addLine("package some.pkg;").
-                addLine("public class Stuff {").
-                addLine("  /** @stapler-constructor */ public Stuff(String name, int count) {}").
-                addLine("}");
-        compilation.doCompile(null, "-source", "8", "-Xlint:none");
-        assertEquals(Collections.emptyList(), compilation.getDiagnostics());
-        assertEquals("{constructor=name,count}", Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.stapler")));
+    @Inline(
+            name = "some.pkg.Stuff",
+            source = {
+                "package some.pkg;",
+                "public class Stuff {",
+                "  /** @stapler-constructor */ public Stuff(String name, int count) {}",
+                "}"
+            })
+    @Test
+    void preAnnotationCompatibility(Results results) {
+        assertEquals(Collections.emptyList(), results.diagnostics);
+        assertEquals("{constructor=name,count}", Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
     }
 
-    @Test public void JENKINS_11739() {
-        Compilation compilation = new Compilation();
-        compilation.addSource("some.pkg.Stuff").
-                addLine("package some.pkg;").
-                addLine("import org.kohsuke.stapler.DataBoundConstructor;").
-                addLine("public class Stuff {").
-                addLine("  @DataBoundConstructor public Stuff(int count, String name) {}").
-                addLine("}");
-        compilation.addSource("some.pkg.package-info").
-                addLine("package some.pkg;");
-        compilation.doCompile(null, "-source", "8", "-Xlint:none");
-        assertEquals(Collections.emptyList(), compilation.getDiagnostics());
-        assertEquals("{constructor=count,name}", Utils.normalizeProperties(Utils.getGeneratedResource(compilation, "some/pkg/Stuff.stapler")));
+    @Inline(
+            name = "some.pkg.Stuff",
+            source = {
+                "package some.pkg;",
+                "import org.kohsuke.stapler.DataBoundConstructor;",
+                "public class Stuff {",
+                "  @DataBoundConstructor public Stuff(int count, String name) {}",
+                "}"
+            })
+    @Inline(
+            name = "some.pkg.package-info",
+            source = {"package some.pkg;"})
+    @Test
+    void JENKINS_11739(Results results) {
+        assertEquals(Collections.emptyList(), results.diagnostics);
+        assertEquals("{constructor=count,name}", Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
     }
 
-    @Test public void privateConstructor() {
-        Compilation compilation = new Compilation();
-        compilation.addSource("some.pkg.Stuff").
-                addLine("package some.pkg;").
-                addLine("import org.kohsuke.stapler.DataBoundConstructor;").
-                addLine("public class Stuff {").
-                addLine("  @DataBoundConstructor Stuff() {}").
-                addLine("}");
-        compilation.doCompile(null, "-source", "8", "-Xlint:none");
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
+    @Inline(
+            name = "some.pkg.Stuff",
+            source = {
+                "package some.pkg;",
+                "import org.kohsuke.stapler.DataBoundConstructor;",
+                "public class Stuff {",
+                "  @DataBoundConstructor Stuff() {}",
+                "}"
+            })
+    @Test
+    void privateConstructor(Results results) {
+        List<Diagnostic<? extends JavaFileObject>> diagnostics = results.diagnostics;
         assertEquals(1, diagnostics.size());
         String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
-        assertTrue(msg, msg.contains("public"));
+        assertTrue(msg.contains("public"), msg);
     }
 
-    @Test public void abstractClass() {
-        Compilation compilation = new Compilation();
-        compilation.addSource("some.pkg.Stuff").
-                addLine("package some.pkg;").
-                addLine("import org.kohsuke.stapler.DataBoundConstructor;").
-                addLine("public abstract class Stuff {").
-                addLine("  @DataBoundConstructor public Stuff() {}").
-                addLine("}");
-        compilation.doCompile(null, "-source", "8", "-Xlint:none");
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
+    @Inline(
+            name = "some.pkg.Stuff",
+            source = {
+                "package some.pkg;",
+                "import org.kohsuke.stapler.DataBoundConstructor;",
+                "public abstract class Stuff {",
+                "  @DataBoundConstructor public Stuff() {}",
+                "}"
+            })
+    @Test
+    void abstractClass(Results results) {
+        List<Diagnostic<? extends JavaFileObject>> diagnostics = results.diagnostics;
         assertEquals(1, diagnostics.size());
         String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
-        assertTrue(msg, msg.contains("abstract"));
+        assertTrue(msg.contains("abstract"), msg);
     }
 
     //issue-179
-    @Test public void duplicatedConstructor1() {
-        Compilation compilation = new Compilation();
-        compilation.addSource("some.pkg.Stuff").
-                addLine("package some.pkg;").
-                addLine("import org.kohsuke.stapler.DataBoundConstructor;").
-                addLine("public class Stuff {").
-                addLine("  @DataBoundConstructor public Stuff() {}").
-                addLine("  @DataBoundConstructor public Stuff(int i) {}").
-                addLine("}");
-        compilation.doCompile(null, "-source", "8", "-Xlint:none");
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
+    @Inline(
+            name = "some.pkg.Stuff",
+            source = {
+                "package some.pkg;",
+                "import org.kohsuke.stapler.DataBoundConstructor;",
+                "public class Stuff {",
+                "  @DataBoundConstructor public Stuff() {}",
+                "  @DataBoundConstructor public Stuff(int i) {}",
+                "}"
+            })
+    @Test
+    void duplicatedConstructor1(Results results) {
+        List<Diagnostic<? extends JavaFileObject>> diagnostics = results.diagnostics;
         assertEquals(1, diagnostics.size());
         String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
-        assertTrue(msg, msg.contains(ConstructorProcessor.MESSAGE));
+        assertTrue(msg.contains(ConstructorProcessor.MESSAGE), msg);
     }
 
     //issue-179
-    @Test public void duplicatedConstructor2() {
-        Compilation compilation = new Compilation();
-        compilation.addSource("some.pkg.Stuff").
-                addLine("package some.pkg;").
-                addLine("import org.kohsuke.stapler.DataBoundConstructor;").
-                addLine("public class Stuff {").
-                addLine("  @DataBoundConstructor public Stuff() {}").
-                addLine("  /**").
-                addLine("    @stapler-constructor Another constructor").
-                addLine("   **/").
-                addLine("  public Stuff(int i) {}").
-                addLine("}");
-        compilation.doCompile(null, "-source", "8", "-Xlint:none");
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
+    @Inline(
+            name = "some.pkg.Stuff",
+            source = {
+                "package some.pkg;",
+                "import org.kohsuke.stapler.DataBoundConstructor;",
+                "public class Stuff {",
+                "  @DataBoundConstructor public Stuff() {}",
+                "  /**",
+                "    @stapler-constructor Another constructor",
+                "   **/",
+                "  public Stuff(int i) {}",
+                "}"
+            })
+    @Test
+    void duplicatedConstructor2(Results results) {
+        List<Diagnostic<? extends JavaFileObject>> diagnostics = results.diagnostics;
         assertEquals(1, diagnostics.size());
         String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
-        assertTrue(msg, msg.contains(ConstructorProcessor.MESSAGE));
+        assertTrue(msg.contains(ConstructorProcessor.MESSAGE), msg);
     }
 
     //issue-179
-    @Test public void duplicatedButNotAnnotatedConstructor() {
-        Compilation compilation = new Compilation();
-        compilation.addSource("some.pkg.Stuff").
-                addLine("package some.pkg;").
-                addLine("import org.kohsuke.stapler.DataBoundConstructor;").
-                addLine("public class Stuff {").
-                addLine("  @DataBoundConstructor public Stuff() {}").
-                addLine("  public Stuff(int i) {}").
-                addLine("}");
-        compilation.doCompile(null, "-source", "8", "-Xlint:none");
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.getDiagnostics();
+    @Inline(
+            name = "some.pkg.Stuff",
+            source = {
+                "package some.pkg;",
+                "import org.kohsuke.stapler.DataBoundConstructor;",
+                "public class Stuff {",
+                "  @DataBoundConstructor public Stuff() {}",
+                "  public Stuff(int i) {}",
+                "}"
+            })
+    @Test
+    void duplicatedButNotAnnotatedConstructor(Results results) {
+        List<Diagnostic<? extends JavaFileObject>> diagnostics = results.diagnostics;
         assertEquals(0, diagnostics.size());
     }
     // TODO nested classes use qualified rather than binary name

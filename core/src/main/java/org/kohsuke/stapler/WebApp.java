@@ -218,26 +218,32 @@ public class WebApp {
         this.classLoader = classLoader;
     }
 
-    public MetaClass getMetaClass(Class c) {
-        return getMetaClass(Klass.java(c));
-    }
-    
-    public MetaClass getMetaClass(Klass<?> c) {
-        if(c==null)     return null;
-        if (c.navigator == KlassNavigator.JAVA) {
-            ClassValue<MetaClass> _classMap;
+    private ClassValue<MetaClass> getClassMap() {
+        ClassValue<MetaClass> _classMap = classMap;
+        if (_classMap == null) {
             synchronized (this) {
-                if (classMap == null) {
-                    classMap = new ClassValue<MetaClass>() {
+                _classMap = classMap;
+                if (_classMap == null) {
+                    classMap = _classMap = new ClassValue<>() {
                         @Override
                         protected MetaClass computeValue(Class<?> c) {
                             return new MetaClass(WebApp.this, Klass.java(c));
                         }
                     };
                 }
-                _classMap = classMap;
             }
-            return _classMap.get(c.toJavaClass());
+        }
+        return _classMap;
+    }
+
+    public MetaClass getMetaClass(Class c) {
+        return getMetaClass(Klass.java(c));
+    }
+
+    public MetaClass getMetaClass(Klass<?> c) {
+        if(c==null)     return null;
+        if (c.navigator == KlassNavigator.JAVA) {
+            return getClassMap().get(c.toJavaClass());
         } else {
             // probably now impossible outside tests
             return new MetaClass(this,c);

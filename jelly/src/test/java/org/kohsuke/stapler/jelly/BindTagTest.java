@@ -1,7 +1,7 @@
 package org.kohsuke.stapler.jelly;
 
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.htmlunit.WebClient;
+import org.htmlunit.html.HtmlPage;
 import org.kohsuke.stapler.framework.adjunct.AdjunctManager;
 import org.kohsuke.stapler.test.JettyTestCase;
 
@@ -14,6 +14,7 @@ public class BindTagTest extends JettyTestCase {
     private String value;
 
     public AdjunctManager am;
+    private int number;
 
     @Override
     protected void setUp() throws Exception {
@@ -23,19 +24,19 @@ public class BindTagTest extends JettyTestCase {
 
 
     public void test1() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         HtmlPage page = wc.getPage(new URL(url, "/"));
         String content = page.getWebResponse().getContentAsString();
         System.out.println(content);
-        //Check that prototype is included in the page
-        assertTrue(content.contains("/am/org/kohsuke/stapler/framework/prototype/prototype.js"));
-        page.executeJavaScript("v.foo('hello world');");
+        page.executeJavaScript("v.foo('hello world', 2);");
         wc.getJavaScriptEngine().processPostponedActions();
         wc.waitForBackgroundJavaScript(10000);
         assertEquals("hello world",value);
+        assertEquals(2, number);
     }
 
-    public void jsFoo(String arg) {
+    public void jsFoo(String arg, int arg2) {
         this.value = arg;
+        this.number = arg2;
     }
 }

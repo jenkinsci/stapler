@@ -23,8 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -38,7 +36,6 @@ import java.lang.reflect.InvocationTargetException;
  */
 public abstract class TearOffSupport {
     private final ClassValue<Object> tearOffs = new ClassValue<Object>() {
-        @SuppressFBWarnings(value = "THROWS_METHOD_THROWS_RUNTIMEEXCEPTION", justification = "shut up")
         @Override
         protected Object computeValue(Class<?> type) {
             try {

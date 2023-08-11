@@ -1,9 +1,9 @@
 package org.kohsuke.stapler.json;
 
-import com.gargoylesoftware.htmlunit.HttpMethod;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebRequest;
-import com.gargoylesoftware.htmlunit.WebResponse;
+import org.htmlunit.HttpMethod;
+import org.htmlunit.WebClient;
+import org.htmlunit.WebRequest;
+import org.htmlunit.WebResponse;
 import java.net.URL;
 import org.kohsuke.stapler.test.JettyTestCase;
 
@@ -13,12 +13,12 @@ public class JsonBodyTest extends JettyTestCase {
         WebRequest req = new WebRequest(new URL(url, "double"), HttpMethod.POST);
         req.setAdditionalHeader("Content-Type", "application/json");
         req.setRequestBody("{\"x\":10,\"y\":5}");
-        WebResponse response = new WebClient().getPage(req).getWebResponse();
+        WebResponse response = createWebClient().getPage(req).getWebResponse();
         assertEquals("application/json", response.getContentType());
         assertEquals("{\"x\":20,\"y\":10}", response.getContentAsString());
         // and then with compression:
         req.setAdditionalHeader("Accept-Encoding", "gzip");
-        response = new WebClient().getPage(req).getWebResponse();
+        response = createWebClient().getPage(req).getWebResponse();
         assertEquals("application/json", response.getContentType());
         assertEquals("{\"x\":20,\"y\":10}", response.getContentAsString());
     }

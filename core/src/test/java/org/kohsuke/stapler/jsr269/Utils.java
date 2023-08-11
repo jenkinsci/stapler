@@ -1,42 +1,27 @@
 package org.kohsuke.stapler.jsr269;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.lang.reflect.Field;
+import java.io.UncheckedIOException;
+import java.util.List;
 import java.util.Properties;
 import java.util.TreeMap;
-import javax.tools.FileObject;
-import javax.tools.JavaFileManager;
+import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
-import net.java.dev.hickory.testing.Compilation;
 
 class Utils {
-    private static JavaFileManager fileManager(Compilation compilation) {
-        try {
-            Field f = Compilation.class.getDeclaredField("jfm");
-            f.setAccessible(true);
-            return (JavaFileManager) f.get(compilation);
-        } catch (Exception x) {
-            throw new AssertionError(x);
-        }
-    }
-
-    /**
-     * Replacement for {@link Compilation#getGeneratedResource} that actually works.
-     * https://code.google.com/p/jolira-tools/issues/detail?id=11
-     */
-    public static String getGeneratedResource(Compilation compilation, String filename) {
-        try {
-            FileObject fo = fileManager(compilation).getFileForOutput(StandardLocation.CLASS_OUTPUT, "", filename, null);
-            if (fo == null) {
-                return null;
-            }
-            return fo.getCharContent(true).toString();
-        } catch (FileNotFoundException x) {
+    public static String getGeneratedResource(List<JavaFileObject> generated, String filename) {
+        JavaFileObject fo = generated.stream()
+                .filter(it -> it.getName().equals("/" + StandardLocation.CLASS_OUTPUT + "/" + filename))
+                .findFirst()
+                .orElse(null);
+        if (fo == null) {
             return null;
-        } catch (IOException x) {
-            throw new RuntimeException(x);
+        }
+        try {
+            return fo.getCharContent(true).toString();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 

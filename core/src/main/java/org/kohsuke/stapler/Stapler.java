@@ -96,6 +96,14 @@ import static org.kohsuke.stapler.Dispatcher.*;
  */
 public class Stapler extends HttpServlet {
 
+    /**
+     * Exceptions we don't want to print a stacktrace for because they are normal behaviour.
+     * [JENKINS-4834] A stack trace is too noisy for this; could just need to log in.
+     */
+    private  static final Set<String> EXCEPTIONS_DO_NOT_PRINT_STACKTRACE = Set.of(
+            "org.acegisecurity.AccessDeniedException",
+            "org.springframework.security.access.AccessDeniedException"
+    );
     private /*final*/ ServletContext context;
 
     @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "The Stapler class is not expected to be serialized.")
@@ -802,9 +810,7 @@ public class Stapler extends HttpServlet {
                     if (!isSocketException(e)) {
                         getServletContext().log("Error while serving " + url, e);
                     }
-                } else if (c.getName().equals("org.acegisecurity.AccessDeniedException")) {
-                    // [HUDSON-4834] A stack trace is too noisy for this; could just need to log in.
-                    // (Could consider doing this for all AcegiSecurityException's.)
+                } else if (EXCEPTIONS_DO_NOT_PRINT_STACKTRACE.contains(c.getName())) {
                     getServletContext().log("While serving " + url + ": " + cause);
                     break;
                 }

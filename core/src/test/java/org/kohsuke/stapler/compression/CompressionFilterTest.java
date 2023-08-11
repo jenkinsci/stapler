@@ -1,8 +1,5 @@
 package org.kohsuke.stapler.compression;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.kohsuke.stapler.StaplerRequest;
@@ -12,8 +9,9 @@ import org.kohsuke.stapler.test.JettyTestCase;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.zip.GZIPInputStream;
@@ -30,10 +28,14 @@ public class CompressionFilterTest extends JettyTestCase {
 
     public void testDoubleCompression() throws Exception {
         for (String endpoint : Arrays.asList("autoZip","ownZip")) {
-            HttpURLConnection con = (HttpURLConnection) new URL(this.url, endpoint).openConnection();
-            con.setRequestProperty("Accept-Encoding","gzip");
-            byte[] data = IOUtils.toByteArray(con.getInputStream());
-            data = IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(data)));
+            HttpRequest httpRequest = HttpRequest.newBuilder(this.url.toURI().resolve(endpoint))
+                    .GET()
+                    .header("Accept-Encoding", "gzip")
+                    .build();
+            HttpClient httpClient = HttpClient.newHttpClient();
+            HttpResponse<byte[]> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray());
+            assertEquals(200, response.statusCode());
+            byte[] data = IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(response.body())));
             assertEquals(new String(data), CONTENT);
         }
     }
@@ -44,13 +46,14 @@ public class CompressionFilterTest extends JettyTestCase {
      */
     public void testDoubleCompression2() throws Exception {
         for (String endpoint : Arrays.asList("autoZip","ownZip")) {
-            HttpClient hc = new HttpClient();
-            HttpMethod m = new GetMethod(this.url + "/"+endpoint);
-            m.setRequestHeader("Accept-Encoding", "gzip");
-            assertEquals(200, hc.executeMethod(m));
-            byte[] data = m.getResponseBody();
-
-            data = IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(data)));
+            HttpRequest httpRequest = HttpRequest.newBuilder(this.url.toURI().resolve(endpoint))
+                    .GET()
+                    .header("Accept-Encoding", "gzip")
+                    .build();
+            HttpClient httpClient = HttpClient.newHttpClient();
+            HttpResponse<byte[]> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray());
+            assertEquals(200, response.statusCode());
+            byte[] data = IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(response.body())));
             assertEquals(new String(data), CONTENT);
         }
     }

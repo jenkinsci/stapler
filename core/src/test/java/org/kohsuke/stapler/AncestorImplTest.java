@@ -1,6 +1,6 @@
 package org.kohsuke.stapler;
 
-import com.gargoylesoftware.htmlunit.WebClient;
+import org.htmlunit.WebClient;
 import org.kohsuke.stapler.test.JettyTestCase;
 
 import java.net.URL;
@@ -26,7 +26,7 @@ public class AncestorImplTest extends JettyTestCase {
 
     // issue 34
     public void testRestOfUrl() throws Exception {
-        WebClient wc = new WebClient();
+        WebClient wc = createWebClient();
         wc.getPage(new URL(url,"testRestOfUrl/bar/zot"));
     }
 
