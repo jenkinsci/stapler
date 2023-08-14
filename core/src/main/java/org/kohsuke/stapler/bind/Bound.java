@@ -69,7 +69,7 @@ public abstract class Bound implements HttpResponse {
     }
 
     /**
-     * Returns the URl to the proxy script for this {@link org.kohsuke.stapler.bind.Bound}
+     * Returns the URL to the proxy script for this {@link org.kohsuke.stapler.bind.Bound}
      * @param variableName the variable to assign to the bound object
      * @param bound the bound object, or {@code null} if none.
      * @return
