@@ -520,7 +520,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *
      * @deprecated Use {@link #createJavaScriptProxyParameters(Object)} and invoke {@code makeStaplerProxy} yourself.
      */
-    @Deprecated(since = "TODO")
+    @Deprecated
     String createJavaScriptProxy(Object toBeExported);
 
     /**
