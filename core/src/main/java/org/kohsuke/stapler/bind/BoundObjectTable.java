@@ -25,10 +25,13 @@ package org.kohsuke.stapler.bind;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.logging.Level;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerFallback;
 import org.kohsuke.stapler.StaplerRequest;
@@ -53,39 +56,83 @@ import java.util.logging.Logger;
  */
 public class BoundObjectTable implements StaplerFallback {
 
-    private static boolean isValidIdentifier(String variableName) {
+    private static boolean isValidJavaScriptIdentifier(String variableName) {
         // Ultimately this will be used as a JS identifier, so we need (a subset of) what's valid there.
         // The primary purpose of this check however is to prevent injection attacks.
         return variableName.matches("^[a-zA-Z_][a-zA-Z0-9_]*$");
     }
 
-    public void doScript(StaplerRequest req, StaplerResponse rsp) throws IOException {
-        final String variableNameAndId = StringUtils.removeStart(req.getRestOfPath(), "/");
-        if (!variableNameAndId.contains("/")) {
+    private static boolean isValidJavaIdentifier(String name) {
+        if (name == null || StringUtils.isBlank(name)) {
+            return false;
+        }
+        if (!Character.isJavaIdentifierStart(name.charAt(0))) {
+            return false;
+        }
+        return name.substring(1).chars().allMatch(Character::isJavaIdentifierPart); // TODO More restrictive
+    }
+
+    /**
+     * This serves the script content for a bound object. Support CSP-compatible st:bind and similar methods of making
+     * objects accessible to JS.
+     *
+     * @param req
+     * @param rsp
+     * @param var the variable name to assign the Stapler proxy to
+     * @param methods the list of methods (needed for {@link WithWellKnownURL})
+     * @throws IOException
+     */
+    public void doScript(StaplerRequest req, StaplerResponse rsp, @QueryParameter String var, @QueryParameter String methods) throws IOException {
+        final String boundUrl = req.getRestOfPath();
+
+        if (var == null) {
             return;
         }
-        final String variableName = variableNameAndId.split("/")[0];
-        final String id = variableNameAndId.split("/")[1];
 
-        if (!isValidIdentifier(variableName)) {
+        if (!isValidJavaScriptIdentifier(var)) {
+            LOGGER.log(Level.FINE, () -> "Rejecting invalid JavaScript identifier: " + var);
             return;
         }
 
         rsp.setContentType("application/javascript");
         final PrintWriter writer = rsp.getWriter();
-        final Table table = resolve(false);
-        if (table == null) {
-            rsp.sendError(404);
+
+        if ("null".equals(boundUrl)) {
+            /* This is the case when the object was null in the first place */
+            writer.append(var).append(" = null;");
             return;
         }
-        Object object = table.resolve(id);
-        if (object == null) {
-            /* Support null bound objects */
-            writer.append(variableName).append(" = null;");
-            return;
+
+        final String script;
+
+        /* If this is not a WithWellKnownURL, look UUID up in bound object table and return null if not found. */
+        final String contextAndPrefix = Stapler.getCurrentRequest().getContextPath() + PREFIX;
+        if (boundUrl.startsWith(contextAndPrefix)) {
+            final String id = boundUrl.replace(contextAndPrefix, "");
+            final Table table = resolve(false);
+            if (table == null) {
+                rsp.sendError(404);
+                return;
+            }
+            Object object = table.resolve(id);
+            if (object == null) {
+                /* Support null bound objects */
+                writer.append(var).append(" = null;");
+                return;
+            }
+            script = Bound.getProxyScript(boundUrl, object.getClass());
+        } else {
+            if (methods == null) {
+                return;
+            }
+            final String[] methodsArray = methods.split(",");
+            if (Arrays.stream(methodsArray).anyMatch(it -> !isValidJavaIdentifier(it))) {
+                LOGGER.log(Level.FINE, () -> "Rejecting method list that includes an invalid Java identifier: " + methods);
+                return;
+            }
+            script = Bound.getProxyScript(boundUrl, methodsArray);
         }
-        final String script = Bound.getProxyScript(Stapler.getCurrentRequest().getContextPath() + PREFIX + id, object.getClass());
-        writer.append(variableName).append(" = ").append(script).append(";");
+        writer.append(var).append(" = ").append(script).append(";");
     }
 
     @Override
@@ -284,7 +331,7 @@ public class BoundObjectTable implements StaplerFallback {
     }
 
     public static final String PREFIX = "/$stapler/bound/";
-    public static final String SCRIPT_PREFIX = "/$stapler/bound/script/";
+    static final String SCRIPT_PREFIX = "/$stapler/bound/script";
 
     /**
      * True to activate debug logging of session fragments.

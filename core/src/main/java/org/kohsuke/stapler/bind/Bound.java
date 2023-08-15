@@ -74,10 +74,10 @@ public abstract class Bound implements HttpResponse {
      * @param bound the bound object, or {@code null} if none.
      * @return
      */
-    public static String getProxyScriptUrl(String variableName, Bound bound) {
+    public static String getProxyScriptURL(String variableName, Bound bound) {
         if (bound == null) {
-            // TODO Should this hardocde a non-UUID to ensure null bind?
-            return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.PREFIX + variableName + "/null";
+            // TODO Should this hardcode a non-UUID to ensure null bind?
+            return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + "/null?var=" + variableName;
         } else {
             return bound.getProxyScriptURL(variableName);
         }
@@ -89,8 +89,9 @@ public abstract class Bound implements HttpResponse {
      * @return
      */
     public final String getProxyScriptURL(String variableName) {
-        // TODO Probably wrong with WithWellKnownURL?
-        return getURL().replace(BoundObjectTable.PREFIX, BoundObjectTable.SCRIPT_PREFIX + variableName + "/");
+        final String methodsList = StringUtils.join(getBoundMethods(getTarget().getClass()).toArray(String[]::new), ",");
+        // The URL looks like it has some redundant elements, but only if it's not a WithWellKnownURL
+        return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + getURL() + "?var=" + variableName + "&methods=" + methodsList;
     }
 
     private static Set<String> getBoundMethods(Class<?> clazz) {
@@ -121,10 +122,21 @@ public abstract class Bound implements HttpResponse {
     }
 
     public static String getProxyScript(String url, Class<?> clazz) {
+        return getProxyScript(url, getBoundMethods(clazz).toArray(String[]::new));
+    }
+
+    /**
+     * Returns the Stapler proxy script for the specified URL and method names
+     *
+     * @param url URL to proxied object
+     * @param methods list of method names
+     * @return
+     */
+    public static String getProxyScript(String url, String[] methods) {
         StringBuilder buf = new StringBuilder("makeStaplerProxy('").append(url).append("','").append(
                 WebApp.getCurrent().getCrumbIssuer().issueCrumb()
         ).append("',[").append(
-                StringUtils.join(getBoundMethods(clazz).stream().map(n -> "'" + n + "'").toArray(String[]::new), ",")).append("])");
+                StringUtils.join(Arrays.stream(methods).sorted().map(it -> "'" + it + "'").toArray(), ",")).append("])");
         return buf.toString();
     }
 

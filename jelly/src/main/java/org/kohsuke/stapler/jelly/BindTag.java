@@ -96,7 +96,7 @@ public class BindTag extends AbstractStaplerTag {
     private void writeScriptTag(XMLOutput out, @CheckForNull Bound bound) throws SAXException {
         final AttributesImpl attributes = new AttributesImpl();
         if (bound == null) {
-            attributes.addAttribute("", "src", "src", "", Bound.getProxyScriptUrl(varName, null));
+            attributes.addAttribute("", "src", "src", "", Bound.getProxyScriptURL(varName, null));
         } else {
             attributes.addAttribute("", "src", "src", "", bound.getProxyScriptURL(varName));
         }
