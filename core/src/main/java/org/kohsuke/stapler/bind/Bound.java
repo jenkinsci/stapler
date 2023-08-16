@@ -76,7 +76,6 @@ public abstract class Bound implements HttpResponse {
      */
     public static String getProxyScriptURL(String variableName, Bound bound) {
         if (bound == null) {
-            // TODO Should this hardcode a non-UUID to ensure null bind?
             return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + "/null?var=" + variableName;
         } else {
             return bound.getProxyScriptURL(variableName);
