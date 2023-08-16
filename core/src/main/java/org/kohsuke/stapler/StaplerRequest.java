@@ -530,17 +530,17 @@ public interface StaplerRequest extends HttpServletRequest {
         public final String proxyMethod; // TODO Is this useful to not need hard-coding 'makeStaplerProxy' in callers?
         public final String url;
         public final String crumb;
-        public final Set<String> methods;
+        public final Set<String> urlNames;
 
-        public RenderOnDemandParameters(String proxyMethod, String url, String crumb, Set<String> methods) {
+        public RenderOnDemandParameters(String proxyMethod, String url, String crumb, Set<String> urlNames) {
             this.proxyMethod = proxyMethod;
             this.url = url;
             this.crumb = crumb;
-            this.methods = methods;
+            this.urlNames = urlNames;
         }
 
-        public String getMethodsString() { // TODO Probably better off in the caller?
-            return StringUtils.join(methods, ",");
+        public String getUrlNames() { // TODO Probably better off in the caller?
+            return StringUtils.join(urlNames, ",");
         }
     }
 

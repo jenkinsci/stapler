@@ -89,12 +89,12 @@ public abstract class Bound implements HttpResponse {
      * @return
      */
     public final String getProxyScriptURL(String variableName) {
-        final String methodsList = StringUtils.join(getBoundMethods(getTarget().getClass()).toArray(String[]::new), ",");
+        final String methodsList = StringUtils.join(getBoundJavaScriptUrlNames(getTarget().getClass()).toArray(String[]::new), ",");
         // The URL looks like it has some redundant elements, but only if it's not a WithWellKnownURL
         return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + getURL() + "?var=" + variableName + "&methods=" + methodsList;
     }
 
-    private static Set<String> getBoundMethods(Class<?> clazz) {
+    private static Set<String> getBoundJavaScriptUrlNames(Class<?> clazz) {
         Set<String> names = new HashSet<>();
         for (Method m : clazz.getMethods()) {
             if (m.getName().startsWith("js")) {
@@ -117,12 +117,12 @@ public abstract class Bound implements HttpResponse {
      * Returns a list of all JS bound methods of the target's type.
      * @return a list of all JS bound methods of the target's type
      */
-    public final Set<String> getBoundMethods() {
-        return getBoundMethods(getTarget().getClass());
+    public final Set<String> getBoundJavaScriptUrlNames() {
+        return getBoundJavaScriptUrlNames(getTarget().getClass());
     }
 
     public static String getProxyScript(String url, Class<?> clazz) {
-        return getProxyScript(url, getBoundMethods(clazz).toArray(String[]::new));
+        return getProxyScript(url, getBoundJavaScriptUrlNames(clazz).toArray(String[]::new));
     }
 
     /**
