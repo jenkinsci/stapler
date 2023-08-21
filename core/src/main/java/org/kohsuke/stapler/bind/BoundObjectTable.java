@@ -97,7 +97,7 @@ public class BoundObjectTable implements StaplerFallback {
         rsp.setContentType("application/javascript");
         final PrintWriter writer = rsp.getWriter();
 
-        if ("null".equals(boundUrl)) {
+        if ("/null".equals(boundUrl)) {
             /* This is the case when the object was null in the first place */
             writer.append(var).append(" = null;");
             return;
@@ -123,6 +123,8 @@ public class BoundObjectTable implements StaplerFallback {
             script = Bound.getProxyScript(boundUrl, object.getClass());
         } else {
             if (methods == null) {
+                /* This will result in an empty file rather than an explicit null assignment,
+                   but it's unexpected to have a WithWellKnownURL without ?methods query parameter. */
                 return;
             }
             final String[] methodsArray = methods.split(",");
