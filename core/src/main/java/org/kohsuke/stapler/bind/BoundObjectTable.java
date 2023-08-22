@@ -56,20 +56,23 @@ import java.util.logging.Logger;
  */
 public class BoundObjectTable implements StaplerFallback {
 
-    private static boolean isValidJavaScriptIdentifier(String variableName) {
+    public static boolean isValidJavaScriptIdentifier(String variableName) {
         // Ultimately this will be used as a JS identifier, so we need (a subset of) what's valid there.
         // The primary purpose of this check however is to prevent injection attacks.
         return variableName.matches("^[a-zA-Z_][a-zA-Z0-9_]*$");
     }
 
-    private static boolean isValidJavaIdentifier(String name) {
+    public static boolean isValidJavaIdentifier(String name) {
         if (name == null || StringUtils.isBlank(name)) {
             return false;
         }
-        if (!Character.isJavaIdentifierStart(name.charAt(0))) {
+        if (!Character.isJavaIdentifierStart(name.charAt(0)) || Character.codePointAt(name, 0) > 255) {
             return false;
         }
-        return name.substring(1).chars().allMatch(Character::isJavaIdentifierPart); // TODO More restrictive
+        // Limit characters to legal Java identifier parts in Latin-1 that aren't ignorable
+        return name.substring(1)
+                .chars()
+                .allMatch(it -> Character.isJavaIdentifierPart(it) && !Character.isIdentifierIgnorable(it) && it < 256);
     }
 
     /**
@@ -130,6 +133,8 @@ public class BoundObjectTable implements StaplerFallback {
             final String[] methodsArray = methods.split(",");
             if (Arrays.stream(methodsArray).anyMatch(it -> !isValidJavaIdentifier(it))) {
                 LOGGER.log(Level.FINE, () -> "Rejecting method list that includes an invalid Java identifier: " + methods);
+                // TODO Alternatively, filter out invalid method names and only include valid ones.
+                //  Could help with non-malicious but encoding related issues
                 return;
             }
             script = Bound.getProxyScript(boundUrl, methodsArray);

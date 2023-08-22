@@ -30,6 +30,7 @@ import org.jvnet.maven.jellydoc.annotation.NoContent;
 import org.jvnet.maven.jellydoc.annotation.Required;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.bind.Bound;
+import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -70,21 +71,30 @@ public class BindTag extends AbstractStaplerTag {
         a.doTag(out);
 
         try {
-            if (javaObject==null) {
+            if (javaObject == null) {
                 if (varName == null) {
+                    // Legacy mode if no 'var' is specified and we bound 'null': Write 'null' expression inline, without <script> wrapper.
                     out.write("null");
                 } else {
+                    // Modern: Write a script tag whose 'src' points to DataBoundTable#doScript, with a special suffix indicating the null bound object.
                     writeScriptTag(out, null);
                 }
             } else {
                 Bound h = WebApp.getCurrent().boundObjectTable.bind(javaObject);
 
-                if (varName==null) {
-                    // this mode (of writing just the expression) needs to be used with caution because
-                    // the adjunct tag above might produce <script> tag.
-                    // Doing this is deprecated as it cannot be done with CSP enabled
+                if (varName == null) {
+                    // Legacy mode if no 'var' is specified: Write the expression inline, without <script> wrapper.
+                    // Doing this is deprecated as it cannot be done with Content-Security-Policy unless 'unsafe-inline' is allowed.
+                    // Additionally, this mode needs to be used with caution because the adjunct tag above might produce a <script> tag.
                     out.write(h.getProxyScript());
+                } else if (!BoundObjectTable.isValidJavaScriptIdentifier(varName)) {
+                    // Legacy mode if 'var' is not a safe variable name: Write the expression inline within <script> wrapper.
+                    // Doing this is deprecated as it cannot be done with Content-Security-Policy unless 'unsafe-inline' is allowed.
+                    out.startElement("script");
+                    out.write(varName + "=" + h.getProxyScript() + ";");
+                    out.endElement("script");
                 } else {
+                    // Modern: Write a script tag whose 'src' points to DataBoundTable#doScript
                     writeScriptTag(out, h);
                 }
             }
@@ -93,6 +103,13 @@ public class BindTag extends AbstractStaplerTag {
         }
     }
 
+    /**
+     * Writes a &lt;script&gt; tag whose {@code src} attribute points to
+     * {@link BoundObjectTable#doScript(org.kohsuke.stapler.StaplerRequest, org.kohsuke.stapler.StaplerResponse, String, String)}.
+     * @param out XML output
+     * @param bound Wrapper for the bound object
+     * @throws SAXException if something goes wrong writing XML
+     */
     private void writeScriptTag(XMLOutput out, @CheckForNull Bound bound) throws SAXException {
         final AttributesImpl attributes = new AttributesImpl();
         if (bound == null) {
