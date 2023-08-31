@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
@@ -32,33 +33,43 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.fileupload.FileCountLimitExceededException;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadBase;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.DiskFileItem;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileUploadByteCountLimitException;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.core.FileUploadFileCountLimitException;
+import org.apache.commons.fileupload2.core.FileUploadSizeException;
+import org.apache.commons.fileupload2.jakarta.JakartaServletDiskFileUpload;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.MethodRef;
 import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -75,9 +86,10 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.logging.Level.*;
-import static javax.servlet.http.HttpServletResponse.*;
+import static jakarta.servlet.http.HttpServletResponse.*;
 
 /**
  * {@link StaplerRequest} implementation.
@@ -131,7 +143,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     /**
      * Limits the number of form fields that can be processed in one multipart/form-data request.
-     * Used to set {@link org.apache.commons.fileupload.servlet.ServletFileUpload#setFileCountMax(long)}.
+     * Used to set {@link org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload#setFileCountMax(long)}.
      * Despite the name, this applies to all form fields, not just actual file attachments.
      * Set to {@code -1} to disable limits.
      */
@@ -139,7 +151,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     /**
      * Limits the size (in bytes) of individual fields that can be processed in one multipart/form-data request.
-     * Used to set {@link org.apache.commons.fileupload.servlet.ServletFileUpload#setFileSizeMax(long)}.
+     * Used to set {@link org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload#setFileSizeMax(long)}.
      * Despite the name, this applies to all form fields, not just actual file attachments.
      * Set to {@code -1} to disable limits.
      */
@@ -147,7 +159,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     /**
      * Limits the total request size (in bytes) that can be processed in one multipart/form-data request.
-     * Used to set {@link org.apache.commons.fileupload.servlet.ServletFileUpload#setSizeMax(long)}.
+     * Used to set {@link org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload#setSizeMax(long)}.
      * Set to {@code -1} to disable limits.
      */
     private static /* nonfinal for Jenkins script console */ long FILEUPLOAD_MAX_SIZE = Long.getLong(RequestImpl.class.getName() + ".FILEUPLOAD_MAX_SIZE", -1);
@@ -202,8 +214,13 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     @Override
+    @WithBridgeMethods(value = javax.servlet.ServletContext.class, adapterMethod = "fromJakartaServletContext")
     public ServletContext getServletContext() {
         return stapler.getServletContext();
+    }
+
+    private Object fromJakartaServletContext(ServletContext servletContext, Class<?> type) {
+        return javax.servlet.ServletContext.fromJakartServletContext(servletContext);
     }
 
     @Override
@@ -288,16 +305,31 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     @Override
+    @WithBridgeMethods(value = javax.servlet.RequestDispatcher.class, adapterMethod = "fromJakartaRequestDispatcher")
+    public RequestDispatcher getRequestDispatcher(String path) {
+        return super.getRequestDispatcher(path);
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.DispatcherType.class, adapterMethod = "fromJakartaDispatcherType")
+    public DispatcherType getDispatcherType() {
+        return super.getDispatcherType();
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.RequestDispatcher.class, adapterMethod = "fromJakartaRequestDispatcher")
     public RequestDispatcher getView(Object it,String viewName) throws IOException {
         return getView(Klass.java(it.getClass()),it,viewName);
     }
 
     @Override
+    @WithBridgeMethods(value = javax.servlet.RequestDispatcher.class, adapterMethod = "fromJakartaRequestDispatcher")
     public RequestDispatcher getView(Class clazz, String viewName) throws IOException {
         return getView(Klass.java(clazz),null,viewName);
     }
 
     @Override
+    @WithBridgeMethods(value = javax.servlet.RequestDispatcher.class, adapterMethod = "fromJakartaRequestDispatcher")
     public RequestDispatcher getView(Klass<?> clazz, String viewName) throws IOException {
         return getView(clazz,null,viewName);
     }
@@ -310,6 +342,14 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         }
 
         return null;
+    }
+
+    private Object fromJakartaRequestDispatcher(RequestDispatcher requestDispatcher, Class<?> type) {
+        return javax.servlet.RequestDispatcher.fromJakartaRequestDispatcher(requestDispatcher);
+    }
+
+    private Object fromJakartaDispatcherType(DispatcherType dispatcherType, Class<?> type) {
+        return javax.servlet.DispatcherType.fromJakartaDispatcherType(dispatcherType);
     }
 
     @Override
@@ -664,6 +704,19 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             } catch (NoSuchMethodException e) {
                 // ignore if there's no such property
             }
+        }
+    }
+
+    /**
+     * @deprecated use {@link #authenticate(HttpServletResponse)}
+     */
+    @Deprecated
+    @Override
+    public boolean authenticate(javax.servlet.http.HttpServletResponse response) throws IOException, javax.servlet.ServletException {
+        try {
+            return authenticate(response.toJakartaHttpServletResponse());
+        } catch (ServletException e) {
+            throw new javax.servlet.ServletException(e);
         }
     }
 
@@ -1050,7 +1103,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
         parsedFormData = new HashMap<>();
         parsedFormDataFormFields = new HashMap<>();
-        ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
+        JakartaServletFileUpload<DiskFileItem, DiskFileItemFactory> upload = new JakartaServletDiskFileUpload();
 
         upload.setFileCountMax(FILEUPLOAD_MAX_FILES);
         upload.setFileSizeMax(FILEUPLOAD_MAX_FILE_SIZE);
@@ -1062,11 +1115,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     parsedFormDataFormFields.put(fi.getFieldName(),fi.getString());
                 }
             }
-        } catch (FileCountLimitExceededException e) {
+        } catch (FileUploadFileCountLimitException e) {
             throw new ServletException("File upload field count limit exceeded. Consider setting the Java system property " + RequestImpl.class.getName() + ".FILEUPLOAD_MAX_FILES to a value greater than " + FILEUPLOAD_MAX_FILES + ", or to -1 to disable this limit.", e);
-        } catch (FileUploadBase.FileSizeLimitExceededException e) {
+        } catch (FileUploadByteCountLimitException e) {
             throw new ServletException("File upload field size limit exceeded. Consider setting the Java system property " + RequestImpl.class.getName() + ".FILEUPLOAD_MAX_FILE_SIZE to a value greater than " + FILEUPLOAD_MAX_FILE_SIZE + ", or to -1 to disable this limit.", e);
-        } catch (FileUploadBase.SizeLimitExceededException e) {
+        } catch (FileUploadSizeException e) {
             throw new ServletException("File upload total size limit exceeded. Consider setting the Java system property " + RequestImpl.class.getName() + ".FILEUPLOAD_MAX_SIZE to a value greater than " + FILEUPLOAD_MAX_SIZE + ", or to -1 to disable this limit.", e);
         } catch (FileUploadException e) {
             throw new ServletException(e);
@@ -1103,10 +1156,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     if (item.getContentType() == null && getCharacterEncoding() != null) {
                         // JENKINS-11543: If client doesn't set charset per part, use request encoding
                         try {
-                            p = item.getString(getCharacterEncoding());
+                            p = item.getString(Charset.forName(getCharacterEncoding()));
                         } catch (java.io.UnsupportedEncodingException uee) {
                             LOGGER.log(WARNING, "Request has unsupported charset, using default for 'json' parameter", uee);
                             p = item.getString();
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
                         }
                     } else {
                         p = item.getString();
@@ -1145,12 +1200,63 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     @Override
+    @WithBridgeMethods(value = org.apache.commons.fileupload.FileItem.class, adapterMethod = "fromFileUpload2FileItem")
     public FileItem getFileItem(String name) throws ServletException, IOException {
         parseMultipartFormData();
         if(parsedFormData==null)    return null;
         FileItem item = parsedFormData.get(name);
         if(item==null || item.isFormField())    return null;
         return item;
+    }
+
+    private Object fromFileUpload2FileItem(FileItem fileItem, Class<?> type) {
+        return org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(fileItem);
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.ServletInputStream.class, adapterMethod = "fromJakartaServletInputStream")
+    public ServletInputStream getInputStream() throws IOException {
+        return super.getInputStream();
+    }
+
+    private Object fromJakartaServletInputStream(ServletInputStream inputStream, Class<?> type) {
+        return javax.servlet.ServletInputStream.fromJakartaServletInputStream(inputStream);
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.http.Cookie[].class, adapterMethod = "fromJakartaCookies")
+    public Cookie[] getCookies() {
+        return super.getCookies();
+    }
+
+    private Object fromJakartaCookies(Cookie[] cookies, Class<?> type) {
+        return Stream.of(cookies).map(javax.servlet.http.Cookie::fromJakartaServletHttpCookie).toArray(javax.servlet.http.Cookie[]::new);
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.http.HttpSession.class, adapterMethod = "fromJakartaHttpSession")
+    public HttpSession getSession(boolean create) {
+        return super.getSession(create);
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.http.HttpSession.class, adapterMethod = "fromJakartaHttpSession")
+    public HttpSession getSession() {
+        return super.getSession();
+    }
+
+    private Object fromJakartaHttpSession(HttpSession httpSession, Class<?> type) {
+        return javax.servlet.http.HttpSession.fromJakartaHttpSession(httpSession);
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.http.Part.class, adapterMethod = "fromJakartaPart")
+    public Part getPart(String name) throws IOException, ServletException {
+        return super.getPart(name);
+    }
+
+    private Object fromJakartaPart(Part part, Class<?> type) {
+        return javax.servlet.http.Part.fromJakartaPart(part);
     }
 
     private static final Logger LOGGER = Logger.getLogger(RequestImpl.class.getName());

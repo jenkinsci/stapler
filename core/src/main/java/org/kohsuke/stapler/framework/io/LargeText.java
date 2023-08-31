@@ -31,7 +31,7 @@ import org.apache.commons.io.output.CountingOutputStream;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.EOFException;

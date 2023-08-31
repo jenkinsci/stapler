@@ -1,7 +1,7 @@
 package org.kohsuke.stapler.compression;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;

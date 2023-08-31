@@ -31,9 +31,9 @@ import org.kohsuke.stapler.export.Model;
 import org.kohsuke.stapler.export.NamedPathPruner;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -47,7 +47,7 @@ import java.net.URLConnection;
  * @see Stapler#getCurrentResponse()
  * @author Kohsuke Kawaguchi
  */
-public interface StaplerResponse extends HttpServletResponse {
+public interface StaplerResponse extends HttpServletResponse, javax.servlet.http.HttpServletResponse {
     /**
      * Evaluates the url against the given object and
      * forwards the request to the result.
@@ -215,11 +215,31 @@ public interface StaplerResponse extends HttpServletResponse {
      */
     OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException;
 
+    default OutputStream getCompressedOutputStream(StaplerRequest req) throws IOException {
+        return getCompressedOutputStream((HttpServletRequest) req);
+    }
+
+    /**
+     * @deprecated use {@link #getCompressedOutputStream(HttpServletRequest)}
+     */
+    @Deprecated
+    OutputStream getCompressedOutputStream(javax.servlet.http.HttpServletRequest req) throws IOException;
+
     /**
      * Works like {@link #getCompressedOutputStream(HttpServletRequest)} but this
      * method is for {@link #getWriter()}.
      */
     Writer getCompressedWriter(HttpServletRequest req) throws IOException;
+
+    default Writer getCompressedWriter(StaplerRequest req) throws IOException {
+        return getCompressedWriter((HttpServletRequest) req);
+    }
+
+    /**
+     * @deprecated use {@link #getCompressedWriter(HttpServletRequest)}
+     */
+    @Deprecated
+    Writer getCompressedWriter(javax.servlet.http.HttpServletRequest req) throws IOException;
 
     /**
      * Performs the reverse proxy to the given URL.

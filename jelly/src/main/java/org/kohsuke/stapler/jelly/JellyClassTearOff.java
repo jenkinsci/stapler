@@ -32,8 +32,8 @@ import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Logger;

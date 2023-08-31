@@ -29,7 +29,7 @@ Stapler needs to know the root object of your application. It does that
 by `ServletContext.getAttribute("app")`, so your application needs to
 set the root object into a ServletContext. The easiest to do that is to
 write a
-http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/ServletContextListener.html[`ServletContextListener`]
+https://jakarta.ee/specifications/servlet/5.0/apidocs/jakarta/servlet/ServletContextListener.html[`ServletContextListener`]
 and use the helper method from `Stapler`.
 
 Specifically, you write the following class:

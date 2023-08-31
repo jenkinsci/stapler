@@ -23,15 +23,17 @@
 
 package org.kohsuke.stapler;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Calendar;
@@ -50,7 +52,7 @@ import org.kohsuke.stapler.lang.Klass;
  * @see Stapler#getCurrentRequest()
  * @author Kohsuke Kawaguchi
  */
-public interface StaplerRequest extends HttpServletRequest {
+public interface StaplerRequest extends HttpServletRequest, javax.servlet.http.HttpServletRequest {
     /**
      * Gets the {@link Stapler} instance that this belongs to.
      */
@@ -91,6 +93,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * dispatcher servlet.
      */
     @Override
+    @WithBridgeMethods(javax.servlet.ServletContext.class)
     ServletContext getServletContext();
 
     /**
@@ -120,11 +123,13 @@ public interface StaplerRequest extends HttpServletRequest {
      * @return null
      *      if neither JSP nor Jelly is not found by the given name.
      */
+    @WithBridgeMethods(javax.servlet.RequestDispatcher.class)
     RequestDispatcher getView(Object it,String viewName) throws IOException;
 
     /**
      * Convenience method to call {@link #getView(Klass, String)} with {@link Class}.
      */
+    @WithBridgeMethods(javax.servlet.RequestDispatcher.class)
     RequestDispatcher getView(Class clazz,String viewName) throws IOException;
 
     /**
@@ -137,6 +142,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * {@code getView(it.getClass(),viewName)} and {@code getView(it,viewName)}
      * aren't the same thing.
      */
+    @WithBridgeMethods(javax.servlet.RequestDispatcher.class)
     RequestDispatcher getView(Klass<?> clazz, String viewName) throws IOException;
 
     /**
@@ -498,6 +504,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *      This includes the case where the name corresponds to a simple
      *      form field (like textbox, checkbox, etc.) 
      */
+    @WithBridgeMethods(org.apache.commons.fileupload.FileItem.class)
     FileItem getFileItem(String name) throws ServletException, IOException;
 
     /**

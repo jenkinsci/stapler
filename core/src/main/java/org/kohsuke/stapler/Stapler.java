@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.ConversionException;
@@ -32,19 +33,19 @@ import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.converters.DoubleConverter;
 import org.apache.commons.beanutils.converters.FloatConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
@@ -81,7 +82,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static javax.servlet.http.HttpServletResponse.*;
+import static jakarta.servlet.http.HttpServletResponse.*;
 import static org.kohsuke.stapler.Dispatcher.*;
 
 
@@ -1157,6 +1158,20 @@ public class Stapler extends HttpServlet {
             }
         }, FileItem.class);
 
+        CONVERT_UTILS.register(new Converter() {
+            @Override
+            public org.apache.commons.fileupload.FileItem convert(Class type, Object value) {
+                if (value == null) {
+                    return null;
+                }
+                try {
+                    return org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(Stapler.getCurrentRequest().getFileItem(value.toString()));
+                } catch (ServletException | IOException e) {
+                    throw new ConversionException(e);
+                }
+            }
+        }, org.apache.commons.fileupload.FileItem.class);
+
         // mapping for boxed types should map null to null, instead of null to zero.
         CONVERT_UTILS.register(new IntegerConverter(null),Integer.class);
         CONVERT_UTILS.register(new FloatConverter(null),Float.class);
@@ -1215,5 +1230,25 @@ public class Stapler extends HttpServlet {
             return o;
 
         return escape(o.toString());
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.ServletConfig.class, adapterMethod = "fromJakartaServletConfig")
+    public ServletConfig getServletConfig() {
+        return super.getServletConfig();
+    }
+
+    private Object fromJakartaServletConfig(ServletConfig servletConfig, Class<?> type) {
+        return javax.servlet.ServletConfig.fromJakartaServletConfig(servletConfig);
+    }
+
+    @Override
+    @WithBridgeMethods(value = javax.servlet.ServletContext.class, adapterMethod = "fromJakartaServletContext")
+    public ServletContext getServletContext() {
+        return super.getServletContext();
+    }
+
+    private Object fromJakartaServletContext(ServletContext servletContext, Class<?> type) {
+        return javax.servlet.ServletContext.fromJakartServletContext(servletContext);
     }
 }

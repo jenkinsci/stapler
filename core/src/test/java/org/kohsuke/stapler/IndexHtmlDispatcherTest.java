@@ -3,7 +3,7 @@ package org.kohsuke.stapler;
 import org.junit.Test;
 import org.jvnet.hudson.test.Issue;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.net.MalformedURLException;
 
 import static org.junit.Assert.assertNull;

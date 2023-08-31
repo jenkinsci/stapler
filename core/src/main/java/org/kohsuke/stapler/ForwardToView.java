@@ -25,8 +25,8 @@ package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import javax.servlet.ServletException;
-import javax.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;

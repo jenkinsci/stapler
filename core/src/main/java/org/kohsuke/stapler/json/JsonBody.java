@@ -6,7 +6,7 @@ import org.kohsuke.stapler.AnnotationHandler;
 import org.kohsuke.stapler.InjectedParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;

@@ -33,9 +33,9 @@ import org.kohsuke.stapler.lang.FieldRef;
 import org.kohsuke.stapler.lang.KInstance;
 import org.kohsuke.stapler.lang.Klass;
 
-import javax.servlet.Filter;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
+import jakarta.servlet.Filter;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
@@ -76,9 +76,23 @@ public class WebApp {
     }
 
     /**
+     * @deprecated use {@link #get(ServletContext)}
+     */
+    @Deprecated
+    public static WebApp get(javax.servlet.ServletContext context) {
+        return get(context.toJakartaServletContext());
+    }
+
+    /**
+     * @deprecated use {@link #getServletContext}
+     */
+    @Deprecated
+    public final javax.servlet.ServletContext context;
+
+    /**
      * {@link ServletContext} for this webapp.
      */
-    public final ServletContext context;
+    private final ServletContext servletContext;
 
     /**
      * @deprecated Unused?
@@ -162,7 +176,8 @@ public class WebApp {
     private JsonInErrorMessageSanitizer jsonInErrorMessageSanitizer;
 
     public WebApp(ServletContext context) {
-        this.context = context;
+        this.servletContext = context;
+        this.context = javax.servlet.ServletContext.fromJakartServletContext(context);
         // TODO: allow classloader to be given?
         facets.addAll(Facet.discoverExtensions(Facet.class, Thread.currentThread().getContextClassLoader(), getClass().getClassLoader()));
         responseRenderers.add(new HttpResponseRenderer.Default());
@@ -173,11 +188,15 @@ public class WebApp {
      * sits at the root of the URL hierarchy and handles the request to '/'.
      */
     public Object getApp() {
-        return context.getAttribute("app");
+        return servletContext.getAttribute("app");
     }
 
     public void setApp(Object app) {
-        context.setAttribute("app",app);
+        servletContext.setAttribute("app",app);
+    }
+
+    public ServletContext getServletContext() {
+        return servletContext;
     }
 
     public CrumbIssuer getCrumbIssuer() {

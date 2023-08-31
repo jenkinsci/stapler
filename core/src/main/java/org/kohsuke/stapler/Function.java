@@ -26,9 +26,9 @@ package org.kohsuke.stapler;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
@@ -180,11 +180,11 @@ public abstract class Function {
             // find the rest of the arguments. either known types, or with annotations
             for( int i=headArgs.length; i<types.length; i++ ) {
                 Class t = types[i];
-                if(t==StaplerRequest.class || t==HttpServletRequest.class) {
+                if (t == StaplerRequest.class || t == HttpServletRequest.class || t == javax.servlet.http.HttpServletRequest.class) {
                     arguments[i] = req;
                     continue;
                 }
-                if(t==StaplerResponse.class || t==HttpServletResponse.class) {
+                if (t == StaplerResponse.class || t == HttpServletResponse.class || t == javax.servlet.http.HttpServletResponse.class) {
                     arguments[i] = rsp;
                     continue;
                 }
