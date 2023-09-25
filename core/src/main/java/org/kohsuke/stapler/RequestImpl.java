@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler;
 
+import java.io.File;
+import java.nio.file.Files;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
@@ -1057,8 +1059,15 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
         parsedFormData = new HashMap<>();
         parsedFormDataFormFields = new HashMap<>();
-        ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
-
+        ServletFileUpload upload;
+        File tmpDir;
+        try {
+            tmpDir = Files.createTempDirectory("jenkins-stapler-uploads").toFile();
+        } catch (IOException e) {
+            throw new ServletException("Error creating temporary directory", e);
+        }
+        tmpDir.deleteOnExit();
+        upload = new ServletFileUpload(new DiskFileItemFactory(DiskFileItemFactory.DEFAULT_SIZE_THRESHOLD, tmpDir));
         upload.setFileCountMax(FILEUPLOAD_MAX_FILES);
         upload.setFileSizeMax(FILEUPLOAD_MAX_FILE_SIZE);
         upload.setSizeMax(FILEUPLOAD_MAX_SIZE);
