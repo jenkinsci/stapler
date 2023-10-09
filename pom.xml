@@ -73,7 +73,7 @@
       <dependency>
         <groupId>org.jenkins-ci.main</groupId>
         <artifactId>jenkins-test-harness-htmlunit</artifactId>
-        <version>154.v973ee207a_b_95</version>
+        <version>158.v7f737a_0dea_b_b_</version>
       </dependency>
       <dependency>
         <groupId>org.kohsuke.metainf-services</groupId>
