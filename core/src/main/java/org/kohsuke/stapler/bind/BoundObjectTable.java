@@ -40,6 +40,7 @@ import org.kohsuke.stapler.StaplerResponse;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
@@ -204,7 +205,7 @@ public class BoundObjectTable implements StaplerFallback {
     /**
      * Per-session table that remembers all the bound instances.
      */
-    public static class Table {
+    public static class Table implements Serializable {
         private final Map<String,Ref> entries = new HashMap<>();
         private boolean logging;
 
@@ -316,7 +317,7 @@ public class BoundObjectTable implements StaplerFallback {
     /**
      * Reference that resolves to an object.
      */
-    interface Ref {
+    interface Ref extends Serializable {
         Object get();
     }
     
@@ -329,11 +330,28 @@ public class BoundObjectTable implements StaplerFallback {
         public Object get() {
             return o;
         }
+        private Object writeReplace() {
+            if (o instanceof Serializable) {
+                return this;
+            } else {
+                LOGGER.fine(() -> "Refusing to serialize " + o);
+                return new StrongRef(null);
+            }
+        }
     }
     
     private static class WeakRef extends WeakReference implements Ref {
         private WeakRef(Object referent) {
             super(referent);
+        }
+        private Object writeReplace() {
+            Object o = get();
+            if (o instanceof Serializable) {
+                return this;
+            } else {
+                LOGGER.fine(() -> "Refusing to serialize " + o);
+                return new WeakRef(null);
+            }
         }
     }
 
