@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
-    <version>1.107</version>
+    <version>1.108</version>
     <relativePath />
   </parent>
   <groupId>org.kohsuke.stapler</groupId>
@@ -73,7 +73,7 @@
       <dependency>
         <groupId>org.jenkins-ci.main</groupId>
         <artifactId>jenkins-test-harness-htmlunit</artifactId>
-        <version>158.v7f737a_0dea_b_b_</version>
+        <version>164.v87e5a_1809c10</version>
       </dependency>
       <dependency>
         <groupId>org.kohsuke.metainf-services</groupId>
