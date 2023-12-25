@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.StringTokenizer;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -46,6 +47,7 @@ public final class TokenList {
     /**
      * Index of the next token.
      */
+    @SuppressFBWarnings(value="PA_PUBLIC_PRIMITIVE_ATTRIBUTE", justification="Preserve API compatibility")
     public int idx;
 
     /**
