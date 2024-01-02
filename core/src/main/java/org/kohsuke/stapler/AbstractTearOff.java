@@ -162,8 +162,16 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
                     }
                 }
             } else {
-                LOGGER.log(Level.FINE, "standard CachingScriptLoader logic applies to {0}", res);
-                return parseScript(res);
+                if (LOGGER.isLoggable(Level.FINE)) {
+                    long start = System.nanoTime();
+                    try {
+                        return parseScript(res);
+                    } finally {
+                        LOGGER.log(Level.FINE, "standard CachingScriptLoader logic applies to {0} parsed in {1}ms", new Object[] {res, (System.nanoTime() - start) / 1_000_000});
+                    }
+                } else {
+                    return parseScript(res);
+                }
             }
         }
 
