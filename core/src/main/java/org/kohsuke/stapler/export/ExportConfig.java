@@ -1,5 +1,7 @@
 package org.kohsuke.stapler.export;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Controls the output behaviour.
  *
@@ -11,6 +13,7 @@ public class ExportConfig {
      *      Use getter and setter
      */
     @Deprecated
+    @SuppressFBWarnings(value="PA_PUBLIC_PRIMITIVE_ATTRIBUTE", justification="Preserve API compatibility")
     public boolean prettyPrint;
 
     private ClassAttributeBehaviour classAttribute = ClassAttributeBehaviour.IF_NEEDED;
