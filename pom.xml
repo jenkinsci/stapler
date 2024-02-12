@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
-    <version>1.108</version>
+    <version>1.110</version>
     <relativePath />
   </parent>
   <groupId>org.kohsuke.stapler</groupId>
@@ -46,10 +46,6 @@
     <scmTag>HEAD</scmTag>
     <jetty.version>10.0.18</jetty.version>
     <gitHubRepo>jenkinsci/stapler</gitHubRepo>
-    <!-- TODO: Remove when parent pom is using this version or newer -->
-    <!-- https://github.com/jenkinsci/pom/pull/510 -->
-    <spotbugs-maven-plugin.version>4.8.2.0</spotbugs-maven-plugin.version>
-    <spotbugs.omitVisitors>FindReturnRef,ConstructorThrow</spotbugs.omitVisitors>    
   </properties>
 
   <dependencyManagement>
@@ -77,7 +73,7 @@
       <dependency>
         <groupId>org.jenkins-ci.main</groupId>
         <artifactId>jenkins-test-harness-htmlunit</artifactId>
-        <version>164.v87e5a_1809c10</version>
+        <version>168.v36080d5e8d36</version>
       </dependency>
       <dependency>
         <groupId>org.kohsuke.metainf-services</groupId>
