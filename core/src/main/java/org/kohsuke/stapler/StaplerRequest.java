@@ -41,7 +41,6 @@ import java.util.List;
 
 import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.json.SubmittedForm;
 import org.kohsuke.stapler.lang.Klass;
@@ -540,7 +539,7 @@ public interface StaplerRequest extends HttpServletRequest {
         }
 
         public String getUrlNames() {
-            return StringUtils.join(urlNames, ",");
+            return String.join(",", urlNames);
         }
     }
 

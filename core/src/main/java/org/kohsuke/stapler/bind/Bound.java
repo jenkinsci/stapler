@@ -25,7 +25,7 @@ package org.kohsuke.stapler.bind;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
+import java.util.stream.Collectors;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.Stapler;
@@ -88,7 +88,7 @@ public abstract class Bound implements HttpResponse {
      * @return
      */
     public final String getProxyScriptURL(String variableName) {
-        final String methodsList = StringUtils.join(getBoundJavaScriptUrlNames(getTarget().getClass()).toArray(String[]::new), ",");
+        final String methodsList = String.join(",", getBoundJavaScriptUrlNames(getTarget().getClass()));
         // The URL looks like it has some redundant elements, but only if it's not a WithWellKnownURL
         return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + getURL() + "?var=" + variableName + "&methods=" + methodsList;
     }
@@ -132,11 +132,9 @@ public abstract class Bound implements HttpResponse {
      * @return
      */
     public static String getProxyScript(String url, String[] methods) {
-        StringBuilder buf = new StringBuilder("makeStaplerProxy('").append(url).append("','").append(
-                WebApp.getCurrent().getCrumbIssuer().issueCrumb()
-        ).append("',[").append(
-                StringUtils.join(Arrays.stream(methods).sorted().map(it -> "'" + it + "'").toArray(), ",")).append("])");
-        return buf.toString();
+        final String crumb = WebApp.getCurrent().getCrumbIssuer().issueCrumb();
+        final String methodNamesList = Arrays.stream(methods).sorted().map(it -> "'" + it + "'").collect(Collectors.joining(","));
+        return "makeStaplerProxy('" + url + "','" + crumb + "',[" + methodNamesList +  "])";
     }
 
     private static String camelize(String name) {
