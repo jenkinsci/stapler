@@ -104,7 +104,7 @@ public class BindTag extends AbstractStaplerTag {
     }
 
     /**
-     * Writes a &lt;script&gt; tag whose {@code src} attribute points to
+     * Writes a {@code <script>} tag whose {@code src} attribute points to
      * {@link BoundObjectTable#doScript(org.kohsuke.stapler.StaplerRequest, org.kohsuke.stapler.StaplerResponse, String, String)}.
      * @param out XML output
      * @param bound Wrapper for the bound object

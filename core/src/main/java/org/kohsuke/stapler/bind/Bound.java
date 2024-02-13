@@ -69,10 +69,11 @@ public abstract class Bound implements HttpResponse {
     }
 
     /**
-     * Returns the URL to the proxy script for this {@link org.kohsuke.stapler.bind.Bound}
+     * Returns the URL to the proxy script for the specified {@link org.kohsuke.stapler.bind.Bound}.
+     *
      * @param variableName the variable to assign to the bound object
      * @param bound the bound object, or {@code null} if none.
-     * @return
+     * @return the URL to the proxy script for the specified {@link org.kohsuke.stapler.bind.Bound}, starting with the context path
      */
     public static String getProxyScriptURL(String variableName, Bound bound) {
         if (bound == null) {
@@ -83,9 +84,10 @@ public abstract class Bound implements HttpResponse {
     }
 
     /**
-     * Returns the URL for the standalone proxy script.
+     * Returns the URL for the standalone proxy script of this {@link org.kohsuke.stapler.bind.Bound}.
+     *
      * @param variableName the name of the JS variable to assign
-     * @return
+     * @return the URL for the standalone proxy script of this {@link org.kohsuke.stapler.bind.Bound}, starting with the context path
      */
     public final String getProxyScriptURL(String variableName) {
         final String methodsList = String.join(",", getBoundJavaScriptUrlNames(getTarget().getClass()));
