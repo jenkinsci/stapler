@@ -115,8 +115,8 @@ public abstract class Bound implements HttpResponse {
     }
 
     /**
-     * Returns a list of all JS bound methods of the target's type.
-     * @return a list of all JS bound methods of the target's type
+     * Returns a collection of all JS bound methods of the target's type.
+     * @return a collection of all JS bound methods of the target's type
      */
     public final Set<String> getBoundJavaScriptUrlNames() {
         return getBoundJavaScriptUrlNames(getTarget().getClass());
@@ -131,7 +131,7 @@ public abstract class Bound implements HttpResponse {
      *
      * @param url URL to proxied object
      * @param methods list of method names
-     * @return
+     * @return the Stapler proxy script for the specified URL and method names
      */
     public static String getProxyScript(String url, String[] methods) {
         final String crumb = WebApp.getCurrent().getCrumbIssuer().issueCrumb();
