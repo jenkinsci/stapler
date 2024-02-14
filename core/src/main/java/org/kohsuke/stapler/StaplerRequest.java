@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import java.util.Set;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.fileupload.FileItem;
@@ -515,6 +516,36 @@ public interface StaplerRequest extends HttpServletRequest {
      * a proxy on the client side.
      *
      * Short cut for {@code getBoundObjectTable().bind(toBeExported).getProxyScript()}
+     *
+     * @deprecated Use {@link #createJavaScriptProxyParameters(Object)} and invoke {@code makeStaplerProxy} yourself.
      */
+    @Deprecated
     String createJavaScriptProxy(Object toBeExported);
+
+    /**
+     * Return value of {@link #createJavaScriptProxyParameters(Object)}
+     */
+    final class RenderOnDemandParameters {
+        public final String proxyMethod;
+        public final String url;
+        public final String crumb;
+        public final Set<String> urlNames;
+
+        public RenderOnDemandParameters(String proxyMethod, String url, String crumb, Set<String> urlNames) {
+            this.proxyMethod = proxyMethod;
+            this.url = url;
+            this.crumb = crumb;
+            this.urlNames = urlNames;
+        }
+
+        public String getUrlNames() {
+            return String.join(",", urlNames);
+        }
+    }
+
+    /**
+     * Exports the given Java object as a JavaScript proxy and returns the parameters needed to call
+     * {@code makeStaplerProxy}.
+     */
+    RenderOnDemandParameters createJavaScriptProxyParameters(Object toBeExported);
 }

@@ -23,14 +23,16 @@
 
 package org.kohsuke.stapler.bind;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.MetaClass;
+import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.WebApp;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
 
 /**
  * Handles to the object bound via {@link BoundObjectTable}.
@@ -63,34 +65,78 @@ public abstract class Bound implements HttpResponse {
      * talks back to the bound object that this handle represents.
      */
     public final String getProxyScript() {
-        StringBuilder buf = new StringBuilder("makeStaplerProxy('").append(getURL()).append("','").append(
-                WebApp.getCurrent().getCrumbIssuer().issueCrumb()
-        ).append("',[");
+        return getProxyScript(getURL(), getTarget().getClass());
+    }
 
-        boolean first=true;
-        for (Method m : getTarget().getClass().getMethods()) {
-            Collection<String> names;
+    /**
+     * Returns the URL to the proxy script for the specified {@link org.kohsuke.stapler.bind.Bound}.
+     *
+     * @param variableName the variable to assign to the bound object
+     * @param bound the bound object, or {@code null} if none.
+     * @return the URL to the proxy script for the specified {@link org.kohsuke.stapler.bind.Bound}, starting with the context path
+     */
+    public static String getProxyScriptURL(String variableName, Bound bound) {
+        if (bound == null) {
+            return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + "/null?var=" + variableName;
+        } else {
+            return bound.getProxyScriptURL(variableName);
+        }
+    }
+
+    /**
+     * Returns the URL for the standalone proxy script of this {@link org.kohsuke.stapler.bind.Bound}.
+     *
+     * @param variableName the name of the JS variable to assign
+     * @return the URL for the standalone proxy script of this {@link org.kohsuke.stapler.bind.Bound}, starting with the context path
+     */
+    public final String getProxyScriptURL(String variableName) {
+        final String methodsList = String.join(",", getBoundJavaScriptUrlNames(getTarget().getClass()));
+        // The URL looks like it has some redundant elements, but only if it's not a WithWellKnownURL
+        return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + getURL() + "?var=" + variableName + "&methods=" + methodsList;
+    }
+
+    private static Set<String> getBoundJavaScriptUrlNames(Class<?> clazz) {
+        Set<String> names = new HashSet<>();
+        for (Method m : clazz.getMethods()) {
             if (m.getName().startsWith("js")) {
-                names = Set.of(camelize(m.getName().substring(2)));
+                names.add(camelize(m.getName().substring(2)));
             } else {
                 JavaScriptMethod a = m.getAnnotation(JavaScriptMethod.class);
-                if (a!=null) {
-                    names = Arrays.asList(a.name());
-                    if (names.isEmpty())
-                        names = Set.of(m.getName());
-                } else
-                    continue;
-            }
-
-            for (String n : names) {
-                if (first)  first = false;
-                else        buf.append(',');
-                buf.append('\'').append(n).append('\'');
+                if (a != null) {
+                    if (a.name().length == 0) {
+                        names.add(m.getName());
+                    } else {
+                        names.addAll(Arrays.asList(a.name()));
+                    }
+                }
             }
         }
-        buf.append("])");
-        
-        return buf.toString();
+        return names;
+    }
+
+    /**
+     * Returns a collection of all JS bound methods of the target's type.
+     * @return a collection of all JS bound methods of the target's type
+     */
+    public final Set<String> getBoundJavaScriptUrlNames() {
+        return getBoundJavaScriptUrlNames(getTarget().getClass());
+    }
+
+    public static String getProxyScript(String url, Class<?> clazz) {
+        return getProxyScript(url, getBoundJavaScriptUrlNames(clazz).toArray(String[]::new));
+    }
+
+    /**
+     * Returns the Stapler proxy script for the specified URL and method names
+     *
+     * @param url URL to proxied object
+     * @param methods list of method names
+     * @return the Stapler proxy script for the specified URL and method names
+     */
+    public static String getProxyScript(String url, String[] methods) {
+        final String crumb = WebApp.getCurrent().getCrumbIssuer().issueCrumb();
+        final String methodNamesList = Arrays.stream(methods).sorted().map(it -> "'" + it + "'").collect(Collectors.joining(","));
+        return "makeStaplerProxy('" + url + "','" + crumb + "',[" + methodNamesList +  "])";
     }
 
     private static String camelize(String name) {

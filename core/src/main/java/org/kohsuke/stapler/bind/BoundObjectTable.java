@@ -24,9 +24,14 @@
 package org.kohsuke.stapler.bind;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.logging.Level;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerFallback;
 import org.kohsuke.stapler.StaplerRequest;
@@ -51,6 +56,93 @@ import java.util.logging.Logger;
  * @author Kohsuke Kawaguchi
  */
 public class BoundObjectTable implements StaplerFallback {
+
+    public static boolean isValidJavaScriptIdentifier(String variableName) {
+        // Ultimately this will be used as a JS identifier, so we need (a subset of) what's valid there.
+        // The primary purpose of this check however is to prevent injection attacks.
+        return variableName.matches("^[a-zA-Z_][a-zA-Z0-9_]*$");
+    }
+
+    public static boolean isValidJavaIdentifier(String name) {
+        if (name == null || StringUtils.isBlank(name)) {
+            return false;
+        }
+        if (!Character.isJavaIdentifierStart(name.charAt(0)) || Character.codePointAt(name, 0) > 255) {
+            return false;
+        }
+        // Limit characters to legal Java identifier parts in Latin-1 that aren't ignorable
+        return name.substring(1)
+                .chars()
+                .allMatch(it -> Character.isJavaIdentifierPart(it) && !Character.isIdentifierIgnorable(it) && it < 256);
+    }
+
+    /**
+     * This serves the script content for a bound object. Support CSP-compatible st:bind and similar methods of making
+     * objects accessible to JS.
+     *
+     * @param req
+     * @param rsp
+     * @param var the variable name to assign the Stapler proxy to
+     * @param methods the list of methods (needed for {@link WithWellKnownURL})
+     * @throws IOException
+     */
+    public void doScript(StaplerRequest req, StaplerResponse rsp, @QueryParameter String var, @QueryParameter String methods) throws IOException {
+        final String boundUrl = req.getRestOfPath();
+
+        if (var == null) {
+            return;
+        }
+
+        if (!isValidJavaScriptIdentifier(var)) {
+            LOGGER.log(Level.FINE, () -> "Rejecting invalid JavaScript identifier: " + var);
+            return;
+        }
+
+        rsp.setContentType("application/javascript");
+        final PrintWriter writer = rsp.getWriter();
+
+        if ("/null".equals(boundUrl)) {
+            /* This is the case when the object was null in the first place */
+            writer.append(var).append(" = null;");
+            return;
+        }
+
+        final String script;
+
+        /* If this is not a WithWellKnownURL, look UUID up in bound object table and return null if not found. */
+        final String contextAndPrefix = Stapler.getCurrentRequest().getContextPath() + PREFIX;
+        if (boundUrl.startsWith(contextAndPrefix)) {
+            final String id = boundUrl.replace(contextAndPrefix, "");
+            final Table table = resolve(false);
+            if (table == null) {
+                rsp.sendError(404);
+                return;
+            }
+            Object object = table.resolve(id);
+            if (object == null) {
+                /* Support null bound objects */
+                writer.append(var).append(" = null;");
+                return;
+            }
+            script = Bound.getProxyScript(boundUrl, object.getClass());
+        } else {
+            if (methods == null) {
+                /* This will result in an empty file rather than an explicit null assignment,
+                   but it's unexpected to have a WithWellKnownURL without ?methods query parameter. */
+                return;
+            }
+            final String[] methodsArray = methods.split(",");
+            if (Arrays.stream(methodsArray).anyMatch(it -> !isValidJavaIdentifier(it))) {
+                LOGGER.log(Level.FINE, () -> "Rejecting method list that includes an invalid Java identifier: " + methods);
+                // TODO Alternatively, filter out invalid method names and only include valid ones.
+                //  Could help with non-malicious but encoding related issues
+                return;
+            }
+            script = Bound.getProxyScript(boundUrl, methodsArray);
+        }
+        writer.append(var).append(" = ").append(script).append(";");
+    }
+
     @Override
     public Table getStaplerFallback() {
         return resolve(false);
@@ -264,6 +356,7 @@ public class BoundObjectTable implements StaplerFallback {
     }
 
     public static final String PREFIX = "/$stapler/bound/";
+    static final String SCRIPT_PREFIX = "/$stapler/bound/script";
 
     /**
      * True to activate debug logging of session fragments.

@@ -41,6 +41,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.jvnet.tiger_types.Lister;
+import org.kohsuke.stapler.bind.Bound;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.MethodRef;
@@ -181,6 +182,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     @Override
     public String createJavaScriptProxy(Object toBeExported) {
         return getBoundObjectTable().bind(toBeExported).getProxyScript();
+    }
+
+    @Override
+    public RenderOnDemandParameters createJavaScriptProxyParameters(Object toBeExported) {
+        final Bound bound = getBoundObjectTable().bind(toBeExported);
+        return new RenderOnDemandParameters("makeStaplerProxy", bound.getURL(), getWebApp().getCrumbIssuer().issueCrumb(), bound.getBoundJavaScriptUrlNames());
     }
 
     @Override
