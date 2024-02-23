@@ -40,7 +40,7 @@ public enum Flavor {
             return new JSONDataWriter(w,config);
         }
     },
-    JSONP("application/javascript;charset=UTF-8") {
+    JSONP("text/javascript;charset=UTF-8") {
         @Override
         public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
             return new JSONDataWriter(w,config);
