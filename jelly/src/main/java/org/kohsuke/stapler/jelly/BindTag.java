@@ -117,7 +117,7 @@ public class BindTag extends AbstractStaplerTag {
         } else {
             attributes.addAttribute("", "src", "src", "", bound.getProxyScriptURL(varName));
         }
-        attributes.addAttribute("", "type", "type", "", "application/javascript");
+        attributes.addAttribute("", "type", "type", "", "text/javascript");
         out.startElement("script", attributes);
         out.endElement("script");
     }
