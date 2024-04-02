@@ -98,7 +98,7 @@ public class BoundObjectTable implements StaplerFallback {
             return;
         }
 
-        rsp.setContentType("application/javascript");
+        rsp.setContentType("text/javascript");
         final PrintWriter writer = rsp.getWriter();
 
         if ("/null".equals(boundUrl)) {
