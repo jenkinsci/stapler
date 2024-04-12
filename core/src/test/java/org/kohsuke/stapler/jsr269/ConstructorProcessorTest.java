@@ -1,5 +1,8 @@
 package org.kohsuke.stapler.jsr269;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -8,6 +11,7 @@ import com.karuslabs.elementary.junit.JavacExtension;
 import com.karuslabs.elementary.junit.annotations.Inline;
 import com.karuslabs.elementary.junit.annotations.Options;
 import com.karuslabs.elementary.junit.annotations.Processors;
+import java.time.Year;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -160,4 +164,22 @@ class ConstructorProcessorTest {
         assertEquals(0, diagnostics.size());
     }
     // TODO nested classes use qualified rather than binary name
+
+    //issue-526
+    @Inline(
+            name = "some.pkg.Stuff",
+            source = {
+                "package some.pkg;",
+                "import org.kohsuke.stapler.DataBoundConstructor;",
+                "public class Stuff {",
+                "  @DataBoundConstructor public Stuff(int count, String name) {}",
+                "}",
+            })
+    @Test
+    void reproducibleBuild(Results results) {
+        assertEquals(Collections.emptyList(), results.diagnostics);
+        assertThat(
+                Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler"),
+                not(containsString(Integer.toString(Year.now().getValue()))));
+    }
 }

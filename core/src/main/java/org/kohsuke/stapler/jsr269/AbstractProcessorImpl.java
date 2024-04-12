@@ -26,11 +26,14 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javax.annotation.processing.AbstractProcessor;
 import javax.lang.model.element.Element;
 import javax.tools.FileObject;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static javax.tools.Diagnostic.Kind.*;
 import static javax.tools.StandardLocation.*;
@@ -66,8 +69,13 @@ abstract class AbstractProcessorImpl extends AbstractProcessor {
 
     protected void writePropertyFile(Properties p, String name) throws IOException {
         FileObject f = createResource(name);
-        try (OutputStream os = f.openOutputStream()) {
-            p.store(os,null);
+        /*
+         * This is somewhat fragile, but it is the only practical option on Java 11 and 17. In Java 21, we could instead
+         * set the "java.properties.date" system property to a fixed string and avoid the need to work around internal
+         * Java Platform implementation details.
+         */
+        try (Writer w = f.openWriter(); BufferedWriter bw = new CommentStrippingBufferedWriter(w)) {
+            p.store(bw,null);
         }
     }
 
@@ -77,5 +85,20 @@ abstract class AbstractProcessorImpl extends AbstractProcessor {
 
     protected FileObject createResource(String name) throws IOException {
         return processingEnv.getFiler().createResource(CLASS_OUTPUT, "", name);
+    }
+
+    private static class CommentStrippingBufferedWriter extends BufferedWriter {
+        private final AtomicInteger count = new AtomicInteger(0);
+
+        public CommentStrippingBufferedWriter(Writer out) {
+            super(out);
+        }
+
+        @Override
+        public void write(String str) throws IOException {
+            if (count.getAndIncrement() > 0 || !str.startsWith("#")) {
+                super.write(str);
+            }
+        }
     }
 }
