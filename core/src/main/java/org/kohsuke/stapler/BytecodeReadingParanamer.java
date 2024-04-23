@@ -39,6 +39,10 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * An ASM-based implementation of Paranamer. It relies on debug information compiled
@@ -53,7 +57,10 @@ import java.util.Map;
  */
 final class BytecodeReadingParanamer {
 
+    private static final ConcurrentMap<String, Object> ALREADY_LOGGED = new ConcurrentHashMap();
     private static final String[] EMPTY_NAMES = new String[0];
+    private static final Logger LOGGER = Logger.getLogger(BytecodeReadingParanamer.class.getName());
+    private static final Object PLACEHOLDER = new Object();
 
     private static final Map<String, String> primitives = new HashMap<>() {
         {
@@ -69,6 +76,11 @@ final class BytecodeReadingParanamer {
     };
 
     static String[] lookupParameterNames(Executable executable) throws IOException {
+        String genericString = executable.toGenericString();
+        if (ALREADY_LOGGED.putIfAbsent(genericString, PLACEHOLDER) == null) {
+            LOGGER.log(Level.WARNING, "Looking up parameter names for {0}; update plugin to a version created with a newer harness", genericString);
+        }
+
         Class<?>[] types = executable.getParameterTypes();
         Class<?> declaringClass = executable.getDeclaringClass();
         String name = executable instanceof Constructor ? "<init>" : executable.getName();
