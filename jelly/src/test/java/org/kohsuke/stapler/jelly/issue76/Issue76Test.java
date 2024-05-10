@@ -1,11 +1,10 @@
 package org.kohsuke.stapler.jelly.issue76;
 
+import java.net.URL;
 import org.htmlunit.TextPage;
 import org.htmlunit.WebClient;
 import org.htmlunit.html.HtmlPage;
 import org.kohsuke.stapler.test.JettyTestCase;
-
-import java.net.URL;
 
 /**
  * @author Kohsuke Kawaguchi

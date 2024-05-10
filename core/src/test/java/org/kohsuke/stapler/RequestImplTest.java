@@ -24,22 +24,6 @@
  */
 package org.kohsuke.stapler;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.junit.Assert;
-import org.junit.Test;
-import org.jvnet.hudson.test.Issue;
-import org.mockito.Mockito;
-
-import net.sf.json.JSONObject;
-
-import javax.servlet.ReadListener;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -49,6 +33,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import javax.servlet.ReadListener;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import net.sf.json.JSONObject;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.junit.Assert;
+import org.junit.Test;
+import org.jvnet.hudson.test.Issue;
+import org.mockito.Mockito;
 
 /**
  * @author <a href="mailto:tom.fennelly@gmail.com">tom.fennelly@gmail.com</a>

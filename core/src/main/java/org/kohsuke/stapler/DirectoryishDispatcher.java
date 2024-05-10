@@ -1,10 +1,10 @@
 package org.kohsuke.stapler;
 
-import javax.servlet.ServletException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.ServletException;
 
 /**
  * {@link Dispatcher} that tells browsers to append '/' to the request path and try again.

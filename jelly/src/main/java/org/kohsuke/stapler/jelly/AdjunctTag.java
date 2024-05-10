@@ -23,16 +23,15 @@
 
 package org.kohsuke.stapler.jelly;
 
-import org.apache.commons.jelly.JellyTagException;
-import org.apache.commons.jelly.XMLOutput;
-import org.kohsuke.stapler.framework.adjunct.AdjunctManager;
-import org.kohsuke.stapler.framework.adjunct.AdjunctsInPage;
-import org.xml.sax.SAXException;
-import org.jvnet.maven.jellydoc.annotation.NoContent;
-
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.jelly.JellyTagException;
+import org.apache.commons.jelly.XMLOutput;
+import org.jvnet.maven.jellydoc.annotation.NoContent;
+import org.kohsuke.stapler.framework.adjunct.AdjunctManager;
+import org.kohsuke.stapler.framework.adjunct.AdjunctsInPage;
+import org.xml.sax.SAXException;
 
 /**
  * Writes out links to adjunct CSS and JavaScript, if not done so already.

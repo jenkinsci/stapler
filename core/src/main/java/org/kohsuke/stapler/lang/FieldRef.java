@@ -1,11 +1,10 @@
 package org.kohsuke.stapler.lang;
 
-import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.logging.Logger;
+import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
 
 /**
  * Fields of {@link Klass}.

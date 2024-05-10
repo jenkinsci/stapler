@@ -23,14 +23,13 @@
 
 package org.kohsuke.stapler.jelly.groovy;
 
-import org.kohsuke.stapler.jelly.JellyTagFileLoader;
-import org.kohsuke.stapler.jelly.CustomTagLibrary;
-import org.kohsuke.MetaInfServices;
-import org.apache.commons.jelly.Script;
-import org.apache.commons.jelly.JellyException;
-
 import java.io.IOException;
 import java.net.URL;
+import org.apache.commons.jelly.JellyException;
+import org.apache.commons.jelly.Script;
+import org.kohsuke.MetaInfServices;
+import org.kohsuke.stapler.jelly.CustomTagLibrary;
+import org.kohsuke.stapler.jelly.JellyTagFileLoader;
 
 /**
  * @author Kohsuke Kawaguchi

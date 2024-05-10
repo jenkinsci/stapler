@@ -23,6 +23,9 @@
 
 package org.kohsuke.stapler;
 
+import com.jcraft.jzlib.GZIPOutputStream;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,15 +40,11 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-
-import com.jcraft.jzlib.GZIPOutputStream;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.sf.json.JsonConfig;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.compression.CompressionFilter;

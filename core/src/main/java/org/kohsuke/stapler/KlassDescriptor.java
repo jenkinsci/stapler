@@ -1,9 +1,8 @@
 package org.kohsuke.stapler;
 
+import java.util.List;
 import org.kohsuke.stapler.lang.FieldRef;
 import org.kohsuke.stapler.lang.Klass;
-
-import java.util.List;
 
 /**
  * Reflection information of a {@link Klass} that drives the request routing.

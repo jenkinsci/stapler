@@ -1,11 +1,5 @@
 package org.kohsuke.stapler.compression;
 
-import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.test.JettyTestCase;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,6 +11,11 @@ import java.util.EnumSet;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import javax.servlet.DispatcherType;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.test.JettyTestCase;
 
 public class CompressionFilterTest extends JettyTestCase {
 

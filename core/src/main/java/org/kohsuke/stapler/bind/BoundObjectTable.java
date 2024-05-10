@@ -24,9 +24,18 @@
 package org.kohsuke.stapler.bind;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.HttpResponse;
@@ -36,16 +45,6 @@ import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerFallback;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.io.Serializable;
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Logger;
 
 /**
  * Objects exported and bound by JavaScript proxies.

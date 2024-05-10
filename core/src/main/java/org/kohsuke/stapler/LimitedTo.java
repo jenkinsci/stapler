@@ -23,17 +23,14 @@
 
 package org.kohsuke.stapler;
 
-import org.kohsuke.stapler.interceptor.Interceptor;
-import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
-
-import javax.servlet.ServletException;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
+import javax.servlet.ServletException;
+import org.kohsuke.stapler.interceptor.Interceptor;
+import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
 /**
  * Declares that methods are only available for requests that
@@ -45,8 +42,8 @@ import java.lang.reflect.InvocationTargetException;
  *
  * @author Kohsuke Kawaguchi
  */
-@Retention(RUNTIME)
-@Target({METHOD,FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD,ElementType.FIELD})
 @InterceptorAnnotation(LimitedTo.Processor.class)
 public @interface LimitedTo {
     /**

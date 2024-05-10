@@ -23,9 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import org.apache.commons.io.IOUtils;
-import org.jvnet.tiger_types.Types;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -46,10 +43,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-
-import static java.util.logging.Level.WARNING;
+import org.apache.commons.io.IOUtils;
+import org.jvnet.tiger_types.Types;
 
 /**
  * Reflection information of a {@link Class}.
@@ -196,7 +194,7 @@ public final class ClassDescriptor {
             n = BytecodeReadingParanamer.lookupParameterNames(m);
             if (n!=null)    return n;
         } catch (IOException e) {
-            LOGGER.log(WARNING, "Failed to load a class file", e);
+            LOGGER.log(Level.WARNING, "Failed to load a class file", e);
         }
 
         // otherwise check the .stapler file
@@ -207,7 +205,7 @@ public final class ClassDescriptor {
             try {
                 return IOUtils.toString(url.openStream()).split(",");
             } catch (IOException e) {
-                LOGGER.log(WARNING, "Failed to load "+url,e);
+                LOGGER.log(Level.WARNING, "Failed to load "+url,e);
                 return EMPTY_ARRAY;
             }
         }
@@ -237,7 +235,7 @@ public final class ClassDescriptor {
             n = BytecodeReadingParanamer.lookupParameterNames(m);
             if (n!=null)    return n;
         } catch (IOException e) {
-            LOGGER.log(WARNING, "Failed to load a class file", e);
+            LOGGER.log(Level.WARNING, "Failed to load a class file", e);
         }
 
         // couldn't find it

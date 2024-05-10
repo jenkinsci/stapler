@@ -23,13 +23,12 @@
 
 package org.kohsuke.stapler.export;
 
-import org.kohsuke.stapler.MethodHandleFactory;
-
 import java.beans.Introspector;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import org.kohsuke.stapler.MethodHandleFactory;
 
 /**
  * {@link Property} based on {@link Method}.

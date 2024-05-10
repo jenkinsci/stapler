@@ -23,15 +23,15 @@
  */
 package org.kohsuke.stapler.export;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
 public class ModelTest {
     private ExportConfig config = new ExportConfig().withFlavor(Flavor.JSON).withClassAttribute(ClassAttributeBehaviour.ALWAYS.simple());

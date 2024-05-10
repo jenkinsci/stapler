@@ -1,9 +1,9 @@
 package org.kohsuke.stapler;
 
+import java.util.UUID;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.UUID;
 
 /**
  * Type-safe attribute accessor.

@@ -23,10 +23,9 @@
 
 package org.kohsuke.stapler.jelly;
 
+import java.io.StringWriter;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.XMLOutput;
-
-import java.io.StringWriter;
 
 /**
  * Body is evaluated and is used as an argument for the surrounding {@code <structuredMessageFormat>} element.

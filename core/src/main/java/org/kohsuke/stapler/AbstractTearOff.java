@@ -24,7 +24,6 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.File;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;

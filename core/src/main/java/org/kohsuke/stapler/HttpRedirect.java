@@ -24,10 +24,9 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.servlet.ServletException;
 import java.io.IOException;
-
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * {@link HttpResponse} that dose HTTP 302 redirect.
@@ -40,7 +39,7 @@ public final class HttpRedirect extends RuntimeException implements HttpResponse
     private final String url;
 
     public HttpRedirect(@NonNull String url) {
-        this(SC_MOVED_TEMPORARILY,url);
+        this(HttpServletResponse.SC_MOVED_TEMPORARILY,url);
     }
 
     public HttpRedirect(int statusCode, @NonNull String url) {

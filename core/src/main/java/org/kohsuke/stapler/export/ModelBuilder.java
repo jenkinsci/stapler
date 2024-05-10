@@ -23,11 +23,11 @@
 
 package org.kohsuke.stapler.export;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Creates and maintains {@link Model}s, that are used to write out

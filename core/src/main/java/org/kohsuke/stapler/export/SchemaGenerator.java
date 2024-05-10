@@ -26,20 +26,19 @@ package org.kohsuke.stapler.export;
 import com.sun.xml.txw2.TXW;
 import com.sun.xml.txw2.output.ResultFactory;
 import java.beans.Introspector;
-import org.kohsuke.stapler.export.XSD.ComplexType;
-import org.kohsuke.stapler.export.XSD.ContentModel;
-import org.kohsuke.stapler.export.XSD.Element;
-import org.kohsuke.stapler.export.XSD.Schema;
-import org.kohsuke.stapler.export.XSD.Annotated;
-
-import javax.xml.namespace.QName;
-import javax.xml.transform.Result;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import javax.xml.namespace.QName;
+import javax.xml.transform.Result;
+import org.kohsuke.stapler.export.XSD.Annotated;
+import org.kohsuke.stapler.export.XSD.ComplexType;
+import org.kohsuke.stapler.export.XSD.ContentModel;
+import org.kohsuke.stapler.export.XSD.Element;
+import org.kohsuke.stapler.export.XSD.Schema;
 
 /**
  * Generates XML Schema that describes the XML representation of exported beans.

@@ -1,9 +1,8 @@
 package org.kohsuke.stapler.lang;
 
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.List;
 import org.kohsuke.stapler.Function;
 
 /**

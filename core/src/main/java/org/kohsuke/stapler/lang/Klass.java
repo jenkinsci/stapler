@@ -1,13 +1,12 @@
 package org.kohsuke.stapler.lang;
 
-import org.kohsuke.stapler.Function;
-
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import edu.umd.cs.findbugs.annotations.NonNull;
+import org.kohsuke.stapler.Function;
 
 /**
  * Abstraction of class-like object, agnostic to languages.

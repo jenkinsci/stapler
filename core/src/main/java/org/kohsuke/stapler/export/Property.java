@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.export;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -38,8 +39,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 import org.jvnet.tiger_types.Types;
 import org.kohsuke.stapler.export.TreePruner.ByDepth;
 

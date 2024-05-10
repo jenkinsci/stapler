@@ -1,8 +1,9 @@
 package org.kohsuke.stapler.jsr269;
 
-import org.kohsuke.MetaInfServices;
-import org.kohsuke.stapler.DataBoundConstructor;
-
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -10,15 +11,13 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementScanner9;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-import javax.lang.model.element.Modifier;
 import javax.tools.Diagnostic;
+import org.kohsuke.MetaInfServices;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * @author Kohsuke Kawaguchi

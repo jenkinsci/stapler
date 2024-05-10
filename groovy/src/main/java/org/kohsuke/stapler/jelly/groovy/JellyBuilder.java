@@ -29,6 +29,13 @@ import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingMethodException;
 import groovy.lang.MissingPropertyException;
 import groovy.xml.QName;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import javax.servlet.ServletContext;
 import org.apache.commons.beanutils.ConvertingWrapDynaBean;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaProperty;
@@ -61,14 +68,6 @@ import org.kohsuke.stapler.lang.Klass;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
-
-import javax.servlet.ServletContext;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Drive Jelly scripts from Groovy markup.

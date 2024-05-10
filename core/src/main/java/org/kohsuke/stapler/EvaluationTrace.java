@@ -24,14 +24,12 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.util.List;
-import java.util.ArrayList;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static org.kohsuke.stapler.Stapler.escape;
 
 /**
  * Remembers the {@link Stapler#invoke(RequestImpl, ResponseImpl, Object)}
@@ -53,7 +51,7 @@ public class EvaluationTrace {
     
     public void printHtml(PrintWriter w) {
         for (String trace : traces)
-            w.println(escape(trace));
+            w.println(Stapler.escape(trace));
     }
 
     public static EvaluationTrace get(StaplerRequest req) {

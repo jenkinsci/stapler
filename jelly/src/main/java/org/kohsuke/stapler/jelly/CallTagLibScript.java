@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler.jelly;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyTagException;
@@ -33,9 +35,6 @@ import org.apache.commons.jelly.impl.DynamicTag;
 import org.apache.commons.jelly.impl.ExpressionAttribute;
 import org.apache.commons.jelly.impl.TagScript;
 import org.xml.sax.SAXException;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * {@link TagScript} that invokes a {@link Script} as a tag.

@@ -23,24 +23,22 @@
 
 package org.kohsuke.stapler;
 
-import java.util.Set;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.fileupload.FileItem;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import net.sf.json.JSONObject;
+import java.util.Set;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.fileupload.FileItem;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.json.SubmittedForm;
 import org.kohsuke.stapler.lang.Klass;

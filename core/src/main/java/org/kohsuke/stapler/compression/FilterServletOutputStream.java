@@ -1,11 +1,10 @@
 package org.kohsuke.stapler.compression;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
-
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 
 /**
  * {@link ServletOutputStream} that writes to the specified output stream.

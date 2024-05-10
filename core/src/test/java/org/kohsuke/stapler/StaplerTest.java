@@ -1,10 +1,9 @@
 package org.kohsuke.stapler;
 
-import junit.framework.TestCase;
-
 import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
+import junit.framework.TestCase;
 
 /**
  * @author Kohsuke Kawaguchi

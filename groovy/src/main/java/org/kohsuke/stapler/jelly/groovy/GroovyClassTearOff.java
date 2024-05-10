@@ -23,14 +23,13 @@
 
 package org.kohsuke.stapler.jelly.groovy;
 
+import java.io.IOException;
+import java.net.URL;
+import javax.servlet.RequestDispatcher;
 import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.AbstractTearOff;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.jelly.JellyRequestDispatcher;
-
-import javax.servlet.RequestDispatcher;
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * @author Kohsuke Kawaguchi

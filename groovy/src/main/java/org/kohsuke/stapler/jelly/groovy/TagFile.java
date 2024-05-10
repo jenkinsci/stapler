@@ -1,11 +1,10 @@
 package org.kohsuke.stapler.jelly.groovy;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.*;
 
 /**
  * Used on methods of {@link TypedTagLibrary} to
@@ -17,9 +16,9 @@ import static java.lang.annotation.RetentionPolicy.*;
  *
  * @author Kohsuke Kawaguchi
  */
-@Retention(RUNTIME)
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Target(METHOD)
+@Target(ElementType.METHOD)
 public @interface TagFile {
     String value();
 }

@@ -1,11 +1,10 @@
 package org.kohsuke.stapler.config;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.*;
 
 /**
  * Customizes how the property retrieval is handled.
@@ -13,8 +12,8 @@ import static java.lang.annotation.RetentionPolicy.*;
  * @author Kohsuke Kawaguchi
  * @see ConfigurationLoader
  */
-@Retention(RUNTIME)
-@Target(METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
 @Documented
 public @interface Configuration {
 

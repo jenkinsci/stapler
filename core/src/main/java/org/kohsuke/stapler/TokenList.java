@@ -24,9 +24,9 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.StringTokenizer;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.StringTokenizer;
 
 /**
  * Tokenized path portion of the URL.

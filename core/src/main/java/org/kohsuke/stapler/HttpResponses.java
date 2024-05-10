@@ -25,14 +25,12 @@ package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ServiceLoader;
-
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Factory for {@link HttpResponse}.
@@ -136,7 +134,7 @@ public class HttpResponses {
     }
 
     public static HttpResponseException redirectViaContextPath(String relative) {
-        return redirectViaContextPath(SC_MOVED_TEMPORARILY,relative);
+        return redirectViaContextPath(HttpServletResponse.SC_MOVED_TEMPORARILY,relative);
     }
 
     /**

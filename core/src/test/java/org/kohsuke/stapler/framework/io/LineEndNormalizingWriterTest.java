@@ -1,10 +1,9 @@
 package org.kohsuke.stapler.framework.io;
 
-import junit.framework.TestCase;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import junit.framework.TestCase;
 
 /**
  * @author Kohsuke Kawaguchi

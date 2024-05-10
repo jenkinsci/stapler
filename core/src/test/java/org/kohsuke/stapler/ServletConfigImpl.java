@@ -1,8 +1,8 @@
 package org.kohsuke.stapler;
 
+import java.util.Enumeration;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
-import java.util.Enumeration;
 
 /**
  * @author Kohsuke Kawaguchi

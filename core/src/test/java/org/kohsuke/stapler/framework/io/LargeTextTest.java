@@ -38,7 +38,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-
 import org.apache.commons.io.output.NullOutputStream;
 import org.junit.Ignore;
 import org.junit.Test;

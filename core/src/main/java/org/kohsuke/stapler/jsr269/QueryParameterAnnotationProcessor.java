@@ -1,8 +1,10 @@
 package org.kohsuke.stapler.jsr269;
 
-import org.kohsuke.MetaInfServices;
-import org.kohsuke.stapler.QueryParameter;
-
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -12,11 +14,8 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.FileObject;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.Set;
+import org.kohsuke.MetaInfServices;
+import org.kohsuke.stapler.QueryParameter;
 
 /**
  * @author Kohsuke Kawaguchi

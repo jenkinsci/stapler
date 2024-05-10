@@ -26,7 +26,6 @@ package org.kohsuke.stapler.export;
 import com.sun.xml.txw2.TypedXmlWriter;
 import com.sun.xml.txw2.annotation.XmlAttribute;
 import com.sun.xml.txw2.annotation.XmlElement;
-
 import javax.xml.namespace.QName;
 
 /**

@@ -23,18 +23,9 @@
 
 package org.kohsuke.stapler;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.discovery.ResourceNameIterator;
-import org.apache.commons.discovery.resource.ClassLoaders;
-import org.apache.commons.discovery.resource.names.DiscoverServiceNames;
-import org.kohsuke.MetaInfServices;
-import org.kohsuke.stapler.event.FilteredDispatchTriggerListener;
-import org.kohsuke.stapler.lang.Klass;
-
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,6 +33,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import org.apache.commons.discovery.ResourceNameIterator;
+import org.apache.commons.discovery.resource.ClassLoaders;
+import org.apache.commons.discovery.resource.names.DiscoverServiceNames;
+import org.kohsuke.MetaInfServices;
+import org.kohsuke.stapler.event.FilteredDispatchTriggerListener;
+import org.kohsuke.stapler.lang.Klass;
 
 /**
  * Aspect of stapler that brings in an optional language binding.

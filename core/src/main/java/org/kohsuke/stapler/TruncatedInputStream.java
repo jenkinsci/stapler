@@ -24,8 +24,8 @@
 package org.kohsuke.stapler;
 
 import java.io.FilterInputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * {@link InputStream} decorator that chops off the underlying stream at the specified length

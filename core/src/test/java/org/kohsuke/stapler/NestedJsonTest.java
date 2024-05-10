@@ -1,12 +1,11 @@
 package org.kohsuke.stapler;
 
+import java.util.Collections;
+import java.util.List;
+import javax.servlet.ServletException;
 import junit.framework.TestCase;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
-import javax.servlet.ServletException;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Tests the instantiation of nested objects.

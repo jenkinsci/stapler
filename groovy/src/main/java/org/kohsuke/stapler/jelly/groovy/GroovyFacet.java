@@ -23,6 +23,13 @@
 
 package org.kohsuke.stapler.jelly.groovy;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import org.apache.commons.jelly.JellyException;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.Dispatcher;
@@ -35,14 +42,6 @@ import org.kohsuke.stapler.jelly.JellyCompatibleFacet;
 import org.kohsuke.stapler.jelly.JellyFacet;
 import org.kohsuke.stapler.jelly.ScriptInvoker;
 import org.kohsuke.stapler.lang.Klass;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
 
 /**
  * {@link Facet} that brings in Groovy support on top of Jelly.

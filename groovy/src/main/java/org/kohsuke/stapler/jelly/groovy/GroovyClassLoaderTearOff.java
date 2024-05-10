@@ -26,13 +26,12 @@ package org.kohsuke.stapler.jelly.groovy;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyCodeSource;
+import java.io.IOException;
+import java.net.URL;
 import org.apache.commons.jelly.XMLOutput;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.MetaClassLoader;
-
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * @author Kohsuke Kawaguchi

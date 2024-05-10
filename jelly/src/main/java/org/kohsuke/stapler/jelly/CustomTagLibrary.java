@@ -23,6 +23,10 @@
 
 package org.kohsuke.stapler.jelly;
 
+import java.net.URL;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.Script;
@@ -32,11 +36,6 @@ import org.apache.commons.jelly.impl.TagScript;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.MetaClassLoader;
 import org.xml.sax.Attributes;
-
-import java.net.URL;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
 
 /**
  * {@link TagLibrary} that loads tags from tag files in a directory.

@@ -1,13 +1,11 @@
 package org.kohsuke.stapler.bind;
 
+import java.io.IOException;
+import java.net.URL;
 import org.htmlunit.TextPage;
-import org.htmlunit.WebClient;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.test.JettyTestCase;
-
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * @author Kohsuke Kawaguchi

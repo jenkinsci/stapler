@@ -24,19 +24,18 @@
 package org.kohsuke.stapler.jelly;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.TagSupport;
 import org.apache.commons.jelly.XMLOutput;
 import org.apache.commons.jelly.impl.TagScript;
+import org.jvnet.maven.jellydoc.annotation.Required;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.WebApp;
 import org.xml.sax.SAXException;
-import org.jvnet.maven.jellydoc.annotation.Required;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Tag that includes views of the object.

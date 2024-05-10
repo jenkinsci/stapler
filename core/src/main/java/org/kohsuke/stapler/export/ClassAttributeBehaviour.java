@@ -1,9 +1,8 @@
 package org.kohsuke.stapler.export;
 
-import org.jvnet.tiger_types.Types;
-
 import edu.umd.cs.findbugs.annotations.Nullable;
 import java.lang.reflect.Type;
+import org.jvnet.tiger_types.Types;
 
 /**
  * Setting that controls how the '_class' attribute will be produced in the output.

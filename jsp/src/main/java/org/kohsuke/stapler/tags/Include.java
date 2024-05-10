@@ -24,7 +24,8 @@
 package org.kohsuke.stapler.tags;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
+import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -35,8 +36,6 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 /**
  * Includes a side JSP file for the "it" object.

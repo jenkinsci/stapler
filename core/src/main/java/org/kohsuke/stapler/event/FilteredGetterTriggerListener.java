@@ -23,13 +23,12 @@
  */
 package org.kohsuke.stapler.event;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.kohsuke.stapler.Function;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Listener that is triggered when a getter function - that is no more accepted - is called.

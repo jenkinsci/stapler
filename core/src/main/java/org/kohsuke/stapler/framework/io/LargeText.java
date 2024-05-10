@@ -25,13 +25,7 @@
 
 package org.kohsuke.stapler.framework.io;
 
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import org.apache.commons.io.output.CountingOutputStream;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-
-import javax.servlet.http.HttpServletResponse;
+import com.jcraft.jzlib.GZIPInputStream;
 import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.EOFException;
@@ -44,7 +38,12 @@ import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import com.jcraft.jzlib.GZIPInputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.io.output.CountingOutputStream;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * Represents a large text data.

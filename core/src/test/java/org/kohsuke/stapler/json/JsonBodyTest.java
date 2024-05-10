@@ -1,10 +1,9 @@
 package org.kohsuke.stapler.json;
 
+import java.net.URL;
 import org.htmlunit.HttpMethod;
-import org.htmlunit.WebClient;
 import org.htmlunit.WebRequest;
 import org.htmlunit.WebResponse;
-import java.net.URL;
 import org.kohsuke.stapler.test.JettyTestCase;
 
 public class JsonBodyTest extends JettyTestCase {

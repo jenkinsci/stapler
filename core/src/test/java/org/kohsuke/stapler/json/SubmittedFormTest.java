@@ -1,15 +1,14 @@
 package org.kohsuke.stapler.json;
 
+import java.net.URL;
+import net.sf.json.JSONObject;
 import org.htmlunit.WebClient;
 import org.htmlunit.html.HtmlForm;
 import org.htmlunit.html.HtmlPage;
-import net.sf.json.JSONObject;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaticViewFacet;
 import org.kohsuke.stapler.test.JettyTestCase;
-
-import java.net.URL;
 
 /**
  * @author Kohsuke Kawaguchi

@@ -1,11 +1,11 @@
 package org.kohsuke.stapler.jelly;
 
-import org.htmlunit.WebClient;
-import org.htmlunit.html.HtmlDivision;
-import org.htmlunit.html.HtmlPage;
 import hudson.util.VersionNumber;
 import io.jenkins.lib.versionnumber.JavaSpecificationVersion;
 import java.net.URL;
+import org.htmlunit.WebClient;
+import org.htmlunit.html.HtmlDivision;
+import org.htmlunit.html.HtmlPage;
 import org.kohsuke.stapler.test.JettyTestCase;
 
 public class AttributeExpressionTest extends JettyTestCase {

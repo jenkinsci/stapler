@@ -1,14 +1,6 @@
 package org.kohsuke.stapler;
 
-import net.sf.json.JsonConfig;
-import org.kohsuke.stapler.export.ExportConfig;
-import org.kohsuke.stapler.export.Flavor;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,6 +9,13 @@ import java.io.Writer;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Locale;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import net.sf.json.JsonConfig;
+import org.kohsuke.stapler.export.ExportConfig;
+import org.kohsuke.stapler.export.Flavor;
 
 /**
  * A basic wrapper for a StaplerResponse, e.g. in order to override some method.

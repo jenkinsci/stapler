@@ -23,13 +23,12 @@
 
 package org.kohsuke.stapler.jelly;
 
+import java.util.Map;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.NamespaceAwareTag;
 import org.apache.commons.jelly.Tag;
 import org.apache.commons.jelly.XMLOutput;
 import org.jvnet.maven.jellydoc.annotation.NoContent;
-
-import java.util.Map;
 
 /**
  * Finds the nearest tag (in the call stack) that has the given tag name,

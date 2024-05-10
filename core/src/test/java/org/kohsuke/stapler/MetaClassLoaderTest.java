@@ -23,10 +23,11 @@
 
 package org.kohsuke.stapler;
 
+import static org.junit.Assert.assertEquals;
+
 import java.net.URL;
 import java.net.URLClassLoader;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
 public class MetaClassLoaderTest {
 

@@ -23,23 +23,22 @@
 
 package org.kohsuke.stapler.jelly;
 
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.beanutils.SuppressPropertiesBeanIntrospector;
-import org.apache.commons.jelly.parser.XMLParser;
-import org.apache.commons.jelly.expression.ExpressionFactory;
-import org.apache.commons.jelly.expression.Expression;
-import org.apache.commons.jelly.expression.ExpressionSupport;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.TagLibrary;
+import org.apache.commons.jelly.expression.Expression;
+import org.apache.commons.jelly.expression.ExpressionFactory;
+import org.apache.commons.jelly.expression.ExpressionSupport;
+import org.apache.commons.jelly.parser.XMLParser;
 import org.kohsuke.stapler.MetaClassLoader;
-
-import java.net.URL;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import java.util.Map;
-import java.util.HashMap;
 
 /**
  * {@link XMLParser} that uses {@link JellyClassLoaderTearOff#EXPRESSION_FACTORY}

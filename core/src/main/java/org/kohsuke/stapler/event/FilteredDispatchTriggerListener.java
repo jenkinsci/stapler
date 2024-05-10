@@ -24,10 +24,9 @@
 
 package org.kohsuke.stapler.event;
 
+import java.util.logging.Logger;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-
-import java.util.logging.Logger;
 
 /**
  * Listens to filtered dispatch events from {@link org.kohsuke.stapler.DispatchValidator}.

@@ -23,22 +23,21 @@
 
 package org.kohsuke.stapler;
 
-import org.kohsuke.stapler.QueryParameter.HandlerImpl;
-
-import javax.servlet.ServletException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 import java.lang.annotation.Documented;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.servlet.ServletException;
+import org.kohsuke.stapler.QueryParameter.HandlerImpl;
 
 /**
  * Indicates that this parameter is injected from HTTP query parameter.
  *
  * @author Kohsuke Kawaguchi
  */
-@Retention(RUNTIME)
-@Target(PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
 @Documented
 @InjectedParameter(HandlerImpl.class)
 public @interface QueryParameter {

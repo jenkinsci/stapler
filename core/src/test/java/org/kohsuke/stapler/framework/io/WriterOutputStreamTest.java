@@ -1,11 +1,10 @@
 package org.kohsuke.stapler.framework.io;
 
-import junit.framework.TestCase;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import junit.framework.TestCase;
 
 /**
  * TODO: make it a real junit test

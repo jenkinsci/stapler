@@ -3,13 +3,11 @@ package org.kohsuke.stapler.export;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
+import org.junit.Test;
 
 public class RangeTest {
     String[] array = new String[]{"a", "b", "c", "d", "e", "f"};

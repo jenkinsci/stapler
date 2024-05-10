@@ -1,11 +1,11 @@
 package org.kohsuke.stapler.jelly;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+
 import java.net.URL;
 import java.util.Locale;
 import org.junit.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
 
 public class ResourceBundleTest {
 

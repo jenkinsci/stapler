@@ -23,18 +23,6 @@
 
 package org.kohsuke.stapler.framework.adjunct;
 
-import org.apache.commons.jelly.JellyException;
-import org.apache.commons.jelly.JellyTagException;
-import org.apache.commons.jelly.Script;
-import org.kohsuke.stapler.MetaClassLoader;
-import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.WebApp;
-import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
-import org.kohsuke.stapler.jelly.JellyFacet;
-import org.xml.sax.SAXException;
-import org.kohsuke.stapler.StaplerRequest;
-import org.apache.commons.jelly.XMLOutput;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +33,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.jelly.JellyException;
+import org.apache.commons.jelly.JellyTagException;
+import org.apache.commons.jelly.Script;
+import org.apache.commons.jelly.XMLOutput;
+import org.kohsuke.stapler.MetaClassLoader;
+import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.WebApp;
+import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
+import org.kohsuke.stapler.jelly.JellyFacet;
+import org.xml.sax.SAXException;
 
 /**
  * In-memory cache of fully inlined "adjunct" which is a pair of CSS and JavaScript.

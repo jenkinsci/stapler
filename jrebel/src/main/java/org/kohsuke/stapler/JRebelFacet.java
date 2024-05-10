@@ -1,19 +1,17 @@
 package org.kohsuke.stapler;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.RequestDispatcher;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.export.ModelBuilder;
 import org.kohsuke.stapler.lang.Klass;
 import org.zeroturnaround.javarebel.ClassEventListener;
 import org.zeroturnaround.javarebel.ReloaderFactory;
-
-import javax.servlet.RequestDispatcher;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Logger;
-
-import static java.util.logging.Level.*;
 
 /**
  * Adds JRebel reloading support.
@@ -58,7 +56,7 @@ public class JRebelFacet extends Facet {
                     .getConstructor(JRebelFacet.class).newInstance(this);
             r.run();
         } catch (Throwable e) {
-            LOGGER.log(FINE, "JRebel support failed to load", e);
+            LOGGER.log(Level.FINE, "JRebel support failed to load", e);
         }
     }
 

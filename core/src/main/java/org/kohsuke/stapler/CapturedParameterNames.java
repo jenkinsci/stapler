@@ -24,7 +24,7 @@
 package org.kohsuke.stapler;
 
 import java.lang.annotation.Retention;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * This "hidden" annotation is injected by Groovy compiler to capture parameter names
@@ -34,7 +34,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author Kohsuke Kawaguchi
  * @see CaptureParameterNameTransformation
  */
-@Retention(RUNTIME)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface CapturedParameterNames {
     String[] value();
 }

@@ -23,14 +23,13 @@
 
 package org.kohsuke.stapler.export;
 
-import org.jvnet.hudson.annotation_indexer.Indexed;
-
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
+import org.jvnet.hudson.annotation_indexer.Indexed;
 
 /**
  * Indicates that the class has {@link Exported} annotations

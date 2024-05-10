@@ -3,7 +3,6 @@ package org.kohsuke.stapler.export;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
-
 import junit.framework.TestCase;
 
 public class NamedPathPrunerTest extends TestCase {

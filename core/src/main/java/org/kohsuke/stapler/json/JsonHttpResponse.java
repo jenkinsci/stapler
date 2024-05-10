@@ -1,17 +1,16 @@
 package org.kohsuke.stapler.json;
 
-import net.sf.json.JSONObject;
-import org.kohsuke.stapler.HttpResponses.HttpResponseException;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import javax.servlet.ServletException;
+import net.sf.json.JSONObject;
+import org.kohsuke.stapler.HttpResponses.HttpResponseException;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * {@link JSONObject} as a response.

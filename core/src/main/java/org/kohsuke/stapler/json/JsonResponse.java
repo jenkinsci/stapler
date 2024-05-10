@@ -1,22 +1,20 @@
 package org.kohsuke.stapler.json;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletException;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
-
-import javax.servlet.ServletException;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-import java.lang.reflect.InvocationTargetException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Used for web methods that return POJO that should be sent across as JSON.
@@ -28,8 +26,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author Carlos Sanchez
  * @see JsonBody
  */
-@Target(METHOD)
-@Retention(RUNTIME)
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
 @InterceptorAnnotation(JsonResponse.Handler.class)
 public @interface JsonResponse {

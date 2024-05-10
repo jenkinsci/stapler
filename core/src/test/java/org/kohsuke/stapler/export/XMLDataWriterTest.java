@@ -1,5 +1,7 @@
 package org.kohsuke.stapler.export;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -9,12 +11,9 @@ import java.util.List;
 import java.util.Set;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-
 import org.junit.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
-
-import static org.junit.Assert.assertEquals;
 
 public class XMLDataWriterTest {
     private ExportConfig config = new ExportConfig().withFlavor(Flavor.XML).withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());

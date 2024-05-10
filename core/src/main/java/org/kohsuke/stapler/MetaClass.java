@@ -25,14 +25,6 @@ package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.annotation.PostConstruct;
-import net.sf.json.JSONArray;
-import org.apache.commons.io.IOUtils;
-import org.kohsuke.stapler.bind.JavaScriptMethod;
-import org.kohsuke.stapler.lang.FieldRef;
-import org.kohsuke.stapler.lang.Klass;
-import org.kohsuke.stapler.lang.MethodRef;
-
-import javax.servlet.ServletException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
@@ -41,8 +33,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static javax.servlet.http.HttpServletResponse.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+import net.sf.json.JSONArray;
+import org.apache.commons.io.IOUtils;
+import org.kohsuke.stapler.bind.JavaScriptMethod;
+import org.kohsuke.stapler.lang.FieldRef;
+import org.kohsuke.stapler.lang.Klass;
+import org.kohsuke.stapler.lang.MethodRef;
 
 /**
  * Created one instance each for a {@link Klass},
@@ -404,7 +402,7 @@ public class MetaClass extends TearOffSupport {
                     } catch (IndexOutOfBoundsException e) {
                         if(traceable())
                             trace(req,rsp,"-> IndexOutOfRange");
-                        rsp.sendError(SC_NOT_FOUND);
+                        rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
                         return true;
                     } catch (NumberFormatException e) {
                         return false; // try next

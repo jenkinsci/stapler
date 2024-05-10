@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler.export;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -33,13 +35,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
-
-import java.util.function.Predicate;
 import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 /**

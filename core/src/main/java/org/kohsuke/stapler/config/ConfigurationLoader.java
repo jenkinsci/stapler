@@ -1,23 +1,19 @@
 package org.kohsuke.stapler.config;
 
-import java.util.function.Function;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-
-import org.apache.commons.beanutils.ConvertUtils;
-
 import java.beans.Introspector;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
-
-import static org.kohsuke.stapler.config.Configuration.UNSPECIFIED;
+import java.util.function.Function;
+import org.apache.commons.beanutils.ConvertUtils;
 
 /**
  * Provides a type-safe access to the configuration of the application.
@@ -122,7 +118,7 @@ public class ConfigurationLoader {
                 String key = getKey(method,cn);
 
                 String v = source.apply(key);
-                if (v==null && cn!=null && !cn.defaultValue().equals(UNSPECIFIED))
+                if (v==null && cn!=null && !cn.defaultValue().equals(Configuration.UNSPECIFIED))
                     v = cn.defaultValue();
 
                 if (v==null)    return null;    // TODO: check how the primitive types are handled here
@@ -131,7 +127,7 @@ public class ConfigurationLoader {
             }
 
             private String getKey(Method method, Configuration c) {
-                if (c!=null && !c.name().equals(UNSPECIFIED))
+                if (c!=null && !c.name().equals(Configuration.UNSPECIFIED))
                     return c.name();        // name override
 
                 String n = method.getName();

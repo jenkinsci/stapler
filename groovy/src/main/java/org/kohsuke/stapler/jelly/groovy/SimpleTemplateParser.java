@@ -16,7 +16,6 @@
 package org.kohsuke.stapler.jelly.groovy;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

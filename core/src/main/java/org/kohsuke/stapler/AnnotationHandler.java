@@ -23,10 +23,9 @@
 
 package org.kohsuke.stapler;
 
-import org.apache.commons.beanutils.Converter;
-
-import javax.servlet.ServletException;
 import java.lang.annotation.Annotation;
+import javax.servlet.ServletException;
+import org.apache.commons.beanutils.Converter;
 
 /**
  * Handles stapler parameter annotations by determining what values to inject for a method call.

@@ -23,16 +23,18 @@
 
 package org.kohsuke.stapler.framework.adjunct;
 
-import org.kohsuke.stapler.*;
-
-import javax.servlet.ServletException;
-import javax.servlet.ServletContext;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+import org.kohsuke.stapler.HttpResponses;
+import org.kohsuke.stapler.MetaClass;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.WebApp;
 
 /**
  * This application-scoped object that exposes adjuncts to URL.
@@ -157,13 +159,13 @@ public class AdjunctManager {
     public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         String path = req.getRestOfPath();
         if (path.length() == 0) {
-            throw HttpResponses.error(SC_NOT_FOUND,new IllegalArgumentException("No adjunct provided"));
+            throw HttpResponses.error(HttpServletResponse.SC_NOT_FOUND,new IllegalArgumentException("No adjunct provided"));
         }
         if (path.charAt(0)=='/') path = path.substring(1);
 
         if(!allowedResources.contains(path)) {
             if(!allowResourceToBeServed(path)) {
-                rsp.sendError(SC_FORBIDDEN);
+                rsp.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
             // remember URLs that we can serve. but don't remember error ones, as it might be unbounded
@@ -172,7 +174,7 @@ public class AdjunctManager {
 
         URL res = classLoader.getResource(path);
         if(res==null) {
-            throw HttpResponses.error(SC_NOT_FOUND,new IllegalArgumentException("No such adjunct found: "+path));
+            throw HttpResponses.error(HttpServletResponse.SC_NOT_FOUND,new IllegalArgumentException("No such adjunct found: "+path));
         } else {
             long expires = MetaClass.NO_CACHE ? 0 : expiration;
             rsp.serveFile(req,res,expires);

@@ -23,15 +23,14 @@
 
 package org.kohsuke.stapler.export;
 
-import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerResponse;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
+import java.beans.Introspector;
+import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.Stack;
-import java.io.Writer;
-import java.io.IOException;
-import java.beans.Introspector;
+import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * Writes XML.
