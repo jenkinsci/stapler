@@ -12,7 +12,7 @@
   <description>Jelly binding for Stapler</description>
 
   <properties>
-    <jelly.version>1.1-jenkins-20230713</jelly.version>
+    <jelly.version>1.1-jenkins-20240510</jelly.version>
     <jellydoc-maven-plugin.version>137.v803fea_a_fb_c75</jellydoc-maven-plugin.version>
   </properties>
 
