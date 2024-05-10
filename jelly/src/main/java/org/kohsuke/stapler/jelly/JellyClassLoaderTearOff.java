@@ -23,17 +23,16 @@
 
 package org.kohsuke.stapler.jelly;
 
+import java.lang.ref.WeakReference;
+import java.net.URL;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.TagLibrary;
 import org.apache.commons.jelly.expression.ExpressionFactory;
 import org.apache.commons.jelly.expression.jexl.JexlExpressionFactory;
 import org.kohsuke.stapler.MetaClassLoader;
-
-import java.lang.ref.WeakReference;
-import java.net.URL;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * {@link MetaClassLoader} tear-off for Jelly support.

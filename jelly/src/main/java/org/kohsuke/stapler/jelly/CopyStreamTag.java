@@ -24,11 +24,6 @@
 package org.kohsuke.stapler.jelly;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.jelly.JellyTagException;
-import org.apache.commons.jelly.XMLOutput;
-import org.xml.sax.SAXException;
-import org.jvnet.maven.jellydoc.annotation.NoContent;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -38,6 +33,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import org.apache.commons.jelly.JellyTagException;
+import org.apache.commons.jelly.XMLOutput;
+import org.jvnet.maven.jellydoc.annotation.NoContent;
+import org.xml.sax.SAXException;
 
 /**
  * Copies a stream as text.

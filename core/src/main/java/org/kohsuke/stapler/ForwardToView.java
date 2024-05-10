@@ -24,13 +24,12 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
-import javax.servlet.ServletException;
-import javax.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 
 /**
  * {@link HttpResponse} that forwards to a {@link RequestDispatcher}, such as a view.

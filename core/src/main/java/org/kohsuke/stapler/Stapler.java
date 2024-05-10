@@ -24,27 +24,6 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import net.sf.json.JSONObject;
-import org.apache.commons.beanutils.ConversionException;
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.beanutils.ConvertUtilsBean;
-import org.apache.commons.beanutils.Converter;
-import org.apache.commons.beanutils.converters.DoubleConverter;
-import org.apache.commons.beanutils.converters.FloatConverter;
-import org.apache.commons.beanutils.converters.IntegerConverter;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.io.IOUtils;
-import org.kohsuke.stapler.bind.BoundObjectTable;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
@@ -80,10 +59,26 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static javax.servlet.http.HttpServletResponse.*;
-import static org.kohsuke.stapler.Dispatcher.*;
-
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import net.sf.json.JSONObject;
+import org.apache.commons.beanutils.ConversionException;
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.ConvertUtilsBean;
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.converters.DoubleConverter;
+import org.apache.commons.beanutils.converters.FloatConverter;
+import org.apache.commons.beanutils.converters.IntegerConverter;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.IOUtils;
+import org.kohsuke.stapler.bind.BoundObjectTable;
 
 /**
  * Maps an HTTP request to a method call / JSP invocation against a model object
@@ -713,13 +708,13 @@ public class Stapler extends HttpServlet {
      */
     boolean tryInvoke(RequestImpl req, ResponseImpl rsp, Object node ) throws IOException, ServletException {
         Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Dispatch");
-        if(traceable())
-            traceEval(req,rsp,node);
+        if(Dispatcher.traceable())
+            Dispatcher.traceEval(req,rsp,node);
 
         if(node instanceof StaplerProxy) {
             Dispatcher.anonymizedTraceEval(req,rsp,node,"%s: StaplerProxy.getTarget()");
-            if(traceable())
-                traceEval(req,rsp,node,"((StaplerProxy)",").getTarget()");
+            if(Dispatcher.traceable())
+                Dispatcher.traceEval(req,rsp,node,"((StaplerProxy)",").getTarget()");
             Object n = null;
             try {
                 n = ((StaplerProxy)node).getTarget();
@@ -754,8 +749,8 @@ public class Stapler extends HttpServlet {
                 for (Object subject : list) {
                     if (subject==null)  continue;
                     Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: StaplerOverridable.getOverrides()[i]");
-                    if(traceable())
-                        traceEval(req,rsp,node,"((StaplerOverridable)",").getOverrides()["+(count++)+']');
+                    if(Dispatcher.traceable())
+                        Dispatcher.traceEval(req,rsp,node,"((StaplerOverridable)",").getOverrides()["+(count++)+']');
 
                     if (tryInvoke(req,rsp,subject))
                         return true;
@@ -820,8 +815,8 @@ public class Stapler extends HttpServlet {
 
         if(node instanceof StaplerFallback) {
             Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: StaplerFallback.getStaplerFallback()");
-            if(traceable())
-                traceEval(req,rsp,node,"((StaplerFallback)",").getStaplerFallback()");
+            if(Dispatcher.traceable())
+                Dispatcher.traceEval(req,rsp,node,"((StaplerFallback)",").getStaplerFallback()");
             Object n;
             try {
                 n = ((StaplerFallback)node).getStaplerFallback();
@@ -878,10 +873,10 @@ public class Stapler extends HttpServlet {
         if(node==null) {
             // node is null
             if(!Dispatcher.isTraceEnabled(req)) {
-                rsp.sendError(SC_NOT_FOUND);
+                rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
             } else {
                 // show error page
-                rsp.setStatus(SC_NOT_FOUND);
+                rsp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 rsp.setContentType("text/html;charset=UTF-8");
                 PrintWriter w = rsp.getWriter();
                 w.println("<html><body>");
@@ -902,10 +897,10 @@ public class Stapler extends HttpServlet {
 
         // we really run out of options.
         if(!Dispatcher.isTraceEnabled(req)) {
-            rsp.sendError(SC_NOT_FOUND);
+            rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             // show error page
-            rsp.setStatus(SC_NOT_FOUND);
+            rsp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             rsp.setContentType("text/html;charset=UTF-8");
             PrintWriter w = rsp.getWriter();
             w.println("<html><body>");

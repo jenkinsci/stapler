@@ -23,15 +23,14 @@
 
 package org.kohsuke.stapler.jelly;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.jelly.JellyTagException;
-import org.apache.commons.jelly.XMLOutput;
 import org.apache.commons.jelly.LocationAware;
+import org.apache.commons.jelly.XMLOutput;
 import org.jvnet.localizer.LocaleProvider;
 import org.jvnet.maven.jellydoc.annotation.Required;
 import org.xml.sax.SAXException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Format message from a resource, but by using a nested children as arguments, instead of just using expressions.

@@ -1,7 +1,7 @@
 package org.kohsuke.stapler;
 
-import javax.servlet.http.HttpSession;
 import java.util.UUID;
+import javax.servlet.http.HttpSession;
 
 /**
  * Generates a nonce value that allows us to protect against cross-site request forgery (CSRF) attacks.

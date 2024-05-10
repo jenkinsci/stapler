@@ -1,10 +1,8 @@
 package org.kohsuke.stapler;
 
-import jakarta.annotation.PostConstruct;
-import junit.framework.TestCase;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import static org.junit.Assert.assertArrayEquals;
 
+import jakarta.annotation.PostConstruct;
 import java.lang.reflect.Type;
 import java.net.Proxy;
 import java.util.ArrayList;
@@ -13,8 +11,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-
-import static org.junit.Assert.assertArrayEquals;
+import junit.framework.TestCase;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  * @author Kohsuke Kawaguchi

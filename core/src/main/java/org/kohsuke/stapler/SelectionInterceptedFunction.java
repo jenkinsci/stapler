@@ -1,10 +1,9 @@
 package org.kohsuke.stapler;
 
+import java.lang.reflect.InvocationTargetException;
+import javax.servlet.ServletException;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
-
-import javax.servlet.ServletException;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * {@link Function} that uses {@link Interceptor} for method selection phase.

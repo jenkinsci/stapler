@@ -1,8 +1,8 @@
 package org.kohsuke.stapler;
 
-import javax.servlet.ServletException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import javax.servlet.ServletException;
 
 /**
  * {@link Dispatcher} that deals with the "index" view pages that are used when the request path doesn't contain

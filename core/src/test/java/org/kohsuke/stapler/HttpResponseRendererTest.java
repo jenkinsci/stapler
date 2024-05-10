@@ -26,9 +26,10 @@
 
 package org.kohsuke.stapler;
 
+import static org.junit.Assert.assertEquals;
+
 import net.sf.json.JSONArray;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class HttpResponseRendererTest {
 

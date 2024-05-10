@@ -23,24 +23,23 @@
 
 package org.kohsuke.stapler.jelly;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.jelly.JellyContext;
-import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-import org.apache.commons.jelly.Script;
-import org.apache.commons.jelly.JellyTagException;
-import org.apache.commons.jelly.XMLOutput;
-import org.apache.commons.jelly.XMLOutputFactory;
-import org.apache.commons.jelly.impl.TagScript;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.servlet.ServletContext;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Enumeration;
+import javax.servlet.ServletContext;
+import org.apache.commons.jelly.JellyContext;
+import org.apache.commons.jelly.JellyTagException;
+import org.apache.commons.jelly.Script;
+import org.apache.commons.jelly.XMLOutput;
+import org.apache.commons.jelly.XMLOutputFactory;
+import org.apache.commons.jelly.impl.TagScript;
+import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * Standard implementation of {@link ScriptInvoker}.

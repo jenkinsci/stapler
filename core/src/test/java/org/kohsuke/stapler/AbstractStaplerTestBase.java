@@ -1,14 +1,13 @@
 package org.kohsuke.stapler;
 
-import junit.framework.TestCase;
-import org.kohsuke.stapler.test.AbstractStaplerTest;
-import org.mockito.Mockito;
-
+import java.util.ArrayList;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
+import junit.framework.TestCase;
+import org.kohsuke.stapler.test.AbstractStaplerTest;
+import org.mockito.Mockito;
 
 /**
  * This class needs to be in this package to access package-protected stuff.

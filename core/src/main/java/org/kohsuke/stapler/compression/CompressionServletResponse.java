@@ -1,13 +1,12 @@
 package org.kohsuke.stapler.compression;
 
 import com.jcraft.jzlib.GZIPOutputStream;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 /**
  * {@link HttpServletResponse} that recognizes Content-Encoding: gzip in the response header

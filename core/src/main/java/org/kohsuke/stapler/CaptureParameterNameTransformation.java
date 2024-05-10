@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler;
 
+import java.util.List;
+import java.util.Set;
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.AnnotatedNode;
 import org.codehaus.groovy.ast.AnnotationNode;
@@ -35,9 +37,6 @@ import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.kohsuke.MetaInfServices;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * Groovy AST transformation that capture necessary parameter names.

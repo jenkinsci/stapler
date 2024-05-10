@@ -24,11 +24,10 @@
 package org.kohsuke.stapler.framework.io;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * {@link ByteArrayOutputStream} re-implementation.

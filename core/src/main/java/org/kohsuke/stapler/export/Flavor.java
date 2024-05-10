@@ -25,7 +25,6 @@ package org.kohsuke.stapler.export;
 
 import java.io.IOException;
 import java.io.Writer;
-
 import org.kohsuke.stapler.StaplerResponse;
 
 /**

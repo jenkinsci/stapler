@@ -1,5 +1,13 @@
 package org.kohsuke.stapler.interceptor;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONSerializer;
 import org.htmlunit.AlertHandler;
 import org.htmlunit.Page;
 import org.htmlunit.WebClient;
@@ -10,15 +18,6 @@ import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 import org.kohsuke.stapler.test.JettyTestCase;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONSerializer;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Tests {@link JsonOutputFilter}.

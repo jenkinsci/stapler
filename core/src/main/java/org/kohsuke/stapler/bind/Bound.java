@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler.bind;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,9 +32,6 @@ import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.WebApp;
-
-import java.lang.reflect.Method;
-import java.util.Arrays;
 
 /**
  * Handles to the object bound via {@link BoundObjectTable}.

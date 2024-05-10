@@ -1,14 +1,14 @@
 package org.kohsuke.stapler.jelly;
 
+import hudson.util.VersionNumber;
+import io.jenkins.lib.versionnumber.JavaSpecificationVersion;
+import java.net.URL;
 import org.htmlunit.WebClient;
 import org.htmlunit.html.DomElement;
 import org.htmlunit.html.DomNodeList;
 import org.htmlunit.html.HtmlDefinitionDescription;
 import org.htmlunit.html.HtmlDefinitionTerm;
 import org.htmlunit.html.HtmlPage;
-import hudson.util.VersionNumber;
-import io.jenkins.lib.versionnumber.JavaSpecificationVersion;
-import java.net.URL;
 import org.kohsuke.stapler.test.JettyTestCase;
 
 public class BodyExpressionTest extends JettyTestCase {

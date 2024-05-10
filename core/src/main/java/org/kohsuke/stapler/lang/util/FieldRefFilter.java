@@ -1,9 +1,8 @@
 package org.kohsuke.stapler.lang.util;
 
-import org.kohsuke.stapler.lang.FieldRef;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import org.kohsuke.stapler.lang.FieldRef;
 
 /**
  * {@link FieldRef} filter as a convenience class.

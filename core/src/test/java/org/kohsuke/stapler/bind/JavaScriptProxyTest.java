@@ -1,5 +1,8 @@
 package org.kohsuke.stapler.bind;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URL;
 import org.htmlunit.AlertHandler;
 import org.htmlunit.Page;
 import org.htmlunit.WebClient;
@@ -10,10 +13,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.test.JettyTestCase;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URL;
 
 /**
  * @author Kohsuke Kawaguchi

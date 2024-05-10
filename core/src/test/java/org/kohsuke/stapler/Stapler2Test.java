@@ -28,10 +28,10 @@ package org.kohsuke.stapler;
 
 import static org.junit.Assert.assertThrows;
 
-import org.htmlunit.FailingHttpStatusCodeException;
-import org.htmlunit.WebClient;
 import java.net.URL;
 import javax.servlet.http.HttpServletResponse;
+import org.htmlunit.FailingHttpStatusCodeException;
+import org.htmlunit.WebClient;
 import org.jvnet.hudson.test.For;
 import org.jvnet.hudson.test.Issue;
 import org.kohsuke.stapler.test.JettyTestCase;

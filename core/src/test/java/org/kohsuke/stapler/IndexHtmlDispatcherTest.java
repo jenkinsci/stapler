@@ -1,13 +1,14 @@
 package org.kohsuke.stapler;
 
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.net.MalformedURLException;
+import javax.servlet.ServletContext;
 import org.junit.Test;
 import org.jvnet.hudson.test.Issue;
-
-import javax.servlet.ServletContext;
-import java.net.MalformedURLException;
-
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.*;
 
 public class IndexHtmlDispatcherTest {
 

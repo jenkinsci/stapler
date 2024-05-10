@@ -1,20 +1,18 @@
 package org.kohsuke.stapler.json;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.servlet.ServletException;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.AnnotationHandler;
 import org.kohsuke.stapler.InjectedParameter;
 import org.kohsuke.stapler.StaplerRequest;
-
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Binds the body payload into POJO via json-lib.
@@ -55,8 +53,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author Kohsuke Kawaguchi
  * @see JsonResponse
  */
-@Target(PARAMETER)
-@Retention(RUNTIME)
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
 @InjectedParameter(JsonBody.Handler.class)
 public @interface JsonBody {

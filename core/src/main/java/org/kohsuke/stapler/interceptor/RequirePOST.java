@@ -1,24 +1,20 @@
 package org.kohsuke.stapler.interceptor;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import java.io.IOException;
 import java.io.PrintWriter;
-
-import org.kohsuke.stapler.ForwardToView;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ServiceLoader;
-
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.*;
-
-import edu.umd.cs.findbugs.annotations.CheckForNull;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
+import org.kohsuke.stapler.ForwardToView;
 import org.kohsuke.stapler.HttpResponses;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.verb.POST;
 
 /**
@@ -32,8 +28,8 @@ import org.kohsuke.stapler.verb.POST;
  * @since 1.180
  * @see POST
  */
-@Retention(RUNTIME)
-@Target({METHOD,FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD,ElementType.FIELD})
 @InterceptorAnnotation(RequirePOST.Processor.class)
 public @interface RequirePOST {
 

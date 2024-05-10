@@ -23,21 +23,20 @@
 
 package org.kohsuke.stapler.jsp;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import org.kohsuke.MetaInfServices;
+import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.Facet;
 import org.kohsuke.stapler.MetaClass;
-import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.Stapler;
-import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.lang.Klass;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletContext;
-import java.util.List;
-import java.util.logging.Level;
-import java.io.IOException;
 
 /**
  * {@link Facet} that adds JSP file support.

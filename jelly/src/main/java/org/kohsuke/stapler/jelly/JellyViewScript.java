@@ -23,15 +23,14 @@
 
 package org.kohsuke.stapler.jelly;
 
+import java.net.URL;
+import java.util.logging.Logger;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.lang.Klass;
-
-import java.net.URL;
-import java.util.logging.Logger;
 
 /**
  * Represents a loaded Jelly view script that remembers where it came from.

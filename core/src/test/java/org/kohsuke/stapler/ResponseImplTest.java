@@ -1,14 +1,13 @@
 package org.kohsuke.stapler;
 
-import org.kohsuke.stapler.test.AbstractStaplerTest;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-
-import static javax.servlet.http.HttpServletResponse.*;
-import static org.mockito.Mockito.*;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
+import javax.servlet.http.HttpServletResponse;
+import org.kohsuke.stapler.test.AbstractStaplerTest;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -41,20 +40,20 @@ public class ResponseImplTest {
         }
 
         public void testSendRedirectRelative() throws IOException {
-            response.sendRedirect(SC_SEE_OTHER, "foobar");
-            verify(rawResponse).setStatus(SC_SEE_OTHER);
+            response.sendRedirect(HttpServletResponse.SC_SEE_OTHER, "foobar");
+            verify(rawResponse).setStatus(HttpServletResponse.SC_SEE_OTHER);
             verify(rawResponse).setHeader("Location", "http://example.com/foo/bar/foobar");
         }
 
         public void testSendRedirectWithinHost() throws IOException {
-            response.sendRedirect(SC_SEE_OTHER, "/foobar");
-            verify(rawResponse).setStatus(SC_SEE_OTHER);
+            response.sendRedirect(HttpServletResponse.SC_SEE_OTHER, "/foobar");
+            verify(rawResponse).setStatus(HttpServletResponse.SC_SEE_OTHER);
             verify(rawResponse).setHeader("Location", "http://example.com/foobar");
         }
 
         public void testSendRedirectAbsoluteURL() throws IOException {
-            response.sendRedirect(SC_SEE_OTHER, "https://jenkins-ci.org/");
-            verify(rawResponse).setStatus(SC_SEE_OTHER);
+            response.sendRedirect(HttpServletResponse.SC_SEE_OTHER, "https://jenkins-ci.org/");
+            verify(rawResponse).setStatus(HttpServletResponse.SC_SEE_OTHER);
             verify(rawResponse).setHeader("Location", "https://jenkins-ci.org/");
         }
     }

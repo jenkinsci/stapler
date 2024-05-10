@@ -1,18 +1,16 @@
 package org.kohsuke.stapler.export;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
-
+import net.sf.json.JSONObject;
 import org.junit.Ignore;
 import org.junit.Test;
-import net.sf.json.JSONObject;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.kohsuke.stapler.export.Flavor.JSON;
 
 public class JSONDataWriterTest {
     private ExportConfig config = new ExportConfig().withFlavor(Flavor.JSON).withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
@@ -94,7 +92,7 @@ public class JSONDataWriterTest {
         StringWriter w = new StringWriter();
         ModelWithJsonField jsonModel = new ModelWithJsonField(json);
 
-        DataWriter writer = JSON.createDataWriter(jsonModel,w);
+        DataWriter writer = Flavor.JSON.createDataWriter(jsonModel,w);
         Model<ModelWithJsonField> model = new ModelBuilder().get(ModelWithJsonField.class);
         model.writeTo(jsonModel, writer);
 
@@ -109,7 +107,7 @@ public class JSONDataWriterTest {
         StringWriter w = new StringWriter();
         ModelWithJsonField jsonModel = new ModelWithJsonField(json);
 
-        DataWriter writer = JSON.createDataWriter(jsonModel,w);
+        DataWriter writer = Flavor.JSON.createDataWriter(jsonModel,w);
         Model<ModelWithJsonField> model = new ModelBuilder().get(ModelWithJsonField.class);
         model.writeTo(jsonModel, writer);
 

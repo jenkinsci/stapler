@@ -1,14 +1,13 @@
 package org.kohsuke.stapler.verb;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import javax.servlet.ServletException;
 import org.kohsuke.stapler.CancelRequestHandlingException;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
-
-import javax.servlet.ServletException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Restricts the routing to matching HTTP verbs.

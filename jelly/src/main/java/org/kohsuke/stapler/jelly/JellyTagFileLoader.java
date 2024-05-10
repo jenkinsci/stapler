@@ -23,11 +23,10 @@
 
 package org.kohsuke.stapler.jelly;
 
-import org.kohsuke.stapler.Facet;
-import org.apache.commons.jelly.Script;
-import org.apache.commons.jelly.JellyException;
-
 import java.util.List;
+import org.apache.commons.jelly.JellyException;
+import org.apache.commons.jelly.Script;
+import org.kohsuke.stapler.Facet;
 
 /**
  * Extension point that lets Jelly scripts written in other languages.

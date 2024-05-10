@@ -23,23 +23,22 @@
 
 package org.kohsuke.stapler;
 
-import net.sf.json.JsonConfig;
-import org.kohsuke.stapler.export.DataWriter;
-import org.kohsuke.stapler.export.ExportConfig;
-import org.kohsuke.stapler.export.Flavor;
-import org.kohsuke.stapler.export.Model;
-import org.kohsuke.stapler.export.NamedPathPruner;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import net.sf.json.JsonConfig;
+import org.kohsuke.stapler.export.DataWriter;
+import org.kohsuke.stapler.export.ExportConfig;
+import org.kohsuke.stapler.export.Flavor;
+import org.kohsuke.stapler.export.Model;
+import org.kohsuke.stapler.export.NamedPathPruner;
 
 /**
  * Defines additional operations made available by Stapler.

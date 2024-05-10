@@ -24,15 +24,14 @@
 package org.kohsuke.stapler.jelly;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.jelly.JellyContext;
+import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.expression.Expression;
 import org.apache.commons.jelly.expression.ExpressionSupport;
-import org.apache.commons.jelly.JellyException;
-import org.apache.commons.jelly.JellyContext;
 import org.jvnet.localizer.LocaleProvider;
 import org.kohsuke.stapler.Stapler;
-
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Expression of the form "%messageName(arg1,arg2,...)" that represents

@@ -25,20 +25,19 @@ package org.kohsuke.stapler.jelly;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.FileNotFoundException;
-import java.io.UncheckedIOException;
-import java.util.PropertyResourceBundle;
-import org.kohsuke.stapler.MetaClass;
-import org.kohsuke.stapler.WebApp;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.PropertyResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
+import org.kohsuke.stapler.MetaClass;
+import org.kohsuke.stapler.WebApp;
 
 /**
  * Cache of localization strings.

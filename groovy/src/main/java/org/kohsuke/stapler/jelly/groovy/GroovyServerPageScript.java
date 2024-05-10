@@ -1,7 +1,6 @@
 package org.kohsuke.stapler.jelly.groovy;
 
 import groovy.text.SimpleTemplateEngine;
-
 import java.io.Writer;
 
 /**

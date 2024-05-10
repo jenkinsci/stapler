@@ -1,6 +1,11 @@
 package org.kohsuke.stapler.test;
 
-import org.htmlunit.WebClient;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.Charset;
+import javax.servlet.ServletContext;
 import junit.framework.TestCase;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -10,15 +15,9 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.htmlunit.WebClient;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.WebApp;
-
-import javax.servlet.ServletContext;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.Charset;
 
 /**
  * Base test case for embedded Jetty.

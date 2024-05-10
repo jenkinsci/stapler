@@ -1,5 +1,10 @@
 package org.kohsuke.stapler.jelly.issue76;
 
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.ServletException;
 import org.kohsuke.stapler.ForwardingFunction;
 import org.kohsuke.stapler.Function;
 import org.kohsuke.stapler.FunctionList;
@@ -11,12 +16,6 @@ import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.KlassNavigator;
 import org.kohsuke.stapler.lang.MethodRef;
 import org.kohsuke.stapler.lang.util.FieldRefFilter;
-
-import javax.servlet.ServletException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Used as 'C' of {@code Klass<C>} to represents a protected version of a {@link Class}.

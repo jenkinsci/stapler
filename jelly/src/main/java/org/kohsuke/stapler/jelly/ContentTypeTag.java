@@ -23,13 +23,12 @@
 
 package org.kohsuke.stapler.jelly;
 
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.MissingAttributeException;
 import org.apache.commons.jelly.XMLOutput;
-import org.jvnet.maven.jellydoc.annotation.Required;
 import org.jvnet.maven.jellydoc.annotation.NoContent;
-
-import javax.servlet.http.HttpServletResponse;
+import org.jvnet.maven.jellydoc.annotation.Required;
 
 /**
  * Set the HTTP Content-Type header of the page.

@@ -1,11 +1,10 @@
 package org.kohsuke.stapler.jelly.groovy;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.net.URL;
 import org.jvnet.localizer.LocaleProvider;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.jelly.ResourceBundle;
-
-import java.net.URL;
 
 /**
  * @author Kohsuke Kawaguchi

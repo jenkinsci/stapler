@@ -1,18 +1,16 @@
 package org.kohsuke.stapler.json;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.servlet.ServletException;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.AnnotationHandler;
 import org.kohsuke.stapler.InjectedParameter;
 import org.kohsuke.stapler.StaplerRequest;
-
-import javax.servlet.ServletException;
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.*;
 
 /**
  * Binds {@linkplain StaplerRequest#getSubmittedForm() the submitted form} to a parameter of a web-bound method.
@@ -30,8 +28,8 @@ import static java.lang.annotation.RetentionPolicy.*;
  *
  * @author Kohsuke Kawaguchi
  */
-@Target(PARAMETER)
-@Retention(RUNTIME)
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
 @InjectedParameter(SubmittedForm.Handler.class)
 public @interface SubmittedForm {

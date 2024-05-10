@@ -23,11 +23,6 @@
 
 package org.kohsuke.stapler.framework.adjunct;
 
-import org.apache.commons.jelly.XMLOutput;
-import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerRequest;
-import org.xml.sax.SAXException;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +33,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.jelly.XMLOutput;
+import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerRequest;
+import org.xml.sax.SAXException;
 
 /**
  * This request-scope object keeps track of which {@link Adjunct}s are already included.

@@ -21,17 +21,16 @@ THE SOFTWARE.
  */
 package org.kohsuke.stapler;
 
-import org.apache.commons.beanutils.Converter;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-
 import edu.umd.cs.findbugs.annotations.Nullable;
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 /**
  * Represents the {@code Accept} HTTP header and help server choose the right media type to serve.

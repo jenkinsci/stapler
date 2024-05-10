@@ -23,8 +23,8 @@
 
 package org.kohsuke.stapler.export;
 
-import java.io.Writer;
 import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Writes out the format that can be {@code eval}-ed from Python.

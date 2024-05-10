@@ -26,14 +26,13 @@ package org.kohsuke.stapler.jelly.groovy;
 import groovy.lang.GroovyObject;
 import groovy.lang.GroovyObjectSupport;
 import groovy.xml.QName;
-import org.apache.commons.jelly.XMLOutput;
-import org.codehaus.groovy.runtime.InvokerHelper;
-import org.xml.sax.SAXException;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import org.apache.commons.jelly.XMLOutput;
+import org.codehaus.groovy.runtime.InvokerHelper;
+import org.xml.sax.SAXException;
 
 /**
  * @author Kohsuke Kawaguchi

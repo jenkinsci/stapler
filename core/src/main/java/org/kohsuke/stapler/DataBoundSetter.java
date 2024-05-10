@@ -1,15 +1,13 @@
 package org.kohsuke.stapler;
 
 import jakarta.annotation.PostConstruct;
-import net.sf.json.JSONObject;
-
 import java.beans.Introspector;
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.*;
+import net.sf.json.JSONObject;
 
 /**
  * Designates a setter method or a field used to databind JSON values into objects in methods like
@@ -35,8 +33,8 @@ import static java.lang.annotation.RetentionPolicy.*;
  *
  * @author Kohsuke Kawaguchi
  */
-@Retention(RUNTIME)
-@Target({METHOD,FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD,ElementType.FIELD})
 @Documented
 public @interface DataBoundSetter {
 }

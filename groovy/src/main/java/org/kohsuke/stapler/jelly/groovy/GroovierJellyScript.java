@@ -23,6 +23,13 @@
 
 package org.kohsuke.stapler.jelly.groovy;
 
+import groovy.lang.Binding;
+import groovy.lang.MetaClassImpl;
+import groovy.lang.MutableMetaClass;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Objects;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
@@ -30,14 +37,6 @@ import org.apache.commons.jelly.XMLOutput;
 import org.codehaus.groovy.reflection.CachedClass;
 import org.codehaus.groovy.reflection.CachedMethod;
 import org.codehaus.groovy.runtime.InvokerHelper;
-import groovy.lang.Binding;
-import groovy.lang.MetaClassImpl;
-import groovy.lang.MutableMetaClass;
-
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * Wraps a Groovy-driven Jelly script into {@link Script}

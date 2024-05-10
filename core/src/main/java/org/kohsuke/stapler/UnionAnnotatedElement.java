@@ -4,8 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.List;
 
-import static org.kohsuke.stapler.ReflectionUtils.union;
-
 /**
  * Presents combined view of all the annotations.
  *
@@ -44,7 +42,7 @@ class UnionAnnotatedElement implements AnnotatedElement {
         for (AnnotatedElement s : sources) {
             Annotation[] next = s.getAnnotations();
             if (a==null)    a = next;
-            else            a = union(a, next);
+            else            a = ReflectionUtils.union(a, next);
         }
         return a;
     }

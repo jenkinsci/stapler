@@ -23,20 +23,18 @@
 package org.kohsuke.stapler.jsr269;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import javax.annotation.processing.AbstractProcessor;
-import javax.lang.model.element.Element;
-import javax.tools.FileObject;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static javax.tools.Diagnostic.Kind.*;
-import static javax.tools.StandardLocation.*;
+import javax.annotation.processing.AbstractProcessor;
+import javax.lang.model.element.Element;
+import javax.tools.Diagnostic.Kind;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -54,7 +52,7 @@ abstract class AbstractProcessorImpl extends AbstractProcessor {
     }
 
     protected void error(String msg) {
-        processingEnv.getMessager().printMessage(ERROR, msg);
+        processingEnv.getMessager().printMessage(Kind.ERROR, msg);
     }
 
     protected String getJavadoc(Element md) {
@@ -80,11 +78,11 @@ abstract class AbstractProcessorImpl extends AbstractProcessor {
     }
 
     protected FileObject getResource(String name) throws IOException {
-        return processingEnv.getFiler().getResource(CLASS_OUTPUT, "", name);
+        return processingEnv.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "", name);
     }
 
     protected FileObject createResource(String name) throws IOException {
-        return processingEnv.getFiler().createResource(CLASS_OUTPUT, "", name);
+        return processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", name);
     }
 
     private static class CommentStrippingBufferedWriter extends BufferedWriter {

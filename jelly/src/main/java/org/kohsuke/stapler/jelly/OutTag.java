@@ -28,9 +28,9 @@ import org.apache.commons.jelly.MissingAttributeException;
 import org.apache.commons.jelly.TagSupport;
 import org.apache.commons.jelly.XMLOutput;
 import org.apache.commons.jelly.expression.Expression;
-import org.xml.sax.SAXException;
 import org.jvnet.maven.jellydoc.annotation.NoContent;
 import org.jvnet.maven.jellydoc.annotation.Required;
+import org.xml.sax.SAXException;
 
 /**
  * Tag that outputs the specified value but with escaping,

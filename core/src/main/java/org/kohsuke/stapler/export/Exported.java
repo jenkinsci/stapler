@@ -23,12 +23,11 @@
 
 package org.kohsuke.stapler.export;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Documented;
 import java.lang.annotation.Target;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
 
 /**
  * Mark the field or the getter method whose value gets exposed
@@ -39,7 +38,7 @@ import static java.lang.annotation.ElementType.METHOD;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Target({FIELD, METHOD})
+@Target({ElementType.FIELD, ElementType.METHOD})
 public @interface Exported {
     /**
      * Controls how visible this property is.

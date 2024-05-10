@@ -24,7 +24,13 @@
 package org.kohsuke.stapler;
 
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Immutable list of {@link Function}s.

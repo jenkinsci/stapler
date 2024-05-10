@@ -23,12 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import org.kohsuke.stapler.interceptor.Interceptor;
-import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
@@ -44,8 +38,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.kohsuke.stapler.ReflectionUtils.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.kohsuke.stapler.interceptor.Interceptor;
+import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
 /**
  * Abstracts the difference between normal instance methods and
@@ -452,7 +449,7 @@ public abstract class Function {
         public Annotation[] getAnnotations() {
             Annotation[] x = new Annotation[0];
             for (Method m : methods) {
-                x = union(x, m.getAnnotations());
+                x = ReflectionUtils.union(x, m.getAnnotations());
             }
             return x;
         }
@@ -466,7 +463,7 @@ public abstract class Function {
                     all = next;
                 } else {
                     for (int i = 0; i < next.length; i++) {
-                        all[i] = union(all[i], next[i]);
+                        all[i] = ReflectionUtils.union(all[i], next[i]);
                     }
                 }
             }

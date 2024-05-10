@@ -1,11 +1,10 @@
 package org.kohsuke.stapler;
 
+import java.lang.reflect.InvocationTargetException;
+import javax.servlet.ServletException;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 import org.kohsuke.stapler.interceptor.Stage;
-
-import javax.servlet.ServletException;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Function that's wrapped by {@link Interceptor} for {@link Stage#PREINVOKE}

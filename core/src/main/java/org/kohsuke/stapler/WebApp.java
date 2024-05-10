@@ -23,27 +23,26 @@
 
 package org.kohsuke.stapler;
 
-import net.sf.json.JSONObject;
-import org.kohsuke.stapler.bind.BoundObjectTable;
-import org.kohsuke.stapler.event.FilteredDoActionTriggerListener;
-import org.kohsuke.stapler.event.FilteredFieldTriggerListener;
-import org.kohsuke.stapler.event.FilteredGetterTriggerListener;
-import org.kohsuke.stapler.event.FilteredDispatchTriggerListener;
-import org.kohsuke.stapler.lang.FieldRef;
-import org.kohsuke.stapler.lang.KInstance;
-import org.kohsuke.stapler.lang.Klass;
-
-import javax.servlet.Filter;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import java.util.Map;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import javax.servlet.Filter;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import net.sf.json.JSONObject;
+import org.kohsuke.stapler.bind.BoundObjectTable;
+import org.kohsuke.stapler.event.FilteredDispatchTriggerListener;
+import org.kohsuke.stapler.event.FilteredDoActionTriggerListener;
+import org.kohsuke.stapler.event.FilteredFieldTriggerListener;
+import org.kohsuke.stapler.event.FilteredGetterTriggerListener;
+import org.kohsuke.stapler.lang.FieldRef;
+import org.kohsuke.stapler.lang.KInstance;
+import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.KlassNavigator;
 
 /**

@@ -1,12 +1,11 @@
 package org.kohsuke.stapler.event;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.kohsuke.stapler.RequestImpl;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.lang.FieldRef;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public interface FilteredFieldTriggerListener {
     boolean onFieldTrigger(FieldRef f, StaplerRequest req, StaplerResponse rsp, Object node, String expression);

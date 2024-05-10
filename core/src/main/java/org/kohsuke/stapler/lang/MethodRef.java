@@ -1,13 +1,12 @@
 package org.kohsuke.stapler.lang;
 
-import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
-
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.logging.Logger;
-import edu.umd.cs.findbugs.annotations.CheckForNull;
+import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
 
 /**
  * @author Kohsuke Kawaguchi

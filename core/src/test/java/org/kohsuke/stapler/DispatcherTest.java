@@ -1,23 +1,22 @@
 package org.kohsuke.stapler;
 
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.io.IOUtils;
 import org.htmlunit.FailingHttpStatusCodeException;
 import org.htmlunit.HttpMethod;
 import org.htmlunit.Page;
 import org.htmlunit.TextPage;
 import org.htmlunit.WebClient;
 import org.htmlunit.WebRequest;
-import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.json.JsonBody;
 import org.kohsuke.stapler.test.JettyTestCase;
 import org.kohsuke.stapler.verb.GET;
 import org.kohsuke.stapler.verb.POST;
 import org.kohsuke.stapler.verb.PUT;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 /**
  * @author Kohsuke Kawaguchi

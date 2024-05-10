@@ -26,6 +26,8 @@
 
 package org.kohsuke.stapler.export;
 
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
@@ -34,7 +36,6 @@ import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.xml.sax.SAXParseException;
 

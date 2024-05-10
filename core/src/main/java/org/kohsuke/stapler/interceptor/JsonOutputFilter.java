@@ -22,23 +22,20 @@
  */
 package org.kohsuke.stapler.interceptor;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import javax.servlet.ServletException;
 import net.sf.json.JsonConfig;
 import net.sf.json.util.PropertyFilter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
-
-import javax.servlet.ServletException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Set;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import java.util.Arrays;
-import java.util.HashSet;
 
 /**
  * Annotation for filtering the JSON data returned from a {@link JavaScriptMethod} annotated method.
@@ -46,8 +43,8 @@ import java.util.HashSet;
  *
  * @author Robert Sandell &lt;sandell.robert@gmail.com&gt;
  */
-@Retention(RUNTIME)
-@Target({METHOD, FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.FIELD})
 @InterceptorAnnotation(JsonOutputFilter.Processor.class)
 public @interface JsonOutputFilter {
 

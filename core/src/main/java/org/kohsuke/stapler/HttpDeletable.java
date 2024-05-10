@@ -23,9 +23,9 @@
 
 package org.kohsuke.stapler;
 
-import javax.servlet.ServletException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import javax.servlet.ServletException;
 
 /**
  * Marks the object that can handle HTTP DELETE.

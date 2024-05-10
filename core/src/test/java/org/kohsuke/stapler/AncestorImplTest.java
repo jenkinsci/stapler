@@ -1,9 +1,8 @@
 package org.kohsuke.stapler;
 
+import java.net.URL;
 import org.htmlunit.WebClient;
 import org.kohsuke.stapler.test.JettyTestCase;
-
-import java.net.URL;
 
 /**
  * @author Kohsuke Kawaguchi

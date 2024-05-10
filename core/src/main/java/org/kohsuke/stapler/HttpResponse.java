@@ -23,8 +23,8 @@
 
 package org.kohsuke.stapler;
 
-import javax.servlet.ServletException;
 import java.io.IOException;
+import javax.servlet.ServletException;
 
 /**
  * Object that represents the HTTP response, which is defined as a capability to produce the response.

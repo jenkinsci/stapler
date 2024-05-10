@@ -1,10 +1,9 @@
 package org.kohsuke.stapler.lang.util;
 
-import org.kohsuke.stapler.lang.MethodRef;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import org.kohsuke.stapler.lang.MethodRef;
 
 /**
  * {@link MethodRef} filter as a convenience class.

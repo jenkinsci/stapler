@@ -24,12 +24,10 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.File;
-import java.lang.reflect.Proxy;
-import java.net.URLClassLoader;
-import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  * The stapler version of the {@link ClassLoader} object,

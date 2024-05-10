@@ -1,14 +1,12 @@
 package org.kohsuke.stapler.interceptor;
 
+import java.lang.reflect.InvocationTargetException;
+import javax.servlet.ServletException;
 import org.kohsuke.stapler.CancelRequestHandlingException;
 import org.kohsuke.stapler.Function;
+import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-
-import java.lang.reflect.InvocationTargetException;
-import org.kohsuke.stapler.HttpResponses;
-
-import javax.servlet.ServletException;
 
 /**
  * Intercepts the domain method call from Stapler.

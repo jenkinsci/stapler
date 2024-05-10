@@ -1,11 +1,10 @@
 package org.kohsuke.stapler.interceptor;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.*;
 
 /**
  * Marks the annotation as an interceptor annotation,
@@ -20,8 +19,8 @@ import static java.lang.annotation.RetentionPolicy.*;
  * @see Interceptor
  * @see RequirePOST
  */
-@Target(ANNOTATION_TYPE)
-@Retention(RUNTIME)
+@Target(ElementType.ANNOTATION_TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface InterceptorAnnotation  {
     /**

@@ -1,8 +1,7 @@
 package org.kohsuke.stapler;
 
-import net.sf.json.JSONObject;
-
 import java.lang.reflect.Type;
+import net.sf.json.JSONObject;
 
 /**
  * Intercepts (and receives callbacks) about the JSON → object binding process.

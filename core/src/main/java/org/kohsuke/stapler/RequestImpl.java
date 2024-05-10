@@ -23,8 +23,40 @@
 
 package org.kohsuke.stapler;
 
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
@@ -46,41 +78,6 @@ import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.MethodRef;
 import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import static java.util.logging.Level.*;
-import static javax.servlet.http.HttpServletResponse.*;
 
 /**
  * {@link StaplerRequest} implementation.
@@ -740,7 +737,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                             }
                             // deprecated as of 2.4-jenkins-4 but left here for a while until we are sure nobody uses this
                             className = j.getString("stapler-class");
-                            LOGGER.log(FINE, "stapler-class is deprecated in favor of $class: {0}", className);
+                            LOGGER.log(Level.FINE, "stapler-class is deprecated in favor of $class: {0}", className);
                         }
                         if(j.has("$class")) {
                             if (j.optJSONArray("$class") != null) {
@@ -944,7 +941,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     // only invoking public methods for security reasons
                     wm.invoke(r, bindJSON(wm.getGenericParameterTypes()[0], pt[0], j.get(key)));
                 } catch (IllegalAccessException | InvocationTargetException e) {
-                    LOGGER.log(WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
+                    LOGGER.log(Level.WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
                 }
             }
         }
@@ -1096,7 +1093,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         try {
             parseMultipartFormData();
         } catch (Exception e) {
-            LOGGER.log(SEVERE, "Error parsing multipart/form-data.", e);
+            LOGGER.log(Level.SEVERE, "Error parsing multipart/form-data.", e);
         }
         return parsedFormDataFormFields;
     }
@@ -1105,7 +1102,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     public JSONObject getSubmittedForm() throws ServletException {
         final String method = this.getMethod();
         if (!ALLOWED_HTTP_VERBS_FOR_FORMS.contains(method)) {
-            throw HttpResponses.errorWithoutStack(SC_BAD_REQUEST, "Form submission expected but a " + method + " request was sent");
+            throw HttpResponses.errorWithoutStack(HttpServletResponse.SC_BAD_REQUEST, "Form submission expected but a " + method + " request was sent");
         }
         if(structuredForm==null) {
             String p = null;
@@ -1121,7 +1118,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                         try {
                             p = item.getString(getCharacterEncoding());
                         } catch (java.io.UnsupportedEncodingException uee) {
-                            LOGGER.log(WARNING, "Request has unsupported charset, using default for 'json' parameter", uee);
+                            LOGGER.log(Level.WARNING, "Request has unsupported charset, using default for 'json' parameter", uee);
                             p = item.getString();
                         }
                     } else {
@@ -1138,9 +1135,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 try {
                     StaplerResponse rsp = Stapler.getCurrentResponse();
                     if(isSubmission)
-                        rsp.sendError(SC_BAD_REQUEST,"This page expects a form submission");
+                        rsp.sendError(HttpServletResponse.SC_BAD_REQUEST,"This page expects a form submission");
                     else
-                        rsp.sendError(SC_BAD_REQUEST,"Nothing is submitted");
+                        rsp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Nothing is submitted");
                     throw new ServletException("This page expects a form submission but had only " + getParameterMap());
                 } catch (IOException e) {
                     throw new ServletException(e);

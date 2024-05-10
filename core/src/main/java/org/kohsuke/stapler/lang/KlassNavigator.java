@@ -1,9 +1,6 @@
 package org.kohsuke.stapler.lang;
 
-import org.kohsuke.stapler.ClassDescriptor;
-import org.kohsuke.stapler.Function;
-import org.kohsuke.stapler.MetaClassLoader;
-
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -13,7 +10,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import edu.umd.cs.findbugs.annotations.NonNull;
+import org.kohsuke.stapler.ClassDescriptor;
+import org.kohsuke.stapler.Function;
+import org.kohsuke.stapler.MetaClassLoader;
 
 /**
  * Strategy pattern to provide navigation across class-like objects in other languages of JVM.

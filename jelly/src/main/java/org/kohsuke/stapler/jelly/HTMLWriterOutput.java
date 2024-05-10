@@ -23,15 +23,15 @@
 
 package org.kohsuke.stapler.jelly;
 
-import org.apache.commons.jelly.XMLOutput;
-import org.dom4j.io.HTMLWriter;
-import org.dom4j.io.OutputFormat;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.jelly.XMLOutput;
+import org.dom4j.io.HTMLWriter;
+import org.dom4j.io.OutputFormat;
 
 /**
  * Wrapper for XMLOutput using HTMLWriter that can turn off its HTML handling

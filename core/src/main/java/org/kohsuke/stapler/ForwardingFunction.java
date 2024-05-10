@@ -1,9 +1,9 @@
 package org.kohsuke.stapler;
 
-import javax.servlet.ServletException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import javax.servlet.ServletException;
 
 /**
  * {@link Function} that forwards calls to another. Usually used

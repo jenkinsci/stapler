@@ -23,6 +23,11 @@
 
 package org.kohsuke.stapler.jelly;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.logging.Logger;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.AbstractTearOff;
@@ -31,15 +36,6 @@ import org.kohsuke.stapler.Facet;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.net.URL;
-import java.util.logging.Logger;
-
-import static org.kohsuke.stapler.Dispatcher.trace;
-import static org.kohsuke.stapler.Dispatcher.traceable;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -109,8 +105,8 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
                     src = jvs.getName();
                 }
                 Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Jelly index: %s", src);
-                if(traceable()) {
-                    trace(req,rsp,"-> %s on <%s>",src,node);
+                if(Dispatcher.traceable()) {
+                    Dispatcher.trace(req,rsp,"-> %s on <%s>",src,node);
                 }
                 facet.scriptInvoker.invokeScript(req, rsp, script, node);
                 return true;

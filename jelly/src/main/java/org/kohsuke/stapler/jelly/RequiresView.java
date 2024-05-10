@@ -24,11 +24,10 @@
 package org.kohsuke.stapler.jelly;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Indicates that concrete subtypes must have the views of the specified names.
@@ -43,8 +42,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author Kohsuke Kawaguchi
  */
 @Documented
-@Retention(RUNTIME)
-@Target(TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface RequiresView {
     /**
      * Names of the view that's required.
