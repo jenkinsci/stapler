@@ -159,7 +159,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
     @Override
     public void sendRedirect(int statusCode, @NonNull String url) throws IOException {
-        if (statusCode==SC_MOVED_TEMPORARILY) {
+        if (statusCode==HttpServletResponse.SC_MOVED_TEMPORARILY) {
             sendRedirect(url);  // to be safe, let the servlet container handles this default case
             return;
         }
@@ -206,7 +206,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     @Override
     public void serveFile(StaplerRequest req, URL resource, long expiration) throws ServletException, IOException {
         if(!stapler.serveStaticResource(req,this,resource,expiration))
-            sendError(SC_NOT_FOUND);
+            sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 
     @Override
@@ -222,13 +222,13 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     @Override
     public void serveLocalizedFile(StaplerRequest request, URL res, long expiration) throws ServletException, IOException {
         if(!stapler.serveStaticResource(request, this, stapler.selectResourceByLocale(res,request.getLocale()), expiration))
-            sendError(SC_NOT_FOUND);
+            sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 
     @Override
     public void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, long contentLength, String fileName) throws ServletException, IOException {
         if(!stapler.serveStaticResource(req,this,data,lastModified,expiration,contentLength,fileName))
-            sendError(SC_NOT_FOUND);        
+            sendError(HttpServletResponse.SC_NOT_FOUND);        
     }
 
     @Override
