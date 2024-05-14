@@ -76,7 +76,7 @@ import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.converters.DoubleConverter;
 import org.apache.commons.beanutils.converters.FloatConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 
@@ -1151,6 +1151,20 @@ public class Stapler extends HttpServlet {
                 }
             }
         }, FileItem.class);
+
+        CONVERT_UTILS.register(new Converter() {
+            @Override
+            public org.apache.commons.fileupload.FileItem convert(Class type, Object value) {
+                if (value == null) {
+                    return null;
+                }
+                try {
+                    return org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(Stapler.getCurrentRequest().getFileItem(value.toString()));
+                } catch (ServletException | IOException e) {
+                    throw new ConversionException(e);
+                }
+            }
+        }, org.apache.commons.fileupload.FileItem.class);
 
         // mapping for boxed types should map null to null, instead of null to zero.
         CONVERT_UTILS.register(new IntegerConverter(null),Integer.class);

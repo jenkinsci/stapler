@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Calendar;
@@ -38,7 +39,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.json.SubmittedForm;
 import org.kohsuke.stapler.lang.Klass;
@@ -497,6 +498,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *      This includes the case where the name corresponds to a simple
      *      form field (like textbox, checkbox, etc.) 
      */
+    @WithBridgeMethods(org.apache.commons.fileupload.FileItem.class)
     FileItem getFileItem(String name) throws ServletException, IOException;
 
     /**
