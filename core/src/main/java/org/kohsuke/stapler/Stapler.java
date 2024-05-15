@@ -1145,7 +1145,7 @@ public class Stapler extends HttpServlet {
             public FileItem convert(Class type, Object value) {
                 if(value==null) return null;
                 try {
-                    return Stapler.getCurrentRequest().getFileItem(value.toString());
+                    return Stapler.getCurrentRequest().getFileItem2(value.toString());
                 } catch (ServletException | IOException e) {
                     throw new ConversionException(e);
                 }
@@ -1159,7 +1159,7 @@ public class Stapler extends HttpServlet {
                     return null;
                 }
                 try {
-                    return org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(Stapler.getCurrentRequest().getFileItem(value.toString()));
+                    return org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(Stapler.getCurrentRequest().getFileItem2(value.toString()));
                 } catch (ServletException | IOException e) {
                     throw new ConversionException(e);
                 }

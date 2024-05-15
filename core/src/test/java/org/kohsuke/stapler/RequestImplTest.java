@@ -161,7 +161,7 @@ public class RequestImplTest {
         Assert.assertEquals("text2_val", request.getParameter("text2"));
         
         // Check that we can get the file
-        FileItem fileItem = request.getFileItem("pomFile");
+        FileItem fileItem = request.getFileItem2("pomFile");
         Assert.assertNotNull(fileItem);
         
         // Check getParameterValues

@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.File;
@@ -1166,8 +1165,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     @Override
-    @WithBridgeMethods(value = org.apache.commons.fileupload.FileItem.class, adapterMethod = "fromFileUpload2FileItem")
-    public FileItem getFileItem(String name) throws ServletException, IOException {
+    public FileItem getFileItem2(String name) throws ServletException, IOException {
         parseMultipartFormData();
         if(parsedFormData==null)    return null;
         FileItem item = parsedFormData.get(name);
@@ -1175,8 +1173,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return item;
     }
 
-    private Object fromFileUpload2FileItem(FileItem fileItem, Class<?> type) {
-        return org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(fileItem);
+    @Deprecated
+    @Override
+    public org.apache.commons.fileupload.FileItem getFileItem(String name) throws ServletException, IOException {
+        return org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(getFileItem2(name));
     }
 
     private static final Logger LOGGER = Logger.getLogger(RequestImpl.class.getName());

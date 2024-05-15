@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Calendar;
@@ -491,15 +490,26 @@ public interface StaplerRequest extends HttpServletRequest {
     JSONObject getSubmittedForm() throws ServletException;
 
     /**
-     * Obtains a commons-fileupload object that represents an uploaded file.
+     * Obtains a commons-fileupload2 object that represents an uploaded file.
      *
      * @return
      *      null if a file of the given form field name doesn't exist.
      *      This includes the case where the name corresponds to a simple
      *      form field (like textbox, checkbox, etc.) 
      */
-    @WithBridgeMethods(org.apache.commons.fileupload.FileItem.class)
-    FileItem getFileItem(String name) throws ServletException, IOException;
+    FileItem getFileItem2(String name) throws ServletException, IOException;
+
+    /**
+     * Obtains a commons-fileupload object that represents an uploaded file.
+     *
+     * @deprecated use {@link #getFileItem2(String)}
+     * @return
+     *      null if a file of the given form field name doesn't exist.
+     *      This includes the case where the name corresponds to a simple
+     *      form field (like textbox, checkbox, etc.)
+     */
+    @Deprecated
+    org.apache.commons.fileupload.FileItem getFileItem(String name) throws ServletException, IOException;
 
     /**
      * Returns true if this request represents a server method call to a JavaScript proxy object.
