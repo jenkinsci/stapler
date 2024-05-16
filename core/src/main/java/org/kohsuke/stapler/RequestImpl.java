@@ -27,12 +27,14 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -66,12 +68,15 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.fileupload.FileCountLimitExceededException;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadBase;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.DiskFileItem;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileUploadByteCountLimitException;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.core.FileUploadFileCountLimitException;
+import org.apache.commons.fileupload2.core.FileUploadSizeException;
+import org.apache.commons.fileupload2.javax.JavaxServletDiskFileUpload;
+import org.apache.commons.fileupload2.javax.JavaxServletFileUpload;
 import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.bind.Bound;
 import org.kohsuke.stapler.bind.BoundObjectTable;
@@ -131,7 +136,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     /**
      * Limits the number of form fields that can be processed in one multipart/form-data request.
-     * Used to set {@link org.apache.commons.fileupload.servlet.ServletFileUpload#setFileCountMax(long)}.
+     * Used to set {@link org.apache.commons.fileupload2.javax.JavaxServletFileUpload#setFileCountMax(long)}.
      * Despite the name, this applies to all form fields, not just actual file attachments.
      * Set to {@code -1} to disable limits.
      */
@@ -139,7 +144,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     /**
      * Limits the size (in bytes) of individual fields that can be processed in one multipart/form-data request.
-     * Used to set {@link org.apache.commons.fileupload.servlet.ServletFileUpload#setFileSizeMax(long)}.
+     * Used to set {@link org.apache.commons.fileupload2.javax.JavaxServletFileUpload#setFileSizeMax(long)}.
      * Despite the name, this applies to all form fields, not just actual file attachments.
      * Set to {@code -1} to disable limits.
      */
@@ -147,7 +152,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     /**
      * Limits the total request size (in bytes) that can be processed in one multipart/form-data request.
-     * Used to set {@link org.apache.commons.fileupload.servlet.ServletFileUpload#setSizeMax(long)}.
+     * Used to set {@link org.apache.commons.fileupload2.javax.JavaxServletFileUpload#setSizeMax(long)}.
      * Set to {@code -1} to disable limits.
      */
     private static /* nonfinal for Jenkins script console */ long FILEUPLOAD_MAX_SIZE = Long.getLong(RequestImpl.class.getName() + ".FILEUPLOAD_MAX_SIZE", -1);
@@ -1056,7 +1061,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
         parsedFormData = new HashMap<>();
         parsedFormDataFormFields = new HashMap<>();
-        ServletFileUpload upload;
+        JavaxServletFileUpload<DiskFileItem, DiskFileItemFactory> upload;
         File tmpDir;
         try {
             tmpDir = Files.createTempDirectory("jenkins-stapler-uploads").toFile();
@@ -1064,7 +1069,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             throw new ServletException("Error creating temporary directory", e);
         }
         tmpDir.deleteOnExit();
-        upload = new ServletFileUpload(new DiskFileItemFactory(DiskFileItemFactory.DEFAULT_SIZE_THRESHOLD, tmpDir));
+        upload = new JavaxServletDiskFileUpload(DiskFileItemFactory.builder().setFile(tmpDir).get());
         upload.setFileCountMax(FILEUPLOAD_MAX_FILES);
         upload.setFileSizeMax(FILEUPLOAD_MAX_FILE_SIZE);
         upload.setSizeMax(FILEUPLOAD_MAX_SIZE);
@@ -1075,11 +1080,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     parsedFormDataFormFields.put(fi.getFieldName(),fi.getString());
                 }
             }
-        } catch (FileCountLimitExceededException e) {
+        } catch (FileUploadFileCountLimitException e) {
             throw new ServletException("File upload field count limit exceeded. Consider setting the Java system property " + RequestImpl.class.getName() + ".FILEUPLOAD_MAX_FILES to a value greater than " + FILEUPLOAD_MAX_FILES + ", or to -1 to disable this limit.", e);
-        } catch (FileUploadBase.FileSizeLimitExceededException e) {
+        } catch (FileUploadByteCountLimitException e) {
             throw new ServletException("File upload field size limit exceeded. Consider setting the Java system property " + RequestImpl.class.getName() + ".FILEUPLOAD_MAX_FILE_SIZE to a value greater than " + FILEUPLOAD_MAX_FILE_SIZE + ", or to -1 to disable this limit.", e);
-        } catch (FileUploadBase.SizeLimitExceededException e) {
+        } catch (FileUploadSizeException e) {
             throw new ServletException("File upload total size limit exceeded. Consider setting the Java system property " + RequestImpl.class.getName() + ".FILEUPLOAD_MAX_SIZE to a value greater than " + FILEUPLOAD_MAX_SIZE + ", or to -1 to disable this limit.", e);
         } catch (FileUploadException e) {
             throw new ServletException(e);
@@ -1116,10 +1121,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     if (item.getContentType() == null && getCharacterEncoding() != null) {
                         // JENKINS-11543: If client doesn't set charset per part, use request encoding
                         try {
-                            p = item.getString(getCharacterEncoding());
+                            p = item.getString(Charset.forName(getCharacterEncoding()));
                         } catch (java.io.UnsupportedEncodingException uee) {
                             LOGGER.log(Level.WARNING, "Request has unsupported charset, using default for 'json' parameter", uee);
                             p = item.getString();
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
                         }
                     } else {
                         p = item.getString();
@@ -1158,12 +1165,18 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     @Override
-    public FileItem getFileItem(String name) throws ServletException, IOException {
+    public FileItem getFileItem2(String name) throws ServletException, IOException {
         parseMultipartFormData();
         if(parsedFormData==null)    return null;
         FileItem item = parsedFormData.get(name);
         if(item==null || item.isFormField())    return null;
         return item;
+    }
+
+    @Deprecated
+    @Override
+    public org.apache.commons.fileupload.FileItem getFileItem(String name) throws ServletException, IOException {
+        return org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(getFileItem2(name));
     }
 
     private static final Logger LOGGER = Logger.getLogger(RequestImpl.class.getName());

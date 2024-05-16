@@ -38,7 +38,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.json.SubmittedForm;
 import org.kohsuke.stapler.lang.Klass;
@@ -490,14 +490,26 @@ public interface StaplerRequest extends HttpServletRequest {
     JSONObject getSubmittedForm() throws ServletException;
 
     /**
-     * Obtains a commons-fileupload object that represents an uploaded file.
+     * Obtains a commons-fileupload2 object that represents an uploaded file.
      *
      * @return
      *      null if a file of the given form field name doesn't exist.
      *      This includes the case where the name corresponds to a simple
      *      form field (like textbox, checkbox, etc.) 
      */
-    FileItem getFileItem(String name) throws ServletException, IOException;
+    FileItem getFileItem2(String name) throws ServletException, IOException;
+
+    /**
+     * Obtains a commons-fileupload object that represents an uploaded file.
+     *
+     * @deprecated use {@link #getFileItem2(String)}
+     * @return
+     *      null if a file of the given form field name doesn't exist.
+     *      This includes the case where the name corresponds to a simple
+     *      form field (like textbox, checkbox, etc.)
+     */
+    @Deprecated
+    org.apache.commons.fileupload.FileItem getFileItem(String name) throws ServletException, IOException;
 
     /**
      * Returns true if this request represents a server method call to a JavaScript proxy object.
