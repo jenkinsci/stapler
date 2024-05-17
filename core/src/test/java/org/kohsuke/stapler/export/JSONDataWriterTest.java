@@ -13,7 +13,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class JSONDataWriterTest {
-    private ExportConfig config = new ExportConfig().withFlavor(Flavor.JSON).withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
+    private ExportConfig config =
+            new ExportConfig().withFlavor(Flavor.JSON).withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
 
     private <T> String serialize(T bean, Class<T> clazz) throws IOException {
         StringWriter w = new StringWriter();
@@ -22,64 +23,103 @@ public class JSONDataWriterTest {
         return w.toString();
     }
 
-    @ExportedBean public static class X {
-        @Exported public String a = "aval";
+    @ExportedBean
+    public static class X {
+        @Exported
+        public String a = "aval";
+
         public String b = "bval";
-        @Exported public String getC() {return "cval";}
-        public String getD() {return "dval";}
+
+        @Exported
+        public String getC() {
+            return "cval";
+        }
+
+        public String getD() {
+            return "dval";
+        }
     }
 
     @Test
     public void testSimpleUsage() throws Exception {
-        assertEquals("{\"_class\":\"X\",\"a\":\"aval\",\"c\":\"cval\"}",
-                serialize(new X(), X.class));
+        assertEquals("{\"_class\":\"X\",\"a\":\"aval\",\"c\":\"cval\"}", serialize(new X(), X.class));
     }
 
-    @ExportedBean(defaultVisibility=2) public static abstract class Super {
-        @Exported public String basic = "super";
-        @Exported public abstract String generic();
+    @ExportedBean(defaultVisibility = 2)
+    public abstract static class Super {
+        @Exported
+        public String basic = "super";
+
+        @Exported
+        public abstract String generic();
     }
+
     public static class Sub extends Super {
         @Override
-        public String generic() {return "sub";}
-        @Exported public String specific() {return "sub";}
+        public String generic() {
+            return "sub";
+        }
+
+        @Exported
+        public String specific() {
+            return "sub";
+        }
     }
-    @ExportedBean public static class Container {
-        @Exported public Super polymorph = new Sub();
+
+    @ExportedBean
+    public static class Container {
+        @Exported
+        public Super polymorph = new Sub();
     }
 
     @Test
     public void testInheritance() throws Exception {
-        assertEquals("{\"_class\":\"Container\",\"polymorph\":{\"_class\":\"Sub\",\"basic\":\"super\",\"generic\":\"sub\",\"specific\":\"sub\"}}",
+        assertEquals(
+                "{\"_class\":\"Container\",\"polymorph\":{\"_class\":\"Sub\",\"basic\":\"super\",\"generic\":\"sub\",\"specific\":\"sub\"}}",
                 serialize(new Container(), Container.class));
     }
 
     public static class Sub2 extends Super {
-        @Exported @Override public String generic() {return "sub2";}
+        @Exported
+        @Override
+        public String generic() {
+            return "sub2";
+        }
     }
 
     @Test
     public void testEncodedChars() throws Exception {
-        assertEquals("{\"_class\":\"Encoded\",\"bar\":\"\\ud834\\udd1e\",\"foo\":\"\\u0000\"}",
+        assertEquals(
+                "{\"_class\":\"Encoded\",\"bar\":\"\\ud834\\udd1e\",\"foo\":\"\\u0000\"}",
                 serialize(new Encoded(), Encoded.class));
     }
 
     @Test
     public void testInheritance2() throws Exception { // JENKINS-13336
-        assertEquals("{\"_class\":\"Sub2\",\"basic\":\"super\",\"generic\":\"sub2\"}",
-                serialize(new Sub2(), Sub2.class));
+        assertEquals(
+                "{\"_class\":\"Sub2\",\"basic\":\"super\",\"generic\":\"sub2\"}", serialize(new Sub2(), Sub2.class));
     }
 
     @Test
     public void exceptionHandling() throws IOException {
-        assertEquals("{\"_class\":\"Supers\",\"elements\":[{\"_class\":\"Sub\",\"basic\":\"super\",\"generic\":\"sub\",\"specific\":\"sub\"},{\"_class\":\"Sub2\",\"basic\":\"super\",\"generic\":\"sub2\"}]}",
-                     serialize(new Supers(new Sub(), new Broken(), new Sub2()), Supers.class));
+        assertEquals(
+                "{\"_class\":\"Supers\",\"elements\":[{\"_class\":\"Sub\",\"basic\":\"super\",\"generic\":\"sub\",\"specific\":\"sub\"},{\"_class\":\"Sub2\",\"basic\":\"super\",\"generic\":\"sub2\"}]}",
+                serialize(new Supers(new Sub(), new Broken(), new Sub2()), Supers.class));
     }
+
     public static class Broken extends Super {
-        @Exported @Override public String generic() {throw new RuntimeException("oops");}
+        @Exported
+        @Override
+        public String generic() {
+            throw new RuntimeException("oops");
+        }
     }
-    @ExportedBean public static class Supers {
-        @Exported public final List<? extends Super> elements;
+
+    @ExportedBean
+    public static class Supers {
+        @Exported
+        public final List<? extends Super> elements;
+
         public Supers(Super... elements) {
             this.elements = Arrays.asList(elements);
         }
@@ -92,7 +132,7 @@ public class JSONDataWriterTest {
         StringWriter w = new StringWriter();
         ModelWithJsonField jsonModel = new ModelWithJsonField(json);
 
-        DataWriter writer = Flavor.JSON.createDataWriter(jsonModel,w);
+        DataWriter writer = Flavor.JSON.createDataWriter(jsonModel, w);
         Model<ModelWithJsonField> model = new ModelBuilder().get(ModelWithJsonField.class);
         model.writeTo(jsonModel, writer);
 
@@ -107,7 +147,7 @@ public class JSONDataWriterTest {
         StringWriter w = new StringWriter();
         ModelWithJsonField jsonModel = new ModelWithJsonField(json);
 
-        DataWriter writer = Flavor.JSON.createDataWriter(jsonModel,w);
+        DataWriter writer = Flavor.JSON.createDataWriter(jsonModel, w);
         Model<ModelWithJsonField> model = new ModelBuilder().get(ModelWithJsonField.class);
         model.writeTo(jsonModel, writer);
 
@@ -134,10 +174,10 @@ public class JSONDataWriterTest {
         public String getFoo() {
             return "\u0000";
         }
+
         @Exported
         public String getBar() {
             return "\uD834\uDD1E";
         }
     }
-
 }

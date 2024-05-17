@@ -35,45 +35,45 @@ import java.util.NoSuchElementException;
  * @author Jared Levy
  */
 final class Iterators {
-  private Iterators() {}
+    private Iterators() {}
 
-  /**
-   * Returns a view containing the first {@code limitSize} elements of {@code iterator}. If {@code
-   * iterator} contains fewer than {@code limitSize} elements, the returned view contains all of its
-   * elements. The returned iterator supports {@code remove()} if {@code iterator} does.
-   *
-   * @param iterator the iterator to limit
-   * @param limitSize the maximum number of elements in the returned iterator
-   * @throws IllegalArgumentException if {@code limitSize} is negative
-   */
-  static <T> Iterator<T> limit(final Iterator<T> iterator, final int limitSize) {
-    if (iterator == null) {
-      throw new NullPointerException();
-    }
-    if (limitSize < 0) {
-      throw new IllegalArgumentException("limit is negative");
-    }
-    return new Iterator<T>() {
-      private int count;
-
-      @Override
-      public boolean hasNext() {
-        return count < limitSize && iterator.hasNext();
-      }
-
-      @Override
-      public T next() {
-        if (!hasNext()) {
-          throw new NoSuchElementException();
+    /**
+     * Returns a view containing the first {@code limitSize} elements of {@code iterator}. If {@code
+     * iterator} contains fewer than {@code limitSize} elements, the returned view contains all of its
+     * elements. The returned iterator supports {@code remove()} if {@code iterator} does.
+     *
+     * @param iterator the iterator to limit
+     * @param limitSize the maximum number of elements in the returned iterator
+     * @throws IllegalArgumentException if {@code limitSize} is negative
+     */
+    static <T> Iterator<T> limit(final Iterator<T> iterator, final int limitSize) {
+        if (iterator == null) {
+            throw new NullPointerException();
         }
-        count++;
-        return iterator.next();
-      }
+        if (limitSize < 0) {
+            throw new IllegalArgumentException("limit is negative");
+        }
+        return new Iterator<T>() {
+            private int count;
 
-      @Override
-      public void remove() {
-        iterator.remove();
-      }
-    };
-  }
+            @Override
+            public boolean hasNext() {
+                return count < limitSize && iterator.hasNext();
+            }
+
+            @Override
+            public T next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                count++;
+                return iterator.next();
+            }
+
+            @Override
+            public void remove() {
+                iterator.remove();
+            }
+        };
+    }
 }

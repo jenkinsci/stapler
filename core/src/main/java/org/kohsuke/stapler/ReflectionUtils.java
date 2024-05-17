@@ -42,11 +42,12 @@ public class ReflectionUtils {
         return defaultPrimitiveValue.get(type);
     }
 
-    private static final Map<Class,Object> defaultPrimitiveValue = new HashMap<>();
+    private static final Map<Class, Object> defaultPrimitiveValue = new HashMap<>();
+
     static {
-        defaultPrimitiveValue.put(boolean.class,false);
-        defaultPrimitiveValue.put(int.class,0);
-        defaultPrimitiveValue.put(long.class,0L);
+        defaultPrimitiveValue.put(boolean.class, false);
+        defaultPrimitiveValue.put(int.class, 0);
+        defaultPrimitiveValue.put(long.class, 0L);
     }
 
     /**
@@ -55,18 +56,22 @@ public class ReflectionUtils {
      */
     public static Annotation[] union(Annotation[] a, Annotation[] b) {
         // fast path
-        if (a.length==0)    return b;
-        if (b.length==0)    return a;
+        if (a.length == 0) {
+            return b;
+        }
+        if (b.length == 0) {
+            return a;
+        }
 
         // slow path
-        List<Annotation> combined = new ArrayList<>(a.length+b.length);
+        List<Annotation> combined = new ArrayList<>(a.length + b.length);
         combined.addAll(Arrays.asList(a));
 
         OUTER:
         for (Annotation x : b) {
-            for (int i=0; i<a.length; i++) {
-                if (x.annotationType()==combined.get(i).annotationType()) {
-                    combined.set(i,x);  // override
+            for (int i = 0; i < a.length; i++) {
+                if (x.annotationType() == combined.get(i).annotationType()) {
+                    combined.set(i, x); // override
                     continue OUTER;
                 }
             }
@@ -76,5 +81,4 @@ public class ReflectionUtils {
 
         return combined.toArray(new Annotation[0]);
     }
-
 }

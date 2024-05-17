@@ -49,14 +49,21 @@ public class JSPFacet extends Facet {
     public void buildViewDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
         dispatchers.add(new Dispatcher() {
             @Override
-            public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
+            public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
+                    throws IOException, ServletException {
                 String next = req.tokens.peek();
-                if(next==null)  return false;
+                if (next == null) {
+                    return false;
+                }
 
                 // only match the end of the URL
-                if (req.tokens.countRemainingTokens()>1)    return false;
+                if (req.tokens.countRemainingTokens() > 1) {
+                    return false;
+                }
                 // and avoid serving both "foo" and "foo/" as relative URL semantics are drastically different
-                if (req.getRequestURI().endsWith("/"))      return false;
+                if (req.getRequestURI().endsWith("/")) {
+                    return false;
+                }
 
                 Stapler stapler = req.getStapler();
 
@@ -66,21 +73,25 @@ public class JSPFacet extends Facet {
                 }
 
                 // check static resources
-                RequestDispatcher disp = createRequestDispatcher(req,node.getClass(),node,next);
-                if(disp==null) {
+                RequestDispatcher disp = createRequestDispatcher(req, node.getClass(), node, next);
+                if (disp == null) {
                     // check JSP views
-                    disp = createRequestDispatcher(req,node.getClass(),node,next+".jsp");
-                    if(disp==null)  return false;
+                    disp = createRequestDispatcher(req, node.getClass(), node, next + ".jsp");
+                    if (disp == null) {
+                        return false;
+                    }
                 }
 
                 req.tokens.next();
 
-                if(traceable())
-                    trace(req,rsp,"Invoking "+next+".jsp"+" on "+node+" for "+req.tokens);
+                if (traceable()) {
+                    trace(req, rsp, "Invoking " + next + ".jsp" + " on " + node + " for " + req.tokens);
+                }
 
-                stapler.forward(disp,req,rsp);
+                stapler.forward(disp, req, rsp);
                 return true;
             }
+
             @Override
             public String toString() {
                 return "TOKEN.jsp for url=/TOKEN/...";
@@ -89,35 +100,37 @@ public class JSPFacet extends Facet {
     }
 
     @Override
-    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass type, Object it, String viewName) throws IOException {
+    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass type, Object it, String viewName)
+            throws IOException {
         ServletContext context = request.stapler.getServletContext();
 
         // JSP support is deprecated, and this doesn't work with non-Java objects
-        for( Class c = type.toJavaClass(); c!=Object.class; c=c.getSuperclass() ) {
-            String name = "/WEB-INF/side-files/"+c.getName().replace('.','/').replace('$','/')+'/'+viewName;
-            if(context.getResource(name)!=null) {
+        for (Class c = type.toJavaClass(); c != Object.class; c = c.getSuperclass()) {
+            String name = "/WEB-INF/side-files/" + c.getName().replace('.', '/').replace('$', '/') + '/' + viewName;
+            if (context.getResource(name) != null) {
                 // Tomcat returns a RequestDispatcher even if the JSP file doesn't exist.
                 // so check if the resource exists first.
                 RequestDispatcher disp = context.getRequestDispatcher(name);
-                if(disp!=null) {
-                    return new RequestDispatcherWrapper(disp,it);
+                if (disp != null) {
+                    return new RequestDispatcherWrapper(disp, it);
                 }
             }
         }
         return null;
     }
 
-
     @Override
-    public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
+    public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass)
+            throws IOException, ServletException {
         Stapler stapler = req.stapler;
-        
+
         // TODO: find the list of welcome pages for this class by reading web.xml
-        RequestDispatcher indexJsp = createRequestDispatcher(req,node.getClass(),node,"index.jsp");
-        if(indexJsp!=null) {
-            if(LOGGER.isLoggable(Level.FINE))
-                LOGGER.fine("Invoking index.jsp on "+node);
-            stapler.forward(indexJsp,req,rsp);
+        RequestDispatcher indexJsp = createRequestDispatcher(req, node.getClass(), node, "index.jsp");
+        if (indexJsp != null) {
+            if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.fine("Invoking index.jsp on " + node);
+            }
+            stapler.forward(indexJsp, req, rsp);
             return true;
         }
         return false;

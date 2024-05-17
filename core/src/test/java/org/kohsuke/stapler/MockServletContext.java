@@ -85,16 +85,13 @@ public class MockServletContext implements ServletContext {
     }
 
     @Override
-    public void log(String msg) {
-    }
+    public void log(String msg) {}
 
     @Override
-    public void log(Exception exception, String msg) {
-    }
+    public void log(Exception exception, String msg) {}
 
     @Override
-    public void log(String message, Throwable throwable) {
-    }
+    public void log(String message, Throwable throwable) {}
 
     @Override
     public String getRealPath(String path) {
@@ -127,12 +124,10 @@ public class MockServletContext implements ServletContext {
     }
 
     @Override
-    public void setAttribute(String name, Object object) {
-    }
+    public void setAttribute(String name, Object object) {}
 
     @Override
-    public void removeAttribute(String name) {
-    }
+    public void removeAttribute(String name) {}
 
     @Override
     public String getServletContextName() {
@@ -231,8 +226,7 @@ public class MockServletContext implements ServletContext {
     }
 
     @Override
-    public void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes) {
-    }
+    public void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes) {}
 
     @Override
     public Set<SessionTrackingMode> getDefaultSessionTrackingModes() {
@@ -245,16 +239,13 @@ public class MockServletContext implements ServletContext {
     }
 
     @Override
-    public void addListener(String className) {
-    }
+    public void addListener(String className) {}
 
     @Override
-    public <T extends EventListener> void addListener(T t) {
-    }
+    public <T extends EventListener> void addListener(T t) {}
 
     @Override
-    public void addListener(Class<? extends EventListener> listenerClass) {
-    }
+    public void addListener(Class<? extends EventListener> listenerClass) {}
 
     @Override
     public <T extends EventListener> T createListener(Class<T> clazz) throws ServletException {
@@ -272,8 +263,7 @@ public class MockServletContext implements ServletContext {
     }
 
     @Override
-    public void declareRoles(String... roleNames) {
-    }
+    public void declareRoles(String... roleNames) {}
 
     @Override
     public String getVirtualServerName() {
@@ -286,8 +276,7 @@ public class MockServletContext implements ServletContext {
     }
 
     @Override
-    public void setSessionTimeout(int sessionTimeout) {
-    }
+    public void setSessionTimeout(int sessionTimeout) {}
 
     @Override
     public String getRequestCharacterEncoding() {
@@ -295,8 +284,7 @@ public class MockServletContext implements ServletContext {
     }
 
     @Override
-    public void setRequestCharacterEncoding(String encoding) {
-    }
+    public void setRequestCharacterEncoding(String encoding) {}
 
     @Override
     public String getResponseCharacterEncoding() {
@@ -304,6 +292,5 @@ public class MockServletContext implements ServletContext {
     }
 
     @Override
-    public void setResponseCharacterEncoding(String encoding) {
-    }
+    public void setResponseCharacterEncoding(String encoding) {}
 }

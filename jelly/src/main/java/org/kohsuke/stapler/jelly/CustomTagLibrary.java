@@ -59,7 +59,7 @@ public final class CustomTagLibrary extends TagLibrary {
     /**
      * Compiled tag files.
      */
-    private final Map<String,Script> scripts = new Hashtable<>();
+    private final Map<String, Script> scripts = new Hashtable<>();
 
     private final List<JellyTagFileLoader> loaders;
 
@@ -75,7 +75,9 @@ public final class CustomTagLibrary extends TagLibrary {
     @Override
     public TagScript createTagScript(String name, Attributes attributes) throws JellyException {
         final Script def = load(name);
-        if(def==null) return null;
+        if (def == null) {
+            return null;
+        }
 
         return new CallTagLibScript() {
             @Override
@@ -110,14 +112,17 @@ public final class CustomTagLibrary extends TagLibrary {
     private Script load(String name) throws JellyException {
 
         Script script = scripts.get(name);
-        if(script!=null && !MetaClass.NO_CACHE)
+        if (script != null && !MetaClass.NO_CACHE) {
             return script;
+        }
 
-        script=null;
-        if(MetaClassLoader.debugLoader!=null)
+        script = null;
+        if (MetaClassLoader.debugLoader != null) {
             script = load(name, MetaClassLoader.debugLoader.loader);
-        if(script==null)
+        }
+        if (script == null) {
             script = load(name, classLoader);
+        }
         return script;
     }
 
@@ -125,18 +130,19 @@ public final class CustomTagLibrary extends TagLibrary {
         Script script;
         // prefer 'foo.jellytag' but for backward compatibility, support the plain .jelly extension as well.
         URL res = classLoader.getResource(basePath + '/' + name + ".jellytag");
-        if (res==null)
+        if (res == null) {
             res = classLoader.getResource(basePath + '/' + name + ".jelly");
-        if(res!=null) {
+        }
+        if (res != null) {
             script = loadJellyScript(res);
-            scripts.put(name,script);
+            scripts.put(name, script);
             return script;
         }
 
         for (JellyTagFileLoader loader : loaders) {
             Script s = loader.load(this, name, classLoader);
-            if(s!=null) {
-                scripts.put(name,s);
+            if (s != null) {
+                scripts.put(name, s);
                 return s;
             }
         }

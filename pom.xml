@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
     <version>1.114</version>
     <relativePath />
   </parent>
+
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler-parent</artifactId>
   <version>${changelist}</version>
   <packaging>pom</packaging>
-
   <name>Stapler Parent</name>
   <description>Stapler aggregator and parent project</description>
-
   <url>https://github.com/jenkinsci/stapler</url>
 
   <licenses>
@@ -46,6 +44,7 @@
     <scmTag>HEAD</scmTag>
     <jetty.version>10.0.21</jetty.version>
     <gitHubRepo>jenkinsci/stapler</gitHubRepo>
+    <spotless.check.skip>false</spotless.check.skip>
   </properties>
 
   <dependencyManagement>

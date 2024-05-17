@@ -114,17 +114,17 @@ public interface StaplerRequest extends HttpServletRequest {
      *      <p>
      *      For Jelly, this also accepts absolute path name that starts
      *      with '/', such as "/foo/bar/zot.jelly". In this case,
-     *      {@code it.getClass().getClassLoader()} is searched for this script. 
+     *      {@code it.getClass().getClassLoader()} is searched for this script.
      *
      * @return null
      *      if neither JSP nor Jelly is not found by the given name.
      */
-    RequestDispatcher getView(Object it,String viewName) throws IOException;
+    RequestDispatcher getView(Object it, String viewName) throws IOException;
 
     /**
      * Convenience method to call {@link #getView(Klass, String)} with {@link Class}.
      */
-    RequestDispatcher getView(Class clazz,String viewName) throws IOException;
+    RequestDispatcher getView(Class clazz, String viewName) throws IOException;
 
     /**
      * Gets the {@link RequestDispatcher} that represents a specific view
@@ -166,7 +166,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *  <li>root.getFoo().getBar("zot") object (the "it" object)
      * </ol>
      * <p>
-     * 
+     *
      *
      * @return
      *      list of {@link Ancestor}s. Can be empty, but always non-null.
@@ -276,7 +276,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * @param bean
      *      The object which will be filled out.
      */
-    void bindParameters( Object bean );
+    void bindParameters(Object bean);
 
     /**
      * Binds form parameters to a bean by using introspection.
@@ -295,7 +295,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.
      */
     @Deprecated
-    void bindParameters( Object bean, String prefix );
+    void bindParameters(Object bean, String prefix);
 
     /**
      * Binds collection form parameters to beans by using introspection or
@@ -329,8 +329,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.
      */
     @Deprecated
-    <T>
-    List<T> bindParametersToList( Class<T> type, String prefix );
+    <T> List<T> bindParametersToList(Class<T> type, String prefix);
 
     /**
      * Instantiates a new object by injecting constructor parameters from the form parameters.
@@ -351,8 +350,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.
      */
     @Deprecated
-    <T>
-    T bindParameters( Class<T> type, String prefix );
+    <T> T bindParameters(Class<T> type, String prefix);
 
     /**
      * Works like {@link #bindParameters(Class, String)} but uses n-th value
@@ -367,8 +365,7 @@ public interface StaplerRequest extends HttpServletRequest {
      *      use structured form submission and {@link #bindJSON(Class, JSONObject)}.
      */
     @Deprecated
-    <T>
-    T bindParameters( Class<T> type, String prefix, int index );
+    <T> T bindParameters(Class<T> type, String prefix, int index);
 
     /**
      * Data-bind from a {@link JSONObject} to the given target type,
@@ -415,8 +412,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * The type that shows up in the constructor ({@code Bar} in this case)
      * can be an interface or an abstract class.
      */
-    <T>
-    T bindJSON(Class<T> type, JSONObject src);
+    <T> T bindJSON(Class<T> type, JSONObject src);
 
     /**
      * Data-bind from one of the JSON object types ({@link JSONObject}, {@link JSONArray},
@@ -442,9 +438,9 @@ public interface StaplerRequest extends HttpServletRequest {
      * This method is also bit like {@link #bindParameters(Object, String)}, in that it
      * populates an existing object from a form submission, except that this method
      * obtains data from {@link JSONObject} thus more structured, whereas {@link #bindParameters(Object, String)}
-     * uses the map structure of the form submission. 
+     * uses the map structure of the form submission.
      */
-    void bindJSON( Object bean, JSONObject src );
+    void bindJSON(Object bean, JSONObject src);
 
     /**
      * Data-bind from either {@link JSONObject} or {@link JSONArray} to a list,
@@ -455,8 +451,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * a single item. If it is {@link JSONArray}, each item will be bound.
      * If it is null, then the list will be empty.
      */
-    <T>
-    List<T> bindJSONToList(Class<T> type, Object src);
+    <T> List<T> bindJSONToList(Class<T> type, Object src);
 
     /**
      * Gets the {@link BindInterceptor} set for this request.
@@ -495,7 +490,7 @@ public interface StaplerRequest extends HttpServletRequest {
      * @return
      *      null if a file of the given form field name doesn't exist.
      *      This includes the case where the name corresponds to a simple
-     *      form field (like textbox, checkbox, etc.) 
+     *      form field (like textbox, checkbox, etc.)
      */
     FileItem getFileItem2(String name) throws ServletException, IOException;
 

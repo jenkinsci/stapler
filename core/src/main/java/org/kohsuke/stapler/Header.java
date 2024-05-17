@@ -53,17 +53,22 @@ public @interface Header {
 
     class HandlerImpl extends AnnotationHandler<Header> {
         @Override
-        public Object parse(StaplerRequest request, Header a, Class type, String parameterName) throws ServletException {
+        public Object parse(StaplerRequest request, Header a, Class type, String parameterName)
+                throws ServletException {
             String name = a.value();
-            if(name.length()==0)    name=parameterName;
-            if(name==null)
+            if (name.length() == 0) {
+                name = parameterName;
+            }
+            if (name == null) {
                 throw new IllegalArgumentException("Parameter name unavailable neither in the code nor in annotation");
+            }
 
             String value = request.getHeader(name);
-            if(a.required() && value==null)
-                throw new ServletException("Required HTTP header "+name+" is missing");
+            if (a.required() && value == null) {
+                throw new ServletException("Required HTTP header " + name + " is missing");
+            }
 
-            return convert(type,value);
+            return convert(type, value);
         }
     }
 }

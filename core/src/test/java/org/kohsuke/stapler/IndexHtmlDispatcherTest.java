@@ -22,5 +22,4 @@ public class IndexHtmlDispatcherTest {
     }
 
     private interface TestInterface {}
-
 }

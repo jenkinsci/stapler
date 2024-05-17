@@ -118,9 +118,10 @@ public abstract class KlassNavigator<C> {
      * @see #isArray(Object)
      */
     public Object getArrayElement(Object o, int index) throws IndexOutOfBoundsException {
-        if (o instanceof List)
-            return ((List)o).get(index);
-        return Array.get(o,index);
+        if (o instanceof List) {
+            return ((List) o).get(index);
+        }
+        return Array.get(o, index);
     }
 
     /**
@@ -135,24 +136,29 @@ public abstract class KlassNavigator<C> {
      * of the specified index.
      */
     public Object getMapElement(Object o, String key) {
-        return ((Map)o).get(key);
+        return ((Map) o).get(key);
     }
 
     public static final KlassNavigator<Class> JAVA = new KlassNavigator<Class>() {
         @Override
         public URL getResource(Class clazz, String resourceName) {
             ClassLoader cl = clazz.getClassLoader();
-            if (cl==null)   return null;
+            if (cl == null) {
+                return null;
+            }
 
             String fullName;
-            if (resourceName.startsWith("/"))
+            if (resourceName.startsWith("/")) {
                 fullName = resourceName.substring(1);
-            else
-                fullName = clazz.getName().replace('.','/').replace('$','/')+'/'+resourceName;
+            } else {
+                fullName = clazz.getName().replace('.', '/').replace('$', '/') + '/' + resourceName;
+            }
 
-            if (MetaClassLoader.debugLoader!=null) {
+            if (MetaClassLoader.debugLoader != null) {
                 URL res = MetaClassLoader.debugLoader.loader.getResource(fullName);
-                if (res!=null)  return res;
+                if (res != null) {
+                    return res;
+                }
             }
             return cl.getResource(fullName);
         }
@@ -166,7 +172,7 @@ public abstract class KlassNavigator<C> {
         public Iterable<Klass<?>> getAncestors(Class clazz) {
             // TODO: shall we support interfaces?
             List<Klass<?>> r = new ArrayList<>();
-            for (; clazz!=null; clazz=clazz.getSuperclass()) {
+            for (; clazz != null; clazz = clazz.getSuperclass()) {
                 r.add(Klass.java(clazz));
             }
             return r;

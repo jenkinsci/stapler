@@ -45,8 +45,12 @@ public abstract class ExportInterceptor {
             try {
                 return property.getValue(model);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                if(config.isSkipIfFail()) {
-                    LOGGER.log(Level.WARNING,"Failed to get \"" + property.name + "\" from a " + model.getClass().getName(), e);
+                if (config.isSkipIfFail()) {
+                    LOGGER.log(
+                            Level.WARNING,
+                            "Failed to get \"" + property.name + "\" from a "
+                                    + model.getClass().getName(),
+                            e);
                     return SKIP;
                 }
                 throw new IOException("Failed to write " + property.name + ":" + e.getMessage(), e);

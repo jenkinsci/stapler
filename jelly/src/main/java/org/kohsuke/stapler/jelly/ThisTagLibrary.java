@@ -67,21 +67,25 @@ public class ThisTagLibrary extends TagLibrary {
             @Override
             protected Script resolveDefinition(JellyContext context) throws JellyTagException {
                 Object it = expr.evaluate(context);
-                if (it==null)
-                    throw new JellyTagException("'"+ expr.getExpressionText() +"' evaluated to null");
+                if (it == null) {
+                    throw new JellyTagException("'" + expr.getExpressionText() + "' evaluated to null");
+                }
                 try {
                     WebApp webApp = WebApp.getCurrent();
-                    MetaClass c = webApp.getMetaClass(it instanceof Class ? Klass.java((Class)it):  webApp.getKlass(it));
+                    MetaClass c =
+                            webApp.getMetaClass(it instanceof Class ? Klass.java((Class) it) : webApp.getKlass(it));
                     // prefer 'foo.jellytag' to avoid tags from showing up as views,
                     // but for backward compatibility, support the plain .jelly extension as well.
-                    Script tag = c.loadTearOff(JellyClassTearOff.class).findScript(tagName+".jellytag");
-                    if (tag==null)
-                        tag = c.loadTearOff(JellyClassTearOff.class).findScript(tagName+".jelly");
-                    if (tag ==null)
-                        throw new JellyTagException("No such tag file "+tagName+".jellytag in "+c);
+                    Script tag = c.loadTearOff(JellyClassTearOff.class).findScript(tagName + ".jellytag");
+                    if (tag == null) {
+                        tag = c.loadTearOff(JellyClassTearOff.class).findScript(tagName + ".jelly");
+                    }
+                    if (tag == null) {
+                        throw new JellyTagException("No such tag file " + tagName + ".jellytag in " + c);
+                    }
                     return tag;
                 } catch (JellyException e) {
-                    throw new JellyTagException("Failed to load "+tagName+".jellytag from "+it,e);
+                    throw new JellyTagException("Failed to load " + tagName + ".jellytag from " + it, e);
                 }
             }
         };

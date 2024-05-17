@@ -22,6 +22,5 @@ import org.kohsuke.stapler.interceptor.Stage;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@InterceptorAnnotation(value=HttpVerbInterceptor.class, stage= Stage.SELECTION)
-public @interface POST {
-}
+@InterceptorAnnotation(value = HttpVerbInterceptor.class, stage = Stage.SELECTION)
+public @interface POST {}

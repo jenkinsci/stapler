@@ -9,7 +9,8 @@ import org.junit.Test;
 
 public class ResourceBundleTest {
 
-    private static final URL RESOURCE_BUNDLE = ResourceBundleTest.class.getResource("/org/kohsuke/stapler/jelly/ResourceBundleTest/index.properties");
+    private static final URL RESOURCE_BUNDLE =
+            ResourceBundleTest.class.getResource("/org/kohsuke/stapler/jelly/ResourceBundleTest/index.properties");
     private static final String FILE_PATH = RESOURCE_BUNDLE.toExternalForm().replace(".properties", "");
     private static final ResourceBundle resourceBundle = new ResourceBundle(FILE_PATH);
 

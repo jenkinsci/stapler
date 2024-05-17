@@ -42,8 +42,9 @@ class IndexHtmlDispatcher extends Dispatcher {
             String name = "/WEB-INF/side-files/" + c.getName().replace('.', '/') + "/index.html";
             try {
                 URL url = context.getResource(name);
-                if (url != null)
+                if (url != null) {
                     return new IndexHtmlDispatcher(url);
+                }
             } catch (MalformedURLException e) {
                 throw new IllegalArgumentException(e);
             }

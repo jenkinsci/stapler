@@ -45,7 +45,9 @@ public class Stapler2Test extends JettyTestCase {
         FailingHttpStatusCodeException exc;
         Dispatcher.TRACE = true;
         try {
-            exc = assertThrows(FailingHttpStatusCodeException.class, () -> wc.getPage(new URL(this.url, "thing/<button>/x")).getWebResponse());
+            exc = assertThrows(
+                    FailingHttpStatusCodeException.class,
+                    () -> wc.getPage(new URL(this.url, "thing/<button>/x")).getWebResponse());
         } finally {
             Dispatcher.TRACE = false;
         }
@@ -54,8 +56,8 @@ public class Stapler2Test extends JettyTestCase {
         assertTrue(html, html.contains("&lt;button&gt;"));
         assertFalse(html, html.contains("<button>"));
     }
+
     public Object getThing(String name) {
         return name;
     }
-
 }

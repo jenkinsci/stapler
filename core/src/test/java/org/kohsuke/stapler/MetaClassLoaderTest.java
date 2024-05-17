@@ -53,5 +53,4 @@ public class MetaClassLoaderTest {
         assertEquals(mcl3, MetaClassLoader.get(cl3));
         assertEquals(mcl4, MetaClassLoader.get(cl4));
     }
-
 }

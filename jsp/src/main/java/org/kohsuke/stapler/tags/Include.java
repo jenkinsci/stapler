@@ -89,48 +89,50 @@ public class Include extends SimpleTagSupport {
         this.it = it;
     }
 
-    private Object getPageObject( String name ) {
-        return getJspContext().getAttribute(name,PageContext.PAGE_SCOPE);
+    private Object getPageObject(String name) {
+        return getJspContext().getAttribute(name, PageContext.PAGE_SCOPE);
     }
 
     @Override
-    @SuppressFBWarnings(value = "REQUESTDISPATCHER_FILE_DISCLOSURE", justification = "Forwarding the request to be handled correctly.")
+    @SuppressFBWarnings(
+            value = "REQUESTDISPATCHER_FILE_DISCLOSURE",
+            justification = "Forwarding the request to be handled correctly.")
     public void doTag() throws JspException, IOException {
-        Object it = getJspContext().getAttribute("it",PageContext.REQUEST_SCOPE);
+        Object it = getJspContext().getAttribute("it", PageContext.REQUEST_SCOPE);
         final Object oldIt = it;
-        if(this.it!=null)
+        if (this.it != null) {
             it = this.it;
+        }
 
         ServletConfig cfg = (ServletConfig) getPageObject(PageContext.CONFIG);
         ServletContext sc = cfg.getServletContext();
 
-        for( Class c = it.getClass(); c!=Object.class; c=c.getSuperclass() ) {
-            String name = "/WEB-INF/side-files/"+c.getName().replace('.','/')+'/'+page;
-            if(sc.getResource(name)!=null) {
+        for (Class c = it.getClass(); c != Object.class; c = c.getSuperclass()) {
+            String name = "/WEB-INF/side-files/" + c.getName().replace('.', '/') + '/' + page;
+            if (sc.getResource(name) != null) {
                 // Tomcat returns a RequestDispatcher even if the JSP file doesn't exist.
                 // so check if the resource exists first.
                 RequestDispatcher disp = sc.getRequestDispatcher(name);
-                if(disp!=null) {
-                    getJspContext().setAttribute("it",it,PageContext.REQUEST_SCOPE);
+                if (disp != null) {
+                    getJspContext().setAttribute("it", it, PageContext.REQUEST_SCOPE);
                     try {
                         HttpServletRequest request = (HttpServletRequest) getPageObject(PageContext.REQUEST);
                         disp.include(
-                            request,
-                            new Wrapper(
-                                (HttpServletResponse)getPageObject(PageContext.RESPONSE),
-                                new PrintWriter(getJspContext().getOut()) )
-                        );
+                                request,
+                                new Wrapper(
+                                        (HttpServletResponse) getPageObject(PageContext.RESPONSE),
+                                        new PrintWriter(getJspContext().getOut())));
                     } catch (ServletException e) {
                         throw new JspException(e);
                     } finally {
-                        getJspContext().setAttribute("it",oldIt,PageContext.REQUEST_SCOPE);
+                        getJspContext().setAttribute("it", oldIt, PageContext.REQUEST_SCOPE);
                     }
                     return;
                 }
             }
         }
 
-        throw new JspException("Unable to find '"+page+"' for "+it.getClass());
+        throw new JspException("Unable to find '" + page + "' for " + it.getClass());
     }
 }
 

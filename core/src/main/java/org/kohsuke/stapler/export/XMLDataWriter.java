@@ -46,15 +46,17 @@ final class XMLDataWriter implements DataWriter {
      * The top element represents the current state.
      */
     private final Stack<Boolean> isArray = new Stack<>();
+
     private final Writer out;
     private ExportConfig config;
     private String classAttr;
     private final ExportConfig exportConfig;
 
     XMLDataWriter(Object bean, Writer out, ExportConfig config) throws IOException {
-        Class c=bean.getClass();
-        while (c.isAnonymousClass())
+        Class c = bean.getClass();
+        while (c.isAnonymousClass()) {
             c = c.getSuperclass();
+        }
         name = Introspector.decapitalize(c.getSimpleName());
         this.out = out;
         this.config = config;
@@ -64,7 +66,7 @@ final class XMLDataWriter implements DataWriter {
     }
 
     XMLDataWriter(Object bean, StaplerResponse rsp, ExportConfig config) throws IOException {
-        this(bean,rsp.getWriter(),config);
+        this(bean, rsp.getWriter(), config);
     }
 
     @Override
@@ -85,9 +87,9 @@ final class XMLDataWriter implements DataWriter {
     @Override
     public void value(String v) throws IOException {
         String n = adjustName();
-        out.write('<'+n+'>');
+        out.write('<' + n + '>');
         out.write(Stapler.escape(v));
-        out.write("</"+n+'>');
+        out.write("</" + n + '>');
     }
 
     @Override
@@ -118,8 +120,8 @@ final class XMLDataWriter implements DataWriter {
         out.write('<' + adjustName());
         isArray.push(false);
 
-        if (classAttr!=null) {
-            out.write(CLASS_ATTRIBUTE_PREFIX +classAttr+"'");
+        if (classAttr != null) {
+            out.write(CLASS_ATTRIBUTE_PREFIX + classAttr + "'");
             classAttr = null;
         }
         out.write('>');
@@ -129,7 +131,7 @@ final class XMLDataWriter implements DataWriter {
     public void endObject() throws IOException {
         isArray.pop();
         name = objectNames.pop();
-        out.write("</"+adjustName()+'>');
+        out.write("</" + adjustName() + '>');
     }
 
     /**
@@ -138,7 +140,9 @@ final class XMLDataWriter implements DataWriter {
      */
     private String adjustName() {
         String escaped = makeXmlName(name);
-        if(isArray.peek()) return toSingular(escaped);
+        if (isArray.peek()) {
+            return toSingular(escaped);
+        }
         return escaped;
     }
 
@@ -147,25 +151,29 @@ final class XMLDataWriter implements DataWriter {
     }
 
     /*package*/ static String makeXmlName(String name) {
-        if (name.length()==0)   name="_";
-
-        if (!XmlChars.isNameStart(name.charAt(0))) {
-            if (name.length()>1 && XmlChars.isNameStart(name.charAt(1)))
-                name = name.substring(1);
-            else
-                name = '_'+name;
+        if (name.length() == 0) {
+            name = "_";
         }
 
-        int i=1;
-        while (i<name.length()) {
-            if (XmlChars.isNameChar(name.charAt(i)))
+        if (!XmlChars.isNameStart(name.charAt(0))) {
+            if (name.length() > 1 && XmlChars.isNameStart(name.charAt(1))) {
+                name = name.substring(1);
+            } else {
+                name = '_' + name;
+            }
+        }
+
+        int i = 1;
+        while (i < name.length()) {
+            if (XmlChars.isNameChar(name.charAt(i))) {
                 i++;
-            else
-                name = name.substring(0,i)+name.substring(i+1);
+            } else {
+                name = name.substring(0, i) + name.substring(i + 1);
+            }
         }
 
         return name;
     }
 
-    private static final String CLASS_ATTRIBUTE_PREFIX = " "+ CLASS_PROPERTY_NAME +"='";
+    private static final String CLASS_ATTRIBUTE_PREFIX = " " + CLASS_PROPERTY_NAME + "='";
 }

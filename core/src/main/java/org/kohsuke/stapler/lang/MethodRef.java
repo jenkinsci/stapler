@@ -22,7 +22,7 @@ public abstract class MethodRef extends AnnotatedRef {
     public boolean isRoutable() {
         return true;
     }
-    
+
     /**
      * Retrieves the referenced method name.
      * Some implementations (e.g. Ruby) cannot guarantee availability of names for all cases,
@@ -35,7 +35,8 @@ public abstract class MethodRef extends AnnotatedRef {
         return null;
     }
 
-    public abstract Object invoke(Object _this, Object... args) throws InvocationTargetException, IllegalAccessException;
+    public abstract Object invoke(Object _this, Object... args)
+            throws InvocationTargetException, IllegalAccessException;
 
     public static MethodRef wrap(final Method m) {
         return new MethodRef() {
@@ -46,17 +47,20 @@ public abstract class MethodRef extends AnnotatedRef {
 
             @Override
             public boolean isRoutable() {
-                if (m.isBridge())    return false;
-                return (m.getModifiers() & Modifier.PUBLIC)!=0;
+                if (m.isBridge()) {
+                    return false;
+                }
+                return (m.getModifiers() & Modifier.PUBLIC) != 0;
             }
-      
+
             @Override
             public String getName() {
                 return m.getName();
             }
-            
+
             @Override
-            public Object invoke(Object _this, Object... args) throws InvocationTargetException, IllegalAccessException {
+            public Object invoke(Object _this, Object... args)
+                    throws InvocationTargetException, IllegalAccessException {
                 try {
                     return m.invoke(_this, args);
                 } catch (IllegalAccessException e) {

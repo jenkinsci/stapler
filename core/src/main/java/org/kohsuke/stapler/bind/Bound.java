@@ -76,7 +76,8 @@ public abstract class Bound implements HttpResponse {
      */
     public static String getProxyScriptURL(String variableName, Bound bound) {
         if (bound == null) {
-            return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + "/null?var=" + variableName;
+            return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + "/null?var="
+                    + variableName;
         } else {
             return bound.getProxyScriptURL(variableName);
         }
@@ -89,9 +90,11 @@ public abstract class Bound implements HttpResponse {
      * @return the URL for the standalone proxy script of this {@link org.kohsuke.stapler.bind.Bound}, starting with the context path
      */
     public final String getProxyScriptURL(String variableName) {
-        final String methodsList = String.join(",", getBoundJavaScriptUrlNames(getTarget().getClass()));
+        final String methodsList =
+                String.join(",", getBoundJavaScriptUrlNames(getTarget().getClass()));
         // The URL looks like it has some redundant elements, but only if it's not a WithWellKnownURL
-        return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + getURL() + "?var=" + variableName + "&methods=" + methodsList;
+        return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + getURL() + "?var="
+                + variableName + "&methods=" + methodsList;
     }
 
     private static Set<String> getBoundJavaScriptUrlNames(Class<?> clazz) {
@@ -134,11 +137,12 @@ public abstract class Bound implements HttpResponse {
      */
     public static String getProxyScript(String url, String[] methods) {
         final String crumb = WebApp.getCurrent().getCrumbIssuer().issueCrumb();
-        final String methodNamesList = Arrays.stream(methods).sorted().map(it -> "'" + it + "'").collect(Collectors.joining(","));
-        return "makeStaplerProxy('" + url + "','" + crumb + "',[" + methodNamesList +  "])";
+        final String methodNamesList =
+                Arrays.stream(methods).sorted().map(it -> "'" + it + "'").collect(Collectors.joining(","));
+        return "makeStaplerProxy('" + url + "','" + crumb + "',[" + methodNamesList + "])";
     }
 
     private static String camelize(String name) {
-        return Character.toLowerCase(name.charAt(0))+name.substring(1);
+        return Character.toLowerCase(name.charAt(0)) + name.substring(1);
     }
 }

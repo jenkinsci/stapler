@@ -23,9 +23,11 @@ class IndexViewDispatcher extends Dispatcher {
     }
 
     @Override
-    public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-        if (req.tokens.hasMore())
+    public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
+            throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+        if (req.tokens.hasMore()) {
             return false;
+        }
 
         // always allow index views to be dispatched
         req.getWebApp().getDispatchValidator().allowDispatch(req, rsp);
@@ -34,6 +36,6 @@ class IndexViewDispatcher extends Dispatcher {
 
     @Override
     public String toString() {
-        return "index view of "+facet+" for url=/";
+        return "index view of " + facet + " for url=/";
     }
 }

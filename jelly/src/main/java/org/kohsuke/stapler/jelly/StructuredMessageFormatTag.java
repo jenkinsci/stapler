@@ -34,7 +34,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Format message from a resource, but by using a nested children as arguments, instead of just using expressions.
- * 
+ *
  * @author Kohsuke Kawaguchi
  */
 public class StructuredMessageFormatTag extends AbstractStaplerTag implements LocationAware {
@@ -58,9 +58,9 @@ public class StructuredMessageFormatTag extends AbstractStaplerTag implements Lo
             arguments.clear();
             invokeBody(output);
 
-            output.write(rb.format(LocaleProvider.getLocale(), key,arguments.toArray()));
+            output.write(rb.format(LocaleProvider.getLocale(), key, arguments.toArray()));
         } catch (SAXException e) {
-            throw new JellyTagException("could not write the XMLOutput",e);
+            throw new JellyTagException("could not write the XMLOutput", e);
         } finally {
             arguments.clear(); // don't keep heavy objects in memory for too long
         }
@@ -72,8 +72,7 @@ public class StructuredMessageFormatTag extends AbstractStaplerTag implements Lo
     }
 
     @Override
-    public void setLineNumber(int lineNumber) {
-    }
+    public void setLineNumber(int lineNumber) {}
 
     @Override
     public int getColumnNumber() {
@@ -81,8 +80,7 @@ public class StructuredMessageFormatTag extends AbstractStaplerTag implements Lo
     }
 
     @Override
-    public void setColumnNumber(int columnNumber) {
-    }
+    public void setColumnNumber(int columnNumber) {}
 
     @Override
     public String getFileName() {
@@ -100,6 +98,5 @@ public class StructuredMessageFormatTag extends AbstractStaplerTag implements Lo
     }
 
     @Override
-    public void setElementName(String elementName) {
-    }
+    public void setElementName(String elementName) {}
 }

@@ -47,7 +47,7 @@ public final class TokenList {
     /**
      * Index of the next token.
      */
-    @SuppressFBWarnings(value="PA_PUBLIC_PRIMITIVE_ATTRIBUTE", justification="Preserve API compatibility")
+    @SuppressFBWarnings(value = "PA_PUBLIC_PRIMITIVE_ATTRIBUTE", justification = "Preserve API compatibility")
     public int idx;
 
     /**
@@ -57,50 +57,59 @@ public final class TokenList {
 
     TokenList(String url) {
         // to avoid a directory traversal vulnerability in Windows, treat '\\' as a path separator just like '/'
-        StringTokenizer tknzr = new StringTokenizer(url,"/\\");
+        StringTokenizer tknzr = new StringTokenizer(url, "/\\");
         final int tokenCount = tknzr.countTokens();
         tokens = new String[tokenCount];
         rawTokens = new String[tokenCount];
-        for(int i=0; tknzr.hasMoreTokens(); i++) {
+        for (int i = 0; tknzr.hasMoreTokens(); i++) {
             rawTokens[i] = tknzr.nextToken();
             tokens[i] = decode(rawTokens[i]);
-            if (tokens[i].equals(".."))
+            if (tokens[i].equals("..")) {
                 throw new IllegalArgumentException(url);
+            }
         }
         endsWithSlash = url.endsWith("/") || url.endsWith("\\");
     }
 
     public boolean hasMore() {
-        return tokens.length!=idx;
+        return tokens.length != idx;
     }
 
     public String peek() {
-        if(hasMore())
+        if (hasMore()) {
             return tokens[idx];
-        else
+        } else {
             return null;
+        }
     }
 
     public String next() {
         return tokens[idx++];
     }
+
     public String prev() {
         return tokens[--idx];
     }
+
     public int nextAsInt() throws NumberFormatException {
         long asLongValue = nextAsLong();
         if (asLongValue < Integer.MIN_VALUE) {
-            throw new NumberFormatException(String.format("Token '%d' cannot be interpreted as an integer as its value is less than %d.", asLongValue, Integer.MIN_VALUE));
+            throw new NumberFormatException(String.format(
+                    "Token '%d' cannot be interpreted as an integer as its value is less than %d.",
+                    asLongValue, Integer.MIN_VALUE));
         } else if (asLongValue > Integer.MAX_VALUE) {
-            throw new NumberFormatException(String.format("Token '%d' cannot be interpreted as an integer as its value is greater than %d.", asLongValue, Integer.MAX_VALUE));
+            throw new NumberFormatException(String.format(
+                    "Token '%d' cannot be interpreted as an integer as its value is greater than %d.",
+                    asLongValue, Integer.MAX_VALUE));
         }
 
         return (int) asLongValue;
     }
+
     public long nextAsLong() throws NumberFormatException {
         String p = peek();
-        if(p == null) {
-            throw new NumberFormatException();  // no more token
+        if (p == null) {
+            throw new NumberFormatException(); // no more token
         }
         long asLongValue = Long.parseLong(p);
         idx++;
@@ -116,16 +125,19 @@ public final class TokenList {
     }
 
     public int countRemainingTokens() {
-        return length()-idx;
+        return length() - idx;
     }
-
 
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
-        for( int i=0; i<tokens.length; i++) {
-            if(buf.length()>0)  buf.append('/');
-            if(i==idx)  buf.append('!');
+        for (int i = 0; i < tokens.length; i++) {
+            if (buf.length() > 0) {
+                buf.append('/');
+            }
+            if (i == idx) {
+                buf.append('!');
+            }
             buf.append(tokens[i]);
         }
         return buf.toString();
@@ -133,7 +145,7 @@ public final class TokenList {
 
     private String assembleRestOfPath(String[] tokens) {
         StringBuilder buf = new StringBuilder();
-        for( int i=idx; i<length(); i++ ) {
+        for (int i = idx; i < length(); i++) {
             buf.append('/');
             buf.append(tokens[i]);
         }
@@ -150,35 +162,38 @@ public final class TokenList {
 
     public static String decode(String s) {
         int i = s.indexOf('%');
-        if (i < 0) return s;
+        if (i < 0) {
+            return s;
+        }
 
-            // to properly handle non-ASCII characters, decoded bytes need to be stored and translated in bulk.
-            // this complex set up is necessary for us to work gracefully if 's' already contains decoded non-ASCII chars.
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        // to properly handle non-ASCII characters, decoded bytes need to be stored and translated in bulk.
+        // this complex set up is necessary for us to work gracefully if 's' already contains decoded non-ASCII chars.
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            StringBuilder buf = new StringBuilder(s.substring(0, i));
-            char c, upper, lower;
-            for (int m = s.length(); i < m; i++) {
-                c = s.charAt(i);
-                if (c == '%') {
-                    try {
-                        upper = s.charAt(++i);
-                        lower = s.charAt(++i);
-                        baos.write(fromHex(upper) * 16 + fromHex(lower));
-                    } catch (IndexOutOfBoundsException ignore) {
-                        // malformed %HH.
-                    }
-                } else {
-                    if (baos.size()>0) {
-                        buf.append(baos.toString(StandardCharsets.UTF_8));
-                        baos.reset();
-                    }
-                    buf.append(c);
+        StringBuilder buf = new StringBuilder(s.substring(0, i));
+        char c, upper, lower;
+        for (int m = s.length(); i < m; i++) {
+            c = s.charAt(i);
+            if (c == '%') {
+                try {
+                    upper = s.charAt(++i);
+                    lower = s.charAt(++i);
+                    baos.write(fromHex(upper) * 16 + fromHex(lower));
+                } catch (IndexOutOfBoundsException ignore) {
+                    // malformed %HH.
                 }
+            } else {
+                if (baos.size() > 0) {
+                    buf.append(baos.toString(StandardCharsets.UTF_8));
+                    baos.reset();
+                }
+                buf.append(c);
             }
-            if (baos.size()>0)
-                buf.append(baos.toString(StandardCharsets.UTF_8));
-            return buf.toString();
+        }
+        if (baos.size() > 0) {
+            buf.append(baos.toString(StandardCharsets.UTF_8));
+        }
+        return buf.toString();
     }
 
     private static int fromHex(char upper) {

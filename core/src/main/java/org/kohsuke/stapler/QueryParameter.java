@@ -60,18 +60,24 @@ public @interface QueryParameter {
 
     class HandlerImpl extends AnnotationHandler<QueryParameter> {
         @Override
-        public Object parse(StaplerRequest request, QueryParameter a, Class type, String parameterName) throws ServletException {
+        public Object parse(StaplerRequest request, QueryParameter a, Class type, String parameterName)
+                throws ServletException {
             String name = a.value();
-            if(name.length()==0)    name=parameterName;
-            if(name==null)
+            if (name.length() == 0) {
+                name = parameterName;
+            }
+            if (name == null) {
                 throw new IllegalArgumentException("Parameter name unavailable neither in the code nor in annotation");
+            }
 
             String value = request.getParameter(name);
-            if(a.required() && value==null)
-                throw new ServletException("Required Query parameter "+name+" is missing");
-            if(a.fixEmpty() && value!=null && value.length()==0)
+            if (a.required() && value == null) {
+                throw new ServletException("Required Query parameter " + name + " is missing");
+            }
+            if (a.fixEmpty() && value != null && value.length() == 0) {
                 value = null;
-            return convert(type,value);
+            }
+            return convert(type, value);
         }
     }
 }

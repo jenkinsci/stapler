@@ -46,7 +46,7 @@ import org.kohsuke.stapler.lang.Klass;
 
 /**
  * {@link Facet} that adds Jelly as the view.
- * 
+ *
  * @author Kohsuke Kawaguchi
  */
 @MetaInfServices(Facet.class)
@@ -69,15 +69,15 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
     @Override
     public void buildIndexDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
         try {
-            if (owner.loadTearOff(JellyClassTearOff.class).findScript("index.jelly")!=null) {
+            if (owner.loadTearOff(JellyClassTearOff.class).findScript("index.jelly") != null) {
                 super.buildIndexDispatchers(owner, dispatchers);
             }
         } catch (JellyException e) {
-            LOGGER.log(Level.WARNING, "Failed to parse index.jelly for "+owner, e);
+            LOGGER.log(Level.WARNING, "Failed to parse index.jelly for " + owner, e);
         }
     }
 
-    @Override 
+    @Override
     protected @NonNull String getExtensionSuffix() {
         return ".jelly";
     }
@@ -93,13 +93,15 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
     }
 
     @Override
-    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName) throws IOException {
+    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName)
+            throws IOException {
         JellyClassTearOff scriptLoader = request.getWebApp().getMetaClass(type).loadTearOff(JellyClassTearOff.class);
         return createRequestDispatcher(scriptLoader, scriptInvoker, it, viewName);
     }
 
     @Override
-    public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
+    public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass)
+            throws IOException, ServletException {
         return handleIndexRequest(nodeMetaClass.loadTearOff(JellyClassTearOff.class), scriptInvoker, req, rsp, node);
     }
 
@@ -118,7 +120,7 @@ public class JellyFacet extends Facet implements JellyCompatibleFacet {
      * The primary use case of this feature is to customize the behavior
      * of JEXL evaluation.
      */
-    public static void setExpressionFactory( ServletContextEvent event, ExpressionFactory factory ) {
+    public static void setExpressionFactory(ServletContextEvent event, ExpressionFactory factory) {
         JellyClassLoaderTearOff.EXPRESSION_FACTORY = factory;
     }
 

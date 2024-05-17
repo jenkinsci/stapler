@@ -39,7 +39,7 @@ public final class HttpRedirect extends RuntimeException implements HttpResponse
     private final String url;
 
     public HttpRedirect(@NonNull String url) {
-        this(HttpServletResponse.SC_MOVED_TEMPORARILY,url);
+        this(HttpServletResponse.SC_MOVED_TEMPORARILY, url);
     }
 
     public HttpRedirect(int statusCode, @NonNull String url) {
@@ -51,8 +51,9 @@ public final class HttpRedirect extends RuntimeException implements HttpResponse
     }
 
     @Override
-    public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
-        rsp.sendRedirect(statusCode,url);
+    public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+            throws IOException, ServletException {
+        rsp.sendRedirect(statusCode, url);
     }
 
     /**
@@ -70,7 +71,7 @@ public final class HttpRedirect extends RuntimeException implements HttpResponse
     /**
      * Redirect to "."
      */
-    public final static HttpRedirect DOT = new HttpRedirect(".");
+    public static final HttpRedirect DOT = new HttpRedirect(".");
 
     /**
      * Redirect to the context root

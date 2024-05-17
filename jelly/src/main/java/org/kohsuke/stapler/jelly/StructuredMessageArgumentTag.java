@@ -35,9 +35,11 @@ import org.apache.commons.jelly.XMLOutput;
 public class StructuredMessageArgumentTag extends AbstractStaplerTag {
     @Override
     public void doTag(XMLOutput output) throws JellyTagException {
-        StructuredMessageFormatTag tag = (StructuredMessageFormatTag)findAncestorWithClass(StructuredMessageFormatTag.class);
-        if(tag == null)
-            throw new JellyTagException("This tag must be enclosed inside a <structuredMessageFormat> tag" );
+        StructuredMessageFormatTag tag =
+                (StructuredMessageFormatTag) findAncestorWithClass(StructuredMessageFormatTag.class);
+        if (tag == null) {
+            throw new JellyTagException("This tag must be enclosed inside a <structuredMessageFormat> tag");
+        }
 
         StringWriter sw = new StringWriter();
         XMLOutput o = XMLOutput.createXMLOutput(sw);

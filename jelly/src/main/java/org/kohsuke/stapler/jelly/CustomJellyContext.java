@@ -45,7 +45,7 @@ import org.kohsuke.stapler.MetaClassLoader;
  * for expression parsing.
  *
  * @author Kohsuke Kawaguchi
-*/
+ */
 class CustomJellyContext extends JellyContext {
     private JellyClassLoaderTearOff jclt;
 
@@ -81,8 +81,8 @@ class CustomJellyContext extends JellyContext {
     private void init() {
         // by not allowing the empty namespace URI "" to be handled as dynamic tags,
         // we achieve substantial performance improvement.
-        registerTagLibrary("",ReallyStaticTagLibrary.INSTANCE);
-        registerTagLibrary("this",ThisTagLibrary.INSTANCE);
+        registerTagLibrary("", ReallyStaticTagLibrary.INSTANCE);
+        registerTagLibrary("this", ThisTagLibrary.INSTANCE);
 
         if (DISABLE_BEANUTILS_CLASS_SUPPRESSION) {
             /* In case our existing workarounds in StaplerTagLibrary for IncludeTag aren't enough */
@@ -107,20 +107,24 @@ class CustomJellyContext extends JellyContext {
         TagLibrary tl = super.getTagLibrary(namespaceURI);
 
         // delegate to JellyClassLoaderTearOff for taglib handling
-        if(tl==null && jclt!=null) {
+        if (tl == null && jclt != null) {
             tl = jclt.getTagLibrary(namespaceURI);
-            if (tl!=null)
-                registerTagLibrary(namespaceURI,tl);
+            if (tl != null) {
+                registerTagLibrary(namespaceURI, tl);
+            }
         }
         return tl;
     }
 
-    public static /* final */ boolean ESCAPE_BY_DEFAULT = Boolean.parseBoolean(System.getProperty(CustomJellyContext.class.getName() + ".escapeByDefault", "true"));
+    public static /* final */ boolean ESCAPE_BY_DEFAULT =
+            Boolean.parseBoolean(System.getProperty(CustomJellyContext.class.getName() + ".escapeByDefault", "true"));
 
-    private static final boolean DISABLE_BEANUTILS_CLASS_SUPPRESSION = Boolean.getBoolean(CustomJellyContext.class.getName() + ".disableBeanUtilsClassSuppression");
+    private static final boolean DISABLE_BEANUTILS_CLASS_SUPPRESSION =
+            Boolean.getBoolean(CustomJellyContext.class.getName() + ".disableBeanUtilsClassSuppression");
 
     private static class CustomXMLParser extends XMLParser implements ExpressionFactory {
         private ResourceBundle resourceBundle;
+
         @Override
         protected ExpressionFactory createExpressionFactory() {
             return this;
@@ -132,29 +136,29 @@ class CustomJellyContext extends JellyContext {
 
         @Override
         public Expression createExpression(final String text) throws JellyException {
-            if(text.startsWith("%")) {
+            if (text.startsWith("%")) {
                 // this is a message resource reference
                 return createI18nExp(text);
             } else {
                 Matcher m = RESOURCE_LITERAL_STRING.matcher(text);
-                if(m.find()) {
+                if (m.find()) {
                     // contains the resource literal, so pre-process them.
-                    
+
                     final StringBuilder buf = new StringBuilder();
-                    final Map<String,InternationalizedStringExpression> resourceLiterals = new HashMap<>();
-                    int e=0;
+                    final Map<String, InternationalizedStringExpression> resourceLiterals = new HashMap<>();
+                    int e = 0;
                     do {
                         // copy the text preceding the match
-                        buf.append(text,e,m.start());
+                        buf.append(text, e, m.start());
 
-                        String varName = "__resourceLiteral__"+resourceLiterals.size()+"__";
+                        String varName = "__resourceLiteral__" + resourceLiterals.size() + "__";
                         InternationalizedStringExpression exp = createI18nExp(unquote(m.group()));
-                        resourceLiterals.put(varName,exp);
+                        resourceLiterals.put(varName, exp);
 
                         // replace the literal by the evaluation
                         buf.append(varName).append(".evaluate(context)");
                         e = m.end();
-                    } while(m.find());
+                    } while (m.find());
 
                     buf.append(text.substring(e));
 
@@ -166,12 +170,12 @@ class CustomJellyContext extends JellyContext {
         }
 
         private InternationalizedStringExpression createI18nExp(String text) throws JellyException {
-            return new InternationalizedStringExpression(getResourceBundle(),text);
+            return new InternationalizedStringExpression(getResourceBundle(), text);
         }
 
         @Override
         protected Expression createEscapingExpression(Expression exp) {
-            if ( exp instanceof InternationalizedStringExpression) {
+            if (exp instanceof InternationalizedStringExpression) {
                 InternationalizedStringExpression i18nexp = (InternationalizedStringExpression) exp;
                 return i18nexp.makeEscapingExpression();
             }
@@ -179,12 +183,13 @@ class CustomJellyContext extends JellyContext {
         }
 
         private String unquote(String s) {
-            return s.substring(1,s.length()-1);
+            return s.substring(1, s.length() - 1);
         }
 
         private ResourceBundle getResourceBundle() {
-            if(resourceBundle==null)
+            if (resourceBundle == null) {
                 resourceBundle = ResourceBundle.load(locator.getSystemId());
+            }
             return resourceBundle;
         }
 
@@ -196,7 +201,9 @@ class CustomJellyContext extends JellyContext {
             private final String text;
             private final Map<String, InternationalizedStringExpression> resourceLiterals;
 
-            public I18nExpWithArgsExpression(String text, Map<String, InternationalizedStringExpression> resourceLiterals, String exp) throws JellyException {
+            public I18nExpWithArgsExpression(
+                    String text, Map<String, InternationalizedStringExpression> resourceLiterals, String exp)
+                    throws JellyException {
                 this.text = text;
                 this.resourceLiterals = resourceLiterals;
                 innerExpression = JellyClassLoaderTearOff.EXPRESSION_FACTORY.createExpression(exp);

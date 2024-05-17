@@ -43,14 +43,14 @@ public final class JellyViewScript implements Script {
 
     /**
      * Which class is this view loaded from?
-     * @deprecated as of 1.177 
+     * @deprecated as of 1.177
      *      Use {@link #fromKlass}
      */
     @Deprecated
     public final Class from;
-    
+
     public final Klass<?> fromKlass;
-    
+
     /**
      * Full URL that points to the source of the script.
      */
@@ -69,7 +69,7 @@ public final class JellyViewScript implements Script {
         this.source = source;
         this.base = base;
     }
-    
+
     public JellyViewScript(Klass from, URL source, Script base) {
         this.from = from.toJavaClass();
         this.fromKlass = from;
@@ -95,7 +95,7 @@ public final class JellyViewScript implements Script {
         t.setName(n2);
         LOGGER.fine(n2);
         try {
-            base.run(context,output);
+            base.run(context, output);
         } finally {
             t.setName(n);
         }
@@ -104,9 +104,9 @@ public final class JellyViewScript implements Script {
     public String getName() {
         // get to the file name portion
         String url = source.toExternalForm();
-        url = url.substring(url.lastIndexOf('/') +1);
-        url = url.substring(url.lastIndexOf('\\') +1);
+        url = url.substring(url.lastIndexOf('/') + 1);
+        url = url.substring(url.lastIndexOf('\\') + 1);
 
-        return from.getName().replace('.','/').replace('$','/')+'/'+url;
+        return from.getName().replace('.', '/').replace('$', '/') + '/' + url;
     }
 }

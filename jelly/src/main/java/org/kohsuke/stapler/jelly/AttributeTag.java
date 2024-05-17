@@ -71,11 +71,10 @@ public class AttributeTag extends TagSupport {
      * Use of the deprecated attribute will cause a warning.
      */
     public void setDeprecated(boolean v) {}
-    
+
     /**
      * Used to track when the attribute was added to the API surface.
      * @since 1.247
      */
     public void setSince(String v) {}
 }
-

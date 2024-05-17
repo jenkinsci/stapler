@@ -18,9 +18,8 @@ public class BindTagTest extends JettyTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        this.am = new AdjunctManager(servletContext,getClass().getClassLoader(),"am");
+        this.am = new AdjunctManager(servletContext, getClass().getClassLoader(), "am");
     }
-
 
     public void test1() throws Exception {
         WebClient wc = createWebClient();
@@ -30,7 +29,7 @@ public class BindTagTest extends JettyTestCase {
         page.executeJavaScript("v.foo('hello world', 2);");
         wc.getJavaScriptEngine().processPostponedActions();
         wc.waitForBackgroundJavaScript(10000);
-        assertEquals("hello world",value);
+        assertEquals("hello world", value);
         assertEquals(2, number);
     }
 

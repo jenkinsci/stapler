@@ -38,7 +38,7 @@ public class ProtectedClass {
 
         @Override
         public Object getArrayElement(Object o, int index) throws IndexOutOfBoundsException {
-            return w(JAVA.getArrayElement(u(o),index));
+            return w(JAVA.getArrayElement(u(o), index));
         }
 
         @Override
@@ -48,12 +48,14 @@ public class ProtectedClass {
 
         @Override
         public Object getMapElement(Object o, String key) {
-            return w(JAVA.getMapElement(u(o),key));
+            return w(JAVA.getMapElement(u(o), key));
         }
 
-        private Klass<ProtectedClass> protect(Klass<?/*should be Class*/> c) {
-            if (c==null)    return null;
-            return new Klass<>(new ProtectedClass((Class)c.clazz), NAVIGATOR);
+        private Klass<ProtectedClass> protect(Klass<? /*should be Class*/> c) {
+            if (c == null) {
+                return null;
+            }
+            return new Klass<>(new ProtectedClass((Class) c.clazz), NAVIGATOR);
         }
 
         // no view
@@ -117,12 +119,16 @@ public class ProtectedClass {
         }
 
         private Object u(Object instance) {
-            if (instance==null) return null;
-            return ((Protection)instance).o;
+            if (instance == null) {
+                return null;
+            }
+            return ((Protection) instance).o;
         }
 
         private Protection w(Object instance) {
-            if (instance==null) return null;
+            if (instance == null) {
+                return null;
+            }
             return new Protection(instance);
         }
 
@@ -147,7 +153,8 @@ public class ProtectedClass {
         private Function protect(Function f) {
             final Function traversal = new ForwardingFunction(f) {
                 @Override
-                public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException {
+                public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+                        throws IllegalAccessException, InvocationTargetException, ServletException {
                     return w(super.invoke(req, rsp, u(o), args));
                 }
             };
@@ -162,7 +169,8 @@ public class ProtectedClass {
                 }
 
                 @Override
-                public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException {
+                public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+                        throws IllegalAccessException, InvocationTargetException, ServletException {
                     return super.invoke(req, rsp, u(o), args);
                 }
             };

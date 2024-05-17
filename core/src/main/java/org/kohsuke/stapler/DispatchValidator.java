@@ -47,7 +47,8 @@ public interface DispatchValidator {
      * @param rsp the HTTP response
      * @return true if the request should be dispatched, false if not, or null if unknown or neutral
      */
-    @CheckForNull Boolean isDispatchAllowed(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp);
+    @CheckForNull
+    Boolean isDispatchAllowed(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp);
 
     /**
      * Checks if the given request and response should be allowed to dispatch a view on an optionally present node
@@ -59,7 +60,11 @@ public interface DispatchValidator {
      * @param node     the node being dispatched if present
      * @return true if the view should be allowed to dispatch, false if it should not, or null if unknown
      */
-    default @CheckForNull Boolean isDispatchAllowed(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp, @NonNull String viewName, @CheckForNull Object node) {
+    default @CheckForNull Boolean isDispatchAllowed(
+            @NonNull StaplerRequest req,
+            @NonNull StaplerResponse rsp,
+            @NonNull String viewName,
+            @CheckForNull Object node) {
         return isDispatchAllowed(req, rsp);
     }
 
@@ -73,7 +78,8 @@ public interface DispatchValidator {
      * Throws a {@link CancelRequestHandlingException} if the given request is not
      * {@linkplain #isDispatchAllowed(StaplerRequest, StaplerResponse) allowed}.
      */
-    default void requireDispatchAllowed(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp) throws CancelRequestHandlingException {
+    default void requireDispatchAllowed(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp)
+            throws CancelRequestHandlingException {
         Boolean allowed = isDispatchAllowed(req, rsp);
         if (allowed == null || !allowed) {
             throw new CancelRequestHandlingException();

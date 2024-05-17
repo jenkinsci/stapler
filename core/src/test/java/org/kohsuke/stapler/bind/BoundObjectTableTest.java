@@ -16,7 +16,7 @@ public class BoundObjectTableTest extends JettyTestCase {
      */
     public void testExport() throws Exception {
         TextPage page = createWebClient().getPage(new URL(url, "/bind"));
-        assertEquals("hello world",page.getContent());
+        assertEquals("hello world", page.getContent());
     }
 
     public HttpResponse doBind() throws IOException {

@@ -85,7 +85,7 @@ public abstract class GroovyClosureScript extends Script {
     @Override
     public Object invokeMethod(String name, Object args) {
         try {
-            return delegate.invokeMethod(name,args);
+            return delegate.invokeMethod(name, args);
         } catch (MissingMethodException mme) {
             return super.invokeMethod(name, args);
         }
@@ -103,9 +103,9 @@ public abstract class GroovyClosureScript extends Script {
     @Override
     public void setProperty(String property, Object newValue) {
         try {
-            delegate.setProperty(property,newValue);
+            delegate.setProperty(property, newValue);
         } catch (MissingPropertyException e) {
-            super.setProperty(property,newValue);
+            super.setProperty(property, newValue);
         }
     }
 }

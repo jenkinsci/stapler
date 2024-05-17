@@ -34,14 +34,14 @@ import org.apache.commons.jelly.TagSupport;
 abstract class AbstractStaplerTag extends TagSupport {
 
     protected HttpServletRequest getRequest() {
-        return (HttpServletRequest)getContext().getVariable("request");
+        return (HttpServletRequest) getContext().getVariable("request");
     }
 
     protected HttpServletResponse getResponse() {
-        return (HttpServletResponse)getContext().getVariable("response");
+        return (HttpServletResponse) getContext().getVariable("response");
     }
 
     protected ServletContext getServletContext() {
-        return (ServletContext)getContext().getVariable("servletContext");
+        return (ServletContext) getContext().getVariable("servletContext");
     }
 }

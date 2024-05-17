@@ -33,11 +33,14 @@ public class NotExportableException extends IllegalArgumentException {
     private final Class type;
 
     public NotExportableException(Class type) {
-        this(type+" doesn't have @"+ ExportedBean.class.getSimpleName(),type);
+        this(type + " doesn't have @" + ExportedBean.class.getSimpleName(), type);
     }
 
     public NotExportableException(Class type, Class<?> propertyOwner, String property) {
-        this(type + " doesn't have @" + ExportedBean.class.getSimpleName() + " so cannot write " + propertyOwner.getName() + '.' + property, type);
+        this(
+                type + " doesn't have @" + ExportedBean.class.getSimpleName() + " so cannot write "
+                        + propertyOwner.getName() + '.' + property,
+                type);
     }
 
     public NotExportableException(String s, Class type) {

@@ -11,7 +11,7 @@ import javax.servlet.http.HttpSession;
  *
  * @author Kohsuke Kawaguchi
  * @see WebApp#getCrumbIssuer()
- * @see WebApp#setCrumbIssuer(CrumbIssuer)  
+ * @see WebApp#setCrumbIssuer(CrumbIssuer)
  */
 public abstract class CrumbIssuer {
     /**
@@ -54,12 +54,15 @@ public abstract class CrumbIssuer {
         @Override
         public String issueCrumb(StaplerRequest request) {
             HttpSession s = request.getSession();
-            String v = (String)s.getAttribute(ATTRIBUTE_NAME);
-            if (v!=null)    return v;
+            String v = (String) s.getAttribute(ATTRIBUTE_NAME);
+            if (v != null) {
+                return v;
+            }
             v = UUID.randomUUID().toString();
-            s.setAttribute(ATTRIBUTE_NAME,v);
+            s.setAttribute(ATTRIBUTE_NAME, v);
             return v;
         }
     };
+
     private static final String ATTRIBUTE_NAME = CrumbIssuer.class.getName();
 }

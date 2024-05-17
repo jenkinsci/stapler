@@ -47,18 +47,18 @@ import org.apache.commons.beanutils.ConvertUtils;
  * @author Kohsuke Kawaguchi
  */
 public class ConfigurationLoader {
-    private final Function<String,String> source;
+    private final Function<String, String> source;
 
     /**
      * The caller should use one of the fromXyz methods.
      */
-    private ConfigurationLoader(Function<String,String> source) {
+    private ConfigurationLoader(Function<String, String> source) {
         this.source = source;
     }
 
     private static Properties load(File f) throws IOException {
         Properties config = new Properties();
-        try (InputStream in = Files.newInputStream(f.toPath(), StandardOpenOption.READ)){
+        try (InputStream in = Files.newInputStream(f.toPath(), StandardOpenOption.READ)) {
             config.load(in);
             return config;
         }
@@ -78,7 +78,7 @@ public class ConfigurationLoader {
         return new ConfigurationLoader(props::getProperty);
     }
 
-    public static ConfigurationLoader from(final Map<String,String> props) throws IOException {
+    public static ConfigurationLoader from(final Map<String, String> props) throws IOException {
         return new ConfigurationLoader(props::get);
     }
 
@@ -106,39 +106,45 @@ public class ConfigurationLoader {
      * Creates a type-safe proxy that reads from the source specified by one of the fromXyz methods.
      */
     public <T> T as(Class<T> type) {
-        return type.cast(Proxy.newProxyInstance(type.getClassLoader(), new Class[]{type}, new InvocationHandler() {
+        return type.cast(Proxy.newProxyInstance(type.getClassLoader(), new Class[] {type}, new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                if (method.getDeclaringClass() == Object.class)
+                if (method.getDeclaringClass() == Object.class) {
                     return method.invoke(this, args);
+                }
 
                 Configuration cn = method.getAnnotation(Configuration.class);
 
                 Class<?> r = method.getReturnType();
-                String key = getKey(method,cn);
+                String key = getKey(method, cn);
 
                 String v = source.apply(key);
-                if (v==null && cn!=null && !cn.defaultValue().equals(Configuration.UNSPECIFIED))
+                if (v == null && cn != null && !cn.defaultValue().equals(Configuration.UNSPECIFIED)) {
                     v = cn.defaultValue();
+                }
 
-                if (v==null)    return null;    // TODO: check how the primitive types are handled here
+                if (v == null) {
+                    return null; // TODO: check how the primitive types are handled here
+                }
 
-                return ConvertUtils.convert(v,r);
+                return ConvertUtils.convert(v, r);
             }
 
             private String getKey(Method method, Configuration c) {
-                if (c!=null && !c.name().equals(Configuration.UNSPECIFIED))
-                    return c.name();        // name override
+                if (c != null && !c.name().equals(Configuration.UNSPECIFIED)) {
+                    return c.name(); // name override
+                }
 
                 String n = method.getName();
                 for (String p : GETTER_PREFIX) {
-                    if (n.startsWith(p))
+                    if (n.startsWith(p)) {
                         return Introspector.decapitalize(n.substring(p.length()));
+                    }
                 }
                 return n;
             }
         }));
     }
 
-    private static final String[] GETTER_PREFIX = {"get","has","is"};
+    private static final String[] GETTER_PREFIX = {"get", "has", "is"};
 }

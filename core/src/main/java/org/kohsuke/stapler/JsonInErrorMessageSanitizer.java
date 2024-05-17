@@ -35,7 +35,7 @@ public interface JsonInErrorMessageSanitizer {
      * Must return a new instance of the JSON.
      */
     JSONObject sanitize(JSONObject jsonData);
-    
+
     /**
      * Used by default when no other sanitizer are configured. Has no effect on the information, just returning a copy.
      */

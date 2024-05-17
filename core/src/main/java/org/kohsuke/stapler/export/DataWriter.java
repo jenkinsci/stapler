@@ -43,17 +43,20 @@ import java.lang.reflect.Type;
  *        | startArray VALUE* endArray
  *        | EVENTS
  * </pre>
- * 
+ *
  * @author Kohsuke Kawaguchi
  */
 public interface DataWriter {
     void name(String name) throws IOException;
 
     void valuePrimitive(Object v) throws IOException;
+
     void value(String v) throws IOException;
+
     void valueNull() throws IOException;
 
     void startArray() throws IOException;
+
     void endArray() throws IOException;
 
     /**
@@ -67,7 +70,9 @@ public interface DataWriter {
      *      Null if the object is synthetic and has no valid Java type
      */
     default void type(@Nullable Type expected, @Nullable Class actual) throws IOException {}
+
     void startObject() throws IOException;
+
     void endObject() throws IOException;
 
     default @NonNull ExportConfig getExportConfig() {

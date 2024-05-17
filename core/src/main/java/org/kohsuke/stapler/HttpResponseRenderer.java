@@ -58,48 +58,53 @@ public abstract class HttpResponseRenderer {
      *      false otherwise, in which case the next {@link HttpResponseRenderer}
      *      will be consulted.
      */
-    public abstract boolean generateResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response) throws IOException, ServletException;
+    public abstract boolean generateResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response)
+            throws IOException, ServletException;
 
     /**
      * Default {@link HttpResponseRenderer}.
      */
     public static class Default extends HttpResponseRenderer {
         @Override
-        public boolean generateResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response) throws IOException, ServletException {
+        public boolean generateResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response)
+                throws IOException, ServletException {
             return handleHttpResponse(req, rsp, node, response)
-                || handleJSON(rsp, response)
-                || handleJavaScriptProxyMethodCall(req,rsp,response)
-                || handlePrimitive(rsp, response);
+                    || handleJSON(rsp, response)
+                    || handleJavaScriptProxyMethodCall(req, rsp, response)
+                    || handlePrimitive(rsp, response);
         }
 
-        protected boolean handleJavaScriptProxyMethodCall(StaplerRequest req, StaplerResponse rsp, Object response) throws IOException {
+        protected boolean handleJavaScriptProxyMethodCall(StaplerRequest req, StaplerResponse rsp, Object response)
+                throws IOException {
             if (req.isJavaScriptProxyCall()) {
                 rsp.setContentType(Flavor.JSON.contentType);
                 PrintWriter w = rsp.getWriter();
 
                 // handle other primitive types as JSON response
                 try {
-                if (response instanceof String) {
-                    w.print(quote((String) response));
-                } else
-                if (response instanceof Number || response instanceof Boolean) {
-                    w.print(response);
-                } else
-                if (response instanceof Collection || (response!=null && response.getClass().isArray())) {
-                    JSONArray.fromObject(response, rsp.getJsonConfig()).write(w);
-                } else
-                if (response==null) {
-                    JSONNull.getInstance().write(w);
-                } else if (response instanceof Throwable) {
-                    // as caught by Function.bindAndInvokeAndServeResponse
-                    LOGGER.log(Level.WARNING, "call to " + req.getRequestURI() + " failed", (Throwable) response);
-                    return false;
-                } else {
-                    // last fall back
-                    JSONObject.fromObject(response, rsp.getJsonConfig()).write(w);
-                }
+                    if (response instanceof String) {
+                        w.print(quote((String) response));
+                    } else if (response instanceof Number || response instanceof Boolean) {
+                        w.print(response);
+                    } else if (response instanceof Collection
+                            || (response != null && response.getClass().isArray())) {
+                        JSONArray.fromObject(response, rsp.getJsonConfig()).write(w);
+                    } else if (response == null) {
+                        JSONNull.getInstance().write(w);
+                    } else if (response instanceof Throwable) {
+                        // as caught by Function.bindAndInvokeAndServeResponse
+                        LOGGER.log(Level.WARNING, "call to " + req.getRequestURI() + " failed", (Throwable) response);
+                        return false;
+                    } else {
+                        // last fall back
+                        JSONObject.fromObject(response, rsp.getJsonConfig()).write(w);
+                    }
                 } catch (JSONException x) {
-                    LOGGER.log(Level.WARNING, "failed to serialize " + response + " for " + req.getRequestURI() + " given " + req.getAncestors(), x);
+                    LOGGER.log(
+                            Level.WARNING,
+                            "failed to serialize " + response + " for " + req.getRequestURI() + " given "
+                                    + req.getAncestors(),
+                            x);
                     return false;
                 }
                 return true;
@@ -116,15 +121,17 @@ public abstract class HttpResponseRenderer {
             return false;
         }
 
-        protected boolean handleHttpResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response) throws IOException, ServletException {
+        protected boolean handleHttpResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response)
+                throws IOException, ServletException {
             if (response instanceof HttpResponse) {
                 // let the result render the response
                 HttpResponse r = (HttpResponse) response;
                 try {
-                    r.generateResponse(req,rsp,node);
+                    r.generateResponse(req, rsp, node);
                 } catch (IOException | ServletException | RuntimeException e) {
-                    if (!handleHttpResponse(req,rsp,node,e))
+                    if (!handleHttpResponse(req, rsp, node, e)) {
                         throw e;
+                    }
                 }
                 return true;
             }
@@ -134,7 +141,7 @@ public abstract class HttpResponseRenderer {
         protected boolean handleJSON(StaplerResponse rsp, Object response) throws IOException {
             if (response instanceof JSON) {
                 rsp.setContentType(Flavor.JSON.contentType);
-                ((JSON)response).write(rsp.getWriter());
+                ((JSON) response).write(rsp.getWriter());
                 return true;
             }
             return false;
@@ -144,5 +151,4 @@ public abstract class HttpResponseRenderer {
     static String quote(String text) {
         return JSONUtils.quote(text);
     }
-
 }

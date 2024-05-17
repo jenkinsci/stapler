@@ -102,15 +102,16 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
 
             installLocaleProvider();
 
-            if (!checkEnvironment())
+            if (!checkEnvironment()) {
                 return;
+            }
 
             Object ph = createPlaceHolderForAsyncLoad();
-            if(ph!=null) {
+            if (ph != null) {
                 // asynchronous load
-                context.setAttribute(APP,ph);
+                context.setAttribute(APP, ph);
 
-                new Thread(getApplicationName()+" initialization thread") {
+                new Thread(getApplicationName() + " initialization thread") {
                     @Override
                     public void run() {
                         setApplicationObject();
@@ -120,7 +121,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
                 setApplicationObject();
             }
         } catch (Error | RuntimeException e) {
-            LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
+            LOGGER.log(Level.SEVERE, "Failed to initialize " + getApplicationName(), e);
             throw e;
         }
     }
@@ -134,17 +135,18 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
             context.setAttribute(APP, app);
             initializer.complete(app);
         } catch (Error | RuntimeException e) {
-            LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
+            LOGGER.log(Level.SEVERE, "Failed to initialize " + getApplicationName(), e);
             initializer.completeExceptionally(e);
             throw e;
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Failed to initialize "+getApplicationName(),e);
+            LOGGER.log(Level.SEVERE, "Failed to initialize " + getApplicationName(), e);
             initializer.completeExceptionally(e);
             throw new Error(e);
         } finally {
             // in case the above catch clauses miss this.
-            if (!initializer.isDone())
+            if (!initializer.isDone()) {
                 initializer.cancel(true);
+            }
         }
     }
 
@@ -177,11 +179,11 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
             LOGGER.log(Level.WARNING, "Failed to create home directory: " + home, ioe);
             return false;
         }
-        LOGGER.info(getApplicationName()+" home directory: "+home);
+        LOGGER.info(getApplicationName() + " home directory: " + home);
 
         // check that home exists (as mkdirs could have failed silently), otherwise throw a meaningful error
         if (!home.exists()) {
-            context.setAttribute(APP,new NoHomeDirError(home));
+            context.setAttribute(APP, new NoHomeDirError(home));
             return false;
         }
 
@@ -195,12 +197,14 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
         LocaleProvider.setProvider(new LocaleProvider() {
             @Override
             public Locale get() {
-                Locale locale=null;
+                Locale locale = null;
                 StaplerRequest req = Stapler.getCurrentRequest();
-                if(req!=null)
+                if (req != null) {
                     locale = req.getLocale();
-                if(locale==null)
+                }
+                if (locale == null) {
                     locale = Locale.getDefault();
+                }
                 return locale;
             }
         });
@@ -217,13 +221,15 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
         // check the system property for the home directory first
         String varName = getApplicationName().toUpperCase() + "_HOME";
         String sysProp = System.getProperty(varName);
-        if(sysProp!=null)
+        if (sysProp != null) {
             return new File(sysProp.trim());
+        }
 
         // look at the env var next
         String env = System.getenv(varName);
-        if(env!=null)
+        if (env != null) {
             return new File(env.trim()).getAbsoluteFile();
+        }
 
         return getDefaultHomeDir();
     }
@@ -236,13 +242,15 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
      */
     @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Home dir is configured by admin or app.")
     protected File getDefaultHomeDir() {
-        return new File(new File(System.getProperty("user.home")),'.'+getApplicationName().toLowerCase());
+        return new File(
+                new File(System.getProperty("user.home")),
+                '.' + getApplicationName().toLowerCase());
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent event) {
         Object o = event.getServletContext().getAttribute(APP);
-        if(rootType.isInstance(o)) {
+        if (rootType.isInstance(o)) {
             cleanUp(rootType.cast(o));
         }
     }

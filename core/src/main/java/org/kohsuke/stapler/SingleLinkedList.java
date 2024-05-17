@@ -23,7 +23,7 @@ public class SingleLinkedList<T> extends AbstractList<T> {
      * Creates a new list by adding a new element as the head.
      */
     public SingleLinkedList<T> grow(T item) {
-        return new SingleLinkedList<>(item,this);
+        return new SingleLinkedList<>(item, this);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class SingleLinkedList<T> extends AbstractList<T> {
 
             @Override
             public boolean hasNext() {
-                return next!=EMPTY_LIST;
+                return next != EMPTY_LIST;
             }
 
             @Override
@@ -61,19 +61,20 @@ public class SingleLinkedList<T> extends AbstractList<T> {
     @Override
     public int size() {
         int sz = 0;
-        for (SingleLinkedList<T> head=this; head!=EMPTY_LIST; head=head.tail)
+        for (SingleLinkedList<T> head = this; head != EMPTY_LIST; head = head.tail) {
             sz++;
+        }
         return sz;
     }
 
     @Override
     public boolean isEmpty() {
-        return this==EMPTY_LIST;
+        return this == EMPTY_LIST;
     }
 
     public static <T> SingleLinkedList<T> empty() {
         return EMPTY_LIST;
     }
 
-    private static final SingleLinkedList EMPTY_LIST = new SingleLinkedList(null,null);
+    private static final SingleLinkedList EMPTY_LIST = new SingleLinkedList(null, null);
 }

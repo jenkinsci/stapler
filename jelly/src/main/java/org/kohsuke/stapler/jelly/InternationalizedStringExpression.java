@@ -44,7 +44,7 @@ import org.kohsuke.stapler.Stapler;
  *
  * <p>
  * The message resource is loaded from files like "xyz.properties" and
- * "xyz_ja.properties" when the expression is placed in "xyz.jelly". 
+ * "xyz_ja.properties" when the expression is placed in "xyz.jelly".
  *
  *
  * @author Kohsuke Kawaguchi
@@ -58,12 +58,13 @@ public class InternationalizedStringExpression extends ExpressionSupport {
     public InternationalizedStringExpression(ResourceBundle resourceBundle, String text) throws JellyException {
         this.resourceBundle = resourceBundle;
         this.expressionText = text;
-        if(!text.startsWith("%"))
-            throw new JellyException(text+" doesn't start with %");
+        if (!text.startsWith("%")) {
+            throw new JellyException(text + " doesn't start with %");
+        }
         text = text.substring(1);
 
         int idx = text.indexOf('(');
-        if(idx<0) {
+        if (idx < 0) {
             // no arguments
             key = text;
             arguments = EMPTY_ARGUMENTS;
@@ -71,17 +72,17 @@ public class InternationalizedStringExpression extends ExpressionSupport {
         }
 
         List<Expression> args = new ArrayList<>();
-        key = text.substring(0,idx);
-        text = text.substring(idx+1);   // at this point text="arg,arg)"
-        while(text.length()>0) {
+        key = text.substring(0, idx);
+        text = text.substring(idx + 1); // at this point text="arg,arg)"
+        while (text.length() > 0) {
             String token = tokenize(text);
             args.add(JellyClassLoaderTearOff.EXPRESSION_FACTORY.createExpression(token));
-            text = text.substring(token.length()+1);
+            text = text.substring(token.length() + 1);
         }
 
         this.arguments = args.toArray(new Expression[0]);
     }
-    
+
     public List<Expression> getArguments() {
         return List.of(arguments);
     }
@@ -95,35 +96,37 @@ public class InternationalizedStringExpression extends ExpressionSupport {
      */
     @SuppressFBWarnings(value = "SF_SWITCH_NO_DEFAULT", justification = "No default needed.")
     private String tokenize(String text) throws JellyException {
-        int parenthesis=0;
-        for(int idx=0;idx<text.length();idx++) {
+        int parenthesis = 0;
+        for (int idx = 0; idx < text.length(); idx++) {
             char ch = text.charAt(idx);
             switch (ch) {
-            case ',':
-                if(parenthesis==0)
-                    return text.substring(0,idx);
-                break;
-            case '(':
-            case '{':
-            case '[':
-                parenthesis++;
-                break;
-            case ')':
-                if(parenthesis==0)
-                    return text.substring(0,idx);
-                // fall through
-            case '}':
-            case ']':
-                parenthesis--;
-                break;
-            case '"':
-            case '\'':
-                // skip strings
-                idx = text.indexOf(ch,idx+1);
-                break;
+                case ',':
+                    if (parenthesis == 0) {
+                        return text.substring(0, idx);
+                    }
+                    break;
+                case '(':
+                case '{':
+                case '[':
+                    parenthesis++;
+                    break;
+                case ')':
+                    if (parenthesis == 0) {
+                        return text.substring(0, idx);
+                    }
+                    // fall through
+                case '}':
+                case ']':
+                    parenthesis--;
+                    break;
+                case '"':
+                case '\'':
+                    // skip strings
+                    idx = text.indexOf(ch, idx + 1);
+                    break;
             }
         }
-        throw new JellyException(expressionText+" is missing ')' at the end");
+        throw new JellyException(expressionText + " is missing ')' at the end");
     }
 
     @Override
@@ -138,17 +141,20 @@ public class InternationalizedStringExpression extends ExpressionSupport {
 
     private Object format(Object[] args) {
         // notify the listener if set
-        InternationalizedStringExpressionListener listener = (InternationalizedStringExpressionListener) Stapler.getCurrentRequest().getAttribute(LISTENER_NAME);
-        if(listener!=null)
+        InternationalizedStringExpressionListener listener = (InternationalizedStringExpressionListener)
+                Stapler.getCurrentRequest().getAttribute(LISTENER_NAME);
+        if (listener != null) {
             listener.onUsed(this, args);
+        }
 
         return resourceBundle.format(LocaleProvider.getLocale(), key, args);
     }
 
     private Object[] evaluateArguments(JellyContext jellyContext) {
         Object[] args = new Object[arguments.length];
-        for (int i = 0; i < args.length; i++)
+        for (int i = 0; i < args.length; i++) {
             args[i] = arguments[i].evaluate(jellyContext);
+        }
         return args;
     }
 

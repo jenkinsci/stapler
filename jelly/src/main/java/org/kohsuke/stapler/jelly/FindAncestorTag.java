@@ -64,19 +64,19 @@ public class FindAncestorTag extends AbstractStaplerTag implements NamespaceAwar
         // we need to tweak CustomTagLibrary class and build up the stack of elements being processed.
         throw new UnsupportedOperationException();
 
-//        int idx = tag.indexOf(':');
-//        String prefix = tag.substring(0,idx);
-//        String localName = tag.substring(idx+1);
-//
-//        String uri = (String) nsMap.get(prefix);
-//
-//        Tag tag = this;
-//        while((tag=findAncestorWithClass(tag,StaplerDynamicTag.class))!=null) {
-//            StaplerDynamicTag t = (StaplerDynamicTag)tag;
-//            if(t.getLocalName().equals(localName) && t.getNsUri().equals(uri))
-//                break;
-//        }
-//        getContext().setVariable(var,tag);
+        //        int idx = tag.indexOf(':');
+        //        String prefix = tag.substring(0,idx);
+        //        String localName = tag.substring(idx+1);
+        //
+        //        String uri = (String) nsMap.get(prefix);
+        //
+        //        Tag tag = this;
+        //        while((tag=findAncestorWithClass(tag,StaplerDynamicTag.class))!=null) {
+        //            StaplerDynamicTag t = (StaplerDynamicTag)tag;
+        //            if(t.getLocalName().equals(localName) && t.getNsUri().equals(uri))
+        //                break;
+        //        }
+        //        getContext().setVariable(var,tag);
     }
 
     @Override

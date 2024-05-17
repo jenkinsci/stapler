@@ -33,16 +33,17 @@ public class JsonInErrorMessageSanitizerTest extends TestCase {
         input.accumulate("a", 2);
         input.accumulate("a", 3);
         input.accumulate("b", 4);
-    
+
         JSONObject sub = new JSONObject();
         sub.accumulate("d", 5);
         input.accumulate("c", sub);
-        
+
         JSONObject output = JsonInErrorMessageSanitizer.NOOP.sanitize(input);
         assertNotSame(output, input);
         assertEquals(output.getJSONArray("a").get(0), input.getJSONArray("a").get(0));
         assertEquals(output.getJSONArray("a").get(2), input.getJSONArray("a").get(2));
         assertEquals(output.getInt("b"), input.getInt("b"));
-        assertEquals(output.getJSONObject("c").getInt("d"), input.getJSONObject("c").getInt("d"));
+        assertEquals(
+                output.getJSONObject("c").getInt("d"), input.getJSONObject("c").getInt("d"));
     }
 }

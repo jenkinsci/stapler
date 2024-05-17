@@ -37,7 +37,8 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
         try {
             if (roundEnv.processingOver()) {
                 FileObject beans = createResource(STAPLER_BEAN_FILE);
-                PrintWriter w = new PrintWriter(new OutputStreamWriter(beans.openOutputStream(), StandardCharsets.UTF_8));
+                PrintWriter w =
+                        new PrintWriter(new OutputStreamWriter(beans.openOutputStream(), StandardCharsets.UTF_8));
                 for (String beanName : exposedBeanNames) {
                     w.println(beanName);
                 }
@@ -46,12 +47,12 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
             }
 
             // collect all exposed properties
-            PoormansMultimap<TypeElement, Element/*member decls*/> props = new PoormansMultimap<>();
+            PoormansMultimap<TypeElement, Element /*member decls*/> props = new PoormansMultimap<>();
 
             for (Element exported : roundEnv.getElementsAnnotatedWith(Exported.class)) {
                 Element type = exported.getEnclosingElement();
                 if (type.getKind().isClass() || type.getKind().isInterface()) {
-                    props.put((TypeElement)type, exported);
+                    props.put((TypeElement) type, exported);
                 }
             }
 
@@ -65,57 +66,58 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
                 final Properties javadocs = new Properties();
                 for (Element md : e.getValue()) {
                     switch (md.getKind()) {
-                    case FIELD:
-                    case METHOD:
-                       String javadoc = getJavadoc(md);
-                       if(javadoc!=null)
-                           javadocs.put(md.getSimpleName().toString(), javadoc);
-                        break;
-                    default:
-                        throw new AssertionError("Unexpected element type: "+md);
+                        case FIELD:
+                        case METHOD:
+                            String javadoc = getJavadoc(md);
+                            if (javadoc != null) {
+                                javadocs.put(md.getSimpleName().toString(), javadoc);
+                            }
+                            break;
+                        default:
+                            throw new AssertionError("Unexpected element type: " + md);
                     }
-                        // TODO: possibly a proper method signature generation, but it's too tedious
-                        // way too tedious.
-                        //private String getSignature(MethodDeclaration m) {
-                        //    final StringBuilder buf = new StringBuilder(m.getSimpleName());
-                        //    buf.append('(');
-                        //    boolean first=true;
-                        //    for (ParameterDeclaration p : m.getParameters()) {
-                        //        if(first)   first = false;
-                        //        else        buf.append(',');
-                        //        p.getType().accept(new SimpleTypeVisitor() {
-                        //            public void visitPrimitiveType(PrimitiveType pt) {
-                        //                buf.append(pt.getKind().toString().toLowerCase());
-                        //            }
-                        //            public void visitDeclaredType(DeclaredType dt) {
-                        //                buf.append(dt.getDeclaration().getQualifiedName());
-                        //            }
-                        //
-                        //            public void visitArrayType(ArrayType at) {
-                        //                at.getComponentType().accept(this);
-                        //                buf.append("[]");
-                        //            }
-                        //
-                        //            public void visitTypeVariable(TypeVariable tv) {
-                        //
-                        //                // TODO
-                        //                super.visitTypeVariable(typeVariable);
-                        //            }
-                        //
-                        //            public void visitVoidType(VoidType voidType) {
-                        //                // TODO
-                        //                super.visitVoidType(voidType);
-                        //            }
-                        //        });
-                        //    }
-                        //    buf.append(')');
-                        //    // TODO
-                        //    return null;
-                        //}
+                    // TODO: possibly a proper method signature generation, but it's too tedious
+                    // way too tedious.
+                    // private String getSignature(MethodDeclaration m) {
+                    //    final StringBuilder buf = new StringBuilder(m.getSimpleName());
+                    //    buf.append('(');
+                    //    boolean first=true;
+                    //    for (ParameterDeclaration p : m.getParameters()) {
+                    //        if(first)   first = false;
+                    //        else        buf.append(',');
+                    //        p.getType().accept(new SimpleTypeVisitor() {
+                    //            public void visitPrimitiveType(PrimitiveType pt) {
+                    //                buf.append(pt.getKind().toString().toLowerCase());
+                    //            }
+                    //            public void visitDeclaredType(DeclaredType dt) {
+                    //                buf.append(dt.getDeclaration().getQualifiedName());
+                    //            }
+                    //
+                    //            public void visitArrayType(ArrayType at) {
+                    //                at.getComponentType().accept(this);
+                    //                buf.append("[]");
+                    //            }
+                    //
+                    //            public void visitTypeVariable(TypeVariable tv) {
+                    //
+                    //                // TODO
+                    //                super.visitTypeVariable(typeVariable);
+                    //            }
+                    //
+                    //            public void visitVoidType(VoidType voidType) {
+                    //                // TODO
+                    //                super.visitVoidType(voidType);
+                    //            }
+                    //        });
+                    //    }
+                    //    buf.append(')');
+                    //    // TODO
+                    //    return null;
+                    // }
                 }
 
                 String javadocFile = e.getKey().getQualifiedName().toString().replace('.', '/') + ".javadoc";
-                notice("Generating "+ javadocFile, e.getKey());
+                notice("Generating " + javadocFile, e.getKey());
                 writePropertyFile(javadocs, javadocFile);
             }
 
@@ -139,10 +141,12 @@ public class ExportedBeanAnnotationProcessor extends AbstractProcessorImpl {
 
         try {
             FileObject beans = getResource(STAPLER_BEAN_FILE);
-            BufferedReader in = new BufferedReader(new InputStreamReader(beans.openInputStream(),StandardCharsets.UTF_8));
+            BufferedReader in =
+                    new BufferedReader(new InputStreamReader(beans.openInputStream(), StandardCharsets.UTF_8));
             String line;
-            while((line=in.readLine())!=null)
+            while ((line = in.readLine()) != null) {
                 exposedBeanNames.add(line.trim());
+            }
             in.close();
         } catch (FileNotFoundException | NoSuchFileException e) {
             // no existing file, which is fine

@@ -46,7 +46,8 @@ import org.kohsuke.MetaInfServices;
 @MetaInfServices(Processor.class)
 public class SourceGeneratingAnnotationProcessor extends AbstractProcessor {
 
-    @Override public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver()) {
             return false;
         }
@@ -55,7 +56,8 @@ public class SourceGeneratingAnnotationProcessor extends AbstractProcessor {
             try {
                 JavaFileObject f = processingEnv.getFiler().createSourceFile(te.getQualifiedName() + "Gen", te);
                 try (Writer w = f.openWriter()) {
-                    w.write("package " + processingEnv.getElementUtils().getPackageOf(te).getQualifiedName() + ";\n");
+                    w.write("package "
+                            + processingEnv.getElementUtils().getPackageOf(te).getQualifiedName() + ";\n");
                     w.write("class " + te.getSimpleName() + "Gen {}");
                 }
             } catch (IOException x) {
@@ -64,5 +66,4 @@ public class SourceGeneratingAnnotationProcessor extends AbstractProcessor {
         }
         return true;
     }
-
 }

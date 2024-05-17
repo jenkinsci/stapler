@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.ANNOTATION_TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface InterceptorAnnotation  {
+public @interface InterceptorAnnotation {
     /**
      * Actual interceptor logic. Must have a default constructor.
      */

@@ -37,7 +37,7 @@ import org.xml.sax.helpers.AttributesImpl;
 /**
  * Binds a server-side object to client side so that JavaScript can call into server.
  * This tag evaluates to a {@code <script>} tag.
- * 
+ *
  * @author Kohsuke Kawaguchi
  */
 @NoContent
@@ -73,10 +73,12 @@ public class BindTag extends AbstractStaplerTag {
         try {
             if (javaObject == null) {
                 if (varName == null) {
-                    // Legacy mode if no 'var' is specified and we bound 'null': Write 'null' expression inline, without <script> wrapper.
+                    // Legacy mode if no 'var' is specified and we bound 'null': Write 'null' expression inline, without
+                    // <script> wrapper.
                     out.write("null");
                 } else {
-                    // Modern: Write a script tag whose 'src' points to DataBoundTable#doScript, with a special suffix indicating the null bound object.
+                    // Modern: Write a script tag whose 'src' points to DataBoundTable#doScript, with a special suffix
+                    // indicating the null bound object.
                     writeScriptTag(out, null);
                 }
             } else {
@@ -84,12 +86,16 @@ public class BindTag extends AbstractStaplerTag {
 
                 if (varName == null) {
                     // Legacy mode if no 'var' is specified: Write the expression inline, without <script> wrapper.
-                    // Doing this is deprecated as it cannot be done with Content-Security-Policy unless 'unsafe-inline' is allowed.
-                    // Additionally, this mode needs to be used with caution because the adjunct tag above might produce a <script> tag.
+                    // Doing this is deprecated as it cannot be done with Content-Security-Policy unless 'unsafe-inline'
+                    // is allowed.
+                    // Additionally, this mode needs to be used with caution because the adjunct tag above might produce
+                    // a <script> tag.
                     out.write(h.getProxyScript());
                 } else if (!BoundObjectTable.isValidJavaScriptIdentifier(varName)) {
-                    // Legacy mode if 'var' is not a safe variable name: Write the expression inline within <script> wrapper.
-                    // Doing this is deprecated as it cannot be done with Content-Security-Policy unless 'unsafe-inline' is allowed.
+                    // Legacy mode if 'var' is not a safe variable name: Write the expression inline within <script>
+                    // wrapper.
+                    // Doing this is deprecated as it cannot be done with Content-Security-Policy unless 'unsafe-inline'
+                    // is allowed.
                     out.startElement("script");
                     out.write(varName + "=" + h.getProxyScript() + ";");
                     out.endElement("script");

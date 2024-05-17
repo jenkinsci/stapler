@@ -31,11 +31,14 @@ import java.util.regex.Pattern;
  * Tree pruner which operates according to a textual description of what tree leaves should be included.
  */
 public final class NamedPathPruner extends TreePruner {
-    
+
     static class Tree {
-        final Map<String,Tree> children = new TreeMap<>();
+        final Map<String, Tree> children = new TreeMap<>();
         Range range = Range.ALL;
-        public @Override String toString() {return children.toString();}
+
+        public @Override String toString() {
+            return children.toString();
+        }
     }
 
     // Simple recursive descent parser:
@@ -46,12 +49,14 @@ public final class NamedPathPruner extends TreePruner {
         r.expect(Token.EOF);
         return t;
     }
+
     private static void list(Reader r, Tree t) throws IllegalArgumentException {
         node(r, t);
         if (r.accept(Token.COMMA)) {
             list(r, t);
         }
     }
+
     private static void node(Reader r, Tree t) throws IllegalArgumentException {
         Object actual = r.peek();
         if (actual instanceof Token) {
@@ -69,66 +74,81 @@ public final class NamedPathPruner extends TreePruner {
             r.expect(Token.QRBRACE);
         }
     }
+
     static Range parseRange(Reader r) {
         int min;
 
         if (r.accept(Token.COMMA)) {
-            return new Range(0, r.expectNumber());  // {,M}
+            return new Range(0, r.expectNumber()); // {,M}
         } else {
             min = r.expectNumber();
-            if (r.peek()==Token.QRBRACE)
-                return new Range(min,min+1);        // {N}
+            if (r.peek() == Token.QRBRACE) {
+                return new Range(min, min + 1); // {N}
+            }
 
             r.expect(Token.COMMA);
-            if (r.peek()==Token.QRBRACE)
-                return new Range(min,Integer.MAX_VALUE);    // {N,}
-            else
-                return new Range(min,r.expectNumber());     // {N,M}
+            if (r.peek() == Token.QRBRACE) {
+                return new Range(min, Integer.MAX_VALUE); // {N,}
+            } else { // {N,}
+                return new Range(min, r.expectNumber()); // {N,M}
+            }
         }
     }
 
-    private enum Token {COMMA /* , */, LBRACE /* [ */, RBRACE /* ] */, QLBRACE /* { */, QRBRACE /* } */, EOF}
+    private enum Token {
+        COMMA /* , */,
+        LBRACE /* [ */,
+        RBRACE /* ] */,
+        QLBRACE /* { */,
+        QRBRACE /* } */,
+        EOF
+    }
+
     private static class Reader {
         private final String text;
         int pos, next;
+
         Reader(String text) {
             this.text = text;
             pos = 0;
         }
+
         Object peek() {
             if (pos == text.length()) {
                 return Token.EOF;
             }
             switch (text.charAt(pos)) {
-            case ',':
-                next = pos + 1;
-                return Token.COMMA;
-            case '[':
-                next = pos + 1;
-                return Token.LBRACE;
-            case ']':
-                next = pos + 1;
-                return Token.RBRACE;
-            case '{':
-                next = pos + 1;
-                return Token.QLBRACE;
-            case '}':
-                next = pos + 1;
-                return Token.QRBRACE;
-            default:
-                next = text.length();
-                for (char c : new char[] {',', '[', ']', '{', '}'}) {
-                    int x = text.indexOf(c, pos);
-                    if (x != -1 && x < next) {
-                        next = x;
+                case ',':
+                    next = pos + 1;
+                    return Token.COMMA;
+                case '[':
+                    next = pos + 1;
+                    return Token.LBRACE;
+                case ']':
+                    next = pos + 1;
+                    return Token.RBRACE;
+                case '{':
+                    next = pos + 1;
+                    return Token.QLBRACE;
+                case '}':
+                    next = pos + 1;
+                    return Token.QRBRACE;
+                default:
+                    next = text.length();
+                    for (char c : new char[] {',', '[', ']', '{', '}'}) {
+                        int x = text.indexOf(c, pos);
+                        if (x != -1 && x < next) {
+                            next = x;
+                        }
                     }
-                }
-                return text.substring(pos, next);
+                    return text.substring(pos, next);
             }
         }
+
         void advance() {
             pos = next;
         }
+
         void expect(Token tok) throws IllegalArgumentException {
             Object actual = peek();
             if (actual != tok) {
@@ -136,6 +156,7 @@ public final class NamedPathPruner extends TreePruner {
             }
             advance();
         }
+
         int expectNumber() {
             Object t = peek();
             if (!(t instanceof String) || !Pattern.matches("[0-9]+$", (String) t)) {
@@ -144,6 +165,7 @@ public final class NamedPathPruner extends TreePruner {
             advance();
             return Integer.parseInt((String) t);
         }
+
         boolean accept(Token tok) {
             if (peek() == tok) {
                 advance();
@@ -153,7 +175,7 @@ public final class NamedPathPruner extends TreePruner {
             }
         }
     }
-    
+
     private final Tree tree;
 
     /**
@@ -169,21 +191,24 @@ public final class NamedPathPruner extends TreePruner {
     public NamedPathPruner(String spec) throws IllegalArgumentException {
         this(parse(spec));
     }
-    
+
     private NamedPathPruner(Tree tree) {
         this.tree = tree;
     }
 
     public @Override TreePruner accept(Object node, Property prop) {
-        if (prop.merge)     return this;
+        if (prop.merge) {
+            return this;
+        }
 
         Tree subtree = tree.children.get(prop.name);
-        if (subtree==null)  subtree=tree.children.get("*");
+        if (subtree == null) {
+            subtree = tree.children.get("*");
+        }
         return subtree != null ? new NamedPathPruner(subtree) : null;
     }
 
     public @Override Range getRange() {
         return tree.range;
     }
-
 }

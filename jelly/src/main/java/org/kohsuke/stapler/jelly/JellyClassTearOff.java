@@ -40,11 +40,11 @@ import org.kohsuke.stapler.StaplerResponse;
 /**
  * @author Kohsuke Kawaguchi
  */
-public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,Script,JellyException> {
+public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff, Script, JellyException> {
     private JellyFacet facet;
 
     public JellyClassTearOff(MetaClass owner) {
-        super(owner,JellyClassLoaderTearOff.class);
+        super(owner, JellyClassLoaderTearOff.class);
         facet = owner.webApp.getFacet(JellyFacet.class);
     }
 
@@ -71,18 +71,23 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
         // cut off the extension so that we can search all the extensions
         String shortName;
         int dot = name.lastIndexOf('.');
-        if (dot>name.lastIndexOf('/'))      shortName = name.substring(0, dot);
-        else                                shortName = name;
+        if (dot > name.lastIndexOf('/')) {
+            shortName = name.substring(0, dot);
+        } else {
+            shortName = name;
+        }
 
         for (Facet f : owner.webApp.facets) {
             if (f instanceof JellyCompatibleFacet && !(f instanceof JellyFacet)) {
                 JellyCompatibleFacet jcf = (JellyCompatibleFacet) f;
-                for (Class<? extends AbstractTearOff<?,? extends Script,?>> ct : jcf.getClassTearOffTypes()) {
+                for (Class<? extends AbstractTearOff<?, ? extends Script, ?>> ct : jcf.getClassTearOffTypes()) {
                     try {
                         Script s = owner.loadTearOff(ct).resolveScript(shortName);
-                        if (s!=null)    return s;
+                        if (s != null) {
+                            return s;
+                        }
                     } catch (Exception e) {
-                        throw new JellyException("Failed to load "+shortName+" from "+jcf,e);
+                        throw new JellyException("Failed to load " + shortName + " from " + jcf, e);
                     }
                 }
             }
@@ -95,18 +100,19 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
      * Serves {@code index.jelly} if it's available, and returns true.
      */
     @Deprecated
-    public boolean serveIndexJelly(StaplerRequest req, StaplerResponse rsp, Object node) throws ServletException, IOException {
+    public boolean serveIndexJelly(StaplerRequest req, StaplerResponse rsp, Object node)
+            throws ServletException, IOException {
         try {
             Script script = findScript("index.jelly");
-            if(script!=null) {
+            if (script != null) {
                 String src = "index.jelly";
                 if (script instanceof JellyViewScript) {
                     JellyViewScript jvs = (JellyViewScript) script;
                     src = jvs.getName();
                 }
                 Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Jelly index: %s", src);
-                if(Dispatcher.traceable()) {
-                    Dispatcher.trace(req,rsp,"-> %s on <%s>",src,node);
+                if (Dispatcher.traceable()) {
+                    Dispatcher.trace(req, rsp, "-> %s on <%s>", src, node);
                 }
                 facet.scriptInvoker.invokeScript(req, rsp, script, node);
                 return true;
@@ -125,13 +131,15 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff,S
         try {
             // backward compatible behavior that expects full file name including ".jelly"
             Script script = findScript(viewName);
-            if(script!=null)
-                return new JellyRequestDispatcher(it,script);
-            
+            if (script != null) {
+                return new JellyRequestDispatcher(it, script);
+            }
+
             // this is what the look up was really supposed to be.
-            script = findScript(viewName+".jelly");
-            if(script!=null)
-                return new JellyRequestDispatcher(it,script);
+            script = findScript(viewName + ".jelly");
+            if (script != null) {
+                return new JellyRequestDispatcher(it, script);
+            }
             return null;
         } catch (JellyException e) {
             throw new IOException(e.getMessage(), e);

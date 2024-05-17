@@ -56,8 +56,11 @@ class JSONDataWriter implements DataWriter {
     @Override
     public void name(String name) throws IOException {
         comma();
-        if (indent<0)   out.write('"'+name+"\":");
-        else            out.write('"'+name+"\" : ");
+        if (indent < 0) {
+            out.write('"' + name + "\":");
+        } else {
+            out.write('"' + name + "\" : ");
+        }
         needComma = false;
     }
 
@@ -67,7 +70,7 @@ class JSONDataWriter implements DataWriter {
     }
 
     protected void comma() throws IOException {
-        if(needComma) {
+        if (needComma) {
             out.write(',');
             indent();
         }
@@ -78,23 +81,27 @@ class JSONDataWriter implements DataWriter {
      * Prints indentation.
      */
     private void indent() throws IOException {
-        if (indent>=0) {
+        if (indent >= 0) {
             out.write('\n');
-            for (int i=indent*2; i>0; ) {
-                int len = Math.min(i,INDENT.length);
-                out.write(INDENT,0,len);
-                i-=len;
+            for (int i = indent * 2; i > 0; ) {
+                int len = Math.min(i, INDENT.length);
+                out.write(INDENT, 0, len);
+                i -= len;
             }
         }
     }
 
     private void inc() {
-        if (indent<0)   return; // no indentation
+        if (indent < 0) {
+            return; // no indentation
+        }
         indent++;
     }
 
     private void dec() {
-        if (indent<0)   return;
+        if (indent < 0) {
+            return;
+        }
         indent--;
     }
 
@@ -107,10 +114,11 @@ class JSONDataWriter implements DataWriter {
     public void value(String v) throws IOException {
         StringBuilder buf = new StringBuilder(v.length());
         buf.append('\"');
-        for( int i=0; i<v.length(); i++ ) {
+        for (int i = 0; i < v.length(); i++) {
             char c = v.charAt(i);
             if (Character.isISOControl(c) || Character.isHighSurrogate(c) || Character.isLowSurrogate(c)) {
-                // Control chars: strictly speaking, JSON spec expects only U+0000 through U+001F, but any char _may_ be escaped, so just do that for U+007F through U+009F too.
+                // Control chars: strictly speaking, JSON spec expects only U+0000 through U+001F, but any char _may_ be
+                // escaped, so just do that for U+007F through U+009F too.
                 // Surrogate pair characters: https://docs.oracle.com/javase/6/docs/api/java/lang/Character.html#unicode
                 // JSON spec: https://tools.ietf.org/html/rfc8259#section-7
                 buf.append("\\u");
@@ -184,7 +192,7 @@ class JSONDataWriter implements DataWriter {
     public void startObject() throws IOException {
         _startObject();
 
-        if (classAttr!=null) {
+        if (classAttr != null) {
             name(CLASS_PROPERTY_NAME);
             value(classAttr);
             classAttr = null;
@@ -203,6 +211,7 @@ class JSONDataWriter implements DataWriter {
     private static final char[] HEX = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
     private static final char[] INDENT = new char[32];
+
     static {
         Arrays.fill(INDENT, ' ');
     }

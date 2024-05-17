@@ -50,9 +50,11 @@ public final class FunctionList extends AbstractList<Function> {
 
     /* internal */ FunctionList filter(Filter f) {
         List<Function> r = new ArrayList<>();
-        for (Function m : functions)
-            if (f.keep(m))
+        for (Function m : functions) {
+            if (f.keep(m)) {
                 r.add(m);
+            }
+        }
         return new FunctionList(r.toArray(new Function[0]));
     }
 
@@ -76,19 +78,19 @@ public final class FunctionList extends AbstractList<Function> {
         return new FunctionList(combined);
     }
 
-    //public int length() {
+    // public int length() {
     //    return functions.length;
-    //}
+    // }
     //
-    //public Method get(int i) {
+    // public Method get(int i) {
     //    return functions[i];
-    //}
+    // }
 
     public interface Filter {
         boolean keep(Function m);
 
-        Filter ALWAYS_OK = new Filter(){
-            @Override 
+        Filter ALWAYS_OK = new Filter() {
+            @Override
             public boolean keep(Function m) {
                 return true;
             }
@@ -114,7 +116,7 @@ public final class FunctionList extends AbstractList<Function> {
         return filter(new Filter() {
             @Override
             public boolean keep(Function m) {
-                return m.getAnnotation(ann)!=null;
+                return m.getAnnotation(ann) != null;
             }
         });
     }
@@ -151,7 +153,7 @@ public final class FunctionList extends AbstractList<Function> {
         return filter(new Filter() {
             @Override
             public boolean keep(Function m) {
-                return m.getName().startsWith("do") || m.getAnnotation(WebMethod.class)!=null;
+                return m.getName().startsWith("do") || m.getAnnotation(WebMethod.class) != null;
             }
         });
     }
@@ -165,10 +167,13 @@ public final class FunctionList extends AbstractList<Function> {
             @Override
             public boolean keep(Function m) {
                 Class[] params = m.getParameterTypes();
-                if(params.length<args.length)  return false;
-                for( int i=0; i<args.length; i++ ) {
-                    if(params[i]!=args[i])
+                if (params.length < args.length) {
+                    return false;
+                }
+                for (int i = 0; i < args.length; i++) {
+                    if (params[i] != args[i]) {
                         return false;
+                    }
                 }
                 return true;
             }

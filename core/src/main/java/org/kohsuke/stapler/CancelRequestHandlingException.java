@@ -14,5 +14,4 @@ package org.kohsuke.stapler;
  * @author Kohsuke Kawaguchi
  * @since 1.210
  */
-public class CancelRequestHandlingException extends RuntimeException {
-}
+public class CancelRequestHandlingException extends RuntimeException {}

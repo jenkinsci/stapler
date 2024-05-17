@@ -36,7 +36,7 @@ public interface HttpDeletable {
     /**
      * Called when HTTP DELETE method is invoked.
      */
-    void delete( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException;
+    void delete(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException;
 }
 
 /**
@@ -44,9 +44,10 @@ public interface HttpDeletable {
  */
 class HttpDeletableDispatcher extends Dispatcher {
     @Override
-    public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+    public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
+            throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
         if (!req.tokens.hasMore() && req.getMethod().equals("DELETE")) {
-            ((HttpDeletable)node).delete(req,rsp);
+            ((HttpDeletable) node).delete(req, rsp);
             return true;
         }
 

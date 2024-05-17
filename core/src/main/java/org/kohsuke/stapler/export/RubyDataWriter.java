@@ -38,13 +38,13 @@ import java.io.Writer;
  */
 final class RubyDataWriter extends JSONDataWriter {
     public RubyDataWriter(Writer out, ExportConfig config) throws IOException {
-        super(out,config);
+        super(out, config);
     }
 
     @Override
     public void name(String name) throws IOException {
         comma();
-        out.write('"'+name+"\" => ");
+        out.write('"' + name + "\" => ");
         needComma = false;
     }
 
@@ -63,6 +63,6 @@ final class RubyDataWriter extends JSONDataWriter {
     @Override
     public void endObject() throws IOException {
         out.write("})");
-        needComma=true;
+        needComma = true;
     }
 }

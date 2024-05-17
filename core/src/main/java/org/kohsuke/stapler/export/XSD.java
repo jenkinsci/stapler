@@ -39,18 +39,22 @@ public interface XSD {
     @XmlElement("schema")
     interface Schema extends TypedXmlWriter {
         Element element();
+
         ComplexType complexType();
+
         SimpleType simpleType();
     }
 
     interface Element extends Annotated {
         @XmlAttribute
         Element name(String v);
+
         @XmlAttribute
         Element type(QName t);
 
         @XmlAttribute
         Element minOccurs(int i);
+
         @XmlAttribute
         Element maxOccurs(String v);
     }
@@ -58,8 +62,10 @@ public interface XSD {
     interface Attribute extends Annotated {
         @XmlAttribute
         Attribute name(String v);
+
         @XmlAttribute
         Attribute type(QName v);
+
         @XmlAttribute
         Attribute use(String v);
     }
@@ -67,8 +73,11 @@ public interface XSD {
     interface ComplexType extends TypedXmlWriter {
         @XmlAttribute
         ComplexType name(String v);
+
         ContentModel sequence();
+
         ComplexContent complexContent();
+
         Attribute attribute();
     }
 
@@ -83,6 +92,7 @@ public interface XSD {
     interface SimpleType extends TypedXmlWriter {
         @XmlAttribute
         SimpleType name(String v);
+
         Restriction restriction();
     }
 

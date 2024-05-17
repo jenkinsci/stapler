@@ -20,7 +20,7 @@ public abstract class Interceptor {
     /**
      * Called by Stapler to set up the target of the interceptor.
      * This function object represents a method on which your annotation is placed.
-     * 
+     *
      * This happens once before this instance takes any calls.
      */
     public void setTarget(Function target) {
@@ -49,7 +49,6 @@ public abstract class Interceptor {
      * @throws CancelRequestHandlingException
      *      to cancel this request handling and moves on to the next available dispatch mechanism.
      */
-    public abstract Object invoke(StaplerRequest request, StaplerResponse response,
-                                  Object instance, Object[] arguments)
+    public abstract Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
             throws IllegalAccessException, InvocationTargetException, ServletException;
 }

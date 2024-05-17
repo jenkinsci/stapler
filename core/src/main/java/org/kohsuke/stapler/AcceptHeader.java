@@ -67,8 +67,9 @@ public final class AcceptHeader {
      */
     public AcceptHeader(String ranges) {
         this.ranges = ranges;
-        for (String r : StringUtils.split(ranges, ','))
+        for (String r : StringUtils.split(ranges, ',')) {
             atoms.add(new Atom(r));
+        }
     }
 
     /**
@@ -83,9 +84,10 @@ public final class AcceptHeader {
 
         @Override
         public String toString() {
-            StringBuilder s = new StringBuilder(major +'/'+ minor);
-            for (Map.Entry<String, String> k : params.entrySet())
+            StringBuilder s = new StringBuilder(major + '/' + minor);
+            for (Map.Entry<String, String> k : params.entrySet()) {
                 s.append(";").append(k.getKey()).append("=").append(k.getValue());
+            }
             return s.toString();
         }
 
@@ -98,22 +100,25 @@ public final class AcceptHeader {
             for (int i = 1; i < parts.length; ++i) {
                 String p = parts[i];
                 String[] subParts = StringUtils.split(p, '=');
-                if (subParts.length == 2)
+                if (subParts.length == 2) {
                     params.put(subParts[0].trim(), subParts[1].trim());
+                }
             }
             String fullType = parts[0].trim();
 
             // Java URLConnection class sends an Accept header that includes a
             // single "*" - Turn it into a legal wildcard.
-            if (fullType.equals("*"))
+            if (fullType.equals("*")) {
                 fullType = "*/*";
+            }
             String[] types = StringUtils.split(fullType, "/");
             major = types[0].trim();
             minor = types[1].trim();
 
             float q = NumberUtils.toFloat(params.get("q"), 1);
-            if (q < 0 || q > 1)
+            if (q < 0 || q > 1) {
                 q = 1;
+            }
             this.q = q;
 
             params.remove("q"); // normalize this away as this gets in the fitting
@@ -127,8 +132,9 @@ public final class AcceptHeader {
          * than "text/*", which still fits better than "* /*"
          */
         private int fit(Atom that) {
-            if (!wildcardMatch(that.major, this.major) || !wildcardMatch(that.minor, this.minor))
+            if (!wildcardMatch(that.major, this.major) || !wildcardMatch(that.minor, this.minor)) {
                 return -1;
+            }
 
             int fitness;
             fitness = this.major.equals(that.major) ? 10000 : 0;
@@ -159,7 +165,7 @@ public final class AcceptHeader {
         Atom best = null;
         for (Atom a : atoms) {
             int f = a.fit(target);
-            if (f>bestFitness) {
+            if (f > bestFitness) {
                 best = a;
                 bestFitness = f;
             }
@@ -194,15 +200,17 @@ public final class AcceptHeader {
 
         for (String s : supported) {
             Atom a = match(s);
-            if (a!= null && a.q > bestQ) {
+            if (a != null && a.q > bestQ) {
                 bestQ = a.q;
                 best = s;
             }
         }
 
-        if (best==null)
-            throw HttpResponses.error(HttpServletResponse.SC_NOT_ACCEPTABLE,
-                    "Requested MIME types '" + ranges + "' didn't match any of the available options "+supported);
+        if (best == null) {
+            throw HttpResponses.error(
+                    HttpServletResponse.SC_NOT_ACCEPTABLE,
+                    "Requested MIME types '" + ranges + "' didn't match any of the available options " + supported);
+        }
         return best;
     }
 
@@ -212,7 +220,7 @@ public final class AcceptHeader {
 
     @Override
     public String toString() {
-        return super.toString()+"["+ranges+"]";
+        return super.toString() + "[" + ranges + "]";
     }
 
     // this performs databinding for @Header parameter injection

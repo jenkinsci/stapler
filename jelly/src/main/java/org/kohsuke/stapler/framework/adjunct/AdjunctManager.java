@@ -99,14 +99,14 @@ public class AdjunctManager {
      * This is only a hint, and so the semantics of it isn't very well defined. The intention
      * is to assist JavaScript debugging.
      */
-    public boolean debug = Boolean.getBoolean(AdjunctManager.class.getName()+".debug");
+    public boolean debug = Boolean.getBoolean(AdjunctManager.class.getName() + ".debug");
 
     public final WebApp webApp;
     private final long expiration;
 
     @Deprecated
-    public AdjunctManager(ServletContext context,ClassLoader classLoader, String rootURL) {
-        this(context, classLoader, rootURL, /* one day */24L * 60 * 60 * 1000);
+    public AdjunctManager(ServletContext context, ClassLoader classLoader, String rootURL) {
+        this(context, classLoader, rootURL, /* one day */ 24L * 60 * 60 * 1000);
     }
 
     /**
@@ -125,7 +125,7 @@ public class AdjunctManager {
         this.webApp = WebApp.get(context);
         this.expiration = expiration;
         // register this globally
-        context.setAttribute(KEY,this);
+        context.setAttribute(KEY, this);
     }
 
     public static AdjunctManager get(ServletContext context) {
@@ -142,13 +142,17 @@ public class AdjunctManager {
      */
     public Adjunct get(String name) throws IOException {
         Adjunct a = adjuncts.get(name);
-        if(a!=null) return a;   // found it
+        if (a != null) {
+            return a; // found it
+        }
 
         synchronized (this) {
             a = adjuncts.get(name);
-            if(a!=null) return a;   // one more check before we start loading
-            a = new Adjunct(this,name,classLoader);
-            adjuncts.put(name,a);
+            if (a != null) {
+                return a; // one more check before we start loading
+            }
+            a = new Adjunct(this, name, classLoader);
+            adjuncts.put(name, a);
             return a;
         }
     }
@@ -159,12 +163,15 @@ public class AdjunctManager {
     public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         String path = req.getRestOfPath();
         if (path.length() == 0) {
-            throw HttpResponses.error(HttpServletResponse.SC_NOT_FOUND,new IllegalArgumentException("No adjunct provided"));
+            throw HttpResponses.error(
+                    HttpServletResponse.SC_NOT_FOUND, new IllegalArgumentException("No adjunct provided"));
         }
-        if (path.charAt(0)=='/') path = path.substring(1);
+        if (path.charAt(0) == '/') {
+            path = path.substring(1);
+        }
 
-        if(!allowedResources.contains(path)) {
-            if(!allowResourceToBeServed(path)) {
+        if (!allowedResources.contains(path)) {
+            if (!allowResourceToBeServed(path)) {
                 rsp.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
@@ -173,11 +180,12 @@ public class AdjunctManager {
         }
 
         URL res = classLoader.getResource(path);
-        if(res==null) {
-            throw HttpResponses.error(HttpServletResponse.SC_NOT_FOUND,new IllegalArgumentException("No such adjunct found: "+path));
+        if (res == null) {
+            throw HttpResponses.error(
+                    HttpServletResponse.SC_NOT_FOUND, new IllegalArgumentException("No such adjunct found: " + path));
         } else {
             long expires = MetaClass.NO_CACHE ? 0 : expiration;
-            rsp.serveFile(req,res,expires);
+            rsp.serveFile(req, res, expires);
         }
     }
 
@@ -190,21 +198,22 @@ public class AdjunctManager {
      * <p>
      * {@link AdjunctManager} is capable of serving all the resources visible
      * in the classloader by default. If the resource files need to be kept private,
-     * return false, which causes the request to fail with 401. 
+     * return false, which causes the request to fail with 401.
      *
      * Otherwise return true, in which case the resource will be served.
      */
     protected boolean allowResourceToBeServed(String absolutePath) {
         // does it have an adjunct directory marker?
         int idx = absolutePath.lastIndexOf('/');
-        if (idx>0 && classLoader.getResource(absolutePath.substring(0,idx)+"/.adjunct")!=null)
+        if (idx > 0 && classLoader.getResource(absolutePath.substring(0, idx) + "/.adjunct") != null) {
             return true;
+        }
 
         // backward compatible behaviour
         return absolutePath.endsWith(".gif")
-            || absolutePath.endsWith(".png")
-            || absolutePath.endsWith(".css")
-            || absolutePath.endsWith(".js");
+                || absolutePath.endsWith(".png")
+                || absolutePath.endsWith(".css")
+                || absolutePath.endsWith(".js");
     }
 
     /**

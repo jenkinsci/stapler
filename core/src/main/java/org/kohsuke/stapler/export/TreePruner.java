@@ -52,16 +52,21 @@ public abstract class TreePruner {
         }
 
         private ByDepth next() {
-            if (next==null)
-                next = new ByDepth(n+1);
+            if (next == null) {
+                next = new ByDepth(n + 1);
+            }
             return next;
         }
 
         @Override
         public TreePruner accept(Object node, Property prop) {
-            if (prop.visibility < n)    return null;    // not visible
+            if (prop.visibility < n) {
+                return null; // not visible
+            }
 
-            if (prop.inline || prop.merge)    return this;
+            if (prop.inline || prop.merge) {
+                return this;
+            }
             return next();
         }
     }

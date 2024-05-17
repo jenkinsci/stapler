@@ -47,9 +47,12 @@ final class PythonDataWriter extends JSONDataWriter {
 
     @Override
     public void valuePrimitive(Object v) throws IOException {
-        if(v instanceof Boolean) {
-            if((Boolean)v)  data("True");
-            else            data("False");
+        if (v instanceof Boolean) {
+            if ((Boolean) v) {
+                data("True");
+            } else {
+                data("False");
+            }
             return;
         }
         super.valuePrimitive(v);

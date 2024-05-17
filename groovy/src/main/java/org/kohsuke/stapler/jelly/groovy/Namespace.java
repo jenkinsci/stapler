@@ -48,17 +48,17 @@ public class Namespace extends GroovyObjectSupport {
     Namespace(JellyBuilder builder, String nsUri, String prefix) {
         this.builder = builder;
         this.nsUri = nsUri;
-        this.prefix = prefix==null ? "" : prefix;
+        this.prefix = prefix == null ? "" : prefix;
     }
 
     @Override
     public Object invokeMethod(String localName, Object args) {
-        builder.doInvokeMethod(new QName(nsUri,localName,prefix),args);
+        builder.doInvokeMethod(new QName(nsUri, localName, prefix), args);
         return null;
     }
 
     public void startPrefixMapping(XMLOutput output) throws SAXException {
-        output.startPrefixMapping(prefix,nsUri);
+        output.startPrefixMapping(prefix, nsUri);
     }
 
     public void endPrefixMapping(XMLOutput output) throws SAXException {
@@ -70,7 +70,7 @@ public class Namespace extends GroovyObjectSupport {
      */
     public <T extends TypedTagLibrary> T createInvoker(Class<T> type) {
         ProxyImpl handler = new ProxyImpl();
-        Object proxy = Proxy.newProxyInstance(type.getClassLoader(), new Class[]{type}, handler);
+        Object proxy = Proxy.newProxyInstance(type.getClassLoader(), new Class[] {type}, handler);
         handler.setMetaClass(InvokerHelper.getMetaClass(proxy.getClass()));
         return type.cast(proxy);
     }
@@ -79,18 +79,19 @@ public class Namespace extends GroovyObjectSupport {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             Class<?> decl = method.getDeclaringClass();
-            if (decl==Object.class || decl==GroovyObject.class)
+            if (decl == Object.class || decl == GroovyObject.class) {
                 try {
-                    return method.invoke(this,args);
+                    return method.invoke(this, args);
                 } catch (InvocationTargetException e) {
                     throw e.getCause();
                 }
+            }
 
             TagFile a = method.getAnnotation(TagFile.class);
-            String tagName = a!=null ? a.value() : method.getName();
+            String tagName = a != null ? a.value() : method.getName();
 
             // invoke methods
-            builder.doInvokeMethod(new QName(nsUri,tagName,prefix),args);
+            builder.doInvokeMethod(new QName(nsUri, tagName, prefix), args);
             return null;
         }
 
@@ -99,7 +100,7 @@ public class Namespace extends GroovyObjectSupport {
          */
         @Override
         public Object invokeMethod(String name, Object args) {
-            return Namespace.this.invokeMethod(name,args);
+            return Namespace.this.invokeMethod(name, args);
         }
     }
 }

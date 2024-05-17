@@ -102,26 +102,30 @@ public class Adjunct {
     public Adjunct(AdjunctManager manager, String name, final ClassLoader classLoader) throws IOException {
         this.manager = manager;
         this.name = name;
-        this.slashedName = name.replace('.','/');
-        this.packageName = slashedName.substring(0, Math.max(0,slashedName.lastIndexOf('/')));
+        this.slashedName = name.replace('.', '/');
+        this.packageName = slashedName.substring(0, Math.max(0, slashedName.lastIndexOf('/')));
 
-        this.hasCss = parseOne(classLoader, slashedName+".css");
-        this.hasJavaScript = parseOne(classLoader,slashedName+".js");
-        this.inclusionFragment = parseHtml(classLoader,slashedName+".html");
+        this.hasCss = parseOne(classLoader, slashedName + ".css");
+        this.hasJavaScript = parseOne(classLoader, slashedName + ".js");
+        this.inclusionFragment = parseHtml(classLoader, slashedName + ".html");
 
         URL jelly = classLoader.getResource(slashedName + ".jelly");
-        if (jelly!=null) {
+        if (jelly != null) {
             try {
-                script = MetaClassLoader.get(classLoader).loadTearOff(JellyClassLoaderTearOff.class).createContext().compileScript(jelly);
+                script = MetaClassLoader.get(classLoader)
+                        .loadTearOff(JellyClassLoaderTearOff.class)
+                        .createContext()
+                        .compileScript(jelly);
             } catch (JellyException e) {
-                throw new IOException("Failed to load "+jelly,e);
+                throw new IOException("Failed to load " + jelly, e);
             }
         } else {
             script = null;
         }
 
-        if(!hasCss && !hasJavaScript && inclusionFragment==null && script==null)
-            throw new NoSuchAdjunctException("Neither "+ name +".css, .js, .html, nor .jelly were found");
+        if (!hasCss && !hasJavaScript && inclusionFragment == null && script == null) {
+            throw new NoSuchAdjunctException("Neither " + name + ".css, .js, .html, nor .jelly were found");
+        }
     }
 
     /**
@@ -145,14 +149,17 @@ public class Adjunct {
      */
     private boolean parseOne(ClassLoader classLoader, String resName) throws IOException {
         InputStream is = classLoader.getResourceAsStream(resName);
-        if (is == null)     return false;
+        if (is == null) {
+            return false;
+        }
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(is,StandardCharsets.UTF_8));
+        BufferedReader in = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
         String line;
-        while((line=in.readLine())!=null) {
+        while ((line = in.readLine()) != null) {
             Matcher m = INCLUDE.matcher(line);
-            if(m.lookingAt())
+            if (m.lookingAt()) {
                 required.add(m.group(1));
+            }
         }
         in.close();
         return true;
@@ -163,50 +170,63 @@ public class Adjunct {
      */
     private String parseHtml(ClassLoader classLoader, String resName) throws IOException {
         InputStream is = classLoader.getResourceAsStream(resName);
-        if (is == null)     return null;
+        if (is == null) {
+            return null;
+        }
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(is,StandardCharsets.UTF_8));
+        BufferedReader in = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
         String line;
         StringBuilder buf = new StringBuilder();
-        while((line=in.readLine())!=null) {
+        while ((line = in.readLine()) != null) {
             Matcher m = HTML_INCLUDE.matcher(line);
-            if(m.lookingAt())
+            if (m.lookingAt()) {
                 required.add(m.group(1));
-            else
+            } else {
                 buf.append(line).append('\n');
+            }
         }
         in.close();
         return buf.toString();
     }
 
-
     public boolean has(Kind k) {
         switch (k) {
-        case CSS:   return hasCss;
-        case JS:    return hasJavaScript;
+            case CSS:
+                return hasCss;
+            case JS:
+                return hasJavaScript;
         }
         throw new AssertionError(k);
     }
 
     public void write(StaplerRequest req, XMLOutput out) throws SAXException, IOException {
-        if(inclusionFragment!=null) {
+        if (inclusionFragment != null) {
             out.write(inclusionFragment);
             return;
         }
-        if (script!=null)
+        if (script != null) {
             try {
-                WebApp.getCurrent().getFacet(JellyFacet.class).scriptInvoker.invokeScript(req, Stapler.getCurrentResponse(), script, this, out);
+                WebApp.getCurrent()
+                        .getFacet(JellyFacet.class)
+                        .scriptInvoker
+                        .invokeScript(req, Stapler.getCurrentResponse(), script, this, out);
             } catch (JellyTagException e) {
-                throw new IOException("Failed to execute Jelly script for adjunct "+name,e);
+                throw new IOException("Failed to execute Jelly script for adjunct " + name, e);
             }
-        
-        if(hasCss)
-            out.write("<link rel='stylesheet' href='" + getBaseName(req)+".css' type='text/css' />");
-        if(hasJavaScript)
-            out.write("<script src='" + getBaseName(req) +".js' type='text/javascript'></script>");
+        }
+
+        if (hasCss) {
+            out.write("<link rel='stylesheet' href='" + getBaseName(req) + ".css' type='text/css' />");
+        }
+        if (hasJavaScript) {
+            out.write("<script src='" + getBaseName(req) + ".js' type='text/javascript'></script>");
+        }
     }
 
-    public enum Kind { CSS, JS }
+    public enum Kind {
+        CSS,
+        JS
+    }
 
     /**
      * "@include fully.qualified.name" in a block or line comment.

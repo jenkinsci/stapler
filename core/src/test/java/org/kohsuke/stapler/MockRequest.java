@@ -219,7 +219,7 @@ public class MockRequest implements HttpServletRequest {
         throw new UnsupportedOperationException();
     }
 
-    public Map<String,String> parameters = new HashMap<>();
+    public Map<String, String> parameters = new HashMap<>();
 
     @Override
     public String getParameter(String name) {
@@ -235,8 +235,10 @@ public class MockRequest implements HttpServletRequest {
     @Override
     public String[] getParameterValues(String name) {
         String v = getParameter(name);
-        if (v==null)    return new String[0];
-        return new String[]{v};
+        if (v == null) {
+            return new String[0];
+        }
+        return new String[] {v};
     }
 
     @Override

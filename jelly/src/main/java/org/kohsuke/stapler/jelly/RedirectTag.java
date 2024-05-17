@@ -34,7 +34,7 @@ import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * Sends HTTP redirect.
- * 
+ *
  * @author Kohsuke Kawaguchi
  */
 @NoContent
@@ -55,8 +55,7 @@ public class RedirectTag extends TagSupport {
         try {
             Stapler.getCurrentResponse().sendRedirect2(url);
         } catch (IOException e) {
-            throw new JellyTagException("Failed to redirect to "+url,e);
+            throw new JellyTagException("Failed to redirect to " + url, e);
         }
     }
 }
-

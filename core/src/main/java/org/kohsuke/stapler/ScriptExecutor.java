@@ -38,5 +38,6 @@ public interface ScriptExecutor<S> {
     /**
      * Executes the given script on the given node and request, rendering output to the given response.
      */
-    void execute(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp, @NonNull S script, @CheckForNull Object it) throws Exception;
+    void execute(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp, @NonNull S script, @CheckForNull Object it)
+            throws Exception;
 }

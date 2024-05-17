@@ -39,17 +39,17 @@ final class MethodProperty extends Property {
     private final Method method;
 
     MethodProperty(Model owner, Method m, Exported exported) {
-        super(owner,buildName(m.getName()), m.getGenericReturnType(), exported);
+        super(owner, buildName(m.getName()), m.getGenericReturnType(), exported);
         this.method = m;
         this.handle = MethodHandleFactory.get(method);
     }
 
     private static String buildName(String name) {
-        if(name.startsWith("get"))
+        if (name.startsWith("get")) {
             name = name.substring(3);
-        else
-        if(name.startsWith("is"))
+        } else if (name.startsWith("is")) {
             name = name.substring(2);
+        }
 
         return Introspector.decapitalize(name);
     }
@@ -66,7 +66,7 @@ final class MethodProperty extends Property {
 
     @Override
     public String getJavadoc() {
-        return parent.getJavadoc().getProperty(method.getName()+"()");
+        return parent.getJavadoc().getProperty(method.getName() + "()");
     }
 
     @Override

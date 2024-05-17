@@ -40,16 +40,25 @@ import org.junit.Test;
 import org.xml.sax.SAXParseException;
 
 public class SchemaGeneratorTest {
-    @ExportedBean public static class Y {
-        @Exported public String a = "aval";
+    @ExportedBean
+    public static class Y {
+        @Exported
+        public String a = "aval";
     }
 
-    @ExportedBean public static class X extends Y {
-        @Exported public String getB() {return "bval";}
-        @Exported public Y y = new Y();
+    @ExportedBean
+    public static class X extends Y {
+        @Exported
+        public String getB() {
+            return "bval";
+        }
+
+        @Exported
+        public Y y = new Y();
     }
 
-    @Test public void basics() throws Exception {
+    @Test
+    public void basics() throws Exception {
         validate(new X(), X.class);
     }
 
@@ -58,7 +67,7 @@ public class SchemaGeneratorTest {
         validate(new XMLDataWriterTest.Container(), XMLDataWriterTest.Container.class);
     }
     */
-    
+
     private static <T> void validate(T bean, Class<T> clazz) throws Exception {
         Model<T> model = new ModelBuilder().get(clazz);
         ByteArrayOutputStream schema = new ByteArrayOutputStream();
@@ -66,10 +75,12 @@ public class SchemaGeneratorTest {
         StringWriter xml = new StringWriter();
         model.writeTo(bean, Flavor.XML.createDataWriter(bean, xml));
         try {
-            SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(new StreamSource(new ByteArrayInputStream(schema.toByteArray()))).newValidator().validate(new StreamSource(new StringReader(xml.toString())));
+            SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+                    .newSchema(new StreamSource(new ByteArrayInputStream(schema.toByteArray())))
+                    .newValidator()
+                    .validate(new StreamSource(new StringReader(xml.toString())));
         } catch (SAXParseException x) {
             fail(x + "\n" + xml + "\n" + schema);
         }
     }
-
 }

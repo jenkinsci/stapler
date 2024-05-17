@@ -43,7 +43,7 @@ public abstract class AttributeKey<T> {
     }
 
     public final void set(T value) {
-        set(Stapler.getCurrentRequest(),value);
+        set(Stapler.getCurrentRequest(), value);
     }
 
     public final void remove() {
@@ -57,7 +57,7 @@ public abstract class AttributeKey<T> {
         return new AttributeKey<T>() {
             @Override
             public T get(HttpServletRequest req) {
-                return (T)req.getAttribute(name);
+                return (T) req.getAttribute(name);
             }
 
             @Override
@@ -80,8 +80,10 @@ public abstract class AttributeKey<T> {
             @Override
             public T get(HttpServletRequest req) {
                 HttpSession s = req.getSession(false);
-                if (s==null)    return null;
-                return (T)s.getAttribute(name);
+                if (s == null) {
+                    return null;
+                }
+                return (T) s.getAttribute(name);
             }
 
             @Override
@@ -92,8 +94,9 @@ public abstract class AttributeKey<T> {
             @Override
             public void remove(HttpServletRequest req) {
                 HttpSession s = req.getSession(false);
-                if (s!=null)
+                if (s != null) {
                     s.removeAttribute(name);
+                }
             }
         };
     }
@@ -119,7 +122,7 @@ public abstract class AttributeKey<T> {
             }
 
             private ServletContext getContext(HttpServletRequest req) {
-                return ((StaplerRequest)req).getServletContext();
+                return ((StaplerRequest) req).getServletContext();
             }
         };
     }

@@ -53,20 +53,24 @@ public class OutTag extends TagSupport {
         final String text = value.evaluateAsString(context);
         if (text != null) {
             StringBuilder buf = new StringBuilder(text.length());
-            for (int i=0; i<text.length(); i++ ) {
+            for (int i = 0; i < text.length(); i++) {
                 char ch = text.charAt(i);
-                switch(ch) {
-                case '<':       buf.append("&lt;");     break;
-                case '&':       buf.append("&amp;");    break;
-                default:        buf.append(ch);
+                switch (ch) {
+                    case '<':
+                        buf.append("&lt;");
+                        break;
+                    case '&':
+                        buf.append("&amp;");
+                        break;
+                    default:
+                        buf.append(ch);
                 }
             }
 
             try {
                 output.write(buf.toString());
-            }
-            catch (SAXException e) {
-                throw new JellyTagException("could not write the XMLOutput",e);
+            } catch (SAXException e) {
+                throw new JellyTagException("could not write the XMLOutput", e);
             }
         }
     }

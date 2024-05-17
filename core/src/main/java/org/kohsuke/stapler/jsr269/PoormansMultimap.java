@@ -18,15 +18,15 @@ import java.util.Map;
  *
  * @author Kohsuke Kawaguchi
  */
-class PoormansMultimap<K,V> {
-    private final HashMap<K,List<V>> store = new HashMap<>();
+class PoormansMultimap<K, V> {
+    private final HashMap<K, List<V>> store = new HashMap<>();
 
     public void put(K k, V v) {
         List<V> l = store.computeIfAbsent(k, unused -> new ArrayList<>());
         l.add(v);
     }
 
-    public Map<K,Collection<V>> asMap() {
-        return (Map)store;
+    public Map<K, Collection<V>> asMap() {
+        return (Map) store;
     }
 }

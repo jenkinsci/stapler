@@ -54,5 +54,4 @@ import net.sf.json.JSONObject;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.CONSTRUCTOR)
 @Documented
-public @interface DataBoundConstructor {
-}
+public @interface DataBoundConstructor {}

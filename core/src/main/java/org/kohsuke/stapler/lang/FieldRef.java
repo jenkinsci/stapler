@@ -108,7 +108,7 @@ public abstract class FieldRef extends AnnotatedRef {
 
             @Override
             public String getQualifiedName() {
-                return f.getDeclaringClass().getName()+"."+getName();
+                return f.getDeclaringClass().getName() + "." + getName();
             }
 
             @Override

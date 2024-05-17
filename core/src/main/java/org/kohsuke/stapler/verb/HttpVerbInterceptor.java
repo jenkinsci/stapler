@@ -42,11 +42,13 @@ import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
  */
 public class HttpVerbInterceptor extends Interceptor {
     @Override
-    public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments) throws IllegalAccessException, InvocationTargetException, ServletException {
-        if (matches(request))
-            return target.invoke(request,response,instance,arguments);
-        else
+    public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
+            throws IllegalAccessException, InvocationTargetException, ServletException {
+        if (matches(request)) {
+            return target.invoke(request, response, instance, arguments);
+        } else {
             throw new CancelRequestHandlingException();
+        }
     }
 
     private boolean matches(StaplerRequest request) {

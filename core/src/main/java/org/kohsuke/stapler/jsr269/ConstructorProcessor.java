@@ -25,7 +25,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 @SupportedAnnotationTypes("*")
 @MetaInfServices(Processor.class)
 public class ConstructorProcessor extends AbstractProcessorImpl {
-   /* private */ final static String MESSAGE = "Only one annotated constructor (@DataBoundConstructor annotation or @stapler-constructor javadoc) is permitted per class";
+    /* private */ static final String MESSAGE =
+            "Only one annotated constructor (@DataBoundConstructor annotation or @stapler-constructor javadoc) is permitted per class";
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -36,11 +37,11 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
 
                 @Override
                 public Void visitExecutable(ExecutableElement e, Void aVoid) {
-                    if(e.getAnnotation(DataBoundConstructor.class)!=null) {
+                    if (e.getAnnotation(DataBoundConstructor.class) != null) {
                         writeOrAddOnlyOneMessage(e);
                     } else {
                         String javadoc = getJavadoc(e);
-                        if(javadoc!=null && javadoc.contains("@stapler-constructor")) {
+                        if (javadoc != null && javadoc.contains("@stapler-constructor")) {
                             writeOrAddOnlyOneMessage(e);
                         }
                     }
@@ -56,7 +57,7 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
                 private void writeOrAddOnlyOneMessage(ExecutableElement e) {
                     if (enclosingElementsWritten.add(e.getEnclosingElement())) {
                         write(e);
-                    } else if (!messagePrinted){
+                    } else if (!messagePrinted) {
                         processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, MESSAGE, e);
                         messagePrinted = true;
                     }
@@ -85,17 +86,27 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
 
     private void write(ExecutableElement c) {
         if (!c.getModifiers().contains(Modifier.PUBLIC)) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "@DataBoundConstructor must be applied to a public constructor", c);
+            processingEnv
+                    .getMessager()
+                    .printMessage(
+                            Diagnostic.Kind.ERROR, "@DataBoundConstructor must be applied to a public constructor", c);
             return;
         }
         if (c.getEnclosingElement().getModifiers().contains(Modifier.ABSTRACT)) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "@DataBoundConstructor may not be used on an abstract class (only on concrete subclasses)", c);
+            processingEnv
+                    .getMessager()
+                    .printMessage(
+                            Diagnostic.Kind.ERROR,
+                            "@DataBoundConstructor may not be used on an abstract class (only on concrete subclasses)",
+                            c);
             return;
         }
         try {
             StringBuilder buf = new StringBuilder();
-            for( VariableElement p : c.getParameters() ) {
-                if(buf.length()>0)  buf.append(',');
+            for (VariableElement p : c.getParameters()) {
+                if (buf.length() > 0) {
+                    buf.append(',');
+                }
                 buf.append(p.getSimpleName());
             }
 
@@ -104,7 +115,7 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
             notice("Generating " + name, c);
 
             Properties p = new Properties();
-            p.put("constructor",buf.toString());
+            p.put("constructor", buf.toString());
             writePropertyFile(p, name);
         } catch (IOException x) {
             error(x);

@@ -40,7 +40,9 @@ import javax.tools.StandardLocation;
  * @author Kohsuke Kawaguchi
  */
 abstract class AbstractProcessorImpl extends AbstractProcessor {
-    @SuppressFBWarnings(value = "INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE", justification = "Jenkins handles this issue differently or doesn't care about it")
+    @SuppressFBWarnings(
+            value = "INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE",
+            justification = "Jenkins handles this issue differently or doesn't care about it")
     protected String toString(Throwable t) {
         StringWriter w = new StringWriter();
         t.printStackTrace(new PrintWriter(w));
@@ -72,8 +74,9 @@ abstract class AbstractProcessorImpl extends AbstractProcessor {
          * set the "java.properties.date" system property to a fixed string and avoid the need to work around internal
          * Java Platform implementation details.
          */
-        try (Writer w = f.openWriter(); BufferedWriter bw = new CommentStrippingBufferedWriter(w)) {
-            p.store(bw,null);
+        try (Writer w = f.openWriter();
+                BufferedWriter bw = new CommentStrippingBufferedWriter(w)) {
+            p.store(bw, null);
         }
     }
 

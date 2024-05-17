@@ -33,5 +33,4 @@ public class JsonBodyTest extends JettyTestCase {
     public static class Point {
         public int x, y;
     }
-
 }

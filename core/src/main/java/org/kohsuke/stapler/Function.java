@@ -95,18 +95,18 @@ public abstract class Function {
      * Return type of the method.
      */
     public abstract Class getReturnType();
-    
+
     /**
-     * Gets the type of checked exceptions. 
+     * Gets the type of checked exceptions.
      * <p>
      * Take care that {@link RuntimeException} can be checked but it's not mandatory
      */
     public abstract Class[] getCheckedExceptionTypes();
-    
+
     /**
      * Returns the {@code Class} object representing the class or interface
      * that declares the executable represented by this object.
-     * @see java.lang.reflect.Member#getDeclaringClass() 
+     * @see java.lang.reflect.Member#getDeclaringClass()
      */
     public abstract Class getDeclaringClass();
 
@@ -114,7 +114,7 @@ public abstract class Function {
      * Returns true if and only if the function is static.
      */
     public abstract boolean isStatic();
-    
+
     /**
      * Caller uses this method to tell {@link Function} about how it is being used.
      * By default, this methods ignores the given context by returning {@code this}.
@@ -132,29 +132,36 @@ public abstract class Function {
      *      and the search for the next request handler should continue. An exception is thrown
      *      if the request was dispatched but the processing failed.
      */
-    boolean bindAndInvokeAndServeResponse(Object node, RequestImpl req, ResponseImpl rsp, Object... headArgs) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+    boolean bindAndInvokeAndServeResponse(Object node, RequestImpl req, ResponseImpl rsp, Object... headArgs)
+            throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
         try {
             Object r = bindAndInvoke(node, req, rsp, headArgs);
-            if (getReturnType() != void.class)
+            if (getReturnType() != void.class) {
                 renderResponse(req, rsp, node, r);
+            }
             return true;
         } catch (CancelRequestHandlingException unused) {
             return false;
         } catch (InvocationTargetException e) {
             // exception as an HttpResponse
             Throwable te = e.getTargetException();
-            if (te instanceof CancelRequestHandlingException)
+            if (te instanceof CancelRequestHandlingException) {
                 return false;
-            if (renderResponse(req,rsp,node,te))
-                return true;    // exception rendered the response
-            throw e;    // unprocessed exception
+            }
+            if (renderResponse(req, rsp, node, te)) {
+                return true; // exception rendered the response
+            }
+            throw e; // unprocessed exception
         }
     }
 
-    static boolean renderResponse(RequestImpl req, ResponseImpl rsp, Object node, Object ret) throws IOException, ServletException {
-        for (HttpResponseRenderer r : req.stapler.getWebApp().getResponseRenderers())
-            if (r.generateResponse(req,rsp,node,ret))
+    static boolean renderResponse(RequestImpl req, ResponseImpl rsp, Object node, Object ret)
+            throws IOException, ServletException {
+        for (HttpResponseRenderer r : req.stapler.getWebApp().getResponseRenderers()) {
+            if (r.generateResponse(req, rsp, node, ret)) {
                 return true;
+            }
+        }
         return false;
     }
 
@@ -163,7 +170,8 @@ public abstract class Function {
      * then figure out the rest of the arguments by looking at parameter annotations,
      * then finally call {@link #invoke}.
      */
-    Object bindAndInvoke(Object o, StaplerRequest req, StaplerResponse rsp, Object... headArgs) throws IllegalAccessException, InvocationTargetException, ServletException {
+    Object bindAndInvoke(Object o, StaplerRequest req, StaplerResponse rsp, Object... headArgs)
+            throws IllegalAccessException, InvocationTargetException, ServletException {
         Class[] types = getParameterTypes();
         Annotation[][] annotations = getParameterAnnotations();
         String[] parameterNames = getParameterNames();
@@ -171,37 +179,36 @@ public abstract class Function {
         Object[] arguments = new Object[types.length];
 
         // fill in the first N arguments
-        System.arraycopy(headArgs,0,arguments,0,headArgs.length);
+        System.arraycopy(headArgs, 0, arguments, 0, headArgs.length);
 
         try {
             // find the rest of the arguments. either known types, or with annotations
-            for( int i=headArgs.length; i<types.length; i++ ) {
+            for (int i = headArgs.length; i < types.length; i++) {
                 Class t = types[i];
-                if(t==StaplerRequest.class || t==HttpServletRequest.class) {
+                if (t == StaplerRequest.class || t == HttpServletRequest.class) {
                     arguments[i] = req;
                     continue;
                 }
-                if(t==StaplerResponse.class || t==HttpServletResponse.class) {
+                if (t == StaplerResponse.class || t == HttpServletResponse.class) {
                     arguments[i] = rsp;
                     continue;
                 }
 
                 // if the databinding method is provided, call that
                 Function binder = PARSE_METHODS.get(t);
-                if (binder!=RETURN_NULL) {
-                    arguments[i] = binder.bindAndInvoke(null,req,rsp);
+                if (binder != RETURN_NULL) {
+                    arguments[i] = binder.bindAndInvoke(null, req, rsp);
                     continue;
                 }
-                
-                arguments[i] = AnnotationHandler.handle(req,annotations[i],
-                    i<parameterNames.length ? parameterNames[i] : null,
-                    t);
+
+                arguments[i] = AnnotationHandler.handle(
+                        req, annotations[i], i < parameterNames.length ? parameterNames[i] : null, t);
             }
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Failed to invoke "+getDisplayName(),e);
+            throw new IllegalArgumentException("Failed to invoke " + getDisplayName(), e);
         }
 
-        return invoke(req, rsp, o,arguments);
+        return invoke(req, rsp, o, arguments);
     }
 
     /**
@@ -209,13 +216,14 @@ public abstract class Function {
      * The discovered method will be returned as a Function so that the invocation can do parameter injections.
      */
     private static final ClassValue<Function> PARSE_METHODS;
+
     private static final Function RETURN_NULL;
 
     static {
         try {
             RETURN_NULL = new StaticFunction(Function.class.getMethod("returnNull"));
         } catch (NoSuchMethodException e) {
-            throw new AssertionError(e);    // impossible
+            throw new AssertionError(e); // impossible
         }
 
         PARSE_METHODS = new ClassValue<Function>() {
@@ -224,32 +232,34 @@ public abstract class Function {
                 // MethdFunction for invoking a static method as a static method
                 FunctionList methods = new ClassDescriptor(from).methods.name("fromStapler");
                 switch (methods.size()) {
-                case 0: return RETURN_NULL;
-                default:
-                    throw new IllegalArgumentException("Too many 'fromStapler' methods on "+from);
-                case 1:
-                    Method m = ((MethodFunction)methods.get(0)).m;
-                    return new MethodFunction(m) {
-                        @Override
-                        public Class[] getParameterTypes() {
-                            return m.getParameterTypes();
-                        }
+                    case 0:
+                        return RETURN_NULL;
+                    default:
+                        throw new IllegalArgumentException("Too many 'fromStapler' methods on " + from);
+                    case 1:
+                        Method m = ((MethodFunction) methods.get(0)).m;
+                        return new MethodFunction(m) {
+                            @Override
+                            public Class[] getParameterTypes() {
+                                return m.getParameterTypes();
+                            }
 
-                        @Override
-                        public Type[] getGenericParameterTypes() {
-                            return m.getGenericParameterTypes();
-                        }
+                            @Override
+                            public Type[] getGenericParameterTypes() {
+                                return m.getGenericParameterTypes();
+                            }
 
-                        @Override
-                        public Annotation[][] getParameterAnnotations() {
-                            return m.getParameterAnnotations();
-                        }
+                            @Override
+                            public Annotation[][] getParameterAnnotations() {
+                                return m.getParameterAnnotations();
+                            }
 
-                        @Override
-                        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
-                            return m.invoke(null,args);
-                        }
-                    };
+                            @Override
+                            public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+                                    throws IllegalAccessException, InvocationTargetException {
+                                return m.invoke(null, args);
+                            }
+                        };
                 }
             }
         };
@@ -258,33 +268,40 @@ public abstract class Function {
     /**
      * @see StaticFunction#RETURN_NULL
      */
-    public static Object returnNull() { return null; }
+    public static Object returnNull() {
+        return null;
+    }
 
     /**
      * Invokes the method.
      */
-    public abstract Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException;
+    public abstract Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+            throws IllegalAccessException, InvocationTargetException, ServletException;
 
     final Function wrapByInterceptors(AnnotatedElement m) {
         try {
             Function f = this;
             for (Annotation a : m.getAnnotations()) {
                 final InterceptorAnnotation ia = a.annotationType().getAnnotation(InterceptorAnnotation.class);
-                if (ia!=null) {
+                if (ia != null) {
                     try {
                         Interceptor i = ia.value().newInstance();
                         switch (ia.stage()) {
-                        case SELECTION:
-                            f = new SelectionInterceptedFunction(f,i);
-                            break;
-                        case PREINVOKE:
-                            f = new PreInvokeInterceptedFunction(f,i);
-                            break;
+                            case SELECTION:
+                                f = new SelectionInterceptedFunction(f, i);
+                                break;
+                            case PREINVOKE:
+                                f = new PreInvokeInterceptedFunction(f, i);
+                                break;
                         }
                     } catch (InstantiationException e) {
-                        throw (Error)new InstantiationError("Failed to instantiate interceptor for "+f.getDisplayName()).initCause(e);
+                        throw (Error)
+                                new InstantiationError("Failed to instantiate interceptor for " + f.getDisplayName())
+                                        .initCause(e);
                     } catch (IllegalAccessException e) {
-                        throw (Error)new IllegalAccessError("Failed to instantiate interceptor for "+f.getDisplayName()).initCause(e);
+                        throw (Error)
+                                new IllegalAccessError("Failed to instantiate interceptor for " + f.getDisplayName())
+                                        .initCause(e);
                     }
                 }
             }
@@ -326,7 +343,8 @@ public abstract class Function {
             String prefix = isStatic() ? "staticMethod" : "method";
             String value = String.join(" ", prefix, m.getDeclaringClass().getName(), getName());
             if (getParameterTypes().length > 0) {
-                value += " " + Stream.of(getParameterTypes()).map(Class::getName).collect(Collectors.joining(" "));
+                value +=
+                        " " + Stream.of(getParameterTypes()).map(Class::getName).collect(Collectors.joining(" "));
             }
             return value;
         }
@@ -338,7 +356,7 @@ public abstract class Function {
 
         @Override
         public String getQualifiedName() {
-            return m.getDeclaringClass().getName()+'.'+getName();
+            return m.getDeclaringClass().getName() + '.' + getName();
         }
 
         @Override
@@ -353,8 +371,9 @@ public abstract class Function {
 
         @Override
         public final String[] getParameterNames() {
-            if(names==null)
+            if (names == null) {
                 names = ClassDescriptor.loadParameterNames(m);
+            }
             return names;
         }
 
@@ -367,21 +386,22 @@ public abstract class Function {
         public Class[] getCheckedExceptionTypes() {
             return m.getExceptionTypes();
         }
-    
-        @Override 
+
+        @Override
         public Class getDeclaringClass() {
             return m.getDeclaringClass();
         }
-    
+
         protected MethodHandle handle() {
-            if (handle==null) {
+            if (handle == null) {
                 handle = MethodHandleFactory.get(m);
             }
             return handle;
         }
 
         @Override
-        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException {
+        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+                throws IllegalAccessException, InvocationTargetException {
             Object[] arguments;
             if (Modifier.isStatic(m.getModifiers())) {
                 arguments = args;
@@ -440,7 +460,9 @@ public abstract class Function {
         public <A extends Annotation> A getAnnotation(Class<A> annotation) {
             for (Method m : methods) {
                 A a = m.getAnnotation(annotation);
-                if (a!=null)    return a;
+                if (a != null) {
+                    return a;
+                }
             }
             return null;
         }
@@ -459,7 +481,7 @@ public abstract class Function {
             Annotation[][] all = null;
             for (Method m : methods) {
                 Annotation[][] next = m.getParameterAnnotations();
-                if (all==null) {
+                if (all == null) {
                     all = next;
                 } else {
                     for (int i = 0; i < next.length; i++) {
@@ -482,26 +504,25 @@ public abstract class Function {
         @Override
         public Class[] getParameterTypes() {
             Class[] p = m.getParameterTypes();
-            Class[] r = new Class[p.length-1];
-            System.arraycopy(p,1,r,0,r.length);
+            Class[] r = new Class[p.length - 1];
+            System.arraycopy(p, 1, r, 0, r.length);
             return r;
         }
 
         @Override
         public Type[] getGenericParameterTypes() {
             Type[] p = m.getGenericParameterTypes();
-            Type[] r = new Type[p.length-1];
-            System.arraycopy(p,1,r,0,r.length);
+            Type[] r = new Type[p.length - 1];
+            System.arraycopy(p, 1, r, 0, r.length);
             return r;
         }
 
         @Override
         public Annotation[][] getParameterAnnotations() {
             Annotation[][] a = m.getParameterAnnotations();
-            Annotation[][] r = new Annotation[a.length-1][];
-            System.arraycopy(a,1,r,0,r.length);
+            Annotation[][] r = new Annotation[a.length - 1][];
+            System.arraycopy(a, 1, r, 0, r.length);
             return r;
         }
     }
-
 }

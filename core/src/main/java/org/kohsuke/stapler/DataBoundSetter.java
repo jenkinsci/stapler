@@ -34,7 +34,6 @@ import net.sf.json.JSONObject;
  * @author Kohsuke Kawaguchi
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD,ElementType.FIELD})
+@Target({ElementType.METHOD, ElementType.FIELD})
 @Documented
-public @interface DataBoundSetter {
-}
+public @interface DataBoundSetter {}

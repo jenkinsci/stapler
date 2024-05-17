@@ -32,8 +32,8 @@ public class SubmittedFormTest extends JettyTestCase {
     }
 
     public HttpResponse doSubmit(@SubmittedForm JSONObject o) {
-        assertEquals("Kohsuke",o.getString("first"));
-        assertEquals("Kawaguchi",o.getString("last"));
+        assertEquals("Kohsuke", o.getString("first"));
+        assertEquals("Kawaguchi", o.getString("last"));
         return HttpResponses.ok();
     }
 }

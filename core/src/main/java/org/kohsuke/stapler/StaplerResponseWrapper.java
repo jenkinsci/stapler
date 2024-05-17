@@ -20,17 +20,17 @@ import org.kohsuke.stapler.export.Flavor;
 /**
  * A basic wrapper for a StaplerResponse, e.g. in order to override some method.
  * This simply delegates all method calls to the wrapped instance.
- * 
+ *
  * @since TODO
  */
 @SuppressWarnings("deprecation")
 public abstract class StaplerResponseWrapper implements StaplerResponse {
     private final StaplerResponse wrapped;
-    
+
     public StaplerResponseWrapper(StaplerResponse wrapped) {
         this.wrapped = wrapped;
     }
-    
+
     /**
      * Returns the wrapped instance
      */
@@ -108,29 +108,41 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
 
     /** {@inheritDoc} */
     @Override
-    public void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration,
-            long contentLength, String fileName) throws ServletException, IOException {
+    public void serveFile(
+            StaplerRequest req,
+            InputStream data,
+            long lastModified,
+            long expiration,
+            long contentLength,
+            String fileName)
+            throws ServletException, IOException {
         getWrapped().serveFile(req, data, lastModified, expiration, contentLength, fileName);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration,
-            int contentLength, String fileName) throws ServletException, IOException {
+    public void serveFile(
+            StaplerRequest req,
+            InputStream data,
+            long lastModified,
+            long expiration,
+            int contentLength,
+            String fileName)
+            throws ServletException, IOException {
         getWrapped().serveFile(req, data, lastModified, expiration, contentLength, fileName);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void serveFile(StaplerRequest req, InputStream data, long lastModified, long contentLength,
-            String fileName) throws ServletException, IOException {
+    public void serveFile(StaplerRequest req, InputStream data, long lastModified, long contentLength, String fileName)
+            throws ServletException, IOException {
         getWrapped().serveFile(req, data, lastModified, contentLength, fileName);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength,
-            String fileName) throws ServletException, IOException {
+    public void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName)
+            throws ServletException, IOException {
         getWrapped().serveFile(req, data, lastModified, contentLength, fileName);
     }
 

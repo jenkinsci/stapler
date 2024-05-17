@@ -45,7 +45,7 @@ import org.xml.sax.helpers.AttributesImpl;
  *
  * <p>
  * Unlike {@link StaticTagScript}, this doesn't even try to see if the tag name is available as a dynamic tag.
- * By not doing so, this implementation achieves a better performance both in speed and memory usage. 
+ * By not doing so, this implementation achieves a better performance both in speed and memory usage.
  *
  * <p>
  * Jelly by default uses {@link StaticTagScript} instance to represent a tag that's parsed as a static tag,
@@ -94,12 +94,13 @@ public class ReallyStaticTagLibrary extends TagLibrary {
 
             @Override
             public void run(JellyContext context, XMLOutput output) throws JellyTagException {
-                Attributes actual = allAttributesAreConstant && !EMIT_LOCATION ? getSaxAttributes() : buildAttributes(context);
+                Attributes actual =
+                        allAttributesAreConstant && !EMIT_LOCATION ? getSaxAttributes() : buildAttributes(context);
 
                 try {
-                    output.startElement(getNsUri(),getLocalName(),getElementName(),actual);
-                    getTagBody().run(context,output);
-                    output.endElement(getNsUri(),getLocalName(),getElementName());
+                    output.startElement(getNsUri(), getLocalName(), getElementName(), actual);
+                    getTagBody().run(context, output);
+                    output.endElement(getNsUri(), getLocalName(), getElementName());
                 } catch (SAXException x) {
                     throw new JellyTagException(x);
                 }
@@ -111,25 +112,33 @@ public class ReallyStaticTagLibrary extends TagLibrary {
                 for (ExpressionAttribute att : attributes.values()) {
                     Expression expression = att.exp;
                     String v = expression.evaluateAsString(context);
-                    if (v==null)    continue; // treat null as no attribute
-                    actual.addAttribute(att.nsURI, att.name, att.qname(),"CDATA", v);
+                    if (v == null) {
+                        continue; // treat null as no attribute
+                    }
+                    actual.addAttribute(att.nsURI, att.name, att.qname(), "CDATA", v);
                 }
 
                 if (EMIT_LOCATION) {
-                    actual.addAttribute("","file","file","CDATA",String.valueOf(getFileName()));
-                    actual.addAttribute("","line","line","CDATA",String.valueOf(getLineNumber()));
+                    actual.addAttribute("", "file", "file", "CDATA", String.valueOf(getFileName()));
+                    actual.addAttribute("", "line", "line", "CDATA", String.valueOf(getLineNumber()));
 
                     // try to obtain the meaningful part of the script and put it in CSS with a
-                    // class name like "jelly-foo-bar-xyz" given "file://path/to/src/tree/src/main/resources/foo/bar/xyz.jelly"
-                    String form = getFileName().replace('\\','/');
+                    // class name like "jelly-foo-bar-xyz" given
+                    // "file://path/to/src/tree/src/main/resources/foo/bar/xyz.jelly"
+                    String form = getFileName().replace('\\', '/');
                     for (String suffix : SUFFIX) {
                         int idx = form.lastIndexOf(suffix);
-                        if (idx>0)  form=form.substring(idx+suffix.length());
+                        if (idx > 0) {
+                            form = form.substring(idx + suffix.length());
+                        }
                     }
 
                     int c = actual.getIndex("class");
-                    if (c>=0)   actual.setValue(c, actual.getValue(c)+" "+form);
-                    else        actual.addAttribute("","class","class","CDATA",form);
+                    if (c >= 0) {
+                        actual.setValue(c, actual.getValue(c) + " " + form);
+                    } else {
+                        actual.addAttribute("", "class", "class", "CDATA", form);
+                    }
                 }
 
                 return actual;
@@ -147,5 +156,5 @@ public class ReallyStaticTagLibrary extends TagLibrary {
     @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
     public static boolean EMIT_LOCATION = false;
 
-    private static final String[] SUFFIX = {"src/main/resources/","src/test/resources/"};
+    private static final String[] SUFFIX = {"src/main/resources/", "src/test/resources/"};
 }

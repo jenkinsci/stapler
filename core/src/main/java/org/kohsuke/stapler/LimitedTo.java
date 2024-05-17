@@ -43,7 +43,7 @@ import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
  * @author Kohsuke Kawaguchi
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD,ElementType.FIELD})
+@Target({ElementType.METHOD, ElementType.FIELD})
 @InterceptorAnnotation(LimitedTo.Processor.class)
 public @interface LimitedTo {
     /**
@@ -52,9 +52,10 @@ public @interface LimitedTo {
      * to this role.
      */
     String value();
-    
+
     class Processor extends Interceptor {
         private String role;
+
         @Override
         public void setTarget(Function target) {
             role = target.getAnnotation(LimitedTo.class).value();
@@ -64,10 +65,11 @@ public @interface LimitedTo {
         @Override
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException, ServletException {
-            if(request.isUserInRole(role))
+            if (request.isUserInRole(role)) {
                 return target.invoke(request, response, instance, arguments);
-            else
-                throw new IllegalAccessException("Needs to be in role "+role);
+            } else {
+                throw new IllegalAccessException("Needs to be in role " + role);
+            }
         }
     }
 }

@@ -34,9 +34,10 @@ import org.kohsuke.stapler.jelly.JellyRequestDispatcher;
 /**
  * @author Kohsuke Kawaguchi
  */
-public final class GroovyClassTearOff extends AbstractTearOff<GroovyClassLoaderTearOff,GroovierJellyScript,IOException> {
+public final class GroovyClassTearOff
+        extends AbstractTearOff<GroovyClassLoaderTearOff, GroovierJellyScript, IOException> {
     public GroovyClassTearOff(MetaClass owner) {
-        super(owner,GroovyClassLoaderTearOff.class);
+        super(owner, GroovyClassLoaderTearOff.class);
     }
 
     @Override
@@ -55,8 +56,9 @@ public final class GroovyClassTearOff extends AbstractTearOff<GroovyClassLoaderT
     @Deprecated
     public RequestDispatcher createDispatcher(Object it, String viewName) throws IOException {
         Script script = findScript(viewName);
-        if(script!=null)
-            return new JellyRequestDispatcher(it,script);
+        if (script != null) {
+            return new JellyRequestDispatcher(it, script);
+        }
         return null;
     }
 }

@@ -9,5 +9,4 @@ import groovy.lang.GroovyObject;
  *
  * @author Kohsuke Kawaguchi
  */
-public interface TypedTagLibrary extends GroovyObject {
-}
+public interface TypedTagLibrary extends GroovyObject {}

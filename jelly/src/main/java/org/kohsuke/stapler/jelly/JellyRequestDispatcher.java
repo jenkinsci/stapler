@@ -50,20 +50,22 @@ public final class JellyRequestDispatcher implements RequestDispatcher {
     }
 
     @Override
-    public void forward(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
+    public void forward(ServletRequest servletRequest, ServletResponse servletResponse)
+            throws ServletException, IOException {
         try {
             facet.scriptInvoker.invokeScript(
-                (StaplerRequest)servletRequest,
-                (StaplerResponse)servletResponse,
-                script, it);
+                    (StaplerRequest) servletRequest, (StaplerResponse) servletResponse, script, it);
         } catch (JellyTagException e) {
             throw new ServletException(e);
         }
     }
 
     @Override
-    @SuppressFBWarnings(value = "REQUESTDISPATCHER_FILE_DISCLOSURE", justification = "Forwarding the request to be handled correctly.")
-    public void include(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
-        forward(servletRequest,servletResponse);
+    @SuppressFBWarnings(
+            value = "REQUESTDISPATCHER_FILE_DISCLOSURE",
+            justification = "Forwarding the request to be handled correctly.")
+    public void include(ServletRequest servletRequest, ServletResponse servletResponse)
+            throws ServletException, IOException {
+        forward(servletRequest, servletResponse);
     }
 }

@@ -54,13 +54,13 @@ public abstract class CallTagLibScript extends TagScript {
 
         for (Map.Entry<String, ExpressionAttribute> e : attributes.entrySet()) {
             Expression expression = e.getValue().exp;
-            args.put(e.getKey(),expression.evaluate(context));
+            args.put(e.getKey(), expression.evaluate(context));
         }
 
         // create new context based on current attributes
         JellyContext newJellyContext = context.newJellyContext(args);
         newJellyContext.setExportLibraries(false);
-        newJellyContext.setVariable( "attrs", args );
+        newJellyContext.setVariable("attrs", args);
 
         // <d:invokeBody> uses this to discover what to invoke
         newJellyContext.setVariable("org.apache.commons.jelly.body", new Script() {
@@ -95,25 +95,25 @@ public abstract class CallTagLibScript extends TagScript {
             @Override
             public void run(JellyContext nestedContext, XMLOutput output) throws JellyTagException {
                 Map m = nestedContext.getVariables();
-                Object oldAttrs = m.put("attrs",context.getVariable("attrs"));
+                Object oldAttrs = m.put("attrs", context.getVariable("attrs"));
                 try {
-                    getTagBody().run(nestedContext,output);
+                    getTagBody().run(nestedContext, output);
                 } finally {
-                    m.put("attrs",oldAttrs);
+                    m.put("attrs", oldAttrs);
                 }
             }
         });
         newJellyContext.setVariable("org.apache.commons.jelly.body.scope", context);
         final Script def = resolveDefinition(newJellyContext);
 
-        if(JellyFacet.TRACE) {
+        if (JellyFacet.TRACE) {
             try {
                 String source = getSource();
-                String msg = "<" + source+">";
-                output.comment(msg.toCharArray(),0,msg.length());
+                String msg = "<" + source + ">";
+                output.comment(msg.toCharArray(), 0, msg.length());
                 def.run(newJellyContext, output);
-                msg = "</" + source+">";
-                output.comment(msg.toCharArray(),0,msg.length());
+                msg = "</" + source + ">";
+                output.comment(msg.toCharArray(), 0, msg.length());
             } catch (SAXException e) {
                 throw new JellyTagException(e);
             }
@@ -123,6 +123,6 @@ public abstract class CallTagLibScript extends TagScript {
     }
 
     protected String getSource() {
-        return "{jelly:"+getNsUri()+"}:"+getLocalName();
+        return "{jelly:" + getNsUri() + "}:" + getLocalName();
     }
 }

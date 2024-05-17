@@ -52,20 +52,25 @@ import java.util.Objects;
  * @author Kohsuke Kawaguchi
  */
 public class TypeUtil {
-    abstract static class TypeVisitor<T,P> {
-        public final T visit( Type t, P param ) {
-            assert t!=null;
+    abstract static class TypeVisitor<T, P> {
+        public final T visit(Type t, P param) {
+            assert t != null;
 
-            if (t instanceof Class)
-                return onClass((Class)t,param);
-            if (t instanceof ParameterizedType)
-                return onParameterizedType( (ParameterizedType)t,param);
-            if(t instanceof GenericArrayType)
-                return onGenericArray((GenericArrayType)t,param);
-            if(t instanceof WildcardType)
-                return onWildcard((WildcardType)t,param);
-            if(t instanceof TypeVariable)
-                return onVariable((TypeVariable)t,param);
+            if (t instanceof Class) {
+                return onClass((Class) t, param);
+            }
+            if (t instanceof ParameterizedType) {
+                return onParameterizedType((ParameterizedType) t, param);
+            }
+            if (t instanceof GenericArrayType) {
+                return onGenericArray((GenericArrayType) t, param);
+            }
+            if (t instanceof WildcardType) {
+                return onWildcard((WildcardType) t, param);
+            }
+            if (t instanceof TypeVariable) {
+                return onVariable((TypeVariable) t, param);
+            }
 
             // covered all the cases
             assert false;
@@ -73,42 +78,45 @@ public class TypeUtil {
         }
 
         protected abstract T onClass(Class c, P param);
+
         protected abstract T onParameterizedType(ParameterizedType p, P param);
+
         protected abstract T onGenericArray(GenericArrayType g, P param);
+
         protected abstract T onVariable(TypeVariable v, P param);
+
         protected abstract T onWildcard(WildcardType w, P param);
     }
 
     /**
      * Implements the logic for {@link #erasure(Type)}.
      */
-    private static final TypeVisitor<Class,Void> eraser = new TypeVisitor<Class,Void>() {
+    private static final TypeVisitor<Class, Void> eraser = new TypeVisitor<Class, Void>() {
         @Override
-        public Class onClass(Class c,Void unused) {
+        public Class onClass(Class c, Void unused) {
             return c;
         }
 
         @Override
-        public Class onParameterizedType(ParameterizedType p,Void unused) {
+        public Class onParameterizedType(ParameterizedType p, Void unused) {
             // TODO: why getRawType returns Type? not Class?
-            return visit(p.getRawType(),null);
+            return visit(p.getRawType(), null);
         }
 
         @Override
-        public Class onGenericArray(GenericArrayType g,Void unused) {
-            return Array.newInstance(
-                visit(g.getGenericComponentType(),null),
-                0 ).getClass();
+        public Class onGenericArray(GenericArrayType g, Void unused) {
+            return Array.newInstance(visit(g.getGenericComponentType(), null), 0)
+                    .getClass();
         }
 
         @Override
-        public Class onVariable(TypeVariable v,Void unused) {
-            return visit(v.getBounds()[0],null);
+        public Class onVariable(TypeVariable v, Void unused) {
+            return visit(v.getBounds()[0], null);
         }
 
         @Override
-        public Class onWildcard(WildcardType w,Void unused) {
-            return visit(w.getUpperBounds()[0],null);
+        public Class onWildcard(WildcardType w, Void unused) {
+            return visit(w.getUpperBounds()[0], null);
         }
     };
 
@@ -118,27 +126,32 @@ public class TypeUtil {
      * This corresponds to the notion of the erasure in JSR-14.
      */
     public static <T> Class<T> erasure(Type t) {
-        return eraser.visit(t,null);
+        return eraser.visit(t, null);
     }
 
-    private static final TypeVisitor<Type,Class> baseClassFinder = new TypeVisitor<Type,Class>() {
+    private static final TypeVisitor<Type, Class> baseClassFinder = new TypeVisitor<Type, Class>() {
         @Override
         public Type onClass(Class c, Class sup) {
             // t is a raw type
-            if(sup==c)
+            if (sup == c) {
                 return sup;
+            }
 
             Type r;
 
             Type sc = c.getGenericSuperclass();
-            if(sc!=null) {
-                r = visit(sc,sup);
-                if(r!=null)     return r;
+            if (sc != null) {
+                r = visit(sc, sup);
+                if (r != null) {
+                    return r;
+                }
             }
 
-            for( Type i : c.getGenericInterfaces() ) {
-                r = visit(i,sup);
-                if(r!=null)  return r;
+            for (Type i : c.getGenericInterfaces()) {
+                r = visit(i, sup);
+                if (r != null) {
+                    return r;
+                }
             }
 
             return null;
@@ -147,19 +160,23 @@ public class TypeUtil {
         @Override
         public Type onParameterizedType(ParameterizedType p, Class sup) {
             Class raw = (Class) p.getRawType();
-            if(raw==sup) {
+            if (raw == sup) {
                 // p is of the form sup<...>
                 return p;
             } else {
                 // recursively visit super class/interfaces
                 Type r = raw.getGenericSuperclass();
-                if(r!=null)
-                    r = visit(bind(r,raw,p),sup);
-                if(r!=null)
+                if (r != null) {
+                    r = visit(bind(r, raw, p), sup);
+                }
+                if (r != null) {
                     return r;
-                for( Type i : raw.getGenericInterfaces() ) {
-                    r = visit(bind(i,raw,p),sup);
-                    if(r!=null)  return r;
+                }
+                for (Type i : raw.getGenericInterfaces()) {
+                    r = visit(bind(i, raw, p), sup);
+                    if (r != null) {
+                        return r;
+                    }
                 }
                 return null;
             }
@@ -173,7 +190,7 @@ public class TypeUtil {
 
         @Override
         public Type onVariable(TypeVariable v, Class sup) {
-            return visit(v.getBounds()[0],sup);
+            return visit(v.getBounds()[0], sup);
         }
 
         @Override
@@ -190,12 +207,12 @@ public class TypeUtil {
          * @param args
          *      actual arguments. See {@link ParameterizedType#getActualTypeArguments()}
          */
-        private Type bind( Type t, GenericDeclaration decl, ParameterizedType args ) {
-            return binder.visit(t,new BinderArg(decl,args.getActualTypeArguments()));
+        private Type bind(Type t, GenericDeclaration decl, ParameterizedType args) {
+            return binder.visit(t, new BinderArg(decl, args.getActualTypeArguments()));
         }
     };
 
-    private static final TypeVisitor<Type,BinderArg> binder = new TypeVisitor<Type,BinderArg>() {
+    private static final TypeVisitor<Type, BinderArg> binder = new TypeVisitor<Type, BinderArg>() {
         @Override
         public Type onClass(Class c, BinderArg args) {
             return c;
@@ -206,26 +223,31 @@ public class TypeUtil {
             Type[] params = p.getActualTypeArguments();
 
             boolean different = false;
-            for( int i=0; i<params.length; i++ ) {
+            for (int i = 0; i < params.length; i++) {
                 Type t = params[i];
-                params[i] = visit(t,args);
-                different |= t!=params[i];
+                params[i] = visit(t, args);
+                different |= t != params[i];
             }
 
             Type newOwner = p.getOwnerType();
-            if(newOwner!=null)
-                newOwner = visit(newOwner,args);
-            different |= p.getOwnerType()!=newOwner;
+            if (newOwner != null) {
+                newOwner = visit(newOwner, args);
+            }
+            different |= p.getOwnerType() != newOwner;
 
-            if(!different)  return p;
+            if (!different) {
+                return p;
+            }
 
-            return new ParameterizedTypeImpl( (Class<?>)p.getRawType(), params, newOwner );
+            return new ParameterizedTypeImpl((Class<?>) p.getRawType(), params, newOwner);
         }
 
         @Override
         public Type onGenericArray(GenericArrayType g, BinderArg types) {
-            Type c = visit(g.getGenericComponentType(),types);
-            if(c==g.getGenericComponentType())  return g;
+            Type c = visit(g.getGenericComponentType(), types);
+            if (c == g.getGenericComponentType()) {
+                return g;
+            }
 
             return new GenericArrayTypeImpl(c);
         }
@@ -244,21 +266,23 @@ public class TypeUtil {
             Type[] ub = w.getUpperBounds();
             boolean diff = false;
 
-            for( int i=0; i<lb.length; i++ ) {
+            for (int i = 0; i < lb.length; i++) {
                 Type t = lb[i];
-                lb[i] = visit(t,types);
-                diff |= (t!=lb[i]);
+                lb[i] = visit(t, types);
+                diff |= (t != lb[i]);
             }
 
-            for( int i=0; i<ub.length; i++ ) {
+            for (int i = 0; i < ub.length; i++) {
                 Type t = ub[i];
-                ub[i] = visit(t,types);
-                diff |= (t!=ub[i]);
+                ub[i] = visit(t, types);
+                diff |= (t != ub[i]);
             }
 
-            if(!diff)       return w;
+            if (!diff) {
+                return w;
+            }
 
-            return new WildcardTypeImpl(lb,ub);
+            return new WildcardTypeImpl(lb, ub);
         }
     };
 
@@ -269,18 +293,20 @@ public class TypeUtil {
         BinderArg(TypeVariable[] params, Type[] args) {
             this.params = params;
             this.args = args;
-            assert params.length==args.length;
+            assert params.length == args.length;
         }
 
-        public BinderArg( GenericDeclaration decl, Type[] args ) {
-            this(decl.getTypeParameters(),args);
+        public BinderArg(GenericDeclaration decl, Type[] args) {
+            this(decl.getTypeParameters(), args);
         }
 
-        Type replace( TypeVariable v ) {
-            for(int i=0; i<params.length; i++)
-                if(params[i]==v)
+        Type replace(TypeVariable v) {
+            for (int i = 0; i < params.length; i++) {
+                if (params[i] == v) {
                     return args[i];
-            return v;   // this is a free variable
+                }
+            }
+            return v; // this is a free variable
         }
     }
 
@@ -310,7 +336,7 @@ public class TypeUtil {
      *      or null if the type is not assignable to the base type.
      */
     public static Type getBaseClass(Type type, Class baseType) {
-        return baseClassFinder.visit(type,baseType);
+        return baseClassFinder.visit(type, baseType);
     }
 
     static class ParameterizedTypeImpl implements ParameterizedType {
@@ -318,9 +344,7 @@ public class TypeUtil {
         private Class<?> rawType;
         private Type ownerType;
 
-        ParameterizedTypeImpl(Class<?> rawType,
-                                      Type[] actualTypeArguments,
-                                      Type ownerType) {
+        ParameterizedTypeImpl(Class<?> rawType, Type[] actualTypeArguments, Type ownerType) {
             this.actualTypeArguments = actualTypeArguments;
             this.rawType = rawType;
             if (ownerType != null) {
@@ -332,7 +356,7 @@ public class TypeUtil {
         }
 
         private void validateConstructorArguments() {
-            TypeVariable/*<?>*/[] formals = rawType.getTypeParameters();
+            TypeVariable /*<?>*/[] formals = rawType.getTypeParameters();
             // check correct arity of actual type args
             if (formals.length != actualTypeArguments.length) {
                 throw new MalformedParameterizedTypeException();
@@ -340,7 +364,6 @@ public class TypeUtil {
             for (int i = 0; i < actualTypeArguments.length; i++) {
                 // check actuals against formals' bounds
             }
-
         }
 
         @Override
@@ -371,8 +394,9 @@ public class TypeUtil {
                 // Check that information is equivalent
                 ParameterizedType that = (ParameterizedType) o;
 
-                if (this == that)
+                if (this == that) {
                     return true;
+                }
 
                 Type thatOwner = that.getOwnerType();
                 Type thatRawType = that.getRawType();
@@ -381,32 +405,32 @@ public class TypeUtil {
                     boolean ownerEquality = Objects.equals(ownerType, thatOwner);
                     boolean rawEquality = Objects.equals(rawType, thatRawType);
 
-                    boolean typeArgEquality = Arrays.equals(actualTypeArguments, // avoid clone
+                    boolean typeArgEquality = Arrays.equals(
+                            actualTypeArguments, // avoid clone
                             that.getActualTypeArguments());
                     for (Type t : actualTypeArguments) {
                         System.out.printf("\t\t%s%s%n", t, t.getClass());
                     }
 
-                    System.out.printf("\towner %s\traw %s\ttypeArg %s%n",
-                            ownerEquality, rawEquality, typeArgEquality);
+                    System.out.printf("\towner %s\traw %s\ttypeArg %s%n", ownerEquality, rawEquality, typeArgEquality);
                     return ownerEquality && rawEquality && typeArgEquality;
                 }
 
-
-                return
-                        Objects.equals(ownerType, thatOwner) &&
-                        Objects.equals(rawType, thatRawType) &&
-                        Arrays.equals(actualTypeArguments, // avoid clone
+                return Objects.equals(ownerType, thatOwner)
+                        && Objects.equals(rawType, thatRawType)
+                        && Arrays.equals(
+                                actualTypeArguments, // avoid clone
                                 that.getActualTypeArguments());
-            } else
+            } else {
                 return false;
+            }
         }
 
         @Override
         public int hashCode() {
-            return  Arrays.hashCode(actualTypeArguments) ^
-                    (ownerType == null ? 0 : ownerType.hashCode()) ^
-                    (rawType == null ? 0 : rawType.hashCode());
+            return Arrays.hashCode(actualTypeArguments)
+                    ^ (ownerType == null ? 0 : ownerType.hashCode())
+                    ^ (rawType == null ? 0 : rawType.hashCode());
         }
 
         @Override
@@ -414,34 +438,38 @@ public class TypeUtil {
             StringBuilder sb = new StringBuilder();
 
             if (ownerType != null) {
-                if (ownerType instanceof Class)
+                if (ownerType instanceof Class) {
                     sb.append(((Class) ownerType).getName());
-                else
+                } else {
                     sb.append(ownerType.toString());
+                }
 
                 sb.append(".");
 
                 if (ownerType instanceof ParameterizedTypeImpl) {
                     // Find simple name of nested type by removing the
                     // shared prefix with owner.
-                    sb.append(rawType.getName().replace(((ParameterizedTypeImpl) ownerType).rawType.getName() + "$",
-                            ""));
-                } else
+                    sb.append(
+                            rawType.getName().replace(((ParameterizedTypeImpl) ownerType).rawType.getName() + "$", ""));
+                } else {
                     sb.append(rawType.getName());
-            } else
+                }
+            } else {
                 sb.append(rawType.getName());
+            }
 
-            if (actualTypeArguments != null &&
-                    actualTypeArguments.length > 0) {
+            if (actualTypeArguments != null && actualTypeArguments.length > 0) {
                 sb.append("<");
                 boolean first = true;
                 for (Type t : actualTypeArguments) {
-                    if (!first)
+                    if (!first) {
                         sb.append(", ");
-                    if (t instanceof Class)
+                    }
+                    if (t instanceof Class) {
                         sb.append(((Class) t).getName());
-                    else
+                    } else {
                         sb.append(t.toString());
+                    }
                     first = false;
                 }
                 sb.append(">");
@@ -455,7 +483,7 @@ public class TypeUtil {
         private Type genericComponentType;
 
         GenericArrayTypeImpl(Type ct) {
-            assert ct!=null;
+            assert ct != null;
             genericComponentType = ct;
         }
 
@@ -477,10 +505,11 @@ public class TypeUtil {
             Type componentType = getGenericComponentType();
             StringBuilder sb = new StringBuilder();
 
-            if (componentType instanceof Class)
+            if (componentType instanceof Class) {
                 sb.append(((Class) componentType).getName());
-            else
+            } else {
                 sb.append(componentType.toString());
+            }
             sb.append("[]");
             return sb.toString();
         }
@@ -492,8 +521,9 @@ public class TypeUtil {
 
                 Type thatComponentType = that.getGenericComponentType();
                 return genericComponentType.equals(thatComponentType);
-            } else
+            } else {
                 return false;
+            }
         }
 
         @Override
@@ -531,8 +561,7 @@ public class TypeUtil {
         public boolean equals(Object obj) {
             if (obj instanceof WildcardType) {
                 WildcardType that = (WildcardType) obj;
-                return Arrays.equals(that.getLowerBounds(),lb)
-                    && Arrays.equals(that.getUpperBounds(),ub);
+                return Arrays.equals(that.getLowerBounds(), lb) && Arrays.equals(that.getUpperBounds(), ub);
             }
             return false;
         }
@@ -542,8 +571,9 @@ public class TypeUtil {
         if (type instanceof ParameterizedType) {
             ParameterizedType p = (ParameterizedType) type;
             return fix(p.getActualTypeArguments()[i]);
-        } else
+        } else {
             throw new IllegalArgumentException();
+        }
     }
 
     /**
@@ -553,13 +583,14 @@ public class TypeUtil {
      * See bug 6202725.
      */
     private static Type fix(Type t) {
-        if(!(t instanceof GenericArrayType))
+        if (!(t instanceof GenericArrayType)) {
             return t;
+        }
 
         GenericArrayType gat = (GenericArrayType) t;
-        if(gat.getGenericComponentType() instanceof Class) {
+        if (gat.getGenericComponentType() instanceof Class) {
             Class c = (Class) gat.getGenericComponentType();
-            return Array.newInstance(c,0).getClass();
+            return Array.newInstance(c, 0).getClass();
         }
 
         return t;

@@ -29,8 +29,7 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  */
 public class NoSuchAdjunctException extends IOException {
-    public NoSuchAdjunctException() {
-    }
+    public NoSuchAdjunctException() {}
 
     public NoSuchAdjunctException(String message) {
         super(message);

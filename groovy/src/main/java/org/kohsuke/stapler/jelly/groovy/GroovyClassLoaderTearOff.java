@@ -65,7 +65,7 @@ public class GroovyClassLoaderTearOff {
 
         // enable re-compilation support
         cc.setRecompileGroovySource(MetaClass.NO_CACHE);
-        return new GroovyClassLoader(owner.loader,cc) {
+        return new GroovyClassLoader(owner.loader, cc) {
             /**
              * Groovy calls this method to locate .groovy script files,
              * so during the development it's important to check the
@@ -74,10 +74,11 @@ public class GroovyClassLoaderTearOff {
             @Override
             public URL getResource(String name) {
                 // allow the resource path to take precedence when loading script
-                if(MetaClassLoader.debugLoader!=null) {
+                if (MetaClassLoader.debugLoader != null) {
                     URL res = MetaClassLoader.debugLoader.loader.getResource(name);
-                    if(res!=null)
+                    if (res != null) {
                         return res;
+                    }
                 }
                 return super.getResource(name);
             }
@@ -90,13 +91,13 @@ public class GroovyClassLoaderTearOff {
         GroovyCodeSource gcs = new GroovyCodeSource(script);
         gcs.setCachable(false);
 
-        return new GroovierJellyScript(gcl.parseClass(gcs),script);
+        return new GroovierJellyScript(gcl.parseClass(gcs), script);
     }
 
     public GroovierJellyScript parseGSP(URL res) throws IOException, ClassNotFoundException {
         GroovyCodeSource gcs = new GroovyCodeSource(parser.parse(res), res.toExternalForm(), res.toExternalForm());
         gcs.setCachable(false);
 
-        return new GroovierJellyScript(gcl.parseClass(gcs),res);
+        return new GroovierJellyScript(gcl.parseClass(gcs), res);
     }
 }

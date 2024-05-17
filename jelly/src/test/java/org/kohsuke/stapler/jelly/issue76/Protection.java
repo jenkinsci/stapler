@@ -25,13 +25,13 @@ public class Protection implements KInstance<ProtectedClass> {
      */
     @Override
     public Klass<ProtectedClass> getKlass() {
-        return new Klass<>(new ProtectedClass(o.getClass()),ProtectedClass.NAVIGATOR);
+        return new Klass<>(new ProtectedClass(o.getClass()), ProtectedClass.NAVIGATOR);
     }
 
     /**
      * Override doIndex.
      */
     public HttpResponse doIndex() {
-        return HttpResponses.plainText("protected "+o);
+        return HttpResponses.plainText("protected " + o);
     }
 }

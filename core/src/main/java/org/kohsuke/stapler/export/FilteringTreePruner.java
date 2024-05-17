@@ -19,14 +19,16 @@ class FilteringTreePruner extends TreePruner {
 
     @Override
     public TreePruner accept(Object node, Property prop) {
-        if (predicate.test(prop.name))
+        if (predicate.test(prop.name)) {
             return null;
+        }
         TreePruner child = base.accept(node, prop);
 
         // for merge properties, the current restrictions on the property names should
         // still apply to the child TreePruner
-        if (prop.merge && child != null)
-            child = new FilteringTreePruner(predicate,child);
+        if (prop.merge && child != null) {
+            child = new FilteringTreePruner(predicate, child);
+        }
 
         return child;
     }

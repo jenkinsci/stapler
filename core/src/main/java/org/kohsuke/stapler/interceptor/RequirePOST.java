@@ -29,7 +29,7 @@ import org.kohsuke.stapler.verb.POST;
  * @see POST
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD,ElementType.FIELD})
+@Target({ElementType.METHOD, ElementType.FIELD})
 @InterceptorAnnotation(RequirePOST.Processor.class)
 public @interface RequirePOST {
 
@@ -43,7 +43,8 @@ public @interface RequirePOST {
          *
          * <p>Implementations are looked up using {@link java.util.ServiceLoader}, the first implementation to return a non-null value will be used.</p>
          */
-        @CheckForNull ForwardToView getForwardView();
+        @CheckForNull
+        ForwardToView getForwardView();
     }
 
     class Processor extends Interceptor {
@@ -51,15 +52,19 @@ public @interface RequirePOST {
         public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException, ServletException {
             if (!request.getMethod().equals("POST")) {
-                for (ErrorCustomizer handler : ServiceLoader.load(ErrorCustomizer.class, request.getWebApp().getClassLoader())) {
+                for (ErrorCustomizer handler : ServiceLoader.load(
+                        ErrorCustomizer.class, request.getWebApp().getClassLoader())) {
                     ForwardToView forwardToView = handler.getForwardView();
                     if (forwardToView != null) {
-                        throw new InvocationTargetException(forwardToView.with("requestURL", request.getRequestURLWithQueryString().toString()));
+                        throw new InvocationTargetException(forwardToView.with(
+                                "requestURL",
+                                request.getRequestURLWithQueryString().toString()));
                     }
                 }
                 throw new InvocationTargetException(new HttpResponses.HttpResponseException() {
                     @Override
-                    public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                    public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                            throws IOException, ServletException {
                         rsp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
                         rsp.addHeader("Allow", "POST");
                         rsp.setContentType("text/html");

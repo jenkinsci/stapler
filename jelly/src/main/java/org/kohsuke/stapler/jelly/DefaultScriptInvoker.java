@@ -43,29 +43,32 @@ import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * Standard implementation of {@link ScriptInvoker}.
- * 
+ *
  * @author Kohsuke Kawaguchi
  */
 public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
     @Override
-    public void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException, JellyTagException {
+    public void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it)
+            throws IOException, JellyTagException {
         XMLOutput xmlOutput = createXMLOutput(req, rsp, script, it);
 
-        invokeScript(req,rsp,script,it,xmlOutput);
-        
+        invokeScript(req, rsp, script, it, xmlOutput);
+
         xmlOutput.flush();
         xmlOutput.close();
     }
 
     @Override
-    public void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it, XMLOutput out) throws IOException, JellyTagException {
-        JellyContext context = createContext(req,rsp,script,it);
+    public void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it, XMLOutput out)
+            throws IOException, JellyTagException {
+        JellyContext context = createContext(req, rsp, script, it);
         exportVariables(req, rsp, script, it, context);
 
-        script.run(context,out);
+        script.run(context, out);
     }
 
-    protected XMLOutput createXMLOutput(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException {
+    protected XMLOutput createXMLOutput(StaplerRequest req, StaplerResponse rsp, Script script, Object it)
+            throws IOException {
         // TODO: make XMLOutput auto-close OutputStream to avoid leak
         String ct = rsp.getContentType();
         XMLOutput output;
@@ -73,23 +76,26 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
             output = XMLOutput.createXMLOutput(createOutputStream(req, rsp, script, it));
         } else {
             output = HTMLWriterOutput.create(createOutputStream(req, rsp, script, it));
-
         }
         return output;
     }
 
     private boolean doCompression(Script script) {
-        if (COMPRESS_BY_DEFAULT)    return true;
+        if (COMPRESS_BY_DEFAULT) {
+            return true;
+        }
         if (script instanceof TagScript) {
             TagScript ts = (TagScript) script;
-            if(ts.getLocalName().equals("compress"))
+            if (ts.getLocalName().equals("compress")) {
                 return true;
+            }
         }
         return false;
     }
 
     private interface OutputStreamSupplier {
-        @NonNull OutputStream get() throws IOException;
+        @NonNull
+        OutputStream get() throws IOException;
     }
 
     private static class LazyOutputStreamSupplier implements OutputStreamSupplier {
@@ -114,10 +120,13 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         }
     }
 
-    protected OutputStream createOutputStream(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException {
+    protected OutputStream createOutputStream(StaplerRequest req, StaplerResponse rsp, Script script, Object it)
+            throws IOException {
         OutputStreamSupplier out = new LazyOutputStreamSupplier(() -> {
             req.getWebApp().getDispatchValidator().requireDispatchAllowed(req, rsp);
-            return doCompression(script) ? rsp.getCompressedOutputStream(req) : new BufferedOutputStream(rsp.getOutputStream());
+            return doCompression(script)
+                    ? rsp.getCompressedOutputStream(req)
+                    : new BufferedOutputStream(rsp.getOutputStream());
         });
         return new OutputStream() {
             @Override
@@ -149,24 +158,25 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         };
     }
 
-    protected void exportVariables(StaplerRequest req, StaplerResponse rsp, Script script, Object it, JellyContext context) {
+    protected void exportVariables(
+            StaplerRequest req, StaplerResponse rsp, Script script, Object it, JellyContext context) {
         Enumeration en = req.getAttributeNames();
         // expose request attributes, just like JSP
         while (en.hasMoreElements()) {
             String name = (String) en.nextElement();
-            context.setVariable(name,req.getAttribute(name));
+            context.setVariable(name, req.getAttribute(name));
         }
 
-        context.setVariable("request",req);
-        context.setVariable("response",rsp);
-        context.setVariable("it",it);
+        context.setVariable("request", req);
+        context.setVariable("response", rsp);
+        context.setVariable("it", it);
         ServletContext servletContext = req.getServletContext();
-        context.setVariable("servletContext",servletContext);
-        context.setVariable("app",servletContext.getAttribute("app"));
+        context.setVariable("servletContext", servletContext);
+        context.setVariable("app", servletContext.getAttribute("app"));
         // property bag to store request scope variables
-        context.setVariable("requestScope",context.getVariables());
+        context.setVariable("requestScope", context.getVariables());
         // this variable is needed to make "jelly:fmt" taglib work correctly
-        context.setVariable("org.apache.commons.jelly.tags.fmt.locale",req.getLocale());
+        context.setVariable("org.apache.commons.jelly.tags.fmt.locale", req.getLocale());
     }
 
     protected JellyContext createContext(final StaplerRequest req, StaplerResponse rsp, Script script, Object it) {
@@ -181,9 +191,10 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
     @Override
     public XMLOutput createXMLOutput(Writer writer, boolean escapeText) {
         StaplerResponse rsp = Stapler.getCurrentResponse();
-        String ct = rsp!=null ? rsp.getContentType() : "?";
-        if (ct != null && !ct.startsWith("text/html"))
+        String ct = rsp != null ? rsp.getContentType() : "?";
+        if (ct != null && !ct.startsWith("text/html")) {
             return XMLOutput.createXMLOutput(writer, escapeText);
+        }
         return HTMLWriterOutput.create(writer, escapeText);
     }
 
@@ -206,5 +217,6 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
      * @see <a href="http://www.slideshare.net/guest22d4179/latency-trumps-all">Latency Trumps All</a>
      */
     @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
-    public static boolean COMPRESS_BY_DEFAULT = Boolean.parseBoolean(System.getProperty(DefaultScriptInvoker.class.getName()+".compress","true"));
+    public static boolean COMPRESS_BY_DEFAULT =
+            Boolean.parseBoolean(System.getProperty(DefaultScriptInvoker.class.getName() + ".compress", "true"));
 }

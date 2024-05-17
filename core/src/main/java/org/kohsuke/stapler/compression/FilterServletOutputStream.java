@@ -14,11 +14,11 @@ import javax.servlet.WriteListener;
 public class FilterServletOutputStream extends ServletOutputStream {
     private final OutputStream out;
     private final ServletOutputStream realSream;
-    
+
     /**
      * Constructs a new {@link FilterOutputStream}.
      * @param out the stream that sits above the realStream, performing some filtering.  This must be eventually delegating eventual writes to {@code realStream}.
-     * @param realStream the actual underlying ServletOutputStream from the container.  Used to check the {@link #isReady()} state and to add {@link WriteListener}s. 
+     * @param realStream the actual underlying ServletOutputStream from the container.  Used to check the {@link #isReady()} state and to add {@link WriteListener}s.
      */
     public FilterServletOutputStream(OutputStream out, ServletOutputStream realStream) {
         this.out = out;

@@ -112,5 +112,4 @@ public class LargeTextTest {
             fail(e.getMessage());
         }
     }
-
 }

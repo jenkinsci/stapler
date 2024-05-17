@@ -75,10 +75,10 @@ public final class ClassDescriptor {
 
         // instance methods
         List<MethodMirror> methods = new ArrayList<>();
-        findMethods(clazz,clazz,methods,new HashSet<>());
+        findMethods(clazz, clazz, methods, new HashSet<>());
 
         // organize them into groups
-        Map<Signature,List<Method>> groups = new LinkedHashMap<>();
+        Map<Signature, List<Method>> groups = new LinkedHashMap<>();
         for (MethodMirror m : methods) {
             List<Method> v = groups.computeIfAbsent(m.sig, unused -> new ArrayList<>());
             v.add(m.method);
@@ -87,27 +87,29 @@ public final class ClassDescriptor {
         // build functions from groups
         List<Function> functions = new ArrayList<>();
         for (List<Method> m : groups.values()) {
-            if (m.size()==1) {
+            if (m.size() == 1) {
                 Method one = m.get(0);
-                functions.add(new Function.InstanceFunction(one)
-                        .wrapByInterceptors(one));
+                functions.add(new Function.InstanceFunction(one).wrapByInterceptors(one));
             } else {
                 Collections.reverse(m);
-                functions.add(new Function.OverridingInstanceFunction(m)
-                        .wrapByInterceptors(new UnionAnnotatedElement(m)));
+                functions.add(
+                        new Function.OverridingInstanceFunction(m).wrapByInterceptors(new UnionAnnotatedElement(m)));
             }
         }
 
-        if(wrappers!=null) {
+        if (wrappers != null) {
             for (Class w : wrappers) {
                 for (Method m : w.getMethods()) {
-                    if(!Modifier.isStatic(m.getModifiers()))
+                    if (!Modifier.isStatic(m.getModifiers())) {
                         continue;
+                    }
                     Class<?>[] p = m.getParameterTypes();
-                    if(p.length==0)
+                    if (p.length == 0) {
                         continue;
-                    if(p[0].isAssignableFrom(clazz))
+                    }
+                    if (p[0].isAssignableFrom(clazz)) {
                         continue;
+                    }
                     functions.add(new Function.StaticFunction(m).wrapByInterceptors(m));
                 }
             }
@@ -126,17 +128,20 @@ public final class ClassDescriptor {
      *      Erasure of this is always {@code c}.
      *
      */
-    private List<MethodMirror> findMethods(Class c, java.lang.reflect.Type logical, List<MethodMirror> result, Set<Class> visited) {
-        if (!visited.add(c))
+    private List<MethodMirror> findMethods(
+            Class c, java.lang.reflect.Type logical, List<MethodMirror> result, Set<Class> visited) {
+        if (!visited.add(c)) {
             return result; // avoid visiting the same type twice
+        }
 
         // visit interfaces first so that class methods are considered as overriding interface methods
         for (Class i : c.getInterfaces()) {
-            findMethods(i, Types.getBaseClass(logical,i), result, visited);
+            findMethods(i, Types.getBaseClass(logical, i), result, visited);
         }
         Class sc = c.getSuperclass();
-        if (sc!=null)
-            findMethods(sc,Types.getBaseClass(logical,sc),result,visited);
+        if (sc != null) {
+            findMethods(sc, Types.getBaseClass(logical, sc), result, visited);
+        }
 
         Method[] declaredMethods = c.getDeclaredMethods();
         Arrays.sort(declaredMethods, new Comparator<Method>() {
@@ -150,21 +155,25 @@ public final class ClassDescriptor {
                 } else if (!m1d && m2d) {
                     return -1;
                 } else {
-                    // Sort by string representation, so for example doFoo() is preferred to doFoo(StaplerRequest, StaplerResponse).
+                    // Sort by string representation, so for example doFoo() is preferred to doFoo(StaplerRequest,
+                    // StaplerResponse).
                     return m1.toString().compareTo(m2.toString());
                 }
             }
         });
         for (Method m : declaredMethods) {
-            if (m.isBridge())    continue;
-            if ((m.getModifiers() & Modifier.PUBLIC)!=0) {
+            if (m.isBridge()) {
+                continue;
+            }
+            if ((m.getModifiers() & Modifier.PUBLIC) != 0) {
                 java.lang.reflect.Type[] paramTypes = m.getGenericParameterTypes();
                 Class[] erasedParamTypes = new Class[paramTypes.length];
                 for (int i = 0; i < paramTypes.length; i++) {
-                    if (logical instanceof ParameterizedType)
-                        erasedParamTypes[i] = Types.erasure(Types.bind(paramTypes[i], c, (ParameterizedType)logical));
-                    else
+                    if (logical instanceof ParameterizedType) {
+                        erasedParamTypes[i] = Types.erasure(Types.bind(paramTypes[i], c, (ParameterizedType) logical));
+                    } else {
                         erasedParamTypes[i] = Types.erasure(paramTypes[i]);
+                    }
                 }
 
                 result.add(new MethodMirror(new Signature(m.getName(), erasedParamTypes), m));
@@ -181,7 +190,9 @@ public final class ClassDescriptor {
      */
     public static String[] loadParameterNames(Method m) {
         CapturedParameterNames cpn = m.getAnnotation(CapturedParameterNames.class);
-        if(cpn!=null)   return cpn.value();
+        if (cpn != null) {
+            return cpn.value();
+        }
 
         // reflection is the most efficient and supported system
         String[] n = loadParameterNamesFromReflection(m);
@@ -192,20 +203,22 @@ public final class ClassDescriptor {
         // debug information, if present, is more trustworthy
         try {
             n = BytecodeReadingParanamer.lookupParameterNames(m);
-            if (n!=null)    return n;
+            if (n != null) {
+                return n;
+            }
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Failed to load a class file", e);
         }
 
         // otherwise check the .stapler file
         Class<?> c = m.getDeclaringClass();
-        URL url = c.getClassLoader().getResource(
-                    c.getName().replace('.', '/').replace('$','/') + '/' + m.getName() + ".stapler");
-        if(url!=null) {
+        URL url = c.getClassLoader()
+                .getResource(c.getName().replace('.', '/').replace('$', '/') + '/' + m.getName() + ".stapler");
+        if (url != null) {
             try {
                 return IOUtils.toString(url.openStream()).split(",");
             } catch (IOException e) {
-                LOGGER.log(Level.WARNING, "Failed to load "+url,e);
+                LOGGER.log(Level.WARNING, "Failed to load " + url, e);
                 return EMPTY_ARRAY;
             }
         }
@@ -222,7 +235,9 @@ public final class ClassDescriptor {
      */
     public static String[] loadParameterNames(Constructor<?> m) {
         CapturedParameterNames cpn = m.getAnnotation(CapturedParameterNames.class);
-        if(cpn!=null)   return cpn.value();
+        if (cpn != null) {
+            return cpn.value();
+        }
 
         // reflection is the most efficient and supported system
         String[] n = loadParameterNamesFromReflection(m);
@@ -233,7 +248,9 @@ public final class ClassDescriptor {
         // debug information, if present, is more trustworthy
         try {
             n = BytecodeReadingParanamer.lookupParameterNames(m);
-            if (n!=null)    return n;
+            if (n != null) {
+                return n;
+            }
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Failed to load a class file", e);
         }
@@ -270,26 +287,31 @@ public final class ClassDescriptor {
             }
         }
 
-        if (dbc==null)
+        if (dbc == null) {
             throw new NoStaplerConstructorException("There's no @DataBoundConstructor on any constructor of " + clazz);
+        }
 
         String[] names = ClassDescriptor.loadParameterNames(dbc);
-        if (names.length==dbc.getParameterTypes().length)
+        if (names.length == dbc.getParameterTypes().length) {
             return names;
+        }
 
-        String resourceName = clazz.getName().replace('.', '/').replace('$','/') + ".stapler";
+        String resourceName = clazz.getName().replace('.', '/').replace('$', '/') + ".stapler";
         ClassLoader cl = clazz.getClassLoader();
-        if(cl==null)
-            throw new NoStaplerConstructorException(clazz+" is a built-in type");
+        if (cl == null) {
+            throw new NoStaplerConstructorException(clazz + " is a built-in type");
+        }
         InputStream s = cl.getResourceAsStream(resourceName);
-        if (s != null) {// load the property file and figure out parameter names
+        if (s != null) { // load the property file and figure out parameter names
             try {
                 Properties p = new Properties();
                 p.load(s);
                 s.close();
 
                 String v = p.getProperty("constructor");
-                if (v.length() == 0) return new String[0];
+                if (v.length() == 0) {
+                    return new String[0];
+                }
                 return v.split(",");
             } catch (IOException e) {
                 throw new IllegalArgumentException("Unable to load " + resourceName, e);
@@ -297,12 +319,11 @@ public final class ClassDescriptor {
         }
 
         // no debug info and no stapler file
-        throw new NoStaplerConstructorException(
-                "Unable to find " + resourceName + ". " +
-                        "Run 'mvn clean compile' once to run the annotation processor.");
+        throw new NoStaplerConstructorException("Unable to find " + resourceName + ". "
+                + "Run 'mvn clean compile' once to run the annotation processor.");
     }
 
-    final static class MethodMirror {
+    static final class MethodMirror {
         final Signature sig;
         final Method method;
 
@@ -315,7 +336,7 @@ public final class ClassDescriptor {
     /**
      * A method signature used to determine what methods override each other
      */
-    final static class Signature {
+    static final class Signature {
         final String methodName;
         final Class[] parameters;
 
@@ -326,14 +347,16 @@ public final class ClassDescriptor {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             Signature that = (Signature) o;
 
-            return this.methodName.equals(that.methodName)
-                && Arrays.equals(this.parameters, that.parameters);
-
+            return this.methodName.equals(that.methodName) && Arrays.equals(this.parameters, that.parameters);
         }
 
         @Override

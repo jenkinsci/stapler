@@ -64,19 +64,21 @@ class AncestorImpl implements Ancestor {
     @Override
     public String getUrl() {
         StringBuilder buf = new StringBuilder(contextPath);
-        for( int i=0; i<index; i++ ) {
+        for (int i = 0; i < index; i++) {
             buf.append('/');
             buf.append(tokens[i]);
         }
-        
+
         return buf.toString();
     }
 
     @Override
     public String getRestOfUrl() {
         StringBuilder buf = new StringBuilder();
-        for( int i=index; i<tokens.length; i++ ) {
-            if (buf.length()>0) buf.append('/');
+        for (int i = index; i < tokens.length; i++) {
+            if (buf.length() > 0) {
+                buf.append('/');
+            }
             buf.append(tokens[i]);
         }
 
@@ -90,8 +92,9 @@ class AncestorImpl implements Ancestor {
         buf.append(req.getScheme());
         buf.append("://");
         buf.append(req.getServerName());
-        if(req.getServerPort()!=80)
+        if (req.getServerPort() != 80) {
             buf.append(':').append(req.getServerPort());
+        }
         buf.append(getUrl());
 
         return buf.toString();
@@ -100,33 +103,39 @@ class AncestorImpl implements Ancestor {
     @Override
     public String getRelativePath() {
         StringBuilder buf = new StringBuilder();
-        for( int i=index+(endsWithSlash?0:1); i<tokens.length; i++ ) {
-            if(buf.length()>0)  buf.append('/');
+        for (int i = index + (endsWithSlash ? 0 : 1); i < tokens.length; i++) {
+            if (buf.length() > 0) {
+                buf.append('/');
+            }
             buf.append("..");
         }
-        if(buf.length()==0) buf.append('.');
+        if (buf.length() == 0) {
+            buf.append('.');
+        }
         return buf.toString();
     }
 
     @Override
     public String getNextToken(int n) {
-        return tokens[index+n];
+        return tokens[index + n];
     }
 
     @Override
     public Ancestor getPrev() {
-        if(listIndex==0)
+        if (listIndex == 0) {
             return null;
-        else
-            return owner.get(listIndex-1);
+        } else {
+            return owner.get(listIndex - 1);
+        }
     }
 
     @Override
     public Ancestor getNext() {
-        if(listIndex==owner.size()-1)
+        if (listIndex == owner.size() - 1) {
             return null;
-        else
-            return owner.get(listIndex+1);
+        } else {
+            return owner.get(listIndex + 1);
+        }
     }
 
     @Override
