@@ -45,7 +45,7 @@ import org.kohsuke.stapler.export.TreePruner.ByDepth;
 /**
  * Exposes one {@link Exported exposed property} of {@link ExportedBean} to
  * {@link DataWriter}.
- *  
+ *
  * @author Kohsuke Kawaguchi
  */
 public abstract class Property implements Comparable<Property> {
@@ -56,6 +56,7 @@ public abstract class Property implements Comparable<Property> {
      * Name of the property.
      */
     public final String name;
+
     final ModelBuilder owner;
     /**
      * Visibility depth level of this property.
@@ -92,20 +93,22 @@ public abstract class Property implements Comparable<Property> {
     Property(Model parent, String name, Type type, Exported exported) {
         this.parent = parent;
         this.owner = parent.parent;
-        this.name = exported.name().length()>1 ? exported.name() : name;
+        this.name = exported.name().length() > 1 ? exported.name() : name;
         this.type = type;
         int v = exported.visibility();
-        if(v==0)
+        if (v == 0) {
             v = parent.defaultVisibility;
+        }
         this.visibility = v;
         this.inline = exported.inline();
         this.merge = exported.merge();
         this.skipNull = exported.skipNull();
         String[] s = exported.verboseMap().split("/");
-        if (s.length<2)
+        if (s.length < 2) {
             this.verboseMap = null;
-        else
+        } else {
             this.verboseMap = s;
+        }
     }
 
     @Override
@@ -114,6 +117,7 @@ public abstract class Property implements Comparable<Property> {
     }
 
     public abstract Type getGenericType();
+
     public abstract Class getType();
 
     /**
@@ -130,11 +134,13 @@ public abstract class Property implements Comparable<Property> {
     @SuppressWarnings("unchecked")
     public void writeTo(Object object, TreePruner pruner, DataWriter writer) throws IOException {
         TreePruner child = pruner.accept(object, this);
-        if (child==null)        return;
+        if (child == null) {
+            return;
+        }
 
-        Object d = writer.getExportConfig().getExportInterceptor().getValue(this,object, writer.getExportConfig());
+        Object d = writer.getExportConfig().getExportInterceptor().getValue(this, object, writer.getExportConfig());
 
-        if ((d==null && skipNull) || d == ExportInterceptor.SKIP) { // don't write anything
+        if ((d == null && skipNull) || d == ExportInterceptor.SKIP) { // don't write anything
             return;
         }
         if (merge) {
@@ -145,7 +151,8 @@ public abstract class Property implements Comparable<Property> {
                 if (model == null && !writer.getExportConfig().isSkipIfFail()) {
                     throw new NotExportableException(objectType);
                 } else if (model != null) {
-                    model.writeNestedObjectTo(d, new FilteringTreePruner(parent.HAS_PROPERTY_NAME_IN_ANCESTRY,child), writer);
+                    model.writeNestedObjectTo(
+                            d, new FilteringTreePruner(parent.HAS_PROPERTY_NAME_IN_ANCESTRY, child), writer);
                 }
             }
         } else {
@@ -159,14 +166,14 @@ public abstract class Property implements Comparable<Property> {
      */
     @Deprecated
     public void writeTo(Object object, int depth, DataWriter writer) throws IOException {
-        writeTo(object,new ByDepth(depth),writer);
+        writeTo(object, new ByDepth(depth), writer);
     }
 
     /**
      * Writes one value of the property to {@link DataWriter}.
      */
     private void writeValue(Type expected, Object value, TreePruner pruner, DataWriter writer) throws IOException {
-        writeValue(expected,value,pruner,writer,writer.getExportConfig().isSkipIfFail());
+        writeValue(expected, value, pruner, writer, writer.getExportConfig().isSkipIfFail());
     }
 
     private void writeBuffered(Type expected, Object value, TreePruner pruner, DataWriter writer) throws IOException {
@@ -186,14 +193,15 @@ public abstract class Property implements Comparable<Property> {
      * Writes one value of the property to {@link DataWriter}.
      */
     @SuppressWarnings("unchecked")
-    private void writeValue(Type expected, Object value, TreePruner pruner, DataWriter writer, boolean skipIfFail) throws IOException {
-        if(value==null) {
+    private void writeValue(Type expected, Object value, TreePruner pruner, DataWriter writer, boolean skipIfFail)
+            throws IOException {
+        if (value == null) {
             writer.valueNull();
             return;
         }
 
-        if(value instanceof CustomExportedBean) {
-            writeValue(expected,((CustomExportedBean)value).toExportedObject(),pruner,writer);
+        if (value instanceof CustomExportedBean) {
+            writeValue(expected, ((CustomExportedBean) value).toExportedObject(), pruner, writer);
             return;
         }
 
@@ -201,16 +209,16 @@ public abstract class Property implements Comparable<Property> {
 
         Model model = owner.getOrNull(c, parent.type, name);
         if (model == null) {
-            if(STRING_TYPES.contains(c)) {
+            if (STRING_TYPES.contains(c)) {
                 writer.value(value.toString());
                 return;
             }
-            if(PRIMITIVE_TYPES.contains(c)) {
+            if (PRIMITIVE_TYPES.contains(c)) {
                 writer.valuePrimitive(value);
                 return;
             }
             Class act = c.getComponentType();
-            if (act !=null) { // array
+            if (act != null) { // array
                 Range r = pruner.getRange();
                 writer.startArray();
                 if (value instanceof Object[]) {
@@ -221,14 +229,14 @@ public abstract class Property implements Comparable<Property> {
                 } else {
                     // more generic case
                     int len = Math.min(r.max, Array.getLength(value));
-                    for (int i=r.min; i<len; i++) {
+                    for (int i = r.min; i < len; i++) {
                         writeBuffered(act, Array.get(value, i), pruner, writer);
                     }
                 }
                 writer.endArray();
                 return;
             }
-            if(value instanceof Iterable) {
+            if (value instanceof Iterable) {
                 writer.startArray();
                 Type expectedItemType = Types.getTypeArgument(expected, 0, null);
                 for (Object item : pruner.getRange().apply((Iterable) value)) {
@@ -237,10 +245,10 @@ public abstract class Property implements Comparable<Property> {
                 writer.endArray();
                 return;
             }
-            if(value instanceof Map) {
-                if (verboseMap!=null) {// verbose form
+            if (value instanceof Map) {
+                if (verboseMap != null) { // verbose form
                     writer.startArray();
-                    for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
+                    for (Map.Entry e : ((Map<?, ?>) value).entrySet()) {
                         BufferedDataWriter buffer = new BufferedDataWriter(writer.getExportConfig());
                         try {
                             writeStartObjectNullType(buffer);
@@ -258,9 +266,9 @@ public abstract class Property implements Comparable<Property> {
                         buffer.commit(writer);
                     }
                     writer.endArray();
-                } else {// compact form
+                } else { // compact form
                     writeStartObjectNullType(writer);
-                    for (Map.Entry e : ((Map<?,?>) value).entrySet()) {
+                    for (Map.Entry e : ((Map<?, ?>) value).entrySet()) {
                         BufferedDataWriter buffer = new BufferedDataWriter(writer.getExportConfig());
                         try {
                             buffer.name(e.getKey().toString());
@@ -277,15 +285,15 @@ public abstract class Property implements Comparable<Property> {
                 }
                 return;
             }
-            if(value instanceof Date) {
+            if (value instanceof Date) {
                 writer.valuePrimitive(((Date) value).getTime());
                 return;
             }
-            if(value instanceof Calendar) {
+            if (value instanceof Calendar) {
                 writer.valuePrimitive(((Calendar) value).getTimeInMillis());
                 return;
             }
-            if(value instanceof Enum) {
+            if (value instanceof Enum) {
                 writer.value(value.toString());
                 return;
             }
@@ -317,98 +325,122 @@ public abstract class Property implements Comparable<Property> {
             return exportConfig;
         }
 
-        enum Op {name, valuePrimitive, value, valueNull, startArray, endArray, type, startObject, endObject}
+        enum Op {
+            name,
+            valuePrimitive,
+            value,
+            valueNull,
+            startArray,
+            endArray,
+            type,
+            startObject,
+            endObject
+        }
+
         static class Step {
             final Op op;
             final Object[] args;
+
             Step(Op op, Object... args) {
                 this.op = op;
                 this.args = args;
             }
         }
+
         final List<Step> steps = new ArrayList<>();
         boolean finished = false;
+
         @Override
         public void name(String name) throws IOException {
             steps.add(new Step(Op.name, name));
         }
+
         @Override
         public void valuePrimitive(Object v) throws IOException {
             steps.add(new Step(Op.valuePrimitive, v));
         }
+
         @Override
         public void value(String v) throws IOException {
             steps.add(new Step(Op.value, v));
         }
+
         @Override
         public void valueNull() throws IOException {
             steps.add(new Step(Op.valueNull));
         }
+
         @Override
         public void startArray() throws IOException {
             steps.add(new Step(Op.startArray));
         }
+
         @Override
         public void endArray() throws IOException {
             steps.add(new Step(Op.endArray));
         }
+
         @Override
         public void type(Type expected, Class actual) throws IOException {
             steps.add(new Step(Op.type, expected, actual));
         }
+
         @Override
         public void startObject() throws IOException {
             steps.add(new Step(Op.startObject));
         }
+
         @Override
         public void endObject() throws IOException {
             steps.add(new Step(Op.endObject));
         }
+
         private void finished() {
             finished = true;
         }
+
         void commit(DataWriter w) throws IOException {
             if (!finished) {
                 return;
             }
             for (Step step : steps) {
                 switch (step.op) {
-                case name:
-                    w.name((String) step.args[0]);
-                    break;
-                case valuePrimitive:
-                    w.valuePrimitive(step.args[0]);
-                    break;
-                case value:
-                    w.value((String) step.args[0]);
-                    break;
-                case valueNull:
-                    w.valueNull();
-                    break;
-                case startArray:
-                    w.startArray();
-                    break;
-                case endArray:
-                    w.endArray();
-                    break;
-                case type:
-                    w.type((Type) step.args[0], (Class) step.args[1]);
-                    break;
-                case startObject:
-                    w.startObject();
-                    break;
-                case endObject:
-                    w.endObject();
-                    break;
-                default:
-                    throw new AssertionError();
+                    case name:
+                        w.name((String) step.args[0]);
+                        break;
+                    case valuePrimitive:
+                        w.valuePrimitive(step.args[0]);
+                        break;
+                    case value:
+                        w.value((String) step.args[0]);
+                        break;
+                    case valueNull:
+                        w.valueNull();
+                        break;
+                    case startArray:
+                        w.startArray();
+                        break;
+                    case endArray:
+                        w.endArray();
+                        break;
+                    case type:
+                        w.type((Type) step.args[0], (Class) step.args[1]);
+                        break;
+                    case startObject:
+                        w.startObject();
+                        break;
+                    case endObject:
+                        w.endObject();
+                        break;
+                    default:
+                        throw new AssertionError();
                 }
             }
         }
     }
 
     private void writeStartObjectNullType(DataWriter writer) throws IOException {
-        writer.type(null,null);
+        writer.type(null, null);
         writer.startObject();
     }
 
@@ -417,18 +449,8 @@ public abstract class Property implements Comparable<Property> {
      */
     public abstract Object getValue(Object bean) throws IllegalAccessException, InvocationTargetException;
 
-    /*package*/ static final Set<Class> STRING_TYPES = new HashSet<>(Arrays.asList(
-        String.class,
-        URL.class
-    ));
+    /*package*/ static final Set<Class> STRING_TYPES = new HashSet<>(Arrays.asList(String.class, URL.class));
 
     /*package*/ static final Set<Class> PRIMITIVE_TYPES = new HashSet<>(Arrays.asList(
-        Integer.class,
-        Long.class,
-        Boolean.class,
-        Short.class,
-        Character.class,
-        Float.class,
-        Double.class
-    ));
+            Integer.class, Long.class, Boolean.class, Short.class, Character.class, Float.class, Double.class));
 }

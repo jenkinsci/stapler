@@ -5,12 +5,13 @@ package org.kohsuke.stapler.jelly.issue76;
  */
 public class Leg {
     public final String name;
+
     public Leg(String name) {
         this.name = name;
     }
 
     @Override
     public String toString() {
-        return name+" leg";
+        return name + " leg";
     }
 }

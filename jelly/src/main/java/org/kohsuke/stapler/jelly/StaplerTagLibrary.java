@@ -42,31 +42,31 @@ import org.xml.sax.Attributes;
  */
 public class StaplerTagLibrary extends TagLibrary {
     public StaplerTagLibrary() {
-        registerTag("adjunct",AdjunctTag.class);
-        registerTag("bind",BindTag.class);
-        registerTag("compress",CompressTag.class);
-        registerTag("contentType",ContentTypeTag.class);
-        registerTag("copyStream",CopyStreamTag.class);
-        registerTag("doctype",DoctypeTag.class);
-        registerTag("findAncestor",FindAncestorTag.class);
-        registerTag("header",HeaderTag.class);   // deprecated. for compatibility
-        registerTag("addHeader",HeaderTag.class);
-        registerTag("setHeader",SetHeaderTag.class);
-        registerTag("include",IncludeTag.class);
-        registerTag("isUserInRole",IsUserInRoleTag.class);
-        registerTag("nbsp",NbspTag.class);
-        registerTag("out",OutTag.class);
-        registerTag("parentScope",ParentScopeTag.class);
-        registerTag("redirect",RedirectTag.class);
-        registerTag("statusCode",StatusCodeTag.class);
-        registerTag("structuredMessageArgument",StructuredMessageArgumentTag.class);
-        registerTag("structuredMessageFormat",StructuredMessageFormatTag.class);
+        registerTag("adjunct", AdjunctTag.class);
+        registerTag("bind", BindTag.class);
+        registerTag("compress", CompressTag.class);
+        registerTag("contentType", ContentTypeTag.class);
+        registerTag("copyStream", CopyStreamTag.class);
+        registerTag("doctype", DoctypeTag.class);
+        registerTag("findAncestor", FindAncestorTag.class);
+        registerTag("header", HeaderTag.class); // deprecated. for compatibility
+        registerTag("addHeader", HeaderTag.class);
+        registerTag("setHeader", SetHeaderTag.class);
+        registerTag("include", IncludeTag.class);
+        registerTag("isUserInRole", IsUserInRoleTag.class);
+        registerTag("nbsp", NbspTag.class);
+        registerTag("out", OutTag.class);
+        registerTag("parentScope", ParentScopeTag.class);
+        registerTag("redirect", RedirectTag.class);
+        registerTag("statusCode", StatusCodeTag.class);
+        registerTag("structuredMessageArgument", StructuredMessageArgumentTag.class);
+        registerTag("structuredMessageFormat", StructuredMessageFormatTag.class);
     }
 
     @Override
     public TagScript createTagScript(String name, Attributes attributes) throws JellyException {
         // performance optimization
-        if (name.equals("documentation"))
+        if (name.equals("documentation")) {
             return new TagScript() {
                 @Override
                 public void run(JellyContext context, XMLOutput output) throws JellyTagException {
@@ -78,36 +78,41 @@ public class StaplerTagLibrary extends TagLibrary {
                     // noop, we don't evaluate the body, so don't even keep it in memory.
                 }
             };
+        }
 
-        if (name.equals("getOutput"))
+        if (name.equals("getOutput")) {
             return new TagScript() {
                 /**
                  * Adds {@link XMLOutput} to the context.
                  */
                 @Override
                 public void run(JellyContext context, XMLOutput output) throws JellyTagException {
-                    context.setVariable(getAttribute("var").evaluateAsString(context),output);
+                    context.setVariable(getAttribute("var").evaluateAsString(context), output);
                 }
             };
+        }
 
-        if (name.equals("once"))
+        if (name.equals("once")) {
             return new TagScript() {
                 /**
                  * Adds {@link XMLOutput} to the context.
                  */
                 @Override
                 public void run(JellyContext context, XMLOutput output) throws JellyTagException {
-                    HttpServletRequest request = (HttpServletRequest)context.getVariable("request");
+                    HttpServletRequest request = (HttpServletRequest) context.getVariable("request");
                     Set<String> executedScripts = (Set<String>) request.getAttribute(ONCE_TAG_KEY);
-                    if(executedScripts==null)
-                        request.setAttribute(ONCE_TAG_KEY,executedScripts=new HashSet<>());
+                    if (executedScripts == null) {
+                        request.setAttribute(ONCE_TAG_KEY, executedScripts = new HashSet<>());
+                    }
 
-                    String key = getFileName()+':'+getLineNumber()+':'+getColumnNumber();
+                    String key = getFileName() + ':' + getLineNumber() + ':' + getColumnNumber();
 
-                    if(executedScripts.add(key)) // run it just for the first time
-                        getTagBody().run(context,output);
+                    if (executedScripts.add(key)) { // run it just for the first time
+                        getTagBody().run(context, output);
+                    }
                 }
             };
+        }
 
         if (!DISABLE_INCLUDE_TAG_CLASS_ATTRIBUTE_REWRITING && name.equals("include")) {
             // Retain backward compatibility with all views setting the obsolete 'class' attribute.

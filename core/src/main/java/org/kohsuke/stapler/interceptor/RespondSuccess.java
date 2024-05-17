@@ -18,7 +18,7 @@ import org.kohsuke.stapler.StaplerResponse;
  * @see HttpResponses#ok()
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD,ElementType.FIELD})
+@Target({ElementType.METHOD, ElementType.FIELD})
 @InterceptorAnnotation(RespondSuccess.Processor.class)
 public @interface RespondSuccess {
     class Processor extends Interceptor {

@@ -30,7 +30,9 @@ public class JsonHttpResponse extends HttpResponseException {
         this.status = status;
     }
 
-    @SuppressFBWarnings(value = "INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE", justification = "Jenkins handles this issue differently or doesn't care about it")
+    @SuppressFBWarnings(
+            value = "INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE",
+            justification = "Jenkins handles this issue differently or doesn't care about it")
     public JsonHttpResponse(Throwable t, int status) {
         StringWriter sw = new StringWriter();
         t.printStackTrace(new PrintWriter(sw));
@@ -41,8 +43,8 @@ public class JsonHttpResponse extends HttpResponseException {
     }
 
     @Override
-    public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException,
-            ServletException {
+    public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+            throws IOException, ServletException {
         if (status > 0) {
             rsp.setStatus(status);
         }
@@ -53,5 +55,4 @@ public class JsonHttpResponse extends HttpResponseException {
             }
         }
     }
-
 }

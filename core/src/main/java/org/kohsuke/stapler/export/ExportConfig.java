@@ -13,7 +13,7 @@ public class ExportConfig {
      *      Use getter and setter
      */
     @Deprecated
-    @SuppressFBWarnings(value="PA_PUBLIC_PRIMITIVE_ATTRIBUTE", justification="Preserve API compatibility")
+    @SuppressFBWarnings(value = "PA_PUBLIC_PRIMITIVE_ATTRIBUTE", justification = "Preserve API compatibility")
     public boolean prettyPrint;
 
     private ClassAttributeBehaviour classAttribute = ClassAttributeBehaviour.IF_NEEDED;
@@ -47,7 +47,9 @@ public class ExportConfig {
      * Controls the behaviour of the class attribute to be produced.
      */
     public ExportConfig withClassAttribute(ClassAttributeBehaviour cab) {
-        if (cab==null)  throw new NullPointerException();
+        if (cab == null) {
+            throw new NullPointerException();
+        }
         this.classAttribute = cab;
         return this;
     }
@@ -59,12 +61,12 @@ public class ExportConfig {
         return exportInterceptor;
     }
 
-    public ExportConfig withExportInterceptor(ExportInterceptor interceptor){
+    public ExportConfig withExportInterceptor(ExportInterceptor interceptor) {
         this.exportInterceptor = interceptor;
         return this;
     }
 
-    public ExportConfig withSkipIfFail(boolean skipIfFail){
+    public ExportConfig withSkipIfFail(boolean skipIfFail) {
         this.skipIfFail = skipIfFail;
         return this;
     }
@@ -79,11 +81,11 @@ public class ExportConfig {
     /**
      * Gives {@link Flavor}
      */
-    public Flavor getFlavor(){
+    public Flavor getFlavor() {
         return flavor;
     }
 
-    public ExportConfig withFlavor(Flavor flavor){
+    public ExportConfig withFlavor(Flavor flavor) {
         this.flavor = flavor;
         return this;
     }

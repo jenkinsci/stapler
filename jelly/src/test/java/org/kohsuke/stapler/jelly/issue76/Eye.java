@@ -12,6 +12,6 @@ public class Eye {
 
     @Override
     public String toString() {
-        return "eye #"+i;
+        return "eye #" + i;
     }
 }

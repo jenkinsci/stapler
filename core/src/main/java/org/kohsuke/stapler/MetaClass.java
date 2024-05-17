@@ -51,7 +51,7 @@ import org.kohsuke.stapler.lang.MethodRef;
  */
 public class MetaClass extends TearOffSupport {
     private static final Logger LOGGER = Logger.getLogger(MetaClass.class.getName());
-    
+
     /**
      * This meta class wraps this class
      *
@@ -110,8 +110,9 @@ public class MetaClass extends TearOffSupport {
 
         dispatchers.add(new DirectoryishDispatcher());
 
-        if (HttpDeletable.class.isAssignableFrom(clazz))
+        if (HttpDeletable.class.isAssignableFrom(clazz)) {
             dispatchers.add(new HttpDeletableDispatcher());
+        }
 
         // check action <obj>.do<token>(...) and other WebMethods
         registerDoToken(node);
@@ -123,7 +124,7 @@ public class MetaClass extends TearOffSupport {
 
         // JavaScript proxy method invocations for <obj>js<token>
         // reacts only to a specific content type
-        for (Function f : node.methods.prefix("js") ) {
+        for (Function f : node.methods.prefix("js")) {
             String name = camelize(f.getName().substring(2)); // jsXyz -> xyz
             f = f.contextualize(new JavaScriptMethodContext(name));
             dispatchers.add(new JavaScriptProxyMethodDispatcher(name, f));
@@ -131,26 +132,34 @@ public class MetaClass extends TearOffSupport {
 
         // JavaScript proxy method with @JavaScriptMethod
         // reacts only to a specific content type
-        for( final Function f : node.methods.annotated(JavaScriptMethod.class) ) {
+        for (final Function f : node.methods.annotated(JavaScriptMethod.class)) {
             JavaScriptMethod a = f.getAnnotation(JavaScriptMethod.class);
 
             String[] names;
-            if(a!=null && a.name().length>0)   names=a.name();
-            else    names=new String[]{f.getName()};
+            if (a != null && a.name().length > 0) {
+                names = a.name();
+            } else {
+                names = new String[] {f.getName()};
+            }
 
-            for (String name : names)
-                dispatchers.add(new JavaScriptProxyMethodDispatcher(name,f.contextualize(new JavaScriptMethodContext(name))));
+            for (String name : names) {
+                dispatchers.add(
+                        new JavaScriptProxyMethodDispatcher(name, f.contextualize(new JavaScriptMethodContext(name))));
+            }
         }
 
-        for (Facet f : webApp.facets)
+        for (Facet f : webApp.facets) {
             f.buildViewDispatchers(this, dispatchers);
+        }
 
-        for (Facet f : webApp.facets)
+        for (Facet f : webApp.facets) {
             f.buildIndexDispatchers(this, dispatchers);
+        }
 
         Dispatcher d = IndexHtmlDispatcher.make(webApp.context, clazz);
-        if (d!=null)
+        if (d != null) {
             dispatchers.add(d);
+        }
 
         // check public properties of the form NODE.TOKEN
         for (final FieldRef f : node.fields) {
@@ -158,44 +167,54 @@ public class MetaClass extends TearOffSupport {
 
             dispatchers.add(new NameBasedDispatcher(f.getName()) {
                 final String role = getProtectedRole(f);
+
                 @Override
-                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException {
+                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
+                        throws IOException, ServletException, IllegalAccessException {
                     if (accepted) {
-                        if (role != null && !req.isUserInRole(role))
+                        if (role != null && !req.isUserInRole(role)) {
                             throw new IllegalAccessException("Needs to be in role " + role);
+                        }
 
                         Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s", f.getName());
-                        if (traceable())
+                        if (traceable()) {
                             traceEval(req, rsp, node, f.getName());
+                        }
                         req.getStapler().invoke(req, rsp, f.get(node));
                         return true;
                     } else {
-                        return webApp.getFilteredFieldTriggerListener().onFieldTrigger(f, req, rsp, node, f.getQualifiedName());
+                        return webApp.getFilteredFieldTriggerListener()
+                                .onFieldTrigger(f, req, rsp, node, f.getQualifiedName());
                     }
                 }
+
                 @Override
                 public String toString() {
                     if (accepted) {
-                        return String.format("%3$s %1$s for url=/%2$s/...", f.getQualifiedName(), f.getName(), f.getReturnType());
+                        return String.format(
+                                "%3$s %1$s for url=/%2$s/...", f.getQualifiedName(), f.getName(), f.getReturnType());
                     } else {
-                        return String.format("BLOCKED: %3$s %1$s for url=/%2$s/...", f.getQualifiedName(), f.getName(), f.getReturnType());
+                        return String.format(
+                                "BLOCKED: %3$s %1$s for url=/%2$s/...",
+                                f.getQualifiedName(), f.getName(), f.getReturnType());
                     }
                 }
             });
         }
 
-        FunctionList getMethods = node.methods.prefix("get").filter(m -> !m.getSignature().equals("method java.lang.Object getClass"));
+        FunctionList getMethods =
+                node.methods.prefix("get").filter(m -> !m.getSignature().equals("method java.lang.Object getClass"));
         FunctionList filteredGetMethods;
-        if(LEGACY_GETTER_MODE || webApp.getFilterForGetMethods() == null){
+        if (LEGACY_GETTER_MODE || webApp.getFilterForGetMethods() == null) {
             LOGGER.log(Level.FINE, "Stapler is using the legacy GETTER_MODE");
             filteredGetMethods = getMethods;
-        }else{
+        } else {
             filteredGetMethods = getMethods.filter(webApp.getFilterForGetMethods());
-            if(LOGGER.isLoggable(Level.FINER)){
+            if (LOGGER.isLoggable(Level.FINER)) {
                 // to ease the debug
                 List<Function> excludedByNew = minus(getMethods, filteredGetMethods);
-    
-                if(!excludedByNew.isEmpty()){
+
+                if (!excludedByNew.isEmpty()) {
                     for (Function excluded : excludedByNew) {
                         LOGGER.log(Level.FINER, "The following method is now blocked: {0}", excluded.getDisplayName());
                     }
@@ -205,8 +224,9 @@ public class MetaClass extends TearOffSupport {
 
         // check public selector methods of the form NODE.getTOKEN()
         for (final Function f : getMethods.signature()) {
-            if(f.getName().length()<=3)
+            if (f.getName().length() <= 3) {
                 continue;
+            }
 
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             final Function ff = f.contextualize(new TraversalMethodContext(name));
@@ -214,23 +234,31 @@ public class MetaClass extends TearOffSupport {
 
             dispatchers.add(new NameBasedDispatcher(name) {
                 @Override
-                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    if(isAccepted){
+                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
+                        throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    if (isAccepted) {
                         Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s()", ff.getName());
-                        if(traceable())
-                            traceEval(req,rsp,node,ff.getName()+"()");
-                        req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node));
+                        if (traceable()) {
+                            traceEval(req, rsp, node, ff.getName() + "()");
+                        }
+                        req.getStapler().invoke(req, rsp, ff.invoke(req, rsp, node));
                         return true;
-                    }else{
-                        return webApp.getFilteredGetterTriggerListener().onGetterTrigger(f, req, rsp, node, ff.getName()+"()");
+                    } else {
+                        return webApp.getFilteredGetterTriggerListener()
+                                .onGetterTrigger(f, req, rsp, node, ff.getName() + "()");
                     }
                 }
+
                 @Override
                 public String toString() {
-                    if(isAccepted){
-                        return String.format("%3$s %1$s() for url=/%2$s/...",ff.getQualifiedName(),name, ff.getReturnType().getName());
-                    }else{
-                        return String.format("BLOCKED: %3$s %1$s() for url=/%2$s/...",ff.getQualifiedName(),name, ff.getReturnType().getName());
+                    if (isAccepted) {
+                        return String.format(
+                                "%3$s %1$s() for url=/%2$s/...",
+                                ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    } else {
+                        return String.format(
+                                "BLOCKED: %3$s %1$s() for url=/%2$s/...",
+                                ff.getQualifiedName(), name, ff.getReturnType().getName());
                     }
                 }
             });
@@ -238,31 +266,40 @@ public class MetaClass extends TearOffSupport {
 
         // check public selector methods of the form static NODE.getTOKEN(StaplerRequest)
         for (final Function f : getMethods.signature(StaplerRequest.class)) {
-            if(f.getName().length()<=3)
+            if (f.getName().length() <= 3) {
                 continue;
+            }
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             final Function ff = f.contextualize(new TraversalMethodContext(name));
             final boolean isAccepted = filteredGetMethods.contains(f);
 
             dispatchers.add(new NameBasedDispatcher(name) {
                 @Override
-                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    if(isAccepted){
+                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
+                        throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    if (isAccepted) {
                         Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(...)", ff.getName());
-                        if(traceable())
-                            traceEval(req,rsp,node,ff.getName()+"(...)");
-                        req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node, req));
+                        if (traceable()) {
+                            traceEval(req, rsp, node, ff.getName() + "(...)");
+                        }
+                        req.getStapler().invoke(req, rsp, ff.invoke(req, rsp, node, req));
                         return true;
-                    }else{
-                        return webApp.getFilteredGetterTriggerListener().onGetterTrigger(f, req, rsp, node, ff.getName()+"(...)");
+                    } else {
+                        return webApp.getFilteredGetterTriggerListener()
+                                .onGetterTrigger(f, req, rsp, node, ff.getName() + "(...)");
                     }
                 }
+
                 @Override
                 public String toString() {
-                    if(isAccepted) {
-                        return String.format("%3$s %1$s(StaplerRequest) for url=/%2$s/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
-                    }else{
-                        return String.format("BLOCKED: %3$s %1$s(StaplerRequest) for url=/%2$s/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    if (isAccepted) {
+                        return String.format(
+                                "%3$s %1$s(StaplerRequest) for url=/%2$s/...",
+                                ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    } else {
+                        return String.format(
+                                "BLOCKED: %3$s %1$s(StaplerRequest) for url=/%2$s/...",
+                                ff.getQualifiedName(), name, ff.getReturnType().getName());
                     }
                 }
             });
@@ -270,38 +307,46 @@ public class MetaClass extends TearOffSupport {
 
         // check public selector methods <obj>.get<Token>(String)
         for (final Function f : getMethods.signature(String.class)) {
-            if(f.getName().length()<=3)
+            if (f.getName().length() <= 3) {
                 continue;
+            }
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             final Function ff = f.contextualize(new TraversalMethodContext(name));
             final boolean isAccepted = filteredGetMethods.contains(f);
 
-            dispatchers.add(new NameBasedDispatcher(name,1) {
+            dispatchers.add(new NameBasedDispatcher(name, 1) {
                 @Override
-                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    if(isAccepted){
+                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
+                        throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    if (isAccepted) {
                         String token = req.tokens.next();
                         Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(String)", ff.getName());
-                        if(traceable())
-                            traceEval(req,rsp,node,ff.getName()+"(\""+token+"\")");
-                        req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,token));
-                        return true;
-                    }else{
-                        String token = req.tokens.next();
-                        try{
-                            return webApp.getFilteredGetterTriggerListener().onGetterTrigger(f, req, rsp, node, ff.getName()+"(\""+token+"\")");
+                        if (traceable()) {
+                            traceEval(req, rsp, node, ff.getName() + "(\"" + token + "\")");
                         }
-                        finally{
+                        req.getStapler().invoke(req, rsp, ff.invoke(req, rsp, node, token));
+                        return true;
+                    } else {
+                        String token = req.tokens.next();
+                        try {
+                            return webApp.getFilteredGetterTriggerListener()
+                                    .onGetterTrigger(f, req, rsp, node, ff.getName() + "(\"" + token + "\")");
+                        } finally {
                             req.tokens.prev();
                         }
                     }
                 }
+
                 @Override
                 public String toString() {
-                    if(isAccepted) {
-                        return String.format("%3$s %1$s(String) for url=/%2$s/TOKEN/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
-                    }else{
-                        return String.format("BLOCKED: %3$s %1$s(String) for url=/%2$s/TOKEN/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    if (isAccepted) {
+                        return String.format(
+                                "%3$s %1$s(String) for url=/%2$s/TOKEN/...",
+                                ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    } else {
+                        return String.format(
+                                "BLOCKED: %3$s %1$s(String) for url=/%2$s/TOKEN/...",
+                                ff.getQualifiedName(), name, ff.getReturnType().getName());
                     }
                 }
             });
@@ -309,38 +354,46 @@ public class MetaClass extends TearOffSupport {
 
         // check public selector methods <obj>.get<Token>(int)
         for (final Function f : getMethods.signature(int.class)) {
-            if(f.getName().length()<=3)
+            if (f.getName().length() <= 3) {
                 continue;
+            }
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             final Function ff = f.contextualize(new TraversalMethodContext(name));
             final boolean isAccepted = filteredGetMethods.contains(f);
 
-            dispatchers.add(new NameBasedDispatcher(name,1) {
+            dispatchers.add(new NameBasedDispatcher(name, 1) {
                 @Override
-                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    if(isAccepted){
+                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
+                        throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    if (isAccepted) {
                         int idx = req.tokens.nextAsInt();
                         Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(int)", ff.getName());
-                        if(traceable())
-                            traceEval(req,rsp,node,ff.getName()+"("+idx+")");
-                        req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,idx));
-                        return true;
-                    }else{
-                        int idx = req.tokens.nextAsInt();
-                        try{
-                            return webApp.getFilteredGetterTriggerListener().onGetterTrigger(f, req, rsp, node, ff.getName()+"("+idx+")");
+                        if (traceable()) {
+                            traceEval(req, rsp, node, ff.getName() + "(" + idx + ")");
                         }
-                        finally{
+                        req.getStapler().invoke(req, rsp, ff.invoke(req, rsp, node, idx));
+                        return true;
+                    } else {
+                        int idx = req.tokens.nextAsInt();
+                        try {
+                            return webApp.getFilteredGetterTriggerListener()
+                                    .onGetterTrigger(f, req, rsp, node, ff.getName() + "(" + idx + ")");
+                        } finally {
                             req.tokens.prev();
                         }
                     }
                 }
+
                 @Override
                 public String toString() {
-                    if(isAccepted){
-                        return String.format("%3$s %1$s(int) for url=/%2$s/N/...",ff.getQualifiedName(),name, ff.getReturnType().getName());
-                    }else{
-                        return String.format("BLOCKED: %3$s %1$s(int) for url=/%2$s/N/...",ff.getQualifiedName(),name, ff.getReturnType().getName());
+                    if (isAccepted) {
+                        return String.format(
+                                "%3$s %1$s(int) for url=/%2$s/N/...",
+                                ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    } else {
+                        return String.format(
+                                "BLOCKED: %3$s %1$s(int) for url=/%2$s/N/...",
+                                ff.getQualifiedName(), name, ff.getReturnType().getName());
                     }
                 }
             });
@@ -349,38 +402,46 @@ public class MetaClass extends TearOffSupport {
         // check public selector methods <obj>.get<Token>(long)
         // TF: I'm sure these for loop blocks could be dried out in some way.
         for (final Function f : getMethods.signature(long.class)) {
-            if(f.getName().length()<=3)
+            if (f.getName().length() <= 3) {
                 continue;
+            }
             String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
             final Function ff = f.contextualize(new TraversalMethodContext(name));
             final boolean isAccepted = filteredGetMethods.contains(f);
 
-            dispatchers.add(new NameBasedDispatcher(name,1) {
+            dispatchers.add(new NameBasedDispatcher(name, 1) {
                 @Override
-                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-                    if(isAccepted){
+                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
+                        throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    if (isAccepted) {
                         long idx = req.tokens.nextAsLong();
                         Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(long)", ff.getName());
-                        if(traceable())
-                            traceEval(req,rsp,node,ff.getName()+"("+idx+")");
-                        req.getStapler().invoke(req,rsp, ff.invoke(req, rsp, node,idx));
-                        return true;
-                    }else{
-                        long idx = req.tokens.nextAsLong();
-                        try{
-                            return webApp.getFilteredGetterTriggerListener().onGetterTrigger(f, req, rsp, node, ff.getName()+"("+idx+")");
+                        if (traceable()) {
+                            traceEval(req, rsp, node, ff.getName() + "(" + idx + ")");
                         }
-                        finally{
+                        req.getStapler().invoke(req, rsp, ff.invoke(req, rsp, node, idx));
+                        return true;
+                    } else {
+                        long idx = req.tokens.nextAsLong();
+                        try {
+                            return webApp.getFilteredGetterTriggerListener()
+                                    .onGetterTrigger(f, req, rsp, node, ff.getName() + "(" + idx + ")");
+                        } finally {
                             req.tokens.prev();
                         }
                     }
                 }
+
                 @Override
                 public String toString() {
-                    if(isAccepted) {
-                        return String.format("%3$s %1$s(long) for url=/%2$s/N/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
-                    }else{
-                        return String.format("BLOCKED: %3$s %1$s(long) for url=/%2$s/N/...", ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    if (isAccepted) {
+                        return String.format(
+                                "%3$s %1$s(long) for url=/%2$s/N/...",
+                                ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    } else {
+                        return String.format(
+                                "BLOCKED: %3$s %1$s(long) for url=/%2$s/N/...",
+                                ff.getQualifiedName(), name, ff.getReturnType().getName());
                     }
                 }
             });
@@ -389,25 +450,30 @@ public class MetaClass extends TearOffSupport {
         if (klass.isArray()) {
             dispatchers.add(new Dispatcher() {
                 @Override
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
-                    if(!req.tokens.hasMore())
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
+                        throws IOException, ServletException {
+                    if (!req.tokens.hasMore()) {
                         return false;
+                    }
                     try {
                         int index = req.tokens.nextAsInt();
                         Dispatcher.anonymizedTraceEval(req, rsp, node, "%s[idx]");
-                        if (traceable())
+                        if (traceable()) {
                             traceEval(req, rsp, node, "", "[" + index + "]");
+                        }
                         req.getStapler().invoke(req, rsp, klass.getArrayElement(node, index));
                         return true;
                     } catch (IndexOutOfBoundsException e) {
-                        if(traceable())
-                            trace(req,rsp,"-> IndexOutOfRange");
+                        if (traceable()) {
+                            trace(req, rsp, "-> IndexOutOfRange");
+                        }
                         rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
                         return true;
                     } catch (NumberFormatException e) {
                         return false; // try next
                     }
                 }
+
                 @Override
                 public String toString() {
                     return "Array look-up for url=/N/...";
@@ -415,33 +481,38 @@ public class MetaClass extends TearOffSupport {
             });
         }
 
-        if(klass.isMap()) {
+        if (klass.isMap()) {
             dispatchers.add(new Dispatcher() {
                 @Override
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
-                    if(!req.tokens.hasMore())
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
+                        throws IOException, ServletException {
+                    if (!req.tokens.hasMore()) {
                         return false;
+                    }
                     try {
                         String key = req.tokens.peek();
                         Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Map access");
-                        if(traceable())
-                            traceEval(req,rsp,"",".get(\""+key+"\")");
+                        if (traceable()) {
+                            traceEval(req, rsp, "", ".get(\"" + key + "\")");
+                        }
 
-                        Object item = klass.getMapElement(node,key);
-                        if(item!=null) {
+                        Object item = klass.getMapElement(node, key);
+                        if (item != null) {
                             req.tokens.next();
-                            req.getStapler().invoke(req,rsp,item);
+                            req.getStapler().invoke(req, rsp, item);
                             return true;
                         } else {
                             // otherwise just fall through
-                            if(traceable())
-                                trace(req,rsp,"Map.get(\""+key+"\")==null. Back tracking.");
+                            if (traceable()) {
+                                trace(req, rsp, "Map.get(\"" + key + "\")==null. Back tracking.");
+                            }
                             return false;
                         }
                     } catch (NumberFormatException e) {
                         return false; // try next
                     }
                 }
+
                 @Override
                 public String toString() {
                     return "Map.get(String) look-up for url=/TOKEN/...";
@@ -452,37 +523,45 @@ public class MetaClass extends TearOffSupport {
         // TODO: check if we can route to static resources
         // which directory shall we look up a resource from?
 
-        for (Facet f : webApp.facets)
+        for (Facet f : webApp.facets) {
             f.buildFallbackDispatchers(this, dispatchers);
+        }
 
         // check public selector methods <obj>.getDynamic(<token>,...)
         for (Function f : getMethods.signatureStartsWith(String.class).name("getDynamic")) {
             final Function ff = f.contextualize(new TraversalMethodContext(TraversalMethodContext.DYNAMIC));
             dispatchers.add(new Dispatcher() {
                 @Override
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, IOException, ServletException {
-                    if(!req.tokens.hasMore())
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
+                        throws IllegalAccessException, InvocationTargetException, IOException, ServletException {
+                    if (!req.tokens.hasMore()) {
                         return false;
+                    }
                     String token = req.tokens.next();
                     Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#getDynamic(...)");
-                    if(traceable())
-                        traceEval(req,rsp,node,"getDynamic(\""+token+"\",...)");
+                    if (traceable()) {
+                        traceEval(req, rsp, node, "getDynamic(\"" + token + "\",...)");
+                    }
 
-                    Object target = ff.bindAndInvoke(node, req,rsp, token);
-                    if(target!=null) {
-                        req.getStapler().invoke(req,rsp, target);
+                    Object target = ff.bindAndInvoke(node, req, rsp, token);
+                    if (target != null) {
+                        req.getStapler().invoke(req, rsp, target);
                         return true;
                     } else {
-                        if(traceable())
+                        if (traceable()) {
                             // indent:    "-> evaluate(
-                            trace(req,rsp,"            %s.getDynamic(\"%s\",...)==null. Back tracking.",node,token);
+                            trace(req, rsp, "            %s.getDynamic(\"%s\",...)==null. Back tracking.", node, token);
+                        }
                         req.tokens.prev(); // cancel the next effect
                         return false;
                     }
                 }
+
                 @Override
                 public String toString() {
-                    return String.format("%2$s %s(String,StaplerRequest,StaplerResponse) for url=/TOKEN/...",ff.getQualifiedName(), ff.getReturnType().getName());
+                    return String.format(
+                            "%2$s %s(String,StaplerRequest,StaplerResponse) for url=/TOKEN/...",
+                            ff.getQualifiedName(), ff.getReturnType().getName());
                 }
             });
         }
@@ -492,79 +571,90 @@ public class MetaClass extends TearOffSupport {
             final Function ff = f.contextualize(new WebMethodContext(WebMethodContext.DYNAMIC));
             dispatchers.add(new Dispatcher() {
                 @Override
-                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+                public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
+                        throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
                     Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#doDynamic(...)");
-                    if(traceable())
-                        trace(req,rsp,"-> <%s>.doDynamic(...)",node);
-                    return ff.bindAndInvokeAndServeResponse(node,req,rsp);
+                    if (traceable()) {
+                        trace(req, rsp, "-> <%s>.doDynamic(...)", node);
+                    }
+                    return ff.bindAndInvokeAndServeResponse(node, req, rsp);
                 }
+
                 @Override
                 public String toString() {
-                    return String.format("%s(StaplerRequest,StaplerResponse) for any URL",ff.getQualifiedName());
+                    return String.format("%s(StaplerRequest,StaplerResponse) for any URL", ff.getQualifiedName());
                 }
             });
         }
 
         // provide a "last chance" for the application to add/remove dispatchers
         DispatchersFilter dispatchersFilter = webApp.getDispatchersFilter();
-        if(dispatchersFilter != null){
+        if (dispatchersFilter != null) {
             dispatchersFilter.applyOn(this, node.methods, dispatchers);
         }
     }
 
-    private void registerDoToken(KlassDescriptor<?> node){
+    private void registerDoToken(KlassDescriptor<?> node) {
         final FunctionList filteredFunctions;
         FunctionList functions;
-        if(LEGACY_WEB_METHOD_MODE || webApp.getFilterForDoActions() == null){
+        if (LEGACY_WEB_METHOD_MODE || webApp.getFilterForDoActions() == null) {
             functions = node.methods.webMethodsLegacy();
             filteredFunctions = functions;
             LOGGER.log(Level.FINE, "Stapler is using the legacy METHOD_MODE");
         } else {
             functions = node.methods.webMethodsLegacy();
             filteredFunctions = functions.filter(webApp.getFilterForDoActions());
-            if(LOGGER.isLoggable(Level.FINER)){
+            if (LOGGER.isLoggable(Level.FINER)) {
                 List<Function> excludedByNew = minus(functions, filteredFunctions);
-                
-                if(!excludedByNew.isEmpty()){
+
+                if (!excludedByNew.isEmpty()) {
                     for (Function excluded : excludedByNew) {
                         LOGGER.log(Level.FINER, "The following method is now blocked: {0}", excluded.getDisplayName());
                     }
                 }
             }
         }
-        
+
         for (final Function f : functions) {
             WebMethod a = f.getAnnotation(WebMethod.class);
-            
+
             String[] names;
-            if(a!=null && a.name().length>0)   names=a.name();
-            else    names=new String[]{camelize(f.getName().substring(2))}; // 'doFoo' -> 'foo'
-            
+            if (a != null && a.name().length > 0) {
+                names = a.name();
+            } else {
+                names = new String[] {camelize(f.getName().substring(2))}; // 'doFoo' -> 'foo'
+            }
+
             for (String name : names) {
                 final Function ff = f.contextualize(new WebMethodContext(name));
-                if (name.length()==0) {
+                if (name.length() == 0) {
                     dispatchers.add(new IndexDispatcher(ff));
                 } else {
                     final boolean isAccepted = filteredFunctions.contains(f);
                     dispatchers.add(new NameBasedDispatcher(name) {
                         @Override
-                        public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
-                            if(isAccepted){
+                        public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
+                                throws IllegalAccessException, InvocationTargetException, ServletException,
+                                        IOException {
+                            if (isAccepted) {
                                 Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s", ff.getName());
-                                if (traceable())
+                                if (traceable()) {
                                     trace(req, rsp, "-> <%s>.%s(...)", node, ff.getName());
+                                }
                                 return ff.bindAndInvokeAndServeResponse(node, req, rsp);
-                            }else{
-                                return webApp.getFilteredDoActionTriggerListener().onDoActionTrigger(f, req, rsp, node);
+                            } else {
+                                return webApp.getFilteredDoActionTriggerListener()
+                                        .onDoActionTrigger(f, req, rsp, node);
                             }
                         }
-                        
+
                         @Override
                         public String toString() {
-                            if(isAccepted){
+                            if (isAccepted) {
                                 return String.format("%1$s(...) for url=/%2$s/...", ff.getQualifiedName(), name);
-                            }else{
-                                return String.format("BLOCKED: %1$s(...) for url=/%2$s/...", ff.getQualifiedName(), name);
+                            } else {
+                                return String.format(
+                                        "BLOCKED: %1$s(...) for url=/%2$s/...", ff.getQualifiedName(), name);
                             }
                         }
                     });
@@ -572,21 +662,21 @@ public class MetaClass extends TearOffSupport {
             }
         }
     }
-    
+
     /**
      * Return (A - B)
      */
-    private List<Function> minus(FunctionList a, FunctionList b){
+    private List<Function> minus(FunctionList a, FunctionList b) {
         List<Function> aMinusB = new ArrayList<>();
-        for(Function f : a){
-            if(!b.contains(f)){
+        for (Function f : a) {
+            if (!b.contains(f)) {
                 aMinusB.add(f);
             }
         }
-    
+
         return aMinusB;
     }
-    
+
     /**
      * Returns all the methods in the ancestry chain annotated with {@link PostConstruct}
      * from those defined in the derived type toward those defined in the base type.
@@ -595,8 +685,9 @@ public class MetaClass extends TearOffSupport {
      * @since 1.220
      */
     public SingleLinkedList<MethodRef> getPostConstructMethods() {
-        if (postConstructMethods ==null) {
-            SingleLinkedList<MethodRef> l = baseClass==null ? SingleLinkedList.empty() : baseClass.getPostConstructMethods();
+        if (postConstructMethods == null) {
+            SingleLinkedList<MethodRef> l =
+                    baseClass == null ? SingleLinkedList.empty() : baseClass.getPostConstructMethods();
 
             for (MethodRef mr : klass.getDeclaredMethods()) {
                 if (mr.hasAnnotation(PostConstruct.class) || mr.hasAnnotation(javax.annotation.PostConstruct.class)) {
@@ -613,17 +704,17 @@ public class MetaClass extends TearOffSupport {
             LimitedTo a = f.getAnnotation(LimitedTo.class);
             return a != null ? a.value() : null;
         } catch (LinkageError e) {
-            return null;    // running in JDK 1.4
+            return null; // running in JDK 1.4
         }
     }
 
     @Override
     public String toString() {
-        return "MetaClass["+klass+"]";
+        return "MetaClass[" + klass + "]";
     }
 
     private static String camelize(String name) {
-        return Character.toLowerCase(name.charAt(0))+name.substring(1);
+        return Character.toLowerCase(name.charAt(0)) + name.substring(1);
     }
 
     private static class JavaScriptProxyMethodDispatcher extends NameBasedDispatcher {
@@ -635,33 +726,38 @@ public class MetaClass extends TearOffSupport {
         }
 
         @Override
-        public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
-            if (!req.isJavaScriptProxyCall())
+        public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
+                throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+            if (!req.isJavaScriptProxyCall()) {
                 return false;
+            }
 
-            req.stapler.getWebApp().getCrumbIssuer().validateCrumb(req,req.getHeader("Crumb"));
+            req.stapler.getWebApp().getCrumbIssuer().validateCrumb(req, req.getHeader("Crumb"));
 
             Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s", f.getName());
-            if(traceable())
-                trace(req,rsp,"-> <%s>.%s(...)",node, f.getName());
+            if (traceable()) {
+                trace(req, rsp, "-> <%s>.%s(...)", node, f.getName());
+            }
 
             JSONArray jsargs = JSONArray.fromObject(IOUtils.toString(req.getReader()));
             Object[] args = new Object[jsargs.size()];
             Class[] types = f.getParameterTypes();
             Type[] genericTypes = f.getGenericParameterTypes();
             if (args.length != types.length) {
-                throw new IllegalArgumentException("argument count mismatch between " + jsargs + " and " + Arrays.toString(genericTypes));
+                throw new IllegalArgumentException(
+                        "argument count mismatch between " + jsargs + " and " + Arrays.toString(genericTypes));
             }
 
-            for (int i=0; i<args.length; i++)
-                args[i] = req.bindJSON(genericTypes[i],types[i],jsargs.get(i));
+            for (int i = 0; i < args.length; i++) {
+                args[i] = req.bindJSON(genericTypes[i], types[i], jsargs.get(i));
+            }
 
-            return f.bindAndInvokeAndServeResponse(node,req,rsp,args);
+            return f.bindAndInvokeAndServeResponse(node, req, rsp, args);
         }
 
         @Override
         public String toString() {
-            return f.getQualifiedName()+"(...) for url=/"+name+"/...";
+            return f.getQualifiedName() + "(...) for url=/" + name + "/...";
         }
     }
 

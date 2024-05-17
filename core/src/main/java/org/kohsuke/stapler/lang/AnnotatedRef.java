@@ -12,6 +12,6 @@ public abstract class AnnotatedRef {
     public abstract <T extends Annotation> T getAnnotation(Class<T> type);
 
     public boolean hasAnnotation(Class<? extends Annotation> type) {
-        return getAnnotation(type)!=null;
+        return getAnnotation(type) != null;
     }
 }

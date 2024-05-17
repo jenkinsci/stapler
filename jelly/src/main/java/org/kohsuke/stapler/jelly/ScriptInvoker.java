@@ -43,15 +43,19 @@ public interface ScriptInvoker extends ScriptExecutor<Script> {
     /**
      * Invokes the script and generates output to {@link StaplerResponse#getOutputStream()}.
      */
-    void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it) throws IOException, JellyTagException;
+    void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it)
+            throws IOException, JellyTagException;
 
     /**
      * Invokes the script and generates output to the specified output
      */
-    void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it, XMLOutput out) throws IOException, JellyTagException;
+    void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it, XMLOutput out)
+            throws IOException, JellyTagException;
 
     @Override
-    default void execute(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp, @NonNull Script script, @CheckForNull Object it) throws IOException, JellyTagException {
+    default void execute(
+            @NonNull StaplerRequest req, @NonNull StaplerResponse rsp, @NonNull Script script, @CheckForNull Object it)
+            throws IOException, JellyTagException {
         invokeScript(req, rsp, script, it);
     }
 }

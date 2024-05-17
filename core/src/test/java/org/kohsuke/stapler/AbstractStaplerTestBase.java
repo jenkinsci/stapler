@@ -38,7 +38,7 @@ public abstract class AbstractStaplerTestBase extends TestCase {
         rawRequest = Mockito.mock(HttpServletRequest.class);
         rawResponse = Mockito.mock(HttpServletResponse.class);
 
-        this.request = new RequestImpl(stapler, rawRequest,new ArrayList<>(),new TokenList(""));
+        this.request = new RequestImpl(stapler, rawRequest, new ArrayList<>(), new TokenList(""));
         Stapler.CURRENT_REQUEST.set(this.request);
 
         this.response = new ResponseImpl(stapler, rawResponse);

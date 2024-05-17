@@ -44,7 +44,8 @@ import org.kohsuke.stapler.AncestorInPath.HandlerImpl;
 public @interface AncestorInPath {
     class HandlerImpl extends AnnotationHandler<AncestorInPath> {
         @Override
-        public Object parse(StaplerRequest request, AncestorInPath a, Class type, String parameterName) throws ServletException {
+        public Object parse(StaplerRequest request, AncestorInPath a, Class type, String parameterName)
+                throws ServletException {
             return request.findAncestorObject(type);
         }
     }

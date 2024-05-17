@@ -21,14 +21,17 @@ final class PreInvokeInterceptedFunction extends ForwardingFunction {
     }
 
     @Override
-    public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException {
+    public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+            throws IllegalAccessException, InvocationTargetException, ServletException {
         return interceptor.invoke(req, rsp, o, args);
     }
 
     @Override
     public Function contextualize(Object usage) {
         Function f = next.contextualize(usage);
-        if (f==next)    return this;    // the base function didn't care
-        return new PreInvokeInterceptedFunction(f,interceptor);
+        if (f == next) {
+            return this; // the base function didn't care
+        }
+        return new PreInvokeInterceptedFunction(f, interceptor);
     }
 }

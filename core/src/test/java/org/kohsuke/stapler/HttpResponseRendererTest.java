@@ -33,25 +33,31 @@ import org.junit.Test;
 
 public class HttpResponseRendererTest {
 
-    @Test public void quoteSimple() {
+    @Test
+    public void quoteSimple() {
         testQuoteOn("foo");
     }
 
-    @Test public void quoteBackslash() {
+    @Test
+    public void quoteBackslash() {
         testQuoteOn("to sleep \\ perchance to dream");
     }
 
-    @Test public void quoteQuotes() {
+    @Test
+    public void quoteQuotes() {
         testQuoteOn("this \"thing\" should work");
     }
 
-    @Test public void quoteNewlines() {
+    @Test
+    public void quoteNewlines() {
         testQuoteOn("one line\nsecond line");
     }
 
     private static void testQuoteOn(String text) {
         String quoted = HttpResponseRenderer.quote(text);
-        assertEquals(text + " → " + quoted, text, JSONArray.fromObject("[" + quoted + "]").getString(0));
+        assertEquals(
+                text + " → " + quoted,
+                text,
+                JSONArray.fromObject("[" + quoted + "]").getString(0));
     }
-
 }

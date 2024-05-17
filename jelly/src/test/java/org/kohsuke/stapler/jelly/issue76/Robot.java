@@ -16,18 +16,19 @@ import java.util.Map;
 public class Robot {
     public final Head head = new Head();
 
-    public final List<Leg> legs = Arrays.asList(new Leg("left"),new Leg("right"));
+    public final List<Leg> legs = Arrays.asList(new Leg("left"), new Leg("right"));
 
-    public final Map<String,Button> buttons = new HashMap<>();
+    public final Map<String, Button> buttons = new HashMap<>();
 
     public Robot() {
         buttons.put("red", new Button("red"));
-        buttons.put("blue",new Button("blue"));
+        buttons.put("blue", new Button("blue"));
     }
 
     public Object getDynamic(String part) {
-        if (part.equals("arm"))
+        if (part.equals("arm")) {
             return new Arm();
+        }
         return null;
     }
 }

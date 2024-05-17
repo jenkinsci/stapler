@@ -55,7 +55,7 @@ public class ResourceBundle {
     /**
      * Loaded messages.
      */
-    private final Map<String,Properties> resources = new ConcurrentHashMap<>();
+    private final Map<String, Properties> resources = new ConcurrentHashMap<>();
 
     public ResourceBundle(String baseName) {
         this.baseName = baseName;
@@ -67,12 +67,13 @@ public class ResourceBundle {
 
     public String format(Locale locale, String key, Object... args) {
         String str = getFormatString(locale, key);
-        if(str==null)
+        if (str == null) {
             // see http://www.nabble.com/i18n-and-l10n-problems-td16004047.html for more discussion
             // return MessageFormat.format(key,args);
             return key;
+        }
 
-        return MessageFormat.format(str,args);
+        return MessageFormat.format(str, args);
     }
 
     /**
@@ -84,19 +85,21 @@ public class ResourceBundle {
     public String getFormatString(Locale locale, String key) {
         String[] suffixes = toStrings(locale);
 
-        while(true) {
-            for (int i=0; i<suffixes.length; i++) {
+        while (true) {
+            for (int i = 0; i < suffixes.length; i++) {
                 String suffix = suffixes[i];
                 String msg = get(suffix).getProperty(key);
-                if(msg!=null && msg.length()>0)
+                if (msg != null && msg.length() > 0) {
                     // ignore a definition without value, because stapler:i18n generates
                     // value-less definitions
                     return msg;
+                }
 
                 int idx = suffix.lastIndexOf('_');
-                if(idx<0)   // failed to find
+                if (idx < 0) { // failed to find
                     return null;
-                suffixes[i] = suffix.substring(0,idx);
+                }
+                suffixes[i] = suffix.substring(0, idx);
             }
         }
     }
@@ -108,8 +111,9 @@ public class ResourceBundle {
     public String getFormatStringWithoutDefaulting(Locale locale, String key) {
         for (String s : toStrings(locale)) {
             String msg = get(s).getProperty(key);
-            if(msg!=null && msg.length()>0)
+            if (msg != null && msg.length() > 0) {
                 return msg;
+            }
         }
         return null;
     }
@@ -122,11 +126,11 @@ public class ResourceBundle {
      */
     private String[] toStrings(Locale l) {
         String v = ISO639_MAP.get(l.getLanguage());
-        if (v==null)
-            return new String[]{'_'+l.toString()};
-        else
-            return new String[]{'_'+l.toString(),
-                                '_'+v+l.toString().substring(2)};
+        if (v == null) {
+            return new String[] {'_' + l.toString()};
+        } else {
+            return new String[] {'_' + l.toString(), '_' + v + l.toString().substring(2)};
+        }
     }
 
     protected void clearCache() {
@@ -134,9 +138,11 @@ public class ResourceBundle {
     }
 
     protected Properties get(String key) {
-        if(!MetaClass.NO_CACHE) {
+        if (!MetaClass.NO_CACHE) {
             Properties props = resources.get(key);
-            if(props!=null)     return props;
+            if (props != null) {
+                return props;
+            }
         }
 
         // attempt to load
@@ -147,14 +153,15 @@ public class ResourceBundle {
             propertyResourceBundle
                     .getKeys()
                     .asIterator()
-                    .forEachRemaining(localKey -> props.setProperty(localKey, propertyResourceBundle.getString(localKey)));
+                    .forEachRemaining(
+                            localKey -> props.setProperty(localKey, propertyResourceBundle.getString(localKey)));
         } catch (FileNotFoundException ignored) {
             // we fall back to the default properties file if a locale file is missing
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to load " + url + ": " + e, e);
         }
 
-        resources.put(key,wrapUp(key.length()>0 ? key.substring(1) : "", props));
+        resources.put(key, wrapUp(key.length() > 0 ? key.substring(1) : "", props));
         return props;
     }
 
@@ -172,8 +179,12 @@ public class ResourceBundle {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ResourceBundle that = (ResourceBundle) o;
         return baseName.equals(that.baseName);
@@ -192,8 +203,9 @@ public class ResourceBundle {
      * Loads the resource bundle associated with the Jelly script.
      */
     public static ResourceBundle load(String jellyUrl) {
-        if(jellyUrl.endsWith(".jelly"))    // cut the trailing .jelly
-            jellyUrl = jellyUrl.substring(0,jellyUrl.length()-".jelly".length());
+        if (jellyUrl.endsWith(".jelly")) { // cut the trailing .jelly
+            jellyUrl = jellyUrl.substring(0, jellyUrl.length() - ".jelly".length());
+        }
 
         JellyFacet facet = WebApp.getCurrent().getFacet(JellyFacet.class);
         return facet.resourceBundleFactory.create(jellyUrl);
@@ -202,11 +214,11 @@ public class ResourceBundle {
     /**
      * JDK internally converts new ISO-639 code back to old code. This table provides reverse mapping.
      */
-    private static final Map<String,String> ISO639_MAP = new HashMap<>();
+    private static final Map<String, String> ISO639_MAP = new HashMap<>();
 
     static {
-        ISO639_MAP.put("iw","he");
-        ISO639_MAP.put("ji","yi");
-        ISO639_MAP.put("in","id");
+        ISO639_MAP.put("iw", "he");
+        ISO639_MAP.put("ji", "yi");
+        ISO639_MAP.put("in", "id");
     }
 }

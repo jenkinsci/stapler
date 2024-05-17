@@ -36,7 +36,7 @@ import org.dom4j.io.OutputFormat;
 /**
  * Wrapper for XMLOutput using HTMLWriter that can turn off its HTML handling
  * (if the Content-Type gets set to something other than text/html).
- * 
+ *
  * @author Alan.Harder@Sun.Com
  */
 public class HTMLWriterOutput extends XMLOutput {
@@ -71,12 +71,17 @@ public class HTMLWriterOutput extends XMLOutput {
         format.setExpandEmptyElements(true);
     }
 
-    @Override public void close() throws IOException {
+    @Override
+    public void close() throws IOException {
         htmlWriter.close();
     }
 
     @Deprecated
     public void useHTML(boolean enabled) {
-        LOGGER.log(Level. WARNING, null, new UnsupportedOperationException("Deprecated: HTMLWriterOutput.useHtml() has been deprecated and its functionality removed."));
+        LOGGER.log(
+                Level.WARNING,
+                null,
+                new UnsupportedOperationException(
+                        "Deprecated: HTMLWriterOutput.useHtml() has been deprecated and its functionality removed."));
     }
 }

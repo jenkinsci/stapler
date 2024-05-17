@@ -55,19 +55,22 @@ public abstract class AnnotationHandler<T extends Annotation> {
      */
     protected final Object convert(Class targetType, String value) {
         Converter converter = Stapler.lookupConverter(targetType);
-        if (converter==null)
-            throw new IllegalArgumentException("Unable to convert to "+targetType);
+        if (converter == null) {
+            throw new IllegalArgumentException("Unable to convert to " + targetType);
+        }
 
-        return converter.convert(targetType,value);
+        return converter.convert(targetType, value);
     }
 
-    static Object handle(StaplerRequest request, Annotation[] annotations, String parameterName, Class targetType) throws ServletException {
+    static Object handle(StaplerRequest request, Annotation[] annotations, String parameterName, Class targetType)
+            throws ServletException {
         for (Annotation a : annotations) {
             Class<? extends Annotation> at = a.annotationType();
             AnnotationHandler h = HANDLERS.get(at);
-            if (h==NOT_HANDLER)
+            if (h == NOT_HANDLER) {
                 continue;
-            return h.parse(request,a,targetType,parameterName);
+            }
+            return h.parse(request, a, targetType, parameterName);
         }
 
         return null; // probably we should report an error
@@ -91,7 +94,8 @@ public abstract class AnnotationHandler<T extends Annotation> {
 
     private static final AnnotationHandler NOT_HANDLER = new AnnotationHandler() {
         @Override
-        public Object parse(StaplerRequest request, Annotation a, Class type, String parameterName) throws ServletException {
+        public Object parse(StaplerRequest request, Annotation a, Class type, String parameterName)
+                throws ServletException {
             return null;
         }
     };

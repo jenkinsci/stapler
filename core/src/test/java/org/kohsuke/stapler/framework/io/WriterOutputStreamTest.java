@@ -13,7 +13,7 @@ import junit.framework.TestCase;
  */
 public class WriterOutputStreamTest extends TestCase {
     public void testFoo() {} // otherwise surefire will be unhappy
-    
+
     public static void main(String[] args) throws IOException {
         OutputStream os = new WriterOutputStream(new OutputStreamWriter(System.out));
         PrintStream ps = new PrintStream(os);

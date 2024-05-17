@@ -50,7 +50,8 @@ public class IsUserInRoleTag extends AbstractStaplerTag {
         // work around http://jira.codehaus.org/browse/JETTY-234
         req.getUserPrincipal();
 
-        if(req.isUserInRole(role))
-            getBody().run(getContext(),output);
+        if (req.isUserInRole(role)) {
+            getBody().run(getContext(), output);
+        }
     }
 }

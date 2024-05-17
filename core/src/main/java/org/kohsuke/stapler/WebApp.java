@@ -53,7 +53,7 @@ import org.kohsuke.stapler.lang.KlassNavigator;
  *
  * @author Kohsuke Kawaguchi
  * @see WebApp#get(ServletContext)
- * @see WebApp#getCurrent()  
+ * @see WebApp#getCurrent()
  * @see Stapler#getWebApp()
  */
 public class WebApp {
@@ -62,16 +62,16 @@ public class WebApp {
      */
     public static WebApp get(ServletContext context) {
         Object o = context.getAttribute(WebApp.class.getName());
-        if(o==null) {
+        if (o == null) {
             synchronized (WebApp.class) {
                 o = context.getAttribute(WebApp.class.getName());
-                if(o==null) {
+                if (o == null) {
                     o = new WebApp(context);
-                    context.setAttribute(WebApp.class.getName(),o);
+                    context.setAttribute(WebApp.class.getName(), o);
                 }
             }
         }
-        return (WebApp)o;
+        return (WebApp) o;
     }
 
     /**
@@ -83,12 +83,12 @@ public class WebApp {
      * @deprecated Unused?
      */
     @Deprecated
-    public final Map<Class,Class[]> wrappers = new HashMap<>();
+    public final Map<Class, Class[]> wrappers = new HashMap<>();
 
     /**
      * MIME type → encoding map that determines how static contents in the war file is served.
      */
-    public final Map<String,String> defaultEncodingForStaticResources = new HashMap<>();
+    public final Map<String, String> defaultEncodingForStaticResources = new HashMap<>();
 
     /**
      * Activated facets.
@@ -112,7 +112,7 @@ public class WebApp {
      * This overrides whatever mappings given in the servlet as far as stapler is concerned.
      * This is case insensitive, and should be normalized to lower case.
      */
-    public final Map<String,String> mimeTypes = new Hashtable<>();
+    public final Map<String, String> mimeTypes = new Hashtable<>();
 
     private volatile ClassLoader classLoader;
 
@@ -137,12 +137,13 @@ public class WebApp {
      *
      * Keyed by {@link ServletConfig#getServletName()}.
      */
-    private final ConcurrentMap<String,Stapler> servlets = new ConcurrentHashMap<>();
-    
+    private final ConcurrentMap<String, Stapler> servlets = new ConcurrentHashMap<>();
+
     /**
      * Give the application a possibility to filter the getterMethods
      */
     private FunctionList.Filter filterForGetMethods = FunctionList.Filter.ALWAYS_OK;
+
     private FunctionList.Filter filterForDoActions = FunctionList.Filter.ALWAYS_OK;
     private FieldRef.Filter filterForFields = FieldRef.Filter.ALWAYS_OK;
 
@@ -163,7 +164,10 @@ public class WebApp {
     public WebApp(ServletContext context) {
         this.context = context;
         // TODO: allow classloader to be given?
-        facets.addAll(Facet.discoverExtensions(Facet.class, Thread.currentThread().getContextClassLoader(), getClass().getClassLoader()));
+        facets.addAll(Facet.discoverExtensions(
+                Facet.class,
+                Thread.currentThread().getContextClassLoader(),
+                getClass().getClassLoader()));
         responseRenderers.add(new HttpResponseRenderer.Default());
     }
 
@@ -176,7 +180,7 @@ public class WebApp {
     }
 
     public void setApp(Object app) {
-        context.setAttribute("app",app);
+        context.setAttribute("app", app);
     }
 
     public CrumbIssuer getCrumbIssuer() {
@@ -193,10 +197,12 @@ public class WebApp {
 
     public ClassLoader getClassLoader() {
         ClassLoader cl = classLoader;
-        if(cl==null)
+        if (cl == null) {
             cl = Thread.currentThread().getContextClassLoader();
-        if(cl==null)
+        }
+        if (cl == null) {
             cl = Stapler.class.getClassLoader();
+        }
         return cl;
     }
 
@@ -204,9 +210,11 @@ public class WebApp {
      * If the facet of the given type exists, return it. Otherwise null.
      */
     public <T extends Facet> T getFacet(Class<T> type) {
-        for (Facet f : facets)
-            if(type==f.getClass())
+        for (Facet f : facets) {
+            if (type == f.getClass()) {
                 return type.cast(f);
+            }
+        }
         return null;
     }
 
@@ -240,12 +248,14 @@ public class WebApp {
     }
 
     public MetaClass getMetaClass(Klass<?> c) {
-        if(c==null)     return null;
+        if (c == null) {
+            return null;
+        }
         if (c.navigator == KlassNavigator.JAVA) {
             return getClassMap().get(c.toJavaClass());
         } else {
             // probably now impossible outside tests
-            return new MetaClass(this,c);
+            return new MetaClass(this, c);
         }
     }
 
@@ -263,18 +273,20 @@ public class WebApp {
         if (o instanceof KInstance) {
             KInstance ki = (KInstance) o;
             Klass k = ki.getKlass();
-            if (k!=null)
+            if (k != null) {
                 return k;
+            }
         }
 
         for (Facet f : facets) {
             Klass<?> k = f.getKlass(o);
-            if (k!=null)
+            if (k != null) {
                 return k;
+            }
         }
         return Klass.java(o.getClass());
     }
-    
+
     /**
      * @deprecated Unused?
      */
@@ -285,22 +297,24 @@ public class WebApp {
         // of classes added to classMap by getMetaClass that we could enumerate.
         clearMetaClassCache();
     }
-    
+
     /**
      * Convenience maintenance method to clear all the cached information. It will force the MetaClass to be rebuilt.
-     * 
+     *
      * <p>
-     * Take care that the generation of MetaClass information takes a bit of time and so 
+     * Take care that the generation of MetaClass information takes a bit of time and so
      * this call should not be called too often
      */
-    public synchronized void clearMetaClassCache(){
+    public synchronized void clearMetaClassCache() {
         // No ClassValue.clear() method, so need to just null it out instead.
         classMap = null;
     }
 
     void addStaplerServlet(String servletName, Stapler servlet) {
-        if (servletName==null)  servletName=""; // be defensive
-        servlets.put(servletName,servlet);
+        if (servletName == null) {
+            servletName = ""; // be defensive
+        }
+        servlets.put(servletName, servlet);
     }
 
     /**
@@ -334,22 +348,22 @@ public class WebApp {
     public static WebApp getCurrent() {
         return Stapler.getCurrent().getWebApp();
     }
-    
+
     public FunctionList.Filter getFilterForGetMethods() {
         return filterForGetMethods;
     }
-    
+
     /**
      * Allow the underlying application to filter the getXxx methods
      */
     public void setFilterForGetMethods(FunctionList.Filter filterForGetMethods) {
         this.filterForGetMethods = filterForGetMethods;
     }
-    
+
     public FunctionList.Filter getFilterForDoActions() {
         return filterForDoActions;
     }
-    
+
     /**
      * Allow the underlying application to filter the doXxx actions
      */
@@ -368,15 +382,15 @@ public class WebApp {
     public DispatchersFilter getDispatchersFilter() {
         return dispatchersFilter;
     }
-    
+
     public void setDispatchersFilter(DispatchersFilter dispatchersFilter) {
         this.dispatchersFilter = dispatchersFilter;
     }
-    
+
     public FilteredDoActionTriggerListener getFilteredDoActionTriggerListener() {
         return filteredDoActionTriggerListener;
     }
-    
+
     public void setFilteredDoActionTriggerListener(FilteredDoActionTriggerListener filteredDoActionTriggerListener) {
         if (filteredDoActionTriggerListener == null) {
             this.filteredDoActionTriggerListener = FilteredDoActionTriggerListener.JUST_WARN;
@@ -415,7 +429,7 @@ public class WebApp {
         }
         return jsonInErrorMessageSanitizer;
     }
-    
+
     /**
      * Allow the application to customize the way the JSON are rendered in the stack trace in case of binding exception.
      */

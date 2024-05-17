@@ -42,8 +42,9 @@ final class TruncatedInputStream extends FilterInputStream {
 
     @Override
     public int read() throws IOException {
-        if(len<=0)
+        if (len <= 0) {
             return -1;
+        }
         len--;
         return super.read();
     }
@@ -56,14 +57,15 @@ final class TruncatedInputStream extends FilterInputStream {
         }
 
         int r = super.read(b, off, toRead);
-        if(r>0)
+        if (r > 0) {
             len -= r;
+        }
         return r;
     }
 
     @Override
     public int available() throws IOException {
-        return (int)Math.min(super.available(),len);
+        return (int) Math.min(super.available(), len);
     }
 
     @Override

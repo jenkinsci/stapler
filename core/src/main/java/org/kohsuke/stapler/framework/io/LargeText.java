@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2004-2010, Kohsuke Kawaguchi
  * All rights reserved.
- * 
+ *
  * Copyright (c) 2012, Martin Schroeder, Intel Mobile Communications GmbH
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided
@@ -62,9 +62,12 @@ public class LargeText {
      */
     private interface Source {
         Session open() throws IOException;
+
         long length();
+
         boolean exists();
     }
+
     private final Source source;
 
     protected final Charset charset;
@@ -72,12 +75,12 @@ public class LargeText {
     private volatile boolean completed;
 
     public LargeText(File file, boolean completed) {
-        this(file,Charset.defaultCharset(),completed);
+        this(file, Charset.defaultCharset(), completed);
     }
-    
+
     /**
      * @since 1.196
-     * 
+     *
      * @param transparentGunzip if set to true, this class will detect if the
      * given file is compressed with GZIP. If so, it will transparently
      * uncompress its content during read-access. Do note that the underlying
@@ -90,10 +93,10 @@ public class LargeText {
     public LargeText(final File file, Charset charset, boolean completed) {
         this(file, charset, completed, false);
     }
-    
+
     /**
      * @since 1.196
-     * 
+     *
      * @param transparentGunzip if set to true, this class will detect if the
      * given file is compressed with GZIP. If so, it will transparently
      * uncompress its content during read-access. Do note that the underlying
@@ -107,12 +110,12 @@ public class LargeText {
                 public Session open() throws IOException {
                     return new GzipAwareSession(file);
                 }
-    
+
                 @Override
                 public long length() {
                     return GzipAwareSession.getGzipStreamSize(file);
                 }
-    
+
                 @Override
                 public boolean exists() {
                     return file.exists();
@@ -124,12 +127,12 @@ public class LargeText {
                 public Session open() throws IOException {
                     return new FileSession(file);
                 }
-    
+
                 @Override
                 public long length() {
                     return file.length();
                 }
-    
+
                 @Override
                 public boolean exists() {
                     return file.exists();
@@ -140,7 +143,7 @@ public class LargeText {
     }
 
     public LargeText(ByteBuffer memory, boolean completed) {
-        this(memory,Charset.defaultCharset(),completed);
+        this(memory, Charset.defaultCharset(), completed);
     }
 
     public LargeText(final ByteBuffer memory, Charset charset, boolean completed) {
@@ -180,26 +183,32 @@ public class LargeText {
      * Returns {@link Reader} for reading the raw bytes.
      */
     public Reader readAll() throws IOException {
-        return new InputStreamReader(new InputStream() {
-            final Session session = source.open();
-            @Override
-            public int read() throws IOException {
-                byte[] buf = new byte[1];
-                int n = session.read(buf);
-                if(n==1)    return buf[0];
-                else        return -1; // EOF
-            }
+        return new InputStreamReader(
+                new InputStream() {
+                    final Session session = source.open();
 
-            @Override
-            public int read(byte[] buf, int off, int len) throws IOException {
-                return session.read(buf,off,len);
-            }
+                    @Override
+                    public int read() throws IOException {
+                        byte[] buf = new byte[1];
+                        int n = session.read(buf);
+                        if (n == 1) {
+                            return buf[0];
+                        } else {
+                            return -1; // EOF
+                        }
+                    }
 
-            @Override
-            public void close() throws IOException {
-                session.close();
-            }
-        },charset);
+                    @Override
+                    public int read(byte[] buf, int off, int len) throws IOException {
+                        return session.read(buf, off, len);
+                    }
+
+                    @Override
+                    public void close() throws IOException {
+                        session.close();
+                    }
+                },
+                charset);
     }
 
     public long writeLogTo(long start, Writer w) throws IOException {
@@ -228,8 +237,9 @@ public class LargeText {
                 // write everything till EOF
                 byte[] buf = new byte[1024];
                 int sz;
-                while ((sz = f.read(buf)) >= 0)
+                while ((sz = f.read(buf)) >= 0) {
                     os.write(buf, 0, sz);
+                }
             } else {
                 ByteBuf buf = new ByteBuf(null, f);
                 HeadMark head = new HeadMark(buf);
@@ -246,7 +256,7 @@ public class LargeText {
 
         os.flush();
 
-        return os.getByteCount()+start;
+        return os.getByteCount() + start;
     }
 
     /**
@@ -257,27 +267,30 @@ public class LargeText {
         setContentType(rsp);
         rsp.setStatus(HttpServletResponse.SC_OK);
 
-        if(!source.exists()) {
+        if (!source.exists()) {
             // file doesn't exist yet
-            rsp.addHeader("X-Text-Size","0");
-            rsp.addHeader("X-More-Data","true");
+            rsp.addHeader("X-Text-Size", "0");
+            rsp.addHeader("X-More-Data", "true");
             return;
         }
 
         long start = 0;
         String s = req.getParameter("start");
-        if(s!=null)
+        if (s != null) {
             start = Long.parseLong(s);
+        }
 
-        if(source.length() < start )
-            start = 0;  // text rolled over
+        if (source.length() < start) {
+            start = 0; // text rolled over
+        }
 
         CharSpool spool = new CharSpool();
-        long r = writeLogTo(start,spool);
+        long r = writeLogTo(start, spool);
 
-        rsp.addHeader("X-Text-Size",String.valueOf(r));
-        if(!completed)
-            rsp.addHeader("X-More-Data","true");
+        rsp.addHeader("X-Text-Size", String.valueOf(r));
+        if (!completed) {
+            rsp.addHeader("X-More-Data", "true");
+        }
 
         Writer w = createWriter(req, rsp, r - start);
         spool.writeTo(new LineEndNormalizingWriter(w));
@@ -290,10 +303,11 @@ public class LargeText {
 
     protected Writer createWriter(StaplerRequest req, StaplerResponse rsp, long size) throws IOException {
         // when sending big text, try compression. don't bother if it's small
-        if(size >4096)
+        if (size > 4096) {
             return rsp.getCompressedWriter(req);
-        else
+        } else {
             return rsp.getWriter();
+        }
     }
 
     /**
@@ -322,8 +336,8 @@ public class LargeText {
          * in between to {@link OutputStream} if necessary.
          */
         void moveTo(Mark that, OutputStream os) throws IOException {
-            while(this.buf!=that.buf) {
-                os.write(buf.buf,0,buf.size);
+            while (this.buf != that.buf) {
+                os.write(buf.buf, 0, buf.size);
                 buf = buf.next;
                 pos = 0;
             }
@@ -332,7 +346,7 @@ public class LargeText {
         }
 
         void finish(OutputStream os) throws IOException {
-            os.write(buf.buf,0,pos);
+            os.write(buf.buf, 0, pos);
         }
     }
 
@@ -345,20 +359,21 @@ public class LargeText {
         }
 
         boolean moveToNextLine(Session f) throws IOException {
-            while(true) {
-                while(pos==buf.size) {
-                    if(!buf.isFull()) {
+            while (true) {
+                while (pos == buf.size) {
+                    if (!buf.isFull()) {
                         // read until EOF
                         return false;
                     } else {
                         // read into the next buffer
-                        buf = new ByteBuf(buf,f);
+                        buf = new ByteBuf(buf, f);
                         pos = 0;
                     }
                 }
                 byte b = buf.buf[pos++];
-                if(b=='\r' || b=='\n')
+                if (b == '\r' || b == '\n') {
                     return true;
+                }
             }
         }
     }
@@ -372,21 +387,22 @@ public class LargeText {
         private ByteBuf next;
 
         public ByteBuf(ByteBuf previous, Session f) throws IOException {
-            if(previous!=null) {
-                assert previous.next==null;
+            if (previous != null) {
+                assert previous.next == null;
                 previous.next = this;
             }
 
-            while(!this.isFull()) {
+            while (!this.isFull()) {
                 int chunk = f.read(buf, size, buf.length - size);
-                if(chunk==-1)
+                if (chunk == -1) {
                     return;
-                size+= chunk;
+                }
+                size += chunk;
             }
         }
 
         public boolean isFull() {
-            return buf.length==size;
+            return buf.length == size;
         }
     }
 
@@ -396,7 +412,9 @@ public class LargeText {
      */
     private interface Session extends Closeable {
         void skip(long start) throws IOException;
+
         int read(byte[] buf) throws IOException;
+
         int read(byte[] buf, int offset, int length) throws IOException;
     }
 
@@ -407,7 +425,7 @@ public class LargeText {
         private final RandomAccessFile file;
 
         public FileSession(File file) throws IOException {
-            this.file = new RandomAccessFile(file,"r");
+            this.file = new RandomAccessFile(file, "r");
         }
 
         @Override
@@ -417,7 +435,7 @@ public class LargeText {
 
         @Override
         public void skip(long start) throws IOException {
-            file.seek(file.getFilePointer()+start);
+            file.seek(file.getFilePointer() + start);
         }
 
         @Override
@@ -427,10 +445,10 @@ public class LargeText {
 
         @Override
         public int read(byte[] buf, int offset, int length) throws IOException {
-            return file.read(buf,offset,length);
+            return file.read(buf, offset, length);
         }
     }
-    
+
     /**
      * {@link Session} implementation over {@link GZIPInputStream}.
      * <p>
@@ -464,9 +482,9 @@ public class LargeText {
 
         @Override
         public int read(byte[] buf, int offset, int length) throws IOException {
-            return gz.read(buf,offset,length);
+            return gz.read(buf, offset, length);
         }
-    
+
         /**
          * Checks the first two bytes of the target file and return true if
          * they equal the GZIP magic number.
@@ -474,13 +492,13 @@ public class LargeText {
          */
         public static boolean isGzipStream(File file) {
             try (InputStream in = Files.newInputStream(file.toPath(), StandardOpenOption.READ);
-                 DataInputStream din = new DataInputStream(in)) {
-                return din.readShort()==0x1F8B;
+                    DataInputStream din = new DataInputStream(in)) {
+                return din.readShort() == 0x1F8B;
             } catch (IOException ex) {
                 return false;
             }
         }
-        
+
         /**
          * Returns the uncompressed size of the file in a quick, but unreliable
          * manner. It will not report the correct size if:
@@ -494,7 +512,7 @@ public class LargeText {
          * The advantage of this approach is, that it only reads the first 2
          * and last 4 bytes of the target file. If the first 2 bytes are not
          * the GZIP magic number, the raw length of the file is returned.
-         * 
+         *
          * @see #isGzipStream(File)
          * @return the size of the uncompressed file content.
          */
@@ -518,12 +536,13 @@ public class LargeText {
             } catch (IOException ex) {
                 return file.length();
             } finally {
-                if (raf!=null)
+                if (raf != null) {
                     try {
                         raf.close();
                     } catch (IOException e) {
                         // ignore
                     }
+                }
             }
         }
     }
@@ -561,7 +580,7 @@ public class LargeText {
 
         @Override
         public int read(byte[] buf, int offset, int length) throws IOException {
-            return in.read(buf,offset,length);
+            return in.read(buf, offset, length);
         }
     }
 

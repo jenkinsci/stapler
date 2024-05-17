@@ -26,7 +26,7 @@ public class CompressionFilterTest extends JettyTestCase {
     }
 
     public void testDoubleCompression() throws Exception {
-        for (String endpoint : Arrays.asList("autoZip","ownZip")) {
+        for (String endpoint : Arrays.asList("autoZip", "ownZip")) {
             HttpRequest httpRequest = HttpRequest.newBuilder(this.url.toURI().resolve(endpoint))
                     .GET()
                     .header("Accept-Encoding", "gzip")
@@ -44,7 +44,7 @@ public class CompressionFilterTest extends JettyTestCase {
      * as HttpURLConnection appears to ignores the content-length header and read the response to the end.
      */
     public void testDoubleCompression2() throws Exception {
-        for (String endpoint : Arrays.asList("autoZip","ownZip")) {
+        for (String endpoint : Arrays.asList("autoZip", "ownZip")) {
             HttpRequest httpRequest = HttpRequest.newBuilder(this.url.toURI().resolve(endpoint))
                     .GET()
                     .header("Accept-Encoding", "gzip")
@@ -76,7 +76,6 @@ public class CompressionFilterTest extends JettyTestCase {
         byte[] content = CONTENT.getBytes();
         rsp.getCompressedOutputStream(req).write(content);
     }
-
 
     private static final String CONTENT = "Hello World";
 }

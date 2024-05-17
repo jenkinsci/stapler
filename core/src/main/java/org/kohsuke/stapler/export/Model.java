@@ -68,38 +68,53 @@ public class Model<T> {
 
     private final Set<String> propertyNames = new HashSet<>();
 
-    /*package*/ Model(ModelBuilder parent, Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property) throws NotExportableException {
+    /*package*/ Model(
+            ModelBuilder parent, Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property)
+            throws NotExportableException {
         this.parent = parent;
         this.type = type;
         ExportedBean eb = type.getAnnotation(ExportedBean.class);
         if (eb == null) {
-            throw propertyOwner != null ? new NotExportableException(type, propertyOwner, property) : new NotExportableException(type);
+            throw propertyOwner != null
+                    ? new NotExportableException(type, propertyOwner, property)
+                    : new NotExportableException(type);
         }
         this.defaultVisibility = eb.defaultVisibility();
 
         Class<? super T> sc = type.getSuperclass();
-        if(sc!=null && sc.getAnnotation(ExportedBean.class)!=null)
+        if (sc != null && sc.getAnnotation(ExportedBean.class) != null) {
             superModel = parent.get(sc);
-        else
+        } else {
             superModel = null;
+        }
 
         List<Property> properties = new ArrayList<>();
 
         // Use reflection to find out what properties are exposed.
-        for( Field f : type.getFields() ) {
-            if(f.getDeclaringClass()!=type) continue;
+        for (Field f : type.getFields()) {
+            if (f.getDeclaringClass() != type) {
+                continue;
+            }
             Exported exported = f.getAnnotation(Exported.class);
-            if(exported !=null)
-                properties.add(new FieldProperty(this,f, exported));
+            if (exported != null) {
+                properties.add(new FieldProperty(this, f, exported));
+            }
         }
 
-        for( Method m : type.getMethods() ) {
-            if(m.getDeclaringClass()!=type) continue;
-            if(m.isSynthetic() && m.isBridge()) continue;
+        for (Method m : type.getMethods()) {
+            if (m.getDeclaringClass() != type) {
+                continue;
+            }
+            if (m.isSynthetic() && m.isBridge()) {
+                continue;
+            }
             Exported exported = m.getAnnotation(Exported.class);
-            if(exported !=null) {
+            if (exported != null) {
                 if (m.getParameterTypes().length > 0) {
-                    LOGGER.log(Level.WARNING, "Method " + m.getName() + " of " + type.getName() + " is annotated @Exported but requires arguments");
+                    LOGGER.log(
+                            Level.WARNING,
+                            "Method " + m.getName() + " of " + type.getName()
+                                    + " is annotated @Exported but requires arguments");
                 } else {
                     properties.add(new MethodProperty(this, m, exported));
                 }
@@ -108,10 +123,11 @@ public class Model<T> {
 
         this.properties = properties.toArray(new Property[0]);
         Arrays.sort(this.properties);
-        for (Property p : properties)
+        for (Property p : properties) {
             this.propertyNames.add(p.name);
+        }
 
-        parent.models.put(type,this);
+        parent.models.put(type, this);
     }
 
     /**
@@ -136,9 +152,11 @@ public class Model<T> {
     /*package*/ final Predicate<String> HAS_PROPERTY_NAME_IN_ANCESTRY = new Predicate<String>() {
         @Override
         public boolean test(@Nullable String name) {
-            for (Model m=Model.this; m!=null; m=m.superModel)
-                if (m.propertyNames.contains(name))
+            for (Model m = Model.this; m != null; m = m.superModel) {
+                if (m.propertyNames.contains(name)) {
                     return true;
+                }
+            }
             return false;
         }
     };
@@ -149,14 +167,19 @@ public class Model<T> {
      * @return always non-null.
      */
     /*package*/ Properties getJavadoc() {
-        if(javadoc!=null)    return javadoc;
-        synchronized(this) {
-            if(javadoc!=null)    return javadoc;
+        if (javadoc != null) {
+            return javadoc;
+        }
+        synchronized (this) {
+            if (javadoc != null) {
+                return javadoc;
+            }
 
             // load
             Properties p = new Properties();
-            InputStream is = type.getClassLoader().getResourceAsStream(type.getName().replace('$', '/').replace('.', '/') + ".javadoc");
-            if(is!=null) {
+            InputStream is = type.getClassLoader()
+                    .getResourceAsStream(type.getName().replace('$', '/').replace('.', '/') + ".javadoc");
+            if (is != null) {
                 try {
                     try {
                         p.load(is);
@@ -164,7 +187,7 @@ public class Model<T> {
                         is.close();
                     }
                 } catch (IOException e) {
-                    throw new RuntimeException("Unable to load javadoc for "+type,e);
+                    throw new RuntimeException("Unable to load javadoc for " + type, e);
                 }
             }
             javadoc = p;
@@ -186,7 +209,7 @@ public class Model<T> {
      *      Controls which portion of the object graph will be sent to the writer.
      */
     public void writeTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
-        writer.type(null,object.getClass());
+        writer.type(null, object.getClass());
         writer.startObject();
         writeNestedObjectTo(object, pruner, writer);
         writer.endObject();
@@ -208,12 +231,12 @@ public class Model<T> {
      */
     @Deprecated
     public void writeTo(T object, int baseVisibility, DataWriter writer) throws IOException {
-        writeTo(object,new ByDepth(1-baseVisibility),writer);
+        writeTo(object, new ByDepth(1 - baseVisibility), writer);
     }
 
     void writeNestedObjectTo(T object, TreePruner pruner, DataWriter writer) throws IOException {
         if (superModel != null) {
-            superModel.writeNestedObjectTo(object, new FilteringTreePruner(HAS_PROPERTY_NAME,pruner), writer);
+            superModel.writeNestedObjectTo(object, new FilteringTreePruner(HAS_PROPERTY_NAME, pruner), writer);
         }
 
         for (Property p : properties) {

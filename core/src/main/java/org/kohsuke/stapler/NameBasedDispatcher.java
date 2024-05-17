@@ -45,23 +45,26 @@ abstract class NameBasedDispatcher extends Dispatcher {
     }
 
     protected NameBasedDispatcher(String name) {
-        this(name,0);
+        this(name, 0);
     }
 
     @Override
     public final boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
-        throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-        if(!req.tokens.hasMore() || !req.tokens.peek().equals(name))
+            throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+        if (!req.tokens.hasMore() || !req.tokens.peek().equals(name)) {
             return false;
-        if(req.tokens.countRemainingTokens()<=argCount)
+        }
+        if (req.tokens.countRemainingTokens() <= argCount) {
             return false;
+        }
         req.tokens.next();
         boolean b = doDispatch(req, rsp, node);
-        if (!b)
+        if (!b) {
             req.tokens.prev(); // cancel the next effect
+        }
         return b;
     }
 
     protected abstract boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
-        throws IOException, ServletException, IllegalAccessException, InvocationTargetException;
+            throws IOException, ServletException, IllegalAccessException, InvocationTargetException;
 }

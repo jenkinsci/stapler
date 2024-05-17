@@ -57,23 +57,25 @@ public class WriterOutputStream extends OutputStream {
     }
 
     public WriterOutputStream(Writer out) {
-        this(out,DEFAULT_CHARSET);
+        this(out, DEFAULT_CHARSET);
     }
 
     @Override
     public void write(int b) throws IOException {
-        if(buf.remaining()==0)
+        if (buf.remaining() == 0) {
             decode(false);
-        buf.put((byte)b);
+        }
+        buf.put((byte) b);
     }
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
-        while(len>0) {
-            if(buf.remaining()==0)
+        while (len > 0) {
+            if (buf.remaining() == 0) {
                 decode(false);
-            int sz = Math.min(buf.remaining(),len);
-            buf.put(b,off,sz);
+            }
+            int sz = Math.min(buf.remaining(), len);
+            buf.put(b, off, sz);
             off += sz;
             len -= sz;
         }
@@ -87,8 +89,9 @@ public class WriterOutputStream extends OutputStream {
     }
 
     private void flushOutput() throws IOException {
-        writer.write(out.array(),0,out.position());
-        // Downcasting to Buffer is needed to avoid NoSuchMethodError errors because Java 11 uses covariance in the ByteBuffer return type.
+        writer.write(out.array(), 0, out.position());
+        // Downcasting to Buffer is needed to avoid NoSuchMethodError errors because Java 11 uses covariance in the
+        // ByteBuffer return type.
         ((Buffer) out).clear();
     }
 
@@ -98,7 +101,8 @@ public class WriterOutputStream extends OutputStream {
         flushOutput();
         writer.close();
 
-        // Downcasting to Buffer is needed to avoid NoSuchMethodError errors because Java 11 uses covariance in the ByteBuffer return type.
+        // Downcasting to Buffer is needed to avoid NoSuchMethodError errors because Java 11 uses covariance in the
+        // ByteBuffer return type.
         ((Buffer) buf).rewind();
     }
 
@@ -114,15 +118,16 @@ public class WriterOutputStream extends OutputStream {
      *      if true, tell the decoder that all the input bytes are ready.
      */
     private void decode(boolean last) throws IOException {
-        // Downcasting to Buffer is needed to avoid NoSuchMethodError errors because Java 11 uses covariance in the ByteBuffer return type.
+        // Downcasting to Buffer is needed to avoid NoSuchMethodError errors because Java 11 uses covariance in the
+        // ByteBuffer return type.
         ((Buffer) buf).flip();
-        while(true) {
+        while (true) {
             CoderResult r = decoder.decode(buf, out, last);
-            if(r==CoderResult.OVERFLOW) {
+            if (r == CoderResult.OVERFLOW) {
                 flushOutput();
                 continue;
             }
-            if(r==CoderResult.UNDERFLOW) {
+            if (r == CoderResult.UNDERFLOW) {
                 buf.compact();
                 return;
             }

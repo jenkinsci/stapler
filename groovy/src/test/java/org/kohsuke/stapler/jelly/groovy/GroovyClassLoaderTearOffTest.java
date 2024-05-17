@@ -27,13 +27,13 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
         try {
             MetaClassLoader mcl = webApp.getMetaClass(Foo.class).classLoader;
             GroovyClassLoaderTearOff t = mcl.loadTearOff(GroovyClassLoaderTearOff.class);
-            
+
             Files.write(tmp, "context.setVariable('x',1)".getBytes(StandardCharsets.UTF_8));
 
             JellyContext context = new JellyContext();
             XMLOutput w = XMLOutput.createXMLOutput(System.out);
             t.parse(tmp.toUri().toURL()).run(context, w);
-            assertEquals(1,context.getVariable("x"));
+            assertEquals(1, context.getVariable("x"));
 
             // reload different content in the same URL, make sure new class gets loaded
             Files.write(tmp, "context.setVariable('x',2)".getBytes(StandardCharsets.UTF_8));
@@ -52,7 +52,10 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
             GroovyClassLoaderTearOff t = mcl.loadTearOff(GroovyClassLoaderTearOff.class);
 
             Files.write(tmp, "output.write(_('localizable'))".getBytes(StandardCharsets.UTF_8));
-            Files.writeString(tmp.resolveSibling(tmp.getFileName().toString().replaceFirst("[.]groovy$", ".properties")), "localizable=Localizable", StandardCharsets.ISO_8859_1);
+            Files.writeString(
+                    tmp.resolveSibling(tmp.getFileName().toString().replaceFirst("[.]groovy$", ".properties")),
+                    "localizable=Localizable",
+                    StandardCharsets.ISO_8859_1);
 
             JellyContext context = new JellyContext();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -67,7 +70,7 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
             Files.delete(tmp);
         }
     }
-    
+
     public void testTimeZone() throws IOException, JellyTagException {
         Path tmp = Files.createTempFile("groovy", "groovy");
 
@@ -75,7 +78,10 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
             MetaClassLoader mcl = webApp.getMetaClass(Foo.class).classLoader;
             GroovyClassLoaderTearOff t = mcl.loadTearOff(GroovyClassLoaderTearOff.class);
 
-            Files.write(tmp, "def tz = java.util.TimeZone.getDefault()\ncontext.setVariable('x', (tz.rawOffset + tz.DSTSavings) / 3600000)".getBytes(StandardCharsets.UTF_8));
+            Files.write(
+                    tmp,
+                    "def tz = java.util.TimeZone.getDefault()\ncontext.setVariable('x', (tz.rawOffset + tz.DSTSavings) / 3600000)"
+                            .getBytes(StandardCharsets.UTF_8));
 
             JellyContext context = new JellyContext();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

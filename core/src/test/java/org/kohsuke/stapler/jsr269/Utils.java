@@ -45,5 +45,4 @@ class Utils {
     }
 
     private Utils() {}
-
 }

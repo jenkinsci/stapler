@@ -17,13 +17,16 @@ class IndexDispatcher extends Dispatcher {
     }
 
     @Override
-    public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
-        if (req.tokens.hasMore())
-            return false;   // applicable only when there's no more token
+    public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
+            throws IllegalAccessException, InvocationTargetException, ServletException, IOException {
+        if (req.tokens.hasMore()) {
+            return false; // applicable only when there's no more token
+        }
 
         Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Index: %s", f.getName());
-        if (traceable())
+        if (traceable()) {
             trace(req, rsp, "-> <%s>.%s(...)", node, f.getName());
+        }
 
         return f.bindAndInvokeAndServeResponse(node, req, rsp);
     }

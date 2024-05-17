@@ -41,9 +41,9 @@ import javax.tools.Diagnostic.Kind;
 /**
  * @author Kohsuke Kawaguchi
  */
-//@MetaInfServices(Processor.class)
+// @MetaInfServices(Processor.class)
 public class AnnotationProcessorImpl extends AbstractProcessor {
-    private final Map<TypeElement,MissingViews> missingViews = new HashMap<>();
+    private final Map<TypeElement, MissingViews> missingViews = new HashMap<>();
 
     private static class MissingViews extends HashSet<String> {}
 
@@ -54,7 +54,9 @@ public class AnnotationProcessorImpl extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        if (roundEnv.processingOver())      return false;
+        if (roundEnv.processingOver()) {
+            return false;
+        }
 
         missingViews.clear();
         for (TypeElement t : ElementFilter.typesIn(roundEnv.getRootElements())) {
@@ -66,28 +68,33 @@ public class AnnotationProcessorImpl extends AbstractProcessor {
 
     private MissingViews check(TypeElement t) {
         MissingViews r = missingViews.get(t);
-        if (r==null) {
+        if (r == null) {
             r = new MissingViews();
-            missingViews.put(t,r);
+            missingViews.put(t, r);
 
             r.addAll(check(t.getSuperclass()));
-            for (TypeMirror i : t.getInterfaces())
+            for (TypeMirror i : t.getInterfaces()) {
                 r.addAll(check(i));
+            }
 
             RequiresView a = t.getAnnotation(RequiresView.class);
-            if (a!=null)
+            if (a != null) {
                 r.addAll(Arrays.asList(a.value()));
+            }
 
             if (!r.isEmpty() && !t.getModifiers().contains(Modifier.ABSTRACT)) {
-                processingEnv.getMessager().printMessage(Kind.ERROR, t.getQualifiedName()+" is missing views: "+r,t);
+                processingEnv
+                        .getMessager()
+                        .printMessage(Kind.ERROR, t.getQualifiedName() + " is missing views: " + r, t);
             }
         }
         return r;
     }
 
     private MissingViews check(TypeMirror t) {
-        if (t.getKind()== TypeKind.DECLARED)
-            return check((TypeElement)((DeclaredType)t).asElement());
+        if (t.getKind() == TypeKind.DECLARED) {
+            return check((TypeElement) ((DeclaredType) t).asElement());
+        }
         return EMPTY;
     }
 

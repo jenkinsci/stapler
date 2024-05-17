@@ -37,7 +37,9 @@ class ConstructorProcessorTest {
     @Test
     void basicOutput(Results results) {
         assertEquals(Collections.emptyList(), results.diagnostics);
-        assertEquals("{constructor=count,name}", Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
+        assertEquals(
+                "{constructor=count,name}",
+                Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
     }
 
     @Inline(
@@ -51,7 +53,9 @@ class ConstructorProcessorTest {
     @Test
     void preAnnotationCompatibility(Results results) {
         assertEquals(Collections.emptyList(), results.diagnostics);
-        assertEquals("{constructor=name,count}", Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
+        assertEquals(
+                "{constructor=name,count}",
+                Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
     }
 
     @Inline(
@@ -69,7 +73,9 @@ class ConstructorProcessorTest {
     @Test
     void JENKINS_11739(Results results) {
         assertEquals(Collections.emptyList(), results.diagnostics);
-        assertEquals("{constructor=count,name}", Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
+        assertEquals(
+                "{constructor=count,name}",
+                Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
     }
 
     @Inline(
@@ -106,7 +112,7 @@ class ConstructorProcessorTest {
         assertTrue(msg.contains("abstract"), msg);
     }
 
-    //issue-179
+    // issue-179
     @Inline(
             name = "some.pkg.Stuff",
             source = {
@@ -125,7 +131,7 @@ class ConstructorProcessorTest {
         assertTrue(msg.contains(ConstructorProcessor.MESSAGE), msg);
     }
 
-    //issue-179
+    // issue-179
     @Inline(
             name = "some.pkg.Stuff",
             source = {
@@ -147,7 +153,7 @@ class ConstructorProcessorTest {
         assertTrue(msg.contains(ConstructorProcessor.MESSAGE), msg);
     }
 
-    //issue-179
+    // issue-179
     @Inline(
             name = "some.pkg.Stuff",
             source = {
@@ -165,7 +171,7 @@ class ConstructorProcessorTest {
     }
     // TODO nested classes use qualified rather than binary name
 
-    //issue-526
+    // issue-526
     @Inline(
             name = "some.pkg.Stuff",
             source = {

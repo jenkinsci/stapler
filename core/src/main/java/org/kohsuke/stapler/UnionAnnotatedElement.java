@@ -20,8 +20,9 @@ class UnionAnnotatedElement implements AnnotatedElement {
     @Override
     public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
         for (AnnotatedElement s : sources) {
-            if (s.isAnnotationPresent(annotationClass))
+            if (s.isAnnotationPresent(annotationClass)) {
                 return true;
+            }
         }
         return false;
     }
@@ -30,8 +31,9 @@ class UnionAnnotatedElement implements AnnotatedElement {
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
         for (AnnotatedElement s : sources) {
             T a = s.getAnnotation(annotationClass);
-            if (a!=null)
+            if (a != null) {
                 return a;
+            }
         }
         return null;
     }
@@ -41,8 +43,11 @@ class UnionAnnotatedElement implements AnnotatedElement {
         Annotation[] a = null;
         for (AnnotatedElement s : sources) {
             Annotation[] next = s.getAnnotations();
-            if (a==null)    a = next;
-            else            a = ReflectionUtils.union(a, next);
+            if (a == null) {
+                a = next;
+            } else {
+                a = ReflectionUtils.union(a, next);
+            }
         }
         return a;
     }

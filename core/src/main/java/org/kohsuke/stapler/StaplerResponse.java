@@ -140,13 +140,27 @@ public interface StaplerResponse extends HttpServletResponse {
      *      If this string starts with "mime-type:", like "mime-type:foo/bar", then "foo/bar" will
      *      be used as a MIME type without consulting the servlet container.
      */
-    void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, long contentLength, String fileName) throws ServletException, IOException;
+    void serveFile(
+            StaplerRequest req,
+            InputStream data,
+            long lastModified,
+            long expiration,
+            long contentLength,
+            String fileName)
+            throws ServletException, IOException;
 
     /**
      * @deprecated use form with long contentLength
      */
     @Deprecated
-    void serveFile(StaplerRequest req, InputStream data, long lastModified, long expiration, int contentLength, String fileName) throws ServletException, IOException;
+    void serveFile(
+            StaplerRequest req,
+            InputStream data,
+            long lastModified,
+            long expiration,
+            int contentLength,
+            String fileName)
+            throws ServletException, IOException;
 
     /**
      * Serves a static resource.
@@ -156,13 +170,15 @@ public interface StaplerResponse extends HttpServletResponse {
      *
      * @see #serveFile(StaplerRequest, InputStream, long, long, int, String)
      */
-    void serveFile(StaplerRequest req, InputStream data, long lastModified, long contentLength, String fileName) throws ServletException, IOException;
+    void serveFile(StaplerRequest req, InputStream data, long lastModified, long contentLength, String fileName)
+            throws ServletException, IOException;
 
     /**
      * @deprecated use form with long contentLength
      */
     @Deprecated
-    void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName) throws ServletException, IOException;
+    void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName)
+            throws ServletException, IOException;
 
     /**
      * Serves the exposed bean in the specified flavor.
@@ -170,17 +186,17 @@ public interface StaplerResponse extends HttpServletResponse {
      * <p>
      * This method performs the complete output from the header to the response body.
      * If the flavor is JSON, this method also supports JSONP via the {@code jsonp} query parameter.
-     * 
+     *
      * <p>The {@code depth} parameter may be used to specify a recursion depth
      * as in {@link Model#writeTo(Object,int,DataWriter)}.
-     * 
+     *
      * <p>As of 1.146, the {@code tree} parameter may be used to control the output
      * in detail; see {@link NamedPathPruner#NamedPathPruner(String)} for details.
      *
      * @deprecated Use {@link #serveExposedBean(StaplerRequest, Object, ExportConfig)}
      */
     @Deprecated
-    void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException,IOException;
+    void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor) throws ServletException, IOException;
 
     /**
      * Serves the exposed bean in the specified flavor.
@@ -198,7 +214,8 @@ public interface StaplerResponse extends HttpServletResponse {
      * <p> {@link ExportConfig} is passed by the caller to control serialization behavior
      * @since 1.251
      */
-    default void serveExposedBean(StaplerRequest req, Object exposedBean, ExportConfig exportConfig) throws ServletException,IOException {
+    default void serveExposedBean(StaplerRequest req, Object exposedBean, ExportConfig exportConfig)
+            throws ServletException, IOException {
         serveExposedBean(req, exposedBean, exportConfig.getFlavor());
     }
 

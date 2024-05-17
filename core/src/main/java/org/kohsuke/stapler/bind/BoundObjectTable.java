@@ -85,7 +85,9 @@ public class BoundObjectTable implements StaplerFallback {
      * @param methods the list of methods (needed for {@link WithWellKnownURL})
      * @throws IOException
      */
-    public void doScript(StaplerRequest req, StaplerResponse rsp, @QueryParameter String var, @QueryParameter String methods) throws IOException {
+    public void doScript(
+            StaplerRequest req, StaplerResponse rsp, @QueryParameter String var, @QueryParameter String methods)
+            throws IOException {
         final String boundUrl = req.getRestOfPath();
 
         if (var == null) {
@@ -127,12 +129,13 @@ public class BoundObjectTable implements StaplerFallback {
         } else {
             if (methods == null) {
                 /* This will result in an empty file rather than an explicit null assignment,
-                   but it's unexpected to have a WithWellKnownURL without ?methods query parameter. */
+                but it's unexpected to have a WithWellKnownURL without ?methods query parameter. */
                 return;
             }
             final String[] methodsArray = methods.split(",");
             if (Arrays.stream(methodsArray).anyMatch(it -> !isValidJavaIdentifier(it))) {
-                LOGGER.log(Level.FINE, () -> "Rejecting method list that includes an invalid Java identifier: " + methods);
+                LOGGER.log(
+                        Level.FINE, () -> "Rejecting method list that includes an invalid Java identifier: " + methods);
                 // TODO Alternatively, filter out invalid method names and only include valid ones.
                 //  Could help with non-malicious but encoding related issues
                 return;
@@ -170,8 +173,9 @@ public class BoundObjectTable implements StaplerFallback {
      */
     public void releaseMe() {
         Ancestor eot = Stapler.getCurrentRequest().findAncestor(BoundObjectTable.class);
-        if (eot==null)
+        if (eot == null) {
             throw new IllegalStateException("The thread is not handling a request to a abound object");
+        }
         String id = eot.getNextToken(0);
 
         resolve(false).release(id); // resolve(false) can't fail because we are processing this request now.
@@ -182,14 +186,17 @@ public class BoundObjectTable implements StaplerFallback {
      */
     private Table resolve(boolean createIfNotExist) {
         HttpSession session = Stapler.getCurrentRequest().getSession(createIfNotExist);
-        if (session==null) return null;
+        if (session == null) {
+            return null;
+        }
 
         Table t = (Table) session.getAttribute(Table.class.getName());
-        if (t==null) {
-            if (createIfNotExist)
-                session.setAttribute(Table.class.getName(), t=new Table());
-            else
+        if (t == null) {
+            if (createIfNotExist) {
+                session.setAttribute(Table.class.getName(), t = new Table());
+            } else {
                 return null;
+            }
         }
         return t;
     }
@@ -205,7 +212,7 @@ public class BoundObjectTable implements StaplerFallback {
      * Per-session table that remembers all the bound instances.
      */
     public static class Table implements Serializable {
-        private final Map<String,Ref> entries = new HashMap<>();
+        private final Map<String, Ref> entries = new HashMap<>();
         private boolean logging;
 
         private synchronized Bound add(Ref ref) {
@@ -214,24 +221,27 @@ public class BoundObjectTable implements StaplerFallback {
                 WithWellKnownURL w = (WithWellKnownURL) target;
                 String url = w.getWellKnownUrl();
                 if (!url.startsWith("/")) {
-                    LOGGER.warning("WithWellKnownURL.getWellKnownUrl must start with a slash. But we got " + url + " from "+w);
+                    LOGGER.warning("WithWellKnownURL.getWellKnownUrl must start with a slash. But we got " + url
+                            + " from " + w);
                 }
                 return new WellKnownObjectHandle(url, w);
             }
 
             final String id = UUID.randomUUID().toString();
-            entries.put(id,ref);
-            if (logging)    LOGGER.info(String.format("%s binding %s for %s", toString(), target, id));
+            entries.put(id, ref);
+            if (logging) {
+                LOGGER.info(String.format("%s binding %s for %s", toString(), target, id));
+            }
 
             return new Bound() {
                 @Override
                 public void release() {
-                   Table.this.release(id);
+                    Table.this.release(id);
                 }
 
                 @Override
                 public String getURL() {
-                    return Stapler.getCurrentRequest().getContextPath()+PREFIX+id;
+                    return Stapler.getCurrentRequest().getContextPath() + PREFIX + id;
                 }
 
                 @Override
@@ -240,7 +250,8 @@ public class BoundObjectTable implements StaplerFallback {
                 }
 
                 @Override
-                public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                        throws IOException, ServletException {
                     rsp.sendRedirect2(getURL());
                 }
             };
@@ -256,19 +267,25 @@ public class BoundObjectTable implements StaplerFallback {
 
         private synchronized Object resolve(String id) {
             Ref e = entries.get(id);
-            if (e==null) {
-                if (logging)    LOGGER.info(toString()+" doesn't have binding for "+id);
+            if (e == null) {
+                if (logging) {
+                    LOGGER.info(toString() + " doesn't have binding for " + id);
+                }
                 return null;
             }
             Object v = e.get();
-            if (v==null) {
-                if (logging)    LOGGER.warning(toString() + " had binding for " + id + " but it got garbage collected");
+            if (v == null) {
+                if (logging) {
+                    LOGGER.warning(toString() + " had binding for " + id + " but it got garbage collected");
+                }
                 entries.remove(id); // reference is already garbage collected.
             }
             return v;
         }
 
-        @SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "This usage does not create synchronization problems.")
+        @SuppressFBWarnings(
+                value = "IS2_INCONSISTENT_SYNC",
+                justification = "This usage does not create synchronization problems.")
         public HttpResponse doEnableLogging() {
             if (DEBUG_LOGGING) {
                 this.logging = true;
@@ -293,12 +310,11 @@ public class BoundObjectTable implements StaplerFallback {
          * implicitly by the application.
          */
         @Override
-        public void release() {
-        }
+        public void release() {}
 
         @Override
         public String getURL() {
-            return Stapler.getCurrentRequest().getContextPath()+url;
+            return Stapler.getCurrentRequest().getContextPath() + url;
         }
 
         @Override
@@ -307,11 +323,11 @@ public class BoundObjectTable implements StaplerFallback {
         }
 
         @Override
-        public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+        public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                throws IOException, ServletException {
             rsp.sendRedirect2(getURL());
         }
     }
-
 
     /**
      * Reference that resolves to an object.
@@ -319,16 +335,19 @@ public class BoundObjectTable implements StaplerFallback {
     interface Ref extends Serializable {
         Object get();
     }
-    
+
     private static class StrongRef implements Ref {
         private final Object o;
+
         StrongRef(Object o) {
             this.o = o;
         }
+
         @Override
         public Object get() {
             return o;
         }
+
         private Object writeReplace() {
             if (o instanceof Serializable) {
                 return this;
@@ -338,11 +357,12 @@ public class BoundObjectTable implements StaplerFallback {
             }
         }
     }
-    
+
     private static class WeakRef extends WeakReference implements Ref {
         private WeakRef(Object referent) {
             super(referent);
         }
+
         private Object writeReplace() {
             Object o = get();
             if (o instanceof Serializable) {
@@ -361,7 +381,7 @@ public class BoundObjectTable implements StaplerFallback {
      * True to activate debug logging of session fragments.
      */
     @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
-    public static boolean DEBUG_LOGGING = Boolean.getBoolean(BoundObjectTable.class.getName()+".debugLog");
+    public static boolean DEBUG_LOGGING = Boolean.getBoolean(BoundObjectTable.class.getName() + ".debugLog");
 
     private static final Logger LOGGER = Logger.getLogger(BoundObjectTable.class.getName());
 }

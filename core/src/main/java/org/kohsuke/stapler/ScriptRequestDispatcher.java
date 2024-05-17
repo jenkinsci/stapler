@@ -46,21 +46,28 @@ class ScriptRequestDispatcher<S> implements RequestDispatcher {
 
     private static final Logger LOGGER = Logger.getLogger(ScriptRequestDispatcher.class.getName());
 
-    @CheckForNull static <S> ScriptRequestDispatcher<S> newRequestDispatcher(@NonNull AbstractTearOff<?, ? extends S, ?> scriptLoader,
-                                                                             @NonNull ScriptExecutor<? super S> scriptExecutor,
-                                                                             @NonNull String viewName,
-                                                                             @CheckForNull Object node) {
+    @CheckForNull
+    static <S> ScriptRequestDispatcher<S> newRequestDispatcher(
+            @NonNull AbstractTearOff<?, ? extends S, ?> scriptLoader,
+            @NonNull ScriptExecutor<? super S> scriptExecutor,
+            @NonNull String viewName,
+            @CheckForNull Object node) {
         S script;
         try {
             script = scriptLoader.findScript(viewName);
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, e, () -> "Could not load requested view " + viewName + " on model class " + (node == null ? null : node.getClass().getName()));
+            LOGGER.log(
+                    Level.WARNING,
+                    e,
+                    () -> "Could not load requested view " + viewName + " on model class "
+                            + (node == null ? null : node.getClass().getName()));
             return null;
         }
         if (script == null) {
             return null;
         }
-        return new ScriptRequestDispatcher<>(scriptLoader.getDefaultScriptExtension(), scriptExecutor, viewName, script, node);
+        return new ScriptRequestDispatcher<>(
+                scriptLoader.getDefaultScriptExtension(), scriptExecutor, viewName, script, node);
     }
 
     private final @NonNull String defaultScriptExtension;
@@ -69,18 +76,18 @@ class ScriptRequestDispatcher<S> implements RequestDispatcher {
     private final @NonNull S script;
     private final @CheckForNull Object node;
 
-    private ScriptRequestDispatcher(@NonNull String defaultScriptExtension,
-                                    @NonNull ScriptExecutor<? super S> scriptExecutor,
-                                    @NonNull String viewName,
-                                    @NonNull S script,
-                                    @CheckForNull Object node) {
+    private ScriptRequestDispatcher(
+            @NonNull String defaultScriptExtension,
+            @NonNull ScriptExecutor<? super S> scriptExecutor,
+            @NonNull String viewName,
+            @NonNull S script,
+            @CheckForNull Object node) {
         this.defaultScriptExtension = defaultScriptExtension;
         this.scriptExecutor = scriptExecutor;
         this.viewName = viewName;
         this.script = script;
         this.node = node;
     }
-
 
     @Override
     public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
@@ -99,11 +106,12 @@ class ScriptRequestDispatcher<S> implements RequestDispatcher {
         } catch (Exception e) {
             throw new ServletException(e);
         }
-
     }
 
     @Override
-    @SuppressFBWarnings(value = "REQUESTDISPATCHER_FILE_DISCLOSURE", justification = "Forwarding the request to be handled correctly.")
+    @SuppressFBWarnings(
+            value = "REQUESTDISPATCHER_FILE_DISCLOSURE",
+            justification = "Forwarding the request to be handled correctly.")
     public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
         forward(request, response);
     }

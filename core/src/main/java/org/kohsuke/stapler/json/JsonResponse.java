@@ -41,26 +41,26 @@ public @interface JsonResponse {
                 final Object r = target.invoke(request, response, instance, arguments);
 
                 JSONObject j;
-                if (r==null)
+                if (r == null) {
                     j = null;
-                else
-                if (r instanceof JSONObject)
-                    j = (JSONObject)r;
-                else
+                } else if (r instanceof JSONObject) {
+                    j = (JSONObject) r;
+                } else {
                     // will fail in case of Array/List, please keep this behavior
                     // to prevent top-level json array that has a vulnerability in certain browser
                     // http://blog.jeremiahgrossman.com/2006/01/advanced-web-attack-techniques-using.html
                     j = JSONObject.fromObject(r);
+                }
 
                 return new JsonHttpResponse(j);
             } catch (InvocationTargetException e) {
                 logger.log(Level.SEVERE, "Error processing request", e);
                 Throwable target = e.getTargetException();
-                if (target instanceof HttpResponse)
+                if (target instanceof HttpResponse) {
                     return target;
+                }
                 return new JsonHttpResponse(target, 500);
             }
         }
     }
-
 }

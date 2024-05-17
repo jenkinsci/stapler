@@ -34,16 +34,15 @@ import org.kohsuke.stapler.StaplerResponse;
  */
 public interface FilteredDoActionTriggerListener {
     boolean onDoActionTrigger(Function f, StaplerRequest req, StaplerResponse rsp, Object node);
-    
+
     FilteredDoActionTriggerListener JUST_WARN = new FilteredDoActionTriggerListener() {
         private final Logger LOGGER = Logger.getLogger(FilteredDoActionTriggerListener.class.getName());
-        
+
         @Override
         public boolean onDoActionTrigger(Function f, StaplerRequest req, StaplerResponse rsp, Object node) {
-            if (LOGGER.isLoggable(Level.WARNING))
-                LOGGER.warning(String.format("BLOCKED -> <%s>.%s(...))",
-                        node, f.getName()
-                ));
+            if (LOGGER.isLoggable(Level.WARNING)) {
+                LOGGER.warning(String.format("BLOCKED -> <%s>.%s(...))", node, f.getName()));
+            }
             return false;
         }
     };

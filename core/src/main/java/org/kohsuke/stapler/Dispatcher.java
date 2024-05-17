@@ -51,7 +51,7 @@ public abstract class Dispatcher {
      * returns true.
      */
     public abstract boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
-        throws IOException, ServletException, IllegalAccessException, InvocationTargetException;
+            throws IOException, ServletException, IllegalAccessException, InvocationTargetException;
 
     /**
      * Diagnostic string that explains this dispatch rule.
@@ -59,19 +59,23 @@ public abstract class Dispatcher {
     @Override
     public abstract String toString();
 
-
     public static boolean traceable() {
         return TRACE || TRACE_PER_REQUEST || LOGGER.isLoggable(Level.FINE);
     }
 
     public static void traceEval(StaplerRequest req, StaplerResponse rsp, Object node) {
-        trace(req,rsp,String.format("-> evaluate(%s%s,\"%s\")",
-                node==null?"null":'<'+node.toString()+'>',
-                node==null?"":" :"+node.getClass().getName(),
-                ((RequestImpl)req).tokens.assembleOriginalRestOfPath()));
+        trace(
+                req,
+                rsp,
+                String.format(
+                        "-> evaluate(%s%s,\"%s\")",
+                        node == null ? "null" : '<' + node.toString() + '>',
+                        node == null ? "" : " :" + node.getClass().getName(),
+                        ((RequestImpl) req).tokens.assembleOriginalRestOfPath()));
     }
 
-    public static void anonymizedTraceEval(StaplerRequest req, StaplerResponse rsp, Object node, String format, String... args) {
+    public static void anonymizedTraceEval(
+            StaplerRequest req, StaplerResponse rsp, Object node, String format, String... args) {
         List<String> arg = new ArrayList<>();
         arg.add(node == null ? "(null)" : node.getClass().getName());
         arg.addAll(Arrays.asList(args));
@@ -79,26 +83,34 @@ public abstract class Dispatcher {
     }
 
     public static void traceEval(StaplerRequest req, StaplerResponse rsp, Object node, String prefix, String suffix) {
-        trace(req,rsp,String.format("-> evaluate(%s<%s>%s,\"%s\")",
-                prefix,node,suffix,
-                ((RequestImpl)req).tokens.assembleOriginalRestOfPath()));
+        trace(
+                req,
+                rsp,
+                String.format(
+                        "-> evaluate(%s<%s>%s,\"%s\")",
+                        prefix, node, suffix, ((RequestImpl) req).tokens.assembleOriginalRestOfPath()));
     }
 
     public static void traceEval(StaplerRequest req, StaplerResponse rsp, Object node, String expression) {
-        trace(req,rsp,String.format("-> evaluate(<%s>.%s,\"%s\")",
-                node,expression,
-                ((RequestImpl)req).tokens.assembleOriginalRestOfPath()));
+        trace(
+                req,
+                rsp,
+                String.format(
+                        "-> evaluate(<%s>.%s,\"%s\")",
+                        node, expression, ((RequestImpl) req).tokens.assembleOriginalRestOfPath()));
     }
 
     public static void trace(StaplerRequest req, StaplerResponse rsp, String msg, Object... args) {
-        trace(req,rsp,String.format(msg,args));
+        trace(req, rsp, String.format(msg, args));
     }
 
     public static void trace(StaplerRequest req, StaplerResponse rsp, String msg) {
-        if(isTraceEnabled(req))
-            EvaluationTrace.get(req).trace(rsp,msg);
-        if(LOGGER.isLoggable(Level.FINE))
+        if (isTraceEnabled(req)) {
+            EvaluationTrace.get(req).trace(rsp, msg);
+        }
+        if (LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine(msg);
+        }
     }
 
     /**
@@ -108,11 +120,13 @@ public abstract class Dispatcher {
      * and sending an "X-Stapler-Trace" header set to "true" with the request.
      */
     public static boolean isTraceEnabled(StaplerRequest req) {
-        if (TRACE)
+        if (TRACE) {
             return true;
+        }
 
-        if (TRACE_PER_REQUEST && "true".equals(req.getHeader("X-Stapler-Trace")))
+        if (TRACE_PER_REQUEST && "true".equals(req.getHeader("X-Stapler-Trace"))) {
             return true;
+        }
 
         return false;
     }

@@ -45,9 +45,10 @@ public class MetaClassLoader extends TearOffSupport {
     }
 
     public static MetaClassLoader get(ClassLoader cl) {
-        if(cl ==null)
+        if (cl == null) {
             return null; // if no parent, delegate to the debug loader if available.
-        
+        }
+
         return classMap.get(cl);
     }
 
@@ -71,15 +72,18 @@ public class MetaClassLoader extends TearOffSupport {
         debugLoader = createDebugLoader();
     }
 
-    @SuppressFBWarnings(value = "DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED", justification = "Not used with an installed security manager.")
+    @SuppressFBWarnings(
+            value = "DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED",
+            justification = "Not used with an installed security manager.")
     private static MetaClassLoader createDebugLoader() {
         try {
             String path = System.getProperty("stapler.resourcePath");
-            if(path!=null) {
+            if (path != null) {
                 String[] tokens = path.split(";");
                 URL[] urls = new URL[tokens.length];
-                for (int i=0; i<tokens.length; i++)
+                for (int i = 0; i < tokens.length; i++) {
                     urls[i] = new File(tokens[i]).toURI().toURL();
+                }
                 return new MetaClassLoader(new URLClassLoader(urls));
             }
         } catch (MalformedURLException e) {

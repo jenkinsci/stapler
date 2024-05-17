@@ -43,6 +43,6 @@ public class NoHomeDirError extends ErrorObject {
 
     @Override
     public String getMessage() {
-        return "Unable to create home directory: "+home;
+        return "Unable to create home directory: " + home;
     }
 }

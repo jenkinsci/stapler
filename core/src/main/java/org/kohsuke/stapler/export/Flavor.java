@@ -36,31 +36,31 @@ public enum Flavor {
     JSON("application/json;charset=UTF-8") {
         @Override
         public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
-            return new JSONDataWriter(w,config);
+            return new JSONDataWriter(w, config);
         }
     },
     JSONP("text/javascript;charset=UTF-8") {
         @Override
         public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
-            return new JSONDataWriter(w,config);
+            return new JSONDataWriter(w, config);
         }
     },
     PYTHON("text/x-python;charset=UTF-8") {
         @Override
         public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
-            return new PythonDataWriter(w,config);
+            return new PythonDataWriter(w, config);
         }
     },
     RUBY("text/x-ruby;charset=UTF-8") {
         @Override
         public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
-            return new RubyDataWriter(w,config);
+            return new RubyDataWriter(w, config);
         }
     },
     XML("application/xml;charset=UTF-8") {
         @Override
         public DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException {
-            return new XMLDataWriter(bean,w,config);
+            return new XMLDataWriter(bean, w, config);
         }
     };
 
@@ -74,10 +74,12 @@ public enum Flavor {
     }
 
     public DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException {
-        return createDataWriter(bean,rsp.getWriter());
+        return createDataWriter(bean, rsp.getWriter());
     }
+
     public DataWriter createDataWriter(Object bean, Writer w) throws IOException {
-        return createDataWriter(bean,w,new ExportConfig().withFlavor(this));
+        return createDataWriter(bean, w, new ExportConfig().withFlavor(this));
     }
+
     public abstract DataWriter createDataWriter(Object bean, Writer w, ExportConfig config) throws IOException;
 }

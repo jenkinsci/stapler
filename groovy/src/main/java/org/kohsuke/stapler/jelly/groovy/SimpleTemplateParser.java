@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets;
 class SimpleTemplateParser {
     @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Not relevant in this situation.")
     protected String parse(URL res) throws IOException {
-        return parse(new InputStreamReader(res.openStream(),StandardCharsets.UTF_8));
+        return parse(new InputStreamReader(res.openStream(), StandardCharsets.UTF_8));
     }
 
     /**
@@ -108,7 +108,7 @@ class SimpleTemplateParser {
     }
 
     private void startScript(StringWriter sw) {
-        sw.write(printCommand()+"(\"\"\"");
+        sw.write(printCommand() + "(\"\"\"");
     }
 
     private void endScript(StringWriter sw) {
@@ -178,8 +178,8 @@ class SimpleTemplateParser {
              */
             // if (c != '\n' && c != '\r') {
             sw.write(c);
-            //}
+            // }
         }
-        sw.write(";\n"+printCommand()+"(\"\"\"");
+        sw.write(";\n" + printCommand() + "(\"\"\"");
     }
 }

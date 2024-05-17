@@ -63,35 +63,35 @@ public class CopyStreamTag extends AbstractStaplerTag {
         setInputStream(url.openStream());
     }
 
-
     @Override
     public void doTag(XMLOutput xmlOutput) throws JellyTagException {
-        if(in==null)
+        if (in == null) {
             // In JEXL, failures evaluate to null, so if the input is meant to be
             // set from expression, we don't want that evaluation failure to cause
             // the entire page rendering to fail.
             return;
+        }
 
         char[] buf = new char[8192];
         int len;
 
         try {
             try {
-                while((len=in.read(buf,0,buf.length))>=0) {
+                while ((len = in.read(buf, 0, buf.length)) >= 0) {
                     int last = 0;
-                    for (int i=0; i<len; i++ ) {
+                    for (int i = 0; i < len; i++) {
                         char ch = buf[i];
                         if (ch == '<') {
                             xmlOutput.characters(buf, last, i - last); // flush
                             xmlOutput.characters(CHARS_LE, 0, CHARS_LE.length);
                             last = i + 1;
                         } else if (ch == '&') {
-                            xmlOutput.characters(buf,last,i-last); // flush
-                            xmlOutput.characters(CHARS_AMP,0,CHARS_AMP.length);
-                            last = i+1;
+                            xmlOutput.characters(buf, last, i - last); // flush
+                            xmlOutput.characters(CHARS_AMP, 0, CHARS_AMP.length);
+                            last = i + 1;
                         }
                     }
-                    xmlOutput.characters(buf,last,len-last);
+                    xmlOutput.characters(buf, last, len - last);
                 }
             } finally {
                 in.close();

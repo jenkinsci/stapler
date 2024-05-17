@@ -16,15 +16,18 @@ import javax.servlet.ServletException;
  */
 class DirectoryishDispatcher extends Dispatcher {
     @Override
-    public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
-        if(!req.tokens.hasMore()) {
+    public boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
+            throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+        if (!req.tokens.hasMore()) {
             String servletPath = req.stapler.getServletPath(req);
-            if(!servletPath.endsWith("/")) {
+            if (!servletPath.endsWith("/")) {
                 String target = req.getContextPath() + servletPath + '/';
-                if(req.getQueryString()!=null)
+                if (req.getQueryString() != null) {
                     target += '?' + req.getQueryString();
-                if(LOGGER.isLoggable(Level.FINER))
-                    LOGGER.finer("Redirecting to "+target);
+                }
+                if (LOGGER.isLoggable(Level.FINER)) {
+                    LOGGER.finer("Redirecting to " + target);
+                }
                 rsp.sendRedirect2(target);
                 return true;
             }

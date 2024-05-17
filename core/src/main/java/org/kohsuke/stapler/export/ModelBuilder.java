@@ -53,7 +53,8 @@ public class ModelBuilder {
      * @return model
      */
     @NonNull
-    public <T> Model<T> get(Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property) throws NotExportableException {
+    public <T> Model<T> get(Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property)
+            throws NotExportableException {
         Model<T> model = getOrNull(type, propertyOwner, property);
         if (model == null) {
             throw new NotExportableException(type);
@@ -70,7 +71,7 @@ public class ModelBuilder {
     @CheckForNull
     public <T> Model<T> getOrNull(Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property) {
         Model<T> m = models.get(type);
-        if(m==null && type.getAnnotation(ExportedBean.class) != null) {
+        if (m == null && type.getAnnotation(ExportedBean.class) != null) {
             m = new Model<>(this, type, propertyOwner, property);
         }
         return m;

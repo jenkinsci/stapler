@@ -9,7 +9,9 @@ import org.kohsuke.stapler.jelly.ResourceBundle;
 /**
  * @author Kohsuke Kawaguchi
  */
-@SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "The synchronization here doesn't make sense, but it's not causing problems.")
+@SuppressFBWarnings(
+        value = "IS2_INCONSISTENT_SYNC",
+        justification = "The synchronization here doesn't make sense, but it's not causing problems.")
 public abstract class StaplerClosureScript extends GroovyClosureScript {
     /**
      * Where was this script loaded from?
@@ -35,14 +37,15 @@ public abstract class StaplerClosureScript extends GroovyClosureScript {
      * then return that formatted string.
      */
     public String gettext(String key, Object... args) {
-//        JellyBuilder b = (JellyBuilder)getDelegate();
+        //        JellyBuilder b = (JellyBuilder)getDelegate();
 
         ResourceBundle resourceBundle = getResourceBundle();
 
         // notify the listener if set
-//        InternationalizedStringExpressionListener listener = (InternationalizedStringExpressionListener) Stapler.getCurrentRequest().getAttribute(LISTENER_NAME);
-//        if(listener!=null)
-//            listener.onUsed(this, args);
+        //        InternationalizedStringExpressionListener listener = (InternationalizedStringExpressionListener)
+        // Stapler.getCurrentRequest().getAttribute(LISTENER_NAME);
+        //        if(listener!=null)
+        //            listener.onUsed(this, args);
 
         args = Stapler.htmlSafeArguments(args);
 
@@ -50,11 +53,11 @@ public abstract class StaplerClosureScript extends GroovyClosureScript {
     }
 
     private ResourceBundle getResourceBundle() {
-        if (resourceBundle==null) {
+        if (resourceBundle == null) {
             synchronized (this) {
-                if (resourceBundle==null) {
+                if (resourceBundle == null) {
                     String baseURL = scriptURL.toExternalForm();
-                    baseURL = baseURL.substring(0,baseURL.lastIndexOf('.'));
+                    baseURL = baseURL.substring(0, baseURL.lastIndexOf('.'));
                     resourceBundle = ResourceBundle.load(baseURL);
                 }
             }

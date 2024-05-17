@@ -64,21 +64,24 @@ final class BytecodeReadingParanamer {
 
     private static final Map<String, String> primitives = new HashMap<>() {
         {
-            put("int","I");
-            put("boolean","Z");
+            put("int", "I");
+            put("boolean", "Z");
             put("byte", "B");
-            put("char","C");
-            put("short","S");
-            put("float","F");
-            put("long","J");
-            put("double","D");
+            put("char", "C");
+            put("short", "S");
+            put("float", "F");
+            put("long", "J");
+            put("double", "D");
         }
     };
 
     static String[] lookupParameterNames(Executable executable) throws IOException {
         String genericString = executable.toGenericString();
         if (ALREADY_LOGGED.putIfAbsent(genericString, PLACEHOLDER) == null) {
-            LOGGER.log(Level.WARNING, "Looking up parameter names for {0}; update plugin to a version created with a newer harness", genericString);
+            LOGGER.log(
+                    Level.WARNING,
+                    "Looking up parameter names for {0}; update plugin to a version created with a newer harness",
+                    genericString);
         }
 
         Class<?>[] types = executable.getParameterTypes();
@@ -153,8 +156,7 @@ final class BytecodeReadingParanamer {
             Type[] argumentTypes = Type.getArgumentTypes(desc);
             int longOrDoubleQuantity = 0;
             for (Type t : argumentTypes) {
-                if (t.getClassName().equals("long")
-                        || t.getClassName().equals("double")) {
+                if (t.getClassName().equals("long") || t.getClassName().equals("double")) {
                     longOrDoubleQuantity++;
                 }
             }
@@ -164,13 +166,12 @@ final class BytecodeReadingParanamer {
                 return null;
             }
             for (int i = 0; i < argumentTypes.length; i++) {
-                if (!correctTypeName(argumentTypes, i).equals(
-                        this.parameterTypes[i].getName())) {
+                if (!correctTypeName(argumentTypes, i).equals(this.parameterTypes[i].getName())) {
                     return null;
                 }
             }
-            this.collector = new MethodCollector((Modifier.isStatic(access) ? 0 : 1),
-                    argumentTypes.length + longOrDoubleQuantity);
+            this.collector = new MethodCollector(
+                    (Modifier.isStatic(access) ? 0 : 1), argumentTypes.length + longOrDoubleQuantity);
             return collector;
         }
 
@@ -186,7 +187,7 @@ final class BytecodeReadingParanamer {
                 if (primitives.containsKey(s)) {
                     s = braces + primitives.get(s);
                 } else {
-                s = braces + "L" + s + ";";
+                    s = braces + "L" + s + ";";
                 }
             }
             return s;
@@ -201,7 +202,6 @@ final class BytecodeReadingParanamer {
             }
             return collector.getResult().split(COMMA);
         }
-
     }
 
     /**
@@ -248,39 +248,37 @@ final class BytecodeReadingParanamer {
         private boolean isDebugInfoPresent() {
             return debugInfoPresent;
         }
-
     }
 
-/*
- * Portions Copyright (c) 2007 Paul Hammant
- * Portions copyright (c) 2000-2007 INRIA, France Telecom
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
- */
-
+    /*
+     * Portions Copyright (c) 2007 Paul Hammant
+     * Portions copyright (c) 2000-2007 INRIA, France Telecom
+     * All rights reserved.
+     *
+     * Redistribution and use in source and binary forms, with or without
+     * modification, are permitted provided that the following conditions
+     * are met:
+     * 1. Redistributions of source code must retain the above copyright
+     *    notice, this list of conditions and the following disclaimer.
+     * 2. Redistributions in binary form must reproduce the above copyright
+     *    notice, this list of conditions and the following disclaimer in the
+     *    documentation and/or other materials provided with the distribution.
+     * 3. Neither the name of the copyright holders nor the names of its
+     *    contributors may be used to endorse or promote products derived from
+     *    this software without specific prior written permission.
+     *
+     * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+     * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+     * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+     * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+     * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+     * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+     * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+     * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+     * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+     * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+     * THE POSSIBILITY OF SUCH DAMAGE.
+     */
 
     /**
      * A Java class parser to make a Class Visitor visit an existing class.
@@ -329,61 +327,60 @@ final class BytecodeReadingParanamer {
          */
         public final int header;
 
-
         /**
          * The type of CONSTANT_Fieldref constant pool items.
          */
-        final static int FIELD = 9;
+        static final int FIELD = 9;
 
         /**
          * The type of CONSTANT_Methodref constant pool items.
          */
-        final static int METH = 10;
+        static final int METH = 10;
 
         /**
          * The type of CONSTANT_InterfaceMethodref constant pool items.
          */
-        final static int IMETH = 11;
+        static final int IMETH = 11;
 
         /**
          * The type of CONSTANT_Integer constant pool items.
          */
-        final static int INT = 3;
+        static final int INT = 3;
 
         /**
          * The type of CONSTANT_Float constant pool items.
          */
-        final static int FLOAT = 4;
+        static final int FLOAT = 4;
 
         /**
          * The type of CONSTANT_Long constant pool items.
          */
-        final static int LONG = 5;
+        static final int LONG = 5;
 
         /**
          * The type of CONSTANT_Double constant pool items.
          */
-        final static int DOUBLE = 6;
+        static final int DOUBLE = 6;
 
         /**
          * The type of CONSTANT_NameAndType constant pool items.
          */
-        final static int NAME_TYPE = 12;
+        static final int NAME_TYPE = 12;
 
         /**
-        * The type of CONSTANT_MethodHandle constant pool items.
-        */
+         * The type of CONSTANT_MethodHandle constant pool items.
+         */
         static final int MHANDLE = 15;
 
         /**
-        * The type of CONSTANT_InvokeDynamic constant pool items.
-        */
+         * The type of CONSTANT_InvokeDynamic constant pool items.
+         */
         static final int INVOKEDYN = 18;
 
         /**
          * The type of CONSTANT_Utf8 constant pool items.
          */
-        final static int UTF8 = 1;
+        static final int UTF8 = 1;
 
         // ------------------------------------------------------------------------
         // Constructors
@@ -452,7 +449,6 @@ final class BytecodeReadingParanamer {
             header = index;
         }
 
-
         /**
          * Constructs a new {@link ClassReader} object.
          *
@@ -500,7 +496,7 @@ final class BytecodeReadingParanamer {
                     }
                 }
             }
-            //ignore
+            // ignore
         }
 
         // ------------------------------------------------------------------------
@@ -558,7 +554,7 @@ final class BytecodeReadingParanamer {
                 v += 6 + readInt(v + 2);
             }
 
-            //annotations not needed.
+            // annotations not needed.
 
             // visits the fields
             i = readUnsignedShort(u);
@@ -696,8 +692,10 @@ final class BytecodeReadingParanamer {
          */
         private int readInt(final int index) {
             byte[] b = this.b;
-            return ((b[index] & 0xFF) << 24) | ((b[index + 1] & 0xFF) << 16)
-                    | ((b[index + 2] & 0xFF) << 8) | (b[index + 3] & 0xFF);
+            return ((b[index] & 0xFF) << 24)
+                    | ((b[index + 1] & 0xFF) << 16)
+                    | ((b[index + 2] & 0xFF) << 8)
+                    | (b[index + 3] & 0xFF);
         }
 
         /**
@@ -742,23 +740,23 @@ final class BytecodeReadingParanamer {
                 switch (st) {
                     case 0:
                         c = c & 0xFF;
-                        if (c < 0x80) {  // 0xxxxxxx
+                        if (c < 0x80) { // 0xxxxxxx
                             buf[strLen++] = (char) c;
-                        } else if (c < 0xE0 && c > 0xBF) {  // 110x xxxx 10xx xxxx
+                        } else if (c < 0xE0 && c > 0xBF) { // 110x xxxx 10xx xxxx
                             cc = (char) (c & 0x1F);
                             st = 1;
-                        } else {  // 1110 xxxx 10xx xxxx 10xx xxxx
+                        } else { // 1110 xxxx 10xx xxxx 10xx xxxx
                             cc = (char) (c & 0x0F);
                             st = 2;
                         }
                         break;
 
-                    case 1:  // byte 2 of 2-byte char or byte 3 of 3-byte char
+                    case 1: // byte 2 of 2-byte char or byte 3 of 3-byte char
                         buf[strLen++] = (char) ((cc << 6) | (c & 0x3F));
                         st = 0;
                         break;
 
-                    case 2:  // byte 2 of 3-byte char
+                    case 2: // byte 2 of 3-byte char
                         cc = (char) ((cc << 6) | (c & 0x3F));
                         st = 1;
                         break;
@@ -770,38 +768,37 @@ final class BytecodeReadingParanamer {
             }
             return new String(buf, 0, strLen);
         }
-
     }
 
-/*
- * Portions Copyright (c) 2007 Paul Hammant
- * Portions copyright (c) 2000-2007 INRIA, France Telecom
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
- */
+    /*
+     * Portions Copyright (c) 2007 Paul Hammant
+     * Portions copyright (c) 2000-2007 INRIA, France Telecom
+     * All rights reserved.
+     *
+     * Redistribution and use in source and binary forms, with or without
+     * modification, are permitted provided that the following conditions
+     * are met:
+     * 1. Redistributions of source code must retain the above copyright
+     *    notice, this list of conditions and the following disclaimer.
+     * 2. Redistributions in binary form must reproduce the above copyright
+     *    notice, this list of conditions and the following disclaimer in the
+     *    documentation and/or other materials provided with the distribution.
+     * 3. Neither the name of the copyright holders nor the names of its
+     *    contributors may be used to endorse or promote products derived from
+     *    this software without specific prior written permission.
+     *
+     * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+     * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+     * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+     * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+     * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+     * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+     * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+     * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+     * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+     * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+     * THE POSSIBILITY OF SUCH DAMAGE.
+     */
 
     /**
      * A Java type. This class can be used to make it easier to manipulate type and
@@ -815,111 +812,102 @@ final class BytecodeReadingParanamer {
         /**
          * The sort of the <tt>void</tt> type.
          */
-        private final static int VOID = 0;
+        private static final int VOID = 0;
 
         /**
          * The sort of the <tt>boolean</tt> type.
          */
-        private final static int BOOLEAN = 1;
+        private static final int BOOLEAN = 1;
 
         /**
          * The sort of the <tt>char</tt> type.
          */
-        private final static int CHAR = 2;
+        private static final int CHAR = 2;
 
         /**
          * The sort of the <tt>byte</tt> type.
          */
-        private final static int BYTE = 3;
+        private static final int BYTE = 3;
 
         /**
          * The sort of the <tt>short</tt> type.
          */
-        private final static int SHORT = 4;
+        private static final int SHORT = 4;
 
         /**
          * The sort of the <tt>int</tt> type.
          */
-        private final static int INT = 5;
+        private static final int INT = 5;
 
         /**
          * The sort of the <tt>float</tt> type.
          */
-        private final static int FLOAT = 6;
+        private static final int FLOAT = 6;
 
         /**
          * The sort of the <tt>long</tt> type.
          */
-        private final static int LONG = 7;
+        private static final int LONG = 7;
 
         /**
          * The sort of the <tt>double</tt> type.
          */
-        private final static int DOUBLE = 8;
+        private static final int DOUBLE = 8;
 
         /**
          * The sort of array reference types.
          */
-        private final static int ARRAY = 9;
+        private static final int ARRAY = 9;
 
         /**
          * The sort of object reference type.
          */
-        private final static int OBJECT = 10;
+        private static final int OBJECT = 10;
 
         /**
          * The <tt>void</tt> type.
          */
-        private final static Type VOID_TYPE = new Type(VOID, null, ('V' << 24) 
-            | (5 << 16) | (0 << 8) | 0, 1);
+        private static final Type VOID_TYPE = new Type(VOID, null, ('V' << 24) | (5 << 16) | (0 << 8) | 0, 1);
 
         /**
          * The <tt>boolean</tt> type.
          */
-        private final static Type BOOLEAN_TYPE = new Type(BOOLEAN, null, ('Z' << 24) 
-            | (0 << 16) | (5 << 8) | 1, 1);
+        private static final Type BOOLEAN_TYPE = new Type(BOOLEAN, null, ('Z' << 24) | (0 << 16) | (5 << 8) | 1, 1);
 
         /**
          * The <tt>char</tt> type.
          */
-        private final static Type CHAR_TYPE = new Type(CHAR, null, ('C' << 24) 
-            | (0 << 16) | (6 << 8) | 1, 1);
+        private static final Type CHAR_TYPE = new Type(CHAR, null, ('C' << 24) | (0 << 16) | (6 << 8) | 1, 1);
 
         /**
          * The <tt>byte</tt> type.
          */
-        private final static Type BYTE_TYPE = new Type(BYTE, null, ('B' << 24) 
-            | (0 << 16) | (5 << 8) | 1, 1);
+        private static final Type BYTE_TYPE = new Type(BYTE, null, ('B' << 24) | (0 << 16) | (5 << 8) | 1, 1);
 
         /**
          * The <tt>short</tt> type.
          */
-        private final static Type SHORT_TYPE = new Type(SHORT, null, ('S' << 24) 
-            | (0 << 16) | (7 << 8) | 1, 1);
+        private static final Type SHORT_TYPE = new Type(SHORT, null, ('S' << 24) | (0 << 16) | (7 << 8) | 1, 1);
 
         /**
          * The <tt>int</tt> type.
          */
-        private final static Type INT_TYPE = new Type(INT, null, ('I' << 24) 
-            | (0 << 16) | (0 << 8) | 1, 1);
+        private static final Type INT_TYPE = new Type(INT, null, ('I' << 24) | (0 << 16) | (0 << 8) | 1, 1);
 
         /**
          * The <tt>float</tt> type.
          */
-        private final static Type FLOAT_TYPE = new Type(FLOAT, null, ('F' << 24) 
-            | (2 << 16) | (2 << 8) | 1, 1);
+        private static final Type FLOAT_TYPE = new Type(FLOAT, null, ('F' << 24) | (2 << 16) | (2 << 8) | 1, 1);
 
         /**
          * The <tt>long</tt> type.
          */
-        private final static Type LONG_TYPE = new Type(LONG, null, ('J' << 24) 
-            | (1 << 16) | (1 << 8) | 2, 1);
+        private static final Type LONG_TYPE = new Type(LONG, null, ('J' << 24) | (1 << 16) | (1 << 8) | 2, 1);
 
         /**
          * The <tt>double</tt> type.
          */
-        private final static Type DOUBLE_TYPE = new Type(DOUBLE, null, ('D' << 24) 
-            | (3 << 16) | (3 << 8) | 2, 1);
+        private static final Type DOUBLE_TYPE = new Type(DOUBLE, null, ('D' << 24) | (3 << 16) | (3 << 8) | 2, 1);
 
         // ------------------------------------------------------------------------
         // Fields
@@ -978,7 +966,6 @@ final class BytecodeReadingParanamer {
             this.len = len;
         }
 
-
         /**
          * Returns the Java types corresponding to the argument types of the given
          * method descriptor.
@@ -996,8 +983,7 @@ final class BytecodeReadingParanamer {
                 if (car == ')') {
                     break;
                 } else if (car == 'L') {
-                    while (buf[off++] != ';') {
-                    }
+                    while (buf[off++] != ';') {}
                     ++size;
                 } else if (car != '[') {
                     ++size;
@@ -1014,7 +1000,6 @@ final class BytecodeReadingParanamer {
             }
             return args;
         }
-
 
         /**
          * Returns the Java type corresponding to the given type descriptor.

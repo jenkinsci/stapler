@@ -31,7 +31,7 @@ import org.jvnet.maven.jellydoc.annotation.Required;
 
 /**
  * Writes out DOCTYPE declaration.
- * 
+ *
  * @author Kohsuke Kawaguchi
  */
 @NoContent
@@ -52,7 +52,7 @@ public class DoctypeTag extends AbstractStaplerTag {
     @Override
     public void doTag(XMLOutput output) throws JellyTagException {
         try {
-            getResponse().getOutputStream().println("<!DOCTYPE html PUBLIC \""+publicId+"\" \""+systemId+"\">");
+            getResponse().getOutputStream().println("<!DOCTYPE html PUBLIC \"" + publicId + "\" \"" + systemId + "\">");
         } catch (IOException e) {
             throw new JellyTagException(e);
         }

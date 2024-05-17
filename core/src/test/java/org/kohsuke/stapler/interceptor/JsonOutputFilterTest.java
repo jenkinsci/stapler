@@ -41,7 +41,7 @@ public class JsonOutputFilterTest extends JettyTestCase {
         wc.getJavaScriptEngine().processPostponedActions();
         wc.waitForBackgroundJavaScript(10000);
 
-        Map json = (Map)JSONSerializer.toJSON(msg[0]);
+        Map json = (Map) JSONSerializer.toJSON(msg[0]);
         assertTrue(json.containsKey("name"));
         assertTrue(json.containsKey("description"));
         assertFalse(json.containsKey("secret"));
@@ -62,7 +62,7 @@ public class JsonOutputFilterTest extends JettyTestCase {
         wc.getJavaScriptEngine().processPostponedActions();
         wc.waitForBackgroundJavaScript(10000);
 
-        Map json = (Map)JSONSerializer.toJSON(msg[0]);
+        Map json = (Map) JSONSerializer.toJSON(msg[0]);
         assertTrue(json.containsKey("name"));
         assertFalse(json.containsKey("description"));
         assertFalse(json.containsKey("secret"));
@@ -83,10 +83,10 @@ public class JsonOutputFilterTest extends JettyTestCase {
         wc.getJavaScriptEngine().processPostponedActions();
         wc.waitForBackgroundJavaScript(10000);
 
-        JSONArray json = (JSONArray)JSONSerializer.toJSON(msg[0]);
+        JSONArray json = (JSONArray) JSONSerializer.toJSON(msg[0]);
         assertEquals(3, json.size());
         for (Object o : json) {
-            Map map = (Map)o;
+            Map map = (Map) o;
             assertTrue(map.containsKey("name"));
             assertTrue(map.containsKey("description"));
             assertFalse(map.containsKey("secret"));
@@ -102,7 +102,8 @@ public class JsonOutputFilterTest extends JettyTestCase {
     @JsonOutputFilter(excludes = {"secret"})
     @JavaScriptMethod
     public List<MyData> getSomeExcludedList() {
-        return Arrays.asList(new MyData("Bob", "the builder", "super secret value"),
+        return Arrays.asList(
+                new MyData("Bob", "the builder", "super secret value"),
                 new MyData("Lisa", "the coder", "even more super secret"),
                 new MyData("Jenkins", "the butler", "really secret as well"));
     }
@@ -117,7 +118,8 @@ public class JsonOutputFilterTest extends JettyTestCase {
         rsp.setContentType("text/html");
         PrintWriter w = rsp.getWriter();
         w.println("<html><body><script src='script'></script>");
-        w.println("<script>var v = "+ WebApp.getCurrent().boundObjectTable.bind(this).getProxyScript()+";</script>");
+        w.println("<script>var v = "
+                + WebApp.getCurrent().boundObjectTable.bind(this).getProxyScript() + ";</script>");
         w.println("<script>var callback = function(t){var x=t.responseObject(); alert(JSON.stringify(x)); };</script>");
         w.println("</body></html>");
     }
@@ -125,7 +127,6 @@ public class JsonOutputFilterTest extends JettyTestCase {
     public HttpResponse doScript() {
         return HttpResponses.staticResource(getClass().getResource("/org/kohsuke/stapler/bind.js"));
     }
-
 
     public static class MyData {
         private String name;

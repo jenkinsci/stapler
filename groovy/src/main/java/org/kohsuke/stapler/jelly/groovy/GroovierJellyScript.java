@@ -40,7 +40,7 @@ import org.codehaus.groovy.runtime.InvokerHelper;
 
 /**
  * Wraps a Groovy-driven Jelly script into {@link Script}
- * (so that it can be called from other Jelly scripts.) 
+ * (so that it can be called from other Jelly scripts.)
  *
  * @author Kohsuke Kawaguchi
  */
@@ -59,7 +59,7 @@ public class GroovierJellyScript implements Script {
         this.clazz = clazz;
         this.scriptURL = scriptURL;
     }
-    
+
     @Override
     public Script compile() {
         return this;

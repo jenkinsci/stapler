@@ -46,6 +46,6 @@ public abstract class JellyTagFileLoader {
      * Discovers all the facets in the classloader.
      */
     public static List<JellyTagFileLoader> discover(ClassLoader cl) {
-        return Facet.discoverExtensions(JellyTagFileLoader.class,cl);
+        return Facet.discoverExtensions(JellyTagFileLoader.class, cl);
     }
 }

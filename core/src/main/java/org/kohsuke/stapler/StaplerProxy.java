@@ -35,7 +35,7 @@ package org.kohsuke.stapler;
  * <p>
  * By returning {@code this} from the {@link #getTarget()} method,
  * {@link StaplerProxy} can be also used just as an interception hook (for example
- * to perform authorization.) 
+ * to perform authorization.)
  *
  * @author Kohsuke Kawaguchi
  * @see StaplerFallback

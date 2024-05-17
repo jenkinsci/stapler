@@ -16,16 +16,17 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class DiagnosticThreadNameFilter implements Filter {
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-    }
+    public void init(FilterConfig filterConfig) throws ServletException {}
 
     @Override
-    public void doFilter(ServletRequest req, ServletResponse rsp, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest req, ServletResponse rsp, FilterChain chain)
+            throws IOException, ServletException {
         Thread t = Thread.currentThread();
         final String oldName = t.getName();
         try {
             HttpServletRequest hreq = (HttpServletRequest) req;
-            t.setName("Handling " + hreq.getMethod() + ' ' + hreq.getRequestURI() + " from "+hreq.getRemoteAddr()+" : " + oldName);
+            t.setName("Handling " + hreq.getMethod() + ' ' + hreq.getRequestURI() + " from " + hreq.getRemoteAddr()
+                    + " : " + oldName);
 
             chain.doFilter(req, rsp);
         } finally {
@@ -34,6 +35,5 @@ public class DiagnosticThreadNameFilter implements Filter {
     }
 
     @Override
-    public void destroy() {
-    }
+    public void destroy() {}
 }

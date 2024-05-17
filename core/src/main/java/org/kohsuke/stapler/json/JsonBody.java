@@ -60,17 +60,19 @@ import org.kohsuke.stapler.StaplerRequest;
 public @interface JsonBody {
     class Handler extends AnnotationHandler {
         @Override
-        public Object parse(StaplerRequest request, Annotation a, Class type, String parameterName) throws ServletException {
+        public Object parse(StaplerRequest request, Annotation a, Class type, String parameterName)
+                throws ServletException {
             String ct = request.getContentType();
-            if (ct == null || !ct.startsWith("application/json"))
-                throw new ServletException("Expected application/json but got "+ct);
+            if (ct == null || !ct.startsWith("application/json")) {
+                throw new ServletException("Expected application/json but got " + ct);
+            }
 
             try {
                 // TODO: exception thrown here results in error page rendered in HTML.
                 JSONObject o = JSONObject.fromObject(IOUtils.toString(request.getReader()));
-                return JSONObject.toBean(o,type);
+                return JSONObject.toBean(o, type);
             } catch (IOException e) {
-                throw new ServletException("Failed to read JSON",e);
+                throw new ServletException("Failed to read JSON", e);
             }
         }
     }

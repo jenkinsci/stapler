@@ -34,6 +34,7 @@ public abstract class JettyTestCase extends TestCase {
      * The top URL of this test web application.
      */
     protected URL url;
+
     protected Stapler stapler;
     protected ServletContext servletContext;
     protected WebApp webApp;
@@ -45,17 +46,19 @@ public abstract class JettyTestCase extends TestCase {
 
         server.setHandler(new WebAppContext("/noroot", ""));
 
-        final ServletContextHandler context = new ServletContextHandler(server, getContextPath(), ServletContextHandler.SESSIONS);
+        final ServletContextHandler context =
+                new ServletContextHandler(server, getContextPath(), ServletContextHandler.SESSIONS);
         configure(context);
         server.setHandler(context);
 
         ServerConnector connector = new ServerConnector(server);
-        HttpConfiguration hc = connector.getConnectionFactory(HttpConnectionFactory.class).getHttpConfiguration();
+        HttpConfiguration hc =
+                connector.getConnectionFactory(HttpConnectionFactory.class).getHttpConfiguration();
         hc.setUriCompliance(UriCompliance.LEGACY);
         server.addConnector(connector);
         server.start();
 
-        url = new URL("http://localhost:"+connector.getLocalPort()+getContextPath()+"/");
+        url = new URL("http://localhost:" + connector.getLocalPort() + getContextPath() + "/");
 
         servletContext = context.getServletContext();
         webApp = WebApp.get(servletContext);

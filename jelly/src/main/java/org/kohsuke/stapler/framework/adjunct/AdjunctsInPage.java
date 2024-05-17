@@ -55,7 +55,7 @@ public class AdjunctsInPage {
      * tag hasn't been written yet.
      */
     private final List<Adjunct> pending = new ArrayList<>();
-    
+
     private final StaplerRequest request;
 
     /**
@@ -73,12 +73,14 @@ public class AdjunctsInPage {
      */
     public static AdjunctsInPage get(StaplerRequest request) {
         AdjunctsInPage aip = (AdjunctsInPage) request.getAttribute(KEY);
-        if(aip==null)
-            request.setAttribute(KEY,aip=new AdjunctsInPage(AdjunctManager.get(request.getServletContext()),request));
+        if (aip == null) {
+            request.setAttribute(
+                    KEY, aip = new AdjunctsInPage(AdjunctManager.get(request.getServletContext()), request));
+        }
         return aip;
     }
 
-    private AdjunctsInPage(AdjunctManager manager,StaplerRequest request) {
+    private AdjunctsInPage(AdjunctManager manager, StaplerRequest request) {
         this.manager = manager;
         this.request = request;
     }
@@ -108,11 +110,13 @@ public class AdjunctsInPage {
      */
     public void generate(XMLOutput out, String... includes) throws IOException, SAXException {
         List<Adjunct> needed = new ArrayList<>();
-        for (String include : includes)
-            findNeeded(include,needed);
+        for (String include : includes) {
+            findNeeded(include, needed);
+        }
 
-        for (Adjunct adj : needed)
-            adj.write(request,out);
+        for (Adjunct adj : needed) {
+            adj.write(request, out);
+        }
     }
 
     /**
@@ -126,8 +130,9 @@ public class AdjunctsInPage {
 
     public void assumeIncluded(Collection<String> includes) throws IOException, SAXException {
         List<Adjunct> needed = new ArrayList<>();
-        for (String include : includes)
-            findNeeded(include,needed);
+        for (String include : includes) {
+            findNeeded(include, needed);
+        }
     }
 
     /**
@@ -135,16 +140,18 @@ public class AdjunctsInPage {
      * but just put the adjuncts to {@link #pending} without writing it.
      */
     public void spool(String... includes) throws IOException, SAXException {
-        for (String include : includes)
-            findNeeded(include,pending);
+        for (String include : includes) {
+            findNeeded(include, pending);
+        }
     }
 
     /**
      * Writes out what's spooled by {@link #spool(String...)} method.
      */
     public void writeSpooled(XMLOutput out) throws SAXException, IOException {
-        for (Adjunct adj : pending)
-            adj.write(request,out);
+        for (Adjunct adj : pending) {
+            adj.write(request, out);
+        }
         pending.clear();
     }
 
@@ -152,17 +159,19 @@ public class AdjunctsInPage {
      * Builds up the needed adjuncts into the 'needed' list.
      */
     private void findNeeded(String include, List<Adjunct> needed) throws IOException {
-        if(!included.add(include))
+        if (!included.add(include)) {
             return; // already sent
+        }
 
         // list dependencies first
         try {
             Adjunct a = manager.get(include);
-            for (String req : a.required)
-                findNeeded(req,needed);
+            for (String req : a.required) {
+                findNeeded(req, needed);
+            }
             needed.add(a);
         } catch (NoSuchAdjunctException e) {
-            LOGGER.log(Level.WARNING, "No such adjunct found: "+include,e);
+            LOGGER.log(Level.WARNING, "No such adjunct found: " + include, e);
         }
     }
 

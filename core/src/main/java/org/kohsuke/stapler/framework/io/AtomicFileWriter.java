@@ -52,14 +52,15 @@ public class AtomicFileWriter extends Writer {
 
     @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Protected by checks at other layers.")
     public AtomicFileWriter(File f) throws IOException {
-        tmpFile = File.createTempFile("atomic",null,f.getParentFile());
+        tmpFile = File.createTempFile("atomic", null, f.getParentFile());
         destFile = f;
-        core = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(
-                tmpFile.toPath(),
-                StandardOpenOption.CREATE,
-                StandardOpenOption.TRUNCATE_EXISTING, // empty file already created by createTempFile
-                StandardOpenOption.WRITE
-        ),StandardCharsets.UTF_8));
+        core = new BufferedWriter(new OutputStreamWriter(
+                Files.newOutputStream(
+                        tmpFile.toPath(),
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING, // empty file already created by createTempFile
+                        StandardOpenOption.WRITE),
+                StandardCharsets.UTF_8));
     }
 
     @Override
@@ -69,12 +70,12 @@ public class AtomicFileWriter extends Writer {
 
     @Override
     public void write(String str, int off, int len) throws IOException {
-        core.write(str,off,len);
+        core.write(str, off, len);
     }
 
     @Override
     public void write(char[] cbuf, int off, int len) throws IOException {
-        core.write(cbuf,off,len);
+        core.write(cbuf, off, len);
     }
 
     @Override

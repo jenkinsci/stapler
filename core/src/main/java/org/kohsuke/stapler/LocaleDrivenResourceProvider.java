@@ -52,7 +52,7 @@ public abstract class LocaleDrivenResourceProvider {
      * @return the URL to the file, if it is to be overridden, null otherwise.
      */
     @CheckForNull
-    abstract public URL lookup(@NonNull String path);
+    public abstract URL lookup(@NonNull String path);
 
     private static List<LocaleDrivenResourceProvider> localeDrivenResourceProviders;
 

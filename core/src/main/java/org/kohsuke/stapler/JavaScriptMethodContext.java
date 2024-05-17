@@ -24,4 +24,3 @@ public final class JavaScriptMethodContext {
         return name;
     }
 }
-

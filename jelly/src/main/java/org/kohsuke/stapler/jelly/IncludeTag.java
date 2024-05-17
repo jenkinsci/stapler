@@ -46,7 +46,8 @@ public class IncludeTag extends TagSupport {
     public static final Logger LOGGER = Logger.getLogger(IncludeTag.class.getName());
 
     @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "TODO needs triage")
-    public static /* non-final for script console */ boolean SKIP_LOGGING_CLASS_SETTER = Boolean.getBoolean(IncludeTag.class.getName() + ".skipLoggingClassSetter");
+    public static /* non-final for script console */ boolean SKIP_LOGGING_CLASS_SETTER =
+            Boolean.getBoolean(IncludeTag.class.getName() + ".skipLoggingClassSetter");
 
     private Object it;
 
@@ -117,7 +118,7 @@ public class IncludeTag extends TagSupport {
 
     @Override
     public void doTag(XMLOutput output) throws JellyTagException {
-        if(page==null) {
+        if (page == null) {
             // this makes it convenient when the caller wants to gracefully the expression for @page
             // otherwise this results in http://pastie.org/601828
             if (optional) {
@@ -127,8 +128,9 @@ public class IncludeTag extends TagSupport {
             throw new JellyTagException("The page attribute is not specified");
         }
         Object it = this.it;
-        if(it==null)
+        if (it == null) {
             it = getContext().getVariable("it");
+        }
 
         MetaClass c = WebApp.getCurrent().getMetaClass(getScriptClass(it));
         Script script;
@@ -137,41 +139,43 @@ public class IncludeTag extends TagSupport {
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new JellyTagException("Error loading '"+page+"' for "+c.klass,e);
+            throw new JellyTagException("Error loading '" + page + "' for " + c.klass, e);
         }
 
-        if(script==null) {
-            if(optional) {
+        if (script == null) {
+            if (optional) {
                 invokeBody(output);
                 return;
             }
-            throw new JellyTagException("No page found '"+page+"' for "+c.klass);
+            throw new JellyTagException("No page found '" + page + "' for " + c.klass);
         }
 
         context = new JellyContext(getContext());
         context.setExportLibraries(false);
-        if(this.it!=null)
-            context.setVariable("it",this.it);
-        context.setVariable("from", from!=null?from:it);
+        if (this.it != null) {
+            context.setVariable("it", this.it);
+        }
+        context.setVariable("from", from != null ? from : it);
 
         ClassLoader old = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(c.classLoader.loader);
         try {
             String source = null;
-            if(JellyFacet.TRACE) {
+            if (JellyFacet.TRACE) {
                 if (script instanceof TagScript) {
                     TagScript ts = (TagScript) script;
                     source = ts.getFileName();
-                } else
-                    source = page+" (exact source location unknown)";
+                } else {
+                    source = page + " (exact source location unknown)";
+                }
 
-                String msg = "\nBegin " + source+'\n';
-                output.comment(msg.toCharArray(),0,msg.length());
+                String msg = "\nBegin " + source + '\n';
+                output.comment(msg.toCharArray(), 0, msg.length());
             }
-            script.run(context,output);
-            if(source!=null) {
-                String msg = "\nEnd " + source+'\n';
-                output.comment(msg.toCharArray(),0,msg.length());
+            script.run(context, output);
+            if (source != null) {
+                String msg = "\nEnd " + source + '\n';
+                output.comment(msg.toCharArray(), 0, msg.length());
             }
         } catch (SAXException e) {
             throw new JellyTagException(e);
@@ -181,8 +185,13 @@ public class IncludeTag extends TagSupport {
     }
 
     private Class getScriptClass(Object it) {
-        if (clazz != null) return clazz;
-        if (from != null) return from.getClass();
-        else return it.getClass();
+        if (clazz != null) {
+            return clazz;
+        }
+        if (from != null) {
+            return from.getClass();
+        } else {
+            return it.getClass();
+        }
     }
 }

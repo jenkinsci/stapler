@@ -50,12 +50,12 @@ abstract class ClassLoaderValue<T> {
             x = cl.loadClass(X.class.getName());
             // OK, X is visible to cl, can use trick; note that x != X.class when using PowerMock
         } catch (ClassNotFoundException e) {
-            // fallback, no caching; could use WeakHashMap though typically values would strongly hold keys so both could leak
+            // fallback, no caching; could use WeakHashMap though typically values would strongly hold keys so both
+            // could leak
             return computeValue(cl);
         }
         Class<?> type = Proxy.getProxyClass(cl, x);
         assert type.getClassLoader() == cl;
         return storage.get(type);
     }
-
 }

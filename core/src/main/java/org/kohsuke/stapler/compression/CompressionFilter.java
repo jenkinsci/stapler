@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Pimps up {@link HttpServletResponse} so that it understands "Content-Encoding: gzip" and compress the response.
- * 
+ *
  * <p>
  * When exceptions are processed within web applications, different unrelated parts of the webapp can end up calling
  * {@link HttpServletResponse#getOutputStream()}. This fundamentally doesn't work with the notion that the application
@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
  * Another place this break-down can be seen is when a servlet throws an exception that the container handles.
  * It tries to render an error page, but of course it wouldn't know that "Content-Encoding:gzip" is set, so it
  * will fail to write in the correct format.
- * 
+ *
  * <p>
  * The only way to properly fix this is to make {@link HttpServletResponse} smart enough that it returns
  * the compression-transparent stream from {@link HttpServletResponse#getOutputStream()} (and it would also
@@ -42,22 +42,25 @@ public class CompressionFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest _req, ServletResponse _rsp, FilterChain filterChain) throws IOException, ServletException {
+    public void doFilter(ServletRequest _req, ServletResponse _rsp, FilterChain filterChain)
+            throws IOException, ServletException {
         Object old1 = swapAttribute(_req, CompressionFilter.class, true);
 
         CompressionServletResponse rsp = new CompressionServletResponse((HttpServletResponse) _rsp);
-        Object old2 = swapAttribute(_req,CompressionServletResponse.class,rsp);
+        Object old2 = swapAttribute(_req, CompressionServletResponse.class, rsp);
 
         try {
             filterChain.doFilter(_req, rsp);
         } catch (IOException | Error | RuntimeException | ServletException e) {
-            if (DISABLED)   throw e;
-            reportException(e,(HttpServletRequest)_req,rsp);
+            if (DISABLED) {
+                throw e;
+            }
+            reportException(e, (HttpServletRequest) _req, rsp);
         } finally {
             rsp.close();
 
-            _req.setAttribute(CompressionFilter.class.getName(),old1);
-            _req.setAttribute(CompressionServletResponse.class.getName(),old2);
+            _req.setAttribute(CompressionFilter.class.getName(), old1);
+            _req.setAttribute(CompressionServletResponse.class.getName(), old2);
         }
     }
 
@@ -67,21 +70,24 @@ public class CompressionFilter implements Filter {
         return old;
     }
 
-    private void reportException(Throwable e, HttpServletRequest req, HttpServletResponse rsp) throws IOException, ServletException {
+    private void reportException(Throwable e, HttpServletRequest req, HttpServletResponse rsp)
+            throws IOException, ServletException {
         getUncaughtExceptionHandler(context).reportException(e, context, req, rsp);
     }
 
     @Override
-    public void destroy() {
-    }
+    public void destroy() {}
 
     public static void setUncaughtExceptionHandler(ServletContext context, UncaughtExceptionHandler handler) {
-        context.setAttribute(UncaughtExceptionHandler.class.getName(),handler);
+        context.setAttribute(UncaughtExceptionHandler.class.getName(), handler);
     }
 
     public static UncaughtExceptionHandler getUncaughtExceptionHandler(ServletContext context) {
-        UncaughtExceptionHandler h = (UncaughtExceptionHandler) context.getAttribute(UncaughtExceptionHandler.class.getName());
-        if (h==null)    h=UncaughtExceptionHandler.DEFAULT;
+        UncaughtExceptionHandler h =
+                (UncaughtExceptionHandler) context.getAttribute(UncaughtExceptionHandler.class.getName());
+        if (h == null) {
+            h = UncaughtExceptionHandler.DEFAULT;
+        }
         return h;
     }
 
@@ -89,7 +95,7 @@ public class CompressionFilter implements Filter {
      * Is this request already wrapped into {@link CompressionFilter}?
      */
     public static boolean has(ServletRequest req) {
-        return req.getAttribute(CompressionServletResponse.class.getName())!=null;
+        return req.getAttribute(CompressionServletResponse.class.getName()) != null;
     }
 
     /**
@@ -98,8 +104,9 @@ public class CompressionFilter implements Filter {
      * a stream that automatically handles compression.
      */
     public static boolean activate(ServletRequest req) throws IOException {
-        CompressionServletResponse rsp = (CompressionServletResponse) req.getAttribute(CompressionServletResponse.class.getName());
-        if (rsp!=null) {
+        CompressionServletResponse rsp =
+                (CompressionServletResponse) req.getAttribute(CompressionServletResponse.class.getName());
+        if (rsp != null) {
             rsp.activate();
             return true;
         } else {
@@ -113,5 +120,5 @@ public class CompressionFilter implements Filter {
      * Rather use {@code DefaultScriptInvoker.COMPRESS_BY_DEFAULT}.
      */
     @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
-    public static boolean DISABLED = Boolean.getBoolean(CompressionFilter.class.getName()+".disabled");
+    public static boolean DISABLED = Boolean.getBoolean(CompressionFilter.class.getName() + ".disabled");
 }

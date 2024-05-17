@@ -45,7 +45,7 @@ public class JellyClassLoaderTearOff {
     /**
      * See {@link JellyClassTearOff#scripts} for why we use {@link WeakReference} here.
      */
-    private volatile WeakReference<ConcurrentMap<String,TagLibrary>> taglibs;
+    private volatile WeakReference<ConcurrentMap<String, TagLibrary>> taglibs;
 
     static ExpressionFactory EXPRESSION_FACTORY = new JexlExpressionFactory();
 
@@ -54,52 +54,62 @@ public class JellyClassLoaderTearOff {
     }
 
     public TagLibrary getTagLibrary(String nsUri) {
-        ConcurrentMap<String,TagLibrary> m=null;
-        if(taglibs!=null)
+        ConcurrentMap<String, TagLibrary> m = null;
+        if (taglibs != null) {
             m = taglibs.get();
-        if(m==null) {
+        }
+        if (m == null) {
             m = new ConcurrentHashMap<>();
             taglibs = new WeakReference<>(m);
         }
         TagLibrary tl = m.computeIfAbsent(nsUri, key -> {
-                    if(owner.parent!=null) {
-                        // parent first
-                        TagLibrary taglib = owner.parent.loadTearOff(JellyClassLoaderTearOff.class).getTagLibrary(nsUri);
-                        if(taglib!=null)    return taglib;
-                    }
+            if (owner.parent != null) {
+                // parent first
+                TagLibrary taglib =
+                        owner.parent.loadTearOff(JellyClassLoaderTearOff.class).getTagLibrary(nsUri);
+                if (taglib != null) {
+                    return taglib;
+                }
+            }
 
-                    String taglibBasePath = trimHeadSlash(nsUri);
-                    try {
-                        URL res = owner.loader.getResource(taglibBasePath +"/taglib");
-                        if(res!=null)
-                        return new CustomTagLibrary(createContext(),owner.loader,nsUri,taglibBasePath);
-                    } catch (IllegalArgumentException e) {
-                        // if taglibBasePath doesn't even look like an URL, getResource throws IllegalArgumentException.
-                        // see http://old.nabble.com/bug-1.331-to26145963.html
-                    }
+            String taglibBasePath = trimHeadSlash(nsUri);
+            try {
+                URL res = owner.loader.getResource(taglibBasePath + "/taglib");
+                if (res != null) {
+                    return new CustomTagLibrary(createContext(), owner.loader, nsUri, taglibBasePath);
+                }
+            } catch (IllegalArgumentException e) {
+                // if taglibBasePath doesn't even look like an URL, getResource throws IllegalArgumentException.
+                // see http://old.nabble.com/bug-1.331-to26145963.html
+            }
 
-                    // support URIs like "this:it" or "this:instance". Note that "this" URI itself is registered elsewhere
-                    if (nsUri.startsWith("this:"))
-                        try {
-                            return new ThisTagLibrary(EXPRESSION_FACTORY.createExpression(nsUri.substring(5)));
-                        } catch (JellyException e) {
-                            throw new IllegalArgumentException("Illegal expression in the URI: "+nsUri,e);
-                        }
+            // support URIs like "this:it" or "this:instance". Note that "this" URI itself is registered elsewhere
+            if (nsUri.startsWith("this:")) {
+                try {
+                    return new ThisTagLibrary(EXPRESSION_FACTORY.createExpression(nsUri.substring(5)));
+                } catch (JellyException e) {
+                    throw new IllegalArgumentException("Illegal expression in the URI: " + nsUri, e);
+                }
+            }
 
-                    if (nsUri.equals("jelly:stapler"))
-                        return new StaplerTagLibrary();
+            if (nsUri.equals("jelly:stapler")) {
+                return new StaplerTagLibrary();
+            }
 
-                    return NO_SUCH_TAGLIBRARY;    // "not found" is also cached.
+            return NO_SUCH_TAGLIBRARY; // "not found" is also cached.
         });
-        if (tl==NO_SUCH_TAGLIBRARY)     return null;
+        if (tl == NO_SUCH_TAGLIBRARY) {
+            return null;
+        }
         return tl;
     }
 
     private String trimHeadSlash(String nsUri) {
-        if(nsUri.startsWith("/"))
+        if (nsUri.startsWith("/")) {
             return nsUri.substring(1);
-        else
+        } else {
             return nsUri;
+        }
     }
 
     /**
@@ -122,5 +132,4 @@ public class JellyClassLoaderTearOff {
      * Place holder in the cache to indicate "no such taglib"
      */
     private static final TagLibrary NO_SUCH_TAGLIBRARY = new TagLibrary() {};
-
 }

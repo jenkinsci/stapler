@@ -21,7 +21,7 @@ import org.zeroturnaround.javarebel.ReloaderFactory;
 @MetaInfServices
 public class JRebelFacet extends Facet {
     // Not obviously convertible to ClassValue.
-    private Map<Class,MetaClass> metaClasses;
+    private Map<Class, MetaClass> metaClasses;
 
     public class ReloaderHook implements Runnable {
         @Override
@@ -32,7 +32,7 @@ public class JRebelFacet extends Facet {
                     synchronized (metaClasses) {
                         for (Entry<Class, MetaClass> e : metaClasses.entrySet()) {
                             if (klass.isAssignableFrom(e.getKey())) {
-                                LOGGER.fine("Reloaded Stapler MetaClass for "+e.getKey());
+                                LOGGER.fine("Reloaded Stapler MetaClass for " + e.getKey());
                                 e.getValue().buildDispatchers();
                             }
                         }
@@ -52,20 +52,20 @@ public class JRebelFacet extends Facet {
 
     public JRebelFacet() {
         try {
-            Runnable r = (Runnable)Class.forName(JRebelFacet.class.getName()+"$ReloaderHook")
-                    .getConstructor(JRebelFacet.class).newInstance(this);
+            Runnable r = (Runnable) Class.forName(JRebelFacet.class.getName() + "$ReloaderHook")
+                    .getConstructor(JRebelFacet.class)
+                    .newInstance(this);
             r.run();
         } catch (Throwable e) {
             LOGGER.log(Level.FINE, "JRebel support failed to load", e);
         }
     }
 
-
     @Override
     public void buildViewDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
         if (metaClasses != null && owner.klass.clazz instanceof Class) {
             synchronized (metaClasses) {
-                metaClasses.put((Class)owner.klass.clazz,owner);
+                metaClasses.put((Class) owner.klass.clazz, owner);
             }
         }
     }

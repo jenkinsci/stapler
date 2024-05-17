@@ -35,7 +35,8 @@ import org.kohsuke.stapler.StaplerRequest;
 public @interface SubmittedForm {
     class Handler extends AnnotationHandler {
         @Override
-        public Object parse(StaplerRequest request, Annotation a, Class type, String parameterName) throws ServletException {
+        public Object parse(StaplerRequest request, Annotation a, Class type, String parameterName)
+                throws ServletException {
             return request.getSubmittedForm();
         }
     }

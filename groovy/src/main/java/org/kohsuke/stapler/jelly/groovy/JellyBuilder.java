@@ -106,7 +106,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
      */
     private final AttributesImpl attributes = new AttributesImpl();
 
-    public JellyBuilder(JellyContext context,XMLOutput output) {
+    public JellyBuilder(JellyContext context, XMLOutput output) {
         this.context = context;
         this.output = output;
         this.request = Stapler.getCurrentRequest();
@@ -117,18 +117,20 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * This is used to allow QName to be used for the invocation.
      */
     public Namespace namespace(String nsUri, String prefix) {
-        return new Namespace(this,nsUri,prefix);
+        return new Namespace(this, nsUri, prefix);
     }
 
     public Namespace namespace(String nsUri) {
-        return namespace(nsUri,null);
+        return namespace(nsUri, null);
     }
 
     public <T extends TypedTagLibrary> T namespace(Class<T> type) {
         TagLibraryUri a = type.getAnnotation(TagLibraryUri.class);
-        if (a==null)    throw new IllegalArgumentException(type+" doesn't have @TagLibraryUri annotation");
+        if (a == null) {
+            throw new IllegalArgumentException(type + " doesn't have @TagLibraryUri annotation");
+        }
 
-        return namespace(a.value(),null).createInvoker(type);
+        return namespace(a.value(), null).createInvoker(type);
     }
 
     public XMLOutput getOutput() {
@@ -143,40 +145,42 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * Includes another view.
      */
     public void include(Object it, String view) throws IOException, JellyException {
-        _include(it,request.getWebApp().getKlass(it),view);
+        _include(it, request.getWebApp().getKlass(it), view);
     }
 
     /**
      * Includes another view.
      */
     public void include(Class clazz, String view) throws IOException, JellyException {
-        _include(null,Klass.java(clazz),view);
+        _include(null, Klass.java(clazz), view);
     }
 
     private void _include(Object it, Klass clazz, String view) throws IOException, JellyException {
         JellyClassTearOff t = request.getWebApp().getMetaClass(clazz).loadTearOff(JellyClassTearOff.class);
         Script s = t.findScript(view);
-        if(s==null)
-            throw new IllegalArgumentException("No such view: "+view+" for "+clazz);
+        if (s == null) {
+            throw new IllegalArgumentException("No such view: " + view + " for " + clazz);
+        }
 
         JellyContext context = new JellyContext(getContext());
-        if(it!=null)
-            context.setVariable("it",it);
+        if (it != null) {
+            context.setVariable("it", it);
+        }
         context.setVariable("from", it);
 
         ClassLoader old = Thread.currentThread().getContextClassLoader();
-        if (clazz.clazz instanceof Class)
-            Thread.currentThread().setContextClassLoader(((Class)clazz.clazz).getClassLoader());
+        if (clazz.clazz instanceof Class) {
+            Thread.currentThread().setContextClassLoader(((Class) clazz.clazz).getClassLoader());
+        }
         try {
-            s.run(context,output);
+            s.run(context, output);
         } finally {
             Thread.currentThread().setContextClassLoader(old);
         }
     }
 
-
     public Object methodMissing(String name, Object args) {
-        doInvokeMethod(new QName("",name), args);
+        doInvokeMethod(new QName("", name), args);
         return null;
     }
 
@@ -189,72 +193,72 @@ public final class JellyBuilder extends GroovyObjectSupport {
 
         // figure out what parameters are what
         switch (list.size()) {
-        case 0:
-            break;
-        case 1: {
-            Object object = list.get(0);
-            if (object instanceof Map) {
-                attributes = (Map) object;
-            } else if (object instanceof Closure) {
-                closure = (Closure) object;
+            case 0:
                 break;
-            } else {
-                if (object!=null)
-                    innerText = object.toString();
-            }
-            break;
-        }
-        case 2: {
-            Object object1 = list.get(0);
-            Object object2 = list.get(1);
-            if (object1 instanceof Map) {
-                attributes = (Map) object1;
-                if (object2 instanceof Closure) {
-                    closure = (Closure) object2;
-                } else
-                if(object2!=null) {
-                    innerText = object2.toString();
+            case 1: {
+                Object object = list.get(0);
+                if (object instanceof Map) {
+                    attributes = (Map) object;
+                } else if (object instanceof Closure) {
+                    closure = (Closure) object;
+                    break;
+                } else {
+                    if (object != null) {
+                        innerText = object.toString();
+                    }
                 }
-            } else {
-                innerText = object1.toString();
-                if (object2 instanceof Closure) {
-                    closure = (Closure) object2;
-                } else if (object2 instanceof Map) {
-                    attributes = (Map) object2;
+                break;
+            }
+            case 2: {
+                Object object1 = list.get(0);
+                Object object2 = list.get(1);
+                if (object1 instanceof Map) {
+                    attributes = (Map) object1;
+                    if (object2 instanceof Closure) {
+                        closure = (Closure) object2;
+                    } else if (object2 != null) {
+                        innerText = object2.toString();
+                    }
+                } else {
+                    innerText = object1.toString();
+                    if (object2 instanceof Closure) {
+                        closure = (Closure) object2;
+                    } else if (object2 instanceof Map) {
+                        attributes = (Map) object2;
+                    } else {
+                        throw new MissingMethodException(name.toString(), getClass(), list.toArray());
+                    }
+                }
+                break;
+            }
+            case 3: {
+                Object arg0 = list.get(0);
+                Object arg1 = list.get(1);
+                Object arg2 = list.get(2);
+                if (arg0 instanceof Map && arg2 instanceof Closure) {
+                    closure = (Closure) arg2;
+                    attributes = (Map) arg0;
+                    innerText = arg1.toString();
+                } else if (arg1 instanceof Map && arg2 instanceof Closure) {
+                    closure = (Closure) arg2;
+                    attributes = (Map) arg1;
+                    innerText = arg0.toString();
                 } else {
                     throw new MissingMethodException(name.toString(), getClass(), list.toArray());
                 }
+                break;
             }
-            break;
-        }
-        case 3: {
-            Object arg0 = list.get(0);
-            Object arg1 = list.get(1);
-            Object arg2 = list.get(2);
-            if (arg0 instanceof Map && arg2 instanceof Closure) {
-                closure = (Closure) arg2;
-                attributes = (Map) arg0;
-                innerText = arg1.toString();
-            } else if (arg1 instanceof Map && arg2 instanceof Closure) {
-                closure = (Closure) arg2;
-                attributes = (Map) arg1;
-                innerText = arg0.toString();
-            } else {
+            default:
                 throw new MissingMethodException(name.toString(), getClass(), list.toArray());
-            }
-            break;
-        }
-        default:
-            throw new MissingMethodException(name.toString(), getClass(), list.toArray());
         }
 
-        if (isTag(name)) {// bridge to other Jelly tags
+        if (isTag(name)) { // bridge to other Jelly tags
             try {
-               TagScript tagScript = createTagScript(name, attributes);
-                if (tagScript!=null) {
+                TagScript tagScript = createTagScript(name, attributes);
+                if (tagScript != null) {
                     Script body = NULL_SCRIPT;
 
-                    if(closure!=null) {
+                    if (closure != null) {
                         final Closure theClosure = closure;
                         body = new Script() {
                             @Override
@@ -275,38 +279,41 @@ public final class JellyBuilder extends GroovyObjectSupport {
                                 }
                             }
                         };
-                    } else
-                    if(innerText!=null)
+                    } else if (innerText != null) {
                         body = new TextScript(innerText);
+                    }
 
                     tagScript.setTagBody(body);
-                    tagScript.run(context,output);
+                    tagScript.run(context, output);
                     return;
                 }
-            } catch(JellyException e) {
+            } catch (JellyException e) {
                 throw new RuntimeException(e);
             }
         }
 
         // static tag
         this.attributes.clear();
-        for (Entry e : ((Map<?,?>)attributes).entrySet()) {
+        for (Entry e : ((Map<?, ?>) attributes).entrySet()) {
             Object v = e.getValue();
-            if(v==null) continue;
+            if (v == null) {
+                continue;
+            }
             String attName = e.getKey().toString();
-            this.attributes.addAttribute("",attName,attName,"CDATA", v.toString());
+            this.attributes.addAttribute("", attName, attName, "CDATA", v.toString());
         }
         try {
-            output.startElement(name.getNamespaceURI(),name.getLocalPart(),name.getQualifiedName(),this.attributes);
-            if(closure!=null) {
+            output.startElement(name.getNamespaceURI(), name.getLocalPart(), name.getQualifiedName(), this.attributes);
+            if (closure != null) {
                 closure.setDelegate(this);
                 closure.call();
             }
-            if(innerText!=null)
-            text(innerText);
-            output.endElement(name.getNamespaceURI(),name.getLocalPart(),name.getQualifiedName());
+            if (innerText != null) {
+                text(innerText);
+            }
+            output.endElement(name.getNamespaceURI(), name.getLocalPart(), name.getQualifiedName());
         } catch (SAXException e) {
-            throw new RuntimeException(e);  // what's the proper way to handle exceptions in Groovy?
+            throw new RuntimeException(e); // what's the proper way to handle exceptions in Groovy?
         }
     }
 
@@ -315,7 +322,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * a jelly tag that needs evaluation?
      */
     private boolean isTag(QName name) {
-        return name.getNamespaceURI().length()>0;
+        return name.getNamespaceURI().length() > 0;
     }
 
     /**
@@ -324,13 +331,15 @@ public final class JellyBuilder extends GroovyObjectSupport {
      */
     private TagScript createTagScript(QName n, Map<?, ?> attributes) throws JellyException {
         TagLibrary lib = context.getTagLibrary(n.getNamespaceURI());
-        if(lib!=null) {
+        if (lib != null) {
             String localName = n.getLocalPart();
 
-            TagScript tagScript = lib.createTagScript(localName, null/*this parameter appears to be unused.*/);
-            if (tagScript==null)    tagScript = lib.createTagScript(localName.replace('_','-'), null);
+            TagScript tagScript = lib.createTagScript(localName, null /*this parameter appears to be unused.*/);
+            if (tagScript == null) {
+                tagScript = lib.createTagScript(localName.replace('_', '-'), null);
+            }
 
-            if (tagScript!=null) {
+            if (tagScript != null) {
                 if (attributes != null) {
                     for (Entry e : attributes.entrySet()) {
                         Object v = e.getValue();
@@ -367,32 +376,35 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * limitations under the License.
      */
     private void configureTag(Tag tag, Map attributes) throws JellyException {
-        if ( tag instanceof DynaTag ) {
+        if (tag instanceof DynaTag) {
             DynaTag dynaTag = (DynaTag) tag;
 
             for (Object o : attributes.entrySet()) {
                 Entry entry = (Entry) o;
                 String name = (String) entry.getKey();
-                if(name.equals("xmlns"))    continue;   // we'll process this by ourselves
-
+                if (name.equals("xmlns")) {
+                    continue; // we'll process this by ourselves
+                }
 
                 Object value = getValue(entry, dynaTag.getAttributeType(name));
                 dynaTag.setAttribute(name, value);
             }
         } else {
             // treat the tag as a bean
-            DynaBean dynaBean = new ConvertingWrapDynaBean( tag );
+            DynaBean dynaBean = new ConvertingWrapDynaBean(tag);
             for (Object o : attributes.entrySet()) {
                 Entry entry = (Entry) o;
                 String name = (String) entry.getKey();
-                if(name.equals("xmlns"))    continue;   // we'll process this by ourselves
+                if (name.equals("xmlns")) {
+                    continue; // we'll process this by ourselves
+                }
 
                 DynaProperty property = dynaBean.getDynaClass().getDynaProperty(name);
                 if (property == null) {
                     throw new JellyException("This tag does not understand the '" + name + "' attribute");
                 }
 
-                dynaBean.set(name, getValue(entry,property.getType()));
+                dynaBean.set(name, getValue(entry, property.getType()));
             }
         }
     }
@@ -402,8 +414,9 @@ public final class JellyBuilder extends GroovyObjectSupport {
      */
     private Object getValue(Entry entry, Class type) {
         Object value = entry.getValue();
-        if (type== Expression.class)
+        if (type == Expression.class) {
             value = new ConstantExpression(entry.getValue());
+        }
         return value;
     }
 
@@ -411,12 +424,18 @@ public final class JellyBuilder extends GroovyObjectSupport {
         AttributesImpl atts = new AttributesImpl();
         for (Object o : attributes.entrySet()) {
             Entry e = (Entry) o;
-            if(e.getKey().toString().equals("xmlns"))   continue;   // we'll process them outside attributes
-            atts.addAttribute("", e.getKey().toString(), e.getKey().toString(), null, e.getValue().toString());
+            if (e.getKey().toString().equals("xmlns")) {
+                continue; // we'll process them outside attributes
+            }
+            atts.addAttribute(
+                    "",
+                    e.getKey().toString(),
+                    e.getKey().toString(),
+                    null,
+                    e.getValue().toString());
         }
         return atts;
     }
-
 
     JellyContext setContext(JellyContext newValue) {
         JellyContext old = context;
@@ -452,7 +471,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
      */
     public Element redirectToDom(Closure c) {
         SAXContentHandler sc = new SAXContentHandler();
-        with(new XMLOutput(sc),c);
+        with(new XMLOutput(sc), c);
         return sc.getDocument().getRootElement();
     }
 
@@ -467,8 +486,10 @@ public final class JellyBuilder extends GroovyObjectSupport {
         try {
             return super.getProperty(property);
         } catch (MissingPropertyException e) {
-            Object r = context.getVariableWithDefaultValue(property,MISSING);
-            if (r==MISSING) throw e;
+            Object r = context.getVariableWithDefaultValue(property, MISSING);
+            if (r == MISSING) {
+                throw e;
+            }
             return r;
         }
     }
@@ -477,9 +498,9 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * Sets the value to {@link JellyContext} (typically as a pre-cursor to calling into Jelly tags.)
      */
     public void set(String var, Object value) {
-        context.setVariable(var,value);
+        context.setVariable(var, value);
     }
-    
+
     /**
      * Gets the "it" object.
      *
@@ -497,11 +518,12 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * Any HTML unsafe characters in the string representation of the given object is
      * properly escaped.
      *
-     * @see #raw(Object) 
+     * @see #raw(Object)
      */
     public void text(Object o) throws SAXException {
-        if (o!=null)
+        if (o != null) {
             output.write(escape(o.toString()));
+        }
     }
 
     /**
@@ -514,24 +536,24 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * @see #text(Object)
      */
     public void raw(Object o) throws SAXException {
-        if (o!=null)
+        if (o != null) {
             output.write(o.toString());
+        }
     }
 
     private String escape(String v) {
-        StringBuilder buf = new StringBuilder(v.length()+64);
-        for( int i=0; i<v.length(); i++ ) {
+        StringBuilder buf = new StringBuilder(v.length() + 64);
+        for (int i = 0; i < v.length(); i++) {
             char ch = v.charAt(i);
-            if(ch=='<')
+            if (ch == '<') {
                 buf.append("&lt;");
-            else
-            if(ch=='>')
+            } else if (ch == '>') {
                 buf.append("&gt;");
-            else
-            if(ch=='&')
+            } else if (ch == '&') {
                 buf.append("&amp;");
-            else
+            } else {
                 buf.append(ch);
+            }
         }
         return buf.toString();
     }
@@ -546,8 +568,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
         }
 
         @Override
-        public void run(JellyContext context, XMLOutput output) {
-        }
+        public void run(JellyContext context, XMLOutput output) {}
     };
 
     /**
@@ -574,7 +595,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
     public void adjunct(String name) throws IOException, SAXException {
         try {
             AdjunctsInPage aip = AdjunctsInPage.get();
-            aip.generate(output,name);
+            aip.generate(output, name);
         } catch (NoSuchAdjunctException e) {
             // that's OK.
         }
@@ -587,30 +608,31 @@ public final class JellyBuilder extends GroovyObjectSupport {
      *      If this is a subtype of {@link TagLibrary}, then that tag library is loaded and bound to the
      *      {@link Namespace} object, which you can later use to call tags.
      *      Otherwise, t has to have 'taglib' file in the resource and sibling "*.jelly" files will be treated
-     *      as tag files. 
+     *      as tag files.
      */
     public Namespace jelly(Class t) {
         String n = t.getName();
 
-        if(TagLibrary.class.isAssignableFrom(t)) {
+        if (TagLibrary.class.isAssignableFrom(t)) {
             // if the given class is a tag library itself, just record it
-            context.registerTagLibrary(n,n);
+            context.registerTagLibrary(n, n);
         } else {
             String path = n.replace('.', '/');
-            URL res = t.getClassLoader().getResource(path+"/taglib");
-            if(res!=null) {
+            URL res = t.getClassLoader().getResource(path + "/taglib");
+            if (res != null) {
                 // this class itself is not a tag library, but it contains Jelly side files that are tag files.
                 // (some of them might be views, but some of them are tag files, anyway.
-                JellyContext parseContext = MetaClassLoader.get(t.getClassLoader()).loadTearOff(JellyClassLoaderTearOff.class).createContext();
+                JellyContext parseContext = MetaClassLoader.get(t.getClassLoader())
+                        .loadTearOff(JellyClassLoaderTearOff.class)
+                        .createContext();
 
-                context.registerTagLibrary(n,
-                    new CustomTagLibrary(parseContext, t.getClassLoader(), n, path));
+                context.registerTagLibrary(n, new CustomTagLibrary(parseContext, t.getClassLoader(), n, path));
             } else {
-                throw new IllegalArgumentException("Cannot find taglib from "+t);
+                throw new IllegalArgumentException("Cannot find taglib from " + t);
             }
         }
 
-        return new Namespace(this,n,"-"); // doesn't matter what the prefix is, since they are known to be taglibs
+        return new Namespace(this, n, "-"); // doesn't matter what the prefix is, since they are known to be taglibs
     }
 
     public ServletContext getServletContext() {
@@ -622,8 +644,9 @@ public final class JellyBuilder extends GroovyObjectSupport {
     }
 
     public StaplerResponse getResponse() {
-        if(response==null)
+        if (response == null) {
             response = Stapler.getCurrentResponse();
+        }
         return response;
     }
 
@@ -637,8 +660,9 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * @see StaplerRequest#getContextPath()
      */
     public String getRootURL() {
-        if(rootURL==null)
+        if (rootURL == null) {
             rootURL = getRequest().getContextPath();
+        }
         return rootURL;
     }
 
@@ -646,8 +670,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * Generates an {@code <IMG>} tag to the resource.
      */
     public void img(Object base, String localName) throws SAXException {
-        output.write(
-            "<IMG src='"+res(base,localName)+"'>");
+        output.write("<IMG src='" + res(base, localName) + "'>");
     }
 
     /**
@@ -661,11 +684,12 @@ public final class JellyBuilder extends GroovyObjectSupport {
      */
     public String res(Object base, String localName) {
         Class c;
-        if (base instanceof Class)
+        if (base instanceof Class) {
             c = (Class) base;
-        else
+        } else {
             c = base.getClass();
-        return adjunctManager.rootURL+'/'+c.getName().replace('.','/')+'/'+localName;
+        }
+        return adjunctManager.rootURL + '/' + c.getName().replace('.', '/') + '/' + localName;
     }
 
     private static final Object MISSING = new Object();

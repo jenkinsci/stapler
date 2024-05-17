@@ -38,15 +38,15 @@ public class NestedJsonTest extends TestCase {
 
         assertNotNull(o);
         assertTrue(o.bar instanceof BarImpl);
-        assertEquals(123, ((BarImpl)o.bar).i);
+        assertEquals(123, ((BarImpl) o.bar).i);
     }
 
     public void testInstanceFill() throws Exception {
         Foo o = new Foo(null);
         createRequest().bindJSON(o, createDataSet());
-        
+
         assertTrue(o.bar instanceof BarImpl);
-        assertEquals(123, ((BarImpl)o.bar).i);
+        assertEquals(123, ((BarImpl) o.bar).i);
     }
 
     public void testCreateList() throws Exception {
@@ -55,7 +55,7 @@ public class NestedJsonTest extends TestCase {
         assertNotNull(list);
         assertEquals(1, list.size());
         assertTrue(list.get(0).bar instanceof BarImpl);
-        assertEquals(123, ((BarImpl)list.get(0).bar).i);
+        assertEquals(123, ((BarImpl) list.get(0).bar).i);
 
         // Longer list
         JSONArray data = new JSONArray();
@@ -66,18 +66,18 @@ public class NestedJsonTest extends TestCase {
         list = createRequest().bindJSONToList(Foo.class, data);
         assertNotNull(list);
         assertEquals(3, list.size());
-        assertEquals(123, ((BarImpl)list.get(2).bar).i);
+        assertEquals(123, ((BarImpl) list.get(2).bar).i);
     }
 
     private RequestImpl createRequest() throws Exception {
-        return new RequestImpl(createStapler(), new MockRequest(), Collections.EMPTY_LIST,null);
+        return new RequestImpl(createStapler(), new MockRequest(), Collections.EMPTY_LIST, null);
     }
 
     private JSONObject createDataSet() {
         JSONObject bar = new JSONObject();
-        bar.put("i",123);
+        bar.put("i", 123);
         JSONObject foo = new JSONObject();
-        foo.put("bar",bar);
+        foo.put("bar", bar);
         foo.getJSONObject("bar").put("$class", BarImpl.class.getName());
 
         return foo;

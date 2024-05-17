@@ -74,7 +74,6 @@ public class RequestImplTest {
         public List<String> getChoices() {
             return choices;
         }
-
     }
 
     @Issue("JENKINS-61438")
@@ -103,15 +102,18 @@ public class RequestImplTest {
             public String getContentType() {
                 return "multipart/form-data; boundary=mpboundary";
             }
+
             @Override
             public String getCharacterEncoding() {
                 return "UTF-8";
             }
+
             @Override
             public String getHeader(String name) {
                 // FILEUPLOAD-195/FILEUPLOAD-228: ignore FileUploadBase.CONTENT_LENGTH
                 return null;
             }
+
             @Override
             public int getContentLength() {
                 return buf.length;
@@ -129,50 +131,54 @@ public class RequestImplTest {
                     public int read() throws IOException {
                         return is.read();
                     }
+
                     @Override
                     public int read(byte[] b) throws IOException {
                         return is.read(b);
                     }
+
                     @Override
                     public int read(byte[] b, int off, int len) throws IOException {
                         return is.read(b, off, len);
                     }
+
                     @Override
                     public boolean isFinished() {
                         return is.available() != 0;
                     }
+
                     @Override
                     public boolean isReady() {
                         return true;
                     }
+
                     @Override
                     public void setReadListener(ReadListener readListener) {
                         // ignored
                     }
-                    
                 };
             }
         };
-        
+
         RequestImpl request = new RequestImpl(stapler, mockRequest, Collections.emptyList(), null);
 
         // Check that we can get the Form Fields. See https://github.com/jenkinsci/stapler/issues/52
         Assert.assertEquals("text1_val", request.getParameter("text1"));
         Assert.assertEquals("text2_val", request.getParameter("text2"));
-        
+
         // Check that we can get the file
         FileItem fileItem = request.getFileItem2("pomFile");
         Assert.assertNotNull(fileItem);
-        
+
         // Check getParameterValues
         Assert.assertEquals("text1_val", request.getParameterValues("text1")[0]);
-        
+
         // Check getParameterNames
         Assert.assertTrue(Collections.list(request.getParameterNames()).contains("p1"));
         Assert.assertTrue(Collections.list(request.getParameterNames()).contains("text1"));
-        
+
         // Check getParameterMap
-        Assert.assertTrue(request.getParameterMap().containsKey("text1"));        
+        Assert.assertTrue(request.getParameterMap().containsKey("text1"));
     }
 
     private byte[] generateMultipartData() throws IOException {

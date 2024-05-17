@@ -10,15 +10,15 @@ import java.io.Writer;
  */
 public abstract class GroovyServerPageScript extends StaplerClosureScript {
     private Writer out;
-    protected GroovyServerPageScript() {
-    }
+
+    protected GroovyServerPageScript() {}
 
     /**
      * {@link SimpleTemplateEngine} expects 'out' variable
      */
     public Writer getOut() {
-        if (out==null) {
-            out = ((JellyBuilder)getDelegate()).getOutput().asWriter();
+        if (out == null) {
+            out = ((JellyBuilder) getDelegate()).getOutput().asWriter();
         }
         return out;
     }

@@ -39,7 +39,9 @@ public class GroovyTagFileLoader extends JellyTagFileLoader {
     @Override
     public Script load(CustomTagLibrary taglib, String name, ClassLoader classLoader) throws JellyException {
         URL res = classLoader.getResource(taglib.basePath + '/' + name + ".groovy");
-        if(res==null)   return null;
+        if (res == null) {
+            return null;
+        }
 
         try {
             GroovyClassLoaderTearOff gcl = taglib.metaClassLoader.loadTearOff(GroovyClassLoaderTearOff.class);

@@ -44,9 +44,8 @@ public class HttpResponses {
         HttpResponseException handleError(int code, Throwable cause);
     }
 
-    public static abstract class HttpResponseException extends RuntimeException implements HttpResponse {
-        public HttpResponseException() {
-        }
+    public abstract static class HttpResponseException extends RuntimeException implements HttpResponse {
+        public HttpResponseException() {}
 
         public HttpResponseException(String message) {
             super(message);
@@ -76,7 +75,8 @@ public class HttpResponses {
     public static HttpResponseException status(final int code) {
         return new HttpResponseException() {
             @Override
-            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                    throws IOException, ServletException {
                 rsp.setStatus(code);
             }
         };
@@ -87,11 +87,11 @@ public class HttpResponses {
      * @see #errorWithoutStack
      */
     public static HttpResponseException error(int code, String errorMessage) {
-        return error(code,new Exception(errorMessage));
+        return error(code, new Exception(errorMessage));
     }
 
     public static HttpResponseException error(Throwable cause) {
-        return error(500,cause);
+        return error(500, cause);
     }
 
     public static HttpResponseException error(final int code, final Throwable cause) {
@@ -105,8 +105,11 @@ public class HttpResponses {
         if (responseException == null) {
             responseException = new HttpResponseException(cause) {
                 @Override
-                @SuppressFBWarnings(value = "INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE", justification = "Jenkins handles this issue differently or doesn't care about it")
-                public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                @SuppressFBWarnings(
+                        value = "INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE",
+                        justification = "Jenkins handles this issue differently or doesn't care about it")
+                public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                        throws IOException, ServletException {
                     rsp.setStatus(code);
 
                     rsp.setContentType("text/plain;charset=UTF-8");
@@ -127,14 +130,15 @@ public class HttpResponses {
     public static HttpResponseException errorWithoutStack(final int code, final String errorMessage) {
         return new HttpResponseException() {
             @Override
-            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                    throws IOException, ServletException {
                 rsp.sendError(code, errorMessage);
             }
         };
     }
 
     public static HttpResponseException redirectViaContextPath(String relative) {
-        return redirectViaContextPath(HttpServletResponse.SC_MOVED_TEMPORARILY,relative);
+        return redirectViaContextPath(HttpServletResponse.SC_MOVED_TEMPORARILY, relative);
     }
 
     /**
@@ -145,12 +149,15 @@ public class HttpResponses {
     public static HttpResponseException redirectViaContextPath(final int statusCode, final String relative) {
         return new HttpResponseException() {
             @Override
-            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                    throws IOException, ServletException {
                 StringBuilder sb = new StringBuilder(req.getContextPath());
-                if (!relative.startsWith("/"))  sb.append('/');
+                if (!relative.startsWith("/")) {
+                    sb.append('/');
+                }
                 sb.append(relative);
 
-                rsp.sendRedirect(statusCode,sb.toString());
+                rsp.sendRedirect(statusCode, sb.toString());
             }
         };
     }
@@ -164,7 +171,7 @@ public class HttpResponses {
     }
 
     public static HttpRedirect redirectTo(int statusCode, String url) {
-        return new HttpRedirect(statusCode,url);
+        return new HttpRedirect(statusCode, url);
     }
 
     /**
@@ -190,7 +197,8 @@ public class HttpResponses {
 
     private static final HttpResponseException FORWARD_TO_PREVIOUS_PAGE = new HttpResponseException() {
         @Override
-        public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+        public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                throws IOException, ServletException {
             rsp.forwardToPreviousPage(req);
         }
     };
@@ -200,7 +208,7 @@ public class HttpResponses {
      * Short for {@code staticResource(resource,0)}
      */
     public static HttpResponse staticResource(URL resource) {
-        return staticResource(resource,0);
+        return staticResource(resource, 0);
     }
 
     /**
@@ -219,8 +227,9 @@ public class HttpResponses {
     public static HttpResponse staticResource(final URL resource, final long expiration) {
         return new HttpResponse() {
             @Override
-            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
-                rsp.serveFile(req,resource,expiration);
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                    throws IOException, ServletException {
+                rsp.serveFile(req, resource, expiration);
             }
         };
     }
@@ -232,7 +241,8 @@ public class HttpResponses {
     public static HttpResponse html(final String literalHtml) {
         return new HttpResponse() {
             @Override
-            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                    throws IOException, ServletException {
                 rsp.setContentType("text/html;charset=UTF-8");
                 rsp.getWriter().println(literalHtml);
             }
@@ -245,7 +255,8 @@ public class HttpResponses {
     public static HttpResponse literalHtml(final String text) {
         return new HttpResponse() {
             @Override
-            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                    throws IOException, ServletException {
                 rsp.setContentType("text/html;charset=UTF-8");
                 PrintWriter pw = rsp.getWriter();
                 pw.print(text);
@@ -261,7 +272,8 @@ public class HttpResponses {
     public static HttpResponse plainText(final String plainText) {
         return new HttpResponse() {
             @Override
-            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                    throws IOException, ServletException {
                 rsp.setContentType("text/plain;charset=UTF-8");
                 rsp.getWriter().println(plainText);
             }
@@ -274,7 +286,8 @@ public class HttpResponses {
     public static HttpResponse text(final String text) {
         return new HttpResponse() {
             @Override
-            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                    throws IOException, ServletException {
                 rsp.setContentType("text/plain;charset=UTF-8");
                 PrintWriter pw = rsp.getWriter();
                 pw.print(text);
@@ -284,10 +297,10 @@ public class HttpResponses {
     }
 
     public static ForwardToView forwardToView(Object it, String view) {
-        return new ForwardToView(it,view);
+        return new ForwardToView(it, view);
     }
 
     public static ForwardToView forwardToView(Class clazz, String view) {
-        return new ForwardToView(clazz,view);
+        return new ForwardToView(clazz, view);
     }
 }

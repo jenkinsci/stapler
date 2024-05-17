@@ -45,18 +45,17 @@ public class ByteBuffer extends OutputStream {
      */
     private int size = 0;
 
-
     @Override
     public synchronized void write(byte[] b, int off, int len) throws IOException {
         ensureCapacity(len);
-        System.arraycopy(b,off,buf,size,len);
-        size+=len;
+        System.arraycopy(b, off, buf, size, len);
+        size += len;
     }
 
     @Override
     public synchronized void write(int b) throws IOException {
         ensureCapacity(1);
-        buf[size++] = (byte)b;
+        buf[size++] = (byte) b;
     }
 
     public synchronized long length() {
@@ -64,25 +63,26 @@ public class ByteBuffer extends OutputStream {
     }
 
     private void ensureCapacity(int len) {
-        if(buf.length-size>len)
+        if (buf.length - size > len) {
             return;
+        }
 
-        byte[] n = new byte[Math.max(buf.length*2, size+len)];
-        System.arraycopy(buf,0,n,0,size);
+        byte[] n = new byte[Math.max(buf.length * 2, size + len)];
+        System.arraycopy(buf, 0, n, 0, size);
         this.buf = n;
     }
 
     @Override
     @SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "Legacy behavior.")
     public synchronized String toString() {
-        return new String(buf,0,size);
+        return new String(buf, 0, size);
     }
 
     /**
      * Writes the contents of this buffer to another OutputStream.
      */
     public synchronized void writeTo(OutputStream os) throws IOException {
-        os.write(buf,0,size);
+        os.write(buf, 0, size);
     }
 
     /**
@@ -91,40 +91,43 @@ public class ByteBuffer extends OutputStream {
     public InputStream newInputStream() {
         return new InputStream() {
             private int pos = 0;
+
             @Override
             public int read() throws IOException {
-                synchronized(ByteBuffer.this) {
-                    if(pos>=size)   return -1;
+                synchronized (ByteBuffer.this) {
+                    if (pos >= size) {
+                        return -1;
+                    }
                     return buf[pos++];
                 }
             }
 
             @Override
             public int read(byte[] b, int off, int len) throws IOException {
-                synchronized(ByteBuffer.this) {
-                    if(size==pos)
+                synchronized (ByteBuffer.this) {
+                    if (size == pos) {
                         return -1;
+                    }
 
-                    int sz = Math.min(len,size-pos);
-                    System.arraycopy(buf,pos,b,off,sz);
-                    pos+=sz;
+                    int sz = Math.min(len, size - pos);
+                    System.arraycopy(buf, pos, b, off, sz);
+                    pos += sz;
                     return sz;
                 }
             }
 
-
             @Override
             public int available() throws IOException {
-                synchronized(ByteBuffer.this) {
-                    return size-pos;
+                synchronized (ByteBuffer.this) {
+                    return size - pos;
                 }
             }
 
             @Override
             public long skip(long n) throws IOException {
-                synchronized(ByteBuffer.this) {
-                    int diff = (int) Math.min(n,size-pos);
-                    pos+=diff;
+                synchronized (ByteBuffer.this) {
+                    int diff = (int) Math.min(n, size - pos);
+                    pos += diff;
                     return diff;
                 }
             }

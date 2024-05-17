@@ -20,7 +20,7 @@ import org.kohsuke.stapler.test.JettyTestCase;
 public class JavaScriptProxyTest extends JettyTestCase {
     private String anonymousValue;
     private Object anonymous = new MyObject();
-    
+
     /**
      * Exports an object and see if it can be reached.
      */
@@ -28,8 +28,8 @@ public class JavaScriptProxyTest extends JettyTestCase {
         final String[] msg = new String[1];
 
         // for interactive debugging
-//        System.out.println(url);
-//        System.in.read();
+        //        System.out.println(url);
+        //        System.in.read();
 
         WebClient wc = createWebClient();
         wc.setAlertHandler(new AlertHandler() {
@@ -43,14 +43,14 @@ public class JavaScriptProxyTest extends JettyTestCase {
         page.executeJavaScript("v.foo(3,'test',callback);");
         wc.getJavaScriptEngine().processPostponedActions();
         wc.waitForBackgroundJavaScript(10000);
-        assertEquals("string:test3",msg[0]);
+        assertEquals("string:test3", msg[0]);
         msg[0] = null;
 
         // test null unmarshalling and marshalling
         page.executeJavaScript("v.foo(0,null,callback);");
         wc.getJavaScriptEngine().processPostponedActions();
         wc.waitForBackgroundJavaScript(10000);
-        assertEquals("object:null",msg[0]);
+        assertEquals("object:null", msg[0]);
     }
 
     /**
@@ -62,20 +62,24 @@ public class JavaScriptProxyTest extends JettyTestCase {
         page.executeJavaScript("v.xyz('hello');");
         wc.getJavaScriptEngine().processPostponedActions();
         wc.waitForBackgroundJavaScript(10000);
-        assertEquals("hello",anonymousValue);
+        assertEquals("hello", anonymousValue);
     }
 
     public String jsFoo(int x, String y) {
-        if (x==0)   return y;
-        return y+x;
+        if (x == 0) {
+            return y;
+        }
+        return y + x;
     }
-    
-    public void doIndex(StaplerRequest req,StaplerResponse rsp) throws IOException {
+
+    public void doIndex(StaplerRequest req, StaplerResponse rsp) throws IOException {
         rsp.setContentType("text/html");
         String crumb = req.getWebApp().getCrumbIssuer().issueCrumb();
         PrintWriter w = rsp.getWriter();
         w.println("<html><body><script src='script'></script>");
-        w.println("<script>var v = makeStaplerProxy('/','"+crumb+"',['foo','bar']);var callback = function(t){var x=t.responseObject();alert(typeof(x)+':'+x)};</script>");
+        w.println(
+                "<script>var v = makeStaplerProxy('/','" + crumb
+                        + "',['foo','bar']);var callback = function(t){var x=t.responseObject();alert(typeof(x)+':'+x)};</script>");
         w.println("</body></html>");
     }
 
@@ -83,7 +87,8 @@ public class JavaScriptProxyTest extends JettyTestCase {
         rsp.setContentType("text/html");
         PrintWriter w = rsp.getWriter();
         w.println("<html><body><script src='script'></script>");
-        w.println("<script>var v = "+ WebApp.getCurrent().boundObjectTable.bind(anonymous).getProxyScript()+";</script>");
+        w.println("<script>var v = "
+                + WebApp.getCurrent().boundObjectTable.bind(anonymous).getProxyScript() + ";</script>");
         w.println("</body></html>");
     }
 

@@ -65,7 +65,7 @@ public abstract class Facet {
      * of index view page upfront.
      */
     public void buildIndexDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
-        dispatchers.add(new IndexViewDispatcher(owner,this));
+        dispatchers.add(new IndexViewDispatcher(owner, this));
     }
 
     /**
@@ -89,21 +89,23 @@ public abstract class Facet {
             classLoaders.put(cl);
             DiscoverServiceNames dc = new DiscoverServiceNames(classLoaders);
             ResourceNameIterator itr = dc.findResourceNames(type.getName());
-            while(itr.hasNext()) {
+            while (itr.hasNext()) {
                 String name = itr.nextResourceName();
-                if (!classNames.add(name))  continue;   // avoid duplication
-                
+                if (!classNames.add(name)) {
+                    continue; // avoid duplication
+                }
+
                 Class<? extends T> c;
                 try {
                     c = cl.loadClass(name).asSubclass(type);
                 } catch (ClassNotFoundException e) {
-                    LOGGER.log(Level.WARNING, "Failed to load "+name,e);
+                    LOGGER.log(Level.WARNING, "Failed to load " + name, e);
                     continue;
                 }
                 try {
                     r.add(c.newInstance());
                 } catch (InstantiationException | IllegalAccessException e) {
-                    LOGGER.log(Level.WARNING, "Failed to instantiate "+c,e);
+                    LOGGER.log(Level.WARNING, "Failed to instantiate " + c, e);
                 }
             }
         }
@@ -113,8 +115,9 @@ public abstract class Facet {
     public static final Logger LOGGER = Logger.getLogger(Facet.class.getName());
 
     @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
-    public static boolean ALLOW_VIEW_NAME_PATH_TRAVERSAL = Boolean.getBoolean(Facet.class.getName() + ".allowViewNamePathTraversal");
-    
+    public static boolean ALLOW_VIEW_NAME_PATH_TRAVERSAL =
+            Boolean.getBoolean(Facet.class.getName() + ".allowViewNamePathTraversal");
+
     /**
      * Creates a {@link RequestDispatcher} that handles the given view, or
      * return null if no such view was found.
@@ -124,12 +127,16 @@ public abstract class Facet {
      *      from which the view is searched.
      * @see #createRequestDispatcher(AbstractTearOff, ScriptExecutor, Object, String)
      */
-    @CheckForNull public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName) throws IOException {
-        return null;    // should be really abstract, but not
+    @CheckForNull
+    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass<?> type, Object it, String viewName)
+            throws IOException {
+        return null; // should be really abstract, but not
     }
 
-    @CheckForNull public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName) throws IOException {
-        return createRequestDispatcher(request,Klass.java(type),it,viewName);
+    @CheckForNull
+    public RequestDispatcher createRequestDispatcher(RequestImpl request, Class type, Object it, String viewName)
+            throws IOException {
+        return createRequestDispatcher(request, Klass.java(type), it, viewName);
     }
 
     /**
@@ -139,11 +146,12 @@ public abstract class Facet {
      *      true if the processing succeeds. Otherwise false.
      * @see #handleIndexRequest(AbstractTearOff, ScriptExecutor, RequestImpl, ResponseImpl, Object)
      */
-    public abstract boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException;
+    public abstract boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass)
+            throws IOException, ServletException;
 
     /**
      * Maps an instance to a {@link Klass}. This is the generalization of {@code o.getClass()}.
-     * 
+     *
      * This is for those languages that use something other than {@link Class} to represent the concept of a class.
      * Those facets that are fine with {@code o.getClass()} should return null so that it gives other facets a chance
      * to map it better.
@@ -151,11 +159,11 @@ public abstract class Facet {
     public Klass<?> getKlass(Object o) {
         return null;
     }
-    
+
     /**
      * Ensure the path that is passed is only the name of the file and not a path
      */
-    protected boolean isBasename(String potentialPath){
+    protected boolean isBasename(String potentialPath) {
         if (ALLOW_VIEW_NAME_PATH_TRAVERSAL) {
             return true;
         } else {
@@ -163,7 +171,7 @@ public abstract class Facet {
                 // prevent absolute path and folder traversal to find scripts
                 return false;
             }
-            
+
             return true;
         }
     }
@@ -171,13 +179,13 @@ public abstract class Facet {
     /**
      * For Facets that require a particular file extension to be put in any case.
      * Just return an empty String if the Facet does not want to have such behavior.
-     * 
-     * If you do want to have an extension added, you must ensure you provide the dot at the first character position, 
+     *
+     * If you do want to have an extension added, you must ensure you provide the dot at the first character position,
      * see JellyFacet
      */
     protected @NonNull String getExtensionSuffix() {
         return "";
-    } 
+    }
 
     /**
      * Creates a Dispatcher that integrates {@link DispatchValidator} with the provided script loader and executor.
@@ -194,11 +202,14 @@ public abstract class Facet {
      * @see WebApp#setFilteredDispatchTriggerListener(FilteredDispatchTriggerListener)
      * @since TODO
      */
-    @NonNull protected <S> Dispatcher createValidatingDispatcher(@NonNull AbstractTearOff<?, ? extends S, ?> scriptLoader,
-                                                                 @NonNull ScriptExecutor<? super S> scriptExecutor) {
+    @NonNull
+    protected <S> Dispatcher createValidatingDispatcher(
+            @NonNull AbstractTearOff<?, ? extends S, ?> scriptLoader,
+            @NonNull ScriptExecutor<? super S> scriptExecutor) {
         return new Dispatcher() {
             @Override
-            public boolean dispatch(@NonNull RequestImpl req, @NonNull ResponseImpl rsp, @CheckForNull Object node) throws ServletException {
+            public boolean dispatch(@NonNull RequestImpl req, @NonNull ResponseImpl rsp, @CheckForNull Object node)
+                    throws ServletException {
                 String next = req.tokens.peek();
                 if (next == null) {
                     return false;
@@ -260,11 +271,12 @@ public abstract class Facet {
      * Handles an index request by dispatching a script.
      * @since TODO
      */
-    protected <S> boolean handleIndexRequest(@NonNull AbstractTearOff<?, ? extends S, ?> scriptLoader,
-                                             @NonNull ScriptExecutor<? super S> scriptExecutor,
-                                             @NonNull RequestImpl req,
-                                             @NonNull ResponseImpl rsp,
-                                             @CheckForNull Object node)
+    protected <S> boolean handleIndexRequest(
+            @NonNull AbstractTearOff<?, ? extends S, ?> scriptLoader,
+            @NonNull ScriptExecutor<? super S> scriptExecutor,
+            @NonNull RequestImpl req,
+            @NonNull ResponseImpl rsp,
+            @CheckForNull Object node)
             throws ServletException, IOException {
         S script;
         try {
@@ -301,10 +313,12 @@ public abstract class Facet {
      * @see WebApp#setFilteredDispatchTriggerListener(FilteredDispatchTriggerListener)
      * @since TODO
      */
-    @CheckForNull protected <S> RequestDispatcher createRequestDispatcher(@NonNull AbstractTearOff<?, ? extends S, ?> scriptLoader,
-                                                                          @NonNull ScriptExecutor<? super S> scriptExecutor,
-                                                                          @CheckForNull Object it,
-                                                                          @NonNull String viewName) {
+    @CheckForNull
+    protected <S> RequestDispatcher createRequestDispatcher(
+            @NonNull AbstractTearOff<?, ? extends S, ?> scriptLoader,
+            @NonNull ScriptExecutor<? super S> scriptExecutor,
+            @CheckForNull Object it,
+            @NonNull String viewName) {
         return ScriptRequestDispatcher.newRequestDispatcher(scriptLoader, scriptExecutor, viewName, it);
     }
 }

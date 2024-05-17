@@ -53,8 +53,9 @@ public class CaptureParameterNameTransformation implements ASTTransformation {
     }
 
     private void handleClasses(List<ClassNode> classNodes) {
-        for (ClassNode c : classNodes)
+        for (ClassNode c : classNodes) {
             handleMethods(c.getMethods());
+        }
     }
 
     // set of annotation class names to capture
@@ -62,46 +63,52 @@ public class CaptureParameterNameTransformation implements ASTTransformation {
     private static final Set<String> INJECTED_PARAMETER_ANN = Set.of(InjectedParameter.class.getName());
 
     private void handleMethods(List<MethodNode> methods) {
-        for (MethodNode m : methods)
+        for (MethodNode m : methods) {
             // copy the array as we'll modify them
-            if(hasAnnotation(m,CONSTRUCTOR_ANN) || hasInjectionAnnotation(m))
+            if (hasAnnotation(m, CONSTRUCTOR_ANN) || hasInjectionAnnotation(m)) {
                 write(m);
+            }
+        }
     }
 
     private boolean hasInjectionAnnotation(MethodNode m) {
-        for (Parameter p : m.getParameters())
-            if(hasInjectedParameterAnnotation(p))
+        for (Parameter p : m.getParameters()) {
+            if (hasInjectedParameterAnnotation(p)) {
                 return true;
+            }
+        }
         return false;
     }
 
-
     private boolean hasAnnotation(AnnotatedNode target, Set<String> annotationTypeNames) {
-        for (AnnotationNode a : target.getAnnotations())
-            if(annotationTypeNames.contains(a.getClassNode().getName()))
+        for (AnnotationNode a : target.getAnnotations()) {
+            if (annotationTypeNames.contains(a.getClassNode().getName())) {
                 return true;
+            }
+        }
         return false;
     }
 
     private boolean hasInjectedParameterAnnotation(Parameter p) {
         for (AnnotationNode a : p.getAnnotations()) {
-            if (hasAnnotation(a.getClassNode(), INJECTED_PARAMETER_ANN))
+            if (hasAnnotation(a.getClassNode(), INJECTED_PARAMETER_ANN)) {
                 return true;
+            }
         }
         return false;
     }
-
 
     /**
      * Captures the parameter names as annotations on the class.
      */
     private void write(MethodNode c) {
         ListExpression v = new ListExpression();
-        for( Parameter p : c.getParameters() )
+        for (Parameter p : c.getParameters()) {
             v.addExpression(new ConstantExpression(p.getName()));
+        }
 
         AnnotationNode a = new AnnotationNode(new ClassNode(CapturedParameterNames.class));
-        a.addMember("value",v);
+        a.addMember("value", v);
         c.addAnnotation(a);
     }
 }

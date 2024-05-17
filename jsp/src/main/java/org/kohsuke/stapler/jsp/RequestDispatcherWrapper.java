@@ -45,32 +45,36 @@ final class RequestDispatcherWrapper implements RequestDispatcher {
     }
 
     @Override
-    @SuppressFBWarnings(value = "REQUESTDISPATCHER_FILE_DISCLOSURE", justification = "Forwarding the request to be handled correctly.")
+    @SuppressFBWarnings(
+            value = "REQUESTDISPATCHER_FILE_DISCLOSURE",
+            justification = "Forwarding the request to be handled correctly.")
     public void forward(ServletRequest req, ServletResponse rsp) throws ServletException, IOException {
-        req.setAttribute("it",it);
-        req.setAttribute("staplerRequest",req);
-        req.setAttribute("staplerResponse",rsp);
-        core.forward(req,rsp);
+        req.setAttribute("it", it);
+        req.setAttribute("staplerRequest", req);
+        req.setAttribute("staplerResponse", rsp);
+        core.forward(req, rsp);
     }
 
     @Override
-    @SuppressFBWarnings(value = "REQUESTDISPATCHER_FILE_DISCLOSURE", justification = "Forwarding the request to be handled correctly.")
+    @SuppressFBWarnings(
+            value = "REQUESTDISPATCHER_FILE_DISCLOSURE",
+            justification = "Forwarding the request to be handled correctly.")
     public void include(ServletRequest req, ServletResponse rsp) throws ServletException, IOException {
         Object oldIt = push(req, "it", it);
         Object oldRq = push(req, "staplerRequest", req);
-        Object oldRs = push(req, "staplerResponse",rsp);
+        Object oldRs = push(req, "staplerResponse", rsp);
         try {
-            core.include(req,rsp);
+            core.include(req, rsp);
         } finally {
-            req.setAttribute("it",oldIt);
-            req.setAttribute("staplerRequest",oldRq);
-            req.setAttribute("staplerResponse",oldRs);
+            req.setAttribute("it", oldIt);
+            req.setAttribute("staplerRequest", oldRq);
+            req.setAttribute("staplerResponse", oldRs);
         }
     }
 
     private Object push(ServletRequest req, String paramName, Object value) {
         Object old = req.getAttribute(paramName);
-        req.setAttribute(paramName,value);
+        req.setAttribute(paramName, value);
         return old;
     }
 }

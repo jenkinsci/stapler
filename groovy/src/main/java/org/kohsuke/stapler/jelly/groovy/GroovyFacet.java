@@ -45,7 +45,7 @@ import org.kohsuke.stapler.lang.Klass;
 
 /**
  * {@link Facet} that brings in Groovy support on top of Jelly.
- * 
+ *
  * @author Kohsuke Kawaguchi
  */
 @MetaInfServices(Facet.class)
@@ -69,10 +69,12 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
     }
 
     @Override
-    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass type, Object it, String viewName) throws IOException {
+    public RequestDispatcher createRequestDispatcher(RequestImpl request, Klass type, Object it, String viewName)
+            throws IOException {
         MetaClass owner = request.getWebApp().getMetaClass(type);
         ScriptInvoker scriptExecutor = request.getWebApp().getFacet(JellyFacet.class).scriptInvoker;
-        RequestDispatcher d = createRequestDispatcher(owner.loadTearOff(GroovyClassTearOff.class), scriptExecutor, it, viewName);
+        RequestDispatcher d =
+                createRequestDispatcher(owner.loadTearOff(GroovyClassTearOff.class), scriptExecutor, it, viewName);
         if (d == null) {
             d = createRequestDispatcher(owner.loadTearOff(GroovyServerPageTearOff.class), scriptExecutor, it, viewName);
         }
@@ -82,19 +84,21 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
     @Override
     public void buildIndexDispatchers(MetaClass owner, List<Dispatcher> dispatchers) {
         try {
-            if (owner.loadTearOff(JellyClassTearOff.class).findScript("index")!=null) {
+            if (owner.loadTearOff(JellyClassTearOff.class).findScript("index") != null) {
                 super.buildIndexDispatchers(owner, dispatchers);
             }
         } catch (JellyException e) {
-            LOGGER.log(Level.WARNING, "Failed to parse index.groovy for "+owner, e);
+            LOGGER.log(Level.WARNING, "Failed to parse index.groovy for " + owner, e);
         }
     }
 
     @Override
-    public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass) throws IOException, ServletException {
+    public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass)
+            throws IOException, ServletException {
         ScriptInvoker scriptExecutor = req.getWebApp().getFacet(JellyFacet.class).scriptInvoker;
-        return handleIndexRequest(nodeMetaClass.loadTearOff(GroovyClassTearOff.class), scriptExecutor, req, rsp, node) ||
-                handleIndexRequest(nodeMetaClass.loadTearOff(GroovyServerPageTearOff.class), scriptExecutor, req, rsp, node);
+        return handleIndexRequest(nodeMetaClass.loadTearOff(GroovyClassTearOff.class), scriptExecutor, req, rsp, node)
+                || handleIndexRequest(
+                        nodeMetaClass.loadTearOff(GroovyServerPageTearOff.class), scriptExecutor, req, rsp, node);
     }
 
     private static final Set<Class<GroovyClassTearOff>> TEAROFF_TYPES = Set.of(GroovyClassTearOff.class);

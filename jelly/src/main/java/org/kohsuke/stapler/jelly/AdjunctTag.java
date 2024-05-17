@@ -35,7 +35,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Writes out links to adjunct CSS and JavaScript, if not done so already.
- * 
+ *
  * @author Kohsuke Kawaguchi
  */
 @NoContent
@@ -60,25 +60,31 @@ public class AdjunctTag extends AbstractStaplerTag {
 
     private String[] parse(String s) {
         String[] r = s.split(",");
-        for (int i = 0; i < r.length; i++)
-              r[i] = r[i].trim();
+        for (int i = 0; i < r.length; i++) {
+            r[i] = r[i].trim();
+        }
         return r;
     }
 
     @Override
     public void doTag(XMLOutput out) throws JellyTagException {
         AdjunctManager m = AdjunctManager.get(getServletContext());
-        if(m==null) {
-            LOGGER.log(Level.WARNING,"AdjunctManager is not installed for this application. Skipping <adjunct> tags", new Exception());
+        if (m == null) {
+            LOGGER.log(
+                    Level.WARNING,
+                    "AdjunctManager is not installed for this application. Skipping <adjunct> tags",
+                    new Exception());
             return;
         }
 
         try {
             AdjunctsInPage a = AdjunctsInPage.get();
-            if (assumes!=null)
+            if (assumes != null) {
                 a.assumeIncluded(assumes);
-            if (includes!=null)
+            }
+            if (includes != null) {
                 a.generate(out, includes);
+            }
         } catch (IOException | SAXException e) {
             throw new JellyTagException(e);
         }

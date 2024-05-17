@@ -34,13 +34,13 @@ public final class Klass<C> {
     }
 
     public URL getResource(String resourceName) {
-        return navigator.getResource(clazz,resourceName);
+        return navigator.getResource(clazz, resourceName);
     }
 
     public Iterable<Klass<?>> getAncestors() {
         return navigator.getAncestors(clazz);
     }
-    
+
     public Klass<?> getSuperClass() {
         return navigator.getSuperClass(clazz);
     }
@@ -58,7 +58,7 @@ public final class Klass<C> {
 
     /**
      * Gets list of fields declared by the class.
-     * @return List of fields. 
+     * @return List of fields.
      *         May return empty list in the case of obsolete {@link #navigator}, which does not offer the method.
      * @since 1.246
      */
@@ -73,12 +73,12 @@ public final class Klass<C> {
      * @see Class#getFields()
      */
     public List<FieldRef> getFields() {
-        Map<String,FieldRef> fields = new LinkedHashMap<>();
-        for (Klass<?> k = this; k!=null; k=k.getSuperClass()) {
+        Map<String, FieldRef> fields = new LinkedHashMap<>();
+        for (Klass<?> k = this; k != null; k = k.getSuperClass()) {
             for (FieldRef f : k.getDeclaredFields()) {
                 String name = f.getName();
                 if (!fields.containsKey(name) && f.isRoutable()) {
-                    fields.put(name,f);
+                    fields.put(name, f);
                 }
             }
         }
@@ -88,7 +88,7 @@ public final class Klass<C> {
 
     /**
      * Reports all the methods that can be used for routing requests on this class.
-     * @return List of functions. 
+     * @return List of functions.
      *         May return empty list in the case of obsolete {@link #navigator}, which does not offer the method.
      * @since 1.246
      */
@@ -102,7 +102,7 @@ public final class Klass<C> {
     }
 
     public Object getArrayElement(Object o, int index) throws IndexOutOfBoundsException {
-        return navigator.getArrayElement(o,index);
+        return navigator.getArrayElement(o, index);
     }
 
     public boolean isMap() {
@@ -110,17 +110,20 @@ public final class Klass<C> {
     }
 
     public Object getMapElement(Object o, String key) {
-        return navigator.getMapElement(o,key);
+        return navigator.getMapElement(o, key);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Klass that = (Klass) o;
         return clazz.equals(that.clazz) && navigator.equals(that.navigator);
-
     }
 
     @Override

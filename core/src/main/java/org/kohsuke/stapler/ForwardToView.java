@@ -40,7 +40,8 @@ import javax.servlet.ServletException;
 public class ForwardToView extends RuntimeException implements HttpResponse {
     @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "As an HttpResponse, this is not actually serialized.")
     private final DispatcherFactory factory;
-    private final Map<String,Object> attributes = new HashMap<>();
+
+    private final Map<String, Object> attributes = new HashMap<>();
 
     private interface DispatcherFactory {
         RequestDispatcher get(StaplerRequest req) throws IOException;
@@ -59,7 +60,7 @@ public class ForwardToView extends RuntimeException implements HttpResponse {
         this.factory = new DispatcherFactory() {
             @Override
             public RequestDispatcher get(StaplerRequest req) throws IOException {
-                return req.getView(it,view);
+                return req.getView(it, view);
             }
         };
     }
@@ -68,7 +69,7 @@ public class ForwardToView extends RuntimeException implements HttpResponse {
         this.factory = new DispatcherFactory() {
             @Override
             public RequestDispatcher get(StaplerRequest req) throws IOException {
-                return req.getView(c,view);
+                return req.getView(c, view);
             }
         };
     }
@@ -77,11 +78,11 @@ public class ForwardToView extends RuntimeException implements HttpResponse {
      * Forwards to the view with specified attributes exposed as a variable binding.
      */
     public ForwardToView with(String varName, Object value) {
-        attributes.put(varName,value);
+        attributes.put(varName, value);
         return this;
     }
 
-    public ForwardToView with(Map<String,?> attributes) {
+    public ForwardToView with(Map<String, ?> attributes) {
         this.attributes.putAll(attributes);
         return this;
     }
@@ -94,10 +95,14 @@ public class ForwardToView extends RuntimeException implements HttpResponse {
     }
 
     @Override
-    @SuppressFBWarnings(value = "REQUESTDISPATCHER_FILE_DISCLOSURE", justification = "Forwarded to a view to handle correctly.")
-    public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
-        for (Entry<String, Object> e : attributes.entrySet())
-            req.setAttribute(e.getKey(),e.getValue());
+    @SuppressFBWarnings(
+            value = "REQUESTDISPATCHER_FILE_DISCLOSURE",
+            justification = "Forwarded to a view to handle correctly.")
+    public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+            throws IOException, ServletException {
+        for (Entry<String, Object> e : attributes.entrySet()) {
+            req.setAttribute(e.getKey(), e.getValue());
+        }
         RequestDispatcher rd = factory.get(req);
         if (rd != null) {
             rd.forward(req, rsp);

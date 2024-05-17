@@ -28,8 +28,7 @@ import java.io.IOException;
 /** not needed as of Java 6 */
 @Deprecated
 public class IOException2 extends IOException {
-    public IOException2() {
-    }
+    public IOException2() {}
 
     public IOException2(String message) {
         super(message);
@@ -41,6 +40,6 @@ public class IOException2 extends IOException {
     }
 
     public IOException2(Throwable cause) {
-        this(cause.toString(),cause);
+        this(cause.toString(), cause);
     }
 }

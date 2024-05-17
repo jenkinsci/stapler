@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
  *      ClassLoader tear-off.
  * @author Kohsuke Kawaguchi
  */
-public abstract class AbstractTearOff<CLT,S,E extends Exception> extends CachingScriptLoader<S,E> {
+public abstract class AbstractTearOff<CLT, S, E extends Exception> extends CachingScriptLoader<S, E> {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractTearOff.class.getName());
 
@@ -54,19 +54,22 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
     private static final class ExpirableCacheHit<S> {
         private final long timestamp;
         private final Reference<S> script;
+
         ExpirableCacheHit(long timestamp, S script) {
             this.timestamp = timestamp;
             this.script = new SoftReference<>(script);
         }
     }
+
     private final Map<String, ExpirableCacheHit<S>> cachedScripts = new ConcurrentHashMap<>();
 
     protected AbstractTearOff(MetaClass owner, Class<CLT> cltClass) {
         this.owner = owner;
-        if(owner.classLoader!=null)
+        if (owner.classLoader != null) {
             classLoader = owner.classLoader.loadTearOff(cltClass);
-        else
+        } else {
             classLoader = null;
+        }
     }
 
     protected final WebApp getWebApp() {
@@ -93,23 +96,26 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
      * from its base types.
      */
     public S resolveScript(String name) throws E {
-        if (name.lastIndexOf('.')<=name.lastIndexOf('/'))   // no file extension provided
+        if (name.lastIndexOf('.') <= name.lastIndexOf('/')) { // no file extension provided
             name += getDefaultScriptExtension();
-        if (!hasAllowedExtension(name))
+        }
+        if (!hasAllowedExtension(name)) {
             // for multiple Facets to co-exist peacefully, we need to be able to determine
             // which Facet is responsible for a given view just from the file name
             return null;
+        }
 
         URL res = getResource(name);
-        if(res==null) {
+        if (res == null) {
             // look for 'defaults' file
             int dot = name.lastIndexOf('.');
             // foo/bar.groovy -> foo/bar.default.groovy
             // but don't do foo.bar/test -> foo.default.bar/test
             // as of 2010/9, this behaviour is considered deprecated, but left here for backward compatibility.
             // we need a better way to refer to the resource of the same name in the base type.
-            if(name.lastIndexOf('/')<dot)
+            if (name.lastIndexOf('/') < dot) {
                 res = getResource(name.substring(0, dot) + ".default" + name.substring(dot));
+            }
         }
         if (res != null) {
             if (MetaClass.NO_CACHE) {
@@ -131,7 +137,9 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
                                 try {
                                     script = parseScript(res);
                                 } finally {
-                                    LOGGER.log(Level.FINE, "cache miss; took {0}ms to parse {1}", new Object[] {(System.nanoTime() - start) / 1_000_000, res});
+                                    LOGGER.log(Level.FINE, "cache miss; took {0}ms to parse {1}", new Object[] {
+                                        (System.nanoTime() - start) / 1_000_000, res
+                                    });
                                 }
                             } else {
                                 LOGGER.log(Level.FINE, "cache miss on {0}", res);
@@ -166,7 +174,10 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
                     try {
                         return parseScript(res);
                     } finally {
-                        LOGGER.log(Level.FINE, "standard CachingScriptLoader logic applies to {0} parsed in {1}ms", new Object[] {res, (System.nanoTime() - start) / 1_000_000});
+                        LOGGER.log(
+                                Level.FINE,
+                                "standard CachingScriptLoader logic applies to {0} parsed in {1}ms",
+                                new Object[] {res, (System.nanoTime() - start) / 1_000_000});
                     }
                 } else {
                     return parseScript(res);
@@ -178,21 +189,24 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
     }
 
     private static final Pattern JAR_URL = Pattern.compile("jar:(file:.+)!/.*");
-    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "Files are read from approved plugins, not from user input.")
+
+    @SuppressFBWarnings(
+            value = "PATH_TRAVERSAL_IN",
+            justification = "Files are read from approved plugins, not from user input.")
     private static File fileOf(URL res) {
         try {
             switch (res.getProtocol()) {
-            case "file":
-                return new File(res.toURI());
-            case "jar":
-                Matcher m = JAR_URL.matcher(res.toString());
-                if (m.matches()) {
-                    return new File(new URI(m.group(1)));
-                } else {
+                case "file":
+                    return new File(res.toURI());
+                case "jar":
+                    Matcher m = JAR_URL.matcher(res.toString());
+                    if (m.matches()) {
+                        return new File(new URI(m.group(1)));
+                    } else {
+                        return null;
+                    }
+                default:
                     return null;
-                }
-            default:
-                return null;
             }
         } catch (URISyntaxException | IllegalArgumentException x) {
             return null; // caching is a best effort
@@ -202,11 +216,14 @@ public abstract class AbstractTearOff<CLT,S,E extends Exception> extends Caching
     @Override
     protected final S loadScript(String name) throws E {
         S s = resolveScript(name);
-        if (s!=null)    return s;
+        if (s != null) {
+            return s;
+        }
 
         // not found on this class, delegate to the parent
-        if(owner.baseClass!=null)
-            return ((AbstractTearOff<CLT,S,E>)owner.baseClass.loadTearOff(getClass())).findScript(name);
+        if (owner.baseClass != null) {
+            return ((AbstractTearOff<CLT, S, E>) owner.baseClass.loadTearOff(getClass())).findScript(name);
+        }
 
         return null;
     }

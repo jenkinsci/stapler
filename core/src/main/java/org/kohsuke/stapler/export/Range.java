@@ -24,13 +24,17 @@ public class Range {
     }
 
     public <T> List<T> apply(List<T> s) {
-        if (max<s.size())   s = s.subList(0,max);
-        if (min>0)          s = s.subList(min,s.size());
+        if (max < s.size()) {
+            s = s.subList(0, max);
+        }
+        if (min > 0) {
+            s = s.subList(min, s.size());
+        }
         return s;
     }
 
     public <T> Iterable<T> apply(final Collection<T> s) {
-        return apply((Iterable<T>)s);
+        return apply((Iterable<T>) s);
     }
 
     public <T> Iterable<T> apply(final Iterable<T> s) {
@@ -41,7 +45,7 @@ public class Range {
                 @Override
                 public Iterator<T> iterator() {
                     Iterator<T> itr = s.iterator();
-                    itr = Iterators.limit(itr,max);
+                    itr = Iterators.limit(itr, max);
                     if (min > 0) {
                         for (int i = 0; i < min && itr.hasNext(); i++) {
                             itr.next();
@@ -56,5 +60,5 @@ public class Range {
     /**
      * Range that includes natural numbers.
      */
-    public static final Range ALL = new Range(0,Integer.MAX_VALUE);
+    public static final Range ALL = new Range(0, Integer.MAX_VALUE);
 }

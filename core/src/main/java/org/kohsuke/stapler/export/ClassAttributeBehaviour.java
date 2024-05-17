@@ -39,7 +39,7 @@ public abstract class ClassAttributeBehaviour {
 
     @Override
     public String toString() {
-        return super.toString()+'['+name+']';
+        return super.toString() + '[' + name + ']';
     }
 
     /**
@@ -52,11 +52,11 @@ public abstract class ClassAttributeBehaviour {
     abstract @Nullable Class map(@Nullable Type expected, @Nullable Class actual);
 
     String print(Type expected, Class actual) {
-        return print(map(expected,actual));
+        return print(map(expected, actual));
     }
 
     protected String print(Class t) {
-        return t==null ? null : t.getName();
+        return t == null ? null : t.getName();
     }
 
     public static final ClassAttributeBehaviour NONE = new ClassAttributeBehaviour("NONE") {
@@ -76,29 +76,33 @@ public abstract class ClassAttributeBehaviour {
     public static final ClassAttributeBehaviour IF_NEEDED = new ClassAttributeBehaviour("IF_NEEDED") {
         @Override
         Class map(Type expected, Class actual) {
-            if (actual==null)
-                return null;    // nothing to write
-            if (expected==actual)
-                return null;    // fast pass when we don't need it
-            if (expected==null)
-                return actual;  // we need to print it
-            if (Types.erasure(expected)==actual)
-                return null;    // slow pass
+            if (actual == null) {
+                return null; // nothing to write
+            }
+            if (expected == actual) {
+                return null; // fast pass when we don't need it
+            }
+            if (expected == null) {
+                return actual; // we need to print it
+            }
+            if (Types.erasure(expected) == actual) {
+                return null; // slow pass
+            }
             return actual;
         }
     };
 
     public ClassAttributeBehaviour simple() {
         final ClassAttributeBehaviour outer = this;
-        return new ClassAttributeBehaviour(this.name+"+simple") {
+        return new ClassAttributeBehaviour(this.name + "+simple") {
             @Override
             Class map(Type expected, Class actual) {
-                return outer.map(expected,actual);
+                return outer.map(expected, actual);
             }
 
             @Override
             protected String print(Class t) {
-                return t==null ? null : t.getSimpleName();
+                return t == null ? null : t.getSimpleName();
             }
         };
     }

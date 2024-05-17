@@ -66,7 +66,7 @@ public class SchemaGenerator {
      */
     public void generateSchema(Result r) {
         Schema s = TXW.create(Schema.class, ResultFactory.createSerializer(r));
-        s._namespace(XSD.URI,"xsd");
+        s._namespace(XSD.URI, "xsd");
 
         queue.clear();
         written.clear();
@@ -75,18 +75,21 @@ public class SchemaGenerator {
         s.element().name(Introspector.decapitalize(top.type.getSimpleName())).type(getXmlTypeName(top.type));
 
         // write all beans
-        while(!queue.isEmpty())
+        while (!queue.isEmpty()) {
             writeBean(s, (Model<?>) queue.pop());
+        }
 
         // then enums
-        for (Class e : enums)
-            writeEnum(s,e);
+        for (Class e : enums) {
+            writeEnum(s, e);
+        }
 
         s.commit();
     }
 
     private void writeEnum(Schema s, Class e) {
-        XSD.Restriction facets = s.simpleType().name(getXmlToken(e)).restriction().base(XSD.Types.STRING);
+        XSD.Restriction facets =
+                s.simpleType().name(getXmlToken(e)).restriction().base(XSD.Types.STRING);
         for (Object constant : e.getEnumConstants()) {
             facets.enumeration().value(constant.toString());
         }
@@ -96,51 +99,61 @@ public class SchemaGenerator {
         ComplexType ct = s.complexType().name(getXmlToken(m.type));
         final ContentModel cm;
 
-        if(m.superModel==null)
+        if (m.superModel == null) {
             cm = ct.sequence();
-        else {
+        } else {
             addToQueue(m.superModel);
-            cm = ct.complexContent().extension().base(getXmlTypeName(m.superModel.type)).sequence();
+            cm = ct.complexContent()
+                    .extension()
+                    .base(getXmlTypeName(m.superModel.type))
+                    .sequence();
         }
 
         for (Property p : m.getProperties()) {
             Class t = p.getType();
             final boolean isCollection;
             final Class itemType;
-            if(t.isArray()) {
+            if (t.isArray()) {
                 isCollection = true;
                 itemType = t.getComponentType();
-            } else
-            if(Collection.class.isAssignableFrom(t)) {
+            } else if (Collection.class.isAssignableFrom(t)) {
                 isCollection = true;
                 itemType = TypeUtil.erasure(
-                    TypeUtil.getTypeArgument(TypeUtil.getBaseClass(p.getGenericType(),Collection.class),0));
+                        TypeUtil.getTypeArgument(TypeUtil.getBaseClass(p.getGenericType(), Collection.class), 0));
             } else {
                 isCollection = false;
                 itemType = t;
             }
 
             Element e = cm.element()
-                .name(isCollection?XMLDataWriter.toSingular(p.name):p.name)
-                .type(getXmlTypeName(itemType));
+                    .name(isCollection ? XMLDataWriter.toSingular(p.name) : p.name)
+                    .type(getXmlTypeName(itemType));
 
-            if(!t.isPrimitive())
+            if (!t.isPrimitive()) {
                 e.minOccurs(0);
-            if(isCollection)
+            }
+            if (isCollection) {
                 e.maxOccurs("unbounded");
+            }
 
-            annotate(e,p.getJavadoc());
+            annotate(e, p.getJavadoc());
         }
 
-        if (m.superModel==null)
-            ct.attribute().name(DataWriter.CLASS_PROPERTY_NAME).type(XSD.Types.STRING).use("optional");
+        if (m.superModel == null) {
+            ct.attribute()
+                    .name(DataWriter.CLASS_PROPERTY_NAME)
+                    .type(XSD.Types.STRING)
+                    .use("optional");
+        }
     }
 
     /**
      * Annotates the schema element by javadoc, if that exists.
      */
     private void annotate(Annotated e, String javadoc) {
-        if(javadoc==null)   return;
+        if (javadoc == null) {
+            return;
+        }
         e.annotation().documentation(javadoc);
     }
 
@@ -152,18 +165,31 @@ public class SchemaGenerator {
     }
 
     private void addToQueue(Model m) {
-        if (written.add(m))
+        if (written.add(m)) {
             queue.push(m);
+        }
     }
 
     public QName getXmlTypeName(Class<?> t) {
-        if(Property.STRING_TYPES.contains(t))       return XSD.Types.STRING;
-        if(t==Boolean.class || t==boolean.class)    return XSD.Types.BOOLEAN;
-        if(t==Integer.class || t==int.class)        return XSD.Types.INT;
-        if(t==Long.class || t==long.class)          return XSD.Types.LONG;
-        if(Map.class.isAssignableFrom(t))           return XSD.Types.ANYTYPE;
-        if(Calendar.class.isAssignableFrom(t))      return XSD.Types.LONG;
-        if(Enum.class.isAssignableFrom(t)) {
+        if (Property.STRING_TYPES.contains(t)) {
+            return XSD.Types.STRING;
+        }
+        if (t == Boolean.class || t == boolean.class) {
+            return XSD.Types.BOOLEAN;
+        }
+        if (t == Integer.class || t == int.class) {
+            return XSD.Types.INT;
+        }
+        if (t == Long.class || t == long.class) {
+            return XSD.Types.LONG;
+        }
+        if (Map.class.isAssignableFrom(t)) {
+            return XSD.Types.ANYTYPE;
+        }
+        if (Calendar.class.isAssignableFrom(t)) {
+            return XSD.Types.LONG;
+        }
+        if (Enum.class.isAssignableFrom(t)) {
             enums.add(t);
             return new QName(getXmlToken(t));
         }
@@ -175,12 +201,12 @@ public class SchemaGenerator {
             // not an exposed bean by itself
             return XSD.Types.ANYTYPE;
         }
-        
+
         return new QName(getXmlToken(t));
     }
 
     private String getXmlToken(Class<?> t) {
-        return t.getName().replace('$','-');
+        return t.getName().replace('$', '-');
     }
 
     private String getXmlElementName(Class<?> type) {

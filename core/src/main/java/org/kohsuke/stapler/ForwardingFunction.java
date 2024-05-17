@@ -48,16 +48,16 @@ public class ForwardingFunction extends Function {
         return next.getReturnType();
     }
 
-    @Override 
+    @Override
     public Class[] getCheckedExceptionTypes() {
         return next.getCheckedExceptionTypes();
     }
-    
-    @Override 
+
+    @Override
     public Class getDeclaringClass() {
         return next.getDeclaringClass();
     }
-    
+
     // can't really call next.contextualize()
     @Override
     public Function contextualize(Object usage) {
@@ -85,7 +85,8 @@ public class ForwardingFunction extends Function {
     }
 
     @Override
-    public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args) throws IllegalAccessException, InvocationTargetException, ServletException {
+    public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+            throws IllegalAccessException, InvocationTargetException, ServletException {
         return next.invoke(req, rsp, o, args);
     }
 
@@ -99,4 +100,3 @@ public class ForwardingFunction extends Function {
         return next.getAnnotations();
     }
 }
-
