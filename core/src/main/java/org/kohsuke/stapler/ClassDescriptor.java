@@ -327,7 +327,7 @@ public final class ClassDescriptor {
         final Signature sig;
         final Method method;
 
-        public MethodMirror(Signature sig, Method method) {
+        MethodMirror(Signature sig, Method method) {
             this.sig = sig;
             this.method = method;
         }

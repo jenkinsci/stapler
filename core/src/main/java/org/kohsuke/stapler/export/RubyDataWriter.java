@@ -37,7 +37,7 @@ import java.io.Writer;
  * @author Kohsuke Kawaguchi, Jim Meyer
  */
 final class RubyDataWriter extends JSONDataWriter {
-    public RubyDataWriter(Writer out, ExportConfig config) throws IOException {
+    RubyDataWriter(Writer out, ExportConfig config) throws IOException {
         super(out, config);
     }
 

@@ -96,7 +96,7 @@ public class GroovierJellyScript implements Script {
     private static final class AliasMetaMethod extends CachedMethod {
         private final String alias;
 
-        public AliasMetaMethod(CachedClass clazz, Method method, String alias) {
+        AliasMetaMethod(CachedClass clazz, Method method, String alias) {
             super(clazz, method);
             this.alias = Objects.requireNonNull(alias);
         }

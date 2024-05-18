@@ -323,7 +323,7 @@ public abstract class Function {
 
         private volatile String[] names;
 
-        public MethodFunction(Method m) {
+        MethodFunction(Method m) {
             this.m = m;
             // defer the resolution of MethodHandle so that a Function can be built to represent a non-public method
         }
@@ -452,7 +452,7 @@ public abstract class Function {
         // the last one takes precedence
         private final List<Method> methods;
 
-        public OverridingInstanceFunction(List<Method> m) {
+        OverridingInstanceFunction(List<Method> m) {
             super(m.get(0));
             methods = m;
         }
@@ -498,7 +498,7 @@ public abstract class Function {
      * Static methods on the wrapper type.
      */
     static final class StaticFunction extends MethodFunction {
-        public StaticFunction(Method m) {
+        StaticFunction(Method m) {
             super(m);
         }
 

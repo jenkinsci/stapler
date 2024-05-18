@@ -20,7 +20,7 @@ class KlassDescriptor<C> {
      * @param klazz
      *      The class to build a descriptor around.
      */
-    public KlassDescriptor(Klass<C> klazz) {
+    KlassDescriptor(Klass<C> klazz) {
         this.clazz = klazz;
         this.fields = klazz.getFields();
         this.methods = new FunctionList(klazz.getFunctions());

@@ -97,11 +97,11 @@ public @interface JsonOutputFilter {
         private Set<String> includes;
         private Set<String> excludes;
 
-        public FilterPropertyFilter(String[] includes, String[] excludes) {
+        FilterPropertyFilter(String[] includes, String[] excludes) {
             this(new HashSet<>(Arrays.asList(includes)), new HashSet<>(Arrays.asList(excludes)));
         }
 
-        public FilterPropertyFilter(Set<String> includes, Set<String> excludes) {
+        FilterPropertyFilter(Set<String> includes, Set<String> excludes) {
             this.includes = includes;
             this.excludes = excludes;
         }

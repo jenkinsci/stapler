@@ -720,7 +720,7 @@ public class MetaClass extends TearOffSupport {
     private static class JavaScriptProxyMethodDispatcher extends NameBasedDispatcher {
         private final Function f;
 
-        public JavaScriptProxyMethodDispatcher(String name, Function f) {
+        JavaScriptProxyMethodDispatcher(String name, Function f) {
             super(name, 0);
             this.f = f;
         }

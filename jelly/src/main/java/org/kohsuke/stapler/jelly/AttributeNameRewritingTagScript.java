@@ -34,7 +34,7 @@ import org.apache.commons.jelly.impl.TagScript;
     private final String original;
     private final String replacement;
 
-    public AttributeNameRewritingTagScript(String original, String replacement) {
+    AttributeNameRewritingTagScript(String original, String replacement) {
         this.original = original;
         this.replacement = replacement;
     }

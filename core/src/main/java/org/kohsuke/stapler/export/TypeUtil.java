@@ -297,7 +297,7 @@ public class TypeUtil {
             assert params.length == args.length;
         }
 
-        public BinderArg(GenericDeclaration decl, Type[] args) {
+        BinderArg(GenericDeclaration decl, Type[] args) {
             this(decl.getTypeParameters(), args);
         }
 
@@ -538,7 +538,7 @@ public class TypeUtil {
         private final Type[] ub;
         private final Type[] lb;
 
-        public WildcardTypeImpl(Type[] ub, Type[] lb) {
+        WildcardTypeImpl(Type[] ub, Type[] lb) {
             this.ub = ub;
             this.lb = lb;
         }
