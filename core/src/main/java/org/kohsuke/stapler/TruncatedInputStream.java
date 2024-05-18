@@ -35,7 +35,7 @@ import java.io.InputStream;
 final class TruncatedInputStream extends FilterInputStream {
     private long len;
 
-    public TruncatedInputStream(InputStream in, long len) {
+    TruncatedInputStream(InputStream in, long len) {
         super(in);
         this.len = len;
     }

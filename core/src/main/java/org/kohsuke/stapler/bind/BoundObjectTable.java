@@ -300,7 +300,7 @@ public class BoundObjectTable implements StaplerFallback {
         private final String url;
         private final Object target;
 
-        public WellKnownObjectHandle(String url, Object target) {
+        WellKnownObjectHandle(String url, Object target) {
             this.url = url;
             this.target = target;
         }

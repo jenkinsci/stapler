@@ -36,7 +36,7 @@ import java.io.Writer;
  * @author Kohsuke Kawaguchi
  */
 final class PythonDataWriter extends JSONDataWriter {
-    public PythonDataWriter(Writer out, ExportConfig config) throws IOException {
+    PythonDataWriter(Writer out, ExportConfig config) throws IOException {
         super(out, config);
     }
 

@@ -39,7 +39,7 @@ final class RequestDispatcherWrapper implements RequestDispatcher {
     private final RequestDispatcher core;
     private final Object it;
 
-    public RequestDispatcherWrapper(RequestDispatcher core, Object it) {
+    RequestDispatcherWrapper(RequestDispatcher core, Object it) {
         this.core = core;
         this.it = it;
     }

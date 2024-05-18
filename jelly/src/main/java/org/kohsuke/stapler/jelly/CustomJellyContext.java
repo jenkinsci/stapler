@@ -201,7 +201,7 @@ class CustomJellyContext extends JellyContext {
             private final String text;
             private final Map<String, InternationalizedStringExpression> resourceLiterals;
 
-            public I18nExpWithArgsExpression(
+            I18nExpWithArgsExpression(
                     String text, Map<String, InternationalizedStringExpression> resourceLiterals, String exp)
                     throws JellyException {
                 this.text = text;

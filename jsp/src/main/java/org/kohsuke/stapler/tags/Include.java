@@ -139,7 +139,7 @@ public class Include extends SimpleTagSupport {
 class Wrapper extends HttpServletResponseWrapper {
     private final PrintWriter pw;
 
-    public Wrapper(HttpServletResponse httpServletResponse, PrintWriter w) {
+    Wrapper(HttpServletResponse httpServletResponse, PrintWriter w) {
         super(httpServletResponse);
         this.pw = w;
     }

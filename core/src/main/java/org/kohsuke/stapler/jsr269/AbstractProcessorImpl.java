@@ -92,7 +92,7 @@ abstract class AbstractProcessorImpl extends AbstractProcessor {
     private static class CommentStrippingBufferedWriter extends BufferedWriter {
         private final AtomicInteger count = new AtomicInteger(0);
 
-        public CommentStrippingBufferedWriter(Writer out) {
+        CommentStrippingBufferedWriter(Writer out) {
             super(out);
         }
 
