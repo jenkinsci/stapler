@@ -189,6 +189,7 @@ public class DataBindingTest extends TestCase {
 
     public static class RawBinding {
         JSONObject x;
+
         JSONArray y;
 
         @DataBoundConstructor

@@ -64,6 +64,7 @@ public class AdjunctsInPage {
     public static AdjunctsInPage get() {
         return get(Stapler.getCurrentRequest());
     }
+
     /**
      * Obtains the instance associated with the current request of the given {@link StaplerRequest}.
      *
