@@ -99,8 +99,10 @@ public interface XSD {
     interface Restriction extends TypedXmlWriter {
         @XmlAttribute
         Restriction base(QName t);
+
         // for simple type
         Enumeration enumeration();
+
         // for complex type
         ContentModel sequence();
     }

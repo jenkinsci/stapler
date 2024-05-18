@@ -420,6 +420,7 @@ public abstract class Function {
             return m.invoke(o, args);
         }
     }
+
     /**
      * Normal instance methods.
      */

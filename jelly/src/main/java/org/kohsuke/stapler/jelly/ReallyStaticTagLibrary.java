@@ -145,6 +145,7 @@ public class ReallyStaticTagLibrary extends TagLibrary {
             }
         };
     }
+
     /**
      * Reusable instance.
      */

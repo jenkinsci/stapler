@@ -55,6 +55,7 @@
  * http://www.sun.com.  For more information on the Apache Software
  * Foundation, please see <http://www.apache.org/>.
  */
+
 package org.kohsuke.stapler.export;
 
 /**
@@ -79,7 +80,7 @@ class XmlChars {
      */
     public static boolean isNameChar(char c) {
         // [4] NameChar ::= Letter | Digit | '.' | '_' | ':'
-        //			| CombiningChar | Extender
+        //                  | CombiningChar | Extender
 
         if (isLetter2(c)) {
             return true;

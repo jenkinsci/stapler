@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.kohsuke.stapler.export;
 
 import static org.junit.Assert.assertEquals;
@@ -217,6 +218,7 @@ public class ModelTest {
         public String getShouldBeSkippedAsNull() {
             return null;
         }
+
         // should not get serialized in to JSON as empty map due to skipIfNull is true
         @Exported
         public NotExportedBean getNotExportedBean() {
