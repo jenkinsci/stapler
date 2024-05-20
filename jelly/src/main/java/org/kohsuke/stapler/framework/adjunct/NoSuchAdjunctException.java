@@ -41,7 +41,6 @@ public class NoSuchAdjunctException extends IOException {
     }
 
     public NoSuchAdjunctException(Throwable cause) {
-        super();
         initCause(cause);
     }
 }

@@ -98,6 +98,8 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff, 
 
     /**
      * Serves {@code index.jelly} if it's available, and returns true.
+     *
+     * @deprecated removed without replacement
      */
     @Deprecated
     public boolean serveIndexJelly(StaplerRequest req, StaplerResponse rsp, Object node)
@@ -125,6 +127,8 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff, 
 
     /**
      * Creates a {@link RequestDispatcher} that forwards to the jelly view, if available.
+     *
+     * @deprecated removed without replacement
      */
     @Deprecated
     public RequestDispatcher createDispatcher(Object it, String viewName) throws IOException {

@@ -134,18 +134,18 @@ public class Include extends SimpleTagSupport {
 
         throw new JspException("Unable to find '" + page + "' for " + it.getClass());
     }
-}
 
-class Wrapper extends HttpServletResponseWrapper {
-    private final PrintWriter pw;
+    static class Wrapper extends HttpServletResponseWrapper {
+        private final PrintWriter pw;
 
-    Wrapper(HttpServletResponse httpServletResponse, PrintWriter w) {
-        super(httpServletResponse);
-        this.pw = w;
-    }
+        Wrapper(HttpServletResponse httpServletResponse, PrintWriter w) {
+            super(httpServletResponse);
+            this.pw = w;
+        }
 
-    @Override
-    public PrintWriter getWriter() throws IOException {
-        return pw;
+        @Override
+        public PrintWriter getWriter() throws IOException {
+            return pw;
+        }
     }
 }

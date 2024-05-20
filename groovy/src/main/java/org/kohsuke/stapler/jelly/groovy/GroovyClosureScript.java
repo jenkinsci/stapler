@@ -63,9 +63,7 @@ import groovy.lang.Script;
 public abstract class GroovyClosureScript extends Script {
     private GroovyObject delegate;
 
-    protected GroovyClosureScript() {
-        super();
-    }
+    protected GroovyClosureScript() {}
 
     protected GroovyClosureScript(Binding binding) {
         super(binding);

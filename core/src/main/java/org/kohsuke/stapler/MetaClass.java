@@ -111,7 +111,7 @@ public class MetaClass extends TearOffSupport {
         dispatchers.add(new DirectoryishDispatcher());
 
         if (HttpDeletable.class.isAssignableFrom(clazz)) {
-            dispatchers.add(new HttpDeletableDispatcher());
+            dispatchers.add(new HttpDeletable.HttpDeletableDispatcher());
         }
 
         // check action <obj>.do<token>(...) and other WebMethods

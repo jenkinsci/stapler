@@ -15,10 +15,7 @@ import org.jvnet.hudson.annotation_indexer.AnnotationProcessorImpl;
 
 @ExtendWith(JavacExtension.class)
 @Options("-Werror")
-@Processors({
-    AnnotationProcessorImpl.class,
-    ExportedBeanAnnotationProcessor.class,
-})
+@Processors({AnnotationProcessorImpl.class, ExportedBeanAnnotationProcessor.class})
 class ExportedBeanAnnotationProcessorTest {
 
     private void assertEqualsCRLF(String s1, String s2) {
@@ -83,7 +80,7 @@ class ExportedBeanAnnotationProcessorTest {
                 "import org.kohsuke.stapler.export.*;",
                 "@ExportedBean public abstract class Super {",
                 "  @Exported public abstract int getCount();",
-                "}",
+                "}"
             })
     @Inline(
             name = "some.pkg.Stuff",

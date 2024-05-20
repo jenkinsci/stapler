@@ -146,7 +146,9 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
         getWrapped().serveFile(req, data, lastModified, contentLength, fileName);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * @deprecated Use {@link #serveExposedBean(StaplerRequest, Object, ExportConfig)}
+     */
     @Override
     @Deprecated
     public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor)

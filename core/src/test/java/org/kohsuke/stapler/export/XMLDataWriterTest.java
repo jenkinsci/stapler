@@ -251,7 +251,8 @@ public class XMLDataWriterTest {
     @Test
     public void testToSingularWithPluralProperties() throws Exception {
         assertEquals(
-                "<arraysWithPluralProperties _class='ArraysWithPluralProperties'><bars>foo</bars><category>general</category><category>specific</category><foos>foo</foos><style>ornate</style><style>plain</style></arraysWithPluralProperties>",
+                "<arraysWithPluralProperties _class='ArraysWithPluralProperties'><bars>foo</bars><category>general</category><category>specific</category>"
+                        + "<foos>foo</foos><style>ornate</style><style>plain</style></arraysWithPluralProperties>",
                 serialize(new ArraysWithPluralProperties(), ArraysWithPluralProperties.class));
     }
 }

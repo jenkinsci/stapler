@@ -24,7 +24,7 @@ class QueryParameterAnnotationProcessorTest {
                 "public class Stuff {",
                 "  public void doOneThing(@QueryParameter String key) {}",
                 "  public void doAnother(@QueryParameter(\"ignoredHere\") String name, @QueryParameter String address) {}",
-                "}",
+                "}"
             })
     @Test
     void basicOutput(Results results) {

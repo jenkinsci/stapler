@@ -25,7 +25,11 @@ package org.kohsuke.stapler.framework.io;
 
 import java.io.IOException;
 
-/** not needed as of Java 6 */
+/**
+ * not needed as of Java 6
+ *
+ * @deprecated use {@link IOException}
+ */
 @Deprecated
 public class IOException2 extends IOException {
     public IOException2() {}
