@@ -28,6 +28,7 @@ import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -1215,7 +1216,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                         // JENKINS-11543: If client doesn't set charset per part, use request encoding
                         try {
                             p = item.getString(Charset.forName(getCharacterEncoding()));
-                        } catch (java.io.UnsupportedEncodingException uee) {
+                        } catch (UnsupportedEncodingException uee) {
                             LOGGER.log(
                                     Level.WARNING,
                                     "Request has unsupported charset, using default for 'json' parameter",

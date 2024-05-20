@@ -82,7 +82,7 @@ public class DispatcherTest extends JettyTestCase {
         }
     }
 
-    private void check(WebClient wc, HttpMethod m) throws java.io.IOException {
+    private void check(WebClient wc, HttpMethod m) throws IOException {
         TextPage p = wc.getPage(new WebRequest(new URL(url, "verbMatch/"), m));
         assertEquals("Got " + m.name(), p.getContent());
     }

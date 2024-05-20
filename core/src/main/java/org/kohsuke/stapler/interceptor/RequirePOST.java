@@ -41,7 +41,7 @@ public @interface RequirePOST {
          * Return the {@link ForwardToView} showing a custom error page for {@link RequirePOST} annotated methods. This is
          * typically used to show a form with a "Try again using POST" button.
          *
-         * <p>Implementations are looked up using {@link java.util.ServiceLoader}, the first implementation to return a non-null value will be used.</p>
+         * <p>Implementations are looked up using {@link ServiceLoader}, the first implementation to return a non-null value will be used.</p>
          */
         @CheckForNull
         ForwardToView getForwardView();

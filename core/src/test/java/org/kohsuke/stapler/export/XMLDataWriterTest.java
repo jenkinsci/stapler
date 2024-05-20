@@ -49,7 +49,7 @@ public class XMLDataWriterTest {
 
         @Exported(visibility = 2)
         public Collection<Action> getActions() {
-            return java.util.Arrays.asList(new ParameterAction(), new CauseAction());
+            return List.of(new ParameterAction(), new CauseAction());
         }
     }
 
