@@ -37,7 +37,7 @@ import org.apache.commons.fileupload2.core.FileItemHeadersProvider;
  * {@code org.apache.commons.fileupload.servlet.ServletFileUpload
  * #parseRequest(javax.servlet.http.HttpServletRequest)}), you may
  * either request all contents of the file at once using {@link #get()} or
- * request an {@link java.io.InputStream InputStream} with
+ * request an {@link InputStream} with
  * {@link #getInputStream()} and process the file without attempting to load
  * it into memory, which may come handy with large files.
  *
@@ -53,10 +53,10 @@ public interface FileItem {
     // ------------------------------- Methods from javax.activation.DataSource
 
     /**
-     * Returns an {@link java.io.InputStream InputStream} that can be
+     * Returns an {@link InputStream} that can be
      * used to retrieve the contents of the file.
      *
-     * @return An {@link java.io.InputStream InputStream} that can be
+     * @return An {@link InputStream} that can be
      *         used to retrieve the contents of the file.
      *
      * @throws IOException if an error occurs.
@@ -195,10 +195,10 @@ public interface FileItem {
     void setFormField(boolean state);
 
     /**
-     * Returns an {@link java.io.OutputStream OutputStream} that can
+     * Returns an {@link OutputStream} that can
      * be used for storing the contents of the file.
      *
-     * @return An {@link java.io.OutputStream OutputStream} that can be used
+     * @return An {@link OutputStream} that can be used
      *         for storing the contensts of the file.
      *
      * @throws IOException if an error occurs.
