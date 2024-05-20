@@ -497,11 +497,11 @@ public interface StaplerRequest extends HttpServletRequest {
     /**
      * Obtains a commons-fileupload object that represents an uploaded file.
      *
-     * @deprecated use {@link #getFileItem2(String)}
      * @return
      *      null if a file of the given form field name doesn't exist.
      *      This includes the case where the name corresponds to a simple
      *      form field (like textbox, checkbox, etc.)
+     * @deprecated use {@link #getFileItem2(String)}
      */
     @Deprecated
     org.apache.commons.fileupload.FileItem getFileItem(String name) throws ServletException, IOException;

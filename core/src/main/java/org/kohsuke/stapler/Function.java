@@ -234,8 +234,6 @@ public abstract class Function {
                 switch (methods.size()) {
                     case 0:
                         return RETURN_NULL;
-                    default:
-                        throw new IllegalArgumentException("Too many 'fromStapler' methods on " + from);
                     case 1:
                         Method m = ((MethodFunction) methods.get(0)).m;
                         return new MethodFunction(m) {
@@ -260,6 +258,8 @@ public abstract class Function {
                                 return m.invoke(null, args);
                             }
                         };
+                    default:
+                        throw new IllegalArgumentException("Too many 'fromStapler' methods on " + from);
                 }
             }
         };
@@ -293,6 +293,8 @@ public abstract class Function {
                             case PREINVOKE:
                                 f = new PreInvokeInterceptedFunction(f, i);
                                 break;
+                            default:
+                                throw new IllegalArgumentException("Unknown Stage: " + ia.stage());
                         }
                     } catch (InstantiationException e) {
                         throw (Error)

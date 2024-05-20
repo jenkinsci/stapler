@@ -79,11 +79,11 @@ public class BoundObjectTable implements StaplerFallback {
      * This serves the script content for a bound object. Support CSP-compatible st:bind and similar methods of making
      * objects accessible to JS.
      *
-     * @param req
-     * @param rsp
+     * @param req The request
+     * @param rsp The response
      * @param var the variable name to assign the Stapler proxy to
      * @param methods the list of methods (needed for {@link WithWellKnownURL})
-     * @throws IOException
+     * @throws IOException If an I/O error occurs
      */
     public void doScript(
             StaplerRequest req, StaplerResponse rsp, @QueryParameter String var, @QueryParameter String methods)

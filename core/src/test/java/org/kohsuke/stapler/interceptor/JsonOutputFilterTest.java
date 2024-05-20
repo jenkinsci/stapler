@@ -93,13 +93,13 @@ public class JsonOutputFilterTest extends JettyTestCase {
         }
     }
 
-    @JsonOutputFilter(excludes = {"secret"})
+    @JsonOutputFilter(excludes = "secret")
     @JavaScriptMethod
     public MyData getSomeExcludedData() {
         return new MyData("Bob", "the builder", "super secret value");
     }
 
-    @JsonOutputFilter(excludes = {"secret"})
+    @JsonOutputFilter(excludes = "secret")
     @JavaScriptMethod
     public List<MyData> getSomeExcludedList() {
         return Arrays.asList(
@@ -108,7 +108,7 @@ public class JsonOutputFilterTest extends JettyTestCase {
                 new MyData("Jenkins", "the butler", "really secret as well"));
     }
 
-    @JsonOutputFilter(includes = {"name"})
+    @JsonOutputFilter(includes = "name")
     @JavaScriptMethod
     public MyData getSomeIncludedData() {
         return new MyData("Bob", "the builder", "super secret value");

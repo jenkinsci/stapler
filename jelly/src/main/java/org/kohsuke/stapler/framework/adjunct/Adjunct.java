@@ -195,8 +195,9 @@ public class Adjunct {
                 return hasCss;
             case JS:
                 return hasJavaScript;
+            default:
+                throw new IllegalArgumentException("Unknown Kind: " + k);
         }
-        throw new AssertionError(k);
     }
 
     public void write(StaplerRequest req, XMLOutput out) throws SAXException, IOException {

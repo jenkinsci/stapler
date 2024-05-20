@@ -118,7 +118,8 @@ public class Stapler extends HttpServlet {
      */
     private boolean diagnosticThreadName = true;
 
-    public @Override void init(ServletConfig servletConfig) throws ServletException {
+    @Override
+    public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         this.context = servletConfig.getServletContext();
         this.webApp = WebApp.get(context);
@@ -188,8 +189,8 @@ public class Stapler extends HttpServlet {
         this.webApp = webApp;
     }
 
-    protected @Override void service(HttpServletRequest req, HttpServletResponse rsp)
-            throws ServletException, IOException {
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse rsp) throws ServletException, IOException {
         Thread t = Thread.currentThread();
         final String oldName = t.getName();
         try {

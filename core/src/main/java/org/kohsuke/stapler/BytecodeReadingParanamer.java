@@ -511,7 +511,6 @@ final class BytecodeReadingParanamer {
          * @param classVisitor the visitor that must visit this class.
          */
         private void accept(final TypeCollector classVisitor) {
-            char[] c = new char[maxStringLength]; // buffer used to read strings
             int i, j, k; // loop variables
             int u, v, w; // indexes in b
 
@@ -566,6 +565,8 @@ final class BytecodeReadingParanamer {
                     u += 6 + readInt(u + 2);
                 }
             }
+
+            char[] c = new char[maxStringLength]; // buffer used to read strings
 
             // visits the methods
             i = readUnsignedShort(u);

@@ -32,7 +32,7 @@ class ConstructorProcessorTest {
                 "import org.kohsuke.stapler.DataBoundConstructor;",
                 "public class Stuff {",
                 "  @DataBoundConstructor public Stuff(int count, String name) {}",
-                "}",
+                "}"
             })
     @Test
     void basicOutput(Results results) {
@@ -67,9 +67,7 @@ class ConstructorProcessorTest {
                 "  @DataBoundConstructor public Stuff(int count, String name) {}",
                 "}"
             })
-    @Inline(
-            name = "some.pkg.package-info",
-            source = {"package some.pkg;"})
+    @Inline(name = "some.pkg.package-info", source = "package some.pkg;")
     @Test
     void JENKINS_11739(Results results) {
         assertEquals(Collections.emptyList(), results.diagnostics);
@@ -179,7 +177,7 @@ class ConstructorProcessorTest {
                 "import org.kohsuke.stapler.DataBoundConstructor;",
                 "public class Stuff {",
                 "  @DataBoundConstructor public Stuff(int count, String name) {}",
-                "}",
+                "}"
             })
     @Test
     void reproducibleBuild(Results results) {

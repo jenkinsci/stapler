@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler.jelly;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.jelly.JellyContext;
@@ -94,7 +93,6 @@ public class InternationalizedStringExpression extends ExpressionSupport {
      * Note: this code is also copied into idea-stapler-plugin,
      * so don't forget to update that when this code changes.
      */
-    @SuppressFBWarnings(value = "SF_SWITCH_NO_DEFAULT", justification = "No default needed.")
     private String tokenize(String text) throws JellyException {
         int parenthesis = 0;
         for (int idx = 0; idx < text.length(); idx++) {
@@ -123,6 +121,8 @@ public class InternationalizedStringExpression extends ExpressionSupport {
                 case '\'':
                     // skip strings
                     idx = text.indexOf(ch, idx + 1);
+                    break;
+                default:
                     break;
             }
         }

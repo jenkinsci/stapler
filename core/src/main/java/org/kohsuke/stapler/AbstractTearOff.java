@@ -138,7 +138,7 @@ public abstract class AbstractTearOff<CLT, S, E extends Exception> extends Cachi
                                     script = parseScript(res);
                                 } finally {
                                     LOGGER.log(Level.FINE, "cache miss; took {0}ms to parse {1}", new Object[] {
-                                        (System.nanoTime() - start) / 1_000_000, res
+                                        (System.nanoTime() - start) / 1_000_000, res,
                                     });
                                 }
                             } else {

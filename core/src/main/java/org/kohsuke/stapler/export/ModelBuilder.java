@@ -49,8 +49,8 @@ public class ModelBuilder {
     }
 
     /**
-     * @throws NotExportableException if type is not exportable
      * @return model
+     * @throws NotExportableException if type is not exportable
      */
     @NonNull
     public <T> Model<T> get(Class<T> type, @CheckForNull Class<?> propertyOwner, @Nullable String property)
