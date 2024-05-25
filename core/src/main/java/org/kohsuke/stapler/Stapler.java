@@ -927,7 +927,7 @@ public class Stapler extends HttpServlet {
             return true;
         }
         if (x instanceof IOException
-                && "finished".equals(x.getMessage())) { // com.jcraft.jzlib.DeflaterOutputStream.write
+                && "write beyond end of stream".equals(x.getMessage())) { // java.util.zip.DeflaterOutputStream.write
             return true;
         }
         return isSocketException(x.getCause());
