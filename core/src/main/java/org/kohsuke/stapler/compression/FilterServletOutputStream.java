@@ -16,6 +16,16 @@ public class FilterServletOutputStream extends ServletOutputStream {
     private final ServletOutputStream realSream;
 
     /**
+     * Whether the stream is closed; implicitly initialized to false.
+     */
+    private volatile boolean closed;
+
+    /**
+     * Object used to prevent a race on the 'closed' instance variable.
+     */
+    private final Object closeLock = new Object();
+
+    /**
      * Constructs a new {@link FilterOutputStream}.
      * @param out the stream that sits above the realStream, performing some filtering.  This must be eventually delegating eventual writes to {@code realStream}.
      * @param realStream the actual underlying ServletOutputStream from the container.  Used to check the {@link #isReady()} state and to add {@link WriteListener}s.
@@ -42,7 +52,36 @@ public class FilterServletOutputStream extends ServletOutputStream {
 
     @Override
     public void close() throws IOException {
-        out.close();
+        if (closed) {
+            return;
+        }
+        synchronized (closeLock) {
+            if (closed) {
+                return;
+            }
+            closed = true;
+        }
+
+        Throwable flushException = null;
+        try {
+            flush();
+        } catch (Throwable e) {
+            flushException = e;
+            throw e;
+        } finally {
+            if (flushException == null) {
+                out.close();
+            } else {
+                try {
+                    out.close();
+                } catch (Throwable closeException) {
+                    if (flushException != closeException) {
+                        closeException.addSuppressed(flushException);
+                    }
+                    throw closeException;
+                }
+            }
+        }
     }
 
     @Override
