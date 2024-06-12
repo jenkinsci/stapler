@@ -651,7 +651,7 @@ public class Stapler extends HttpServlet {
                 rsp.setHeader("Content-Length", Long.toString(contentLength));
             }
             OutputStream out = rsp.getOutputStream();
-            in.transferTo(rsp.getOutputStream());
+            in.transferTo(out);
             out.close();
             return true;
         } finally {
