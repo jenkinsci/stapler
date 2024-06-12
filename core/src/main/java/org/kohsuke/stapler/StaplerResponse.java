@@ -221,23 +221,12 @@ public interface StaplerResponse extends HttpServletResponse {
     }
 
     /**
-     * Works like {@link #getOutputStream()} but tries to send the response
-     * with gzip compression if the client supports it.
-     *
-     * <p>
-     * This method is useful for sending out a large text content.
-     *
-     * @param req
-     *      Used to determine whether the client supports compression
      * @deprecated use {@link #getOutputStream}
      */
     @Deprecated
     OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException;
 
     /**
-     * Works like {@link #getCompressedOutputStream(HttpServletRequest)} but this
-     * method is for {@link #getWriter()}.
-     *
      * @deprecated use {@link #getWriter}
      */
     @Deprecated
