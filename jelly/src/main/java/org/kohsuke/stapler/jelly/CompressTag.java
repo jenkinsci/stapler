@@ -34,7 +34,9 @@ import org.kohsuke.stapler.StaplerResponse;
  * for this output.
  *
  * @author Kohsuke Kawaguchi
+ * @deprecated removed without replacement
  */
+@Deprecated
 public class CompressTag extends AbstractStaplerTag {
     /**
      * Doesn't particularly do anything as the actual processing

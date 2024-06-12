@@ -24,7 +24,6 @@
 package org.kohsuke.stapler.jelly;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -36,7 +35,6 @@ import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.XMLOutput;
 import org.apache.commons.jelly.XMLOutputFactory;
-import org.apache.commons.jelly.impl.TagScript;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -80,19 +78,6 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         return output;
     }
 
-    private boolean doCompression(Script script) {
-        if (COMPRESS_BY_DEFAULT) {
-            return true;
-        }
-        if (script instanceof TagScript) {
-            TagScript ts = (TagScript) script;
-            if (ts.getLocalName().equals("compress")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private interface OutputStreamSupplier {
         @NonNull
         OutputStream get() throws IOException;
@@ -124,9 +109,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
             throws IOException {
         OutputStreamSupplier out = new LazyOutputStreamSupplier(() -> {
             req.getWebApp().getDispatchValidator().requireDispatchAllowed(req, rsp);
-            return doCompression(script)
-                    ? rsp.getCompressedOutputStream(req)
-                    : new BufferedOutputStream(rsp.getOutputStream());
+            return new BufferedOutputStream(rsp.getOutputStream());
         });
         return new OutputStream() {
             @Override
@@ -197,26 +180,4 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         }
         return HTMLWriterOutput.create(writer, escapeText);
     }
-
-    /**
-     * Whether gzip compression of the dynamic content is enabled by default or not.
-     *
-     * <p>
-     * For non-trivial web applications, where the performance matters, it is normally a good trade-off to spend
-     * a bit of CPU cycles to compress data. This is because:
-     *
-     * <ul>
-     * <li>CPU is already 1 or 2 order of magnitude faster than RAM and network.
-     * <li>CPU is getting faster than any other components, such as RAM and network.
-     * <li>Because of the TCP window slow start, on a large latency network, compression makes difference in
-     *     the order of 100ms to 1sec to the completion of a request by saving multiple roundtrips.
-     * </ul>
-     *
-     * Stuff rendered by Jelly is predominantly text, so the compression would work well.
-     *
-     * @see <a href="http://www.slideshare.net/guest22d4179/latency-trumps-all">Latency Trumps All</a>
-     */
-    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
-    public static boolean COMPRESS_BY_DEFAULT =
-            Boolean.parseBoolean(System.getProperty(DefaultScriptInvoker.class.getName() + ".compress", "true"));
 }

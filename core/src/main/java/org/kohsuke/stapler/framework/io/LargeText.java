@@ -302,12 +302,7 @@ public class LargeText {
     }
 
     protected Writer createWriter(StaplerRequest req, StaplerResponse rsp, long size) throws IOException {
-        // when sending big text, try compression. don't bother if it's small
-        if (size > 4096) {
-            return rsp.getCompressedWriter(req);
-        } else {
-            return rsp.getWriter();
-        }
+        return rsp.getWriter();
     }
 
     /**
