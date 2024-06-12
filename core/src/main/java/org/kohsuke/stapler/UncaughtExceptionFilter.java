@@ -57,6 +57,6 @@ public class UncaughtExceptionFilter implements Filter {
     /**
      * Disables the effect of {@link #setUncaughtExceptionHandler}, letting all errors be rethrown.
      */
-    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "for script console")
     public static boolean DISABLED = Boolean.getBoolean(UncaughtExceptionFilter.class.getName() + ".disabled");
 }
