@@ -14,9 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Handles an exception caught by {@link UncaughtExceptionFilter}.
  *
- * See {@link UncaughtExceptionFilter} javadoc for why this exception needs to be handled
- * by us and can't just be handled by the servlet container like it does all others.
- *
  * @author Kohsuke Kawaguchi
  */
 public interface UncaughtExceptionHandler {
