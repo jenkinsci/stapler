@@ -521,7 +521,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             // no designated data binding constructor. use reflection
             try {
                 for (int i = 0; i < len; i++) {
-                    T t = type.newInstance();
+                    T t = type.getDeclaredConstructor().newInstance();
                     r.add(t);
 
                     e = getParameterNames();
@@ -532,10 +532,25 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                         }
                     }
                 }
+            } catch (NoSuchMethodException x) {
+                throw new NoSuchMethodError(x.getMessage());
             } catch (InstantiationException x) {
                 throw new InstantiationError(x.getMessage());
             } catch (IllegalAccessException x) {
                 throw new IllegalAccessError(x.getMessage());
+            } catch (InvocationTargetException x) {
+                Throwable t = x.getCause();
+                if (t instanceof RuntimeException) {
+                    throw (RuntimeException) t;
+                } else if (t instanceof IOException) {
+                    throw new UncheckedIOException((IOException) t);
+                } else if (t instanceof Exception) {
+                    throw new RuntimeException(t);
+                } else if (t instanceof Error) {
+                    throw (Error) t;
+                } else {
+                    throw new Error(x);
+                }
             }
         }
 
