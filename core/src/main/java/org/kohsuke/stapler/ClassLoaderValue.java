@@ -30,7 +30,7 @@ import java.lang.reflect.Proxy;
  */
 abstract class ClassLoaderValue<T> {
 
-    private final ClassValue<T> storage = new ClassValue<T>() {
+    private final ClassValue<T> storage = new ClassValue<>() {
         @Override
         protected T computeValue(Class<?> type) {
             return ClassLoaderValue.this.computeValue(type.getClassLoader());

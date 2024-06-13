@@ -29,7 +29,7 @@ public class ProtectedClass {
         this.c = c;
     }
 
-    public static KlassNavigator<ProtectedClass> NAVIGATOR = new KlassNavigator<ProtectedClass>() {
+    public static KlassNavigator<ProtectedClass> NAVIGATOR = new KlassNavigator<>() {
 
         @Override
         public boolean isArray(ProtectedClass clazz) {

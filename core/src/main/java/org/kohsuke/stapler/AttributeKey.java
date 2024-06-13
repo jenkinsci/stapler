@@ -54,7 +54,7 @@ public abstract class AttributeKey<T> {
      * Creates a new request-scoped {@link AttributeKey}.
      */
     public static <T> AttributeKey<T> requestScoped() {
-        return new AttributeKey<T>() {
+        return new AttributeKey<>() {
             @Override
             public T get(HttpServletRequest req) {
                 return (T) req.getAttribute(name);
@@ -76,7 +76,7 @@ public abstract class AttributeKey<T> {
      * Creates a new session-scoped {@link AttributeKey}.
      */
     public static <T> AttributeKey<T> sessionScoped() {
-        return new AttributeKey<T>() {
+        return new AttributeKey<>() {
             @Override
             public T get(HttpServletRequest req) {
                 HttpSession s = req.getSession(false);
@@ -105,7 +105,7 @@ public abstract class AttributeKey<T> {
      * Creates a new {@link ServletContext}-scoped {@link AttributeKey}.
      */
     public static <T> AttributeKey<T> appScoped() {
-        return new AttributeKey<T>() {
+        return new AttributeKey<>() {
             @Override
             public T get(HttpServletRequest req) {
                 return (T) getContext(req).getAttribute(name);

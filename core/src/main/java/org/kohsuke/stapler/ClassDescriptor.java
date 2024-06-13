@@ -144,7 +144,7 @@ public final class ClassDescriptor {
         }
 
         Method[] declaredMethods = c.getDeclaredMethods();
-        Arrays.sort(declaredMethods, new Comparator<Method>() {
+        Arrays.sort(declaredMethods, new Comparator<>() {
             @Override
             public int compare(Method m1, Method m2) {
                 boolean m1d = m1.getAnnotation(Deprecated.class) != null;
