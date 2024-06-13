@@ -391,9 +391,8 @@ public class TypeUtil {
          */
         @Override
         public boolean equals(Object o) {
-            if (o instanceof ParameterizedType) {
+            if (o instanceof ParameterizedType that) {
                 // Check that information is equivalent
-                ParameterizedType that = (ParameterizedType) o;
 
                 if (this == that) {
                     return true;
@@ -517,8 +516,7 @@ public class TypeUtil {
 
         @Override
         public boolean equals(Object o) {
-            if (o instanceof GenericArrayType) {
-                GenericArrayType that = (GenericArrayType) o;
+            if (o instanceof GenericArrayType that) {
 
                 Type thatComponentType = that.getGenericComponentType();
                 return genericComponentType.equals(thatComponentType);
@@ -560,8 +558,7 @@ public class TypeUtil {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof WildcardType) {
-                WildcardType that = (WildcardType) obj;
+            if (obj instanceof WildcardType that) {
                 return Arrays.equals(that.getLowerBounds(), lb) && Arrays.equals(that.getUpperBounds(), ub);
             }
             return false;
@@ -569,8 +566,7 @@ public class TypeUtil {
     }
 
     public static Type getTypeArgument(Type type, int i) {
-        if (type instanceof ParameterizedType) {
-            ParameterizedType p = (ParameterizedType) type;
+        if (type instanceof ParameterizedType p) {
             return fix(p.getActualTypeArguments()[i]);
         } else {
             throw new IllegalArgumentException();
@@ -584,13 +580,11 @@ public class TypeUtil {
      * See bug 6202725.
      */
     private static Type fix(Type t) {
-        if (!(t instanceof GenericArrayType)) {
+        if (!(t instanceof GenericArrayType gat)) {
             return t;
         }
 
-        GenericArrayType gat = (GenericArrayType) t;
-        if (gat.getGenericComponentType() instanceof Class) {
-            Class c = (Class) gat.getGenericComponentType();
+        if (gat.getGenericComponentType() instanceof Class c) {
             return Array.newInstance(c, 0).getClass();
         }
 

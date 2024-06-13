@@ -639,15 +639,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     @Override
     public <T> List<T> bindJSONToList(Class<T> type, Object src) {
         ArrayList<T> r = new ArrayList<>();
-        if (src instanceof JSONObject) {
-            JSONObject j = (JSONObject) src;
+        if (src instanceof JSONObject j) {
             r.add(bindJSON(type, j));
         }
-        if (src instanceof JSONArray) {
-            JSONArray a = (JSONArray) src;
+        if (src instanceof JSONArray a) {
             for (Object o : a) {
-                if (o instanceof JSONObject) {
-                    JSONObject j = (JSONObject) o;
+                if (o instanceof JSONObject j) {
                     r.add(bindJSON(type, j));
                 }
             }
@@ -786,8 +783,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
             Lister l = Lister.create(type, genericType);
 
-            if (o instanceof JSONObject) {
-                JSONObject j = (JSONObject) o;
+            if (o instanceof JSONObject j) {
 
                 if (j.isNullObject()) { // another flavor of null. json-lib sucks.
                     return ReflectionUtils.getVmDefaultValueFor(type);
@@ -890,12 +886,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     return l.toCollection();
                 }
             }
-            if (o instanceof JSONArray) {
+            if (o instanceof JSONArray a) {
                 if (l == null) {
                     throw new WrongTypeException(
                             String.format("Got type array but no lister class found for type %s", type));
                 }
-                JSONArray a = (JSONArray) o;
                 TypePair itemType = new TypePair(l.itemGenericType, l.itemType);
                 for (Object item : a) {
                     l.add(itemType.convertJSON(item));
@@ -982,8 +977,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
      * Calls {@link DataBoundResolvable#bindResolve(StaplerRequest, JSONObject)} if the object has it.
      */
     private Object bindResolve(Object o, JSONObject src) {
-        if (o instanceof DataBoundResolvable) {
-            DataBoundResolvable dbr = (DataBoundResolvable) o;
+        if (o instanceof DataBoundResolvable dbr) {
             o = dbr.bindResolve(this, src);
         }
         return o;

@@ -270,8 +270,7 @@ public class WebApp {
     }
 
     public Klass<?> getKlass(Object o) {
-        if (o instanceof KInstance) {
-            KInstance ki = (KInstance) o;
+        if (o instanceof KInstance ki) {
             Klass k = ki.getKlass();
             if (k != null) {
                 return k;

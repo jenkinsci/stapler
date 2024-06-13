@@ -123,9 +123,8 @@ public abstract class HttpResponseRenderer {
 
         protected boolean handleHttpResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response)
                 throws IOException, ServletException {
-            if (response instanceof HttpResponse) {
+            if (response instanceof HttpResponse r) {
                 // let the result render the response
-                HttpResponse r = (HttpResponse) response;
                 try {
                     r.generateResponse(req, rsp, node);
                 } catch (IOException | ServletException | RuntimeException e) {

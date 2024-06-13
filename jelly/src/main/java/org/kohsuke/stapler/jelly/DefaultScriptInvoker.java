@@ -84,8 +84,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         if (COMPRESS_BY_DEFAULT) {
             return true;
         }
-        if (script instanceof TagScript) {
-            TagScript ts = (TagScript) script;
+        if (script instanceof TagScript ts) {
             if (ts.getLocalName().equals("compress")) {
                 return true;
             }

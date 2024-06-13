@@ -162,8 +162,7 @@ public class IncludeTag extends TagSupport {
         try {
             String source = null;
             if (JellyFacet.TRACE) {
-                if (script instanceof TagScript) {
-                    TagScript ts = (TagScript) script;
+                if (script instanceof TagScript ts) {
                     source = ts.getFileName();
                 } else {
                     source = page + " (exact source location unknown)";
