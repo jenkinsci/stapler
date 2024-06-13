@@ -122,7 +122,7 @@ public abstract class AttributeKey<T> {
             }
 
             private ServletContext getContext(HttpServletRequest req) {
-                return ((StaplerRequest) req).getServletContext();
+                return req.getServletContext();
             }
         };
     }

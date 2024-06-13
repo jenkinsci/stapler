@@ -607,7 +607,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     @Override
     public void bindJSON(Object bean, JSONObject src) {
         try {
-            for (String key : (Set<String>) src.keySet()) {
+            for (String key : src.keySet()) {
                 TypePair type = getPropertyType(bean, key);
                 if (type == null) {
                     continue;
@@ -992,7 +992,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     private <T> T injectSetters(T r, JSONObject j, Collection<String> exclusions) {
         // try to assign rest of the properties
         OUTER:
-        for (String key : (Set<String>) j.keySet()) {
+        for (String key : j.keySet()) {
             if (!exclusions.contains(key)) {
                 try {
                     // try field injection first

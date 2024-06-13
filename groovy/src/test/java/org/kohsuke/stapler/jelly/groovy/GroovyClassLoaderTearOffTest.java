@@ -28,7 +28,7 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
             MetaClassLoader mcl = webApp.getMetaClass(Foo.class).classLoader;
             GroovyClassLoaderTearOff t = mcl.loadTearOff(GroovyClassLoaderTearOff.class);
 
-            Files.write(tmp, "context.setVariable('x',1)".getBytes(StandardCharsets.UTF_8));
+            Files.writeString(tmp, "context.setVariable('x',1)", StandardCharsets.UTF_8);
 
             JellyContext context = new JellyContext();
             XMLOutput w = XMLOutput.createXMLOutput(System.out);
@@ -36,7 +36,7 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
             assertEquals(1, context.getVariable("x"));
 
             // reload different content in the same URL, make sure new class gets loaded
-            Files.write(tmp, "context.setVariable('x',2)".getBytes(StandardCharsets.UTF_8));
+            Files.writeString(tmp, "context.setVariable('x',2)", StandardCharsets.UTF_8);
             t.parse(tmp.toUri().toURL()).run(context, w);
             assertEquals(2, context.getVariable("x"));
         } finally {
@@ -51,7 +51,7 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
             MetaClassLoader mcl = webApp.getMetaClass(Foo.class).classLoader;
             GroovyClassLoaderTearOff t = mcl.loadTearOff(GroovyClassLoaderTearOff.class);
 
-            Files.write(tmp, "output.write(_('localizable'))".getBytes(StandardCharsets.UTF_8));
+            Files.writeString(tmp, "output.write(_('localizable'))", StandardCharsets.UTF_8);
             Files.writeString(
                     tmp.resolveSibling(tmp.getFileName().toString().replaceFirst("[.]groovy$", ".properties")),
                     "localizable=Localizable",
@@ -78,10 +78,10 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
             MetaClassLoader mcl = webApp.getMetaClass(Foo.class).classLoader;
             GroovyClassLoaderTearOff t = mcl.loadTearOff(GroovyClassLoaderTearOff.class);
 
-            Files.write(
+            Files.writeString(
                     tmp,
-                    "def tz = java.util.TimeZone.getDefault()\ncontext.setVariable('x', (tz.rawOffset + tz.DSTSavings) / 3600000)"
-                            .getBytes(StandardCharsets.UTF_8));
+                    "def tz = java.util.TimeZone.getDefault()\ncontext.setVariable('x', (tz.rawOffset + tz.DSTSavings) / 3600000)",
+                    StandardCharsets.UTF_8);
 
             JellyContext context = new JellyContext();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
