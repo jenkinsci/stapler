@@ -323,7 +323,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * a jelly tag that needs evaluation?
      */
     private boolean isTag(QName name) {
-        return name.getNamespaceURI().length() > 0;
+        return !name.getNamespaceURI().isEmpty();
     }
 
     /**

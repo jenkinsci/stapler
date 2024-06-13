@@ -627,7 +627,7 @@ public class MetaClass extends TearOffSupport {
 
             for (String name : names) {
                 final Function ff = f.contextualize(new WebMethodContext(name));
-                if (name.length() == 0) {
+                if (name.isEmpty()) {
                     dispatchers.add(new IndexDispatcher(ff));
                 } else {
                     final boolean isAccepted = filteredFunctions.contains(f);

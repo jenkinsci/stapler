@@ -132,7 +132,7 @@ public final class TokenList {
     public String toString() {
         StringBuilder buf = new StringBuilder();
         for (int i = 0; i < tokens.length; i++) {
-            if (buf.length() > 0) {
+            if (!buf.isEmpty()) {
                 buf.append('/');
             }
             if (i == idx) {

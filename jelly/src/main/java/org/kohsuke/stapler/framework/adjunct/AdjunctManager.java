@@ -162,7 +162,7 @@ public class AdjunctManager {
      */
     public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         String path = req.getRestOfPath();
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             throw HttpResponses.error(
                     HttpServletResponse.SC_NOT_FOUND, new IllegalArgumentException("No adjunct provided"));
         }

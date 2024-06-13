@@ -89,7 +89,7 @@ public class ResourceBundle {
             for (int i = 0; i < suffixes.length; i++) {
                 String suffix = suffixes[i];
                 String msg = get(suffix).getProperty(key);
-                if (msg != null && msg.length() > 0) {
+                if (msg != null && !msg.isEmpty()) {
                     // ignore a definition without value, because stapler:i18n generates
                     // value-less definitions
                     return msg;
@@ -111,7 +111,7 @@ public class ResourceBundle {
     public String getFormatStringWithoutDefaulting(Locale locale, String key) {
         for (String s : toStrings(locale)) {
             String msg = get(s).getProperty(key);
-            if (msg != null && msg.length() > 0) {
+            if (msg != null && !msg.isEmpty()) {
                 return msg;
             }
         }
@@ -161,7 +161,7 @@ public class ResourceBundle {
             throw new UncheckedIOException("Failed to load " + url + ": " + e, e);
         }
 
-        resources.put(key, wrapUp(key.length() > 0 ? key.substring(1) : "", props));
+        resources.put(key, wrapUp(!key.isEmpty() ? key.substring(1) : "", props));
         return props;
     }
 
