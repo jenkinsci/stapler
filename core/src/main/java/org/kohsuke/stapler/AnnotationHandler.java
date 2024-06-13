@@ -24,6 +24,7 @@
 package org.kohsuke.stapler;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import javax.servlet.ServletException;
 import org.apache.commons.beanutils.Converter;
 
@@ -82,8 +83,11 @@ public abstract class AnnotationHandler<T extends Annotation> {
             InjectedParameter ip = at.getAnnotation(InjectedParameter.class);
             if (ip != null) {
                 try {
-                    return ip.value().newInstance();
-                } catch (InstantiationException | IllegalAccessException e) {
+                    return ip.value().getDeclaredConstructor().newInstance();
+                } catch (NoSuchMethodException
+                        | InstantiationException
+                        | IllegalAccessException
+                        | InvocationTargetException e) {
                     throw new RuntimeException("Failed to instantiate parameter injector for " + at, e);
                 }
             } else {

@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
@@ -1188,7 +1189,7 @@ public class Stapler extends HttpServlet {
                 return null;
             }
             Class<?> cl = type.getClassLoader().loadClass(type.getName() + "$StaplerConverterImpl");
-            c = (Converter) cl.newInstance();
+            c = (Converter) cl.getDeclaredConstructor().newInstance();
             CONVERT_UTILS.register(c, type);
             return c;
         } catch (ClassNotFoundException e) {
@@ -1197,10 +1198,27 @@ public class Stapler extends HttpServlet {
             IllegalAccessError x = new IllegalAccessError();
             x.initCause(e);
             throw x;
+        } catch (NoSuchMethodException e) {
+            NoSuchMethodError x = new NoSuchMethodError();
+            x.initCause(e);
+            throw x;
         } catch (InstantiationException e) {
             InstantiationError x = new InstantiationError();
             x.initCause(e);
             throw x;
+        } catch (InvocationTargetException e) {
+            Throwable t = e.getCause();
+            if (t instanceof RuntimeException) {
+                throw (RuntimeException) t;
+            } else if (t instanceof IOException) {
+                throw new UncheckedIOException((IOException) t);
+            } else if (t instanceof Exception) {
+                throw new RuntimeException(t);
+            } else if (t instanceof Error) {
+                throw (Error) t;
+            } else {
+                throw new Error(e);
+            }
         }
 
         // bean utils doesn't check the super type, so converters that apply to multiple types

@@ -86,7 +86,8 @@ public final class JellyBuilder extends GroovyObjectSupport {
         @Override
         protected GroovyClosureScript computeValue(Class<?> type) {
             try {
-                GroovyClosureScript o = (GroovyClosureScript) type.newInstance();
+                GroovyClosureScript o =
+                        (GroovyClosureScript) type.getDeclaredConstructor().newInstance();
                 o.setDelegate(JellyBuilder.this);
                 adjunct(type.getName());
                 return o;
