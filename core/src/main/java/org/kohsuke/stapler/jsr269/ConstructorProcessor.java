@@ -104,7 +104,7 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
         try {
             StringBuilder buf = new StringBuilder();
             for (VariableElement p : c.getParameters()) {
-                if (buf.length() > 0) {
+                if (!buf.isEmpty()) {
                     buf.append(',');
                 }
                 buf.append(p.getSimpleName());

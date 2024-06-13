@@ -242,7 +242,7 @@ final class BytecodeReadingParanamer {
         }
 
         private String getResult() {
-            return result.length() != 0 ? result.substring(1) : "";
+            return !result.isEmpty() ? result.substring(1) : "";
         }
 
         private boolean isDebugInfoPresent() {

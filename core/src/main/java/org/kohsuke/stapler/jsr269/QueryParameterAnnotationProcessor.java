@@ -62,7 +62,7 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
     private void write(ExecutableElement m) throws IOException {
         StringBuilder buf = new StringBuilder();
         for (VariableElement p : m.getParameters()) {
-            if (buf.length() > 0) {
+            if (!buf.isEmpty()) {
                 buf.append(',');
             }
             buf.append(p.getSimpleName());

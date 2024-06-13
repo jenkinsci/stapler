@@ -56,7 +56,7 @@ public @interface Header {
         public Object parse(StaplerRequest request, Header a, Class type, String parameterName)
                 throws ServletException {
             String name = a.value();
-            if (name.length() == 0) {
+            if (name.isEmpty()) {
                 name = parameterName;
             }
             if (name == null) {

@@ -309,7 +309,7 @@ public final class ClassDescriptor {
                 s.close();
 
                 String v = p.getProperty("constructor");
-                if (v.length() == 0) {
+                if (v.isEmpty()) {
                     return new String[0];
                 }
                 return v.split(",");

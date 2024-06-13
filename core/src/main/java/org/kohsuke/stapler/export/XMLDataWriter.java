@@ -151,7 +151,7 @@ final class XMLDataWriter implements DataWriter {
     }
 
     /*package*/ static String makeXmlName(String name) {
-        if (name.length() == 0) {
+        if (name.isEmpty()) {
             name = "_";
         }
 
