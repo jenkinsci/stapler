@@ -377,8 +377,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * limitations under the License.
      */
     private void configureTag(Tag tag, Map attributes) throws JellyException {
-        if (tag instanceof DynaTag) {
-            DynaTag dynaTag = (DynaTag) tag;
+        if (tag instanceof DynaTag dynaTag) {
 
             for (Object o : attributes.entrySet()) {
                 Entry entry = (Entry) o;

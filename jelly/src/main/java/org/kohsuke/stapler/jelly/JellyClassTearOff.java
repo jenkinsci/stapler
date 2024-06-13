@@ -78,8 +78,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff, 
         }
 
         for (Facet f : owner.webApp.facets) {
-            if (f instanceof JellyCompatibleFacet && !(f instanceof JellyFacet)) {
-                JellyCompatibleFacet jcf = (JellyCompatibleFacet) f;
+            if (f instanceof JellyCompatibleFacet jcf && !(f instanceof JellyFacet)) {
                 for (Class<? extends AbstractTearOff<?, ? extends Script, ?>> ct : jcf.getClassTearOffTypes()) {
                     try {
                         Script s = owner.loadTearOff(ct).resolveScript(shortName);
@@ -108,8 +107,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff, 
             Script script = findScript("index.jelly");
             if (script != null) {
                 String src = "index.jelly";
-                if (script instanceof JellyViewScript) {
-                    JellyViewScript jvs = (JellyViewScript) script;
+                if (script instanceof JellyViewScript jvs) {
                     src = jvs.getName();
                 }
                 Dispatcher.anonymizedTraceEval(req, rsp, node, "%s: Jelly index: %s", src);

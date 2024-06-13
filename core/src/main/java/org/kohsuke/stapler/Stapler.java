@@ -799,8 +799,7 @@ public class Stapler extends HttpServlet {
         ancestor.addToOwner();
 
         // try overrides
-        if (node instanceof StaplerOverridable) {
-            StaplerOverridable o = (StaplerOverridable) node;
+        if (node instanceof StaplerOverridable o) {
             Collection<?> list = o.getOverrides();
             if (list != null) {
                 int count = 0;
