@@ -28,7 +28,7 @@ public class SingleLinkedList<T> extends AbstractList<T> {
 
     @Override
     public Iterator<T> iterator() {
-        return new Iterator<T>() {
+        return new Iterator<>() {
             SingleLinkedList<T> next = SingleLinkedList.this;
 
             @Override

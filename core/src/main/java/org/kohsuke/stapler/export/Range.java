@@ -41,7 +41,7 @@ public class Range {
         if (s instanceof List) {
             return apply((List<T>) s);
         } else {
-            return new Iterable<T>() {
+            return new Iterable<>() {
                 @Override
                 public Iterator<T> iterator() {
                     Iterator<T> itr = s.iterator();

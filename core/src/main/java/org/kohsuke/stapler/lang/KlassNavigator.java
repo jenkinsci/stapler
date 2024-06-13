@@ -139,7 +139,7 @@ public abstract class KlassNavigator<C> {
         return ((Map) o).get(key);
     }
 
-    public static final KlassNavigator<Class> JAVA = new KlassNavigator<Class>() {
+    public static final KlassNavigator<Class> JAVA = new KlassNavigator<>() {
         @Override
         public URL getResource(Class clazz, String resourceName) {
             ClassLoader cl = clazz.getClassLoader();
@@ -186,7 +186,7 @@ public abstract class KlassNavigator<C> {
         @Override
         public List<MethodRef> getDeclaredMethods(Class clazz) {
             final Method[] methods = clazz.getDeclaredMethods();
-            return new AbstractList<MethodRef>() {
+            return new AbstractList<>() {
                 @Override
                 public MethodRef get(int index) {
                     return MethodRef.wrap(methods[index]);
@@ -202,7 +202,7 @@ public abstract class KlassNavigator<C> {
         @Override
         public List<FieldRef> getDeclaredFields(Class clazz) {
             final Field[] fields = clazz.getDeclaredFields();
-            return new AbstractList<FieldRef>() {
+            return new AbstractList<>() {
                 @Override
                 public FieldRef get(int index) {
                     return FieldRef.wrap(fields[index]);

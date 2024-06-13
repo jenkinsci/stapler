@@ -35,7 +35,7 @@ import java.lang.reflect.InvocationTargetException;
  * @author Kohsuke Kawaguchi
  */
 public abstract class TearOffSupport {
-    private final ClassValue<Object> tearOffs = new ClassValue<Object>() {
+    private final ClassValue<Object> tearOffs = new ClassValue<>() {
         @Override
         protected Object computeValue(Class<?> type) {
             try {

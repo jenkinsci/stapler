@@ -92,7 +92,7 @@ public class TypeUtil {
     /**
      * Implements the logic for {@link #erasure(Type)}.
      */
-    private static final TypeVisitor<Class, Void> eraser = new TypeVisitor<Class, Void>() {
+    private static final TypeVisitor<Class, Void> eraser = new TypeVisitor<>() {
         @Override
         public Class onClass(Class c, Void unused) {
             return c;
@@ -130,7 +130,7 @@ public class TypeUtil {
         return eraser.visit(t, null);
     }
 
-    private static final TypeVisitor<Type, Class> baseClassFinder = new TypeVisitor<Type, Class>() {
+    private static final TypeVisitor<Type, Class> baseClassFinder = new TypeVisitor<>() {
         @Override
         public Type onClass(Class c, Class sup) {
             // t is a raw type
@@ -213,7 +213,7 @@ public class TypeUtil {
         }
     };
 
-    private static final TypeVisitor<Type, BinderArg> binder = new TypeVisitor<Type, BinderArg>() {
+    private static final TypeVisitor<Type, BinderArg> binder = new TypeVisitor<>() {
         @Override
         public Type onClass(Class c, BinderArg args) {
             return c;

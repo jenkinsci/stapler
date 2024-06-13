@@ -82,7 +82,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
 
     private JellyContext context;
 
-    private final ClassValue<GroovyClosureScript> taglibs = new ClassValue<GroovyClosureScript>() {
+    private final ClassValue<GroovyClosureScript> taglibs = new ClassValue<>() {
         @Override
         protected GroovyClosureScript computeValue(Class<?> type) {
             try {

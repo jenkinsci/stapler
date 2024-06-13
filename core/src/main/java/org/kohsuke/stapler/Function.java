@@ -227,7 +227,7 @@ public abstract class Function {
             throw new AssertionError(e); // impossible
         }
 
-        PARSE_METHODS = new ClassValue<Function>() {
+        PARSE_METHODS = new ClassValue<>() {
             @Override
             public Function computeValue(Class<?> from) {
                 // MethdFunction for invoking a static method as a static method

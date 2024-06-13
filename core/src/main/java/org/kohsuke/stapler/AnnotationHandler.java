@@ -77,7 +77,7 @@ public abstract class AnnotationHandler<T extends Annotation> {
         return null; // probably we should report an error
     }
 
-    private static final ClassValue<AnnotationHandler> HANDLERS = new ClassValue<AnnotationHandler>() {
+    private static final ClassValue<AnnotationHandler> HANDLERS = new ClassValue<>() {
         @Override
         protected AnnotationHandler computeValue(Class<?> at) {
             InjectedParameter ip = at.getAnnotation(InjectedParameter.class);

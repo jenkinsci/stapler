@@ -53,7 +53,7 @@ final class Iterators {
         if (limitSize < 0) {
             throw new IllegalArgumentException("limit is negative");
         }
-        return new Iterator<T>() {
+        return new Iterator<>() {
             private int count;
 
             @Override

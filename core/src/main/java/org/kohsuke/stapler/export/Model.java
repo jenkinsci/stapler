@@ -140,7 +140,7 @@ public class Model<T> {
     /**
      * Does a property exist strictly in this class?
      */
-    /*package*/ final Predicate<String> HAS_PROPERTY_NAME = new Predicate<String>() {
+    /*package*/ final Predicate<String> HAS_PROPERTY_NAME = new Predicate<>() {
         @Override
         public boolean test(@Nullable String name) {
             return propertyNames.contains(name);
@@ -149,7 +149,7 @@ public class Model<T> {
     /**
      * Does a property exist strictly in this class or its ancestors?
      */
-    /*package*/ final Predicate<String> HAS_PROPERTY_NAME_IN_ANCESTRY = new Predicate<String>() {
+    /*package*/ final Predicate<String> HAS_PROPERTY_NAME_IN_ANCESTRY = new Predicate<>() {
         @Override
         public boolean test(@Nullable String name) {
             for (Model m = Model.this; m != null; m = m.superModel) {
