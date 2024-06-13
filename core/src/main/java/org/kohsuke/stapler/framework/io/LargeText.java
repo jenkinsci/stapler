@@ -520,9 +520,7 @@ public class LargeText {
             if (!isGzipStream(file)) {
                 return file.length();
             }
-            RandomAccessFile raf = null;
-            try {
-                raf = new RandomAccessFile(file, "r");
+            try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
                 if (raf.length() <= 4) {
                     raf.close();
                     return file.length();
@@ -535,14 +533,6 @@ public class LargeText {
                 return (b1 << 24) + (b2 << 16) + (b3 << 8) + b4;
             } catch (IOException ex) {
                 return file.length();
-            } finally {
-                if (raf != null) {
-                    try {
-                        raf.close();
-                    } catch (IOException e) {
-                        // ignore
-                    }
-                }
             }
         }
     }

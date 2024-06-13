@@ -33,8 +33,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
-import java.nio.charset.StandardCharsets;
-import java.nio.charset.UnsupportedCharsetException;
 
 /**
  * {@link OutputStream} that writes to {@link Writer}
@@ -136,14 +134,5 @@ public class WriterOutputStream extends OutputStream {
         }
     }
 
-    private static final Charset DEFAULT_CHARSET = getDefaultCharset();
-
-    private static Charset getDefaultCharset() {
-        try {
-            String encoding = System.getProperty("file.encoding");
-            return Charset.forName(encoding);
-        } catch (UnsupportedCharsetException e) {
-            return StandardCharsets.UTF_8;
-        }
-    }
+    private static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
 }

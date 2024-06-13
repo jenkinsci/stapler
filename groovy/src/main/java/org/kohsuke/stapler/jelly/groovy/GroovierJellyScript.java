@@ -85,7 +85,7 @@ public class GroovierJellyScript implements Script {
                 .filter(method -> method.getName().equals("gettext"))
                 .map(CachedMethod::find)
                 .map(method -> new AliasMetaMethod(method.getDeclaringClass(), method.getCachedMethod(), "_"))
-                .forEach(method -> metaClass.addMetaMethod(method));
+                .forEach(metaClass::addMetaMethod);
         metaClass.initialize();
         gcs.setMetaClass(metaClass);
 

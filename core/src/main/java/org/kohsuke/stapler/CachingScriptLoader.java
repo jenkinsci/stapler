@@ -52,7 +52,7 @@ public abstract class CachingScriptLoader<S, E extends Exception> {
             S s;
             if (sr == null) { // never before computed
                 s = null;
-            } else if (!sr.isPresent()) { // cached as null
+            } else if (sr.isEmpty()) { // cached as null
                 return null;
             } else { // cached as non-null; may or may not still have value
                 s = sr.get().get();

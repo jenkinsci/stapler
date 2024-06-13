@@ -27,6 +27,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -177,18 +178,13 @@ public class Model<T> {
 
             // load
             Properties p = new Properties();
-            InputStream is = type.getClassLoader()
-                    .getResourceAsStream(type.getName().replace('$', '/').replace('.', '/') + ".javadoc");
-            if (is != null) {
-                try {
-                    try {
-                        p.load(is);
-                    } finally {
-                        is.close();
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException("Unable to load javadoc for " + type, e);
+            try (InputStream is = type.getClassLoader()
+                    .getResourceAsStream(type.getName().replace('$', '/').replace('.', '/') + ".javadoc")) {
+                if (is != null) {
+                    p.load(is);
                 }
+            } catch (IOException e) {
+                throw new UncheckedIOException("Unable to load javadoc for " + type, e);
             }
             javadoc = p;
             return javadoc;
