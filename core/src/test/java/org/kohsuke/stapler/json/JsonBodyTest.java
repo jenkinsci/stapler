@@ -15,11 +15,6 @@ public class JsonBodyTest extends JettyTestCase {
         WebResponse response = createWebClient().getPage(req).getWebResponse();
         assertEquals("application/json", response.getContentType());
         assertEquals("{\"x\":20,\"y\":10}", response.getContentAsString());
-        // and then with compression:
-        req.setAdditionalHeader("Accept-Encoding", "gzip");
-        response = createWebClient().getPage(req).getWebResponse();
-        assertEquals("application/json", response.getContentType());
-        assertEquals("{\"x\":20,\"y\":10}", response.getContentAsString());
     }
 
     @JsonResponse

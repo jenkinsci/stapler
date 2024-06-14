@@ -50,7 +50,7 @@ public class JsonHttpResponse extends HttpResponseException {
         }
         if (responseJson != null) {
             rsp.setContentType("application/json;charset=UTF-8");
-            try (Writer w = rsp.getCompressedWriter(req)) {
+            try (Writer w = rsp.getWriter()) {
                 responseJson.write(w);
             }
         }

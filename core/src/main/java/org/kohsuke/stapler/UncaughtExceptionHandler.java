@@ -1,4 +1,4 @@
-package org.kohsuke.stapler.compression;
+package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
@@ -10,13 +10,9 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.kohsuke.stapler.Stapler;
 
 /**
- * Handles an exception caught by {@link CompressionFilter}.
- *
- * See {@link CompressionFilter} javadoc for why this exception needs to be handled
- * by us and can't just be handled by the servlet container like it does all others.
+ * Handles an exception caught by {@link UncaughtExceptionFilter}.
  *
  * @author Kohsuke Kawaguchi
  */

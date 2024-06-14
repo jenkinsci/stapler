@@ -49,7 +49,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -611,21 +610,6 @@ public class Stapler extends HttpServlet {
             // a comprehensive discussion on this topic
             rsp.setHeader("X-Content-Type-Options", "nosniff");
 
-            int idx = fileName.lastIndexOf('.');
-            String ext = fileName.substring(idx + 1);
-
-            OutputStream out = null;
-            if (mimeType.startsWith("text/") || TEXT_FILES.contains(ext)) {
-                // Need to duplicate this logic from ResponseImpl.getCompressedOutputStream,
-                // since we want to set content length if we are not using encoding.
-                String acceptEncoding = req.getHeader("Accept-Encoding");
-                if (acceptEncoding != null && acceptEncoding.contains("gzip")) {
-                    // with gzip compression, Content-Length header needs to indicate the # of bytes after compression,
-                    // so we can't compute it upfront.
-                    out = rsp.getCompressedOutputStream(req);
-                }
-            }
-
             // somewhat limited implementation of the partial GET
             String range = req.getHeader("Range");
             if (range != null
@@ -664,18 +648,11 @@ public class Stapler extends HttpServlet {
                 }
             }
 
-            if (out == null) {
-                if (contentLength != -1) {
-                    rsp.setHeader("Content-Length", Long.toString(contentLength));
-                }
-                out = rsp.getOutputStream();
+            if (contentLength != -1) {
+                rsp.setHeader("Content-Length", Long.toString(contentLength));
             }
-
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
+            OutputStream out = rsp.getOutputStream();
+            in.transferTo(out);
             out.close();
             return true;
         } finally {
@@ -1108,12 +1085,6 @@ public class Stapler extends HttpServlet {
     /*package*/ static ThreadLocal<ResponseImpl> CURRENT_RESPONSE = new ThreadLocal<>();
 
     private static final Logger LOGGER = Logger.getLogger(Stapler.class.getName());
-
-    /**
-     * Extensions that look like text files.
-     */
-    private static final Set<String> TEXT_FILES = new HashSet<>(
-            Arrays.asList("css", "js", "html", "txt", "java", "htm", "c", "cpp", "h", "rb", "pl", "py", "xml", "json"));
 
     /**
      * Get raw servlet path (decoded in TokenList).

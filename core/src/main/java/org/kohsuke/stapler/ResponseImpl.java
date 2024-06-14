@@ -39,7 +39,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.zip.GZIPOutputStream;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -47,8 +46,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import net.sf.json.JsonConfig;
 import org.apache.commons.io.IOUtils;
-import org.kohsuke.stapler.compression.CompressionFilter;
-import org.kohsuke.stapler.compression.FilterServletOutputStream;
 import org.kohsuke.stapler.export.DataWriter;
 import org.kohsuke.stapler.export.ExportConfig;
 import org.kohsuke.stapler.export.Flavor;
@@ -293,7 +290,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         String pad = null;
         Flavor flavor = config.getFlavor();
         setContentType(flavor.contentType);
-        Writer w = getCompressedWriter(req);
+        Writer w = getWriter();
 
         if (flavor == Flavor.JSON
                 || flavor == Flavor.JSONP) { // for compatibility reasons, accept JSON for JSONP as well.
@@ -347,51 +344,14 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         p.writeTo(item, pruner, dw);
     }
 
-    private boolean acceptsGzip(HttpServletRequest req) {
-        String acceptEncoding = req.getHeader("Accept-Encoding");
-        return acceptEncoding != null && acceptEncoding.contains("gzip");
-    }
-
     @Override
     public OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException {
-        if (mode != null) { // we already made the call and created OutputStream/Writer
-            return getOutputStream();
-        }
-
-        if (!acceptsGzip(req)) {
-            return getOutputStream(); // compression not applicable here
-        }
-
-        if (CompressionFilter.activate(req)) {
-            return getOutputStream(); // CompressionFilter will set up compression. no need to do anything
-        }
-
-        // CompressionFilter not available, so do it on our own.
-        // see CompressionFilter for why this is not desirable
-        setHeader("Content-Encoding", "gzip");
-        return recordOutput(
-                new FilterServletOutputStream(new GZIPOutputStream(super.getOutputStream()), super.getOutputStream()));
+        return getOutputStream();
     }
 
     @Override
     public Writer getCompressedWriter(HttpServletRequest req) throws IOException {
-        if (mode != null) {
-            return getWriter();
-        }
-
-        if (!acceptsGzip(req)) {
-            return getWriter(); // compression not available
-        }
-
-        if (CompressionFilter.activate(req)) {
-            return getWriter(); // CompressionFilter will set up compression. no need to do anything
-        }
-
-        // CompressionFilter not available, so do it on our own.
-        // see CompressionFilter for why this is not desirable
-        setHeader("Content-Encoding", "gzip");
-        return recordOutput(new PrintWriter(
-                new OutputStreamWriter(new GZIPOutputStream(super.getOutputStream()), getCharacterEncoding())));
+        return getWriter();
     }
 
     @Override
