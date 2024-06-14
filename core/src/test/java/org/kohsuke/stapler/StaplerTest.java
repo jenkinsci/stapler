@@ -67,7 +67,7 @@ public class StaplerTest extends TestCase {
                     new URL("file:/c:/" + path));
 
             assertToFile(
-                    path.length() == 0 ? "\\\\vboxsvr" : "\\\\vboxsvr\\" + path.replace("%20", " "),
+                    path.isEmpty() ? "\\\\vboxsvr" : "\\\\vboxsvr\\" + path.replace("%20", " "),
                     new URL("file://vboxsvr/" + path),
                     new URL("file:////vboxsvr/" + path));
         }

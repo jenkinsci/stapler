@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
@@ -221,7 +222,7 @@ public class Stapler extends HttpServlet {
             }
 
             String lowerPath = servletPath.toLowerCase(Locale.ENGLISH);
-            if (servletPath.length() != 0 && !lowerPath.startsWith("/web-inf") && !lowerPath.startsWith("/meta-inf")) {
+            if (!servletPath.isEmpty() && !lowerPath.startsWith("/web-inf") && !lowerPath.startsWith("/meta-inf")) {
                 // getResource requires '/' prefix (and resin insists on that, too) but servletPath can be empty string
                 // (JENKINS-879)
                 // so make sure servletPath is at least length 1 before calling getResource()
@@ -618,7 +619,7 @@ public class Stapler extends HttpServlet {
                     Matcher m = RANGE_SPEC.matcher(range);
                     if (m.matches()) {
                         long s = Long.parseLong(m.group(1));
-                        long e = m.group(2).length() > 0
+                        long e = !m.group(2).isEmpty()
                                 ? Long.parseLong(m.group(2)) + 1 // range set is inclusive
                                 : contentLength; // unspecified value means "all the way to the end"
                         e = Math.min(e, contentLength);
@@ -775,8 +776,7 @@ public class Stapler extends HttpServlet {
         ancestor.addToOwner();
 
         // try overrides
-        if (node instanceof StaplerOverridable) {
-            StaplerOverridable o = (StaplerOverridable) node;
+        if (node instanceof StaplerOverridable o) {
             Collection<?> list = o.getOverrides();
             if (list != null) {
                 int count = 0;
@@ -1100,7 +1100,7 @@ public class Stapler extends HttpServlet {
     static String canonicalPath(String path) {
         List<String> r = new ArrayList<>(Arrays.asList(path.split("/+")));
         for (int i = 0; i < r.size(); ) {
-            if (r.get(i).length() == 0 || r.get(i).equals(".")) {
+            if (r.get(i).isEmpty() || r.get(i).equals(".")) {
                 // empty token occurs for example, "".split("/+") is [""]
                 r.remove(i);
             } else if (r.get(i).equals("..")) {
@@ -1129,7 +1129,7 @@ public class Stapler extends HttpServlet {
             buf.append(token);
         }
         // translation: if (path.endsWith("/") && !buf.endsWith("/"))
-        if (path.endsWith("/") && (buf.length() == 0 || buf.charAt(buf.length() - 1) != '/')) {
+        if (path.endsWith("/") && (buf.isEmpty() || buf.charAt(buf.length() - 1) != '/')) {
             buf.append('/');
         }
         return buf.toString();
@@ -1159,7 +1159,7 @@ public class Stapler extends HttpServlet {
                 return null;
             }
             Class<?> cl = type.getClassLoader().loadClass(type.getName() + "$StaplerConverterImpl");
-            c = (Converter) cl.newInstance();
+            c = (Converter) cl.getDeclaredConstructor().newInstance();
             CONVERT_UTILS.register(c, type);
             return c;
         } catch (ClassNotFoundException e) {
@@ -1168,10 +1168,27 @@ public class Stapler extends HttpServlet {
             IllegalAccessError x = new IllegalAccessError();
             x.initCause(e);
             throw x;
+        } catch (NoSuchMethodException e) {
+            NoSuchMethodError x = new NoSuchMethodError();
+            x.initCause(e);
+            throw x;
         } catch (InstantiationException e) {
             InstantiationError x = new InstantiationError();
             x.initCause(e);
             throw x;
+        } catch (InvocationTargetException e) {
+            Throwable t = e.getCause();
+            if (t instanceof RuntimeException) {
+                throw (RuntimeException) t;
+            } else if (t instanceof IOException) {
+                throw new UncheckedIOException((IOException) t);
+            } else if (t instanceof Exception) {
+                throw new RuntimeException(t);
+            } else if (t instanceof Error) {
+                throw (Error) t;
+            } else {
+                throw new Error(e);
+            }
         }
 
         // bean utils doesn't check the super type, so converters that apply to multiple types

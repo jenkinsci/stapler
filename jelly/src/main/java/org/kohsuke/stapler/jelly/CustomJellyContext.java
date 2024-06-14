@@ -175,8 +175,7 @@ class CustomJellyContext extends JellyContext {
 
         @Override
         protected Expression createEscapingExpression(Expression exp) {
-            if (exp instanceof InternationalizedStringExpression) {
-                InternationalizedStringExpression i18nexp = (InternationalizedStringExpression) exp;
+            if (exp instanceof InternationalizedStringExpression i18nexp) {
                 return i18nexp.makeEscapingExpression();
             }
             return super.createEscapingExpression(exp);

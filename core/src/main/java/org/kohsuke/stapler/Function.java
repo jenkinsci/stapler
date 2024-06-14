@@ -24,6 +24,7 @@
 package org.kohsuke.stapler;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.WrongMethodTypeException;
@@ -226,7 +227,7 @@ public abstract class Function {
             throw new AssertionError(e); // impossible
         }
 
-        PARSE_METHODS = new ClassValue<Function>() {
+        PARSE_METHODS = new ClassValue<>() {
             @Override
             public Function computeValue(Class<?> from) {
                 // MethdFunction for invoking a static method as a static method
@@ -285,7 +286,7 @@ public abstract class Function {
                 final InterceptorAnnotation ia = a.annotationType().getAnnotation(InterceptorAnnotation.class);
                 if (ia != null) {
                     try {
-                        Interceptor i = ia.value().newInstance();
+                        Interceptor i = ia.value().getDeclaredConstructor().newInstance();
                         switch (ia.stage()) {
                             case SELECTION:
                                 f = new SelectionInterceptedFunction(f, i);
@@ -296,6 +297,10 @@ public abstract class Function {
                             default:
                                 throw new IllegalArgumentException("Unknown Stage: " + ia.stage());
                         }
+                    } catch (NoSuchMethodException e) {
+                        throw (Error)
+                                new NoSuchMethodError("Failed to instantiate interceptor for " + f.getDisplayName())
+                                        .initCause(e);
                     } catch (InstantiationException e) {
                         throw (Error)
                                 new InstantiationError("Failed to instantiate interceptor for " + f.getDisplayName())
@@ -304,6 +309,19 @@ public abstract class Function {
                         throw (Error)
                                 new IllegalAccessError("Failed to instantiate interceptor for " + f.getDisplayName())
                                         .initCause(e);
+                    } catch (InvocationTargetException e) {
+                        Throwable t = e.getCause();
+                        if (t instanceof RuntimeException) {
+                            throw (RuntimeException) t;
+                        } else if (t instanceof IOException) {
+                            throw new UncheckedIOException((IOException) t);
+                        } else if (t instanceof Exception) {
+                            throw new RuntimeException(t);
+                        } else if (t instanceof Error) {
+                            throw (Error) t;
+                        } else {
+                            throw new Error(e);
+                        }
                     }
                 }
             }

@@ -63,7 +63,7 @@ public @interface QueryParameter {
         public Object parse(StaplerRequest request, QueryParameter a, Class type, String parameterName)
                 throws ServletException {
             String name = a.value();
-            if (name.length() == 0) {
+            if (name.isEmpty()) {
                 name = parameterName;
             }
             if (name == null) {
@@ -74,7 +74,7 @@ public @interface QueryParameter {
             if (a.required() && value == null) {
                 throw new ServletException("Required Query parameter " + name + " is missing");
             }
-            if (a.fixEmpty() && value != null && value.length() == 0) {
+            if (a.fixEmpty() && value != null && value.isEmpty()) {
                 value = null;
             }
             return convert(type, value);

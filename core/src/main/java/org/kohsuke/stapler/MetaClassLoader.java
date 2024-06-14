@@ -61,7 +61,7 @@ public class MetaClassLoader extends TearOffSupport {
     /**
      * All {@link MetaClass}es.
      */
-    private static final ClassLoaderValue<MetaClassLoader> classMap = new ClassLoaderValue<MetaClassLoader>() {
+    private static final ClassLoaderValue<MetaClassLoader> classMap = new ClassLoaderValue<>() {
         @Override
         protected MetaClassLoader computeValue(ClassLoader cl) {
             return new MetaClassLoader(cl);

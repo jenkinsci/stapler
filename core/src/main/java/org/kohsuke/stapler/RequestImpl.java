@@ -521,7 +521,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             // no designated data binding constructor. use reflection
             try {
                 for (int i = 0; i < len; i++) {
-                    T t = type.newInstance();
+                    T t = type.getDeclaredConstructor().newInstance();
                     r.add(t);
 
                     e = getParameterNames();
@@ -532,10 +532,25 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                         }
                     }
                 }
+            } catch (NoSuchMethodException x) {
+                throw new NoSuchMethodError(x.getMessage());
             } catch (InstantiationException x) {
                 throw new InstantiationError(x.getMessage());
             } catch (IllegalAccessException x) {
                 throw new IllegalAccessError(x.getMessage());
+            } catch (InvocationTargetException x) {
+                Throwable t = x.getCause();
+                if (t instanceof RuntimeException) {
+                    throw (RuntimeException) t;
+                } else if (t instanceof IOException) {
+                    throw new UncheckedIOException((IOException) t);
+                } else if (t instanceof Exception) {
+                    throw new RuntimeException(t);
+                } else if (t instanceof Error) {
+                    throw (Error) t;
+                } else {
+                    throw new Error(x);
+                }
             }
         }
 
@@ -592,7 +607,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     @Override
     public void bindJSON(Object bean, JSONObject src) {
         try {
-            for (String key : (Set<String>) src.keySet()) {
+            for (String key : src.keySet()) {
                 TypePair type = getPropertyType(bean, key);
                 if (type == null) {
                     continue;
@@ -624,15 +639,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     @Override
     public <T> List<T> bindJSONToList(Class<T> type, Object src) {
         ArrayList<T> r = new ArrayList<>();
-        if (src instanceof JSONObject) {
-            JSONObject j = (JSONObject) src;
+        if (src instanceof JSONObject j) {
             r.add(bindJSON(type, j));
         }
-        if (src instanceof JSONArray) {
-            JSONArray a = (JSONArray) src;
+        if (src instanceof JSONArray a) {
             for (Object o : a) {
-                if (o instanceof JSONObject) {
-                    JSONObject j = (JSONObject) o;
+                if (o instanceof JSONObject j) {
                     r.add(bindJSON(type, j));
                 }
             }
@@ -771,8 +783,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
             Lister l = Lister.create(type, genericType);
 
-            if (o instanceof JSONObject) {
-                JSONObject j = (JSONObject) o;
+            if (o instanceof JSONObject j) {
 
                 if (j.isNullObject()) { // another flavor of null. json-lib sucks.
                     return ReflectionUtils.getVmDefaultValueFor(type);
@@ -875,12 +886,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     return l.toCollection();
                 }
             }
-            if (o instanceof JSONArray) {
+            if (o instanceof JSONArray a) {
                 if (l == null) {
                     throw new WrongTypeException(
                             String.format("Got type array but no lister class found for type %s", type));
                 }
-                JSONArray a = (JSONArray) o;
                 TypePair itemType = new TypePair(l.itemGenericType, l.itemType);
                 for (Object item : a) {
                     l.add(itemType.convertJSON(item));
@@ -967,8 +977,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
      * Calls {@link DataBoundResolvable#bindResolve(StaplerRequest, JSONObject)} if the object has it.
      */
     private Object bindResolve(Object o, JSONObject src) {
-        if (o instanceof DataBoundResolvable) {
-            DataBoundResolvable dbr = (DataBoundResolvable) o;
+        if (o instanceof DataBoundResolvable dbr) {
             o = dbr.bindResolve(this, src);
         }
         return o;
@@ -983,7 +992,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     private <T> T injectSetters(T r, JSONObject j, Collection<String> exclusions) {
         // try to assign rest of the properties
         OUTER:
-        for (String key : (Set<String>) j.keySet()) {
+        for (String key : j.keySet()) {
             if (!exclusions.contains(key)) {
                 try {
                     // try field injection first
@@ -1234,7 +1243,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 isSubmission = !getParameterMap().isEmpty();
             }
 
-            if (p == null || p.length() == 0) {
+            if (p == null || p.isEmpty()) {
                 // no data submitted
                 try {
                     StaplerResponse rsp = Stapler.getCurrentResponse();

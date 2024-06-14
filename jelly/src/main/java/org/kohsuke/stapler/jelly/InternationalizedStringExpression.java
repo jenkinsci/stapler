@@ -73,7 +73,7 @@ public class InternationalizedStringExpression extends ExpressionSupport {
         List<Expression> args = new ArrayList<>();
         key = text.substring(0, idx);
         text = text.substring(idx + 1); // at this point text="arg,arg)"
-        while (text.length() > 0) {
+        while (!text.isEmpty()) {
             String token = tokenize(text);
             args.add(JellyClassLoaderTearOff.EXPRESSION_FACTORY.createExpression(token));
             text = text.substring(token.length() + 1);

@@ -76,7 +76,7 @@ class AncestorImpl implements Ancestor {
     public String getRestOfUrl() {
         StringBuilder buf = new StringBuilder();
         for (int i = index; i < tokens.length; i++) {
-            if (buf.length() > 0) {
+            if (!buf.isEmpty()) {
                 buf.append('/');
             }
             buf.append(tokens[i]);
@@ -104,12 +104,12 @@ class AncestorImpl implements Ancestor {
     public String getRelativePath() {
         StringBuilder buf = new StringBuilder();
         for (int i = index + (endsWithSlash ? 0 : 1); i < tokens.length; i++) {
-            if (buf.length() > 0) {
+            if (!buf.isEmpty()) {
                 buf.append('/');
             }
             buf.append("..");
         }
-        if (buf.length() == 0) {
+        if (buf.isEmpty()) {
             buf.append('.');
         }
         return buf.toString();

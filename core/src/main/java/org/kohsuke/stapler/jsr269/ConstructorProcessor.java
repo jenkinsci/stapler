@@ -31,7 +31,7 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try {
-            ElementScanner9<Void, Void> scanner = new ElementScanner9<Void, Void>() {
+            ElementScanner9<Void, Void> scanner = new ElementScanner9<>() {
                 Set<Element> enclosingElementsWritten = new HashSet<>();
                 boolean messagePrinted;
 
@@ -104,7 +104,7 @@ public class ConstructorProcessor extends AbstractProcessorImpl {
         try {
             StringBuilder buf = new StringBuilder();
             for (VariableElement p : c.getParameters()) {
-                if (buf.length() > 0) {
+                if (!buf.isEmpty()) {
                     buf.append(',');
                 }
                 buf.append(p.getSimpleName());

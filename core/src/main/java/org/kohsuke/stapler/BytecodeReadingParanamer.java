@@ -183,7 +183,7 @@ final class BytecodeReadingParanamer {
                 braces = braces + "[";
                 s = s.substring(0, s.length() - 2);
             }
-            if (!braces.equals("")) {
+            if (!braces.isEmpty()) {
                 if (primitives.containsKey(s)) {
                     s = braces + primitives.get(s);
                 } else {
@@ -242,7 +242,7 @@ final class BytecodeReadingParanamer {
         }
 
         private String getResult() {
-            return result.length() != 0 ? result.substring(1) : "";
+            return !result.isEmpty() ? result.substring(1) : "";
         }
 
         private boolean isDebugInfoPresent() {
@@ -1036,10 +1036,9 @@ final class BytecodeReadingParanamer {
                         ++len;
                     }
                     if (buf[off + len] == 'L') {
-                        ++len;
-                        while (buf[off + len] != ';') {
+                        do {
                             ++len;
-                        }
+                        } while (buf[off + len] != ';');
                     }
                     return new Type(ARRAY, buf, off, len + 1);
                     // case 'L':

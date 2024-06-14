@@ -82,11 +82,12 @@ public final class JellyBuilder extends GroovyObjectSupport {
 
     private JellyContext context;
 
-    private final ClassValue<GroovyClosureScript> taglibs = new ClassValue<GroovyClosureScript>() {
+    private final ClassValue<GroovyClosureScript> taglibs = new ClassValue<>() {
         @Override
         protected GroovyClosureScript computeValue(Class<?> type) {
             try {
-                GroovyClosureScript o = (GroovyClosureScript) type.newInstance();
+                GroovyClosureScript o =
+                        (GroovyClosureScript) type.getDeclaredConstructor().newInstance();
                 o.setDelegate(JellyBuilder.this);
                 adjunct(type.getName());
                 return o;
@@ -322,7 +323,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * a jelly tag that needs evaluation?
      */
     private boolean isTag(QName name) {
-        return name.getNamespaceURI().length() > 0;
+        return !name.getNamespaceURI().isEmpty();
     }
 
     /**
@@ -376,8 +377,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * limitations under the License.
      */
     private void configureTag(Tag tag, Map attributes) throws JellyException {
-        if (tag instanceof DynaTag) {
-            DynaTag dynaTag = (DynaTag) tag;
+        if (tag instanceof DynaTag dynaTag) {
 
             for (Object o : attributes.entrySet()) {
                 Entry entry = (Entry) o;

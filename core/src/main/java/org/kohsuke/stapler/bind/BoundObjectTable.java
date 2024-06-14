@@ -217,8 +217,7 @@ public class BoundObjectTable implements StaplerFallback {
 
         private synchronized Bound add(Ref ref) {
             final Object target = ref.get();
-            if (target instanceof WithWellKnownURL) {
-                WithWellKnownURL w = (WithWellKnownURL) target;
+            if (target instanceof WithWellKnownURL w) {
                 String url = w.getWellKnownUrl();
                 if (!url.startsWith("/")) {
                     LOGGER.warning("WithWellKnownURL.getWellKnownUrl must start with a slash. But we got " + url

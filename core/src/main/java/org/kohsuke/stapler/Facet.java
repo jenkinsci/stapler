@@ -27,6 +27,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -103,8 +104,11 @@ public abstract class Facet {
                     continue;
                 }
                 try {
-                    r.add(c.newInstance());
-                } catch (InstantiationException | IllegalAccessException e) {
+                    r.add(c.getDeclaredConstructor().newInstance());
+                } catch (NoSuchMethodException
+                        | InstantiationException
+                        | IllegalAccessException
+                        | InvocationTargetException e) {
                     LOGGER.log(Level.WARNING, "Failed to instantiate " + c, e);
                 }
             }

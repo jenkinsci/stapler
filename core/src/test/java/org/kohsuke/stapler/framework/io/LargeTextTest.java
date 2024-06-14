@@ -38,7 +38,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import org.apache.commons.io.output.NullOutputStream;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.jvnet.hudson.test.Issue;
@@ -86,7 +85,7 @@ public class LargeTextTest {
 
         LargeText t = new LargeText(path.toFile(), StandardCharsets.US_ASCII, true);
 
-        try (OutputStream os = NullOutputStream.NULL_OUTPUT_STREAM) {
+        try (OutputStream os = OutputStream.nullOutputStream()) {
             long writenCount = t.writeLogTo(0, os);
 
             assertEquals(size, writenCount);
