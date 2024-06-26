@@ -14,7 +14,7 @@ import org.htmlunit.WebClient;
 import org.htmlunit.html.HtmlPage;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 import org.kohsuke.stapler.test.JettyTestCase;
@@ -114,7 +114,7 @@ public class JsonOutputFilterTest extends JettyTestCase {
         return new MyData("Bob", "the builder", "super secret value");
     }
 
-    public void doIndex(StaplerResponse rsp) throws IOException {
+    public void doIndex(StaplerResponse2 rsp) throws IOException {
         rsp.setContentType("text/html");
         PrintWriter w = rsp.getWriter();
         w.println("<html><body><script src='script'></script>");

@@ -25,7 +25,7 @@ package org.kohsuke.stapler.export;
 
 import java.io.IOException;
 import java.io.Writer;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /**
  * Export flavor.
@@ -73,7 +73,7 @@ public enum Flavor {
         this.contentType = contentType;
     }
 
-    public DataWriter createDataWriter(Object bean, StaplerResponse rsp) throws IOException {
+    public DataWriter createDataWriter(Object bean, StaplerResponse2 rsp) throws IOException {
         return createDataWriter(bean, rsp.getWriter());
     }
 

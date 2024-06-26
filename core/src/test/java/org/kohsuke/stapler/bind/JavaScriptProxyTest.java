@@ -9,8 +9,8 @@ import org.htmlunit.WebClient;
 import org.htmlunit.html.HtmlPage;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.test.JettyTestCase;
 
@@ -72,7 +72,7 @@ public class JavaScriptProxyTest extends JettyTestCase {
         return y + x;
     }
 
-    public void doIndex(StaplerRequest req, StaplerResponse rsp) throws IOException {
+    public void doIndex(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException {
         rsp.setContentType("text/html");
         String crumb = req.getWebApp().getCrumbIssuer().issueCrumb();
         PrintWriter w = rsp.getWriter();
@@ -83,7 +83,7 @@ public class JavaScriptProxyTest extends JettyTestCase {
         w.println("</body></html>");
     }
 
-    public void doBindAnonymous(StaplerResponse rsp) throws IOException {
+    public void doBindAnonymous(StaplerResponse2 rsp) throws IOException {
         rsp.setContentType("text/html");
         PrintWriter w = rsp.getWriter();
         w.println("<html><body><script src='script'></script>");

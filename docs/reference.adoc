@@ -152,7 +152,7 @@ If `url` is "/fooBar/..." and `node` has a public getter method named
 evaluated against the rest of the URL.
 
 Stapler also looks for the public getter of the form
-"getXxxx(StaplerRequest)". If such a method exists, then this getter
+"getXxxx(StaplerRequest2)". If such a method exists, then this getter
 method is invoked in a similar way. This version allows the get method
 to take sophisticated action based on the current request (such as
 returning the object specific to the current user, or returning null if
@@ -234,7 +234,7 @@ ____
 ==== Dynamic Getter Method
 
 If the current object has a public method
-`getDynamic(String,StaplerRequest,StaplerResponse)`, and the URL is
+`getDynamic(String,StaplerRequest2,StaplerResponse2)`, and the URL is
 "/xxxx/..." and then this method is invoked with "xxxx" as the first
 parameter. The object returned from this method will be evaluated
 against the rest of the URL "/...." recursively.
@@ -253,9 +253,9 @@ ____
 ==== Dynamic Action Method
 
 If the current object has a public "action" method
-`doDynamic(StaplerRequest,StaplerResponse)`, then this method is
+`doDynamic(StaplerRequest2,StaplerResponse2)`, then this method is
 invoked. From within this method, the rest of the URL can be accessed by
-`StaplerRequest.getRestOfPath()`. This is convenient for an object that
+`StaplerRequest2.getRestOfPath()`. This is convenient for an object that
 wants to control the URL mapping entirely on its own.
 
 The action method is the final consumer of the request.

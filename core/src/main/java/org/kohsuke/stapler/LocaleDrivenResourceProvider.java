@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 /**
  * Service provider interface allowing to hook into webapp resource lookup.
  *
- * This cannot be made a property of WebApp as other behavior customizations, as webapp resource lookup is done before we have StaplerRequest/StaplerResponse.
+ * This cannot be made a property of WebApp as other behavior customizations, as webapp resource lookup is done before we have StaplerRequest2/StaplerResponse2.
  */
 public abstract class LocaleDrivenResourceProvider {
     /**

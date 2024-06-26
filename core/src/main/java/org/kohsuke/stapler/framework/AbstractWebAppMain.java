@@ -24,6 +24,9 @@
 package org.kohsuke.stapler.framework;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,12 +35,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 import org.jvnet.localizer.LocaleProvider;
 import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.framework.errors.NoHomeDirError;
 
 /**
@@ -198,7 +198,7 @@ public abstract class AbstractWebAppMain<T> implements ServletContextListener {
             @Override
             public Locale get() {
                 Locale locale = null;
-                StaplerRequest req = Stapler.getCurrentRequest();
+                StaplerRequest2 req = Stapler.getCurrentRequest2();
                 if (req != null) {
                     locale = req.getLocale();
                 }

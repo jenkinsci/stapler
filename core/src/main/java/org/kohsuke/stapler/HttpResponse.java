@@ -23,8 +23,8 @@
 
 package org.kohsuke.stapler;
 
+import jakarta.servlet.ServletException;
 import java.io.IOException;
-import javax.servlet.ServletException;
 
 /**
  * Object that represents the HTTP response, which is defined as a capability to produce the response.
@@ -43,5 +43,53 @@ public interface HttpResponse {
      * @param node
      *      The object whose "doXyz" method created this object.
      */
-    void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException;
+    default void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node)
+            throws IOException, ServletException {
+        if (ReflectionUtils.isOverridden(
+                HttpResponse.class,
+                getClass(),
+                "generateResponse",
+                StaplerRequest.class,
+                StaplerResponse.class,
+                Object.class)) {
+            try {
+                generateResponse(
+                        req != null ? StaplerRequest.fromStaplerRequest2(req) : null,
+                        rsp != null ? StaplerResponse.fromStaplerResponse2(rsp) : null,
+                        node);
+            } catch (javax.servlet.ServletException e) {
+                throw e.toJakartaServletException();
+            }
+        } else {
+            throw new AbstractMethodError("The class " + getClass().getName() + " must override at least one of the "
+                    + HttpResponse.class.getSimpleName() + ".generateResponse methods");
+        }
+    }
+
+    /**
+     * @deprecated use {@link #generateResponse(StaplerRequest2, StaplerResponse2, Object)}
+     */
+    @Deprecated
+    default void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+            throws IOException, javax.servlet.ServletException {
+        if (ReflectionUtils.isOverridden(
+                HttpResponse.class,
+                getClass(),
+                "generateResponse",
+                StaplerRequest2.class,
+                StaplerResponse2.class,
+                Object.class)) {
+            try {
+                generateResponse(
+                        req != null ? req.toStaplerRequest2() : null,
+                        rsp != null ? rsp.toStaplerResponse2() : null,
+                        node);
+            } catch (ServletException e) {
+                throw javax.servlet.ServletException.fromJakartaServletException(e);
+            }
+        } else {
+            throw new AbstractMethodError("The class " + getClass().getName() + " must override at least one of the "
+                    + HttpResponse.class.getSimpleName() + ".generateResponse methods");
+        }
+    }
 }

@@ -7,7 +7,7 @@ import net.sf.json.JSONObject;
  * Intercepts (and receives callbacks) about the JSON → object binding process.
  *
  * @author Kohsuke Kawaguchi
- * @see StaplerRequest#setBindInterceptor(BindInterceptor)
+ * @see StaplerRequest2#setBindInterceptor(BindInterceptor)
  * @see WebApp#bindInterceptors
  */
 public class BindInterceptor {

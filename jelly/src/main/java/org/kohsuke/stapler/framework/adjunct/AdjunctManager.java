@@ -23,17 +23,17 @@
 
 package org.kohsuke.stapler.framework.adjunct;
 
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.MetaClass;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.WebApp;
 
 /**
@@ -115,7 +115,7 @@ public class AdjunctManager {
      * @param rootURL
      *      See {@link #rootURL} for the meaning of this parameter.
      * @param expiration milliseconds from service time until expiration, for {@link #doDynamic}
-     *                    (as in {@link StaplerResponse#serveFile(StaplerRequest, URL, long)});
+     *                    (as in {@link StaplerResponse2#serveFile(StaplerRequest2, URL, long)});
      *                    if {@link #rootURL} is unique per session then this can be very long;
      *                    otherwise a day might be reasonable
      */
@@ -160,7 +160,7 @@ public class AdjunctManager {
     /**
      * Serves resources in the class loader.
      */
-    public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
+    public void doDynamic(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException, ServletException {
         String path = req.getRestOfPath();
         if (path.isEmpty()) {
             throw HttpResponses.error(

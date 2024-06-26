@@ -35,7 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 import org.xml.sax.SAXException;
 
 /**
@@ -56,23 +56,23 @@ public class AdjunctsInPage {
      */
     private final List<Adjunct> pending = new ArrayList<>();
 
-    private final StaplerRequest request;
+    private final StaplerRequest2 request;
 
     /**
-     * Obtains the instance associated with the current request of the given {@link StaplerRequest}.
+     * Obtains the instance associated with the current request of the given {@link StaplerRequest2}.
      */
     public static AdjunctsInPage get() {
-        return get(Stapler.getCurrentRequest());
+        return get(Stapler.getCurrentRequest2());
     }
 
     /**
-     * Obtains the instance associated with the current request of the given {@link StaplerRequest}.
+     * Obtains the instance associated with the current request of the given {@link StaplerRequest2}.
      *
      * <p>
      * This method is handy when the caller already have the request object around,
-     * so that we can save {@link Stapler#getCurrentRequest()} call.
+     * so that we can save {@link Stapler#getCurrentRequest2()} call.
      */
-    public static AdjunctsInPage get(StaplerRequest request) {
+    public static AdjunctsInPage get(StaplerRequest2 request) {
         AdjunctsInPage aip = (AdjunctsInPage) request.getAttribute(KEY);
         if (aip == null) {
             request.setAttribute(
@@ -81,7 +81,7 @@ public class AdjunctsInPage {
         return aip;
     }
 
-    private AdjunctsInPage(AdjunctManager manager, StaplerRequest request) {
+    private AdjunctsInPage(AdjunctManager manager, StaplerRequest2 request) {
         this.manager = manager;
         this.request = request;
     }

@@ -76,7 +76,7 @@ public abstract class Bound implements HttpResponse {
      */
     public static String getProxyScriptURL(String variableName, Bound bound) {
         if (bound == null) {
-            return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + "/null?var="
+            return Stapler.getCurrentRequest2().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + "/null?var="
                     + variableName;
         } else {
             return bound.getProxyScriptURL(variableName);
@@ -93,7 +93,7 @@ public abstract class Bound implements HttpResponse {
         final String methodsList =
                 String.join(",", getBoundJavaScriptUrlNames(getTarget().getClass()));
         // The URL looks like it has some redundant elements, but only if it's not a WithWellKnownURL
-        return Stapler.getCurrentRequest().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + getURL() + "?var="
+        return Stapler.getCurrentRequest2().getContextPath() + BoundObjectTable.SCRIPT_PREFIX + getURL() + "?var="
                 + variableName + "&methods=" + methodsList;
     }
 
