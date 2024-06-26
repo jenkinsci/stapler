@@ -1,6 +1,8 @@
 package org.kohsuke.stapler.interceptor;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.ElementType;
@@ -9,12 +11,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ServiceLoader;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
 import org.kohsuke.stapler.ForwardToView;
 import org.kohsuke.stapler.HttpResponses;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.verb.POST;
 
 /**
@@ -49,7 +49,7 @@ public @interface RequirePOST {
 
     class Processor extends Interceptor {
         @Override
-        public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
+        public Object invoke(StaplerRequest2 request, StaplerResponse2 response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException, ServletException {
             if (!request.getMethod().equals("POST")) {
                 for (ErrorCustomizer handler : ServiceLoader.load(
@@ -63,7 +63,7 @@ public @interface RequirePOST {
                 }
                 throw new InvocationTargetException(new HttpResponses.HttpResponseException() {
                     @Override
-                    public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                    public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node)
                             throws IOException, ServletException {
                         rsp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
                         rsp.addHeader("Allow", "POST");

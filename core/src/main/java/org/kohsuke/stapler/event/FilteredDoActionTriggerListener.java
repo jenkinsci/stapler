@@ -27,20 +27,20 @@ package org.kohsuke.stapler.event;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.kohsuke.stapler.Function;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /**
  * Listener that is triggered when a doAction function - that is no more accepted - is called.
  */
 public interface FilteredDoActionTriggerListener {
-    boolean onDoActionTrigger(Function f, StaplerRequest req, StaplerResponse rsp, Object node);
+    boolean onDoActionTrigger(Function f, StaplerRequest2 req, StaplerResponse2 rsp, Object node);
 
     FilteredDoActionTriggerListener JUST_WARN = new FilteredDoActionTriggerListener() {
         private final Logger LOGGER = Logger.getLogger(FilteredDoActionTriggerListener.class.getName());
 
         @Override
-        public boolean onDoActionTrigger(Function f, StaplerRequest req, StaplerResponse rsp, Object node) {
+        public boolean onDoActionTrigger(Function f, StaplerRequest2 req, StaplerResponse2 rsp, Object node) {
             if (LOGGER.isLoggable(Level.WARNING)) {
                 LOGGER.warning(String.format("BLOCKED -> <%s>.%s(...))", node, f.getName()));
             }

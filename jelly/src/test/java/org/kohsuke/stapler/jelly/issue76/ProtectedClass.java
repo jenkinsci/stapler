@@ -1,15 +1,15 @@
 package org.kohsuke.stapler.jelly.issue76;
 
+import jakarta.servlet.ServletException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.ServletException;
 import org.kohsuke.stapler.ForwardingFunction;
 import org.kohsuke.stapler.Function;
 import org.kohsuke.stapler.FunctionList;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.TraversalMethodContext;
 import org.kohsuke.stapler.lang.FieldRef;
 import org.kohsuke.stapler.lang.Klass;
@@ -153,7 +153,7 @@ public class ProtectedClass {
         private Function protect(Function f) {
             final Function traversal = new ForwardingFunction(f) {
                 @Override
-                public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+                public Object invoke(StaplerRequest2 req, StaplerResponse2 rsp, Object o, Object... args)
                         throws IllegalAccessException, InvocationTargetException, ServletException {
                     return w(super.invoke(req, rsp, u(o), args));
                 }
@@ -169,7 +169,7 @@ public class ProtectedClass {
                 }
 
                 @Override
-                public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+                public Object invoke(StaplerRequest2 req, StaplerResponse2 rsp, Object o, Object... args)
                         throws IllegalAccessException, InvocationTargetException, ServletException {
                     return super.invoke(req, rsp, u(o), args);
                 }

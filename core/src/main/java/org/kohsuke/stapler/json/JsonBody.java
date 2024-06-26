@@ -1,5 +1,6 @@
 package org.kohsuke.stapler.json;
 
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
@@ -7,12 +8,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import javax.servlet.ServletException;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.AnnotationHandler;
 import org.kohsuke.stapler.InjectedParameter;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 /**
  * Binds the body payload into POJO via json-lib.
@@ -60,7 +60,7 @@ import org.kohsuke.stapler.StaplerRequest;
 public @interface JsonBody {
     class Handler extends AnnotationHandler {
         @Override
-        public Object parse(StaplerRequest request, Annotation a, Class type, String parameterName)
+        public Object parse(StaplerRequest2 request, Annotation a, Class type, String parameterName)
                 throws ServletException {
             String ct = request.getContentType();
             if (ct == null || !ct.startsWith("application/json")) {

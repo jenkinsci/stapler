@@ -23,12 +23,12 @@
 
 package org.kohsuke.stapler.jsp;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.Facet;

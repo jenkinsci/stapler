@@ -57,8 +57,8 @@
         <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>org.eclipse.jetty.ee8</groupId>
-        <artifactId>jetty-ee8-bom</artifactId>
+        <groupId>org.eclipse.jetty.ee9</groupId>
+        <artifactId>jetty-ee9-bom</artifactId>
         <version>${jetty.version}</version>
         <type>pom</type>
         <scope>import</scope>

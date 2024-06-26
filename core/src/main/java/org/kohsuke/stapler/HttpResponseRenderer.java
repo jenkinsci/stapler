@@ -23,12 +23,12 @@
 
 package org.kohsuke.stapler;
 
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletException;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
@@ -58,7 +58,7 @@ public abstract class HttpResponseRenderer {
      *      false otherwise, in which case the next {@link HttpResponseRenderer}
      *      will be consulted.
      */
-    public abstract boolean generateResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response)
+    public abstract boolean generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node, Object response)
             throws IOException, ServletException;
 
     /**
@@ -66,7 +66,7 @@ public abstract class HttpResponseRenderer {
      */
     public static class Default extends HttpResponseRenderer {
         @Override
-        public boolean generateResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response)
+        public boolean generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node, Object response)
                 throws IOException, ServletException {
             return handleHttpResponse(req, rsp, node, response)
                     || handleJSON(rsp, response)
@@ -74,7 +74,7 @@ public abstract class HttpResponseRenderer {
                     || handlePrimitive(rsp, response);
         }
 
-        protected boolean handleJavaScriptProxyMethodCall(StaplerRequest req, StaplerResponse rsp, Object response)
+        protected boolean handleJavaScriptProxyMethodCall(StaplerRequest2 req, StaplerResponse2 rsp, Object response)
                 throws IOException {
             if (req.isJavaScriptProxyCall()) {
                 rsp.setContentType(Flavor.JSON.contentType);
@@ -112,7 +112,7 @@ public abstract class HttpResponseRenderer {
             return false;
         }
 
-        protected boolean handlePrimitive(StaplerResponse rsp, Object response) throws IOException {
+        protected boolean handlePrimitive(StaplerResponse2 rsp, Object response) throws IOException {
             if (response instanceof String || response instanceof Integer) {
                 rsp.setContentType("text/plain;charset=UTF-8");
                 rsp.getWriter().print(response);
@@ -121,7 +121,7 @@ public abstract class HttpResponseRenderer {
             return false;
         }
 
-        protected boolean handleHttpResponse(StaplerRequest req, StaplerResponse rsp, Object node, Object response)
+        protected boolean handleHttpResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node, Object response)
                 throws IOException, ServletException {
             if (response instanceof HttpResponse r) {
                 // let the result render the response
@@ -137,7 +137,7 @@ public abstract class HttpResponseRenderer {
             return false;
         }
 
-        protected boolean handleJSON(StaplerResponse rsp, Object response) throws IOException {
+        protected boolean handleJSON(StaplerResponse2 rsp, Object response) throws IOException {
             if (response instanceof JSON) {
                 rsp.setContentType(Flavor.JSON.contentType);
                 ((JSON) response).write(rsp.getWriter());

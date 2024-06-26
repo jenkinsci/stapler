@@ -1,7 +1,7 @@
 package org.kohsuke.stapler;
 
+import jakarta.servlet.http.HttpSession;
 import java.util.UUID;
-import javax.servlet.http.HttpSession;
 
 /**
  * Generates a nonce value that allows us to protect against cross-site request forgery (CSRF) attacks.
@@ -17,10 +17,30 @@ public abstract class CrumbIssuer {
     /**
      * Issues a crumb for the given request.
      */
-    public abstract String issueCrumb(StaplerRequest request);
+    public /* abstract */ String issueCrumb(StaplerRequest2 request) {
+        return ReflectionUtils.ifOverridden(
+                () -> issueCrumb(StaplerRequest.fromStaplerRequest2(request)),
+                CrumbIssuer.class,
+                getClass(),
+                "issueCrumb",
+                StaplerRequest.class);
+    }
+
+    /**
+     * @deprecated use {@link #issueCrumb(StaplerRequest2)}
+     */
+    @Deprecated
+    public String issueCrumb(StaplerRequest request) {
+        return ReflectionUtils.ifOverridden(
+                () -> issueCrumb(StaplerRequest.toStaplerRequest2(request)),
+                CrumbIssuer.class,
+                getClass(),
+                "issueCrumb",
+                StaplerRequest2.class);
+    }
 
     public final String issueCrumb() {
-        return issueCrumb(Stapler.getCurrentRequest());
+        return issueCrumb(Stapler.getCurrentRequest2());
     }
 
     /**
@@ -41,10 +61,18 @@ public abstract class CrumbIssuer {
      * @throws SecurityException
      *      If the crumb doesn't match and the request processing should abort.
      */
-    public void validateCrumb(StaplerRequest request, String submittedCrumb) {
+    public void validateCrumb(StaplerRequest2 request, String submittedCrumb) {
         if (!issueCrumb(request).equals(submittedCrumb)) {
             throw new SecurityException("Request failed to pass the crumb test (try clearing your cookies)");
         }
+    }
+
+    /**
+     * @deprecated use {@link #validateCrumb(StaplerRequest2, String)}
+     */
+    @Deprecated
+    public void validateCrumb(StaplerRequest request, String submittedCrumb) {
+        validateCrumb(StaplerRequest.toStaplerRequest2(request), submittedCrumb);
     }
 
     /**
@@ -52,7 +80,7 @@ public abstract class CrumbIssuer {
      */
     public static final CrumbIssuer DEFAULT = new CrumbIssuer() {
         @Override
-        public String issueCrumb(StaplerRequest request) {
+        public String issueCrumb(StaplerRequest2 request) {
             HttpSession s = request.getSession();
             String v = (String) s.getAttribute(ATTRIBUTE_NAME);
             if (v != null) {

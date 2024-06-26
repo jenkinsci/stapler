@@ -23,6 +23,10 @@
 
 package org.kohsuke.stapler;
 
+import io.jenkins.servlet.ServletExceptionWrapper;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.annotation.Annotation;
@@ -39,9 +43,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
@@ -125,7 +126,7 @@ public abstract class Function {
     }
 
     /**
-     * Calls {@link #bindAndInvoke(Object, StaplerRequest, StaplerResponse, Object...)} and then
+     * Calls {@link #bindAndInvoke(Object, StaplerRequest2, StaplerResponse2, Object...)} and then
      * optionally serve the response object.
      *
      * @return
@@ -171,7 +172,7 @@ public abstract class Function {
      * then figure out the rest of the arguments by looking at parameter annotations,
      * then finally call {@link #invoke}.
      */
-    Object bindAndInvoke(Object o, StaplerRequest req, StaplerResponse rsp, Object... headArgs)
+    Object bindAndInvoke(Object o, StaplerRequest2 req, StaplerResponse2 rsp, Object... headArgs)
             throws IllegalAccessException, InvocationTargetException, ServletException {
         Class[] types = getParameterTypes();
         Annotation[][] annotations = getParameterAnnotations();
@@ -186,12 +187,17 @@ public abstract class Function {
             // find the rest of the arguments. either known types, or with annotations
             for (int i = headArgs.length; i < types.length; i++) {
                 Class t = types[i];
-                if (t == StaplerRequest.class || t == HttpServletRequest.class) {
+                if (t == StaplerRequest2.class || t == HttpServletRequest.class) {
                     arguments[i] = req;
                     continue;
-                }
-                if (t == StaplerResponse.class || t == HttpServletResponse.class) {
+                } else if (t == StaplerRequest.class || t == javax.servlet.http.HttpServletRequest.class) {
+                    arguments[i] = StaplerRequest.fromStaplerRequest2(req);
+                    continue;
+                } else if (t == StaplerResponse2.class || t == HttpServletResponse.class) {
                     arguments[i] = rsp;
+                    continue;
+                } else if (t == StaplerResponse.class || t == javax.servlet.http.HttpServletResponse.class) {
+                    arguments[i] = StaplerResponse.fromStaplerResponse2(rsp);
                     continue;
                 }
 
@@ -254,7 +260,7 @@ public abstract class Function {
                             }
 
                             @Override
-                            public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+                            public Object invoke(StaplerRequest2 req, StaplerResponse2 rsp, Object o, Object... args)
                                     throws IllegalAccessException, InvocationTargetException {
                                 return m.invoke(null, args);
                             }
@@ -276,8 +282,52 @@ public abstract class Function {
     /**
      * Invokes the method.
      */
-    public abstract Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
-            throws IllegalAccessException, InvocationTargetException, ServletException;
+    public /* abstract */ Object invoke(StaplerRequest2 req, StaplerResponse2 rsp, Object o, Object... args)
+            throws IllegalAccessException, InvocationTargetException, ServletException {
+        if (ReflectionUtils.isOverridden(
+                Function.class,
+                getClass(),
+                "invoke",
+                StaplerRequest.class,
+                StaplerResponse.class,
+                Object.class,
+                Object[].class)) {
+            try {
+                return invoke(
+                        StaplerRequest.fromStaplerRequest2(req), StaplerResponse.fromStaplerResponse2(rsp), o, args);
+            } catch (javax.servlet.ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        } else {
+            throw new AbstractMethodError("The class " + getClass().getName() + " must override at least one of the "
+                    + Function.class.getSimpleName() + ".invoke methods");
+        }
+    }
+
+    /**
+     * @deprecated use {@link #invoke(StaplerRequest2, StaplerResponse2, Object, Object...)}
+     */
+    @Deprecated
+    public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+            throws IllegalAccessException, InvocationTargetException, javax.servlet.ServletException {
+        if (ReflectionUtils.isOverridden(
+                Function.class,
+                getClass(),
+                "invoke",
+                StaplerRequest2.class,
+                StaplerResponse2.class,
+                Object.class,
+                Object[].class)) {
+            try {
+                return invoke(StaplerRequest.toStaplerRequest2(req), StaplerResponse.toStaplerResponse2(rsp), o, args);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        } else {
+            throw new AbstractMethodError("The class " + getClass().getName() + " must override at least one of the "
+                    + Function.class.getSimpleName() + ".invoke methods");
+        }
+    }
 
     final Function wrapByInterceptors(AnnotatedElement m) {
         try {
@@ -420,7 +470,7 @@ public abstract class Function {
         }
 
         @Override
-        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+        public Object invoke(StaplerRequest2 req, StaplerResponse2 rsp, Object o, Object... args)
                 throws IllegalAccessException, InvocationTargetException {
             Object[] arguments;
             if (Modifier.isStatic(m.getModifiers())) {

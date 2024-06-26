@@ -4,12 +4,12 @@ import net.sf.json.JSONObject;
 
 /**
  * For data-bound class (that has a constructor marked with {@link DataBoundConstructor}, the
- * {@link #bindResolve(StaplerRequest, JSONObject)} allows an instance to replace the object
+ * {@link #bindResolve(StaplerRequest2, JSONObject)} allows an instance to replace the object
  * bound from submitted JSON object.
  *
  * <p>
  * This method is automatically invoked by Stapler during databinding method like
- * {@link StaplerRequest#bindJSON(Class, JSONObject)}.
+ * {@link StaplerRequest2#bindJSON(Class, JSONObject)}.
  *
  * <p>
  * This method definition is inspired by Java serialization's {@code readResolve()} method.
@@ -31,5 +31,5 @@ public interface DataBoundResolvable {
      *      Can be any value, including null. Typically, this method would have to return an
      *      instance of a type compatible to the caller's expectation.
      */
-    Object bindResolve(StaplerRequest request, JSONObject src);
+    Object bindResolve(StaplerRequest2 request, JSONObject src);
 }

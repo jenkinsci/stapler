@@ -23,6 +23,10 @@
 
 package org.kohsuke.stapler;
 
+import io.jenkins.servlet.ServletContextWrapper;
+import jakarta.servlet.Filter;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -31,9 +35,6 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import javax.servlet.Filter;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.event.FilteredDispatchTriggerListener;
@@ -75,9 +76,23 @@ public class WebApp {
     }
 
     /**
+     * @deprecated use {@link #get(ServletContext)}
+     */
+    @Deprecated
+    public static WebApp get(javax.servlet.ServletContext context) {
+        return get(ServletContextWrapper.toJakartaServletContext(context));
+    }
+
+    /**
+     * @deprecated use {@link #getServletContext}
+     */
+    @Deprecated
+    public final javax.servlet.ServletContext context;
+
+    /**
      * {@link ServletContext} for this webapp.
      */
-    public final ServletContext context;
+    private final ServletContext servletContext;
 
     /**
      * @deprecated Unused?
@@ -100,7 +115,7 @@ public class WebApp {
     /**
      * Global {@link BindInterceptor}s.
      *
-     * These are consulted after {@link StaplerRequest#getBindInterceptor()} is consulted.
+     * These are consulted after {@link StaplerRequest2#getBindInterceptor()} is consulted.
      * Global bind interceptors are useful to register webapp-wide conversion logic local to the application.
      * @since 1.220
      */
@@ -165,7 +180,8 @@ public class WebApp {
     private JsonInErrorMessageSanitizer jsonInErrorMessageSanitizer;
 
     public WebApp(ServletContext context) {
-        this.context = context;
+        this.servletContext = context;
+        this.context = context != null ? ServletContextWrapper.fromJakartServletContext(context) : null;
         // TODO: allow classloader to be given?
         facets.addAll(Facet.discoverExtensions(
                 Facet.class,
@@ -179,11 +195,15 @@ public class WebApp {
      * sits at the root of the URL hierarchy and handles the request to '/'.
      */
     public Object getApp() {
-        return context.getAttribute("app");
+        return servletContext.getAttribute("app");
     }
 
     public void setApp(Object app) {
-        context.setAttribute("app", app);
+        servletContext.setAttribute("app", app);
+    }
+
+    public ServletContext getServletContext() {
+        return servletContext;
     }
 
     public CrumbIssuer getCrumbIssuer() {
@@ -222,7 +242,7 @@ public class WebApp {
     }
 
     /**
-     * Sets the classloader used by {@link StaplerRequest#bindJSON(Class, JSONObject)} and its sibling methods.
+     * Sets the classloader used by {@link StaplerRequest2#bindJSON(Class, JSONObject)} and its sibling methods.
      */
     public void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
