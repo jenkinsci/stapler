@@ -155,8 +155,8 @@ public final class ClassDescriptor {
                 } else if (!m1d && m2d) {
                     return -1;
                 } else {
-                    // Sort by string representation, so for example doFoo() is preferred to doFoo(StaplerRequest,
-                    // StaplerResponse).
+                    // Sort by string representation, so for example doFoo() is preferred to doFoo(StaplerRequest2,
+                    // StaplerResponse2).
                     return m1.toString().compareTo(m2.toString());
                 }
             }
