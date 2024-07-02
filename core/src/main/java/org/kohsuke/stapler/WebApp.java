@@ -111,7 +111,10 @@ public class WebApp {
      *
      * This overrides whatever mappings given in the servlet as far as stapler is concerned.
      * This is case insensitive, and should be normalized to lower case.
+     *
+     * @deprecated removed without replacement
      */
+    @Deprecated
     public final Map<String, String> mimeTypes = new Hashtable<>();
 
     private volatile ClassLoader classLoader;
