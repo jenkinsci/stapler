@@ -144,14 +144,16 @@ public class HttpResponses {
         if (delegate instanceof Throwable) {
             return new HttpResponseException(((Throwable) delegate).getMessage(), (Throwable) delegate) {
                 @Override
-                public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                        throws IOException, ServletException {
                     delegate.generateResponse(req, rsp, node);
                 }
             };
         } else {
             return new HttpResponseException() {
                 @Override
-                public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                        throws IOException, ServletException {
                     delegate.generateResponse(req, rsp, node);
                 }
             };
