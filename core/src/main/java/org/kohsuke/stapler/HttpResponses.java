@@ -137,6 +137,27 @@ public class HttpResponses {
         };
     }
 
+    /**
+     * A runtime exception which honors a defined response.
+     */
+    public static HttpResponseException wrap(HttpResponse delegate) {
+        if (delegate instanceof Throwable) {
+            return new HttpResponseException(((Throwable) delegate).getMessage(), (Throwable) delegate) {
+                @Override
+                public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                    delegate.generateResponse(req, rsp, node);
+                }
+            };
+        } else {
+            return new HttpResponseException() {
+                @Override
+                public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                    delegate.generateResponse(req, rsp, node);
+                }
+            };
+        }
+    }
+
     public static HttpResponseException redirectViaContextPath(String relative) {
         return redirectViaContextPath(HttpServletResponse.SC_MOVED_TEMPORARILY, relative);
     }

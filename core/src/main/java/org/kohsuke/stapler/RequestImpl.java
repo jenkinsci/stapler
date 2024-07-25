@@ -671,6 +671,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             if (x instanceof RuntimeException) {
                 throw (RuntimeException) x;
             }
+            // TODO apply similar logic to other catchers of InvocationTargetException as needed
+            if (x instanceof HttpResponse) {
+                throw HttpResponses.wrap((HttpResponse) x);
+            }
             throw new IllegalArgumentException(x);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Failed to invoke " + c + " with " + Arrays.asList(args), e);
