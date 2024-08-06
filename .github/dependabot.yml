@@ -15,11 +15,6 @@ updates:
       # it would be good to update it at some point, but requires significant testing
       - dependency-name: "org.codehaus.groovy:groovy-all"
         versions: [">=2.5.0"]
-      # Must remain within Jetty 10.x until the Jakarta migration is complete; ignore Jetty 11.x updates
-      - dependency-name: "org.eclipse.jetty:*"
-        versions: [">=11.0.0"]
       # Provided by the Web container, so aligned with Jetty.
       - dependency-name: "jakarta.servlet:jakarta.servlet-api"
-      # Contains incompatible API changes and needs compatibility work.
       - dependency-name: "jakarta.servlet.jsp:jakarta.servlet.jsp-api"
-        versions: [">=3.0.0"]
