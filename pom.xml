@@ -42,7 +42,7 @@
   <properties>
     <changelist>999999-SNAPSHOT</changelist>
     <scmTag>HEAD</scmTag>
-    <jetty.version>10.0.22</jetty.version>
+    <jetty.version>12.0.12</jetty.version>
     <gitHubRepo>jenkinsci/stapler</gitHubRepo>
     <spotless.check.skip>false</spotless.check.skip>
   </properties>
@@ -52,6 +52,13 @@
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-bom</artifactId>
+        <version>${jetty.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty.ee8</groupId>
+        <artifactId>jetty-ee8-bom</artifactId>
         <version>${jetty.version}</version>
         <type>pom</type>
         <scope>import</scope>
