@@ -65,7 +65,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
-      <artifactId>commons-fileupload2-javax</artifactId>
+      <artifactId>commons-fileupload2-jakarta-servlet5</artifactId>
       <version>${commons-fileupload2.version}</version>
     </dependency>
     <dependency>
@@ -78,6 +78,11 @@
       <artifactId>groovy-all</artifactId>
       <version>2.4.21</version>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty.toolchain</groupId>
+      <artifactId>jetty-servlet-api</artifactId>
+      <version>4.0.6</version>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci</groupId>
@@ -108,7 +113,7 @@
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
-      <version>4.0.4</version>
+      <version>5.0.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -140,13 +145,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.jetty.ee8</groupId>
-      <artifactId>jetty-ee8-servlet</artifactId>
+      <groupId>org.eclipse.jetty.ee9</groupId>
+      <artifactId>jetty-ee9-servlet</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.jetty.ee8</groupId>
-      <artifactId>jetty-ee8-webapp</artifactId>
+      <groupId>org.eclipse.jetty.ee9</groupId>
+      <artifactId>jetty-ee9-webapp</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -88,7 +88,7 @@ class AncestorImpl implements Ancestor {
     @Override
     public String getFullUrl() {
         StringBuilder buf = new StringBuilder();
-        StaplerRequest req = Stapler.getCurrentRequest();
+        StaplerRequest2 req = Stapler.getCurrentRequest2();
         buf.append(req.getScheme());
         buf.append("://");
         buf.append(req.getServerName());

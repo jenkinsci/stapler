@@ -48,7 +48,7 @@ public interface DispatchValidator {
      * @return true if the request should be dispatched, false if not, or null if unknown or neutral
      */
     @CheckForNull
-    Boolean isDispatchAllowed(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp);
+    Boolean isDispatchAllowed(@NonNull StaplerRequest2 req, @NonNull StaplerResponse2 rsp);
 
     /**
      * Checks if the given request and response should be allowed to dispatch a view on an optionally present node
@@ -61,24 +61,24 @@ public interface DispatchValidator {
      * @return true if the view should be allowed to dispatch, false if it should not, or null if unknown
      */
     default @CheckForNull Boolean isDispatchAllowed(
-            @NonNull StaplerRequest req,
-            @NonNull StaplerResponse rsp,
+            @NonNull StaplerRequest2 req,
+            @NonNull StaplerResponse2 rsp,
             @NonNull String viewName,
             @CheckForNull Object node) {
         return isDispatchAllowed(req, rsp);
     }
 
     /**
-     * Allows the given request to be dispatched. Further calls to {@link #isDispatchAllowed(StaplerRequest, StaplerResponse)}
+     * Allows the given request to be dispatched. Further calls to {@link #isDispatchAllowed(StaplerRequest2, StaplerResponse2)}
      * should return true for the same request.
      */
-    void allowDispatch(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp);
+    void allowDispatch(@NonNull StaplerRequest2 req, @NonNull StaplerResponse2 rsp);
 
     /**
      * Throws a {@link CancelRequestHandlingException} if the given request is not
-     * {@linkplain #isDispatchAllowed(StaplerRequest, StaplerResponse) allowed}.
+     * {@linkplain #isDispatchAllowed(StaplerRequest2, StaplerResponse2) allowed}.
      */
-    default void requireDispatchAllowed(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp)
+    default void requireDispatchAllowed(@NonNull StaplerRequest2 req, @NonNull StaplerResponse2 rsp)
             throws CancelRequestHandlingException {
         Boolean allowed = isDispatchAllowed(req, rsp);
         if (allowed == null || !allowed) {
@@ -91,12 +91,12 @@ public interface DispatchValidator {
      */
     DispatchValidator DEFAULT = new DispatchValidator() {
         @Override
-        public Boolean isDispatchAllowed(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp) {
+        public Boolean isDispatchAllowed(@NonNull StaplerRequest2 req, @NonNull StaplerResponse2 rsp) {
             return true;
         }
 
         @Override
-        public void allowDispatch(@NonNull StaplerRequest req, @NonNull StaplerResponse rsp) {
+        public void allowDispatch(@NonNull StaplerRequest2 req, @NonNull StaplerResponse2 rsp) {
             // no-op
         }
     };

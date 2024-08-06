@@ -24,6 +24,8 @@
 package org.kohsuke.stapler.bind;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -34,8 +36,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.HttpResponse;
@@ -43,8 +43,8 @@ import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerFallback;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /**
  * Objects exported and bound by JavaScript proxies.
@@ -86,7 +86,7 @@ public class BoundObjectTable implements StaplerFallback {
      * @throws IOException If an I/O error occurs
      */
     public void doScript(
-            StaplerRequest req, StaplerResponse rsp, @QueryParameter String var, @QueryParameter String methods)
+            StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter String var, @QueryParameter String methods)
             throws IOException {
         final String boundUrl = req.getRestOfPath();
 
@@ -111,7 +111,7 @@ public class BoundObjectTable implements StaplerFallback {
         final String script;
 
         /* If this is not a WithWellKnownURL, look UUID up in bound object table and return null if not found. */
-        final String contextAndPrefix = Stapler.getCurrentRequest().getContextPath() + PREFIX;
+        final String contextAndPrefix = Stapler.getCurrentRequest2().getContextPath() + PREFIX;
         if (boundUrl.startsWith(contextAndPrefix)) {
             final String id = boundUrl.replace(contextAndPrefix, "");
             final Table table = resolve(false);
@@ -172,7 +172,7 @@ public class BoundObjectTable implements StaplerFallback {
      * Called from within the request handling of a bound object, to release the object explicitly.
      */
     public void releaseMe() {
-        Ancestor eot = Stapler.getCurrentRequest().findAncestor(BoundObjectTable.class);
+        Ancestor eot = Stapler.getCurrentRequest2().findAncestor(BoundObjectTable.class);
         if (eot == null) {
             throw new IllegalStateException("The thread is not handling a request to a abound object");
         }
@@ -185,7 +185,7 @@ public class BoundObjectTable implements StaplerFallback {
      * Obtains a {@link Table} associated with this session.
      */
     private Table resolve(boolean createIfNotExist) {
-        HttpSession session = Stapler.getCurrentRequest().getSession(createIfNotExist);
+        HttpSession session = Stapler.getCurrentRequest2().getSession(createIfNotExist);
         if (session == null) {
             return null;
         }
@@ -240,7 +240,7 @@ public class BoundObjectTable implements StaplerFallback {
 
                 @Override
                 public String getURL() {
-                    return Stapler.getCurrentRequest().getContextPath() + PREFIX + id;
+                    return Stapler.getCurrentRequest2().getContextPath() + PREFIX + id;
                 }
 
                 @Override
@@ -249,7 +249,7 @@ public class BoundObjectTable implements StaplerFallback {
                 }
 
                 @Override
-                public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+                public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node)
                         throws IOException, ServletException {
                     rsp.sendRedirect2(getURL());
                 }
@@ -313,7 +313,7 @@ public class BoundObjectTable implements StaplerFallback {
 
         @Override
         public String getURL() {
-            return Stapler.getCurrentRequest().getContextPath() + url;
+            return Stapler.getCurrentRequest2().getContextPath() + url;
         }
 
         @Override
@@ -322,7 +322,7 @@ public class BoundObjectTable implements StaplerFallback {
         }
 
         @Override
-        public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node)
+        public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node)
                 throws IOException, ServletException {
             rsp.sendRedirect2(getURL());
         }

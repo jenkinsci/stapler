@@ -1,6 +1,10 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,25 +13,21 @@ import java.io.Writer;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Locale;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import net.sf.json.JsonConfig;
 import org.kohsuke.stapler.export.ExportConfig;
 import org.kohsuke.stapler.export.Flavor;
 
 /**
- * A basic wrapper for a StaplerResponse, e.g. in order to override some method.
+ * A basic wrapper for a StaplerResponse2, e.g. in order to override some method.
  * This simply delegates all method calls to the wrapped instance.
  *
  * @since TODO
  */
 @SuppressWarnings("deprecation")
-public abstract class StaplerResponseWrapper implements StaplerResponse {
-    private final StaplerResponse wrapped;
+public abstract class StaplerResponseWrapper implements StaplerResponse2 {
+    private final StaplerResponse2 wrapped;
 
-    public StaplerResponseWrapper(StaplerResponse wrapped) {
+    public StaplerResponseWrapper(StaplerResponse2 wrapped) {
         this.wrapped = wrapped;
     }
 
@@ -35,7 +35,7 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
      * Returns the wrapped instance
      */
     @NonNull
-    public StaplerResponse getWrapped() {
+    public StaplerResponse2 getWrapped() {
         return wrapped;
     }
 
@@ -53,13 +53,13 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
 
     /** {@inheritDoc} */
     @Override
-    public void forward(Object it, String url, StaplerRequest request) throws ServletException, IOException {
+    public void forward(Object it, String url, StaplerRequest2 request) throws ServletException, IOException {
         getWrapped().forward(it, url, request);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void forwardToPreviousPage(StaplerRequest request) throws ServletException, IOException {
+    public void forwardToPreviousPage(StaplerRequest2 request) throws ServletException, IOException {
         getWrapped().forwardToPreviousPage(request);
     }
 
@@ -83,25 +83,25 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
 
     /** {@inheritDoc} */
     @Override
-    public void serveFile(StaplerRequest req, URL resource, long expiration) throws ServletException, IOException {
+    public void serveFile(StaplerRequest2 req, URL resource, long expiration) throws ServletException, IOException {
         getWrapped().serveFile(req, resource, expiration);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void serveFile(StaplerRequest req, URL resource) throws ServletException, IOException {
+    public void serveFile(StaplerRequest2 req, URL resource) throws ServletException, IOException {
         getWrapped().serveFile(req, resource);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void serveLocalizedFile(StaplerRequest request, URL res) throws ServletException, IOException {
+    public void serveLocalizedFile(StaplerRequest2 request, URL res) throws ServletException, IOException {
         getWrapped().serveLocalizedFile(request, res);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void serveLocalizedFile(StaplerRequest request, URL res, long expiration)
+    public void serveLocalizedFile(StaplerRequest2 request, URL res, long expiration)
             throws ServletException, IOException {
         getWrapped().serveLocalizedFile(request, res, expiration);
     }
@@ -109,7 +109,7 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
     /** {@inheritDoc} */
     @Override
     public void serveFile(
-            StaplerRequest req,
+            StaplerRequest2 req,
             InputStream data,
             long lastModified,
             long expiration,
@@ -122,7 +122,7 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
     /** {@inheritDoc} */
     @Override
     public void serveFile(
-            StaplerRequest req,
+            StaplerRequest2 req,
             InputStream data,
             long lastModified,
             long expiration,
@@ -134,31 +134,31 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
 
     /** {@inheritDoc} */
     @Override
-    public void serveFile(StaplerRequest req, InputStream data, long lastModified, long contentLength, String fileName)
+    public void serveFile(StaplerRequest2 req, InputStream data, long lastModified, long contentLength, String fileName)
             throws ServletException, IOException {
         getWrapped().serveFile(req, data, lastModified, contentLength, fileName);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName)
+    public void serveFile(StaplerRequest2 req, InputStream data, long lastModified, int contentLength, String fileName)
             throws ServletException, IOException {
         getWrapped().serveFile(req, data, lastModified, contentLength, fileName);
     }
 
     /**
-     * @deprecated Use {@link #serveExposedBean(StaplerRequest, Object, ExportConfig)}
+     * @deprecated Use {@link #serveExposedBean(StaplerRequest2, Object, ExportConfig)}
      */
     @Override
     @Deprecated
-    public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor)
+    public void serveExposedBean(StaplerRequest2 req, Object exposedBean, Flavor flavor)
             throws ServletException, IOException {
         getWrapped().serveExposedBean(req, exposedBean, flavor);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void serveExposedBean(StaplerRequest req, Object exposedBean, ExportConfig exportConfig)
+    public void serveExposedBean(StaplerRequest2 req, Object exposedBean, ExportConfig exportConfig)
             throws ServletException, IOException {
         getWrapped().serveExposedBean(req, exposedBean, exportConfig);
     }
@@ -177,7 +177,7 @@ public abstract class StaplerResponseWrapper implements StaplerResponse {
 
     /** {@inheritDoc} */
     @Override
-    public int reverseProxyTo(URL url, StaplerRequest req) throws IOException {
+    public int reverseProxyTo(URL url, StaplerRequest2 req) throws IOException {
         return getWrapped().reverseProxyTo(url, req);
     }
 

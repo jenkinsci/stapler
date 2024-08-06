@@ -1,10 +1,10 @@
 package org.kohsuke.stapler;
 
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 
 /**
  * Serve {@code index.html} from {@code WEB-INF/side-files} if that exists.

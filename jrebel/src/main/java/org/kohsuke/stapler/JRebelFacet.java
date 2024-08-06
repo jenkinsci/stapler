@@ -1,12 +1,12 @@
 package org.kohsuke.stapler;
 
+import jakarta.servlet.RequestDispatcher;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.RequestDispatcher;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.export.ModelBuilder;
 import org.kohsuke.stapler.lang.Klass;
