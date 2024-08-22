@@ -7,7 +7,9 @@ import com.karuslabs.elementary.junit.JavacExtension;
 import com.karuslabs.elementary.junit.annotations.Inline;
 import com.karuslabs.elementary.junit.annotations.Options;
 import com.karuslabs.elementary.junit.annotations.Processors;
-import java.util.Collections;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -28,7 +30,12 @@ class QueryParameterAnnotationProcessorTest {
             })
     @Test
     void basicOutput(Results results) {
-        assertEquals(Collections.emptyList(), results.diagnostics);
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(
+                Set.of("Generating some/pkg/Stuff/doOneThing.stapler", "Generating some/pkg/Stuff/doAnother.stapler"),
+                diagnostics);
         assertEquals("key", Utils.getGeneratedResource(results.sources, "some/pkg/Stuff/doOneThing.stapler"));
         assertEquals("name,address", Utils.getGeneratedResource(results.sources, "some/pkg/Stuff/doAnother.stapler"));
     }
