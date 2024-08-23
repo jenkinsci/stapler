@@ -8,7 +8,9 @@ import com.karuslabs.elementary.junit.JavacExtension;
 import com.karuslabs.elementary.junit.annotations.Inline;
 import com.karuslabs.elementary.junit.annotations.Options;
 import com.karuslabs.elementary.junit.annotations.Processors;
-import java.util.Collections;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.jvnet.hudson.annotation_indexer.AnnotationProcessorImpl;
@@ -36,7 +38,10 @@ class ExportedBeanAnnotationProcessorTest {
             })
     @Test
     void basicOutput(Results results) {
-        assertEquals(Collections.emptyList(), results.diagnostics);
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("Generating some/pkg/Stuff.javadoc"), diagnostics);
         assertEqualsCRLF(
                 "some.pkg.Stuff\n",
                 Utils.getGeneratedResource(
@@ -60,7 +65,10 @@ class ExportedBeanAnnotationProcessorTest {
             })
     @Test
     void noJavadoc(Results results) {
-        assertEquals(Collections.emptyList(), results.diagnostics);
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("Generating some/pkg/Stuff.javadoc"), diagnostics);
         assertEqualsCRLF(
                 "some.pkg.Stuff\n",
                 Utils.getGeneratedResource(
@@ -93,7 +101,10 @@ class ExportedBeanAnnotationProcessorTest {
             })
     @Test
     void subclassOfExportedBean(Results results) {
-        assertEquals(Collections.emptyList(), results.diagnostics);
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("Generating some/pkg/Super.javadoc"), diagnostics);
         /* #7188605: broken in JDK 6u33 + org.jvnet.hudson:annotation-indexer:1.2:
         assertEquals("some.pkg.Stuff\n", Utils.getGeneratedResource(results.sources, "META-INF/services/annotations/org.kohsuke.stapler.export.ExportedBean"));
         */
@@ -125,7 +136,10 @@ class ExportedBeanAnnotationProcessorTest {
             })
     @Test
     void multiple(Results results) {
-        assertEquals(Collections.emptyList(), results.diagnostics);
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("Generating some/pkg/Stuff.javadoc", "Generating some/pkg/MoreStuff.javadoc"), diagnostics);
         assertEqualsCRLF(
                 "some.pkg.MoreStuff\nsome.pkg.Stuff\n",
                 Utils.getGeneratedResource(

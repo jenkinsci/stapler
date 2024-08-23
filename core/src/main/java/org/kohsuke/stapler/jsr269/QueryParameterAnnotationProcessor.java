@@ -69,9 +69,9 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
         }
 
         TypeElement t = (TypeElement) m.getEnclosingElement();
-        FileObject f = createResource(
-                t.getQualifiedName().toString().replace('.', '/') + "/" + m.getSimpleName() + ".stapler");
-        notice("Generating " + f, m);
+        String name = t.getQualifiedName().toString().replace('.', '/') + "/" + m.getSimpleName() + ".stapler";
+        FileObject f = createResource(name);
+        notice("Generating " + name, m);
 
         try (OutputStream os = f.openOutputStream()) {
             os.write(buf.toString().getBytes(StandardCharsets.UTF_8));

@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.karuslabs.elementary.Results;
 import com.karuslabs.elementary.junit.JavacExtension;
@@ -12,11 +11,9 @@ import com.karuslabs.elementary.junit.annotations.Inline;
 import com.karuslabs.elementary.junit.annotations.Options;
 import com.karuslabs.elementary.junit.annotations.Processors;
 import java.time.Year;
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
-import javax.tools.Diagnostic;
-import javax.tools.JavaFileObject;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -36,7 +33,10 @@ class ConstructorProcessorTest {
             })
     @Test
     void basicOutput(Results results) {
-        assertEquals(Collections.emptyList(), results.diagnostics);
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("Generating some/pkg/Stuff.stapler"), diagnostics);
         assertEquals(
                 "{constructor=count,name}",
                 Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
@@ -52,7 +52,10 @@ class ConstructorProcessorTest {
             })
     @Test
     void preAnnotationCompatibility(Results results) {
-        assertEquals(Collections.emptyList(), results.diagnostics);
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("Generating some/pkg/Stuff.stapler"), diagnostics);
         assertEquals(
                 "{constructor=name,count}",
                 Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
@@ -70,7 +73,10 @@ class ConstructorProcessorTest {
     @Inline(name = "some.pkg.package-info", source = "package some.pkg;")
     @Test
     void JENKINS_11739(Results results) {
-        assertEquals(Collections.emptyList(), results.diagnostics);
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("Generating some/pkg/Stuff.stapler"), diagnostics);
         assertEquals(
                 "{constructor=count,name}",
                 Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
@@ -87,10 +93,10 @@ class ConstructorProcessorTest {
             })
     @Test
     void privateConstructor(Results results) {
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = results.diagnostics;
-        assertEquals(1, diagnostics.size());
-        String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
-        assertTrue(msg.contains("public"), msg);
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("@DataBoundConstructor must be applied to a public constructor"), diagnostics);
     }
 
     @Inline(
@@ -104,10 +110,12 @@ class ConstructorProcessorTest {
             })
     @Test
     void abstractClass(Results results) {
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = results.diagnostics;
-        assertEquals(1, diagnostics.size());
-        String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
-        assertTrue(msg.contains("abstract"), msg);
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(
+                Set.of("@DataBoundConstructor may not be used on an abstract class (only on concrete subclasses)"),
+                diagnostics);
     }
 
     // issue-179
@@ -123,10 +131,10 @@ class ConstructorProcessorTest {
             })
     @Test
     void duplicatedConstructor1(Results results) {
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = results.diagnostics;
-        assertEquals(1, diagnostics.size());
-        String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
-        assertTrue(msg.contains(ConstructorProcessor.MESSAGE), msg);
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("Generating some/pkg/Stuff.stapler", ConstructorProcessor.MESSAGE), diagnostics);
     }
 
     // issue-179
@@ -145,10 +153,10 @@ class ConstructorProcessorTest {
             })
     @Test
     void duplicatedConstructor2(Results results) {
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = results.diagnostics;
-        assertEquals(1, diagnostics.size());
-        String msg = diagnostics.get(0).getMessage(Locale.ENGLISH);
-        assertTrue(msg.contains(ConstructorProcessor.MESSAGE), msg);
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("Generating some/pkg/Stuff.stapler", ConstructorProcessor.MESSAGE), diagnostics);
     }
 
     // issue-179
@@ -164,8 +172,10 @@ class ConstructorProcessorTest {
             })
     @Test
     void duplicatedButNotAnnotatedConstructor(Results results) {
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = results.diagnostics;
-        assertEquals(0, diagnostics.size());
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("Generating some/pkg/Stuff.stapler"), diagnostics);
     }
     // TODO nested classes use qualified rather than binary name
 
@@ -181,7 +191,10 @@ class ConstructorProcessorTest {
             })
     @Test
     void reproducibleBuild(Results results) {
-        assertEquals(Collections.emptyList(), results.diagnostics);
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("Generating some/pkg/Stuff.stapler"), diagnostics);
         assertThat(
                 Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler"),
                 not(containsString(Integer.toString(Year.now().getValue()))));
