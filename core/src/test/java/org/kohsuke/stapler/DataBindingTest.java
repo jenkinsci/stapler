@@ -444,7 +444,7 @@ public class DataBindingTest extends TestCase {
         mr.getParameterMap().put("status", null);
         RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.emptyList(), null);
         Object result = new Function.InstanceFunction(
-                getClass().getMethod("doAcceptEnum", StaplerRequest.class, Status.class))
+                        getClass().getMethod("doAcceptEnum", StaplerRequest.class, Status.class))
                 .bindAndInvoke(this, req, null);
         assertNull(result);
     }
@@ -459,7 +459,7 @@ public class DataBindingTest extends TestCase {
         mr.getParameterMap().put("status", "Done");
         RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.emptyList(), null);
         Object result = new Function.InstanceFunction(
-                getClass().getMethod("doAcceptEnum", StaplerRequest.class, Status.class))
+                        getClass().getMethod("doAcceptEnum", StaplerRequest.class, Status.class))
                 .bindAndInvoke(this, req, null);
         assertEquals(Status.Done, result);
     }
@@ -474,13 +474,13 @@ public class DataBindingTest extends TestCase {
         mr.getParameterMap().put("status", "Blabla");
         RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.emptyList(), null);
         try {
-            new Function.InstanceFunction(
-                    getClass().getMethod("doAcceptEnum", StaplerRequest.class, Status.class))
+            new Function.InstanceFunction(getClass().getMethod("doAcceptEnum", StaplerRequest.class, Status.class))
                     .bindAndInvoke(this, req, null);
             fail("Should throw an exception as the enum value is not recognized");
-        }
-        catch (IllegalArgumentException e){
-            assertEquals("No enum constant org.kohsuke.stapler.DataBindingTest.Status.Blabla", e.getCause().getMessage());
+        } catch (IllegalArgumentException e) {
+            assertEquals(
+                    "No enum constant org.kohsuke.stapler.DataBindingTest.Status.Blabla",
+                    e.getCause().getMessage());
         }
     }
 
@@ -496,12 +496,10 @@ public class DataBindingTest extends TestCase {
         mr.getParameterMap().put("status", null);
         RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.emptyList(), null);
         try {
-            new Function.InstanceFunction(
-                    getClass().getMethod("doRequireEnum", StaplerRequest.class, Status.class))
+            new Function.InstanceFunction(getClass().getMethod("doRequireEnum", StaplerRequest.class, Status.class))
                     .bindAndInvoke(this, req, null);
             fail("Should throw an exception as the enum value is not recognized");
-        }
-        catch (ServletException e){
+        } catch (ServletException e) {
             assertEquals("Required Query parameter status is missing", e.getMessage());
         }
     }
