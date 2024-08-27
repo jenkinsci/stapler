@@ -80,7 +80,7 @@
             <authortag>Kohsuke Kawaguchi</authortag>
             <attribute name="url" type="String" use="required">
                 <doc>Sets the target URL to redirect to. This just gets passed
-                    to org.kohsuke.stapler.StaplerResponse.sendRedirect2(String).</doc>
+                    to org.kohsuke.stapler.StaplerResponse2.sendRedirect2(String).</doc>
             </attribute>
             <attribute name="trim" type="boolean">
                 <doc/>

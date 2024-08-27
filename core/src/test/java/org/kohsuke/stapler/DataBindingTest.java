@@ -81,14 +81,14 @@ public class DataBindingTest extends TestCase {
         mr.getParameterMap().put("b", "string");
         RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.emptyList(), null);
         new Function.InstanceFunction(
-                        getClass().getMethod("doFromStaplerMethod", StaplerRequest.class, int.class, Binder.class))
+                        getClass().getMethod("doFromStaplerMethod", StaplerRequest2.class, int.class, Binder.class))
                 .bindAndInvoke(this, req, null);
         assertEquals(
                 42,
                 new Function.InstanceFunction(getClass().getMethod("doStaticMethod")).bindAndInvoke(this, req, null));
     }
 
-    public void doFromStaplerMethod(StaplerRequest req, @QueryParameter int a, Binder b) {
+    public void doFromStaplerMethod(StaplerRequest2 req, @QueryParameter int a, Binder b) {
         assertEquals(123, a);
         assertSame(req, b.req);
         assertEquals("string", b.b);
@@ -99,11 +99,11 @@ public class DataBindingTest extends TestCase {
     }
 
     public static class Binder {
-        StaplerRequest req;
+        StaplerRequest2 req;
         String b;
 
         @CapturedParameterNames({"req", "b"})
-        public static Binder fromStapler(StaplerRequest req, @QueryParameter String b) {
+        public static Binder fromStapler(StaplerRequest2 req, @QueryParameter String b) {
             Binder r = new Binder();
             r.req = req;
             r.b = b;

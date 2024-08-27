@@ -28,6 +28,8 @@ import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.XMLOutput;
 import org.jvnet.maven.jellydoc.annotation.NoContent;
 import org.jvnet.maven.jellydoc.annotation.Required;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.bind.Bound;
 import org.kohsuke.stapler.bind.BoundObjectTable;
@@ -111,7 +113,7 @@ public class BindTag extends AbstractStaplerTag {
 
     /**
      * Writes a {@code <script>} tag whose {@code src} attribute points to
-     * {@link BoundObjectTable#doScript(org.kohsuke.stapler.StaplerRequest, org.kohsuke.stapler.StaplerResponse, String, String)}.
+     * {@link BoundObjectTable#doScript(StaplerRequest2, StaplerResponse2, String, String)}.
      * @param out XML output
      * @param bound Wrapper for the bound object
      * @throws SAXException if something goes wrong writing XML

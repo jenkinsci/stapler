@@ -1,19 +1,19 @@
 package org.kohsuke.stapler.json;
 
+import jakarta.servlet.ServletException;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import javax.servlet.ServletException;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.AnnotationHandler;
 import org.kohsuke.stapler.InjectedParameter;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 /**
- * Binds {@linkplain StaplerRequest#getSubmittedForm() the submitted form} to a parameter of a web-bound method.
+ * Binds {@linkplain StaplerRequest2#getSubmittedForm() the submitted form} to a parameter of a web-bound method.
  *
  * <p>
  * On a web-bound {@code doXyz} method, use this annotation on a parameter to get the submitted
@@ -35,7 +35,7 @@ import org.kohsuke.stapler.StaplerRequest;
 public @interface SubmittedForm {
     class Handler extends AnnotationHandler {
         @Override
-        public Object parse(StaplerRequest request, Annotation a, Class type, String parameterName)
+        public Object parse(StaplerRequest2 request, Annotation a, Class type, String parameterName)
                 throws ServletException {
             return request.getSubmittedForm();
         }

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -12,7 +13,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.ServletException;
 import org.junit.Test;
 
 /**
@@ -97,7 +97,7 @@ public class ClassDescriptorTest {
                 new ClassDescriptor(Sub.class)
                         .methods
                         .name("doDynamic")
-                        .signature(StaplerRequest.class, StaplerResponse.class)
+                        .signature(StaplerRequest2.class, StaplerResponse2.class)
                         .size());
     }
 
@@ -117,7 +117,7 @@ public class ClassDescriptorTest {
     private static void methodWithParams_static(String abc, long def, Object ghi) {}
 
     protected abstract static class Super {
-        public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {}
+        public void doDynamic(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException, ServletException {}
     }
 
     public static class Sub extends Super {}

@@ -3,8 +3,11 @@ package org.kohsuke.stapler.jsr269;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -37,8 +40,21 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
                 }
             }
 
+            Map<String, String> output = new HashMap<>();
             for (ExecutableElement m : methods) {
-                write(m);
+                String paramNames = m.getParameters().stream()
+                        .map(VariableElement::getSimpleName)
+                        .collect(Collectors.joining(","));
+                String existing = output.get(m.getSimpleName().toString());
+                /*
+                 * Allow multiple methods to have the same name but different argument types as long as the arguments
+                 * have the same names. This allows deprecated StaplerRequest/StaplerResponse methods to coexist
+                 * alongside non-deprecated StaplerRequest2/StaplerResponse2 methods.
+                 */
+                if (existing == null || !existing.equals(paramNames)) {
+                    write(paramNames, m);
+                    output.put(m.getSimpleName().toString(), paramNames);
+                }
             }
         } catch (IOException e) {
             error(e);
@@ -59,22 +75,14 @@ public class QueryParameterAnnotationProcessor extends AbstractProcessorImpl {
      * @param m
      *      Method whose parameter has {@link QueryParameter}
      */
-    private void write(ExecutableElement m) throws IOException {
-        StringBuilder buf = new StringBuilder();
-        for (VariableElement p : m.getParameters()) {
-            if (!buf.isEmpty()) {
-                buf.append(',');
-            }
-            buf.append(p.getSimpleName());
-        }
-
+    private void write(String paramNames, ExecutableElement m) throws IOException {
         TypeElement t = (TypeElement) m.getEnclosingElement();
         String name = t.getQualifiedName().toString().replace('.', '/') + "/" + m.getSimpleName() + ".stapler";
         FileObject f = createResource(name);
         notice("Generating " + name, m);
 
         try (OutputStream os = f.openOutputStream()) {
-            os.write(buf.toString().getBytes(StandardCharsets.UTF_8));
+            os.write(paramNames.getBytes(StandardCharsets.UTF_8));
         }
     }
 }

@@ -28,8 +28,8 @@ package org.kohsuke.stapler;
 
 import static org.junit.Assert.assertThrows;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.net.URL;
-import javax.servlet.http.HttpServletResponse;
 import org.htmlunit.FailingHttpStatusCodeException;
 import org.htmlunit.WebClient;
 import org.jvnet.hudson.test.For;

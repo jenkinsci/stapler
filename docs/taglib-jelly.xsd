@@ -147,7 +147,7 @@
             <xsd:attribute name="url" use="required">
                 <xsd:annotation>
                     <xsd:documentation>Sets the target URL to redirect to. This just gets passed
-                        to org.kohsuke.stapler.StaplerResponse.sendRedirect2(String).</xsd:documentation>
+                        to org.kohsuke.stapler.StaplerResponse2.sendRedirect2(String).</xsd:documentation>
                 </xsd:annotation>
             </xsd:attribute>
             <xsd:attribute name="trim">

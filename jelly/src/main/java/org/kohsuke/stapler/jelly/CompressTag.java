@@ -26,8 +26,8 @@ package org.kohsuke.stapler.jelly;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.XMLOutput;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /**
  * Outer-most wrapper tag to indicate that the gzip compression is desirable
@@ -40,7 +40,7 @@ import org.kohsuke.stapler.StaplerResponse;
 public class CompressTag extends AbstractStaplerTag {
     /**
      * Doesn't particularly do anything as the actual processing
-     * happens at {@link DefaultScriptInvoker#invokeScript(StaplerRequest, StaplerResponse, Script, Object)}
+     * happens at {@link DefaultScriptInvoker#invokeScript(StaplerRequest2, StaplerResponse2, Script, Object)}
      */
     @Override
     public void doTag(XMLOutput output) throws JellyTagException {

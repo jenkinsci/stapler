@@ -30,7 +30,7 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.Stack;
 import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /**
  * Writes XML.
@@ -65,7 +65,7 @@ final class XMLDataWriter implements DataWriter {
         // TODO: support pretty printing
     }
 
-    XMLDataWriter(Object bean, StaplerResponse rsp, ExportConfig config) throws IOException {
+    XMLDataWriter(Object bean, StaplerResponse2 rsp, ExportConfig config) throws IOException {
         this(bean, rsp.getWriter(), config);
     }
 

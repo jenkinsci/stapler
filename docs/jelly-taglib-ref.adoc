@@ -123,7 +123,7 @@ Sends HTTP redirect.
 |Attribute Name |Type |Description
 |url (required) |String |Sets the target URL to redirect to. This just
 gets passed to
-org.kohsuke.stapler.StaplerResponse.sendRedirect2(String).
+org.kohsuke.stapler.StaplerResponse2.sendRedirect2(String).
 |===
 
 This tag does not accept any child elements/text.

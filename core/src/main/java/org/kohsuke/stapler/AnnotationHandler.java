@@ -23,9 +23,10 @@
 
 package org.kohsuke.stapler;
 
+import io.jenkins.servlet.ServletExceptionWrapper;
+import jakarta.servlet.ServletException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import javax.servlet.ServletException;
 import org.apache.commons.beanutils.Converter;
 
 /**
@@ -48,10 +49,54 @@ public abstract class AnnotationHandler<T extends Annotation> {
      * @param parameterName
      *      Name of the parameter.
      */
-    public abstract Object parse(StaplerRequest request, T a, Class type, String parameterName) throws ServletException;
+    public /* abstract */ Object parse(StaplerRequest2 request, T a, Class type, String parameterName)
+            throws ServletException {
+        if (ReflectionUtils.isOverridden(
+                AnnotationHandler.class,
+                getClass(),
+                "parse",
+                StaplerRequest.class,
+                Annotation.class,
+                Class.class,
+                String.class)) {
+            try {
+                return parse(StaplerRequest.fromStaplerRequest2(request), a, type, parameterName);
+            } catch (javax.servlet.ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        } else {
+            throw new AbstractMethodError("The class " + getClass().getName() + " must override at least one of the "
+                    + AnnotationHandler.class.getSimpleName() + ".parse methods");
+        }
+    }
 
     /**
-     * Helper method for {@link #parse(StaplerRequest, Annotation, Class, String)} to convert to the right type
+     * @deprecated use {@link #parse(StaplerRequest2, Annotation, Class, String)}
+     */
+    @Deprecated
+    public Object parse(StaplerRequest request, T a, Class type, String parameterName)
+            throws javax.servlet.ServletException {
+        if (ReflectionUtils.isOverridden(
+                AnnotationHandler.class,
+                getClass(),
+                "parse",
+                StaplerRequest2.class,
+                Annotation.class,
+                Class.class,
+                String.class)) {
+            try {
+                return parse(StaplerRequest.toStaplerRequest2(request), a, type, parameterName);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        } else {
+            throw new AbstractMethodError("The class " + getClass().getName() + " must override at least one of the "
+                    + AnnotationHandler.class.getSimpleName() + ".parse methods");
+        }
+    }
+
+    /**
+     * Helper method for {@link #parse(StaplerRequest2, Annotation, Class, String)} to convert to the right type
      * from String.
      */
     protected final Object convert(Class targetType, String value) {
@@ -63,7 +108,7 @@ public abstract class AnnotationHandler<T extends Annotation> {
         return converter.convert(targetType, value);
     }
 
-    static Object handle(StaplerRequest request, Annotation[] annotations, String parameterName, Class targetType)
+    static Object handle(StaplerRequest2 request, Annotation[] annotations, String parameterName, Class targetType)
             throws ServletException {
         for (Annotation a : annotations) {
             Class<? extends Annotation> at = a.annotationType();
@@ -98,7 +143,7 @@ public abstract class AnnotationHandler<T extends Annotation> {
 
     private static final AnnotationHandler NOT_HANDLER = new AnnotationHandler() {
         @Override
-        public Object parse(StaplerRequest request, Annotation a, Class type, String parameterName)
+        public Object parse(StaplerRequest2 request, Annotation a, Class type, String parameterName)
                 throws ServletException {
             return null;
         }

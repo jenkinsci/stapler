@@ -24,6 +24,7 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -31,7 +32,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletException;
 
 /**
  * Controls the dispatching of incoming HTTP requests.
@@ -63,7 +63,7 @@ public abstract class Dispatcher {
         return TRACE || TRACE_PER_REQUEST || LOGGER.isLoggable(Level.FINE);
     }
 
-    public static void traceEval(StaplerRequest req, StaplerResponse rsp, Object node) {
+    public static void traceEval(StaplerRequest2 req, StaplerResponse2 rsp, Object node) {
         trace(
                 req,
                 rsp,
@@ -75,14 +75,14 @@ public abstract class Dispatcher {
     }
 
     public static void anonymizedTraceEval(
-            StaplerRequest req, StaplerResponse rsp, Object node, String format, String... args) {
+            StaplerRequest2 req, StaplerResponse2 rsp, Object node, String format, String... args) {
         List<String> arg = new ArrayList<>();
         arg.add(node == null ? "(null)" : node.getClass().getName());
         arg.addAll(Arrays.asList(args));
         EvaluationTrace.ApplicationTracer.trace(req, String.format(format, arg.toArray()));
     }
 
-    public static void traceEval(StaplerRequest req, StaplerResponse rsp, Object node, String prefix, String suffix) {
+    public static void traceEval(StaplerRequest2 req, StaplerResponse2 rsp, Object node, String prefix, String suffix) {
         trace(
                 req,
                 rsp,
@@ -91,7 +91,7 @@ public abstract class Dispatcher {
                         prefix, node, suffix, ((RequestImpl) req).tokens.assembleOriginalRestOfPath()));
     }
 
-    public static void traceEval(StaplerRequest req, StaplerResponse rsp, Object node, String expression) {
+    public static void traceEval(StaplerRequest2 req, StaplerResponse2 rsp, Object node, String expression) {
         trace(
                 req,
                 rsp,
@@ -100,11 +100,11 @@ public abstract class Dispatcher {
                         node, expression, ((RequestImpl) req).tokens.assembleOriginalRestOfPath()));
     }
 
-    public static void trace(StaplerRequest req, StaplerResponse rsp, String msg, Object... args) {
+    public static void trace(StaplerRequest2 req, StaplerResponse2 rsp, String msg, Object... args) {
         trace(req, rsp, String.format(msg, args));
     }
 
-    public static void trace(StaplerRequest req, StaplerResponse rsp, String msg) {
+    public static void trace(StaplerRequest2 req, StaplerResponse2 rsp, String msg) {
         if (isTraceEnabled(req)) {
             EvaluationTrace.get(req).trace(rsp, msg);
         }
@@ -119,7 +119,7 @@ public abstract class Dispatcher {
      * can be enabled per-request by setting "stapler.trace.per-request=true"
      * and sending an "X-Stapler-Trace" header set to "true" with the request.
      */
-    public static boolean isTraceEnabled(StaplerRequest req) {
+    public static boolean isTraceEnabled(StaplerRequest2 req) {
         if (TRACE) {
             return true;
         }

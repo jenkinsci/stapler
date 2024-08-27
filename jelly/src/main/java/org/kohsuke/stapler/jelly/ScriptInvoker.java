@@ -30,8 +30,8 @@ import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.ScriptExecutor;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /**
  * Pluggability point for controlling how scripts get executed.
@@ -41,20 +41,23 @@ import org.kohsuke.stapler.StaplerResponse;
  */
 public interface ScriptInvoker extends ScriptExecutor<Script> {
     /**
-     * Invokes the script and generates output to {@link StaplerResponse#getOutputStream()}.
+     * Invokes the script and generates output to {@link StaplerResponse2#getOutputStream()}.
      */
-    void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it)
+    void invokeScript(StaplerRequest2 req, StaplerResponse2 rsp, Script script, Object it)
             throws IOException, JellyTagException;
 
     /**
      * Invokes the script and generates output to the specified output
      */
-    void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it, XMLOutput out)
+    void invokeScript(StaplerRequest2 req, StaplerResponse2 rsp, Script script, Object it, XMLOutput out)
             throws IOException, JellyTagException;
 
     @Override
     default void execute(
-            @NonNull StaplerRequest req, @NonNull StaplerResponse rsp, @NonNull Script script, @CheckForNull Object it)
+            @NonNull StaplerRequest2 req,
+            @NonNull StaplerResponse2 rsp,
+            @NonNull Script script,
+            @CheckForNull Object it)
             throws IOException, JellyTagException {
         invokeScript(req, rsp, script, it);
     }

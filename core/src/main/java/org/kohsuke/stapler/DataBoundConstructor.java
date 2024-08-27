@@ -33,13 +33,13 @@ import net.sf.json.JSONObject;
 /**
  * Designates the constructor to be created
  * from methods like
- * {@link StaplerRequest#bindJSON(Class, JSONObject)} and
- * {@link StaplerRequest#bindParameters(Class, String)}.
+ * {@link StaplerRequest2#bindJSON(Class, JSONObject)} and
+ * {@link StaplerRequest2#bindParameters(Class, String)}.
  *
  * <p>
  * Stapler will invoke the designated constructor by using arguments from the corresponding
- * {@link JSONObject} (in case of {@link StaplerRequest#bindJSON(Class, JSONObject)}) or request parameters
- * (in case of {@link StaplerRequest#bindParameters(Class, String)}).
+ * {@link JSONObject} (in case of {@link StaplerRequest2#bindJSON(Class, JSONObject)}) or request parameters
+ * (in case of {@link StaplerRequest2#bindParameters(Class, String)}).
  *
  * <p>
  * The matching is done by using the constructor parameter name. Since this information is not available

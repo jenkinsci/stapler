@@ -39,7 +39,7 @@ import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.XMLOutput;
 import org.kohsuke.stapler.MetaClassLoader;
 import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.WebApp;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 import org.kohsuke.stapler.jelly.JellyFacet;
@@ -133,14 +133,14 @@ public class Adjunct {
      * Useful as a basis to refer to other resources.
      */
     public String getPackageUrl() {
-        return getPackageUrl(Stapler.getCurrentRequest());
+        return getPackageUrl(Stapler.getCurrentRequest2());
     }
 
-    private String getPackageUrl(StaplerRequest req) {
+    private String getPackageUrl(StaplerRequest2 req) {
         return req.getContextPath() + '/' + manager.rootURL + '/' + packageName;
     }
 
-    private String getBaseName(StaplerRequest req) {
+    private String getBaseName(StaplerRequest2 req) {
         return req.getContextPath() + '/' + manager.rootURL + '/' + slashedName;
     }
 
@@ -200,7 +200,7 @@ public class Adjunct {
         }
     }
 
-    public void write(StaplerRequest req, XMLOutput out) throws SAXException, IOException {
+    public void write(StaplerRequest2 req, XMLOutput out) throws SAXException, IOException {
         if (inclusionFragment != null) {
             out.write(inclusionFragment);
             return;
@@ -210,7 +210,7 @@ public class Adjunct {
                 WebApp.getCurrent()
                         .getFacet(JellyFacet.class)
                         .scriptInvoker
-                        .invokeScript(req, Stapler.getCurrentResponse(), script, this, out);
+                        .invokeScript(req, Stapler.getCurrentResponse2(), script, this, out);
             } catch (JellyTagException e) {
                 throw new IOException("Failed to execute Jelly script for adjunct " + name, e);
             }

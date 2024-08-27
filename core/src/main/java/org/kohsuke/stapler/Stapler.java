@@ -24,6 +24,15 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
@@ -59,15 +68,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -462,7 +462,7 @@ public class Stapler extends HttpServlet {
     /**
      * Serves the specified {@link URLConnection} as a static resource.
      */
-    boolean serveStaticResource(HttpServletRequest req, StaplerResponse rsp, OpenConnection con, long expiration)
+    boolean serveStaticResource(HttpServletRequest req, StaplerResponse2 rsp, OpenConnection con, long expiration)
             throws IOException {
         if (con == null) {
             return false;
@@ -484,7 +484,7 @@ public class Stapler extends HttpServlet {
     /**
      * Serves the specified {@link URL} as a static resource.
      */
-    boolean serveStaticResource(HttpServletRequest req, StaplerResponse rsp, URL url, long expiration)
+    boolean serveStaticResource(HttpServletRequest req, StaplerResponse2 rsp, URL url, long expiration)
             throws IOException {
         return serveStaticResource(req, rsp, openURL(url), expiration);
     }
@@ -561,7 +561,7 @@ public class Stapler extends HttpServlet {
      */
     boolean serveStaticResource(
             HttpServletRequest req,
-            StaplerResponse rsp,
+            StaplerResponse2 rsp,
             InputStream in,
             long lastModified,
             long expiration,
@@ -974,7 +974,7 @@ public class Stapler extends HttpServlet {
     @SuppressFBWarnings(
             value = "REQUESTDISPATCHER_FILE_DISCLOSURE",
             justification = "Forwarding the request to be handled correctly.")
-    public void forward(RequestDispatcher dispatcher, StaplerRequest req, HttpServletResponse rsp)
+    public void forward(RequestDispatcher dispatcher, StaplerRequest2 req, HttpServletResponse rsp)
             throws ServletException, IOException {
         dispatcher.forward(req, new ResponseImpl(this, rsp));
     }
@@ -1018,7 +1018,7 @@ public class Stapler extends HttpServlet {
     }
 
     /**
-     * Sets the classloader used by {@link StaplerRequest#bindJSON(Class, JSONObject)} and its sibling methods.
+     * Sets the classloader used by {@link StaplerRequest2#bindJSON(Class, JSONObject)} and its sibling methods.
      *
      * @deprecated
      *      Use {@link WebApp#setClassLoader(ClassLoader)}
@@ -1047,17 +1047,35 @@ public class Stapler extends HttpServlet {
     }
 
     /**
-     * Gets the current {@link StaplerRequest} that the calling thread is associated with.
+     * Gets the current {@link StaplerRequest2} that the calling thread is associated with.
      */
-    public static StaplerRequest getCurrentRequest() {
+    public static StaplerRequest2 getCurrentRequest2() {
         return CURRENT_REQUEST.get();
     }
 
     /**
-     * Gets the current {@link StaplerResponse} that the calling thread is associated with.
+     * @deprecated use {@link #getCurrentRequest2()}
      */
-    public static StaplerResponse getCurrentResponse() {
+    @Deprecated
+    public static StaplerRequest getCurrentRequest() {
+        StaplerRequest2 currentRequest = getCurrentRequest2();
+        return currentRequest != null ? StaplerRequest.fromStaplerRequest2(currentRequest) : null;
+    }
+
+    /**
+     * Gets the current {@link StaplerResponse2} that the calling thread is associated with.
+     */
+    public static StaplerResponse2 getCurrentResponse2() {
         return CURRENT_RESPONSE.get();
+    }
+
+    /**
+     * @deprecated use {@link #getCurrentResponse2()}
+     */
+    @Deprecated
+    public static StaplerResponse getCurrentResponse() {
+        StaplerResponse2 currentResponse = getCurrentResponse2();
+        return currentResponse != null ? StaplerResponse.fromStaplerResponse2(currentResponse) : null;
     }
 
     /**
@@ -1133,7 +1151,7 @@ public class Stapler extends HttpServlet {
 
     /**
      * This is the {@link Converter} registry that Stapler uses, primarily
-     * for form-to-JSON binding in {@link StaplerRequest#bindJSON(Class, JSONObject)}
+     * for form-to-JSON binding in {@link StaplerRequest2#bindJSON(Class, JSONObject)}
      * and its family of methods.
      */
     public static final ConvertUtilsBean CONVERT_UTILS = new ConvertUtilsBean();
@@ -1221,7 +1239,7 @@ public class Stapler extends HttpServlet {
                             return null;
                         }
                         try {
-                            return Stapler.getCurrentRequest().getFileItem2(value.toString());
+                            return Stapler.getCurrentRequest2().getFileItem2(value.toString());
                         } catch (ServletException | IOException e) {
                             throw new ConversionException(e);
                         }
@@ -1238,7 +1256,7 @@ public class Stapler extends HttpServlet {
                         }
                         try {
                             return org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(
-                                    Stapler.getCurrentRequest().getFileItem2(value.toString()));
+                                    Stapler.getCurrentRequest2().getFileItem2(value.toString()));
                         } catch (ServletException | IOException e) {
                             throw new ConversionException(e);
                         }

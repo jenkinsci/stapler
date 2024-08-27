@@ -23,9 +23,9 @@
 
 package org.kohsuke.stapler.jelly;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.jelly.TagSupport;
 
 /**
@@ -34,11 +34,11 @@ import org.apache.commons.jelly.TagSupport;
 abstract class AbstractStaplerTag extends TagSupport {
 
     protected HttpServletRequest getRequest() {
-        return (HttpServletRequest) getContext().getVariable("request");
+        return (HttpServletRequest) getContext().getVariable("request2");
     }
 
     protected HttpServletResponse getResponse() {
-        return (HttpServletResponse) getContext().getVariable("response");
+        return (HttpServletResponse) getContext().getVariable("response2");
     }
 
     protected ServletContext getServletContext() {

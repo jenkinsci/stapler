@@ -25,6 +25,11 @@ package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,11 +44,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 import net.sf.json.JsonConfig;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.export.DataWriter;
@@ -56,11 +56,11 @@ import org.kohsuke.stapler.export.TreePruner;
 import org.kohsuke.stapler.export.TreePruner.ByDepth;
 
 /**
- * {@link StaplerResponse} implementation.
+ * {@link StaplerResponse2} implementation.
  *
  * @author Kohsuke Kawaguchi
  */
-public class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse {
+public class ResponseImpl extends HttpServletResponseWrapper implements StaplerResponse2 {
     private final Stapler stapler;
     private final HttpServletResponse response;
 
@@ -83,6 +83,14 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         super(response);
         this.stapler = stapler;
         this.response = response;
+    }
+
+    /**
+     * @deprecated use {@link #ResponseImpl(Stapler, HttpServletResponse)}
+     */
+    @Deprecated
+    public ResponseImpl(Stapler stapler, javax.servlet.http.HttpServletResponse response) {
+        this(stapler, io.jenkins.servlet.http.HttpServletResponseWrapper.toJakartaHttpServletResponse(response));
     }
 
     @Override
@@ -124,12 +132,12 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     @Override
-    public void forward(Object it, String url, StaplerRequest request) throws ServletException, IOException {
+    public void forward(Object it, String url, StaplerRequest2 request) throws ServletException, IOException {
         stapler.invoke(request, response, it, url);
     }
 
     @Override
-    public void forwardToPreviousPage(StaplerRequest request) throws ServletException, IOException {
+    public void forwardToPreviousPage(StaplerRequest2 request) throws ServletException, IOException {
         String referer = request.getHeader("Referer");
         if (referer == null) {
             referer = ".";
@@ -149,7 +157,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         }
 
         // example: /foo/bar/zot + ../abc -> /foo/bar/../abc
-        String base = Stapler.getCurrentRequest().getRequestURI();
+        String base = Stapler.getCurrentRequest2().getRequestURI();
         base = base.substring(0, base.lastIndexOf('/') + 1);
         if (!url.equals(".")) {
             base += url;
@@ -175,7 +183,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
             // absolute URLs
             url = encode(url);
         } else {
-            StaplerRequest req = Stapler.getCurrentRequest();
+            StaplerRequest2 req = Stapler.getCurrentRequest2();
 
             if (!url.startsWith("/")) {
                 // WebSphere doesn't apparently handle relative URLs, so
@@ -213,24 +221,24 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     @Override
-    public void serveFile(StaplerRequest req, URL resource, long expiration) throws ServletException, IOException {
+    public void serveFile(StaplerRequest2 req, URL resource, long expiration) throws ServletException, IOException {
         if (!stapler.serveStaticResource(req, this, resource, expiration)) {
             sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
     @Override
-    public void serveFile(StaplerRequest req, URL resource) throws ServletException, IOException {
+    public void serveFile(StaplerRequest2 req, URL resource) throws ServletException, IOException {
         serveFile(req, resource, -1);
     }
 
     @Override
-    public void serveLocalizedFile(StaplerRequest request, URL res) throws ServletException, IOException {
+    public void serveLocalizedFile(StaplerRequest2 request, URL res) throws ServletException, IOException {
         serveLocalizedFile(request, res, -1);
     }
 
     @Override
-    public void serveLocalizedFile(StaplerRequest request, URL res, long expiration)
+    public void serveLocalizedFile(StaplerRequest2 request, URL res, long expiration)
             throws ServletException, IOException {
         if (!stapler.serveStaticResource(
                 request, this, stapler.selectResourceByLocale(res, request.getLocale()), expiration)) {
@@ -240,7 +248,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
     @Override
     public void serveFile(
-            StaplerRequest req,
+            StaplerRequest2 req,
             InputStream data,
             long lastModified,
             long expiration,
@@ -254,7 +262,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
     @Override
     public void serveFile(
-            StaplerRequest req,
+            StaplerRequest2 req,
             InputStream data,
             long lastModified,
             long expiration,
@@ -265,27 +273,27 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     @Override
-    public void serveFile(StaplerRequest req, InputStream data, long lastModified, long contentLength, String fileName)
+    public void serveFile(StaplerRequest2 req, InputStream data, long lastModified, long contentLength, String fileName)
             throws ServletException, IOException {
         serveFile(req, data, lastModified, -1, contentLength, fileName);
     }
 
     @Override
-    public void serveFile(StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName)
+    public void serveFile(StaplerRequest2 req, InputStream data, long lastModified, int contentLength, String fileName)
             throws ServletException, IOException {
         serveFile(req, data, lastModified, (long) contentLength, fileName);
     }
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"}) // API design flaw prevents this from type-checking
-    public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor)
+    public void serveExposedBean(StaplerRequest2 req, Object exposedBean, Flavor flavor)
             throws ServletException, IOException {
         serveExposedBean(
                 req, exposedBean, new ExportConfig().withFlavor(flavor).withPrettyPrint(req.hasParameter("pretty")));
     }
 
     @Override
-    public void serveExposedBean(StaplerRequest req, Object exposedBean, ExportConfig config)
+    public void serveExposedBean(StaplerRequest2 req, Object exposedBean, ExportConfig config)
             throws ServletException, IOException {
         String pad = null;
         Flavor flavor = config.getFlavor();
@@ -355,7 +363,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     }
 
     @Override
-    public int reverseProxyTo(URL url, StaplerRequest req) throws IOException {
+    public int reverseProxyTo(URL url, StaplerRequest2 req) throws IOException {
         HttpURLConnection con = openConnection(url);
         con.setDoOutput(true);
 

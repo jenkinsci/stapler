@@ -23,17 +23,53 @@
 
 package org.kohsuke.stapler;
 
+import io.jenkins.servlet.AsyncContextWrapper;
+import io.jenkins.servlet.DispatcherTypeWrapper;
+import io.jenkins.servlet.RequestDispatcherWrapper;
+import io.jenkins.servlet.ServletContextWrapper;
+import io.jenkins.servlet.ServletExceptionWrapper;
+import io.jenkins.servlet.ServletInputStreamWrapper;
+import io.jenkins.servlet.ServletRequestWrapper;
+import io.jenkins.servlet.ServletResponseWrapper;
+import io.jenkins.servlet.http.CookieWrapper;
+import io.jenkins.servlet.http.HttpServletMappingWrapper;
+import io.jenkins.servlet.http.HttpServletRequestWrapper;
+import io.jenkins.servlet.http.HttpServletResponseWrapper;
+import io.jenkins.servlet.http.HttpSessionWrapper;
+import io.jenkins.servlet.http.PartWrapper;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.servlet.AsyncContext;
+import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpUpgradeHandler;
+import javax.servlet.http.Part;
+import javax.servlet.http.PushBuilder;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.BeanUtils;
@@ -48,7 +84,9 @@ import org.kohsuke.stapler.lang.Klass;
  *
  * @see Stapler#getCurrentRequest()
  * @author Kohsuke Kawaguchi
+ * @deprecated use {@link StaplerRequest2}
  */
+@Deprecated
 public interface StaplerRequest extends HttpServletRequest {
     /**
      * Gets the {@link Stapler} instance that this belongs to.
@@ -553,4 +591,1317 @@ public interface StaplerRequest extends HttpServletRequest {
      * {@code makeStaplerProxy}.
      */
     RenderOnDemandParameters createJavaScriptProxyParameters(Object toBeExported);
+
+    static StaplerRequest2 toStaplerRequest2(StaplerRequest from) {
+        if (from instanceof StaplerRequestWrapper javax) {
+            return javax.toStaplerRequest2();
+        }
+        return new StaplerRequest2WrapperImpl(from);
+    }
+
+    static StaplerRequest fromStaplerRequest2(StaplerRequest2 from) {
+        if (from instanceof StaplerRequest2Wrapper jakarta) {
+            return jakarta.toStaplerRequest();
+        }
+        return new StaplerRequestWrapperImpl(from);
+    }
+
+    interface StaplerRequest2Wrapper {
+        org.kohsuke.stapler.StaplerRequest toStaplerRequest();
+    }
+
+    class StaplerRequest2WrapperImpl
+            implements StaplerRequest2,
+                    ServletRequestWrapper.JakartaServletRequestWrapper,
+                    HttpServletRequestWrapper.JakartaHttpServletRequestWrapper,
+                    StaplerRequest2Wrapper {
+        private final StaplerRequest from;
+
+        public StaplerRequest2WrapperImpl(StaplerRequest from) {
+            this.from = Objects.requireNonNull(from);
+        }
+
+        @Override
+        public Object getAttribute(String name) {
+            return from.getAttribute(name);
+        }
+
+        @Override
+        public Enumeration<String> getAttributeNames() {
+            return from.getAttributeNames();
+        }
+
+        @Override
+        public String getCharacterEncoding() {
+            return from.getCharacterEncoding();
+        }
+
+        @Override
+        public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
+            from.setCharacterEncoding(env);
+        }
+
+        @Override
+        public int getContentLength() {
+            return from.getContentLength();
+        }
+
+        @Override
+        public long getContentLengthLong() {
+            return from.getContentLengthLong();
+        }
+
+        @Override
+        public String getContentType() {
+            return from.getContentType();
+        }
+
+        @Override
+        public jakarta.servlet.ServletInputStream getInputStream() throws IOException {
+            return ServletInputStreamWrapper.toJakartaServletInputStream(from.getInputStream());
+        }
+
+        @Override
+        public String getParameter(String name) {
+            return from.getParameter(name);
+        }
+
+        @Override
+        public Enumeration<String> getParameterNames() {
+            return from.getParameterNames();
+        }
+
+        @Override
+        public String[] getParameterValues(String name) {
+            return from.getParameterValues(name);
+        }
+
+        @Override
+        public Map<String, String[]> getParameterMap() {
+            return from.getParameterMap();
+        }
+
+        @Override
+        public String getProtocol() {
+            return from.getProtocol();
+        }
+
+        @Override
+        public String getScheme() {
+            return from.getScheme();
+        }
+
+        @Override
+        public String getServerName() {
+            return from.getServerName();
+        }
+
+        @Override
+        public int getServerPort() {
+            return from.getServerPort();
+        }
+
+        @Override
+        public BufferedReader getReader() throws IOException {
+            return from.getReader();
+        }
+
+        @Override
+        public String getRemoteAddr() {
+            return from.getRemoteAddr();
+        }
+
+        @Override
+        public String getRemoteHost() {
+            return from.getRemoteHost();
+        }
+
+        @Override
+        public void setAttribute(String name, Object o) {
+            from.setAttribute(name, o);
+        }
+
+        @Override
+        public void removeAttribute(String name) {
+            from.removeAttribute(name);
+        }
+
+        @Override
+        public Locale getLocale() {
+            return from.getLocale();
+        }
+
+        @Override
+        public Enumeration<Locale> getLocales() {
+            return from.getLocales();
+        }
+
+        @Override
+        public boolean isSecure() {
+            return from.isSecure();
+        }
+
+        @Override
+        public jakarta.servlet.RequestDispatcher getRequestDispatcher(String path) {
+            return RequestDispatcherWrapper.toJakartaRequestDispatcher(from.getRequestDispatcher(path));
+        }
+
+        @Override
+        public String getRealPath(String path) {
+            return from.getRealPath(path);
+        }
+
+        @Override
+        public int getRemotePort() {
+            return from.getRemotePort();
+        }
+
+        @Override
+        public String getLocalName() {
+            return from.getLocalName();
+        }
+
+        @Override
+        public String getLocalAddr() {
+            return from.getLocalAddr();
+        }
+
+        @Override
+        public int getLocalPort() {
+            return from.getLocalPort();
+        }
+
+        @Override
+        public Stapler getStapler() {
+            return from.getStapler();
+        }
+
+        @Override
+        public WebApp getWebApp() {
+            return from.getWebApp();
+        }
+
+        @Override
+        public String getRestOfPath() {
+            return from.getRestOfPath();
+        }
+
+        @Override
+        public String getOriginalRestOfPath() {
+            return from.getOriginalRestOfPath();
+        }
+
+        @Override
+        public jakarta.servlet.ServletContext getServletContext() {
+            return ServletContextWrapper.toJakartaServletContext(from.getServletContext());
+        }
+
+        @Override
+        public String getRequestURIWithQueryString() {
+            return from.getRequestURIWithQueryString();
+        }
+
+        @Override
+        public StringBuffer getRequestURLWithQueryString() {
+            return from.getRequestURLWithQueryString();
+        }
+
+        @Override
+        public jakarta.servlet.RequestDispatcher getView(Object it, String viewName) throws IOException {
+            return RequestDispatcherWrapper.toJakartaRequestDispatcher(from.getView(it, viewName));
+        }
+
+        @Override
+        public jakarta.servlet.RequestDispatcher getView(Class clazz, String viewName) throws IOException {
+            return RequestDispatcherWrapper.toJakartaRequestDispatcher(from.getView(clazz, viewName));
+        }
+
+        @Override
+        public jakarta.servlet.RequestDispatcher getView(Klass<?> clazz, String viewName) throws IOException {
+            return RequestDispatcherWrapper.toJakartaRequestDispatcher(from.getView(clazz, viewName));
+        }
+
+        @Override
+        public String getRootPath() {
+            return from.getRootPath();
+        }
+
+        @Override
+        public String getReferer() {
+            return from.getReferer();
+        }
+
+        @Override
+        public List<Ancestor> getAncestors() {
+            return from.getAncestors();
+        }
+
+        @Override
+        public Ancestor findAncestor(Class type) {
+            return from.findAncestor(type);
+        }
+
+        @Override
+        public <T> T findAncestorObject(Class<T> type) {
+            return from.findAncestorObject(type);
+        }
+
+        @Override
+        public Ancestor findAncestor(Object o) {
+            return from.findAncestor(o);
+        }
+
+        @Override
+        public boolean hasParameter(String name) {
+            return from.hasParameter(name);
+        }
+
+        @Override
+        public String getOriginalRequestURI() {
+            return from.getOriginalRequestURI();
+        }
+
+        @Override
+        public boolean checkIfModified(long timestampOfResource, StaplerResponse2 rsp) {
+            return from.checkIfModified(timestampOfResource, StaplerResponse.fromStaplerResponse2(rsp));
+        }
+
+        @Override
+        public boolean checkIfModified(Date timestampOfResource, StaplerResponse2 rsp) {
+            return from.checkIfModified(timestampOfResource, StaplerResponse.fromStaplerResponse2(rsp));
+        }
+
+        @Override
+        public boolean checkIfModified(Calendar timestampOfResource, StaplerResponse2 rsp) {
+            return from.checkIfModified(timestampOfResource, StaplerResponse.fromStaplerResponse2(rsp));
+        }
+
+        @Override
+        public boolean checkIfModified(long timestampOfResource, StaplerResponse2 rsp, long expiration) {
+            return from.checkIfModified(timestampOfResource, StaplerResponse.fromStaplerResponse2(rsp));
+        }
+
+        @Override
+        public void bindParameters(Object bean) {
+            from.bindParameters(bean);
+        }
+
+        @Override
+        public void bindParameters(Object bean, String prefix) {
+            from.bindParameters(bean, prefix);
+        }
+
+        @Override
+        public <T> List<T> bindParametersToList(Class<T> type, String prefix) {
+            return from.bindParametersToList(type, prefix);
+        }
+
+        @Override
+        public <T> T bindParameters(Class<T> type, String prefix) {
+            return from.bindParameters(type, prefix);
+        }
+
+        @Override
+        public <T> T bindParameters(Class<T> type, String prefix, int index) {
+            return from.bindParameters(type, prefix, index);
+        }
+
+        @Override
+        public <T> T bindJSON(Class<T> type, JSONObject src) {
+            return from.bindJSON(type, src);
+        }
+
+        @Override
+        public <T> T bindJSON(Type genericType, Class<T> erasure, Object json) {
+            return from.bindJSON(genericType, erasure, json);
+        }
+
+        @Override
+        public void bindJSON(Object bean, JSONObject src) {
+            from.bindJSON(bean, src);
+        }
+
+        @Override
+        public <T> List<T> bindJSONToList(Class<T> type, Object src) {
+            return from.bindJSONToList(type, src);
+        }
+
+        @Override
+        public BindInterceptor getBindInterceptor() {
+            return from.getBindInterceptor();
+        }
+
+        @Override
+        public BindInterceptor setBindListener(BindInterceptor bindListener) {
+            return from.setBindListener(bindListener);
+        }
+
+        @Override
+        public BindInterceptor setBindInterceptpr(BindInterceptor bindListener) {
+            return from.setBindInterceptpr(bindListener);
+        }
+
+        @Override
+        public BindInterceptor setBindInterceptor(BindInterceptor bindListener) {
+            return from.setBindInterceptor(bindListener);
+        }
+
+        @Override
+        public JSONObject getSubmittedForm() throws jakarta.servlet.ServletException {
+            try {
+                return from.getSubmittedForm();
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public FileItem getFileItem2(String name) throws jakarta.servlet.ServletException, IOException {
+            try {
+                return from.getFileItem2(name);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public org.apache.commons.fileupload.FileItem getFileItem(String name)
+                throws jakarta.servlet.ServletException, IOException {
+            try {
+                return from.getFileItem(name);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public boolean isJavaScriptProxyCall() {
+            return from.isJavaScriptProxyCall();
+        }
+
+        @Override
+        public BoundObjectTable getBoundObjectTable() {
+            return from.getBoundObjectTable();
+        }
+
+        @Override
+        public String createJavaScriptProxy(Object toBeExported) {
+            return from.createJavaScriptProxy(toBeExported);
+        }
+
+        @Override
+        public RenderOnDemandParameters createJavaScriptProxyParameters(Object toBeExported) {
+            StaplerRequest.RenderOnDemandParameters result = from.createJavaScriptProxyParameters(toBeExported);
+            return new RenderOnDemandParameters(result.proxyMethod, result.url, result.crumb, result.urlNames);
+        }
+
+        @Override
+        public jakarta.servlet.AsyncContext startAsync() {
+            return AsyncContextWrapper.toJakartaAsyncContext(from.startAsync());
+        }
+
+        @Override
+        public jakarta.servlet.AsyncContext startAsync(
+                jakarta.servlet.ServletRequest servletRequest, jakarta.servlet.ServletResponse servletResponse) {
+            return AsyncContextWrapper.toJakartaAsyncContext(from.startAsync(
+                    ServletRequestWrapper.fromJakartaServletRequest(servletRequest),
+                    ServletResponseWrapper.fromJakartaServletResponse(servletResponse)));
+        }
+
+        @Override
+        public boolean isAsyncStarted() {
+            return from.isAsyncStarted();
+        }
+
+        @Override
+        public boolean isAsyncSupported() {
+            return from.isAsyncSupported();
+        }
+
+        @Override
+        public jakarta.servlet.AsyncContext getAsyncContext() {
+            return AsyncContextWrapper.toJakartaAsyncContext(from.getAsyncContext());
+        }
+
+        @Override
+        public jakarta.servlet.DispatcherType getDispatcherType() {
+            return DispatcherTypeWrapper.toJakartaDispatcherType(from.getDispatcherType());
+        }
+
+        @Override
+        public String getAuthType() {
+            return from.getAuthType();
+        }
+
+        @Override
+        public jakarta.servlet.http.Cookie[] getCookies() {
+            Cookie[] cookies = from.getCookies();
+            if (cookies == null) {
+                return null;
+            }
+            return Stream.of(cookies)
+                    .map(CookieWrapper::toJakartaServletHttpCookie)
+                    .toArray(jakarta.servlet.http.Cookie[]::new);
+        }
+
+        @Override
+        public long getDateHeader(String name) {
+            return from.getDateHeader(name);
+        }
+
+        @Override
+        public String getHeader(String name) {
+            return from.getHeader(name);
+        }
+
+        @Override
+        public Enumeration<String> getHeaders(String name) {
+            return from.getHeaders(name);
+        }
+
+        @Override
+        public Enumeration<String> getHeaderNames() {
+            return from.getHeaderNames();
+        }
+
+        @Override
+        public int getIntHeader(String name) {
+            return from.getIntHeader(name);
+        }
+
+        @Override
+        public jakarta.servlet.http.HttpServletMapping getHttpServletMapping() {
+            return HttpServletMappingWrapper.toJakartaHttpServletMapping(from.getHttpServletMapping());
+        }
+
+        @Override
+        public String getMethod() {
+            return from.getMethod();
+        }
+
+        @Override
+        public String getPathInfo() {
+            return from.getPathInfo();
+        }
+
+        @Override
+        public String getPathTranslated() {
+            return from.getPathTranslated();
+        }
+
+        @Override
+        public jakarta.servlet.http.PushBuilder newPushBuilder() {
+            // TODO implement this
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getContextPath() {
+            return from.getContextPath();
+        }
+
+        @Override
+        public String getQueryString() {
+            return from.getQueryString();
+        }
+
+        @Override
+        public String getRemoteUser() {
+            return from.getRemoteUser();
+        }
+
+        @Override
+        public boolean isUserInRole(String role) {
+            return from.isUserInRole(role);
+        }
+
+        @Override
+        public Principal getUserPrincipal() {
+            return from.getUserPrincipal();
+        }
+
+        @Override
+        public String getRequestedSessionId() {
+            return from.getRequestedSessionId();
+        }
+
+        @Override
+        public String getRequestURI() {
+            return from.getRequestURI();
+        }
+
+        @Override
+        public StringBuffer getRequestURL() {
+            return from.getRequestURL();
+        }
+
+        @Override
+        public String getServletPath() {
+            return from.getServletPath();
+        }
+
+        @Override
+        public jakarta.servlet.http.HttpSession getSession(boolean create) {
+            HttpSession session = from.getSession(create);
+            return session != null ? HttpSessionWrapper.toJakartaHttpSession(session) : null;
+        }
+
+        @Override
+        public jakarta.servlet.http.HttpSession getSession() {
+            HttpSession session = from.getSession();
+            return session != null ? HttpSessionWrapper.toJakartaHttpSession(session) : null;
+        }
+
+        @Override
+        public String changeSessionId() {
+            return from.changeSessionId();
+        }
+
+        @Override
+        public boolean isRequestedSessionIdValid() {
+            return from.isRequestedSessionIdValid();
+        }
+
+        @Override
+        public boolean isRequestedSessionIdFromCookie() {
+            return from.isRequestedSessionIdFromCookie();
+        }
+
+        @Override
+        public boolean isRequestedSessionIdFromURL() {
+            return from.isRequestedSessionIdFromURL();
+        }
+
+        @Override
+        public boolean isRequestedSessionIdFromUrl() {
+            return from.isRequestedSessionIdFromUrl();
+        }
+
+        @Override
+        public boolean authenticate(jakarta.servlet.http.HttpServletResponse response)
+                throws IOException, jakarta.servlet.ServletException {
+            try {
+                return from.authenticate(HttpServletResponseWrapper.fromJakartaHttpServletResponse(response));
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void login(String username, String password) throws jakarta.servlet.ServletException {
+            try {
+                from.login(username, password);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void logout() throws jakarta.servlet.ServletException {
+            try {
+                from.logout();
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public Collection<jakarta.servlet.http.Part> getParts() throws IOException, jakarta.servlet.ServletException {
+            try {
+                return from.getParts().stream()
+                        .map(PartWrapper::toJakartaPart)
+                        .collect(Collectors.toCollection(ArrayList::new));
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public jakarta.servlet.http.Part getPart(String name) throws IOException, jakarta.servlet.ServletException {
+            try {
+                return PartWrapper.toJakartaPart(from.getPart(name));
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public <T extends jakarta.servlet.http.HttpUpgradeHandler> T upgrade(Class<T> handlerClass) {
+            // TODO implement this
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Map<String, String> getTrailerFields() {
+            return from.getTrailerFields();
+        }
+
+        @Override
+        public boolean isTrailerFieldsReady() {
+            return from.isTrailerFieldsReady();
+        }
+
+        @Override
+        public ServletRequest toJavaxServletRequest() {
+            return from;
+        }
+
+        @Override
+        public HttpServletRequest toJavaxHttpServletRequest() {
+            return from;
+        }
+
+        @Override
+        public StaplerRequest toStaplerRequest() {
+            return from;
+        }
+    }
+
+    interface StaplerRequestWrapper {
+        StaplerRequest2 toStaplerRequest2();
+    }
+
+    class StaplerRequestWrapperImpl
+            implements StaplerRequest,
+                    ServletRequestWrapper.JavaxServletRequestWrapper,
+                    HttpServletRequestWrapper.JavaxHttpServletRequestWrapper,
+                    StaplerRequestWrapper {
+        private final StaplerRequest2 from;
+
+        public StaplerRequestWrapperImpl(StaplerRequest2 from) {
+            this.from = Objects.requireNonNull(from);
+        }
+
+        @Override
+        public Object getAttribute(String name) {
+            return from.getAttribute(name);
+        }
+
+        @Override
+        public Enumeration<String> getAttributeNames() {
+            return from.getAttributeNames();
+        }
+
+        @Override
+        public String getCharacterEncoding() {
+            return from.getCharacterEncoding();
+        }
+
+        @Override
+        public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
+            from.setCharacterEncoding(env);
+        }
+
+        @Override
+        public int getContentLength() {
+            return from.getContentLength();
+        }
+
+        @Override
+        public long getContentLengthLong() {
+            return from.getContentLengthLong();
+        }
+
+        @Override
+        public String getContentType() {
+            return from.getContentType();
+        }
+
+        @Override
+        public ServletInputStream getInputStream() throws IOException {
+            return ServletInputStreamWrapper.fromJakartaServletInputStream(from.getInputStream());
+        }
+
+        @Override
+        public String getParameter(String name) {
+            return from.getParameter(name);
+        }
+
+        @Override
+        public Enumeration<String> getParameterNames() {
+            return from.getParameterNames();
+        }
+
+        @Override
+        public String[] getParameterValues(String name) {
+            return from.getParameterValues(name);
+        }
+
+        @Override
+        public Map<String, String[]> getParameterMap() {
+            return from.getParameterMap();
+        }
+
+        @Override
+        public String getProtocol() {
+            return from.getProtocol();
+        }
+
+        @Override
+        public String getScheme() {
+            return from.getScheme();
+        }
+
+        @Override
+        public String getServerName() {
+            return from.getServerName();
+        }
+
+        @Override
+        public int getServerPort() {
+            return from.getServerPort();
+        }
+
+        @Override
+        public BufferedReader getReader() throws IOException {
+            return from.getReader();
+        }
+
+        @Override
+        public String getRemoteAddr() {
+            return from.getRemoteAddr();
+        }
+
+        @Override
+        public String getRemoteHost() {
+            return from.getRemoteHost();
+        }
+
+        @Override
+        public void setAttribute(String name, Object o) {
+            from.setAttribute(name, o);
+        }
+
+        @Override
+        public void removeAttribute(String name) {
+            from.removeAttribute(name);
+        }
+
+        @Override
+        public Locale getLocale() {
+            return from.getLocale();
+        }
+
+        @Override
+        public Enumeration<Locale> getLocales() {
+            return from.getLocales();
+        }
+
+        @Override
+        public boolean isSecure() {
+            return from.isSecure();
+        }
+
+        @Override
+        public RequestDispatcher getRequestDispatcher(String path) {
+            return RequestDispatcherWrapper.fromJakartaRequestDispatcher(from.getRequestDispatcher(path));
+        }
+
+        @Override
+        public String getRealPath(String path) {
+            return from.getRealPath(path);
+        }
+
+        @Override
+        public int getRemotePort() {
+            return from.getRemotePort();
+        }
+
+        @Override
+        public String getLocalName() {
+            return from.getLocalName();
+        }
+
+        @Override
+        public String getLocalAddr() {
+            return from.getLocalAddr();
+        }
+
+        @Override
+        public int getLocalPort() {
+            return from.getLocalPort();
+        }
+
+        @Override
+        public Stapler getStapler() {
+            return from.getStapler();
+        }
+
+        @Override
+        public WebApp getWebApp() {
+            return from.getWebApp();
+        }
+
+        @Override
+        public String getRestOfPath() {
+            return from.getRestOfPath();
+        }
+
+        @Override
+        public String getOriginalRestOfPath() {
+            return from.getOriginalRestOfPath();
+        }
+
+        @Override
+        public ServletContext getServletContext() {
+            return ServletContextWrapper.fromJakartServletContext(from.getServletContext());
+        }
+
+        @Override
+        public String getRequestURIWithQueryString() {
+            return from.getRequestURIWithQueryString();
+        }
+
+        @Override
+        public StringBuffer getRequestURLWithQueryString() {
+            return from.getRequestURLWithQueryString();
+        }
+
+        @Override
+        public RequestDispatcher getView(Object it, String viewName) throws IOException {
+            return RequestDispatcherWrapper.fromJakartaRequestDispatcher(from.getView(it, viewName));
+        }
+
+        @Override
+        public RequestDispatcher getView(Class clazz, String viewName) throws IOException {
+            return RequestDispatcherWrapper.fromJakartaRequestDispatcher(from.getView(clazz, viewName));
+        }
+
+        @Override
+        public RequestDispatcher getView(Klass<?> clazz, String viewName) throws IOException {
+            return RequestDispatcherWrapper.fromJakartaRequestDispatcher(from.getView(clazz, viewName));
+        }
+
+        @Override
+        public String getRootPath() {
+            return from.getRootPath();
+        }
+
+        @Override
+        public String getReferer() {
+            return from.getReferer();
+        }
+
+        @Override
+        public List<Ancestor> getAncestors() {
+            return from.getAncestors();
+        }
+
+        @Override
+        public Ancestor findAncestor(Class type) {
+            return from.findAncestor(type);
+        }
+
+        @Override
+        public <T> T findAncestorObject(Class<T> type) {
+            return from.findAncestorObject(type);
+        }
+
+        @Override
+        public Ancestor findAncestor(Object o) {
+            return from.findAncestor(o);
+        }
+
+        @Override
+        public boolean hasParameter(String name) {
+            return from.hasParameter(name);
+        }
+
+        @Override
+        public String getOriginalRequestURI() {
+            return from.getOriginalRequestURI();
+        }
+
+        @Override
+        public boolean checkIfModified(long timestampOfResource, StaplerResponse rsp) {
+            return from.checkIfModified(timestampOfResource, StaplerResponse.toStaplerResponse2(rsp));
+        }
+
+        @Override
+        public boolean checkIfModified(Date timestampOfResource, StaplerResponse rsp) {
+            return from.checkIfModified(timestampOfResource, StaplerResponse.toStaplerResponse2(rsp));
+        }
+
+        @Override
+        public boolean checkIfModified(Calendar timestampOfResource, StaplerResponse rsp) {
+            return from.checkIfModified(timestampOfResource, StaplerResponse.toStaplerResponse2(rsp));
+        }
+
+        @Override
+        public boolean checkIfModified(long timestampOfResource, StaplerResponse rsp, long expiration) {
+            return from.checkIfModified(timestampOfResource, StaplerResponse.toStaplerResponse2(rsp), expiration);
+        }
+
+        @Override
+        public void bindParameters(Object bean) {
+            from.bindParameters(bean);
+        }
+
+        @Override
+        public void bindParameters(Object bean, String prefix) {
+            from.bindParameters(bean, prefix);
+        }
+
+        @Override
+        public <T> List<T> bindParametersToList(Class<T> type, String prefix) {
+            return from.bindParametersToList(type, prefix);
+        }
+
+        @Override
+        public <T> T bindParameters(Class<T> type, String prefix) {
+            return from.bindParameters(type, prefix);
+        }
+
+        @Override
+        public <T> T bindParameters(Class<T> type, String prefix, int index) {
+            return from.bindParameters(type, prefix, index);
+        }
+
+        @Override
+        public <T> T bindJSON(Class<T> type, JSONObject src) {
+            return from.bindJSON(type, src);
+        }
+
+        @Override
+        public <T> T bindJSON(Type genericType, Class<T> erasure, Object json) {
+            return from.bindJSON(genericType, erasure, json);
+        }
+
+        @Override
+        public void bindJSON(Object bean, JSONObject src) {
+            from.bindJSON(bean, src);
+        }
+
+        @Override
+        public <T> List<T> bindJSONToList(Class<T> type, Object src) {
+            return from.bindJSONToList(type, src);
+        }
+
+        @Override
+        public BindInterceptor getBindInterceptor() {
+            return from.getBindInterceptor();
+        }
+
+        @Override
+        public BindInterceptor setBindListener(BindInterceptor bindListener) {
+            return from.setBindListener(bindListener);
+        }
+
+        @Override
+        public BindInterceptor setBindInterceptpr(BindInterceptor bindListener) {
+            return from.setBindInterceptpr(bindListener);
+        }
+
+        @Override
+        public BindInterceptor setBindInterceptor(BindInterceptor bindListener) {
+            return from.setBindInterceptor(bindListener);
+        }
+
+        @Override
+        public JSONObject getSubmittedForm() throws ServletException {
+            try {
+                return from.getSubmittedForm();
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public FileItem getFileItem2(String name) throws ServletException, IOException {
+            try {
+                return from.getFileItem2(name);
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public org.apache.commons.fileupload.FileItem getFileItem(String name) throws ServletException, IOException {
+            try {
+                return from.getFileItem(name);
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public boolean isJavaScriptProxyCall() {
+            return from.isJavaScriptProxyCall();
+        }
+
+        @Override
+        public BoundObjectTable getBoundObjectTable() {
+            return from.getBoundObjectTable();
+        }
+
+        @Override
+        public String createJavaScriptProxy(Object toBeExported) {
+            return from.createJavaScriptProxy(toBeExported);
+        }
+
+        @Override
+        public RenderOnDemandParameters createJavaScriptProxyParameters(Object toBeExported) {
+            StaplerRequest2.RenderOnDemandParameters result = from.createJavaScriptProxyParameters(toBeExported);
+            return new RenderOnDemandParameters(result.proxyMethod, result.crumb, result.url, result.urlNames);
+        }
+
+        @Override
+        public AsyncContext startAsync() {
+            return AsyncContextWrapper.fromJakartaAsyncContext(from.startAsync());
+        }
+
+        @Override
+        public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) {
+            return AsyncContextWrapper.fromJakartaAsyncContext(from.startAsync(
+                    ServletRequestWrapper.toJakartaServletRequest(servletRequest),
+                    ServletResponseWrapper.toJakartaServletResponse(servletResponse)));
+        }
+
+        @Override
+        public boolean isAsyncStarted() {
+            return from.isAsyncStarted();
+        }
+
+        @Override
+        public boolean isAsyncSupported() {
+            return from.isAsyncSupported();
+        }
+
+        @Override
+        public AsyncContext getAsyncContext() {
+            return AsyncContextWrapper.fromJakartaAsyncContext(from.getAsyncContext());
+        }
+
+        @Override
+        public DispatcherType getDispatcherType() {
+            return DispatcherTypeWrapper.fromJakartaDispatcherType(from.getDispatcherType());
+        }
+
+        @Override
+        public String getAuthType() {
+            return from.getAuthType();
+        }
+
+        @Override
+        public Cookie[] getCookies() {
+            jakarta.servlet.http.Cookie[] cookies = from.getCookies();
+            if (cookies == null) {
+                return null;
+            }
+            return Stream.of(cookies)
+                    .map(CookieWrapper::fromJakartaServletHttpCookie)
+                    .toArray(Cookie[]::new);
+        }
+
+        @Override
+        public long getDateHeader(String name) {
+            return from.getDateHeader(name);
+        }
+
+        @Override
+        public String getHeader(String name) {
+            return from.getHeader(name);
+        }
+
+        @Override
+        public Enumeration<String> getHeaders(String name) {
+            return from.getHeaders(name);
+        }
+
+        @Override
+        public Enumeration<String> getHeaderNames() {
+            return from.getHeaderNames();
+        }
+
+        @Override
+        public int getIntHeader(String name) {
+            return from.getIntHeader(name);
+        }
+
+        @Override
+        public HttpServletMapping getHttpServletMapping() {
+            return HttpServletMappingWrapper.fromJakartaHttpServletMapping(from.getHttpServletMapping());
+        }
+
+        @Override
+        public String getMethod() {
+            return from.getMethod();
+        }
+
+        @Override
+        public String getPathInfo() {
+            return from.getPathInfo();
+        }
+
+        @Override
+        public String getPathTranslated() {
+            return from.getPathTranslated();
+        }
+
+        @Override
+        public PushBuilder newPushBuilder() {
+            // TODO implement this
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getContextPath() {
+            return from.getContextPath();
+        }
+
+        @Override
+        public String getQueryString() {
+            return from.getQueryString();
+        }
+
+        @Override
+        public String getRemoteUser() {
+            return from.getRemoteUser();
+        }
+
+        @Override
+        public boolean isUserInRole(String role) {
+            return from.isUserInRole(role);
+        }
+
+        @Override
+        public Principal getUserPrincipal() {
+            return from.getUserPrincipal();
+        }
+
+        @Override
+        public String getRequestedSessionId() {
+            return from.getRequestedSessionId();
+        }
+
+        @Override
+        public String getRequestURI() {
+            return from.getRequestURI();
+        }
+
+        @Override
+        public StringBuffer getRequestURL() {
+            return from.getRequestURL();
+        }
+
+        @Override
+        public String getServletPath() {
+            return from.getServletPath();
+        }
+
+        @Override
+        public HttpSession getSession(boolean create) {
+            jakarta.servlet.http.HttpSession session = from.getSession(create);
+            return session != null ? HttpSessionWrapper.fromJakartaHttpSession(session) : null;
+        }
+
+        @Override
+        public HttpSession getSession() {
+            jakarta.servlet.http.HttpSession session = from.getSession();
+            return session != null ? HttpSessionWrapper.fromJakartaHttpSession(session) : null;
+        }
+
+        @Override
+        public String changeSessionId() {
+            return from.changeSessionId();
+        }
+
+        @Override
+        public boolean isRequestedSessionIdValid() {
+            return from.isRequestedSessionIdValid();
+        }
+
+        @Override
+        public boolean isRequestedSessionIdFromCookie() {
+            return from.isRequestedSessionIdFromCookie();
+        }
+
+        @Override
+        public boolean isRequestedSessionIdFromURL() {
+            return from.isRequestedSessionIdFromURL();
+        }
+
+        @Override
+        public boolean isRequestedSessionIdFromUrl() {
+            return from.isRequestedSessionIdFromUrl();
+        }
+
+        @Override
+        public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+            try {
+                return from.authenticate(HttpServletResponseWrapper.toJakartaHttpServletResponse(response));
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void login(String username, String password) throws ServletException {
+            try {
+                from.login(username, password);
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void logout() throws ServletException {
+            try {
+                from.logout();
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public Collection<Part> getParts() throws IOException, ServletException {
+            try {
+                return from.getParts().stream()
+                        .map(PartWrapper::fromJakartaPart)
+                        .collect(Collectors.toCollection(ArrayList::new));
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public Part getPart(String name) throws IOException, ServletException {
+            try {
+                return PartWrapper.fromJakartaPart(from.getPart(name));
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) {
+            // TODO implement this
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Map<String, String> getTrailerFields() {
+            return from.getTrailerFields();
+        }
+
+        @Override
+        public boolean isTrailerFieldsReady() {
+            return from.isTrailerFieldsReady();
+        }
+
+        @Override
+        public jakarta.servlet.ServletRequest toJakartaServletRequest() {
+            return from;
+        }
+
+        @Override
+        public jakarta.servlet.http.HttpServletRequest toJakartaHttpServletRequest() {
+            return from;
+        }
+
+        @Override
+        public StaplerRequest2 toStaplerRequest2() {
+            return from;
+        }
+    }
 }

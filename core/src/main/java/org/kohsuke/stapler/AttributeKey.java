@@ -1,9 +1,9 @@
 package org.kohsuke.stapler;
 
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.util.UUID;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 /**
  * Type-safe attribute accessor.
@@ -39,15 +39,15 @@ public abstract class AttributeKey<T> {
     public abstract void remove(HttpServletRequest req);
 
     public final T get() {
-        return get(Stapler.getCurrentRequest());
+        return get(Stapler.getCurrentRequest2());
     }
 
     public final void set(T value) {
-        set(Stapler.getCurrentRequest(), value);
+        set(Stapler.getCurrentRequest2(), value);
     }
 
     public final void remove() {
-        remove(Stapler.getCurrentRequest());
+        remove(Stapler.getCurrentRequest2());
     }
 
     /**

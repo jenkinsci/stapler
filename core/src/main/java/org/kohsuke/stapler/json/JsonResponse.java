@@ -1,5 +1,6 @@
 package org.kohsuke.stapler.json;
 
+import jakarta.servlet.ServletException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,11 +9,10 @@ import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletException;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.HttpResponse;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
@@ -35,7 +35,7 @@ public @interface JsonResponse {
         private static final Logger logger = Logger.getLogger(Handler.class.getName());
 
         @Override
-        public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
+        public Object invoke(StaplerRequest2 request, StaplerResponse2 response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException, ServletException {
             try {
                 final Object r = target.invoke(request, response, instance, arguments);

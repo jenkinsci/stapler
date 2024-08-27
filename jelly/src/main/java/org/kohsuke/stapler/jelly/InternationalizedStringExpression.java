@@ -142,7 +142,7 @@ public class InternationalizedStringExpression extends ExpressionSupport {
     private Object format(Object[] args) {
         // notify the listener if set
         InternationalizedStringExpressionListener listener = (InternationalizedStringExpressionListener)
-                Stapler.getCurrentRequest().getAttribute(LISTENER_NAME);
+                Stapler.getCurrentRequest2().getAttribute(LISTENER_NAME);
         if (listener != null) {
             listener.onUsed(this, args);
         }
