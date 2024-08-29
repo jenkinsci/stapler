@@ -27,18 +27,14 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import org.apache.commons.discovery.ResourceNameIterator;
-import org.apache.commons.discovery.resource.ClassLoaders;
-import org.apache.commons.discovery.resource.names.DiscoverServiceNames;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.stapler.event.FilteredDispatchTriggerListener;
 import org.kohsuke.stapler.lang.Klass;
@@ -86,31 +82,11 @@ public abstract class Facet {
         Set<String> classNames = new HashSet<>();
 
         for (ClassLoader cl : cls) {
-            ClassLoaders classLoaders = new ClassLoaders();
-            classLoaders.put(cl);
-            DiscoverServiceNames dc = new DiscoverServiceNames(classLoaders);
-            ResourceNameIterator itr = dc.findResourceNames(type.getName());
-            while (itr.hasNext()) {
-                String name = itr.nextResourceName();
-                if (!classNames.add(name)) {
+            for (T extension : ServiceLoader.load(type, cl)) {
+                if (!classNames.add(extension.getClass().getName())) {
                     continue; // avoid duplication
                 }
-
-                Class<? extends T> c;
-                try {
-                    c = cl.loadClass(name).asSubclass(type);
-                } catch (ClassNotFoundException e) {
-                    LOGGER.log(Level.WARNING, "Failed to load " + name, e);
-                    continue;
-                }
-                try {
-                    r.add(c.getDeclaredConstructor().newInstance());
-                } catch (NoSuchMethodException
-                        | InstantiationException
-                        | IllegalAccessException
-                        | InvocationTargetException e) {
-                    LOGGER.log(Level.WARNING, "Failed to instantiate " + c, e);
-                }
+                r.add(extension);
             }
         }
         return r;
