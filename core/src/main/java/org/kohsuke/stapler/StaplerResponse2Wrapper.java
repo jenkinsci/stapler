@@ -20,8 +20,6 @@ import org.kohsuke.stapler.export.Flavor;
 /**
  * A basic wrapper for a StaplerResponse2, e.g. in order to override some method.
  * This simply delegates all method calls to the wrapped instance.
- *
- * @since TODO
  */
 @SuppressWarnings("deprecation")
 public abstract class StaplerResponse2Wrapper implements StaplerResponse2 {
