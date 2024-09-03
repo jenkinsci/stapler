@@ -811,17 +811,20 @@ public interface StaplerRequest extends HttpServletRequest {
 
         @Override
         public jakarta.servlet.RequestDispatcher getView(Object it, String viewName) throws IOException {
-            return RequestDispatcherWrapper.toJakartaRequestDispatcher(from.getView(it, viewName));
+            RequestDispatcher view = from.getView(it, viewName);
+            return view != null ? RequestDispatcherWrapper.toJakartaRequestDispatcher(view) : null;
         }
 
         @Override
         public jakarta.servlet.RequestDispatcher getView(Class clazz, String viewName) throws IOException {
-            return RequestDispatcherWrapper.toJakartaRequestDispatcher(from.getView(clazz, viewName));
+            RequestDispatcher view = from.getView(clazz, viewName);
+            return view != null ? RequestDispatcherWrapper.toJakartaRequestDispatcher(view) : null;
         }
 
         @Override
         public jakarta.servlet.RequestDispatcher getView(Klass<?> clazz, String viewName) throws IOException {
-            return RequestDispatcherWrapper.toJakartaRequestDispatcher(from.getView(clazz, viewName));
+            RequestDispatcher view = from.getView(clazz, viewName);
+            return view != null ? RequestDispatcherWrapper.toJakartaRequestDispatcher(view) : null;
         }
 
         @Override
@@ -1465,17 +1468,20 @@ public interface StaplerRequest extends HttpServletRequest {
 
         @Override
         public RequestDispatcher getView(Object it, String viewName) throws IOException {
-            return RequestDispatcherWrapper.fromJakartaRequestDispatcher(from.getView(it, viewName));
+            jakarta.servlet.RequestDispatcher view = from.getView(it, viewName);
+            return view != null ? RequestDispatcherWrapper.fromJakartaRequestDispatcher(view) : null;
         }
 
         @Override
         public RequestDispatcher getView(Class clazz, String viewName) throws IOException {
-            return RequestDispatcherWrapper.fromJakartaRequestDispatcher(from.getView(clazz, viewName));
+            jakarta.servlet.RequestDispatcher view = from.getView(clazz, viewName);
+            return view != null ? RequestDispatcherWrapper.fromJakartaRequestDispatcher(view) : null;
         }
 
         @Override
         public RequestDispatcher getView(Klass<?> clazz, String viewName) throws IOException {
-            return RequestDispatcherWrapper.fromJakartaRequestDispatcher(from.getView(clazz, viewName));
+            jakarta.servlet.RequestDispatcher view = from.getView(clazz, viewName);
+            return view != null ? RequestDispatcherWrapper.fromJakartaRequestDispatcher(view) : null;
         }
 
         @Override
