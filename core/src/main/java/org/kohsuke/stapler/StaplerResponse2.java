@@ -220,7 +220,7 @@ public interface StaplerResponse2 extends HttpServletResponse {
         serveExposedBean(req, exposedBean, exportConfig.getFlavor());
     }
 
-   /**
+    /**
      * @deprecated use {@link #getOutputStream}
      */
     @Deprecated
