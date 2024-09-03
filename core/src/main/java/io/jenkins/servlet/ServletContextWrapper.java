@@ -33,7 +33,8 @@ public class ServletContextWrapper {
 
             @Override
             public jakarta.servlet.ServletContext getContext(String uripath) {
-                return toJakartaServletContext(from.getContext(uripath));
+                ServletContext context = from.getContext(uripath);
+                return context != null ? toJakartaServletContext(context) : null;
             }
 
             @Override
@@ -78,12 +79,18 @@ public class ServletContextWrapper {
 
             @Override
             public jakarta.servlet.RequestDispatcher getRequestDispatcher(String path) {
-                return RequestDispatcherWrapper.toJakartaRequestDispatcher(from.getRequestDispatcher(path));
+                RequestDispatcher requestDispatcher = from.getRequestDispatcher(path);
+                return requestDispatcher != null
+                        ? RequestDispatcherWrapper.toJakartaRequestDispatcher(requestDispatcher)
+                        : null;
             }
 
             @Override
             public jakarta.servlet.RequestDispatcher getNamedDispatcher(String path) {
-                return RequestDispatcherWrapper.toJakartaRequestDispatcher(from.getNamedDispatcher(path));
+                RequestDispatcher namedDispatcher = from.getNamedDispatcher(path);
+                return namedDispatcher != null
+                        ? RequestDispatcherWrapper.toJakartaRequestDispatcher(namedDispatcher)
+                        : null;
             }
 
             @Override
@@ -309,7 +316,10 @@ public class ServletContextWrapper {
 
             @Override
             public jakarta.servlet.descriptor.JspConfigDescriptor getJspConfigDescriptor() {
-                return JspConfigDescriptorWrapper.toJakartaJspConfigDescriptor(from.getJspConfigDescriptor());
+                JspConfigDescriptor jspConfigDescriptor = from.getJspConfigDescriptor();
+                return jspConfigDescriptor != null
+                        ? JspConfigDescriptorWrapper.toJakartaJspConfigDescriptor(jspConfigDescriptor)
+                        : null;
             }
 
             @Override
@@ -369,7 +379,8 @@ public class ServletContextWrapper {
 
             @Override
             public ServletContext getContext(String uripath) {
-                return fromJakartServletContext(from.getContext(uripath));
+                jakarta.servlet.ServletContext context = from.getContext(uripath);
+                return context != null ? fromJakartServletContext(context) : null;
             }
 
             @Override
@@ -414,12 +425,18 @@ public class ServletContextWrapper {
 
             @Override
             public RequestDispatcher getRequestDispatcher(String path) {
-                return RequestDispatcherWrapper.fromJakartaRequestDispatcher(from.getRequestDispatcher(path));
+                jakarta.servlet.RequestDispatcher requestDispatcher = from.getRequestDispatcher(path);
+                return requestDispatcher != null
+                        ? RequestDispatcherWrapper.fromJakartaRequestDispatcher(requestDispatcher)
+                        : null;
             }
 
             @Override
             public RequestDispatcher getNamedDispatcher(String name) {
-                return RequestDispatcherWrapper.fromJakartaRequestDispatcher(from.getNamedDispatcher(name));
+                jakarta.servlet.RequestDispatcher namedDispatcher = from.getNamedDispatcher(name);
+                return namedDispatcher != null
+                        ? RequestDispatcherWrapper.fromJakartaRequestDispatcher(namedDispatcher)
+                        : null;
             }
 
             @Override
@@ -640,7 +657,10 @@ public class ServletContextWrapper {
 
             @Override
             public JspConfigDescriptor getJspConfigDescriptor() {
-                return JspConfigDescriptorWrapper.fromJakartaJspConfigDescriptor(from.getJspConfigDescriptor());
+                jakarta.servlet.descriptor.JspConfigDescriptor jspConfigDescriptor = from.getJspConfigDescriptor();
+                return jspConfigDescriptor != null
+                        ? JspConfigDescriptorWrapper.fromJakartaJspConfigDescriptor(jspConfigDescriptor)
+                        : null;
             }
 
             @Override

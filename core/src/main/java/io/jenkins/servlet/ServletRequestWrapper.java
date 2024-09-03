@@ -164,7 +164,10 @@ public class ServletRequestWrapper {
 
         @Override
         public jakarta.servlet.RequestDispatcher getRequestDispatcher(String path) {
-            return RequestDispatcherWrapper.toJakartaRequestDispatcher(from.getRequestDispatcher(path));
+            RequestDispatcher requestDispatcher = from.getRequestDispatcher(path);
+            return requestDispatcher != null
+                    ? RequestDispatcherWrapper.toJakartaRequestDispatcher(requestDispatcher)
+                    : null;
         }
 
         @Override
@@ -369,7 +372,10 @@ public class ServletRequestWrapper {
 
         @Override
         public RequestDispatcher getRequestDispatcher(String path) {
-            return RequestDispatcherWrapper.fromJakartaRequestDispatcher(from.getRequestDispatcher(path));
+            jakarta.servlet.RequestDispatcher requestDispatcher = from.getRequestDispatcher(path);
+            return requestDispatcher != null
+                    ? RequestDispatcherWrapper.fromJakartaRequestDispatcher(requestDispatcher)
+                    : null;
         }
 
         @Override
