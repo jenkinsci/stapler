@@ -27,13 +27,13 @@ package org.kohsuke.stapler;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 
 /**
  * Implements a RequestDispatcher for a given model node and view. Unlike dispatchers created through
@@ -91,8 +91,8 @@ class ScriptRequestDispatcher<S> implements RequestDispatcher {
 
     @Override
     public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
-        StaplerRequest req = (StaplerRequest) request;
-        StaplerResponse rsp = (StaplerResponse) response;
+        StaplerRequest2 req = (StaplerRequest2) request;
+        StaplerResponse2 rsp = (StaplerResponse2) response;
         DispatchValidator validator = req.getWebApp().getDispatchValidator();
         validator.allowDispatch(req, rsp);
         try {

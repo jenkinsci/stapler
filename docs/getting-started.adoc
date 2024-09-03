@@ -29,7 +29,7 @@ Stapler needs to know the root object of your application. It does that
 by `ServletContext.getAttribute("app")`, so your application needs to
 set the root object into a ServletContext. The easiest to do that is to
 write a
-http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/ServletContextListener.html[`ServletContextListener`]
+https://jakarta.ee/specifications/servlet/5.0/apidocs/jakarta/servlet/ServletContextListener.html[`ServletContextListener`]
 and use the helper method from `Stapler`.
 
 Specifically, you write the following class:
@@ -184,7 +184,7 @@ Action methods take the following signature:
 
 [source,java]
 ----
-public void do[Name]( StaplerRequest request, StaplerResponse response ) {
+public void do[Name]( StaplerRequest2 request, StaplerResponse2 response ) {
     ...
 }
 ----
@@ -198,12 +198,12 @@ In our example, we define an action method called "hello" in
 like servlets, you can serve the request from this action method
 (perhaps by sending the contents out or redirecting clients) in exactly
 the same way as you'd do in servlets. In the following example, we use a
-method on `StaplerResponse` to forward to another side JSP file to
+method on `StaplerResponse2` to forward to another side JSP file to
 generate the response.
 
 [source,java]
 ----
-public void doHello( StaplerRequest request, StaplerResponse response ) {
+public void doHello( StaplerRequest2 request, StaplerResponse2 response ) {
     ...
     response.forward(this,"helloJSP",request);
 }

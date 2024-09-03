@@ -25,6 +25,8 @@ package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
@@ -33,8 +35,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
 import net.sf.json.JSONArray;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
@@ -156,7 +156,7 @@ public class MetaClass extends TearOffSupport {
             f.buildIndexDispatchers(this, dispatchers);
         }
 
-        Dispatcher d = IndexHtmlDispatcher.make(webApp.context, clazz);
+        Dispatcher d = IndexHtmlDispatcher.make(webApp.getServletContext(), clazz);
         if (d != null) {
             dispatchers.add(d);
         }
@@ -264,8 +264,8 @@ public class MetaClass extends TearOffSupport {
             });
         }
 
-        // check public selector methods of the form static NODE.getTOKEN(StaplerRequest)
-        for (final Function f : getMethods.signature(StaplerRequest.class)) {
+        // check public selector methods of the form static NODE.getTOKEN(StaplerRequest2)
+        for (final Function f : getMethods.signature(StaplerRequest2.class)) {
             if (f.getName().length() <= 3) {
                 continue;
             }
@@ -283,6 +283,48 @@ public class MetaClass extends TearOffSupport {
                             traceEval(req, rsp, node, ff.getName() + "(...)");
                         }
                         req.getStapler().invoke(req, rsp, ff.invoke(req, rsp, node, req));
+                        return true;
+                    } else {
+                        return webApp.getFilteredGetterTriggerListener()
+                                .onGetterTrigger(f, req, rsp, node, ff.getName() + "(...)");
+                    }
+                }
+
+                @Override
+                public String toString() {
+                    if (isAccepted) {
+                        return String.format(
+                                "%3$s %1$s(StaplerRequest2) for url=/%2$s/...",
+                                ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    } else {
+                        return String.format(
+                                "BLOCKED: %3$s %1$s(StaplerRequest2) for url=/%2$s/...",
+                                ff.getQualifiedName(), name, ff.getReturnType().getName());
+                    }
+                }
+            });
+        }
+
+        // check public selector methods of the deprecated form static NODE.getTOKEN(StaplerRequest)
+        for (final Function f : getMethods.signature(StaplerRequest.class)) {
+            if (f.getName().length() <= 3) {
+                continue;
+            }
+            String name = camelize(f.getName().substring(3)); // 'getFoo' -> 'foo'
+            final Function ff = f.contextualize(new TraversalMethodContext(name));
+            final boolean isAccepted = filteredGetMethods.contains(f);
+
+            dispatchers.add(new NameBasedDispatcher(name) {
+                @Override
+                public boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
+                        throws IOException, ServletException, IllegalAccessException, InvocationTargetException {
+                    if (isAccepted) {
+                        Dispatcher.anonymizedTraceEval(req, rsp, node, "%s#%s(...)", ff.getName());
+                        if (traceable()) {
+                            traceEval(req, rsp, node, ff.getName() + "(...)");
+                        }
+                        req.getStapler()
+                                .invoke(req, rsp, ff.invoke(req, rsp, node, StaplerRequest.fromStaplerRequest2(req)));
                         return true;
                     } else {
                         return webApp.getFilteredGetterTriggerListener()
@@ -560,7 +602,7 @@ public class MetaClass extends TearOffSupport {
                 @Override
                 public String toString() {
                     return String.format(
-                            "%2$s %s(String,StaplerRequest,StaplerResponse) for url=/TOKEN/...",
+                            "%2$s %s(String,StaplerRequest[2],StaplerResponse[2]) for url=/TOKEN/...",
                             ff.getQualifiedName(), ff.getReturnType().getName());
                 }
             });
@@ -582,7 +624,7 @@ public class MetaClass extends TearOffSupport {
 
                 @Override
                 public String toString() {
-                    return String.format("%s(StaplerRequest,StaplerResponse) for any URL", ff.getQualifiedName());
+                    return String.format("%s(StaplerRequest[2],StaplerResponse[2]) for any URL", ff.getQualifiedName());
                 }
             });
         }

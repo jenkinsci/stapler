@@ -30,7 +30,7 @@ import org.apache.commons.jelly.XMLOutput;
 import org.jvnet.maven.jellydoc.annotation.NoContent;
 import org.jvnet.maven.jellydoc.annotation.Required;
 import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /**
  * Sends HTTP redirect.
@@ -43,7 +43,7 @@ public class RedirectTag extends TagSupport {
 
     /**
      * Sets the target URL to redirect to. This just gets passed
-     * to {@link StaplerResponse#sendRedirect2(String)}.
+     * to {@link StaplerResponse2#sendRedirect2(String)}.
      */
     @Required
     public void setUrl(String url) {
@@ -53,7 +53,7 @@ public class RedirectTag extends TagSupport {
     @Override
     public void doTag(XMLOutput output) throws JellyTagException {
         try {
-            Stapler.getCurrentResponse().sendRedirect2(url);
+            Stapler.getCurrentResponse2().sendRedirect2(url);
         } catch (IOException e) {
             throw new JellyTagException("Failed to redirect to " + url, e);
         }

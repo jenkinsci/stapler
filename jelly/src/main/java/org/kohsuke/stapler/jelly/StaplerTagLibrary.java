@@ -24,9 +24,9 @@
 package org.kohsuke.stapler.jelly;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyTagException;
@@ -99,7 +99,7 @@ public class StaplerTagLibrary extends TagLibrary {
                  */
                 @Override
                 public void run(JellyContext context, XMLOutput output) throws JellyTagException {
-                    HttpServletRequest request = (HttpServletRequest) context.getVariable("request");
+                    HttpServletRequest request = (HttpServletRequest) context.getVariable("request2");
                     Set<String> executedScripts = (Set<String>) request.getAttribute(ONCE_TAG_KEY);
                     if (executedScripts == null) {
                         request.setAttribute(ONCE_TAG_KEY, executedScripts = new HashSet<>());

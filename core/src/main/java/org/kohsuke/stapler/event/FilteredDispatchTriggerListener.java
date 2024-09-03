@@ -25,8 +25,8 @@
 package org.kohsuke.stapler.event;
 
 import java.util.logging.Logger;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /**
  * Listens to filtered dispatch events from {@link org.kohsuke.stapler.DispatchValidator}.
@@ -35,13 +35,13 @@ import org.kohsuke.stapler.StaplerResponse;
  * @see org.kohsuke.stapler.WebApp#setFilteredDispatchTriggerListener(FilteredDispatchTriggerListener)
  */
 public interface FilteredDispatchTriggerListener {
-    boolean onDispatchTrigger(StaplerRequest req, StaplerResponse rsp, Object node, String viewName);
+    boolean onDispatchTrigger(StaplerRequest2 req, StaplerResponse2 rsp, Object node, String viewName);
 
     FilteredDispatchTriggerListener JUST_WARN = new FilteredDispatchTriggerListener() {
         private final Logger LOGGER = Logger.getLogger(FilteredDispatchTriggerListener.class.getName());
 
         @Override
-        public boolean onDispatchTrigger(StaplerRequest req, StaplerResponse rsp, Object node, String viewName) {
+        public boolean onDispatchTrigger(StaplerRequest2 req, StaplerResponse2 rsp, Object node, String viewName) {
             LOGGER.warning(() -> "BLOCKED -> <" + node + ">." + viewName);
             return false;
         }

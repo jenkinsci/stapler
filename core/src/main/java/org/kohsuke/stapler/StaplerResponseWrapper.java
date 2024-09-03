@@ -22,7 +22,9 @@ import org.kohsuke.stapler.export.Flavor;
  * This simply delegates all method calls to the wrapped instance.
  *
  * @since TODO
+ * @deprecated use {@link StaplerResponse2Wrapper}
  */
+@Deprecated
 @SuppressWarnings("deprecation")
 public abstract class StaplerResponseWrapper implements StaplerResponse {
     private final StaplerResponse wrapped;

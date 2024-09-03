@@ -40,6 +40,30 @@ class QueryParameterAnnotationProcessorTest {
         assertEquals("name,address", Utils.getGeneratedResource(results.sources, "some/pkg/Stuff/doAnother.stapler"));
     }
 
+    @Inline(
+            name = "some.pkg.Stuff",
+            source = {
+                "package some.pkg;",
+                "import org.kohsuke.stapler.QueryParameter;",
+                "import org.kohsuke.stapler.StaplerRequest;",
+                "import org.kohsuke.stapler.StaplerResponse;",
+                "import org.kohsuke.stapler.StaplerRequest2;",
+                "import org.kohsuke.stapler.StaplerResponse2;",
+                "public class Stuff {",
+                "  public void doBuild(StaplerRequest2 req, StaplerResponse2 rsp, @QueryParameter int delay) {}",
+                "  @Deprecated",
+                "  public void doBuild(StaplerRequest req, StaplerResponse rsp, @QueryParameter int delay) {}",
+                "}"
+            })
+    @Test
+    void deprecated(Results results) {
+        Set<String> diagnostics = results.diagnostics.stream()
+                .map(d -> d.getMessage(Locale.ENGLISH))
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("Generating some/pkg/Stuff/doBuild.stapler"), diagnostics);
+        assertEquals("req,rsp,delay", Utils.getGeneratedResource(results.sources, "some/pkg/Stuff/doBuild.stapler"));
+    }
+
     // TODO nested classes use qualified rather than binary name
 
 }

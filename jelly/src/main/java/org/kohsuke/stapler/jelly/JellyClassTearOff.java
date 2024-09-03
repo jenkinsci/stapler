@@ -23,19 +23,19 @@
 
 package org.kohsuke.stapler.jelly;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Logger;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.AbstractTearOff;
 import org.kohsuke.stapler.Dispatcher;
 import org.kohsuke.stapler.Facet;
 import org.kohsuke.stapler.MetaClass;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -101,7 +101,7 @@ public class JellyClassTearOff extends AbstractTearOff<JellyClassLoaderTearOff, 
      * @deprecated removed without replacement
      */
     @Deprecated
-    public boolean serveIndexJelly(StaplerRequest req, StaplerResponse rsp, Object node)
+    public boolean serveIndexJelly(StaplerRequest2 req, StaplerResponse2 rsp, Object node)
             throws ServletException, IOException {
         try {
             Script script = findScript("index.jelly");

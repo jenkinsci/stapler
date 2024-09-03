@@ -24,12 +24,12 @@
 package org.kohsuke.stapler.jelly;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import jakarta.servlet.ServletContext;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Enumeration;
-import javax.servlet.ServletContext;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
@@ -37,7 +37,9 @@ import org.apache.commons.jelly.XMLOutput;
 import org.apache.commons.jelly.XMLOutputFactory;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /**
  * Standard implementation of {@link ScriptInvoker}.
@@ -46,7 +48,7 @@ import org.kohsuke.stapler.StaplerResponse;
  */
 public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
     @Override
-    public void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it)
+    public void invokeScript(StaplerRequest2 req, StaplerResponse2 rsp, Script script, Object it)
             throws IOException, JellyTagException {
         XMLOutput xmlOutput = createXMLOutput(req, rsp, script, it);
 
@@ -57,7 +59,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
     }
 
     @Override
-    public void invokeScript(StaplerRequest req, StaplerResponse rsp, Script script, Object it, XMLOutput out)
+    public void invokeScript(StaplerRequest2 req, StaplerResponse2 rsp, Script script, Object it, XMLOutput out)
             throws IOException, JellyTagException {
         JellyContext context = createContext(req, rsp, script, it);
         exportVariables(req, rsp, script, it, context);
@@ -65,7 +67,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         script.run(context, out);
     }
 
-    protected XMLOutput createXMLOutput(StaplerRequest req, StaplerResponse rsp, Script script, Object it)
+    protected XMLOutput createXMLOutput(StaplerRequest2 req, StaplerResponse2 rsp, Script script, Object it)
             throws IOException {
         // TODO: make XMLOutput auto-close OutputStream to avoid leak
         String ct = rsp.getContentType();
@@ -105,7 +107,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         }
     }
 
-    protected OutputStream createOutputStream(StaplerRequest req, StaplerResponse rsp, Script script, Object it)
+    protected OutputStream createOutputStream(StaplerRequest2 req, StaplerResponse2 rsp, Script script, Object it)
             throws IOException {
         OutputStreamSupplier out = new LazyOutputStreamSupplier(() -> {
             req.getWebApp().getDispatchValidator().requireDispatchAllowed(req, rsp);
@@ -142,7 +144,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
     }
 
     protected void exportVariables(
-            StaplerRequest req, StaplerResponse rsp, Script script, Object it, JellyContext context) {
+            StaplerRequest2 req, StaplerResponse2 rsp, Script script, Object it, JellyContext context) {
         Enumeration en = req.getAttributeNames();
         // expose request attributes, just like JSP
         while (en.hasMoreElements()) {
@@ -150,8 +152,10 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
             context.setVariable(name, req.getAttribute(name));
         }
 
-        context.setVariable("request", req);
-        context.setVariable("response", rsp);
+        context.setVariable("request", StaplerRequest.fromStaplerRequest2(req));
+        context.setVariable("response", StaplerResponse.fromStaplerResponse2(rsp));
+        context.setVariable("request2", req);
+        context.setVariable("response2", rsp);
         context.setVariable("it", it);
         ServletContext servletContext = req.getServletContext();
         context.setVariable("servletContext", servletContext);
@@ -162,7 +166,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
         context.setVariable("org.apache.commons.jelly.tags.fmt.locale", req.getLocale());
     }
 
-    protected JellyContext createContext(final StaplerRequest req, StaplerResponse rsp, Script script, Object it) {
+    protected JellyContext createContext(final StaplerRequest2 req, StaplerResponse2 rsp, Script script, Object it) {
         CustomJellyContext context = new CustomJellyContext();
         // let Jelly see the whole classes
         context.setClassLoader(req.getWebApp().getClassLoader());
@@ -173,7 +177,7 @@ public class DefaultScriptInvoker implements ScriptInvoker, XMLOutputFactory {
 
     @Override
     public XMLOutput createXMLOutput(Writer writer, boolean escapeText) {
-        StaplerResponse rsp = Stapler.getCurrentResponse();
+        StaplerResponse2 rsp = Stapler.getCurrentResponse2();
         String ct = rsp != null ? rsp.getContentType() : "?";
         if (ct != null && !ct.startsWith("text/html")) {
             return XMLOutput.createXMLOutput(writer, escapeText);

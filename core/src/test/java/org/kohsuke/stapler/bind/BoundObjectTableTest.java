@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import org.htmlunit.TextPage;
 import org.kohsuke.stapler.HttpResponse;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.test.JettyTestCase;
 
 /**
@@ -32,7 +32,7 @@ public class BoundObjectTableTest extends JettyTestCase {
             this.message = message;
         }
 
-        public void doIndex(StaplerResponse rsp) throws IOException {
+        public void doIndex(StaplerResponse2 rsp) throws IOException {
             rsp.setContentType("text/plain;charset=UTF-8");
             rsp.getWriter().write(message);
         }

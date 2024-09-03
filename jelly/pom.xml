@@ -12,7 +12,7 @@
   <description>Jelly binding for Stapler</description>
 
   <properties>
-    <jelly.version>1.1-jenkins-20240510</jelly.version>
+    <jelly.version>1.1-jenkins-20240903</jelly.version>
     <jellydoc-maven-plugin.version>137.v803fea_a_fb_c75</jellydoc-maven-plugin.version>
   </properties>
 
@@ -48,7 +48,7 @@
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
-      <version>4.0.4</version>
+      <version>5.0.0</version>
       <scope>provided</scope>
     </dependency>
 
@@ -71,13 +71,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.jetty.ee8</groupId>
-      <artifactId>jetty-ee8-servlet</artifactId>
+      <groupId>org.eclipse.jetty.ee9</groupId>
+      <artifactId>jetty-ee9-servlet</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.jetty.ee8</groupId>
-      <artifactId>jetty-ee8-webapp</artifactId>
+      <groupId>org.eclipse.jetty.ee9</groupId>
+      <artifactId>jetty-ee9-webapp</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

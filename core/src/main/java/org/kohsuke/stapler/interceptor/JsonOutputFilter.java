@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.interceptor;
 
+import jakarta.servlet.ServletException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -31,11 +32,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import javax.servlet.ServletException;
 import net.sf.json.JsonConfig;
 import net.sf.json.util.PropertyFilter;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 
 /**
@@ -75,7 +75,7 @@ public @interface JsonOutputFilter {
 
     class Processor extends Interceptor {
         @Override
-        public Object invoke(StaplerRequest request, StaplerResponse response, Object instance, Object[] arguments)
+        public Object invoke(StaplerRequest2 request, StaplerResponse2 response, Object instance, Object[] arguments)
                 throws IllegalAccessException, InvocationTargetException, ServletException {
             JsonOutputFilter annotation = target.getAnnotation(JsonOutputFilter.class);
             if (annotation != null) {

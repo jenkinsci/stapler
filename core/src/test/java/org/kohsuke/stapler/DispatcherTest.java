@@ -1,9 +1,9 @@
 package org.kohsuke.stapler;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.htmlunit.FailingHttpStatusCodeException;
 import org.htmlunit.HttpMethod;
@@ -201,17 +201,17 @@ public class DispatcherTest extends JettyTestCase {
     public abstract class PutInheritance {
         @WebMethod(name = "foo")
         @PUT
-        public abstract HttpResponse doBar(StaplerRequest req) throws IOException;
+        public abstract HttpResponse doBar(StaplerRequest2 req) throws IOException;
 
         @POST
-        public HttpResponse doAcme(StaplerRequest req) throws IOException {
+        public HttpResponse doAcme(StaplerRequest2 req) throws IOException {
             return HttpResponses.text("POST: " + IOUtils.toString(req.getInputStream(), StandardCharsets.UTF_8));
         }
     }
 
     public class PutInheritanceImpl extends PutInheritance {
         @Override
-        public HttpResponse doBar(StaplerRequest req) throws IOException {
+        public HttpResponse doBar(StaplerRequest2 req) throws IOException {
             return HttpResponses.text(IOUtils.toString(req.getInputStream(), StandardCharsets.UTF_8) + " World!");
         }
     }
@@ -324,7 +324,7 @@ public class DispatcherTest extends JettyTestCase {
 
     public void testOverloads() throws Exception {
         TextPage p = createWebClient().getPage(new URL(url, "overloaded/x"));
-        assertEquals("doX(StaplerRequest)", p.getContent());
+        assertEquals("doX(StaplerRequest2)", p.getContent());
     }
 
     public final Object overloaded = new Overloaded();
@@ -335,16 +335,16 @@ public class DispatcherTest extends JettyTestCase {
             return HttpResponses.text("doX()");
         }
 
-        public HttpResponse doX(StaplerRequest req) {
-            return HttpResponses.text("doX(StaplerRequest)");
+        public HttpResponse doX(StaplerRequest2 req) {
+            return HttpResponses.text("doX(StaplerRequest2)");
         }
 
-        public HttpResponse doX(StaplerResponse rsp) {
-            return HttpResponses.text("doX(StaplerResponse)");
+        public HttpResponse doX(StaplerResponse2 rsp) {
+            return HttpResponses.text("doX(StaplerResponse2)");
         }
 
-        public HttpResponse doX(StaplerRequest req, StaplerResponse rsp) {
-            return HttpResponses.text("doX(StaplerRequest, StaplerResponse)");
+        public HttpResponse doX(StaplerRequest2 req, StaplerResponse2 rsp) {
+            return HttpResponses.text("doX(StaplerRequest2, StaplerResponse2)");
         }
 
         @WebMethod(name = "x")
@@ -414,7 +414,7 @@ public class DispatcherTest extends JettyTestCase {
     public final StaplerProxyImpl staplerProxyFail = new StaplerProxyImpl(null);
 
     public class IndexPage {
-        public void doIndex(StaplerResponse rsp) {
+        public void doIndex(StaplerResponse2 rsp) {
             throw HttpResponses.ok();
         }
     }
@@ -433,7 +433,7 @@ public class DispatcherTest extends JettyTestCase {
             return target;
         }
 
-        public void doIndex(StaplerResponse rsp) {
+        public void doIndex(StaplerResponse2 rsp) {
             if (target != this) {
                 throw new IllegalStateException("should not be called");
             }

@@ -23,12 +23,12 @@
 
 package org.kohsuke.stapler;
 
+import jakarta.servlet.ServletException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import javax.servlet.ServletException;
 import org.kohsuke.stapler.QueryParameter.HandlerImpl;
 
 /**
@@ -60,7 +60,7 @@ public @interface QueryParameter {
 
     class HandlerImpl extends AnnotationHandler<QueryParameter> {
         @Override
-        public Object parse(StaplerRequest request, QueryParameter a, Class type, String parameterName)
+        public Object parse(StaplerRequest2 request, QueryParameter a, Class type, String parameterName)
                 throws ServletException {
             String name = a.value();
             if (name.isEmpty()) {

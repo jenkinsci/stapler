@@ -29,13 +29,13 @@ import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingMethodException;
 import groovy.lang.MissingPropertyException;
 import groovy.xml.QName;
+import jakarta.servlet.ServletContext;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.servlet.ServletContext;
 import org.apache.commons.beanutils.ConvertingWrapDynaBean;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaProperty;
@@ -56,8 +56,8 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXContentHandler;
 import org.kohsuke.stapler.MetaClassLoader;
 import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.framework.adjunct.AdjunctManager;
 import org.kohsuke.stapler.framework.adjunct.AdjunctsInPage;
 import org.kohsuke.stapler.framework.adjunct.NoSuchAdjunctException;
@@ -97,8 +97,8 @@ public final class JellyBuilder extends GroovyObjectSupport {
         }
     };
 
-    private final StaplerRequest request;
-    private StaplerResponse response;
+    private final StaplerRequest2 request;
+    private StaplerResponse2 response;
     private String rootURL;
     private final AdjunctManager adjunctManager;
 
@@ -110,7 +110,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
     public JellyBuilder(JellyContext context, XMLOutput output) {
         this.context = context;
         this.output = output;
-        this.request = Stapler.getCurrentRequest();
+        this.request = Stapler.getCurrentRequest2();
         this.adjunctManager = AdjunctManager.get(request.getServletContext());
     }
 
@@ -639,13 +639,13 @@ public final class JellyBuilder extends GroovyObjectSupport {
         return getRequest().getServletContext();
     }
 
-    public StaplerRequest getRequest() {
+    public StaplerRequest2 getRequest() {
         return request;
     }
 
-    public StaplerResponse getResponse() {
+    public StaplerResponse2 getResponse() {
         if (response == null) {
-            response = Stapler.getCurrentResponse();
+            response = Stapler.getCurrentResponse2();
         }
         return response;
     }
@@ -657,7 +657,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
     /**
      * Gets the absolute URL to the top of the webapp.
      *
-     * @see StaplerRequest#getContextPath()
+     * @see StaplerRequest2#getContextPath()
      */
     public String getRootURL() {
         if (rootURL == null) {

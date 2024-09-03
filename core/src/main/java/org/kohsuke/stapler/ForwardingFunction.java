@@ -1,9 +1,9 @@
 package org.kohsuke.stapler;
 
+import jakarta.servlet.ServletException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-import javax.servlet.ServletException;
 
 /**
  * {@link Function} that forwards calls to another. Usually used
@@ -85,7 +85,7 @@ public class ForwardingFunction extends Function {
     }
 
     @Override
-    public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+    public Object invoke(StaplerRequest2 req, StaplerResponse2 rsp, Object o, Object... args)
             throws IllegalAccessException, InvocationTargetException, ServletException {
         return next.invoke(req, rsp, o, args);
     }

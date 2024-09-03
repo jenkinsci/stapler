@@ -1,7 +1,7 @@
 package org.kohsuke.stapler;
 
+import jakarta.servlet.ServletException;
 import java.lang.reflect.InvocationTargetException;
-import javax.servlet.ServletException;
 import org.kohsuke.stapler.interceptor.Interceptor;
 import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
 
@@ -21,7 +21,7 @@ import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
     }
 
     @Override
-    Object bindAndInvoke(Object o, StaplerRequest req, StaplerResponse rsp, Object... headArgs)
+    Object bindAndInvoke(Object o, StaplerRequest2 req, StaplerResponse2 rsp, Object... headArgs)
             throws IllegalAccessException, InvocationTargetException, ServletException {
         return interceptor.invoke(req, rsp, o, headArgs);
     }
@@ -32,7 +32,7 @@ import org.kohsuke.stapler.interceptor.InterceptorAnnotation;
         }
 
         @Override
-        public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
+        public Object invoke(StaplerRequest2 req, StaplerResponse2 rsp, Object o, Object... args)
                 throws IllegalAccessException, InvocationTargetException, ServletException {
             return next.bindAndInvoke(o, req, rsp, args);
         }

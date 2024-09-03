@@ -11,8 +11,8 @@ import net.sf.json.JSONObject;
 
 /**
  * Designates a setter method or a field used to databind JSON values into objects in methods like
- * {@link StaplerRequest#bindJSON(Class, JSONObject)} and
- * {@link StaplerRequest#bindParameters(Class, String)}.
+ * {@link StaplerRequest2#bindJSON(Class, JSONObject)} and
+ * {@link StaplerRequest2#bindParameters(Class, String)}.
  *
  * <p>
  * Stapler will first invoke {@link DataBoundConstructor}-annotated constructor, and if there's any

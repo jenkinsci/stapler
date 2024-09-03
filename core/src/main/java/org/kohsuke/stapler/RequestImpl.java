@@ -23,6 +23,12 @@
 
 package org.kohsuke.stapler;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.File;
@@ -54,12 +60,6 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
@@ -76,8 +76,8 @@ import org.apache.commons.fileupload2.core.FileUploadByteCountLimitException;
 import org.apache.commons.fileupload2.core.FileUploadException;
 import org.apache.commons.fileupload2.core.FileUploadFileCountLimitException;
 import org.apache.commons.fileupload2.core.FileUploadSizeException;
-import org.apache.commons.fileupload2.javax.JavaxServletDiskFileUpload;
-import org.apache.commons.fileupload2.javax.JavaxServletFileUpload;
+import org.apache.commons.fileupload2.jakarta.servlet5.JakartaServletDiskFileUpload;
+import org.apache.commons.fileupload2.jakarta.servlet5.JakartaServletFileUpload;
 import org.jvnet.tiger_types.Lister;
 import org.kohsuke.stapler.bind.Bound;
 import org.kohsuke.stapler.bind.BoundObjectTable;
@@ -86,11 +86,11 @@ import org.kohsuke.stapler.lang.MethodRef;
 import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
 
 /**
- * {@link StaplerRequest} implementation.
+ * {@link StaplerRequest2} implementation.
  *
  * @author Kohsuke Kawaguchi
  */
-public class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest {
+public class RequestImpl extends HttpServletRequestWrapper implements StaplerRequest2 {
     /**
      * Tokenized URLs and consumed tokens.
      * This object is modified by {@link Stapler} as we parse through the URL.
@@ -137,7 +137,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     /**
      * Limits the number of form fields that can be processed in one multipart/form-data request.
-     * Used to set {@link org.apache.commons.fileupload2.javax.JavaxServletFileUpload#setFileCountMax(long)}.
+     * Used to set {@link org.apache.commons.fileupload2.jakarta.servlet5.JakartaServletFileUpload#setFileCountMax(long)}.
      * Despite the name, this applies to all form fields, not just actual file attachments.
      * Set to {@code -1} to disable limits.
      */
@@ -146,7 +146,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     /**
      * Limits the size (in bytes) of individual fields that can be processed in one multipart/form-data request.
-     * Used to set {@link org.apache.commons.fileupload2.javax.JavaxServletFileUpload#setFileSizeMax(long)}.
+     * Used to set {@link org.apache.commons.fileupload2.jakarta.servlet5.JakartaServletFileUpload#setFileSizeMax(long)}.
      * Despite the name, this applies to all form fields, not just actual file attachments.
      * Set to {@code -1} to disable limits.
      */
@@ -155,7 +155,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     /**
      * Limits the total request size (in bytes) that can be processed in one multipart/form-data request.
-     * Used to set {@link org.apache.commons.fileupload2.javax.JavaxServletFileUpload#setSizeMax(long)}.
+     * Used to set {@link org.apache.commons.fileupload2.jakarta.servlet5.JakartaServletFileUpload#setSizeMax(long)}.
      * Set to {@code -1} to disable limits.
      */
     private static /* nonfinal for Jenkins script console */ long FILEUPLOAD_MAX_SIZE =
@@ -176,6 +176,22 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         this.ancestorsView = Collections.unmodifiableList(ancestors);
         this.tokens = tokens;
         this.originalRequestURI = request.getRequestURI();
+    }
+
+    /**
+     * @deprecated use {@link #RequestImpl(Stapler, HttpServletRequest, List, TokenList)}
+     */
+    @Deprecated
+    public RequestImpl(
+            Stapler stapler,
+            javax.servlet.http.HttpServletRequest request,
+            List<AncestorImpl> ancestors,
+            TokenList tokens) {
+        this(
+                stapler,
+                io.jenkins.servlet.http.HttpServletRequestWrapper.toJakartaHttpServletRequest(request),
+                ancestors,
+                tokens);
     }
 
     @Override
@@ -408,12 +424,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     @Override
-    public boolean checkIfModified(long lastModified, StaplerResponse rsp) {
+    public boolean checkIfModified(long lastModified, StaplerResponse2 rsp) {
         return checkIfModified(lastModified, rsp, 0);
     }
 
     @Override
-    public boolean checkIfModified(long lastModified, StaplerResponse rsp, long expiration) {
+    public boolean checkIfModified(long lastModified, StaplerResponse2 rsp, long expiration) {
         if (lastModified <= 0) {
             return false;
         }
@@ -446,12 +462,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     @Override
-    public boolean checkIfModified(Date timestampOfResource, StaplerResponse rsp) {
+    public boolean checkIfModified(Date timestampOfResource, StaplerResponse2 rsp) {
         return checkIfModified(timestampOfResource.getTime(), rsp);
     }
 
     @Override
-    public boolean checkIfModified(Calendar timestampOfResource, StaplerResponse rsp) {
+    public boolean checkIfModified(Calendar timestampOfResource, StaplerResponse2 rsp) {
         return checkIfModified(timestampOfResource.getTimeInMillis(), rsp);
     }
 
@@ -978,7 +994,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     /**
-     * Calls {@link DataBoundResolvable#bindResolve(StaplerRequest, JSONObject)} if the object has it.
+     * Calls {@link DataBoundResolvable#bindResolve(StaplerRequest2, JSONObject)} if the object has it.
      */
     private Object bindResolve(Object o, JSONObject src) {
         if (o instanceof DataBoundResolvable dbr) {
@@ -1153,7 +1169,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
         parsedFormData = new HashMap<>();
         parsedFormDataFormFields = new HashMap<>();
-        JavaxServletFileUpload<DiskFileItem, DiskFileItemFactory> upload;
+        JakartaServletFileUpload<DiskFileItem, DiskFileItemFactory> upload;
         File tmpDir;
         try {
             tmpDir = Files.createTempDirectory("jenkins-stapler-uploads").toFile();
@@ -1161,7 +1177,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             throw new ServletException("Error creating temporary directory", e);
         }
         tmpDir.deleteOnExit();
-        upload = new JavaxServletDiskFileUpload(
+        upload = new JakartaServletDiskFileUpload(
                 DiskFileItemFactory.builder().setFile(tmpDir).get());
         upload.setFileCountMax(FILEUPLOAD_MAX_FILES);
         upload.setFileSizeMax(FILEUPLOAD_MAX_FILE_SIZE);
@@ -1250,7 +1266,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             if (p == null || p.isEmpty()) {
                 // no data submitted
                 try {
-                    StaplerResponse rsp = Stapler.getCurrentResponse();
+                    StaplerResponse2 rsp = Stapler.getCurrentResponse2();
                     if (isSubmission) {
                         rsp.sendError(HttpServletResponse.SC_BAD_REQUEST, "This page expects a form submission");
                     } else {

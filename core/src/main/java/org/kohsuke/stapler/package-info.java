@@ -23,6 +23,6 @@
 
 /**
  * Stapler {@code URL} → {@code Object} mapping framework. The main entry points are {@link Stapler},
- * {@link StaplerRequest}, and {@link StaplerResponse}.
+ * {@link StaplerRequest2}, and {@link StaplerResponse2}.
  */
 package org.kohsuke.stapler;

@@ -42,7 +42,7 @@ public class EvaluationTrace {
 
     private static final Logger LOGGER = Logger.getLogger(EvaluationTrace.class.getName());
 
-    public void trace(StaplerResponse rsp, String msg) {
+    public void trace(StaplerResponse2 rsp, String msg) {
         traces.add(msg);
         // Firefox Live HTTP header plugin cannot nicely render multiple headers
         // with the same name, so give each one unique name.
@@ -57,7 +57,7 @@ public class EvaluationTrace {
         }
     }
 
-    public static EvaluationTrace get(StaplerRequest req) {
+    public static EvaluationTrace get(StaplerRequest2 req) {
         EvaluationTrace et = (EvaluationTrace) req.getAttribute(KEY);
         if (et == null) {
             req.setAttribute(KEY, et = new EvaluationTrace());
@@ -71,9 +71,9 @@ public class EvaluationTrace {
     private static final String KEY = EvaluationTrace.class.getName();
 
     public abstract static class ApplicationTracer {
-        protected abstract void record(StaplerRequest req, String message);
+        protected abstract void record(StaplerRequest2 req, String message);
 
-        public static void trace(StaplerRequest req, String message) {
+        public static void trace(StaplerRequest2 req, String message) {
             List<ApplicationTracer> tracers = getTracers();
             for (ApplicationTracer tracer : tracers) {
                 tracer.record(req, message);

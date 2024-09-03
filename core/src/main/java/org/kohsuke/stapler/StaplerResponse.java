@@ -24,13 +24,28 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jenkins.servlet.ServletExceptionWrapper;
+import io.jenkins.servlet.ServletOutputStreamWrapper;
+import io.jenkins.servlet.ServletResponseWrapper;
+import io.jenkins.servlet.http.CookieWrapper;
+import io.jenkins.servlet.http.HttpServletRequestWrapper;
+import io.jenkins.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Supplier;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.sf.json.JsonConfig;
@@ -45,7 +60,9 @@ import org.kohsuke.stapler.export.NamedPathPruner;
  *
  * @see Stapler#getCurrentResponse()
  * @author Kohsuke Kawaguchi
+ * @deprecated use {@link StaplerResponse2}
  */
+@Deprecated
 public interface StaplerResponse extends HttpServletResponse {
     /**
      * Evaluates the url against the given object and
@@ -255,4 +272,816 @@ public interface StaplerResponse extends HttpServletResponse {
      * @return the config
      */
     JsonConfig getJsonConfig();
+
+    static StaplerResponse2 toStaplerResponse2(StaplerResponse from) {
+        if (from instanceof StaplerResponseWrapper javax) {
+            return javax.toStaplerResponse2();
+        }
+        return new StaplerResponse2WrapperImpl(from);
+    }
+
+    static StaplerResponse fromStaplerResponse2(StaplerResponse2 from) {
+        if (from instanceof StaplerResponse2Wrapper jakarta) {
+            return jakarta.toStaplerResponse();
+        }
+        return new StaplerResponseWrapperImpl(from);
+    }
+
+    interface StaplerResponse2Wrapper {
+        StaplerResponse toStaplerResponse();
+    }
+
+    class StaplerResponse2WrapperImpl
+            implements StaplerResponse2,
+                    ServletResponseWrapper.JakartaServletResponseWrapper,
+                    HttpServletResponseWrapper.JakartaHttpServletResponseWrapper,
+                    StaplerResponse2Wrapper {
+        private final StaplerResponse from;
+
+        public StaplerResponse2WrapperImpl(StaplerResponse from) {
+            this.from = Objects.requireNonNull(from);
+        }
+
+        @Override
+        public void forward(Object it, String url, StaplerRequest2 request)
+                throws jakarta.servlet.ServletException, IOException {
+            try {
+                from.forward(it, url, StaplerRequest.fromStaplerRequest2(request));
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void forwardToPreviousPage(StaplerRequest2 request)
+                throws jakarta.servlet.ServletException, IOException {
+            try {
+                from.forwardToPreviousPage(StaplerRequest.fromStaplerRequest2(request));
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void sendRedirect2(@NonNull String url) throws IOException {
+            from.sendRedirect2(url);
+        }
+
+        @Override
+        public void sendRedirect(int statusCore, @NonNull String url) throws IOException {
+            from.sendRedirect(statusCore, url);
+        }
+
+        @Override
+        public void serveFile(StaplerRequest2 request, URL res) throws jakarta.servlet.ServletException, IOException {
+            try {
+                from.serveFile(StaplerRequest.fromStaplerRequest2(request), res);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveFile(StaplerRequest2 request, URL res, long expiration)
+                throws jakarta.servlet.ServletException, IOException {
+            try {
+                from.serveFile(StaplerRequest.fromStaplerRequest2(request), res, expiration);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveLocalizedFile(StaplerRequest2 request, URL res)
+                throws jakarta.servlet.ServletException, IOException {
+            try {
+                from.serveLocalizedFile(StaplerRequest.fromStaplerRequest2(request), res);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveLocalizedFile(StaplerRequest2 request, URL res, long expiration)
+                throws jakarta.servlet.ServletException, IOException {
+            try {
+                from.serveLocalizedFile(StaplerRequest.fromStaplerRequest2(request), res, expiration);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveFile(
+                StaplerRequest2 req,
+                InputStream data,
+                long lastModified,
+                long expiration,
+                long contentLength,
+                String fileName)
+                throws jakarta.servlet.ServletException, IOException {
+            try {
+                from.serveFile(
+                        StaplerRequest.fromStaplerRequest2(req),
+                        data,
+                        lastModified,
+                        expiration,
+                        contentLength,
+                        fileName);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveFile(
+                StaplerRequest2 req,
+                InputStream data,
+                long lastModified,
+                long expiration,
+                int contentLength,
+                String fileName)
+                throws jakarta.servlet.ServletException, IOException {
+            try {
+                from.serveFile(
+                        StaplerRequest.fromStaplerRequest2(req),
+                        data,
+                        lastModified,
+                        expiration,
+                        contentLength,
+                        fileName);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveFile(
+                StaplerRequest2 req, InputStream data, long lastModified, long contentLength, String fileName)
+                throws jakarta.servlet.ServletException, IOException {
+            try {
+                from.serveFile(StaplerRequest.fromStaplerRequest2(req), data, lastModified, contentLength, fileName);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveFile(
+                StaplerRequest2 req, InputStream data, long lastModified, int contentLength, String fileName)
+                throws jakarta.servlet.ServletException, IOException {
+            try {
+                from.serveFile(StaplerRequest.fromStaplerRequest2(req), data, lastModified, contentLength, fileName);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveExposedBean(StaplerRequest2 req, Object exposedBean, Flavor flavor)
+                throws jakarta.servlet.ServletException, IOException {
+            try {
+                from.serveExposedBean(StaplerRequest.fromStaplerRequest2(req), exposedBean, flavor);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveExposedBean(StaplerRequest2 req, Object exposedBean, ExportConfig exportConfig)
+                throws jakarta.servlet.ServletException, IOException {
+            try {
+                from.serveExposedBean(StaplerRequest.fromStaplerRequest2(req), exposedBean, exportConfig);
+            } catch (ServletException e) {
+                throw ServletExceptionWrapper.toJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public OutputStream getCompressedOutputStream(jakarta.servlet.http.HttpServletRequest req) throws IOException {
+            return from.getCompressedOutputStream(HttpServletRequestWrapper.fromJakartaHttpServletRequest(req));
+        }
+
+        @Override
+        public Writer getCompressedWriter(jakarta.servlet.http.HttpServletRequest req) throws IOException {
+            return from.getCompressedWriter(HttpServletRequestWrapper.fromJakartaHttpServletRequest(req));
+        }
+
+        @Override
+        public int reverseProxyTo(URL url, StaplerRequest2 req) throws IOException {
+            return from.reverseProxyTo(url, StaplerRequest.fromStaplerRequest2(req));
+        }
+
+        @Override
+        public void setJsonConfig(JsonConfig config) {
+            from.setJsonConfig(config);
+        }
+
+        @Override
+        public JsonConfig getJsonConfig() {
+            return from.getJsonConfig();
+        }
+
+        @Override
+        public String getCharacterEncoding() {
+            return from.getCharacterEncoding();
+        }
+
+        @Override
+        public String getContentType() {
+            return from.getContentType();
+        }
+
+        @Override
+        public jakarta.servlet.ServletOutputStream getOutputStream() throws IOException {
+            return ServletOutputStreamWrapper.toJakartaServletOutputStream(from.getOutputStream());
+        }
+
+        @Override
+        public PrintWriter getWriter() throws IOException {
+            return from.getWriter();
+        }
+
+        @Override
+        public void setCharacterEncoding(String charset) {
+            from.setCharacterEncoding(charset);
+        }
+
+        @Override
+        public void setContentLength(int len) {
+            from.setContentLength(len);
+        }
+
+        @Override
+        public void setContentLengthLong(long len) {
+            from.setContentLengthLong(len);
+        }
+
+        @Override
+        public void setContentType(String type) {
+            from.setContentType(type);
+        }
+
+        @Override
+        public void setBufferSize(int size) {
+            from.setBufferSize(size);
+        }
+
+        @Override
+        public int getBufferSize() {
+            return from.getBufferSize();
+        }
+
+        @Override
+        public void flushBuffer() throws IOException {
+            from.flushBuffer();
+        }
+
+        @Override
+        public void resetBuffer() {
+            from.resetBuffer();
+        }
+
+        @Override
+        public boolean isCommitted() {
+            return from.isCommitted();
+        }
+
+        @Override
+        public void reset() {
+            from.reset();
+        }
+
+        @Override
+        public void setLocale(Locale loc) {
+            from.setLocale(loc);
+        }
+
+        @Override
+        public Locale getLocale() {
+            return from.getLocale();
+        }
+
+        @Override
+        public void addCookie(jakarta.servlet.http.Cookie cookie) {
+            from.addCookie(CookieWrapper.fromJakartaServletHttpCookie(cookie));
+        }
+
+        @Override
+        public boolean containsHeader(String name) {
+            return from.containsHeader(name);
+        }
+
+        @Override
+        public String encodeURL(String url) {
+            return from.encodeURL(url);
+        }
+
+        @Override
+        public String encodeRedirectURL(String url) {
+            return from.encodeRedirectURL(url);
+        }
+
+        @Override
+        public String encodeUrl(String url) {
+            return from.encodeUrl(url);
+        }
+
+        @Override
+        public String encodeRedirectUrl(String url) {
+            return from.encodeRedirectUrl(url);
+        }
+
+        @Override
+        public void sendError(int sc, String msg) throws IOException {
+            from.sendError(sc, msg);
+        }
+
+        @Override
+        public void sendError(int sc) throws IOException {
+            from.sendError(sc);
+        }
+
+        @Override
+        public void sendRedirect(String location) throws IOException {
+            from.sendRedirect(location);
+        }
+
+        @Override
+        public void setDateHeader(String name, long date) {
+            from.setDateHeader(name, date);
+        }
+
+        @Override
+        public void addDateHeader(String name, long date) {
+            from.addDateHeader(name, date);
+        }
+
+        @Override
+        public void setHeader(String name, String value) {
+            from.setHeader(name, value);
+        }
+
+        @Override
+        public void addHeader(String name, String value) {
+            from.addHeader(name, value);
+        }
+
+        @Override
+        public void setIntHeader(String name, int value) {
+            from.setIntHeader(name, value);
+        }
+
+        @Override
+        public void addIntHeader(String name, int value) {
+            from.addIntHeader(name, value);
+        }
+
+        @Override
+        public void setStatus(int sc) {
+            from.setStatus(sc);
+        }
+
+        @Override
+        public void setStatus(int sc, String sm) {
+            from.setStatus(sc, sm);
+        }
+
+        @Override
+        public int getStatus() {
+            return from.getStatus();
+        }
+
+        @Override
+        public String getHeader(String name) {
+            return from.getHeader(name);
+        }
+
+        @Override
+        public Collection<String> getHeaders(String name) {
+            return from.getHeaders(name);
+        }
+
+        @Override
+        public Collection<String> getHeaderNames() {
+            return from.getHeaderNames();
+        }
+
+        @Override
+        public void setTrailerFields(Supplier<Map<String, String>> supplier) {
+            from.setTrailerFields(supplier);
+        }
+
+        @Override
+        public Supplier<Map<String, String>> getTrailerFields() {
+            return from.getTrailerFields();
+        }
+
+        @Override
+        public ServletResponse toJavaxServletResponse() {
+            return from;
+        }
+
+        @Override
+        public HttpServletResponse toJavaxHttpServletResponse() {
+            return from;
+        }
+
+        @Override
+        public StaplerResponse toStaplerResponse() {
+            return from;
+        }
+    }
+
+    interface StaplerResponseWrapper {
+        StaplerResponse2 toStaplerResponse2();
+    }
+
+    class StaplerResponseWrapperImpl
+            implements StaplerResponse,
+                    ServletResponseWrapper.JavaxServletResponseWrapper,
+                    HttpServletResponseWrapper.JavaxHttpServletResponseWrapper,
+                    StaplerResponseWrapper {
+        private final StaplerResponse2 from;
+
+        public StaplerResponseWrapperImpl(StaplerResponse2 from) {
+            this.from = Objects.requireNonNull(from);
+        }
+
+        @Override
+        public void forward(Object it, String url, StaplerRequest request) throws ServletException, IOException {
+            try {
+                from.forward(it, url, StaplerRequest.toStaplerRequest2(request));
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void forwardToPreviousPage(StaplerRequest request) throws ServletException, IOException {
+            try {
+                from.forwardToPreviousPage(StaplerRequest.toStaplerRequest2(request));
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void sendRedirect2(@NonNull String url) throws IOException {
+            from.sendRedirect2(url);
+        }
+
+        @Override
+        public void sendRedirect(int statusCore, @NonNull String url) throws IOException {
+            from.sendRedirect(statusCore, url);
+        }
+
+        @Override
+        public void serveFile(StaplerRequest request, URL res) throws ServletException, IOException {
+            try {
+                from.serveFile(StaplerRequest.toStaplerRequest2(request), res);
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveFile(StaplerRequest request, URL res, long expiration) throws ServletException, IOException {
+            try {
+                from.serveFile(StaplerRequest.toStaplerRequest2(request), res, expiration);
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveLocalizedFile(StaplerRequest request, URL res) throws ServletException, IOException {
+            try {
+                from.serveLocalizedFile(StaplerRequest.toStaplerRequest2(request), res);
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveLocalizedFile(StaplerRequest request, URL res, long expiration)
+                throws ServletException, IOException {
+            try {
+                from.serveLocalizedFile(StaplerRequest.toStaplerRequest2(request), res, expiration);
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveFile(
+                StaplerRequest req,
+                InputStream data,
+                long lastModified,
+                long expiration,
+                long contentLength,
+                String fileName)
+                throws ServletException, IOException {
+            try {
+                from.serveFile(
+                        StaplerRequest.toStaplerRequest2(req), data, lastModified, expiration, contentLength, fileName);
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveFile(
+                StaplerRequest req,
+                InputStream data,
+                long lastModified,
+                long expiration,
+                int contentLength,
+                String fileName)
+                throws ServletException, IOException {
+            try {
+                from.serveFile(
+                        StaplerRequest.toStaplerRequest2(req), data, lastModified, expiration, contentLength, fileName);
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveFile(
+                StaplerRequest req, InputStream data, long lastModified, long contentLength, String fileName)
+                throws ServletException, IOException {
+            try {
+                from.serveFile(StaplerRequest.toStaplerRequest2(req), data, lastModified, contentLength, fileName);
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveFile(
+                StaplerRequest req, InputStream data, long lastModified, int contentLength, String fileName)
+                throws ServletException, IOException {
+            try {
+                from.serveFile(StaplerRequest.toStaplerRequest2(req), data, lastModified, contentLength, fileName);
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveExposedBean(StaplerRequest req, Object exposedBean, Flavor flavor)
+                throws ServletException, IOException {
+            try {
+                from.serveExposedBean(StaplerRequest.toStaplerRequest2(req), exposedBean, flavor);
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public void serveExposedBean(StaplerRequest req, Object exposedBean, ExportConfig exportConfig)
+                throws ServletException, IOException {
+            try {
+                from.serveExposedBean(StaplerRequest.toStaplerRequest2(req), exposedBean, exportConfig);
+            } catch (jakarta.servlet.ServletException e) {
+                throw ServletExceptionWrapper.fromJakartaServletException(e);
+            }
+        }
+
+        @Override
+        public OutputStream getCompressedOutputStream(HttpServletRequest req) throws IOException {
+            return from.getCompressedOutputStream(HttpServletRequestWrapper.toJakartaHttpServletRequest(req));
+        }
+
+        @Override
+        public Writer getCompressedWriter(HttpServletRequest req) throws IOException {
+            return from.getCompressedWriter(HttpServletRequestWrapper.toJakartaHttpServletRequest(req));
+        }
+
+        @Override
+        public int reverseProxyTo(URL url, StaplerRequest req) throws IOException {
+            return from.reverseProxyTo(url, StaplerRequest.toStaplerRequest2(req));
+        }
+
+        @Override
+        public void setJsonConfig(JsonConfig config) {
+            from.setJsonConfig(config);
+        }
+
+        @Override
+        public JsonConfig getJsonConfig() {
+            return from.getJsonConfig();
+        }
+
+        @Override
+        public String getCharacterEncoding() {
+            return from.getCharacterEncoding();
+        }
+
+        @Override
+        public String getContentType() {
+            return from.getContentType();
+        }
+
+        @Override
+        public ServletOutputStream getOutputStream() throws IOException {
+            return ServletOutputStreamWrapper.fromJakartaServletOutputStream(from.getOutputStream());
+        }
+
+        @Override
+        public PrintWriter getWriter() throws IOException {
+            return from.getWriter();
+        }
+
+        @Override
+        public void setCharacterEncoding(String charset) {
+            from.setCharacterEncoding(charset);
+        }
+
+        @Override
+        public void setContentLength(int len) {
+            from.setContentLength(len);
+        }
+
+        @Override
+        public void setContentLengthLong(long len) {
+            from.setContentLengthLong(len);
+        }
+
+        @Override
+        public void setContentType(String type) {
+            from.setContentType(type);
+        }
+
+        @Override
+        public void setBufferSize(int size) {
+            from.setBufferSize(size);
+        }
+
+        @Override
+        public int getBufferSize() {
+            return from.getBufferSize();
+        }
+
+        @Override
+        public void flushBuffer() throws IOException {
+            from.flushBuffer();
+        }
+
+        @Override
+        public void resetBuffer() {
+            from.resetBuffer();
+        }
+
+        @Override
+        public boolean isCommitted() {
+            return from.isCommitted();
+        }
+
+        @Override
+        public void reset() {
+            from.reset();
+        }
+
+        @Override
+        public void setLocale(Locale loc) {
+            from.setLocale(loc);
+        }
+
+        @Override
+        public Locale getLocale() {
+            return from.getLocale();
+        }
+
+        @Override
+        public void addCookie(Cookie cookie) {
+            from.addCookie(CookieWrapper.toJakartaServletHttpCookie(cookie));
+        }
+
+        @Override
+        public boolean containsHeader(String name) {
+            return from.containsHeader(name);
+        }
+
+        @Override
+        public String encodeURL(String url) {
+            return from.encodeURL(url);
+        }
+
+        @Override
+        public String encodeRedirectURL(String url) {
+            return from.encodeRedirectURL(url);
+        }
+
+        @Override
+        public String encodeUrl(String url) {
+            return from.encodeUrl(url);
+        }
+
+        @Override
+        public String encodeRedirectUrl(String url) {
+            return from.encodeRedirectUrl(url);
+        }
+
+        @Override
+        public void sendError(int sc, String msg) throws IOException {
+            from.sendError(sc, msg);
+        }
+
+        @Override
+        public void sendError(int sc) throws IOException {
+            from.sendError(sc);
+        }
+
+        @Override
+        public void sendRedirect(String location) throws IOException {
+            from.sendRedirect(location);
+        }
+
+        @Override
+        public void setDateHeader(String name, long date) {
+            from.setDateHeader(name, date);
+        }
+
+        @Override
+        public void addDateHeader(String name, long date) {
+            from.addDateHeader(name, date);
+        }
+
+        @Override
+        public void setHeader(String name, String value) {
+            from.setHeader(name, value);
+        }
+
+        @Override
+        public void addHeader(String name, String value) {
+            from.addHeader(name, value);
+        }
+
+        @Override
+        public void setIntHeader(String name, int value) {
+            from.setIntHeader(name, value);
+        }
+
+        @Override
+        public void addIntHeader(String name, int value) {
+            from.addIntHeader(name, value);
+        }
+
+        @Override
+        public void setStatus(int sc) {
+            from.setStatus(sc);
+        }
+
+        @Override
+        public void setStatus(int sc, String sm) {
+            from.setStatus(sc, sm);
+        }
+
+        @Override
+        public int getStatus() {
+            return from.getStatus();
+        }
+
+        @Override
+        public String getHeader(String name) {
+            return from.getHeader(name);
+        }
+
+        @Override
+        public Collection<String> getHeaders(String name) {
+            return from.getHeaders(name);
+        }
+
+        @Override
+        public Collection<String> getHeaderNames() {
+            return from.getHeaderNames();
+        }
+
+        @Override
+        public void setTrailerFields(Supplier<Map<String, String>> supplier) {
+            from.setTrailerFields(supplier);
+        }
+
+        @Override
+        public Supplier<Map<String, String>> getTrailerFields() {
+            return from.getTrailerFields();
+        }
+
+        @Override
+        public jakarta.servlet.ServletResponse toJakartaServletResponse() {
+            return from;
+        }
+
+        @Override
+        public jakarta.servlet.http.HttpServletResponse toJakartaHttpServletResponse() {
+            return from;
+        }
+
+        @Override
+        public StaplerResponse2 toStaplerResponse2() {
+            return from;
+        }
+    }
 }
