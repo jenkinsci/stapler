@@ -42,7 +42,7 @@
   <properties>
     <changelist>999999-SNAPSHOT</changelist>
     <scmTag>HEAD</scmTag>
-    <jetty.version>12.0.13</jetty.version>
+    <jetty.version>12.0.14</jetty.version>
     <gitHubRepo>jenkinsci/stapler</gitHubRepo>
     <spotless.check.skip>false</spotless.check.skip>
   </properties>
