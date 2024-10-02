@@ -4,12 +4,6 @@ function makeStaplerProxy(url,staplerCrumb,methods) {
     if (url.substring(url.length - 1) !== '/') url+='/';
     var proxy = {};
 
-    var stringify;
-    if (Object.toJSON) // needs to use Prototype.js if it's present. See commit comment for discussion
-        stringify = Object.toJSON;  // from prototype
-    else if (typeof(JSON)=="object" && JSON.stringify)
-        stringify = JSON.stringify; // standard
-
     var genMethod = function(methodName) {
         proxy[methodName] = function() {
             var args = arguments;
@@ -38,7 +32,7 @@ function makeStaplerProxy(url,staplerCrumb,methods) {
             fetch(url + methodName, {
                 method: 'POST',
                 headers: headers,
-                body: stringify(a),
+                body: JSON.stringify(a),
             })
             .then(function(response) {
                 if (response.ok) {
