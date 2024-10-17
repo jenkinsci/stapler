@@ -1048,6 +1048,7 @@ public class Stapler extends HttpServlet {
 
     /**
      * Gets the current {@link StaplerRequest2} that the calling thread is associated with.
+     * @return null, if called from outside an HTTP handling thread
      */
     public static StaplerRequest2 getCurrentRequest2() {
         return CURRENT_REQUEST.get();
@@ -1064,6 +1065,7 @@ public class Stapler extends HttpServlet {
 
     /**
      * Gets the current {@link StaplerResponse2} that the calling thread is associated with.
+     * @return null, if called from outside an HTTP handling thread
      */
     public static StaplerResponse2 getCurrentResponse2() {
         return CURRENT_RESPONSE.get();
@@ -1080,9 +1082,11 @@ public class Stapler extends HttpServlet {
 
     /**
      * Gets the current {@link Stapler} that the calling thread is associated with.
+     * @return null, if called from outside an HTTP handling thread
      */
     public static Stapler getCurrent() {
-        return CURRENT_REQUEST.get().getStapler();
+        var req = CURRENT_REQUEST.get();
+        return req != null ? req.getStapler() : null;
     }
 
     /**
