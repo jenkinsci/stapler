@@ -101,6 +101,10 @@ public class ReflectionUtils {
      */
     public static boolean isOverridden(
             @NonNull Class<?> base, @NonNull Class<?> derived, @NonNull String methodName, @NonNull Class<?>... types) {
+        if (base == derived) {
+            // If base and derived are the same type, the method is not overridden by definition
+            return false;
+        }
         // If derived is not a subclass or implementor of base, it can't override any method
         // Technically this should also be triggered when base == derived, because it can't override its own method, but
         // the unit tests explicitly test for that as working.
