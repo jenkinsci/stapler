@@ -95,5 +95,4 @@ public class StaplerTest extends TestCase {
     public void testGetCurrent() throws Exception {
         assertNull("may be called outside an HTTP handling thread", Stapler.getCurrent());
     }
-
 }
