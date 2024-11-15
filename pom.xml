@@ -10,7 +10,7 @@
 
   <groupId>org.kohsuke.stapler</groupId>
   <artifactId>stapler-parent</artifactId>
-  <version>${changelist}</version>
+  <version>1903.${changelist}</version>
   <packaging>pom</packaging>
   <name>Stapler Parent</name>
   <description>Stapler aggregator and parent project</description>
