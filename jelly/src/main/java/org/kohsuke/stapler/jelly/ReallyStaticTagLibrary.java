@@ -24,6 +24,8 @@
 package org.kohsuke.stapler.jelly;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.IOException;
+import java.io.Writer;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyTagException;
@@ -99,6 +101,13 @@ public class ReallyStaticTagLibrary extends TagLibrary {
 
                 try {
                     output.startElement(getNsUri(), getLocalName(), getElementName(), actual);
+                    if (getElementName().equals("script")) {
+                        try(Writer writer = output.asWriter()) {
+                            writer.append("/*").append(getFileName().substring(getFileName().length() - 33)).append(":").append(String.valueOf(getLineNumber())).append("*/\n");
+                        } catch (IOException e) {
+                            throw new JellyTagException(e);
+                        }
+                    }
                     getTagBody().run(context, output);
                     output.endElement(getNsUri(), getLocalName(), getElementName());
                 } catch (SAXException x) {
