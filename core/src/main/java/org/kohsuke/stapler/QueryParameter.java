@@ -70,7 +70,7 @@ public @interface QueryParameter {
                 throw new IllegalArgumentException("Parameter name unavailable neither in the code nor in annotation");
             }
 
-            String value = request.getParameter(name);
+            String value = getQueryParameterFromQueryString(request, name);
             if (a.required() && value == null) {
                 throw new ServletException("Required Query parameter " + name + " is missing");
             }
@@ -78,6 +78,20 @@ public @interface QueryParameter {
                 value = null;
             }
             return convert(type, value);
+        }
+
+        private String getQueryParameterFromQueryString(StaplerRequest2 request, String name) {
+            String queryString = request.getQueryString();
+            if (queryString != null) {
+                // Parse the query string manually
+                for (String param : queryString.split("&")) {
+                    String[] keyValue = param.split("=", 2);
+                    if (keyValue.length == 2 && keyValue[0].equals(name)) {
+                        return keyValue[1];
+                    }
+                }
+            }
+            return null;
         }
     }
 }
