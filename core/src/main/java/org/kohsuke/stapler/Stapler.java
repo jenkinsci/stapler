@@ -1277,6 +1277,9 @@ public class Stapler extends HttpServlet {
     private static final Converter ENUM_CONVERTER = new Converter() {
         @Override
         public Object convert(Class type, Object value) {
+            if (value == null) {
+                return null;
+            }
             return Enum.valueOf(type, value.toString());
         }
     };
