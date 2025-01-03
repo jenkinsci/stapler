@@ -1,9 +1,11 @@
 package example;
 
-import jakarta.servlet.ServletException;
 import java.io.IOException;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
+
+import jakarta.servlet.ServletException;
 
 /**
  * A book in the bookstore.
@@ -33,7 +35,7 @@ public class Book extends Item {
     /**
      * Defines an action to delete this book from the store.
      */
-    public void doDelete( StaplerRequest request, StaplerResponse response ) throws IOException, ServletException {
+    public void doDelete( StaplerRequest2 request, StaplerResponse2 response ) throws IOException, ServletException {
         BookStore.theStore.getItems().remove(getSku());
         response.sendRedirect(request.getContextPath()+'/');
     }
