@@ -1,11 +1,9 @@
 package example;
 
+import jakarta.servlet.ServletException;
 import java.io.IOException;
-
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
-
-import jakarta.servlet.ServletException;
 
 /**
  * A book in the bookstore.
