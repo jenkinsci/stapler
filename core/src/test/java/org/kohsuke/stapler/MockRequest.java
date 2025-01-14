@@ -3,6 +3,7 @@ package org.kohsuke.stapler;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConnection;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletInputStream;
@@ -172,12 +173,6 @@ public class MockRequest implements HttpServletRequest {
     }
 
     @Override
-    public boolean isRequestedSessionIdFromUrl() {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Object getAttribute(String name) {
         // TODO
         throw new UnsupportedOperationException();
@@ -325,12 +320,6 @@ public class MockRequest implements HttpServletRequest {
     }
 
     @Override
-    public String getRealPath(String path) {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public long getContentLengthLong() {
         // TODO
         throw new UnsupportedOperationException();
@@ -399,6 +388,24 @@ public class MockRequest implements HttpServletRequest {
 
     @Override
     public DispatcherType getDispatcherType() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getRequestId() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getProtocolRequestId() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ServletConnection getServletConnection() {
         // TODO
         throw new UnsupportedOperationException();
     }
