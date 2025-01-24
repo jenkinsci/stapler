@@ -259,17 +259,29 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     @Override
-    public Map getParameterMap() {
-        Map parameterMap = super.getParameterMap();
+    public Map<String, String[]> getParameterMap() {
+        var parameterMap = super.getParameterMap();
         if (isMultipart()) {
             Map<String, String> data = getFormDataFormFields();
-            parameterMap.putAll(data);
+            parameterMap = new HashMap<>(parameterMap);
+            for (var e : data.entrySet()) {
+                var values = parameterMap.get(e.getKey());
+                if (values == null) {
+                    values = new String[] {e.getValue()};
+                } else {
+                    int len = values.length;
+                    var moreValues = Arrays.copyOf(values, len + 1);
+                    moreValues[len] = e.getValue();
+                    values = moreValues;
+                }
+                parameterMap.put(e.getKey(), values);
+            }
         }
         return parameterMap;
     }
 
     @Override
-    public Enumeration getParameterNames() {
+    public Enumeration<String> getParameterNames() {
         if (!isMultipart()) {
             return super.getParameterNames();
         }

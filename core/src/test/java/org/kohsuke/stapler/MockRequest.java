@@ -19,10 +19,12 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -53,13 +55,13 @@ public class MockRequest implements HttpServletRequest {
     }
 
     @Override
-    public Enumeration getHeaders(String name) {
+    public Enumeration<String> getHeaders(String name) {
         // TODO
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Enumeration getHeaderNames() {
+    public Enumeration<String> getHeaderNames() {
         // TODO
         throw new UnsupportedOperationException();
     }
@@ -184,7 +186,7 @@ public class MockRequest implements HttpServletRequest {
     }
 
     @Override
-    public Enumeration getAttributeNames() {
+    public Enumeration<String> getAttributeNames() {
         // TODO
         throw new UnsupportedOperationException();
     }
@@ -222,18 +224,17 @@ public class MockRequest implements HttpServletRequest {
     public Map<String, String> parameters = new HashMap<>();
 
     @Override
-    public String getParameter(String name) {
+    public final String getParameter(String name) {
         return parameters.get(name);
     }
 
     @Override
-    public Enumeration getParameterNames() {
-        // TODO
-        throw new UnsupportedOperationException();
+    public final Enumeration<String> getParameterNames() {
+        return Collections.enumeration(parameters.keySet());
     }
 
     @Override
-    public String[] getParameterValues(String name) {
+    public final String[] getParameterValues(String name) {
         String v = getParameter(name);
         if (v == null) {
             return new String[0];
@@ -242,8 +243,9 @@ public class MockRequest implements HttpServletRequest {
     }
 
     @Override
-    public Map getParameterMap() {
-        return parameters;
+    public final Map<String, String[]> getParameterMap() {
+        return Collections.unmodifiableMap(parameters.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> new String[] {e.getValue()})));
     }
 
     @Override
@@ -307,7 +309,7 @@ public class MockRequest implements HttpServletRequest {
     }
 
     @Override
-    public Enumeration getLocales() {
+    public Enumeration<Locale> getLocales() {
         // TODO
         throw new UnsupportedOperationException();
     }
