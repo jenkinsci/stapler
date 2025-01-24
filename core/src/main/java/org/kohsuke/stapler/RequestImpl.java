@@ -276,6 +276,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 }
                 parameterMap.put(e.getKey(), values);
             }
+            parameterMap = Collections.unmodifiableMap(parameterMap);
         }
         return parameterMap;
     }
