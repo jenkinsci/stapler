@@ -73,7 +73,7 @@ public abstract class Facet {
     /**
      * Discovers all the facets in the classloader.
      */
-    public static List<Facet> discover(ClassLoader cl) {
+    public static List<Facet> discover(ClassLoader... cl) {
         return discoverExtensions(Facet.class, cl);
     }
 
