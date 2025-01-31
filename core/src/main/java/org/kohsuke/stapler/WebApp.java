@@ -183,7 +183,8 @@ public class WebApp {
         this.servletContext = context;
         this.context = context != null ? ServletContextWrapper.fromJakartServletContext(context) : null;
         // TODO: allow classloader to be given?
-        facets.addAll(Facet.discover(Thread.currentThread().getContextClassLoader(),getClass().getClassLoader()));
+        facets.addAll(Facet.discover(
+                Thread.currentThread().getContextClassLoader(), getClass().getClassLoader()));
         responseRenderers.add(new HttpResponseRenderer.Default());
     }
 
