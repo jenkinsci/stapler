@@ -1,4 +1,4 @@
-package org.kohsuke.stapler.html;
+package org.kohsuke.stapler.html.impl;
 
 import java.lang.reflect.Method;
 import java.util.logging.Logger;
@@ -9,6 +9,7 @@ import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.XMLOutput;
 import org.dom4j.Element;
 import org.dom4j.VisitorSupport;
+import org.kohsuke.stapler.html.HtmlViewRenderer;
 
 final class HtmlJellyScript implements Script {
 

@@ -1,4 +1,4 @@
-package org.kohsuke.stapler.html;
+package org.kohsuke.stapler.html.impl;
 
 import static org.kohsuke.stapler.Facet.LOGGER;
 

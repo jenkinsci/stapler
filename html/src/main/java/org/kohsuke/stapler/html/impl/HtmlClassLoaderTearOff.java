@@ -1,10 +1,12 @@
-package org.kohsuke.stapler.html;
+package org.kohsuke.stapler.html.impl;
 
 import java.net.URL;
 import java.util.logging.Logger;
 import org.dom4j.io.SAXReader;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.MetaClassLoader;
+import org.kohsuke.stapler.html.HtmlView;
+import org.kohsuke.stapler.html.HtmlViewRenderer;
 
 public final class HtmlClassLoaderTearOff {
     private static final Logger LOGGER = Logger.getLogger(HtmlClassLoaderTearOff.class.getName());

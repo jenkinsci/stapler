@@ -1,4 +1,4 @@
-package org.kohsuke.stapler.html;
+package org.kohsuke.stapler.html.impl;
 
 import java.net.URL;
 import java.util.logging.Logger;
