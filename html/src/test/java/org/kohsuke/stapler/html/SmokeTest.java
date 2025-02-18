@@ -3,6 +3,7 @@ package org.kohsuke.stapler.html;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
@@ -38,16 +39,6 @@ public final class SmokeTest extends JettyTestCase {
                         containsString("<p>There are <em>no</em> items.</p>")));
     }
 
-    private String load(String uri) throws Exception {
-        return createWebClient()
-                .getPage(url.toURI().resolve(uri).toURL())
-                .getWebResponse()
-                .getContentAsString()
-                .replaceAll("<!--.+?-->", " ")
-                .replaceAll("\\s+", " ")
-                .replace('"', '\'');
-    }
-
     @HtmlView("standalone")
     public Status getStandalone() throws Exception {
         return status;
@@ -62,5 +53,29 @@ public final class SmokeTest extends JettyTestCase {
 
             public record Element(String name, String value) {}
         }
+    }
+
+    public void testCalledFromJelly() throws Exception {
+        assertThat(
+                load("top"),
+                is("A prologue. <div> Center text includes a <span>special value</span>. </div> An epilogue."));
+    }
+
+    @HtmlView("center")
+    public Center getCenter() {
+        return new Center("special value");
+    }
+
+    public record Center(String value) {}
+
+    private String load(String uri) throws Exception {
+        return createWebClient()
+                .getPage(url.toURI().resolve(uri).toURL())
+                .getWebResponse()
+                .getContentAsString()
+                .replaceAll("<!--.+?-->", " ")
+                .replaceAll("\\s+", " ")
+                .trim()
+                .replace('"', '\'');
     }
 }

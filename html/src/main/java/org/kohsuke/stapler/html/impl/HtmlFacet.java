@@ -78,6 +78,7 @@ public final class HtmlFacet extends Facet implements JellyCompatibleFacet {
     @Override
     public Collection<String> getScriptExtensions() {
         // TODO allow *.html if it can be parsed without external deps
+        // or use *.xml?
         return Set.of(".xhtml");
     }
 }
