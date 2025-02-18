@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/1999/xhtml http://www.w3.org/MarkUp/SCHEMA/xhtml11.xsd">
     <head>
-        <title>Standalone page</title>
+        <!-- Placeholder text to overwrite: -->
+        <title id="st.displayName">XXX #123</title>
     </head>
     <body>
-        <p id="main"/>
+        <!-- Conditionally included block: -->
+        <p id="st.warning" style="color: red">Error in <code id="st.component">some component</code>.</p>
+        <!-- Conditionally included element: -->
+        <p id="st.empty">There are <em>no</em> items.</p>
+        <div id="st.nonempty">
+            <p>All items:</p>
+            <table style="border: 1px solid black">
+                <!-- Repeated element: -->
+                <tr id="st.elements">
+                    <td id="st.name">name</td>
+                    <td id="st.value">value</td>
+                </tr>
+            </table>
+        </div>
     </body>
 </html>
