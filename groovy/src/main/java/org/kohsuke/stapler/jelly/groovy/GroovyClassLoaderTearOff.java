@@ -28,7 +28,6 @@ import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyCodeSource;
 import java.io.IOException;
 import java.net.URL;
-import org.apache.commons.jelly.XMLOutput;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.MetaClassLoader;
@@ -41,16 +40,6 @@ public class GroovyClassLoaderTearOff {
     private final MetaClassLoader owner;
 
     private final GroovyClassLoader gcl;
-
-    private final SimpleTemplateParser parser = new SimpleTemplateParser() {
-        /**
-         * Sends the output via {@link XMLOutput#write(String)}
-         */
-        @Override
-        protected String printCommand() {
-            return "output.write";
-        }
-    };
 
     public GroovyClassLoaderTearOff(MetaClassLoader owner) {
         this.owner = owner;
@@ -92,12 +81,5 @@ public class GroovyClassLoaderTearOff {
         gcs.setCachable(false);
 
         return new GroovierJellyScript(gcl.parseClass(gcs), script);
-    }
-
-    public GroovierJellyScript parseGSP(URL res) throws IOException, ClassNotFoundException {
-        GroovyCodeSource gcs = new GroovyCodeSource(parser.parse(res), res.toExternalForm(), res.toExternalForm());
-        gcs.setCachable(false);
-
-        return new GroovierJellyScript(gcl.parseClass(gcs), res);
     }
 }
