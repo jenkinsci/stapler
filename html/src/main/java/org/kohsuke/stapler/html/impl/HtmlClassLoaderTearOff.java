@@ -25,7 +25,7 @@ public final class HtmlClassLoaderTearOff {
         LOGGER.info(() -> "TODO parsing " + script + " from " + owner);
         Class<?> c = owner.klass.toJavaClass();
         var base = c.getProtectionDomain().getCodeSource().getLocation()
-                + c.getName().replace('.', '/') + "/";
+                + c.getName().replace('.', '/').replace('$', '/') + "/";
         for (var m : c.getMethods()) {
             var ann = m.getAnnotation(HtmlView.class);
             if (ann == null) {

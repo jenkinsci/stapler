@@ -8,12 +8,13 @@ public final class IncludedFromTest extends HtmlTestCase {
     public void testIncludedFromJelly() throws Exception {
         assertThat(
                 load("top"),
-                is("A prologue. <div> Center text includes a <span>special value</span>. </div> An epilogue."));
+                is(
+                        "A prologue. <div> Center text includes a <span>special &lt;cool&gt; value</span>. </div> An epilogue."));
     }
 
     @HtmlView("center")
     public Center getCenter() {
-        return new Center("special value");
+        return new Center("special <cool> value");
     }
 
     public record Center(String value) {}
