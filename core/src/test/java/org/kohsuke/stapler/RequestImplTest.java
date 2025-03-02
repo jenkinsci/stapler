@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import net.sf.json.JSONObject;
 import org.apache.commons.fileupload2.core.FileItem;
@@ -121,11 +120,6 @@ public class RequestImplTest {
             }
 
             @Override
-            public Enumeration getParameterNames() {
-                return Collections.enumeration(List.of("p1"));
-            }
-
-            @Override
             public ServletInputStream getInputStream() throws IOException {
                 return new ServletInputStream() {
                     @Override
@@ -160,6 +154,7 @@ public class RequestImplTest {
                 };
             }
         };
+        mockRequest.parameters.put("p1", "somevalue");
 
         RequestImpl request = new RequestImpl(stapler, mockRequest, Collections.emptyList(), null);
 

@@ -55,7 +55,6 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
     public void buildViewDispatchers(final MetaClass owner, List<Dispatcher> dispatchers) {
         ScriptInvoker scriptInvoker = owner.webApp.getFacet(JellyFacet.class).scriptInvoker;
         dispatchers.add(createValidatingDispatcher(owner.loadTearOff(GroovyClassTearOff.class), scriptInvoker));
-        dispatchers.add(createValidatingDispatcher(owner.loadTearOff(GroovyServerPageTearOff.class), scriptInvoker));
     }
 
     @Override
@@ -75,9 +74,6 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
         ScriptInvoker scriptExecutor = request.getWebApp().getFacet(JellyFacet.class).scriptInvoker;
         RequestDispatcher d =
                 createRequestDispatcher(owner.loadTearOff(GroovyClassTearOff.class), scriptExecutor, it, viewName);
-        if (d == null) {
-            d = createRequestDispatcher(owner.loadTearOff(GroovyServerPageTearOff.class), scriptExecutor, it, viewName);
-        }
         return d;
     }
 
@@ -96,9 +92,7 @@ public class GroovyFacet extends Facet implements JellyCompatibleFacet {
     public boolean handleIndexRequest(RequestImpl req, ResponseImpl rsp, Object node, MetaClass nodeMetaClass)
             throws IOException, ServletException {
         ScriptInvoker scriptExecutor = req.getWebApp().getFacet(JellyFacet.class).scriptInvoker;
-        return handleIndexRequest(nodeMetaClass.loadTearOff(GroovyClassTearOff.class), scriptExecutor, req, rsp, node)
-                || handleIndexRequest(
-                        nodeMetaClass.loadTearOff(GroovyServerPageTearOff.class), scriptExecutor, req, rsp, node);
+        return handleIndexRequest(nodeMetaClass.loadTearOff(GroovyClassTearOff.class), scriptExecutor, req, rsp, node);
     }
 
     private static final Set<Class<GroovyClassTearOff>> TEAROFF_TYPES = Set.of(GroovyClassTearOff.class);

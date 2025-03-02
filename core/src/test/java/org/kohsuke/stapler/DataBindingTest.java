@@ -77,8 +77,8 @@ public class DataBindingTest extends TestCase {
                 return "text/html";
             }
         };
-        mr.getParameterMap().put("a", "123");
-        mr.getParameterMap().put("b", "string");
+        mr.parameters.put("a", "123");
+        mr.parameters.put("b", "string");
         RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.emptyList(), null);
         new Function.InstanceFunction(
                         getClass().getMethod("doFromStaplerMethod", StaplerRequest2.class, int.class, Binder.class))
