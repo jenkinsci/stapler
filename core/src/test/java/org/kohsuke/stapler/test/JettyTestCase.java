@@ -7,9 +7,9 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
 import junit.framework.TestCase;
-import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee9.servlet.ServletHolder;
-import org.eclipse.jetty.ee9.webapp.WebAppContext;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -47,7 +47,7 @@ public abstract class JettyTestCase extends TestCase {
         server.setHandler(new WebAppContext("/noroot", ""));
 
         final ServletContextHandler context =
-                new ServletContextHandler(server, getContextPath(), ServletContextHandler.SESSIONS);
+                new ServletContextHandler(getContextPath(), ServletContextHandler.SESSIONS);
         configure(context);
         server.setHandler(context);
 
