@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler.jelly;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -61,9 +60,6 @@ public final class JellyRequestDispatcher implements RequestDispatcher {
     }
 
     @Override
-    @SuppressFBWarnings(
-            value = "REQUESTDISPATCHER_FILE_DISCLOSURE",
-            justification = "Forwarding the request to be handled correctly.")
     public void include(ServletRequest servletRequest, ServletResponse servletResponse)
             throws ServletException, IOException {
         forward(servletRequest, servletResponse);

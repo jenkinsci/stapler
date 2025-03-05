@@ -1,5 +1,6 @@
 package org.kohsuke.stapler.lang.util;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import org.kohsuke.stapler.lang.FieldRef;
@@ -37,6 +38,7 @@ public abstract class FieldRefFilter extends FieldRef {
         return getBase().isRoutable();
     }
 
+    @SuppressFBWarnings(value = "HSM_HIDING_METHOD", justification = "TODO needs triage")
     public static FieldRef wrap(Field f) {
         return FieldRef.wrap(f);
     }

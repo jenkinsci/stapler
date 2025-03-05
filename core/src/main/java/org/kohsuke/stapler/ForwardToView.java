@@ -95,9 +95,6 @@ public class ForwardToView extends RuntimeException implements HttpResponse {
     }
 
     @Override
-    @SuppressFBWarnings(
-            value = "REQUESTDISPATCHER_FILE_DISCLOSURE",
-            justification = "Forwarded to a view to handle correctly.")
     public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node)
             throws IOException, ServletException {
         for (Entry<String, Object> e : attributes.entrySet()) {

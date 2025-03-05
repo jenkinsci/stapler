@@ -215,7 +215,6 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         getOutputStream().close();
     }
 
-    @SuppressFBWarnings(value = "HTTP_RESPONSE_SPLITTING", justification = "Already encoded and handled.")
     private void setLocation(@NonNull String url) {
         setHeader("Location", url);
     }
@@ -403,7 +402,6 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
         return (HttpURLConnection) url.openConnection();
     }
 
-    @SuppressFBWarnings(value = "XSS_SERVLET", justification = "Not relevant in this situation.")
     private void setStatus(HttpURLConnection con, int code) throws IOException {
         // Should also fix the deprecation.
         setStatus(code, con.getResponseMessage());
