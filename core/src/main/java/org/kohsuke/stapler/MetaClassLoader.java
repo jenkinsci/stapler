@@ -72,9 +72,6 @@ public class MetaClassLoader extends TearOffSupport {
         debugLoader = createDebugLoader();
     }
 
-    @SuppressFBWarnings(
-            value = "DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED",
-            justification = "Not used with an installed security manager.")
     private static MetaClassLoader createDebugLoader() {
         try {
             String path = System.getProperty("stapler.resourcePath");

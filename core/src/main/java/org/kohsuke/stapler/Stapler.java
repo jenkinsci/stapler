@@ -909,7 +909,6 @@ public class Stapler extends HttpServlet {
     /**
      * Try to dispatch the request against the given node, and if it fails, report an error to the client.
      */
-    @SuppressFBWarnings(value = "XSS_SERVLET", justification = "Handled by the escape() method or implementing code.")
     void invoke(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
         if (node == null) {
             // node is null
@@ -971,9 +970,6 @@ public class Stapler extends HttpServlet {
         }
     }
 
-    @SuppressFBWarnings(
-            value = "REQUESTDISPATCHER_FILE_DISCLOSURE",
-            justification = "Forwarding the request to be handled correctly.")
     public void forward(RequestDispatcher dispatcher, StaplerRequest2 req, HttpServletResponse rsp)
             throws ServletException, IOException {
         dispatcher.forward(req, new ResponseImpl(this, rsp));

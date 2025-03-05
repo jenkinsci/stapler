@@ -26,7 +26,6 @@ package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -109,9 +108,6 @@ class ScriptRequestDispatcher<S> implements RequestDispatcher {
     }
 
     @Override
-    @SuppressFBWarnings(
-            value = "REQUESTDISPATCHER_FILE_DISCLOSURE",
-            justification = "Forwarding the request to be handled correctly.")
     public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
         forward(request, response);
     }
