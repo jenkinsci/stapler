@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import io.jenkins.servlet.ServletExceptionWrapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -282,52 +281,8 @@ public abstract class Function {
     /**
      * Invokes the method.
      */
-    public /* abstract */ Object invoke(StaplerRequest2 req, StaplerResponse2 rsp, Object o, Object... args)
-            throws IllegalAccessException, InvocationTargetException, ServletException {
-        if (ReflectionUtils.isOverridden(
-                Function.class,
-                getClass(),
-                "invoke",
-                StaplerRequest.class,
-                StaplerResponse.class,
-                Object.class,
-                Object[].class)) {
-            try {
-                return invoke(
-                        StaplerRequest.fromStaplerRequest2(req), StaplerResponse.fromStaplerResponse2(rsp), o, args);
-            } catch (javax.servlet.ServletException e) {
-                throw ServletExceptionWrapper.toJakartaServletException(e);
-            }
-        } else {
-            throw new AbstractMethodError("The class " + getClass().getName() + " must override at least one of the "
-                    + Function.class.getSimpleName() + ".invoke methods");
-        }
-    }
-
-    /**
-     * @deprecated use {@link #invoke(StaplerRequest2, StaplerResponse2, Object, Object...)}
-     */
-    @Deprecated
-    public Object invoke(StaplerRequest req, StaplerResponse rsp, Object o, Object... args)
-            throws IllegalAccessException, InvocationTargetException, javax.servlet.ServletException {
-        if (ReflectionUtils.isOverridden(
-                Function.class,
-                getClass(),
-                "invoke",
-                StaplerRequest2.class,
-                StaplerResponse2.class,
-                Object.class,
-                Object[].class)) {
-            try {
-                return invoke(StaplerRequest.toStaplerRequest2(req), StaplerResponse.toStaplerResponse2(rsp), o, args);
-            } catch (ServletException e) {
-                throw ServletExceptionWrapper.fromJakartaServletException(e);
-            }
-        } else {
-            throw new AbstractMethodError("The class " + getClass().getName() + " must override at least one of the "
-                    + Function.class.getSimpleName() + ".invoke methods");
-        }
-    }
+    public abstract Object invoke(StaplerRequest2 req, StaplerResponse2 rsp, Object o, Object... args)
+            throws IllegalAccessException, InvocationTargetException, ServletException;
 
     final Function wrapByInterceptors(AnnotatedElement m) {
         try {
