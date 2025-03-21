@@ -1320,7 +1320,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     @Deprecated
     @Override
     public org.apache.commons.fileupload.FileItem getFileItem(String name) throws ServletException, IOException {
-        return org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(getFileItem2(name));
+        FileItem fileItem = getFileItem2(name);
+        return fileItem != null ? org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(fileItem) : null;
     }
 
     private static final Logger LOGGER = Logger.getLogger(RequestImpl.class.getName());

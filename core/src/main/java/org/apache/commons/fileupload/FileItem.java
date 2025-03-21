@@ -26,6 +26,7 @@ import java.io.UncheckedIOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.Objects;
 import org.apache.commons.fileupload2.core.FileItemHeadersProvider;
 
 /**
@@ -331,6 +332,7 @@ public interface FileItem {
     }
 
     static FileItem fromFileUpload2FileItem(org.apache.commons.fileupload2.core.FileItem from) {
+        Objects.requireNonNull(from);
         return new FileItem() {
 
             @Override
