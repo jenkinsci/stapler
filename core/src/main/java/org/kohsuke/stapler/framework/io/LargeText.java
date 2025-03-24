@@ -42,10 +42,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.zip.GZIPInputStream;
 import org.apache.commons.io.output.CountingOutputStream;
-import org.kohsuke.stapler.ReflectionUtils;
-import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerRequest2;
-import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.StaplerResponse2;
 
 /**
@@ -267,26 +264,6 @@ public class LargeText {
      * This method is used as a "web method" with progressiveText.jelly.
      */
     public void doProgressText(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException {
-        if (ReflectionUtils.isOverridden(
-                LargeText.class, getClass(), "doProgressText", StaplerRequest.class, StaplerResponse.class)) {
-            doProgressText(StaplerRequest.fromStaplerRequest2(req), StaplerResponse.fromStaplerResponse2(rsp));
-        } else {
-            doProgressTextImpl(req, rsp);
-        }
-    }
-
-    /**
-     * Implements the progressive text handling.
-     * This method is used as a "web method" with progressiveText.jelly.
-     *
-     * @deprecated use {@link #doProgressText(StaplerRequest2, StaplerResponse2)}
-     */
-    @Deprecated
-    public void doProgressText(StaplerRequest req, StaplerResponse rsp) throws IOException {
-        doProgressTextImpl(StaplerRequest.toStaplerRequest2(req), StaplerResponse.toStaplerResponse2(rsp));
-    }
-
-    private void doProgressTextImpl(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException {
         setContentType(rsp);
         rsp.setStatus(HttpServletResponse.SC_OK);
 
@@ -321,40 +298,10 @@ public class LargeText {
     }
 
     protected void setContentType(StaplerResponse2 rsp) {
-        if (ReflectionUtils.isOverridden(LargeText.class, getClass(), "setContentType", StaplerResponse.class)) {
-            setContentType(StaplerResponse.fromStaplerResponse2(rsp));
-        } else {
-            setContentTypeImpl(rsp);
-        }
-    }
-
-    /**
-     * @deprecated use {@link #setContentType(StaplerResponse2)}
-     */
-    @Deprecated
-    protected void setContentType(StaplerResponse rsp) {
-        setContentTypeImpl(StaplerResponse.toStaplerResponse2(rsp));
-    }
-
-    private void setContentTypeImpl(StaplerResponse2 rsp) {
         rsp.setContentType("text/plain;charset=UTF-8");
     }
 
     protected Writer createWriter(StaplerRequest2 req, StaplerResponse2 rsp, long size) throws IOException {
-        if (ReflectionUtils.isOverridden(
-                LargeText.class, getClass(), "createWriter", StaplerRequest.class, StaplerResponse.class, long.class)) {
-            return createWriter(
-                    StaplerRequest.fromStaplerRequest2(req), StaplerResponse.fromStaplerResponse2(rsp), size);
-        } else {
-            return rsp.getWriter();
-        }
-    }
-
-    /**
-     * @deprecated use {@link #createWriter(StaplerRequest2, StaplerResponse2, long)}
-     */
-    @Deprecated
-    protected Writer createWriter(StaplerRequest req, StaplerResponse rsp, long size) throws IOException {
         return rsp.getWriter();
     }
 
