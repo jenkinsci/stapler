@@ -8,6 +8,7 @@ import io.jenkins.servlet.ServletExceptionWrapper;
 import io.jenkins.servlet.ServletInputStreamWrapper;
 import io.jenkins.servlet.ServletRequestWrapper;
 import io.jenkins.servlet.ServletResponseWrapper;
+import jakarta.servlet.ServletConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -194,11 +195,6 @@ public class HttpServletRequestWrapper {
         }
 
         @Override
-        public String getRealPath(String path) {
-            return from.getRealPath(path);
-        }
-
-        @Override
         public int getRemotePort() {
             return from.getRemotePort();
         }
@@ -254,6 +250,24 @@ public class HttpServletRequestWrapper {
         @Override
         public jakarta.servlet.DispatcherType getDispatcherType() {
             return DispatcherTypeWrapper.toJakartaDispatcherType(from.getDispatcherType());
+        }
+
+        @Override
+        public String getRequestId() {
+            // TODO implement this
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getProtocolRequestId() {
+            // TODO implement this
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ServletConnection getServletConnection() {
+            // TODO implement this
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -398,11 +412,6 @@ public class HttpServletRequestWrapper {
         @Override
         public boolean isRequestedSessionIdFromURL() {
             return from.isRequestedSessionIdFromURL();
-        }
-
-        @Override
-        public boolean isRequestedSessionIdFromUrl() {
-            return from.isRequestedSessionIdFromUrl();
         }
 
         @Override
@@ -617,7 +626,8 @@ public class HttpServletRequestWrapper {
 
         @Override
         public String getRealPath(String path) {
-            return from.getRealPath(path);
+            // TODO implement this
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -823,7 +833,8 @@ public class HttpServletRequestWrapper {
 
         @Override
         public boolean isRequestedSessionIdFromUrl() {
-            return from.isRequestedSessionIdFromUrl();
+            // TODO implement this
+            throw new UnsupportedOperationException();
         }
 
         @Override
