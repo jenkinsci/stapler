@@ -303,21 +303,20 @@ public class LargeText {
             start = Long.parseLong(s);
         }
 
-        if (source.length() < start) {
+        long length = source.length();
+
+        if (start > length) {
             start = 0; // text rolled over
         }
 
-        CharSpool spool = new CharSpool();
-        long r = writeLogTo(start, spool);
-
-        rsp.addHeader("X-Text-Size", String.valueOf(r));
+        rsp.addHeader("X-Text-Size", String.valueOf(length));
         if (!completed) {
             rsp.addHeader("X-More-Data", "true");
         }
 
-        Writer w = createWriter(req, rsp, r - start);
-        spool.writeTo(new LineEndNormalizingWriter(w));
-        w.close();
+        try (var w = rsp.getWriter(); var lenw = new LineEndNormalizingWriter(w)) {
+            writeLogTo(start, lenw);
+        }
     }
 
     protected void setContentType(StaplerResponse2 rsp) {
@@ -338,24 +337,6 @@ public class LargeText {
 
     private void setContentTypeImpl(StaplerResponse2 rsp) {
         rsp.setContentType("text/plain;charset=UTF-8");
-    }
-
-    protected Writer createWriter(StaplerRequest2 req, StaplerResponse2 rsp, long size) throws IOException {
-        if (ReflectionUtils.isOverridden(
-                LargeText.class, getClass(), "createWriter", StaplerRequest.class, StaplerResponse.class, long.class)) {
-            return createWriter(
-                    StaplerRequest.fromStaplerRequest2(req), StaplerResponse.fromStaplerResponse2(rsp), size);
-        } else {
-            return rsp.getWriter();
-        }
-    }
-
-    /**
-     * @deprecated use {@link #createWriter(StaplerRequest2, StaplerResponse2, long)}
-     */
-    @Deprecated
-    protected Writer createWriter(StaplerRequest req, StaplerResponse rsp, long size) throws IOException {
-        return rsp.getWriter();
     }
 
     /**
