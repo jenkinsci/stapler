@@ -232,6 +232,12 @@ public class LargeText {
      */
     public long writeLogTo(long start, OutputStream out) throws IOException {
         CountingOutputStream os = new CountingOutputStream(out);
+        writeLogUncounted(start, os);
+        os.flush();
+        return os.getByteCount() + start;
+    }
+
+    private void writeLogUncounted(long start, OutputStream os) throws IOException {
 
         try (Session f = source.open()) {
             f.skip(start);
@@ -244,6 +250,7 @@ public class LargeText {
                     os.write(buf, 0, sz);
                 }
             } else {
+                // TODO is all this complexity actually useful? Can we not just stream to EOF?
                 ByteBuf buf = new ByteBuf(null, f);
                 HeadMark head = new HeadMark(buf);
                 TailMark tail = new TailMark(buf);
@@ -256,10 +263,6 @@ public class LargeText {
                 head.finish(os);
             }
         }
-
-        os.flush();
-
-        return os.getByteCount() + start;
     }
 
     /**
@@ -314,8 +317,48 @@ public class LargeText {
             rsp.addHeader("X-More-Data", "true");
         }
 
-        try (var w = rsp.getWriter(); var lenw = new LineEndNormalizingWriter(w)) {
-            writeLogTo(start, lenw);
+        try (var w = rsp.getWriter(); var lenw = new LineEndNormalizingWriter(w); var os = new WriterOutputStream(lenw, charset); var tos = new ThresholdingOutputStream(os, length - start)) {
+            writeLogUncounted(start, os);
+        }
+    }
+
+    /** Like {@link org.apache.commons.io.output.ThresholdingOutputStream} but fixing the TODO in {@code write}. */
+    private static final class ThresholdingOutputStream extends OutputStream {
+        private final OutputStream delegate;
+        private long remaining;
+
+        ThresholdingOutputStream(OutputStream delegate, long threshold) {
+            this.delegate = delegate;
+            remaining = threshold;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            if (remaining > 0) {
+                delegate.write(b);
+                remaining--;
+            }
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            if (remaining >= len) {
+                delegate.write(b, off, len);
+                remaining -= len;
+            } else if (remaining > 0) {
+                delegate.write(b, off, (int) remaining);
+                remaining = 0;
+            }
+        }
+
+        @Override
+        public void close() throws IOException {
+            delegate.close();
+        }
+
+        @Override
+        public void flush() throws IOException {
+            delegate.flush();
         }
     }
 
