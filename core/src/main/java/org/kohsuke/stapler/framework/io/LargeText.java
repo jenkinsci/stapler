@@ -317,7 +317,10 @@ public class LargeText {
             rsp.addHeader("X-More-Data", "true");
         }
 
-        try (var w = rsp.getWriter(); var lenw = new LineEndNormalizingWriter(w); var os = new WriterOutputStream(lenw, charset); var tos = new ThresholdingOutputStream(os, length - start)) {
+        try (var w = rsp.getWriter();
+                var lenw = new LineEndNormalizingWriter(w);
+                var os = new WriterOutputStream(lenw, charset);
+                var tos = new ThresholdingOutputStream(os, length - start)) {
             writeLogUncounted(start, os);
         }
     }
