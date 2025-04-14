@@ -11,9 +11,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import javax.servlet.ServletException;
 import junit.framework.TestCase;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.jvnet.hudson.test.Issue;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -429,5 +431,90 @@ public class DataBindingTest extends TestCase {
     public void testDerivedProperty() {
         DerivedProperty r = bind("{items:[1,3,5]}", DerivedProperty.class);
         assertEquals(Arrays.asList(1, 3, 5), r.getItems());
+    }
+
+    @Issue("JENKINS-73690")
+    public void testEnumCanBeNull() throws Exception {
+        MockRequest mr = new MockRequest() {
+            @Override
+            public String getContentType() {
+                return "text/html";
+            }
+        };
+        mr.getParameterMap().put("status", null);
+        RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.emptyList(), null);
+        Object result = new Function.InstanceFunction(
+                        getClass().getMethod("doAcceptEnum", StaplerRequest.class, Status.class))
+                .bindAndInvoke(this, req, null);
+        assertNull(result);
+    }
+
+    public void testEnumIsSupported() throws Exception {
+        MockRequest mr = new MockRequest() {
+            @Override
+            public String getContentType() {
+                return "text/html";
+            }
+        };
+        mr.getParameterMap().put("status", "Done");
+        RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.emptyList(), null);
+        Object result = new Function.InstanceFunction(
+                        getClass().getMethod("doAcceptEnum", StaplerRequest.class, Status.class))
+                .bindAndInvoke(this, req, null);
+        assertEquals(Status.Done, result);
+    }
+
+    public void testEnumUnknownIsThrowing() throws Exception {
+        MockRequest mr = new MockRequest() {
+            @Override
+            public String getContentType() {
+                return "text/html";
+            }
+        };
+        mr.getParameterMap().put("status", "Blabla");
+        RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.emptyList(), null);
+        try {
+            new Function.InstanceFunction(getClass().getMethod("doAcceptEnum", StaplerRequest.class, Status.class))
+                    .bindAndInvoke(this, req, null);
+            fail("Should throw an exception as the enum value is not recognized");
+        } catch (IllegalArgumentException e) {
+            assertEquals(
+                    "No enum constant org.kohsuke.stapler.DataBindingTest.Status.Blabla",
+                    e.getCause().getMessage());
+        }
+    }
+
+    // Just to ensure to keep support for required=true
+    @Issue("JENKINS-73690")
+    public void testEnumCannotBeNullIfRequired() throws Exception {
+        MockRequest mr = new MockRequest() {
+            @Override
+            public String getContentType() {
+                return "text/html";
+            }
+        };
+        mr.getParameterMap().put("status", null);
+        RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.emptyList(), null);
+        try {
+            new Function.InstanceFunction(getClass().getMethod("doRequireEnum", StaplerRequest.class, Status.class))
+                    .bindAndInvoke(this, req, null);
+            fail("Should throw an exception as the enum value is not recognized");
+        } catch (ServletException e) {
+            assertEquals("Required Query parameter status is missing", e.getMessage());
+        }
+    }
+
+    enum Status {
+        Todo,
+        Progress,
+        Done
+    }
+
+    public Object doAcceptEnum(StaplerRequest req, @QueryParameter Status status) {
+        return status;
+    }
+
+    public Object doRequireEnum(StaplerRequest req, @QueryParameter(required = true) Status status) {
+        return status;
     }
 }
