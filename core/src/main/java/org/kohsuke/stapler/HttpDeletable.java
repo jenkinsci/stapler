@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import io.jenkins.servlet.ServletExceptionWrapper;
 import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -37,37 +36,7 @@ public interface HttpDeletable {
     /**
      * Called when HTTP DELETE method is invoked.
      */
-    default void delete(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException, ServletException {
-        if (ReflectionUtils.isOverridden(
-                HttpDeletable.class, getClass(), "delete", StaplerRequest.class, StaplerResponse.class)) {
-            try {
-                delete(StaplerRequest.fromStaplerRequest2(req), StaplerResponse.fromStaplerResponse2(rsp));
-            } catch (javax.servlet.ServletException e) {
-                throw ServletExceptionWrapper.toJakartaServletException(e);
-            }
-        } else {
-            throw new AbstractMethodError("The class " + getClass().getName() + " must override at least one of the "
-                    + HttpDeletable.class.getSimpleName() + ".delete methods");
-        }
-    }
-
-    /**
-     * @deprecated use {@link #delete(StaplerRequest2, StaplerResponse2)}
-     */
-    @Deprecated
-    default void delete(StaplerRequest req, StaplerResponse rsp) throws IOException, javax.servlet.ServletException {
-        if (ReflectionUtils.isOverridden(
-                HttpDeletable.class, getClass(), "delete", StaplerRequest2.class, StaplerResponse2.class)) {
-            try {
-                delete(StaplerRequest.toStaplerRequest2(req), StaplerResponse.toStaplerResponse2(rsp));
-            } catch (ServletException e) {
-                throw ServletExceptionWrapper.fromJakartaServletException(e);
-            }
-        } else {
-            throw new AbstractMethodError("The class " + getClass().getName() + " must override at least one of the "
-                    + HttpDeletable.class.getSimpleName() + ".delete methods");
-        }
-    }
+    void delete(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException, ServletException;
 
     /**
      * {@link Dispatcher} that processes {@link HttpDeletable}
