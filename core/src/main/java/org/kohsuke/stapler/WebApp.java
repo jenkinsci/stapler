@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler;
 
-import io.jenkins.servlet.ServletContextWrapper;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
@@ -74,20 +73,6 @@ public class WebApp {
         }
         return (WebApp) o;
     }
-
-    /**
-     * @deprecated use {@link #get(ServletContext)}
-     */
-    @Deprecated
-    public static WebApp get(javax.servlet.ServletContext context) {
-        return get(ServletContextWrapper.toJakartaServletContext(context));
-    }
-
-    /**
-     * @deprecated use {@link #getServletContext}
-     */
-    @Deprecated
-    public final javax.servlet.ServletContext context;
 
     /**
      * {@link ServletContext} for this webapp.
@@ -181,7 +166,6 @@ public class WebApp {
 
     public WebApp(ServletContext context) {
         this.servletContext = context;
-        this.context = context != null ? ServletContextWrapper.fromJakartServletContext(context) : null;
         // TODO: allow classloader to be given?
         facets.addAll(Facet.discoverExtensions(
                 Facet.class,
