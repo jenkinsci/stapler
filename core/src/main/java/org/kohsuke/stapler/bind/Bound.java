@@ -144,7 +144,7 @@ public abstract class Bound implements HttpResponse {
         return "makeStaplerProxy('" + escapeQuotedString(url) + "','" + crumb + "',[" + methodNamesList + "])";
     }
 
-    static String escapeQuotedString(String singleQuotedJsValue) {
+    private static String escapeQuotedString(String singleQuotedJsValue) {
         return singleQuotedJsValue.replace("\\", "\\\\").replace("'", "\\'");
     }
 
