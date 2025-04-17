@@ -237,8 +237,11 @@ public class LargeText {
         return os.getByteCount() + start;
     }
 
-    private void writeLogUncounted(long start, OutputStream os) throws IOException {
-
+    /**
+     * Implementation of {@link #writeLogTo} which does not track how much was written.
+     */
+    protected void writeLogUncounted(long start, OutputStream os) throws IOException {
+        System.err.println("TODO writeLogUncounted on " + os);
         try (Session f = source.open()) {
             f.skip(start);
 
@@ -321,6 +324,7 @@ public class LargeText {
                 var lenw = new LineEndNormalizingWriter(w);
                 var os = new WriterOutputStream(lenw, charset);
                 var tos = new ThresholdingOutputStream(os, length - start)) {
+            System.err.println("TODO doProgressTextImpl");
             writeLogUncounted(start, os);
         }
     }
