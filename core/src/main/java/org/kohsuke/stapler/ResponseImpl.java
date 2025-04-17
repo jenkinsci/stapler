@@ -381,7 +381,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
 
         // copy the response
         int code = con.getResponseCode();
-        setStatus(con, code);
+        setStatus(code);
         Map<String, List<String>> rspHeaders = con.getHeaderFields();
         for (Entry<String, List<String>> header : rspHeaders.entrySet()) {
             if (header.getKey() == null) {
@@ -400,11 +400,6 @@ public class ResponseImpl extends HttpServletResponseWrapper implements StaplerR
     @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Not relevant in this situation.")
     private static HttpURLConnection openConnection(URL url) throws IOException {
         return (HttpURLConnection) url.openConnection();
-    }
-
-    private void setStatus(HttpURLConnection con, int code) throws IOException {
-        // Should also fix the deprecation.
-        setStatus(code, con.getResponseMessage());
     }
 
     @Override
