@@ -430,4 +430,47 @@ public class DataBindingTest extends TestCase {
         DerivedProperty r = bind("{items:[1,3,5]}", DerivedProperty.class);
         assertEquals(Arrays.asList(1, 3, 5), r.getItems());
     }
+
+    public static class Thing {
+        @DataBoundConstructor
+        public Thing() {}
+    }
+
+    public static class ThingHolder {
+        private final List<Thing> items;
+
+        @DataBoundConstructor
+        public ThingHolder(List<Thing> items) {
+            this.items = items;
+        }
+    }
+
+    static class ThingInterceptor extends BindInterceptor {
+        public int seen;
+
+        @Override
+        public Object instantiate(Class actualType, JSONObject json) {
+            if (actualType == Thing.class) {
+                // all 'things' are tracked, but only 'valid' ones created
+                seen++;
+                if (!json.getBoolean("valid")) {
+                    return null;
+                }
+            }
+            return BindInterceptor.DEFAULT;
+        }
+    }
+
+    public void testNullItemsOmittedFromLists() {
+        ThingInterceptor thingInterceptor = new ThingInterceptor();
+        ThingHolder thingHolder = bind(
+                "{items:[{$class:'" + Thing.class.getName() + "',valid:true},{$class:'" + Thing.class.getName()
+                        + "',valid:false}]}",
+                ThingHolder.class,
+                thingInterceptor);
+        // ensure we encountered two things, but only kept the non-null things
+        assertEquals(2, thingInterceptor.seen);
+        assertEquals(1, thingHolder.items.size());
+        assertNotNull(thingHolder.items.get(0));
+    }
 }
