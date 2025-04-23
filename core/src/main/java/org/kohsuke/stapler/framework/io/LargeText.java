@@ -237,11 +237,8 @@ public class LargeText {
         return os.getByteCount() + start;
     }
 
-    /**
-     * Implementation of {@link #writeLogTo} which does not track how much was written.
-     */
-    protected void writeLogUncounted(long start, OutputStream os) throws IOException {
-        System.err.println("TODO writeLogUncounted on " + os);
+    private void writeLogUncounted(long start, OutputStream os) throws IOException {
+
         try (Session f = source.open()) {
             f.skip(start);
 
@@ -321,12 +318,27 @@ public class LargeText {
         }
 
         try (var w = rsp.getWriter();
-                var lenw = new LineEndNormalizingWriter(w);
-                var os = new WriterOutputStream(lenw, charset);
-                var tos = new ThresholdingOutputStream(os, length - start)) {
-            System.err.println("TODO doProgressTextImpl");
-            writeLogUncounted(start, os);
+                var lenw = new LineEndNormalizingWriter(w)) {
+            if (delegateToWriteLogTo(req, rsp)) {
+                CharSpool spool = new CharSpool();
+                long r = writeLogTo(start, spool);
+                assert r == length;
+                spool.writeTo(lenw);
+            } else {
+                try (var os = new WriterOutputStream(lenw, charset);
+                        var tos = new ThresholdingOutputStream(os, length - start)) {
+                    writeLogUncounted(start, os);
+                }
+            }
         }
+    }
+
+    /**
+     * Whether {@link #doProgressText(StaplerRequest2, StaplerResponse2)} should delegate to {@link #writeLogTo(long, Writer)}.
+     * @return true if so (more compatible and perhaps extra HTTP headers to be set, but less efficient); false (default) for efficiency
+     */
+    protected boolean delegateToWriteLogTo(StaplerRequest2 req, StaplerResponse2 rsp) {
+        return false;
     }
 
     /** Like {@link org.apache.commons.io.output.ThresholdingOutputStream} but fixing the TODO in {@code write}. */
