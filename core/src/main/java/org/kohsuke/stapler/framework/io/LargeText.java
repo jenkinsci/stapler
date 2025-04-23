@@ -312,17 +312,23 @@ public class LargeText {
             start = 0; // text rolled over
         }
 
-        rsp.addHeader("X-Text-Size", String.valueOf(length));
+        CharSpool spool;
+        long textSize;
+        if (delegateToWriteLogTo(req, rsp)) {
+            spool = new CharSpool();
+            textSize = writeLogTo(start, spool);
+        } else {
+            spool = null;
+            textSize = length;
+        }
+        rsp.addHeader("X-Text-Size", String.valueOf(textSize));
         if (!completed) {
             rsp.addHeader("X-More-Data", "true");
         }
 
         try (var w = rsp.getWriter();
                 var lenw = new LineEndNormalizingWriter(w)) {
-            if (delegateToWriteLogTo(req, rsp)) {
-                CharSpool spool = new CharSpool();
-                long r = writeLogTo(start, spool);
-                assert r == length;
+            if (spool != null) {
                 spool.writeTo(lenw);
             } else {
                 try (var os = new WriterOutputStream(lenw, charset);
@@ -335,7 +341,7 @@ public class LargeText {
 
     /**
      * Whether {@link #doProgressText(StaplerRequest2, StaplerResponse2)} should delegate to {@link #writeLogTo(long, Writer)}.
-     * @return true if so (more compatible and perhaps extra HTTP headers to be set, but less efficient); false (default) for efficiency
+     * @return true if so (more compatible and allows extra HTTP headers to be set, but less efficient); false (default) for efficiency
      */
     protected boolean delegateToWriteLogTo(StaplerRequest2 req, StaplerResponse2 rsp) {
         return false;
