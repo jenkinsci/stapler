@@ -148,16 +148,6 @@ public class HttpServletResponseWrapper {
         }
 
         @Override
-        public String encodeUrl(String url) {
-            return from.encodeUrl(url);
-        }
-
-        @Override
-        public String encodeRedirectUrl(String url) {
-            return from.encodeRedirectUrl(url);
-        }
-
-        @Override
         public void sendError(int sc, String msg) throws IOException {
             from.sendError(sc, msg);
         }
@@ -205,11 +195,6 @@ public class HttpServletResponseWrapper {
         @Override
         public void setStatus(int sc) {
             from.setStatus(sc);
-        }
-
-        @Override
-        public void setStatus(int sc, String sm) {
-            from.setStatus(sc, sm);
         }
 
         @Override
@@ -369,12 +354,14 @@ public class HttpServletResponseWrapper {
 
         @Override
         public String encodeUrl(String url) {
-            return from.encodeUrl(url);
+            // TODO implement this
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public String encodeRedirectUrl(String url) {
-            return from.encodeRedirectUrl(url);
+            // TODO implement this
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -429,7 +416,8 @@ public class HttpServletResponseWrapper {
 
         @Override
         public void setStatus(int sc, String sm) {
-            from.setStatus(sc, sm);
+            // TODO implement this
+            throw new UnsupportedOperationException();
         }
 
         @Override

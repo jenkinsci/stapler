@@ -1,5 +1,6 @@
 package io.jenkins.servlet;
 
+import jakarta.servlet.ServletConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -171,11 +172,6 @@ public class ServletRequestWrapper {
         }
 
         @Override
-        public String getRealPath(String path) {
-            return from.getRealPath(path);
-        }
-
-        @Override
         public int getRemotePort() {
             return from.getRemotePort();
         }
@@ -231,6 +227,24 @@ public class ServletRequestWrapper {
         @Override
         public jakarta.servlet.DispatcherType getDispatcherType() {
             return DispatcherTypeWrapper.toJakartaDispatcherType(from.getDispatcherType());
+        }
+
+        @Override
+        public String getRequestId() {
+            // TODO implement this
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getProtocolRequestId() {
+            // TODO implement this
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ServletConnection getServletConnection() {
+            // TODO implement this
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -380,7 +394,8 @@ public class ServletRequestWrapper {
 
         @Override
         public String getRealPath(String path) {
-            return from.getRealPath(path);
+            // TODO implement this
+            throw new UnsupportedOperationException();
         }
 
         @Override

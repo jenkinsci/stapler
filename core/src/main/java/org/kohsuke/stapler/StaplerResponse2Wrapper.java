@@ -229,20 +229,8 @@ public abstract class StaplerResponse2Wrapper implements StaplerResponse2 {
 
     /** {@inheritDoc} */
     @Override
-    public String encodeRedirectUrl(String url) {
-        return getWrapped().encodeRedirectUrl(url);
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public String encodeURL(String url) {
         return getWrapped().encodeURL(url);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String encodeUrl(String url) {
-        return getWrapped().encodeUrl(url);
     }
 
     /** {@inheritDoc} */
@@ -279,12 +267,6 @@ public abstract class StaplerResponse2Wrapper implements StaplerResponse2 {
     @Override
     public void setStatus(int sc) {
         getWrapped().setStatus(sc);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void setStatus(int sc, String sm) {
-        getWrapped().setStatus(sc, sm);
     }
 
     /** {@inheritDoc} */

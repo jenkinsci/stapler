@@ -4,7 +4,6 @@ import io.jenkins.servlet.descriptor.JspConfigDescriptorWrapper;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.Map;
@@ -94,34 +93,8 @@ public class ServletContextWrapper {
             }
 
             @Override
-            public jakarta.servlet.Servlet getServlet(String name) throws jakarta.servlet.ServletException {
-                try {
-                    return ServletWrapper.toJakartaServlet(from.getServlet(name));
-                } catch (ServletException e) {
-                    throw ServletExceptionWrapper.toJakartaServletException(e);
-                }
-            }
-
-            @Override
-            public Enumeration<jakarta.servlet.Servlet> getServlets() {
-                return Collections.enumeration(Collections.list(from.getServlets()).stream()
-                        .map(ServletWrapper::toJakartaServlet)
-                        .collect(Collectors.toList()));
-            }
-
-            @Override
-            public Enumeration<String> getServletNames() {
-                return from.getServletNames();
-            }
-
-            @Override
             public void log(String msg) {
                 from.log(msg);
-            }
-
-            @Override
-            public void log(Exception exception, String msg) {
-                from.log(exception, msg);
             }
 
             @Override
@@ -440,24 +413,21 @@ public class ServletContextWrapper {
             }
 
             @Override
-            public Servlet getServlet(String name) throws ServletException {
-                try {
-                    return ServletWrapper.fromJakartaServlet(from.getServlet(name));
-                } catch (jakarta.servlet.ServletException e) {
-                    throw ServletExceptionWrapper.fromJakartaServletException(e);
-                }
+            public Servlet getServlet(String name) {
+                // TODO implement this
+                throw new UnsupportedOperationException();
             }
 
             @Override
             public Enumeration<Servlet> getServlets() {
-                return Collections.enumeration(Collections.list(from.getServlets()).stream()
-                        .map(ServletWrapper::fromJakartaServlet)
-                        .collect(Collectors.toList()));
+                // TODO implement this
+                throw new UnsupportedOperationException();
             }
 
             @Override
             public Enumeration<String> getServletNames() {
-                return from.getServletNames();
+                // TODO implement this
+                throw new UnsupportedOperationException();
             }
 
             @Override
@@ -467,7 +437,8 @@ public class ServletContextWrapper {
 
             @Override
             public void log(Exception exception, String msg) {
-                from.log(exception, msg);
+                // TODO implement this
+                throw new UnsupportedOperationException();
             }
 
             @Override

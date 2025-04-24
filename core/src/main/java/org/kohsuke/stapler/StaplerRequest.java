@@ -37,6 +37,7 @@ import io.jenkins.servlet.http.HttpServletRequestWrapper;
 import io.jenkins.servlet.http.HttpServletResponseWrapper;
 import io.jenkins.servlet.http.HttpSessionWrapper;
 import io.jenkins.servlet.http.PartWrapper;
+import jakarta.servlet.ServletConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -750,11 +751,6 @@ public interface StaplerRequest extends HttpServletRequest {
         }
 
         @Override
-        public String getRealPath(String path) {
-            return from.getRealPath(path);
-        }
-
-        @Override
         public int getRemotePort() {
             return from.getRemotePort();
         }
@@ -1035,6 +1031,24 @@ public interface StaplerRequest extends HttpServletRequest {
         }
 
         @Override
+        public String getRequestId() {
+            // TODO implement this
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getProtocolRequestId() {
+            // TODO implement this
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ServletConnection getServletConnection() {
+            // TODO implement this
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public String getAuthType() {
             return from.getAuthType();
         }
@@ -1176,11 +1190,6 @@ public interface StaplerRequest extends HttpServletRequest {
         @Override
         public boolean isRequestedSessionIdFromURL() {
             return from.isRequestedSessionIdFromURL();
-        }
-
-        @Override
-        public boolean isRequestedSessionIdFromUrl() {
-            return from.isRequestedSessionIdFromUrl();
         }
 
         @Override
@@ -1408,7 +1417,8 @@ public interface StaplerRequest extends HttpServletRequest {
 
         @Override
         public String getRealPath(String path) {
-            return from.getRealPath(path);
+            // TODO implement this
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -1835,7 +1845,8 @@ public interface StaplerRequest extends HttpServletRequest {
 
         @Override
         public boolean isRequestedSessionIdFromUrl() {
-            return from.isRequestedSessionIdFromUrl();
+            // TODO implement this
+            throw new UnsupportedOperationException();
         }
 
         @Override

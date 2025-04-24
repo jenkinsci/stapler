@@ -20,6 +20,12 @@ public class JspPropertyGroupDescriptorWrapper {
             }
 
             @Override
+            public String getErrorOnELNotFound() {
+                // TODO implement this
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
             public String getPageEncoding() {
                 return from.getPageEncoding();
             }

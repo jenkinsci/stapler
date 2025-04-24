@@ -1,5 +1,6 @@
 package io.jenkins.servlet;
 
+import java.util.Map;
 import java.util.Objects;
 import javax.servlet.SessionCookieConfig;
 
@@ -75,6 +76,24 @@ public class SessionCookieConfigWrapper {
             @Override
             public int getMaxAge() {
                 return from.getMaxAge();
+            }
+
+            @Override
+            public void setAttribute(String name, String value) {
+                // TODO implement this
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public String getAttribute(String name) {
+                // TODO implement this
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public Map<String, String> getAttributes() {
+                // TODO implement this
+                throw new UnsupportedOperationException();
             }
         };
     }
