@@ -1,6 +1,7 @@
 package org.kohsuke.stapler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletContext;
@@ -11,7 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class UncaughtExceptionFilter implements CompatibleFilter {
+public class UncaughtExceptionFilter implements Filter {
     private ServletContext context;
 
     @Override

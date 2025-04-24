@@ -14,7 +14,7 @@ import java.io.IOException;
  *
  * @author Kohsuke Kawaguchi
  */
-public class DiagnosticThreadNameFilter implements CompatibleFilter {
+public class DiagnosticThreadNameFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {}
 
