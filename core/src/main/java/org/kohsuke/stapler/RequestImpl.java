@@ -814,7 +814,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 return a;
             }
 
-            Lister l = Lister.create(type, genericType);
+            // It is legitimate for a JSON object to convert to null (via BindInterceptor, DataBoundResolvable, etc.),
+            // but that is intended to signify an invalid/undesired object.  Being invalid, omit them from collections.
+            Lister l = createNullFreeLister(type, genericType);
 
             if (o instanceof JSONObject j) {
 
@@ -958,6 +960,26 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 }
                 return l.toCollection();
             }
+        }
+
+        private Lister createNullFreeLister(Class itemType, Type itemGenericType) {
+            Lister l = Lister.create(itemType, itemGenericType);
+            if (l == null) {
+                return null;
+            }
+            return new Lister(l.itemType, l.itemGenericType) {
+                @Override
+                public Object toCollection() {
+                    return l.toCollection();
+                }
+
+                @Override
+                public void add(Object o) {
+                    if (o != null) {
+                        l.add(o);
+                    }
+                }
+            };
         }
     }
 
