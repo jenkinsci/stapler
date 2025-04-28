@@ -232,6 +232,12 @@ public class LargeText {
      */
     public long writeLogTo(long start, OutputStream out) throws IOException {
         CountingOutputStream os = new CountingOutputStream(out);
+        writeLogUncounted(start, os);
+        os.flush();
+        return os.getByteCount() + start;
+    }
+
+    private void writeLogUncounted(long start, OutputStream os) throws IOException {
 
         try (Session f = source.open()) {
             f.skip(start);
@@ -244,6 +250,7 @@ public class LargeText {
                     os.write(buf, 0, sz);
                 }
             } else {
+                // TODO is all this complexity actually useful? Can we not just stream to EOF?
                 ByteBuf buf = new ByteBuf(null, f);
                 HeadMark head = new HeadMark(buf);
                 TailMark tail = new TailMark(buf);
@@ -256,10 +263,6 @@ public class LargeText {
                 head.finish(os);
             }
         }
-
-        os.flush();
-
-        return os.getByteCount() + start;
     }
 
     /**
@@ -303,21 +306,85 @@ public class LargeText {
             start = Long.parseLong(s);
         }
 
-        if (source.length() < start) {
+        long length = source.length();
+
+        if (start > length) {
             start = 0; // text rolled over
         }
 
-        CharSpool spool = new CharSpool();
-        long r = writeLogTo(start, spool);
-
-        rsp.addHeader("X-Text-Size", String.valueOf(r));
+        CharSpool spool;
+        long textSize;
+        if (delegateToWriteLogTo(req, rsp)) {
+            spool = new CharSpool();
+            textSize = writeLogTo(start, spool);
+        } else {
+            spool = null;
+            textSize = length;
+        }
+        rsp.addHeader("X-Text-Size", String.valueOf(textSize));
         if (!completed) {
             rsp.addHeader("X-More-Data", "true");
         }
 
-        Writer w = createWriter(req, rsp, r - start);
-        spool.writeTo(new LineEndNormalizingWriter(w));
-        w.close();
+        try (var w = rsp.getWriter();
+                var lenw = new LineEndNormalizingWriter(w)) {
+            if (spool != null) {
+                spool.writeTo(lenw);
+            } else {
+                try (var os = new WriterOutputStream(lenw, charset);
+                        var tos = new ThresholdingOutputStream(os, length - start)) {
+                    writeLogUncounted(start, os);
+                }
+            }
+        }
+    }
+
+    /**
+     * Whether {@link #doProgressText(StaplerRequest2, StaplerResponse2)} should delegate to {@link #writeLogTo(long, Writer)}.
+     * @return true if so (more compatible and allows extra HTTP headers to be set, but less efficient); false (default) for efficiency
+     */
+    protected boolean delegateToWriteLogTo(StaplerRequest2 req, StaplerResponse2 rsp) {
+        return false;
+    }
+
+    /** Like {@link org.apache.commons.io.output.ThresholdingOutputStream} but fixing the TODO in {@code write}. */
+    private static final class ThresholdingOutputStream extends OutputStream {
+        private final OutputStream delegate;
+        private long remaining;
+
+        ThresholdingOutputStream(OutputStream delegate, long threshold) {
+            this.delegate = delegate;
+            remaining = threshold;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            if (remaining > 0) {
+                delegate.write(b);
+                remaining--;
+            }
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            if (remaining >= len) {
+                delegate.write(b, off, len);
+                remaining -= len;
+            } else if (remaining > 0) {
+                delegate.write(b, off, (int) remaining);
+                remaining = 0;
+            }
+        }
+
+        @Override
+        public void close() throws IOException {
+            delegate.close();
+        }
+
+        @Override
+        public void flush() throws IOException {
+            delegate.flush();
+        }
     }
 
     protected void setContentType(StaplerResponse2 rsp) {
@@ -338,24 +405,6 @@ public class LargeText {
 
     private void setContentTypeImpl(StaplerResponse2 rsp) {
         rsp.setContentType("text/plain;charset=UTF-8");
-    }
-
-    protected Writer createWriter(StaplerRequest2 req, StaplerResponse2 rsp, long size) throws IOException {
-        if (ReflectionUtils.isOverridden(
-                LargeText.class, getClass(), "createWriter", StaplerRequest.class, StaplerResponse.class, long.class)) {
-            return createWriter(
-                    StaplerRequest.fromStaplerRequest2(req), StaplerResponse.fromStaplerResponse2(rsp), size);
-        } else {
-            return rsp.getWriter();
-        }
-    }
-
-    /**
-     * @deprecated use {@link #createWriter(StaplerRequest2, StaplerResponse2, long)}
-     */
-    @Deprecated
-    protected Writer createWriter(StaplerRequest req, StaplerResponse rsp, long size) throws IOException {
-        return rsp.getWriter();
     }
 
     /**
