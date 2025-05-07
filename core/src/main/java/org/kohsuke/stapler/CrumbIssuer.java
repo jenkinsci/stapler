@@ -17,27 +17,7 @@ public abstract class CrumbIssuer {
     /**
      * Issues a crumb for the given request.
      */
-    public /* abstract */ String issueCrumb(StaplerRequest2 request) {
-        return ReflectionUtils.ifOverridden(
-                () -> issueCrumb(StaplerRequest.fromStaplerRequest2(request)),
-                CrumbIssuer.class,
-                getClass(),
-                "issueCrumb",
-                StaplerRequest.class);
-    }
-
-    /**
-     * @deprecated use {@link #issueCrumb(StaplerRequest2)}
-     */
-    @Deprecated
-    public String issueCrumb(StaplerRequest request) {
-        return ReflectionUtils.ifOverridden(
-                () -> issueCrumb(StaplerRequest.toStaplerRequest2(request)),
-                CrumbIssuer.class,
-                getClass(),
-                "issueCrumb",
-                StaplerRequest2.class);
-    }
+    public abstract String issueCrumb(StaplerRequest2 request);
 
     public final String issueCrumb() {
         return issueCrumb(Stapler.getCurrentRequest2());
@@ -65,14 +45,6 @@ public abstract class CrumbIssuer {
         if (!issueCrumb(request).equals(submittedCrumb)) {
             throw new SecurityException("Request failed to pass the crumb test (try clearing your cookies)");
         }
-    }
-
-    /**
-     * @deprecated use {@link #validateCrumb(StaplerRequest2, String)}
-     */
-    @Deprecated
-    public void validateCrumb(StaplerRequest request, String submittedCrumb) {
-        validateCrumb(StaplerRequest.toStaplerRequest2(request), submittedCrumb);
     }
 
     /**
