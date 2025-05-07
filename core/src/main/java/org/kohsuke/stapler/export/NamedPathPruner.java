@@ -211,4 +211,44 @@ public final class NamedPathPruner extends TreePruner {
     public @Override Range getRange() {
         return tree.range;
     }
+
+    /**
+     * Parses the given specification and returns a hierarchical tree representation.
+     * <p>
+     * Each node is represented as a key-value pair in the returned {@code TreeMap}.
+     * The value for a key:
+     * <ul>
+     *   <li>Is another {@code TreeMap<String, Object>} for non-leaf nodes.</li>
+     *   <li>Is an empty {@code TreeMap<String, Object>} for leaf nodes.</li>
+     * </ul>
+     *
+     * @param spec the textual specification
+     * @return a hierarchical tree represented as {@code TreeMap<String, Object>}.
+     */
+    public static TreeMap<String, Object> parseAsTreeMap(String spec) {
+        Tree root = parse(spec);
+        return toTreeMapRepresentation(root);
+    }
+
+    /**
+     * Recursively converts the internal {@code Tree} structure into a {@code TreeMap<String, Object>}.
+     * <p>
+     * Leaf nodes are represented by an empty {@code TreeMap} (e.g., {@code new TreeMap<String, Object>()}).
+     *
+     * @param tree the internal {@code Tree} structure to convert
+     * @return a {@code TreeMap<String, Object>} representing the tree
+     */
+    private static TreeMap<String, Object> toTreeMapRepresentation(Tree tree) {
+        TreeMap<String, Object> result = new TreeMap<>();
+
+        for (Map.Entry<String, Tree> entry : tree.children.entrySet()) {
+            String key = entry.getKey();
+            Tree childTree = entry.getValue();
+            TreeMap<String, ?> subtree =
+                    childTree.children.isEmpty() ? new TreeMap<>() : toTreeMapRepresentation(childTree);
+            result.put(key, subtree);
+        }
+
+        return result;
+    }
 }
