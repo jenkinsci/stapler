@@ -156,11 +156,6 @@ public class MetaClass extends TearOffSupport {
             f.buildIndexDispatchers(this, dispatchers);
         }
 
-        Dispatcher d = IndexHtmlDispatcher.make(webApp.getServletContext(), clazz);
-        if (d != null) {
-            dispatchers.add(d);
-        }
-
         // check public properties of the form NODE.TOKEN
         for (final FieldRef f : node.fields) {
             final boolean accepted = webApp.getFilterForFields().keep(f);
