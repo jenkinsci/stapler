@@ -349,7 +349,7 @@ public class BoundObjectTable implements StaplerFallback {
      */
     private static final long EXPIRATION_TIME = Long.getLong(
             BoundObjectTable.class.getName() + ".EXPIRATION_TIME",
-            Duration.ofMinutes(15).toMillis());
+            Duration.ofDays(1).toMillis());
 
     public static final String PREFIX = "/$stapler/bound/";
     static final String SCRIPT_PREFIX = "/$stapler/bound/script";
