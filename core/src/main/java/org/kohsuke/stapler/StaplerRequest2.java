@@ -537,7 +537,8 @@ public interface StaplerRequest2 extends HttpServletRequest {
         public final String crumb;
         public final Set<String> urlNames;
 
-        public RenderOnDemandParameters(String proxyMethod, String url, String releaseUrl, String crumb, Set<String> urlNames) {
+        public RenderOnDemandParameters(
+                String proxyMethod, String url, String releaseUrl, String crumb, Set<String> urlNames) {
             this.proxyMethod = proxyMethod;
             this.url = url;
             this.releaseUrl = releaseUrl;

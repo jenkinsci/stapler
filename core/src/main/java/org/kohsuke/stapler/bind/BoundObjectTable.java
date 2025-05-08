@@ -80,7 +80,8 @@ public class BoundObjectTable implements StaplerFallback {
      *
      * @throws HttpResponses.HttpResponseException expected outcome returning 200 OK
      */
-    public void doRelease(StaplerRequest2 req, StaplerResponse2 rsp) throws HttpResponses.HttpResponseException, IOException {
+    public void doRelease(StaplerRequest2 req, StaplerResponse2 rsp)
+            throws HttpResponses.HttpResponseException, IOException {
         final Table table = resolve(false);
         if (table == null) {
             rsp.sendError(404);

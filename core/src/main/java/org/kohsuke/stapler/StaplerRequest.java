@@ -575,7 +575,8 @@ public interface StaplerRequest extends HttpServletRequest {
         public final String crumb;
         public final Set<String> urlNames;
 
-        public RenderOnDemandParameters(String proxyMethod, String url, String releaseUrl, String crumb, Set<String> urlNames) {
+        public RenderOnDemandParameters(
+                String proxyMethod, String url, String releaseUrl, String crumb, Set<String> urlNames) {
             this.proxyMethod = proxyMethod;
             this.url = url;
             this.releaseUrl = releaseUrl;
@@ -1000,7 +1001,8 @@ public interface StaplerRequest extends HttpServletRequest {
         @Override
         public RenderOnDemandParameters createJavaScriptProxyParameters(Object toBeExported) {
             StaplerRequest.RenderOnDemandParameters result = from.createJavaScriptProxyParameters(toBeExported);
-            return new RenderOnDemandParameters(result.proxyMethod, result.url, result.releaseUrl, result.crumb, result.urlNames);
+            return new RenderOnDemandParameters(
+                    result.proxyMethod, result.url, result.releaseUrl, result.crumb, result.urlNames);
         }
 
         @Override
@@ -1656,7 +1658,8 @@ public interface StaplerRequest extends HttpServletRequest {
         @Override
         public RenderOnDemandParameters createJavaScriptProxyParameters(Object toBeExported) {
             StaplerRequest2.RenderOnDemandParameters result = from.createJavaScriptProxyParameters(toBeExported);
-            return new RenderOnDemandParameters(result.proxyMethod, result.crumb, result.url, result.releaseUrl, result.urlNames);
+            return new RenderOnDemandParameters(
+                    result.proxyMethod, result.crumb, result.url, result.releaseUrl, result.urlNames);
         }
 
         @Override
