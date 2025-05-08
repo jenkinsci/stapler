@@ -76,6 +76,27 @@ public class BoundObjectTable implements StaplerFallback {
     }
 
     /**
+     * Explicitly unbind this object via HTTP.
+     *
+     * @throws HttpResponses.HttpResponseException expected outcome returning 200 OK
+     */
+    public void doRelease(StaplerRequest2 req, StaplerResponse2 rsp) throws HttpResponses.HttpResponseException, IOException {
+        final Table table = resolve(false);
+        if (table == null) {
+            rsp.sendError(404);
+        }
+
+        String id = req.getRestOfPath().replace("/", "");
+
+        Object object = table.resolve(id);
+        if (object == null) {
+            rsp.sendError(200);
+        }
+        table.release(id);
+        rsp.sendError(200);
+    }
+
+    /**
      * This serves the script content for a bound object. Support CSP-compatible st:bind and similar methods of making
      * objects accessible to JS.
      *
@@ -239,6 +260,11 @@ public class BoundObjectTable implements StaplerFallback {
                 }
 
                 @Override
+                public String getReleaseURL() {
+                    return Stapler.getCurrentRequest2().getContextPath() + RELEASE_PREFIX + id;
+                }
+
+                @Override
                 public String getURL() {
                     return Stapler.getCurrentRequest2().getContextPath() + PREFIX + id;
                 }
@@ -374,6 +400,7 @@ public class BoundObjectTable implements StaplerFallback {
     }
 
     public static final String PREFIX = "/$stapler/bound/";
+    public static final String RELEASE_PREFIX = "/$stapler/bound/release/";
     static final String SCRIPT_PREFIX = "/$stapler/bound/script";
 
     /**
