@@ -85,6 +85,7 @@ public class BoundObjectTable implements StaplerFallback {
         final Table table = resolve(false);
         if (table == null) {
             rsp.sendError(404);
+            return;
         }
 
         String id = req.getRestOfPath().replace("/", "");
@@ -92,6 +93,7 @@ public class BoundObjectTable implements StaplerFallback {
         Object object = table.resolve(id);
         if (object == null) {
             rsp.sendError(200);
+            return;
         }
         table.release(id);
         rsp.sendError(200);
