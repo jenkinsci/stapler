@@ -42,18 +42,8 @@ public class HttpSessionWrapper {
             }
 
             @Override
-            public jakarta.servlet.http.HttpSessionContext getSessionContext() {
-                return HttpSessionContextWrapper.toJakartaHttpSessionContext(from.getSessionContext());
-            }
-
-            @Override
             public Object getAttribute(String name) {
                 return from.getAttribute(name);
-            }
-
-            @Override
-            public Object getValue(String name) {
-                return from.getValue(name);
             }
 
             @Override
@@ -62,28 +52,13 @@ public class HttpSessionWrapper {
             }
 
             @Override
-            public String[] getValueNames() {
-                return from.getValueNames();
-            }
-
-            @Override
             public void setAttribute(String name, Object value) {
                 from.setAttribute(name, value);
             }
 
             @Override
-            public void putValue(String name, Object value) {
-                from.putValue(name, value);
-            }
-
-            @Override
             public void removeAttribute(String name) {
                 from.removeAttribute(name);
-            }
-
-            @Override
-            public void removeValue(String name) {
-                from.removeValue(name);
             }
 
             @Override
@@ -133,7 +108,8 @@ public class HttpSessionWrapper {
 
             @Override
             public HttpSessionContext getSessionContext() {
-                return HttpSessionContextWrapper.fromJakartaHttpSessionContext(from.getSessionContext());
+                // TODO implement this
+                throw new UnsupportedOperationException();
             }
 
             @Override
@@ -143,7 +119,8 @@ public class HttpSessionWrapper {
 
             @Override
             public Object getValue(String name) {
-                return from.getValue(name);
+                // TODO implement this
+                throw new UnsupportedOperationException();
             }
 
             @Override
@@ -153,7 +130,8 @@ public class HttpSessionWrapper {
 
             @Override
             public String[] getValueNames() {
-                return from.getValueNames();
+                // TODO implement this
+                throw new UnsupportedOperationException();
             }
 
             @Override
@@ -163,7 +141,8 @@ public class HttpSessionWrapper {
 
             @Override
             public void putValue(String name, Object value) {
-                from.putValue(name, value);
+                // TODO implement this
+                throw new UnsupportedOperationException();
             }
 
             @Override
@@ -173,7 +152,8 @@ public class HttpSessionWrapper {
 
             @Override
             public void removeValue(String name) {
-                from.removeValue(name);
+                // TODO implement this
+                throw new UnsupportedOperationException();
             }
 
             @Override
