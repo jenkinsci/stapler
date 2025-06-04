@@ -89,6 +89,7 @@ import org.kohsuke.stapler.bind.BoundObjectTable;
  *
  * @author Kohsuke Kawaguchi
  */
+@SuppressFBWarnings(value = "XSS_SERVLET", justification = "Not XSS.")
 public class Stapler extends HttpServlet {
 
     /**

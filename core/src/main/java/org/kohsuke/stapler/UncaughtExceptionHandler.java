@@ -26,7 +26,7 @@ public interface UncaughtExceptionHandler {
     UncaughtExceptionHandler DEFAULT = new UncaughtExceptionHandler() {
         @Override
         @SuppressFBWarnings(
-                value = "INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE",
+                value = {"INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE", "XSS_SERVLET"},
                 justification = "Covered by the escape() method.")
         public void reportException(
                 Throwable e, ServletContext context, HttpServletRequest req, HttpServletResponse rsp)

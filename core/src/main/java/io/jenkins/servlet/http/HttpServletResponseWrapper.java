@@ -358,21 +358,25 @@ public class HttpServletResponseWrapper {
         }
 
         @Override
+        @SuppressFBWarnings(value = "URL_REWRITING", justification = "for compatibility")
         public String encodeURL(String url) {
             return from.encodeURL(url);
         }
 
         @Override
+        @SuppressFBWarnings(value = "URL_REWRITING", justification = "for compatibility")
         public String encodeRedirectURL(String url) {
             return from.encodeRedirectURL(url);
         }
 
         @Override
+        @SuppressFBWarnings(value = "URL_REWRITING", justification = "for compatibility")
         public String encodeUrl(String url) {
             return from.encodeUrl(url);
         }
 
         @Override
+        @SuppressFBWarnings(value = "URL_REWRITING", justification = "for compatibility")
         public String encodeRedirectUrl(String url) {
             return from.encodeRedirectUrl(url);
         }
@@ -388,6 +392,7 @@ public class HttpServletResponseWrapper {
         }
 
         @Override
+        @SuppressFBWarnings(value = "UNVALIDATED_REDIRECT", justification = "for compatibility")
         public void sendRedirect(String location) throws IOException {
             from.sendRedirect(location);
         }
