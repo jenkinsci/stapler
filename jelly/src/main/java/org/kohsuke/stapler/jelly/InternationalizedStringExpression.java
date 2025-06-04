@@ -111,8 +111,7 @@ public class InternationalizedStringExpression extends ExpressionSupport {
                 case ')':
                     if (parenthesis == 0) {
                         return text.substring(0, idx);
-                    }
-                    // fall through
+                    } // fall through
                 case '}':
                 case ']':
                     parenthesis--;

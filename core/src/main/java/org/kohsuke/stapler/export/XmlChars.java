@@ -157,9 +157,10 @@ class XmlChars {
         // Since the tables are too ridiculous to use in code,
         // we're using the footnotes here to drive this test.
         //
+        // app. B footnote says these are 'name start' chars' ...
+        // LOWERCASE_LETTER, UPPERCASE_LETTER, OTHER_LETTER,
+        // TITLECASE_LETTER, LETTER_NUMBER
         switch (Character.getType(c)) {
-                // app. B footnote says these are 'name start'
-                // chars' ...
             case Character.LOWERCASE_LETTER: // Ll
             case Character.UPPERCASE_LETTER: // Lu
             case Character.OTHER_LETTER: // Lo
@@ -315,16 +316,19 @@ class XmlChars {
         // Since the tables are too ridiculous to use in code,
         // we're using the footnotes here to drive this test.
         //
+        // app. B footnote says these are 'name start' chars' ...
+        // LOWERCASE_LETTER, UPPERCASE_LETTER, OTHER_LETTER,
+        // TITLECASE_LETTER, LETTER_NUMBER
+        //
+        // ... and these are name characters 'other than name start
+        // characters' COMBINING_SPACING_MARK, ENCLOSING_MARK,
+        // NON_SPACING_MARK, MODIFIER_LETTER, DECIMAL_DIGIT_NUMBER
         switch (Character.getType(c)) {
-                // app. B footnote says these are 'name start'
-                // chars' ...
             case Character.LOWERCASE_LETTER: // Ll
             case Character.UPPERCASE_LETTER: // Lu
             case Character.OTHER_LETTER: // Lo
             case Character.TITLECASE_LETTER: // Lt
             case Character.LETTER_NUMBER: // Nl
-                // ... and these are name characters 'other
-                // than name start characters'
             case Character.COMBINING_SPACING_MARK: // Mc
             case Character.ENCLOSING_MARK: // Me
             case Character.NON_SPACING_MARK: // Mn
