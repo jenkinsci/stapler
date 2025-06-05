@@ -89,7 +89,6 @@ import org.kohsuke.stapler.bind.BoundObjectTable;
  *
  * @author Kohsuke Kawaguchi
  */
-@SuppressFBWarnings(value = "XSS_SERVLET", justification = "Not XSS.")
 public class Stapler extends HttpServlet {
 
     /**
@@ -910,6 +909,7 @@ public class Stapler extends HttpServlet {
     /**
      * Try to dispatch the request against the given node, and if it fails, report an error to the client.
      */
+    @SuppressFBWarnings(value = "XSS_SERVLET", justification = "TODO needs triage")
     void invoke(RequestImpl req, ResponseImpl rsp, Object node) throws IOException, ServletException {
         if (node == null) {
             // node is null
