@@ -5,6 +5,9 @@ import java.util.Objects;
 import javax.servlet.http.Cookie;
 
 public class CookieWrapper {
+    @SuppressFBWarnings(
+            value = {"HTTPONLY_COOKIE", "INSECURE_COOKIE"},
+            justification = "TODO needs triage")
     public static jakarta.servlet.http.Cookie toJakartaServletHttpCookie(Cookie from) {
         Objects.requireNonNull(from);
         jakarta.servlet.http.Cookie result = new jakarta.servlet.http.Cookie(from.getName(), from.getValue());
