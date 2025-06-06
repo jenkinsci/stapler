@@ -3,6 +3,8 @@ package org.kohsuke.stapler.export;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TreeMap;
+import java.util.function.Function;
 import junit.framework.TestCase;
 
 public class NamedPathPrunerTest extends TestCase {
@@ -23,21 +25,26 @@ public class NamedPathPrunerTest extends TestCase {
         assertEquals(
                 "{a={}, b={c={}, d={}}, e={}}",
                 NamedPathPruner.parse("a,b[c,d]{,10},e").toString());
-        assertParseError("");
-        assertParseError("a,");
-        assertParseError(",b");
-        assertParseError("a[");
-        assertParseError("a[b,c");
-        assertParseError("a[]");
-        assertParseError("a[b,,]");
-        assertParseError("a]");
-        assertParseError("a{}");
-        assertParseError("a{b}");
+
+        checkParseFailureCases(NamedPathPruner::parse);
     }
 
-    private static void assertParseError(String spec) {
+    private void checkParseFailureCases(Function<String, ?> parseFunction) {
+        assertParseError(parseFunction, "");
+        assertParseError(parseFunction, "a,");
+        assertParseError(parseFunction, ",b");
+        assertParseError(parseFunction, "a[");
+        assertParseError(parseFunction, "a[b,c");
+        assertParseError(parseFunction, "a[]");
+        assertParseError(parseFunction, "a[b,,]");
+        assertParseError(parseFunction, "a]");
+        assertParseError(parseFunction, "a{}");
+        assertParseError(parseFunction, "a{b}");
+    }
+
+    private static void assertParseError(Function<String, ?> parseFunction, String spec) {
         try {
-            NamedPathPruner.parse(spec);
+            parseFunction.apply(spec);
             fail();
         } catch (IllegalArgumentException x) {
             // pass
@@ -131,5 +138,24 @@ public class NamedPathPrunerTest extends TestCase {
         StringWriter w = new StringWriter();
         model.writeTo(bean, new NamedPathPruner(spec), Flavor.JSON.createDataWriter(bean, w, config));
         assertEquals(expected, w.toString().replace("\\\"", "").replace("\"", ""));
+    }
+
+    /**
+     * Tests the {@link NamedPathPruner#parseAsTreeMap} method.
+     * Although the success test cases are same as {@link #testParse}, here using strongly typed return type {@code TreeMap<String, Object>}
+     * to ensure the return type is correct.
+     */
+    public void testParseAsTreeMap() {
+        TreeMap<String, Object> result;
+        result = NamedPathPruner.parseAsTreeMap("a,b[c]");
+        assertEquals("{a={}, b={c={}}}", result.toString());
+        result = NamedPathPruner.parseAsTreeMap("a,b[c,d]");
+        assertEquals("{a={}, b={c={}, d={}}}", result.toString());
+        result = NamedPathPruner.parseAsTreeMap("a,b[c,d],e");
+        assertEquals("{a={}, b={c={}, d={}}, e={}}", result.toString());
+        result = NamedPathPruner.parseAsTreeMap("a,b[c,d]{,10},e");
+        assertEquals("{a={}, b={c={}, d={}}, e={}}", result.toString());
+
+        checkParseFailureCases(NamedPathPruner::parseAsTreeMap);
     }
 }
