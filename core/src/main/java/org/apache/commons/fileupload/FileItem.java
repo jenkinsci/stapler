@@ -248,8 +248,12 @@ public interface FileItem {
             }
 
             @Override
-            public byte[] get() {
-                return FileItem.this.get();
+            public byte[] get() throws IOException {
+                try {
+                    return FileItem.this.get();
+                } catch (UncheckedIOException e) {
+                    throw e.getCause();
+                }
             }
 
             @Override
@@ -284,13 +288,21 @@ public interface FileItem {
             }
 
             @Override
-            public String getString() {
-                return FileItem.this.getString();
+            public String getString() throws IOException {
+                try {
+                    return FileItem.this.getString();
+                } catch (UncheckedIOException e) {
+                    throw e.getCause();
+                }
             }
 
             @Override
             public String getString(Charset toCharset) throws IOException {
-                return FileItem.this.getString(toCharset.name());
+                try {
+                    return FileItem.this.getString(toCharset.name());
+                } catch (UncheckedIOException e) {
+                    throw e.getCause();
+                }
             }
 
             @Override
@@ -362,7 +374,11 @@ public interface FileItem {
 
             @Override
             public byte[] get() {
-                return from.get();
+                try {
+                    return from.get();
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
             }
 
             @Override
@@ -378,7 +394,11 @@ public interface FileItem {
 
             @Override
             public String getString() {
-                return from.getString();
+                try {
+                    return from.getString();
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
             }
 
             @Override

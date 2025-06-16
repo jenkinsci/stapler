@@ -1197,7 +1197,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         }
     }
 
-    private void parseMultipartFormData() throws ServletException {
+    private void parseMultipartFormData() throws IOException, ServletException {
         if (parsedFormData != null) {
             return;
         }
@@ -1273,25 +1273,27 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
             if (isMultipart()) {
                 isSubmission = true;
-                parseMultipartFormData();
-                FileItem item = parsedFormData.get("json");
-                if (item != null) {
-                    if (item.getContentType() == null && getCharacterEncoding() != null) {
-                        // JENKINS-11543: If client doesn't set charset per part, use request encoding
-                        try {
-                            p = item.getString(Charset.forName(getCharacterEncoding()));
-                        } catch (UnsupportedEncodingException uee) {
-                            LOGGER.log(
-                                    Level.WARNING,
-                                    "Request has unsupported charset, using default for 'json' parameter",
-                                    uee);
+                try {
+                    parseMultipartFormData();
+                    FileItem item = parsedFormData.get("json");
+                    if (item != null) {
+                        if (item.getContentType() == null && getCharacterEncoding() != null) {
+                            // JENKINS-11543: If client doesn't set charset per part, use request encoding
+                            try {
+                                p = item.getString(Charset.forName(getCharacterEncoding()));
+                            } catch (UnsupportedEncodingException uee) {
+                                LOGGER.log(
+                                        Level.WARNING,
+                                        "Request has unsupported charset, using default for 'json' parameter",
+                                        uee);
+                                p = item.getString();
+                            }
+                        } else {
                             p = item.getString();
-                        } catch (IOException e) {
-                            throw new UncheckedIOException(e);
                         }
-                    } else {
-                        p = item.getString();
                     }
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
                 }
             } else {
                 p = getParameter("json");

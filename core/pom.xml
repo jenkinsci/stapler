@@ -12,7 +12,7 @@
   <description>Stapler HTTP request handling engine</description>
 
   <properties>
-    <commons-fileupload2.version>2.0.0-M3</commons-fileupload2.version>
+    <commons-fileupload2.version>2.0.0-M4</commons-fileupload2.version>
   </properties>
 
   <dependencies>
