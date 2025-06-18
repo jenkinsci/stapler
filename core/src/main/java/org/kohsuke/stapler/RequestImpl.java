@@ -693,18 +693,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             x.initCause(e);
             throw x;
         } catch (InvocationTargetException e) {
-            Throwable x = e.getTargetException();
-            if (x instanceof Error) {
-                throw (Error) x;
-            }
-            if (x instanceof RuntimeException) {
-                throw (RuntimeException) x;
-            }
-            // TODO apply similar logic to other catchers of InvocationTargetException as needed
-            if (x instanceof HttpResponse) {
-                throw HttpResponses.wrap((HttpResponse) x);
-            }
-            throw new IllegalArgumentException(x);
+            launderITE(e);
+            return null; // never reached, but keeps the compiler happy
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Failed to invoke " + c + " with " + Arrays.asList(args), e);
         }
@@ -1079,8 +1069,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
                     // only invoking public methods for security reasons
                     wm.invoke(r, bindJSON(wm.getGenericParameterTypes()[0], pt[0], j.get(key)));
-                } catch (IllegalAccessException | InvocationTargetException e) {
+                } catch (IllegalAccessException e) {
                     LOGGER.log(Level.WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
+                } catch (InvocationTargetException e) {
+                    launderITE(e);
                 }
             }
         }
@@ -1088,6 +1080,24 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         invokePostConstruct(getWebApp().getMetaClass(r).getPostConstructMethods(), r);
 
         return r;
+    }
+
+    /**
+     * Launders {@link InvocationTargetException} to throw the actual exception
+     */
+    private static void launderITE(InvocationTargetException e) {
+        Throwable x = e.getTargetException();
+        if (x instanceof Error err) {
+            throw err;
+        }
+        if (x instanceof RuntimeException rt) {
+            throw rt;
+        }
+        // TODO apply similar logic to other catchers of InvocationTargetException as needed
+        if (x instanceof HttpResponse httpResponse) {
+            throw HttpResponses.wrap(httpResponse);
+        }
+        throw new IllegalArgumentException(x);
     }
 
     private Method findDataBoundSetter(Class c, String name) {
