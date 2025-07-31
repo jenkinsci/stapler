@@ -30,8 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.beanutils.Converter;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 
 /**
  * Represents the {@code Accept} HTTP header and help server choose the right media type to serve.
@@ -68,8 +66,8 @@ public final class AcceptHeader {
      */
     public AcceptHeader(String ranges) {
         this.ranges = ranges;
-        for (String r : StringUtils.split(ranges, ',')) {
-            atoms.add(new Atom(r));
+        for (String r : ranges.split(",")) {
+            atoms.add(new Atom(r.trim()));
         }
     }
 
@@ -96,11 +94,11 @@ public final class AcceptHeader {
          * Parses a string like 'application/*;q=0.5' into a typed object.
          */
         protected Atom(String range) {
-            String[] parts = StringUtils.split(range, ";");
+            String[] parts = range.split(";");
 
             for (int i = 1; i < parts.length; ++i) {
                 String p = parts[i];
-                String[] subParts = StringUtils.split(p, '=');
+                String[] subParts = p.split("=");
                 if (subParts.length == 2) {
                     params.put(subParts[0].trim(), subParts[1].trim());
                 }
@@ -112,11 +110,17 @@ public final class AcceptHeader {
             if (fullType.equals("*")) {
                 fullType = "*/*";
             }
-            String[] types = StringUtils.split(fullType, "/");
+            String[] types = fullType.split("/");
             major = types[0].trim();
             minor = types[1].trim();
 
-            float q = NumberUtils.toFloat(params.get("q"), 1);
+            float q;
+            try {
+                String param = params.get("q");
+                q = param != null ? Float.parseFloat(param) : 1;
+            } catch (NumberFormatException e) {
+                q = 1;
+            }
             if (q < 0 || q > 1) {
                 q = 1;
             }
