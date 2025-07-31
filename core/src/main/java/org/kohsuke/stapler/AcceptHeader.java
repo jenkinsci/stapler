@@ -66,10 +66,12 @@ public final class AcceptHeader {
      */
     public AcceptHeader(String ranges) {
         this.ranges = ranges;
-        Arrays.stream(ranges.split(","))
-                .map(String::trim)
-                .filter(r -> !r.isEmpty())
-                .forEach(r -> atoms.add(new Atom(r)));
+        String[] parts = ranges.split(",");
+        if (parts != null) {
+            for (String r : parts) {
+                atoms.add(new Atom(r.trim()));
+            }
+        }
     }
 
     /**
@@ -96,6 +98,9 @@ public final class AcceptHeader {
          */
         protected Atom(String range) {
             String[] parts = range.split(";");
+            if (parts == null || parts.length < 1) {
+                throw new IllegalArgumentException("Invalid media range: " + range);
+            }
 
             for (int i = 1; i < parts.length; ++i) {
                 String p = parts[i];
@@ -113,17 +118,12 @@ public final class AcceptHeader {
             if (fullType.equals("*")) {
                 fullType = "*/*";
             }
-            String[] types = StringUtils.split(fullType, "/");
+            String[] types = fullType.split("/");
             if (types == null || types.length != 2) {
-                throw new IllegalArgumentException("Invalid media type format: " + fullType);
+                throw new IllegalArgumentException("Invalid media type: " + fullType);
             }
-            if (types.length < 2) {
-                major = "invalid";
-                minor = "invalid";
-            } else {
-                major = types[0].trim();
-                minor = types[1].trim();
-            }
+            major = types[0].trim();
+            minor = types[1].trim();
 
             float q;
             try {
