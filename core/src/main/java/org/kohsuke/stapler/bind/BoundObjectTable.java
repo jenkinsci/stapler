@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
@@ -63,7 +62,7 @@ public class BoundObjectTable implements StaplerFallback {
     }
 
     public static boolean isValidJavaIdentifier(String name) {
-        if (name == null || StringUtils.isBlank(name)) {
+        if (name == null || name.isBlank()) {
             return false;
         }
         if (!Character.isJavaIdentifierStart(name.charAt(0)) || Character.codePointAt(name, 0) > 255) {
