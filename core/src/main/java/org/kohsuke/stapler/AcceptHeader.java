@@ -98,9 +98,6 @@ public final class AcceptHeader {
          */
         protected Atom(String range) {
             String[] parts = range.split(";");
-            if (parts.length < 1) {
-                throw new IllegalArgumentException("Invalid media range: " + range);
-            }
 
             for (int i = 1; i < parts.length; ++i) {
                 String p = parts[i];
