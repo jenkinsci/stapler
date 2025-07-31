@@ -67,10 +67,8 @@ public final class AcceptHeader {
     public AcceptHeader(String ranges) {
         this.ranges = ranges;
         String[] parts = ranges.split(",");
-        if (parts != null) {
-            for (String r : parts) {
-                atoms.add(new Atom(r.trim()));
-            }
+        for (String r : parts) {
+            atoms.add(new Atom(r.trim()));
         }
     }
 
@@ -118,12 +116,9 @@ public final class AcceptHeader {
             if (fullType.equals("*")) {
                 fullType = "*/*";
             }
-            String[] types = fullType.split("/");
-            if (types == null || types.length != 2) {
-                throw new IllegalArgumentException("Invalid media type: " + fullType);
-            }
-            major = types[0].trim();
-            minor = types[1].trim();
+            int index = fullType.indexOf('/');
+            major = fullType.substring(0, index).trim();
+            minor = fullType.substring(index + 1).trim();
 
             float q;
             try {
