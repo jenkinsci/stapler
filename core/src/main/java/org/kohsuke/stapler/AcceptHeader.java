@@ -67,7 +67,7 @@ public final class AcceptHeader {
      */
     public AcceptHeader(String ranges) {
         this.ranges = ranges;
-        for (String r : ranges.split(",")) {
+        for (String r : ranges.split(",", -1)) {
             if (!r.isEmpty()) {
                 atoms.add(new Atom(r.trim()));
             }
@@ -108,7 +108,7 @@ public final class AcceptHeader {
                     params.put(subParts[0].trim(), subParts[1].trim());
                 }
             }
-            String fullType = parts.length > 0 ? parts[0].trim() : "";
+            String fullType = parts[0].trim();
 
             // Java URLConnection class sends an Accept header that includes a
             // single "*" - Turn it into a legal wildcard.
