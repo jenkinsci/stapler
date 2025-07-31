@@ -67,9 +67,9 @@ public final class AcceptHeader {
     public AcceptHeader(String ranges) {
         this.ranges = ranges;
         Arrays.stream(ranges.split(","))
-              .map(String::trim)
-              .filter(r -> !r.isEmpty())
-              .forEach(r -> atoms.add(new Atom(r)));
+                .map(String::trim)
+                .filter(r -> !r.isEmpty())
+                .forEach(r -> atoms.add(new Atom(r)));
     }
 
     /**
@@ -99,10 +99,10 @@ public final class AcceptHeader {
 
             for (int i = 1; i < parts.length; ++i) {
                 String p = parts[i];
-                int eqIndex = p.indexOf('=');
-                if (eqIndex > 0) { // Ensure '=' exists and is not the first character
-                    String key = p.substring(0, eqIndex).trim();
-                    String value = p.substring(eqIndex + 1).trim();
+                int index = p.indexOf('=');
+                if (index > 0) {
+                    String key = p.substring(0, index).trim();
+                    String value = p.substring(index + 1).trim();
                     params.put(key, value);
                 }
             }
