@@ -67,9 +67,8 @@ public final class AcceptHeader {
     public AcceptHeader(String ranges) {
         this.ranges = ranges;
         for (String r : ranges.split(",")) {
-            r = r.trim();
             if (!r.isEmpty()) {
-                atoms.add(new Atom(r));
+                atoms.add(new Atom(r.trim()));
             }
         }
     }
@@ -97,31 +96,29 @@ public final class AcceptHeader {
          * Parses a string like 'application/*;q=0.5' into a typed object.
          */
         protected Atom(String range) {
-            String[] parts = range.split(";");
+            String[] parts = Stream.of(range.split(";", -1))
+                    .filter(tok -> !tok.isEmpty())
+                    .toArray(String[]::new);
 
             for (int i = 1; i < parts.length; ++i) {
                 String p = parts[i];
-                int index = p.indexOf('=');
-                if (index > 0) {
-                    String key = p.substring(0, index).trim();
-                    String value = p.substring(index + 1).trim();
-                    params.put(key, value);
+                String[] subParts = p.split("=");
+                if (subParts.length == 2 && !subParts[0].isEmpty() && !subParts[1].isEmpty()) {
+                    params.put(subParts[0].trim(), subParts[1].trim());
                 }
             }
-            String fullType = parts[0].trim();
+            String fullType = parts.length > 0 ? parts[0].trim() : "";
 
             // Java URLConnection class sends an Accept header that includes a
             // single "*" - Turn it into a legal wildcard.
             if (fullType.equals("*")) {
                 fullType = "*/*";
             }
-            int index = fullType.indexOf('/');
-            if (index > 0) {
-                major = fullType.substring(0, index).trim();
-                minor = fullType.substring(index + 1).trim();
-            } else {
-                throw new IllegalArgumentException("Invalid media type: " + fullType);
-            }
+            String[] types = Stream.of(fullType.split("/", -1))
+                    .filter(tok -> !tok.isEmpty())
+                    .toArray(String[]::new);
+            major = types[0].trim();
+            minor = types[1].trim();
 
             float q;
             try {
