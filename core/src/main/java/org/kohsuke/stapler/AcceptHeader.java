@@ -117,8 +117,12 @@ public final class AcceptHeader {
                 fullType = "*/*";
             }
             int index = fullType.indexOf('/');
-            major = fullType.substring(0, index).trim();
-            minor = fullType.substring(index + 1).trim();
+            if (index > 0) {
+                major = fullType.substring(0, index).trim();
+                minor = fullType.substring(index + 1).trim();
+            } else {
+                throw new IllegalArgumentException("Invalid media type: " + fullType);
+            }
 
             float q;
             try {
