@@ -66,9 +66,10 @@ public final class AcceptHeader {
      */
     public AcceptHeader(String ranges) {
         this.ranges = ranges;
-        for (String r : ranges.split(",")) {
-            atoms.add(new Atom(r.trim()));
-        }
+        Arrays.stream(ranges.split(","))
+              .map(String::trim)
+              .filter(r -> !r.isEmpty())
+              .forEach(r -> atoms.add(new Atom(r)));
     }
 
     /**
