@@ -99,9 +99,11 @@ public final class AcceptHeader {
 
             for (int i = 1; i < parts.length; ++i) {
                 String p = parts[i];
-                String[] subParts = p.split("=");
-                if (subParts.length == 2) {
-                    params.put(subParts[0].trim(), subParts[1].trim());
+                int eqIndex = p.indexOf('=');
+                if (eqIndex > 0) { // Ensure '=' exists and is not the first character
+                    String key = p.substring(0, eqIndex).trim();
+                    String value = p.substring(eqIndex + 1).trim();
+                    params.put(key, value);
                 }
             }
             String fullType = parts[0].trim();
