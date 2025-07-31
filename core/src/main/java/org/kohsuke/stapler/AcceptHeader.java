@@ -113,7 +113,10 @@ public final class AcceptHeader {
             if (fullType.equals("*")) {
                 fullType = "*/*";
             }
-            String[] types = fullType.split("/");
+            String[] types = StringUtils.split(fullType, "/");
+            if (types == null || types.length != 2) {
+                throw new IllegalArgumentException("Invalid media type format: " + fullType);
+            }
             major = types[0].trim();
             minor = types[1].trim();
 
