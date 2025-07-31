@@ -117,8 +117,13 @@ public final class AcceptHeader {
             if (types == null || types.length != 2) {
                 throw new IllegalArgumentException("Invalid media type format: " + fullType);
             }
-            major = types[0].trim();
-            minor = types[1].trim();
+            if (types.length < 2) {
+                major = "invalid";
+                minor = "invalid";
+            } else {
+                major = types[0].trim();
+                minor = types[1].trim();
+            }
 
             float q;
             try {
