@@ -67,7 +67,7 @@ public final class AcceptHeader {
      */
     public AcceptHeader(String ranges) {
         this.ranges = ranges;
-        for (String r : ranges.split(",", -1)) {
+        for (String r : ranges.split(",")) {
             if (!r.isEmpty()) {
                 atoms.add(new Atom(r.trim()));
             }
@@ -97,9 +97,8 @@ public final class AcceptHeader {
          * Parses a string like 'application/*;q=0.5' into a typed object.
          */
         protected Atom(String range) {
-            String[] parts = Stream.of(range.split(";", -1))
-                    .filter(tok -> !tok.isEmpty())
-                    .toArray(String[]::new);
+            String[] parts =
+                    Stream.of(range.split(";")).filter(tok -> !tok.isEmpty()).toArray(String[]::new);
 
             for (int i = 1; i < parts.length; ++i) {
                 String p = parts[i];
@@ -115,9 +114,8 @@ public final class AcceptHeader {
             if (fullType.equals("*")) {
                 fullType = "*/*";
             }
-            String[] types = Stream.of(fullType.split("/", -1))
-                    .filter(tok -> !tok.isEmpty())
-                    .toArray(String[]::new);
+            String[] types =
+                    Stream.of(fullType.split("/")).filter(tok -> !tok.isEmpty()).toArray(String[]::new);
             major = types[0].trim();
             minor = types[1].trim();
 
