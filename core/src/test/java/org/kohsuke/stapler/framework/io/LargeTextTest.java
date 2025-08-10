@@ -50,14 +50,17 @@ public class LargeTextTest {
     public void writeLogToFromBuffer() throws Exception {
         writeLogToWith(new fromBuffer());
     }
+
     @Test
     public void writeLogToFromFile() throws Exception {
         writeLogToWith(new fromFile(false));
     }
+
     @Test
     public void writeLogToFromFileMaybeGz() throws Exception {
         writeLogToWith(new fromFile(true));
     }
+
     @Test
     public void writeLogToFromGz() throws Exception {
         writeLogToWith(new fromGzFile());
@@ -122,7 +125,7 @@ public class LargeTextTest {
         public LargeText build(String text) throws IOException {
             path = Files.createTempFile("stapler-test", ".log.gz");
             try (var out = new FileOutputStream(path.toFile());
-                 var gz = new GZIPOutputStream(out)) {
+                    var gz = new GZIPOutputStream(out)) {
                 gz.write(text.getBytes());
             }
             return new LargeText(path.toFile(), true, true);
