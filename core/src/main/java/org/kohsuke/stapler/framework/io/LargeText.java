@@ -532,7 +532,9 @@ public class LargeText {
 
         @Override
         public void skip(long start) throws IOException {
-            file.seek(file.getFilePointer() + start);
+            long to = file.getFilePointer() + start;
+            if (to > file.length()) throw new EOFException();
+            file.seek(to);
         }
 
         @Override
@@ -567,9 +569,8 @@ public class LargeText {
 
         @Override
         public void skip(long start) throws IOException {
-            while (start > 0) {
-                start -= gz.skip(start);
-            }
+            long skipped = gz.skip(start);
+            if (skipped != start) throw new EOFException();
         }
 
         @Override
