@@ -240,7 +240,9 @@ public class LargeText {
     private void writeLogUncounted(long start, OutputStream os) throws IOException {
 
         try (Session f = source.open()) {
-            f.skip(start);
+            if (f.skip(start) != start) {
+                throw new EOFException("Attempted to read past the end of the log");
+            }
 
             if (completed) {
                 // write everything till EOF
@@ -505,10 +507,10 @@ public class LargeText {
 
     /**
      * Represents the read session of the {@link Source}.
-     * Methods generally follow the contracts of {@link InputStream}.
+     * Methods follow the contracts of {@link InputStream}.
      */
     private interface Session extends Closeable {
-        void skip(long start) throws IOException;
+        long skip(long start) throws IOException;
 
         int read(byte[] buf) throws IOException;
 
@@ -530,11 +532,14 @@ public class LargeText {
             file.close();
         }
 
+        /**
+         * Like {@link RandomAccessFile#skipBytes} but with long instead of int.
+         */
         @Override
-        public void skip(long start) throws IOException {
-            long to = file.getFilePointer() + start;
-            if (to > file.length()) throw new EOFException();
+        public long skip(long start) throws IOException {
+            long to = Math.min(file.length(), file.getFilePointer() + start);
             file.seek(to);
+            return to;
         }
 
         @Override
@@ -568,9 +573,8 @@ public class LargeText {
         }
 
         @Override
-        public void skip(long start) throws IOException {
-            long skipped = gz.skip(start);
-            if (skipped != start) throw new EOFException();
+        public long skip(long start) throws IOException {
+            return gz.skip(start);
         }
 
         @Override
@@ -651,14 +655,8 @@ public class LargeText {
         }
 
         @Override
-        public void skip(long start) throws IOException {
-            while (start > 0) {
-                long diff = in.skip(start);
-                if (diff == 0) {
-                    throw new EOFException("Attempting to read past end of buffer");
-                }
-                start -= diff;
-            }
+        public long skip(long start) throws IOException {
+            return in.skip(start);
         }
 
         @Override
