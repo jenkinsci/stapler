@@ -63,7 +63,7 @@ public class LargeText {
     /**
      * Represents the data source of this text.
      */
-    private interface Source {
+    public interface Source {
         Session open() throws IOException;
 
         long length();
@@ -167,6 +167,12 @@ public class LargeText {
                 return true;
             }
         };
+        this.completed = completed;
+    }
+
+    public LargeText(Source source, Charset charset, boolean completed) {
+        this.charset = charset;
+        this.source = source;
         this.completed = completed;
     }
 
@@ -509,7 +515,7 @@ public class LargeText {
      * Represents the read session of the {@link Source}.
      * Methods follow the contracts of {@link InputStream}.
      */
-    private interface Session extends Closeable {
+    public interface Session extends Closeable {
         long skip(long n) throws IOException;
 
         int read(byte[] buf) throws IOException;
