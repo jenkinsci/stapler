@@ -47,23 +47,23 @@ public class LargeTextTest {
 
     @Issue("JENKINS-37664")
     @Test
-    public void writeLogToFromBuffer() throws Exception {
-        writeLogToWith(new fromBuffer());
+    public void writeLogToFromByteBuffer() throws Exception {
+        writeLogToWith(byteBuffer());
     }
 
     @Test
     public void writeLogToFromFile() throws Exception {
-        writeLogToWith(new fromFile(false));
+        writeLogToWith(file());
     }
 
     @Test
-    public void writeLogToFromFileMaybeGz() throws Exception {
-        writeLogToWith(new fromFile(true));
+    public void writeLogToFromFileWithGzipDetection() throws Exception {
+        writeLogToWith(fileWithGzipDetection());
     }
 
     @Test
-    public void writeLogToFromGz() throws Exception {
-        writeLogToWith(new fromGzFile());
+    public void writeLogToFromGzFile() throws Exception {
+        writeLogToWith(gzFile());
     }
 
     private void writeLogToWith(BuildLargeText t) throws Exception {
@@ -88,7 +88,23 @@ public class LargeTextTest {
         assertEquals(large.substring(1337), tail(t, large, 1337));
     }
 
-    static class fromBuffer implements BuildLargeText {
+    BuildLargeText byteBuffer() {
+        return new FromByteBuffer();
+    }
+
+    BuildLargeText file() {
+        return new FromFile(false);
+    }
+
+    BuildLargeText fileWithGzipDetection() {
+        return new FromFile(true);
+    }
+
+    BuildLargeText gzFile() {
+        return new FromGzFile();
+    }
+
+    static class FromByteBuffer implements BuildLargeText {
         public LargeText build(String text) throws IOException {
             ByteBuffer bb = new ByteBuffer();
             bb.write(text.getBytes(), 0, text.length());
@@ -98,11 +114,11 @@ public class LargeTextTest {
         public void close() {}
     }
 
-    static class fromFile implements BuildLargeText {
+    static class FromFile implements BuildLargeText {
         private Path path;
         final boolean detectGzip;
 
-        fromFile(boolean detectGzip) {
+        FromFile(boolean detectGzip) {
             this.detectGzip = detectGzip;
         }
 
@@ -119,7 +135,7 @@ public class LargeTextTest {
         }
     }
 
-    static class fromGzFile implements BuildLargeText {
+    static class FromGzFile implements BuildLargeText {
         private Path path;
 
         public LargeText build(String text) throws IOException {
