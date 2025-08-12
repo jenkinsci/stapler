@@ -537,9 +537,11 @@ public class LargeText {
          */
         @Override
         public long skip(long start) throws IOException {
-            long to = Math.min(file.length(), file.getFilePointer() + start);
-            file.seek(to);
-            return to;
+            if (start <= 0) return 0;
+            long pos = file.getFilePointer();
+            long newPos = Math.min(file.length(), pos + start);
+            file.seek(newPos);
+            return newPos - pos;
         }
 
         @Override
