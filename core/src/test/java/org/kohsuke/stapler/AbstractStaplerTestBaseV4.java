@@ -5,18 +5,19 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import junit.framework.TestCase;
-import org.kohsuke.stapler.test.AbstractStaplerTest;
+import org.junit.After;
+import org.junit.Before;
+import org.kohsuke.stapler.test.AbstractStaplerTestV4;
 import org.mockito.Mockito;
 
 /**
  * This class needs to be in this package to access package-protected stuff.
- * You should extend from {@link AbstractStaplerTest}.
- * For JUnit4 style tests use {@link AbstractStaplerTestBaseV4}.
+ * You should extend from {@link AbstractStaplerTestV4}.
+ * Like {@link AbstractStaplerTestBase} but for JUnit4 style tests.
  *
- * @author Kohsuke Kawaguchi
+ * @author Jakob Ackermann
  */
-public abstract class AbstractStaplerTestBase extends TestCase {
+public abstract class AbstractStaplerTestBaseV4 {
 
     protected WebApp webApp;
     protected RequestImpl request;
@@ -25,9 +26,8 @@ public abstract class AbstractStaplerTestBase extends TestCase {
     protected HttpServletRequest rawRequest;
     protected HttpServletResponse rawResponse;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         ServletContext servletContext = Mockito.mock(ServletContext.class);
 
         webApp = new WebApp(servletContext);
@@ -44,5 +44,11 @@ public abstract class AbstractStaplerTestBase extends TestCase {
 
         this.response = new ResponseImpl(stapler, rawResponse);
         Stapler.CURRENT_RESPONSE.set(this.response);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        Stapler.CURRENT_REQUEST.remove();
+        Stapler.CURRENT_RESPONSE.remove();
     }
 }
