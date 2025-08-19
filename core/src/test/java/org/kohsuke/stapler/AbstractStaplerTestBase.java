@@ -44,4 +44,11 @@ public abstract class AbstractStaplerTestBase extends TestCase {
         this.response = new ResponseImpl(stapler, rawResponse);
         Stapler.CURRENT_RESPONSE.set(this.response);
     }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        Stapler.CURRENT_REQUEST.remove();
+        Stapler.CURRENT_RESPONSE.remove();
+    }
 }
