@@ -729,6 +729,9 @@ final class BytecodeReadingParanamer {
          *               sufficiently large. It is not automatically resized.
          * @return the String corresponding to the specified UTF8 string.
          */
+        @SuppressFBWarnings(
+                value = {"SF_DEAD_STORE_DUE_TO_SWITCH_FALLTHROUGH", "SF_SWITCH_FALLTHROUGH"},
+                justification = "TODO: remove when https://github.com/spotbugs/spotbugs/issues/3617 is fixed")
         private String readUTF(int index, final int utfLen, final char[] buf) {
             int endIndex = index + utfLen;
             byte[] b = this.b;
