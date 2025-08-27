@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 import java.util.function.Function;
-import org.apache.commons.beanutils.ConvertUtils;
+import org.springframework.core.convert.support.DefaultConversionService;
 
 /**
  * Provides a type-safe access to the configuration of the application.
@@ -48,6 +48,7 @@ import org.apache.commons.beanutils.ConvertUtils;
  */
 public class ConfigurationLoader {
     private final Function<String, String> source;
+    private static final DefaultConversionService CONVERSION_SERVICE = new DefaultConversionService();
 
     /**
      * The caller should use one of the fromXyz methods.
@@ -127,7 +128,7 @@ public class ConfigurationLoader {
                     return null; // TODO: check how the primitive types are handled here
                 }
 
-                return ConvertUtils.convert(v, r);
+                return CONVERSION_SERVICE.convert(v, r);
             }
 
             private String getKey(Method method, Configuration c) {
