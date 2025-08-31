@@ -27,20 +27,27 @@
 package org.kohsuke.stapler.framework.io;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.zip.GZIPOutputStream;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -262,5 +269,244 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
 
         t.doProgressText(request, response);
         assertEquals(text.substring(0, stop), responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreaming() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+
+        t.doProgressText(request, response);
+        verify(rawResponse).setHeader("X-Streaming", "true");
+        assertEquals(text + "\n{\"completed\":true,\"start\":0,\"end\":12}", responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreamingNext() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getParameter("start")).thenReturn("6");
+
+        t.doProgressText(request, response);
+        assertEquals("World!" + "\n{\"completed\":true,\"start\":6,\"end\":12}", responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreamingEnd() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getParameter("start")).thenReturn("12");
+
+        t.doProgressText(request, response);
+        assertEquals("" + "\n{\"completed\":true,\"start\":12,\"end\":12}", responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreamingExtraMetadata() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true) {
+            @Override
+            public long writeLogTo(long start, OutputStream out) throws IOException {
+                long r = super.writeLogTo(start, out);
+                putStreamingMeta("foo", "42");
+                putStreamingMeta("bar", "1337");
+                return r;
+            }
+        };
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+
+        t.doProgressText(request, response);
+        verify(rawResponse).setHeader("X-Streaming", "true");
+        assertEquals(
+                text + "\n{\"completed\":true,\"start\":0,\"foo\":\"42\",\"bar\":\"1337\",\"end\":12}",
+                responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreamingRollOver() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getParameter("start")).thenReturn("100");
+
+        t.doProgressText(request, response);
+        assertEquals(text + "\n{\"completed\":true,\"start\":0,\"end\":12}", responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreamingTailSmall() throws Exception {
+        String text = "Hello\nWorld!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getParameter("start")).thenReturn("-100");
+
+        t.doProgressText(request, response);
+        assertEquals(text + "\n{\"completed\":true,\"start\":0,\"end\":12}", responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreamingTailFindLF() throws Exception {
+        String text = "Hello\nWorld!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getParameter("start")).thenReturn("-8");
+
+        t.doProgressText(request, response);
+        assertEquals(
+                "World!" + "\n{\"completed\":true,\"startFromNewLine\":true,\"start\":6,\"end\":12}",
+                responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreamingTailNoLF() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getParameter("start")).thenReturn("-8");
+
+        t.doProgressText(request, response);
+        assertEquals("o World!" + "\n{\"completed\":true,\"start\":4,\"end\":12}", responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreamingTailLarge() throws Exception {
+        String text = "x".repeat(9999) + "\nHello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getParameter("start")).thenReturn("-10000");
+
+        t.doProgressText(request, response);
+        assertEquals(
+                "Hello World!" + "\n{\"completed\":true,\"startFromNewLine\":true,\"start\":10000,\"end\":10012}",
+                responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreamingFetchMoreEdge() throws Exception {
+        String text = "x".repeat(9999) + "\nHello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getParameter("start")).thenReturn("100");
+        when(request.getParameter("searchNewLineUntil")).thenReturn("10000");
+
+        t.doProgressText(request, response);
+        assertEquals(
+                text.substring(100) + "\n{\"completed\":true,\"start\":100,\"end\":10012}", responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreamingFetchMoreLF() throws Exception {
+        String text = "x".repeat(9999) + "\nHello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getParameter("start")).thenReturn("100");
+        when(request.getParameter("searchNewLineUntil")).thenReturn("10002");
+
+        t.doProgressText(request, response);
+        assertEquals(
+                "Hello World!" + "\n{\"completed\":true,\"startFromNewLine\":true,\"start\":10000,\"end\":10012}",
+                responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreamingFetchMoreNoLF() throws Exception {
+        String text = "x".repeat(9999) + "\nHello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getParameter("start")).thenReturn("100");
+        when(request.getParameter("searchNewLineUntil")).thenReturn("200");
+
+        t.doProgressText(request, response);
+        assertEquals(
+                text.substring(100) + "\n{\"completed\":true,\"start\":100,\"end\":10012}", responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreamingTailRolledOver() throws Exception {
+        String text = "Hello\nWorld!";
+        ByteBuffer bb = new ByteBuffer() {
+            @Override
+            public synchronized long length() {
+                return super.length() + 100;
+            }
+        };
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getParameter("start")).thenReturn("-8");
+
+        t.doProgressText(request, response);
+        assertEquals(text + "\n{\"completed\":true,\"start\":0,\"end\":12}", responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreamingMissing() throws Exception {
+        // Create a temporary file to ensure that the given name does not exist.
+        File missing = Files.createTempFile("stapler-test-missing", ".txt").toFile();
+        assertTrue(missing.delete());
+        assertFalse(missing.exists());
+
+        LargeText t = new LargeText(missing, true);
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getParameter("start")).thenReturn("-8");
+
+        t.doProgressText(request, response);
+        assertEquals("" + "\n{\"completed\":true,\"start\":0,\"end\":0}", responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreamingInfinite() throws Exception {
+        ByteBuffer bb = new ByteBuffer() {
+            @Override
+            public InputStream newInputStream() {
+                return new InputStream() {
+                    @Override
+                    public int read() throws IOException {
+                        return 'x';
+                    }
+
+                    @Override
+                    public int read(@NonNull byte[] b) {
+                        Arrays.fill(b, (byte) 'x');
+                        return b.length;
+                    }
+                };
+            }
+        };
+        bb.write(42); // populate the initial byte to trigger streaming.
+        LargeText t = new LargeText(bb, false);
+        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getParameter("start")).thenReturn("0");
+
+        t.doProgressText(request, response);
+        assertEquals(
+                "x" + "\n{\"completed\":false,\"start\":0,\"end\":1}", responseBAOS.toString());
     }
 }
