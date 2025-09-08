@@ -335,7 +335,7 @@ public class LargeText {
             } else {
                 try (var os = new WriterOutputStream(lenw, charset);
                         var tos = new ThresholdingOutputStream(os, length - start)) {
-                    writeLogUncounted(start, os);
+                    writeLogUncounted(start, tos);
                 }
             }
         }
