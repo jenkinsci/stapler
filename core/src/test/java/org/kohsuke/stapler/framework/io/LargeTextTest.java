@@ -36,10 +36,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.zip.GZIPOutputStream;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.jvnet.hudson.test.Issue;
@@ -57,69 +58,153 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
 
     @Issue("JENKINS-37664")
     @Test
-    public void writeLogTo() throws Exception {
-        assertEquals("", tail("", 0));
-        assertEquals("abcde", tail("abcde", 0));
-        assertEquals("de", tail("abcde", 3));
-        assertEquals("", tail("abcde", 5));
+    public void writeLogToFromByteBuffer() throws Exception {
+        writeLogToWith(byteBuffer());
+    }
+
+    @Test
+    public void writeLogToFromFile() throws Exception {
+        writeLogToWith(file());
+    }
+
+    @Test
+    public void writeLogToFromFileWithGzipDetection() throws Exception {
+        writeLogToWith(fileWithGzipDetection());
+    }
+
+    @Test
+    public void writeLogToFromGzFile() throws Exception {
+        writeLogToWith(gzFile());
+    }
+
+    private void writeLogToWith(BuildLargeText t) throws Exception {
+        assertEquals("", tail(t, "", 0));
+        assertEquals("abcde", tail(t, "abcde", 0));
+        assertEquals("de", tail(t, "abcde", 3));
+        assertEquals("e", tail(t, "abcde", 4));
+        assertEquals("", tail(t, "abcde", 5));
         try {
-            fail(tail("abcde", 6));
+            fail(tail(t, "abcde", 6));
         } catch (EOFException x) {
             // right
         }
         try {
-            fail(tail("abcde", 99));
+            fail(tail(t, "abcde", 99));
         } catch (EOFException x) {
             // right
+        }
+        // Large string with rest after reading multiples of 1024 bytes.
+        String large = "Hello World! ".repeat(1025).trim();
+        assertEquals(large, tail(t, large, 0));
+        assertEquals(large.substring(1337), tail(t, large, 1337));
+    }
+
+    BuildLargeText byteBuffer() {
+        return new FromByteBuffer();
+    }
+
+    BuildLargeText file() {
+        return new FromFile(false);
+    }
+
+    BuildLargeText fileWithGzipDetection() {
+        return new FromFile(true);
+    }
+
+    BuildLargeText gzFile() {
+        return new FromGzFile();
+    }
+
+    static class FromByteBuffer implements BuildLargeText {
+        public LargeText build(String text) throws IOException {
+            ByteBuffer bb = new ByteBuffer();
+            bb.write(text.getBytes(), 0, text.length());
+            return new LargeText(bb, true);
+        }
+
+        public void close() {}
+    }
+
+    static class FromFile implements BuildLargeText {
+        private Path path;
+        final boolean detectGzip;
+
+        FromFile(boolean detectGzip) {
+            this.detectGzip = detectGzip;
+        }
+
+        public LargeText build(String text) throws IOException {
+            path = Files.createTempFile("stapler-test", ".log");
+            Files.write(path, text.getBytes());
+            return new LargeText(path.toFile(), true, detectGzip);
+        }
+
+        public void close() throws IOException {
+            if (path != null) {
+                Files.delete(path);
+            }
         }
     }
 
-    String tail(String text, long start) throws IOException {
-        LargeText t;
-        try (ByteBuffer bb = new ByteBuffer()) {
-            bb.write(text.getBytes(), 0, text.length());
+    static class FromGzFile implements BuildLargeText {
+        private Path path;
 
-            t = new LargeText(bb, true);
+        public LargeText build(String text) throws IOException {
+            path = Files.createTempFile("stapler-test", ".log.gz");
+            try (var out = new FileOutputStream(path.toFile());
+                    var gz = new GZIPOutputStream(out)) {
+                gz.write(text.getBytes());
+            }
+            return new LargeText(path.toFile(), true, true);
         }
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        assertEquals(text.length(), t.writeLogTo(start, baos));
-        return baos.toString();
+
+        public void close() throws IOException {
+            if (path != null) {
+                Files.delete(path);
+            }
+        }
+    }
+
+    interface BuildLargeText extends AutoCloseable {
+        LargeText build(String text) throws IOException;
+    }
+
+    String tail(BuildLargeText buildLargeText, String text, long start) throws Exception {
+        try (buildLargeText) {
+            LargeText t = buildLargeText.build(text);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            assertEquals(text.length(), t.writeLogTo(start, baos));
+            return baos.toString();
+        }
     }
 
     @Issue("#141")
     @Test
     @Ignore
     public void writeLogToWithLargeFile() throws Exception {
-        Path path = Files.createTempFile("stapler-test", ".log.gz");
-        long size = Integer.MAX_VALUE + 256L;
-        writeLargeFile(path, size);
-
-        LargeText t = new LargeText(path.toFile(), StandardCharsets.US_ASCII, true);
-
-        try (OutputStream os = OutputStream.nullOutputStream()) {
-            long writenCount = t.writeLogTo(0, os);
-
-            assertEquals(size, writenCount);
-        }
-
-        Files.delete(path);
-    }
-
-    private void writeLargeFile(Path path, long size) {
-        // Write the same data over and over again, so the bytes written is high, but the file is
-        // actually very small
-        int chunkSize = 1024;
-        byte[] bytesChunk = String.join("", Collections.nCopies(chunkSize, "0")).getBytes(StandardCharsets.US_ASCII);
-        try (OutputStream stream = new FileOutputStream(path.toFile())) {
-            long remaining = size;
-            while (remaining > chunkSize) {
-                stream.write(bytesChunk);
-                remaining -= chunkSize;
+        Path path = Files.createTempFile("stapler-test", ".log");
+        try {
+            long size = Integer.MAX_VALUE + 256L;
+            String suffix = "End";
+            byte[] suffixBytes = suffix.getBytes(StandardCharsets.US_ASCII);
+            try (var raf = new RandomAccessFile(path.toFile(), "rw")) {
+                raf.seek(size - suffixBytes.length);
+                raf.write(suffixBytes);
             }
-            stream.write(bytesChunk, 0, (int) remaining);
-            stream.flush();
-        } catch (IOException e) {
-            fail(e.getMessage());
+            assertEquals(size, path.toFile().length());
+
+            LargeText t = new LargeText(path.toFile(), StandardCharsets.US_ASCII, true);
+
+            try (OutputStream os = OutputStream.nullOutputStream()) {
+                long writenCount = t.writeLogTo(0, os);
+                assertEquals(size, writenCount);
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                assertEquals(size, t.writeLogTo(size - suffixBytes.length, baos));
+                assertEquals(suffix, baos.toString());
+            }
+        } finally {
+            Files.delete(path);
         }
     }
 
