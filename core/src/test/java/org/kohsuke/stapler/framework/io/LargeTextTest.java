@@ -30,7 +30,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -52,16 +53,51 @@ import java.util.zip.GZIPOutputStream;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.jvnet.hudson.test.Issue;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.test.AbstractStaplerTestV4;
+import org.mockito.stubbing.Answer;
 
 public class LargeTextTest extends AbstractStaplerTestV4 {
+    String contentType = null;
     ByteArrayOutputStream responseBAOS = new ByteArrayOutputStream();
+
+    private void expectStreamingResponse(String text, String meta) {
+        expectStreamingResponse("text/plain;charset=UTF-8", text, meta);
+    }
+
+    private void expectStreamingResponse(String ct, String text, String meta) {
+        String body = responseBAOS.toString();
+        assertTrue(contentType.matches("^multipart/form-data;boundary=[a-f0-9-]{36}$"));
+        String boundary = contentType.substring(29, 29 + 36);
+        assertEquals(
+                "--" + boundary + "\r\n" // start of first part
+                        + "Content-Disposition: form-data;name=text\r\n"
+                        + "Content-Type: " + ct + "\r\n"
+                        + "\r\n" // start of body
+                        + text
+                        + "\r\n--" + boundary + "\r\n" // start of next part
+                        + "Content-Disposition: form-data;name=meta\r\n"
+                        + "Content-Type: application/json;charset=utf-8\r\n"
+                        + "\r\n" // start of body
+                        + meta
+                        + "\r\n--" + boundary + "--", // end of last part
+                body);
+    }
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         responseBAOS.reset();
         when(rawResponse.getWriter()).thenReturn(new PrintWriter(responseBAOS));
+
+        // wire up the setter and getter for Content-Type
+        doAnswer(invocationOnMock -> {
+                    contentType = invocationOnMock.getArgument(0);
+                    return null;
+                })
+                .when(rawResponse)
+                .setContentType(anyString());
+        when(rawResponse.getContentType()).thenAnswer((Answer<String>) invocationOnMock -> contentType);
     }
 
     @Issue("JENKINS-37664")
@@ -277,11 +313,10 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
         LargeText t = new LargeText(bb, true);
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
 
         t.doProgressText(request, response);
-        verify(rawResponse).setHeader("X-Streaming", "true");
-        assertEquals(text + "\n{\"completed\":true,\"start\":0,\"end\":12}", responseBAOS.toString());
+        expectStreamingResponse(text, "{\"completed\":true,\"start\":0,\"end\":12}");
     }
 
     @Test
@@ -290,11 +325,11 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
         LargeText t = new LargeText(bb, true);
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("6");
 
         t.doProgressText(request, response);
-        assertEquals("World!" + "\n{\"completed\":true,\"start\":6,\"end\":12}", responseBAOS.toString());
+        expectStreamingResponse("World!", "{\"completed\":true,\"start\":6,\"end\":12}");
     }
 
     @Test
@@ -303,11 +338,11 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
         LargeText t = new LargeText(bb, true);
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("12");
 
         t.doProgressText(request, response);
-        assertEquals("" + "\n{\"completed\":true,\"start\":12,\"end\":12}", responseBAOS.toString());
+        expectStreamingResponse("", "{\"completed\":true,\"start\":12,\"end\":12}");
     }
 
     @Test
@@ -324,13 +359,47 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
                 return r;
             }
         };
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
 
         t.doProgressText(request, response);
-        verify(rawResponse).setHeader("X-Streaming", "true");
-        assertEquals(
-                text + "\n{\"completed\":true,\"start\":0,\"foo\":\"42\",\"bar\":\"1337\",\"end\":12}",
-                responseBAOS.toString());
+        expectStreamingResponse(text, "{\"completed\":true,\"start\":0,\"foo\":\"42\",\"bar\":\"1337\",\"end\":12}");
+    }
+
+    @Test
+    public void doProgressTextStreamingHTML() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true) {
+            @Override
+            protected void setContentType(StaplerResponse2 rsp) {
+                rsp.setContentType("text/html; charset=utf-8");
+            }
+        };
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse("text/html; charset=utf-8", text, "{\"completed\":true,\"start\":0,\"end\":12}");
+    }
+
+    @Test
+    public void doProgressTextStreamingBadContentType() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true) {
+            @Override
+            protected void setContentType(StaplerResponse2 rsp) {
+                rsp.setContentType("text/plain; charset=utf-8\r\nFoo: bar");
+            }
+        };
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        try {
+            t.doProgressText(request, response);
+            fail("should have thrown");
+        } catch (IOException e) {
+            assertEquals("Found CR/LF in Content-Type. Aborting streaming mode", e.getMessage());
+        }
     }
 
     @Test
@@ -339,11 +408,11 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
         LargeText t = new LargeText(bb, true);
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("100");
 
         t.doProgressText(request, response);
-        assertEquals(text + "\n{\"completed\":true,\"start\":0,\"end\":12}", responseBAOS.toString());
+        expectStreamingResponse(text, "{\"completed\":true,\"start\":0,\"end\":12}");
     }
 
     @Test
@@ -352,11 +421,11 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
         LargeText t = new LargeText(bb, true);
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("-100");
 
         t.doProgressText(request, response);
-        assertEquals(text + "\n{\"completed\":true,\"start\":0,\"end\":12}", responseBAOS.toString());
+        expectStreamingResponse(text, "{\"completed\":true,\"start\":0,\"end\":12}");
     }
 
     @Test
@@ -365,13 +434,11 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
         LargeText t = new LargeText(bb, true);
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("-8");
 
         t.doProgressText(request, response);
-        assertEquals(
-                "World!" + "\n{\"completed\":true,\"startFromNewLine\":true,\"start\":6,\"end\":12}",
-                responseBAOS.toString());
+        expectStreamingResponse("World!", "{\"completed\":true,\"startFromNewLine\":true,\"start\":6,\"end\":12}");
     }
 
     @Test
@@ -380,11 +447,11 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
         LargeText t = new LargeText(bb, true);
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("-8");
 
         t.doProgressText(request, response);
-        assertEquals("o World!" + "\n{\"completed\":true,\"start\":4,\"end\":12}", responseBAOS.toString());
+        expectStreamingResponse("o World!", "{\"completed\":true,\"start\":4,\"end\":12}");
     }
 
     @Test
@@ -393,13 +460,12 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
         LargeText t = new LargeText(bb, true);
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("-10000");
 
         t.doProgressText(request, response);
-        assertEquals(
-                "Hello World!" + "\n{\"completed\":true,\"startFromNewLine\":true,\"start\":10000,\"end\":10012}",
-                responseBAOS.toString());
+        expectStreamingResponse(
+                "Hello World!", "{\"completed\":true,\"startFromNewLine\":true,\"start\":10000,\"end\":10012}");
     }
 
     @Test
@@ -408,13 +474,12 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
         LargeText t = new LargeText(bb, true);
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("100");
         when(request.getParameter("searchNewLineUntil")).thenReturn("10000");
 
         t.doProgressText(request, response);
-        assertEquals(
-                text.substring(100) + "\n{\"completed\":true,\"start\":100,\"end\":10012}", responseBAOS.toString());
+        expectStreamingResponse(text.substring(100), "{\"completed\":true,\"start\":100,\"end\":10012}");
     }
 
     @Test
@@ -423,14 +488,13 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
         LargeText t = new LargeText(bb, true);
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("100");
         when(request.getParameter("searchNewLineUntil")).thenReturn("10002");
 
         t.doProgressText(request, response);
-        assertEquals(
-                "Hello World!" + "\n{\"completed\":true,\"startFromNewLine\":true,\"start\":10000,\"end\":10012}",
-                responseBAOS.toString());
+        expectStreamingResponse(
+                "Hello World!", "{\"completed\":true,\"startFromNewLine\":true,\"start\":10000,\"end\":10012}");
     }
 
     @Test
@@ -439,13 +503,12 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
         LargeText t = new LargeText(bb, true);
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("100");
         when(request.getParameter("searchNewLineUntil")).thenReturn("200");
 
         t.doProgressText(request, response);
-        assertEquals(
-                text.substring(100) + "\n{\"completed\":true,\"start\":100,\"end\":10012}", responseBAOS.toString());
+        expectStreamingResponse(text.substring(100), "{\"completed\":true,\"start\":100,\"end\":10012}");
     }
 
     @Test
@@ -459,11 +522,11 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         };
         bb.write(text.getBytes(), 0, text.length());
         LargeText t = new LargeText(bb, true);
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("-8");
 
         t.doProgressText(request, response);
-        assertEquals(text + "\n{\"completed\":true,\"start\":0,\"end\":12}", responseBAOS.toString());
+        expectStreamingResponse(text, "{\"completed\":true,\"start\":0,\"end\":12}");
     }
 
     @Test
@@ -474,11 +537,11 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         assertFalse(missing.exists());
 
         LargeText t = new LargeText(missing, true);
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("-8");
 
         t.doProgressText(request, response);
-        assertEquals("" + "\n{\"completed\":true,\"start\":0,\"end\":0}", responseBAOS.toString());
+        expectStreamingResponse("", "{\"completed\":true,\"start\":0,\"end\":0}");
     }
 
     @Test
@@ -502,11 +565,10 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         };
         bb.write(42); // populate the initial byte to trigger streaming.
         LargeText t = new LargeText(bb, false);
-        when(request.getHeader("X-Streaming")).thenReturn("true");
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("0");
 
         t.doProgressText(request, response);
-        assertEquals(
-                "x" + "\n{\"completed\":false,\"start\":0,\"end\":1}", responseBAOS.toString());
+        expectStreamingResponse("x", "{\"completed\":false,\"start\":0,\"end\":1}");
     }
 }

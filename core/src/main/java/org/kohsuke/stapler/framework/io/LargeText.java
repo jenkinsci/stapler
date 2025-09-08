@@ -40,6 +40,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.output.CountingOutputStream;
@@ -332,7 +333,9 @@ public class LargeText {
      */
     public boolean isStreamingRequest(StaplerRequest2 req) {
         if (req == null) return false;
-        return "true".equals(req.getHeader("X-Streaming"));
+        String accept = req.getHeader("Accept");
+        if (accept == null || accept.isEmpty()) return false;
+        return accept.startsWith("multipart/form-data");
     }
 
     /**
@@ -371,11 +374,23 @@ public class LargeText {
 
     private void doProgressTextStreaming(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException {
         setContentType(rsp);
-        rsp.setHeader("X-Streaming", "true");
+        String ct = rsp.getContentType();
+        if (ct == null || ct.isEmpty()) {
+            ct = "text/plain;charset=UTF-8";
+        }
+        if (ct.contains("\r") || ct.contains("\n")) {
+            throw new IOException("Found CR/LF in Content-Type. Aborting streaming mode");
+        }
+        String boundary = UUID.randomUUID().toString();
+        rsp.setContentType("multipart/form-data;boundary=" + boundary);
         rsp.setStatus(HttpServletResponse.SC_OK);
         putStreamingMeta("completed", completed);
 
         try (var w = rsp.getWriter()) {
+            w.write("--" + boundary + "\r\n" // preamble for first part
+                    + "Content-Disposition: form-data;name=text\r\n"
+                    + "Content-Type: " + ct + "\r\n"
+                    + "\r\n");
             long length = source.exists() ? source.length() : 0;
 
             String s = req.getParameter("start");
@@ -402,7 +417,11 @@ public class LargeText {
             }
             putStreamingMeta("end", end);
 
-            w.write("\n" + streamingMeta);
+            w.write("\r\n--" + boundary + "\r\n" // transition to next part
+                    + "Content-Disposition: form-data;name=meta\r\n"
+                    + "Content-Type: application/json;charset=utf-8\r\n"
+                    + "\r\n"
+                    + streamingMeta + "\r\n--" + boundary + "--");
         }
     }
 
