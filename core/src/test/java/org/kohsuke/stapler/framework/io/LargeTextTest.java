@@ -28,12 +28,14 @@ package org.kohsuke.stapler.framework.io;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,8 +43,17 @@ import java.util.Collections;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.jvnet.hudson.test.Issue;
+import org.kohsuke.stapler.test.AbstractStaplerTestV4;
 
-public class LargeTextTest {
+public class LargeTextTest extends AbstractStaplerTestV4 {
+    ByteArrayOutputStream responseBAOS = new ByteArrayOutputStream();
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        responseBAOS.reset();
+        when(rawResponse.getWriter()).thenReturn(new PrintWriter(responseBAOS));
+    }
 
     @Issue("JENKINS-37664")
     @Test
@@ -110,5 +121,22 @@ public class LargeTextTest {
         } catch (IOException e) {
             fail(e.getMessage());
         }
+    }
+
+    @Test
+    public void doProgressTextLimited() throws Exception {
+        String text = "Hello World!";
+        final int stop = text.length() - 1;
+        ByteBuffer bb = new ByteBuffer() {
+            @Override
+            public synchronized long length() {
+                return stop;
+            }
+        };
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+
+        t.doProgressText(request, response);
+        assertEquals(text.substring(0, stop), responseBAOS.toString());
     }
 }
