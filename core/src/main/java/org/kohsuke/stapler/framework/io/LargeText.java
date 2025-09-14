@@ -510,7 +510,7 @@ public class LargeText {
      * Methods follow the contracts of {@link InputStream}.
      */
     private interface Session extends Closeable {
-        long skip(long start) throws IOException;
+        long skip(long n) throws IOException;
 
         int read(byte[] buf) throws IOException;
 
@@ -536,10 +536,10 @@ public class LargeText {
          * Like {@link RandomAccessFile#skipBytes} but with long instead of int.
          */
         @Override
-        public long skip(long start) throws IOException {
-            if (start <= 0) return 0;
+        public long skip(long n) throws IOException {
+            if (n <= 0) return 0;
             long pos = file.getFilePointer();
-            long newPos = Math.min(file.length(), pos + start);
+            long newPos = Math.min(file.length(), pos + n);
             file.seek(newPos);
             return newPos - pos;
         }
@@ -575,8 +575,8 @@ public class LargeText {
         }
 
         @Override
-        public long skip(long start) throws IOException {
-            return gz.skip(start);
+        public long skip(long n) throws IOException {
+            return gz.skip(n);
         }
 
         @Override
@@ -657,8 +657,8 @@ public class LargeText {
         }
 
         @Override
-        public long skip(long start) throws IOException {
-            return in.skip(start);
+        public long skip(long n) throws IOException {
+            return in.skip(n);
         }
 
         @Override
