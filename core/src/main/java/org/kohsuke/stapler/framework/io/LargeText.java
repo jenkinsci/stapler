@@ -64,10 +64,23 @@ public class LargeText {
      * Represents the data source of this text.
      */
     public interface Source {
+        /**
+         * Open a Source for reading.
+         * @return Opened Session for reading.
+         * @throws IOException if an error occurs.
+         */
         Session open() throws IOException;
 
+        /**
+         * Size of the Source.
+         * @return Number of bytes in the Source.
+         */
         long length();
 
+        /**
+         * Check existence of the Source.
+         * @return true if it exists, otherwise false.
+         */
         boolean exists();
     }
 
@@ -516,10 +529,30 @@ public class LargeText {
      * Methods follow the contracts of {@link InputStream}.
      */
     public interface Session extends Closeable {
+        /**
+         * See also {@link InputStream#skip(long)}.
+         * @param n Number of bytes to skip ahead.
+         * @return Number of bytes that were skipped.
+         * @throws IOException if an error occurs. Skipping less than n bytes does not need to throw.
+         */
         long skip(long n) throws IOException;
 
+        /**
+         * See also {@link InputStream#read(byte[])}.
+         * @param buf Buffer to fill.
+         * @return Number of bytes that were filled.
+         * @throws IOException if an error occurs.
+         */
         int read(byte[] buf) throws IOException;
 
+        /**
+         * See also {@link InputStream#read(byte[], int, int)}.
+         * @param buf Buffer to fill.
+         * @param offset Number of bytes to skip in buf.
+         * @param length Number of bytes to read at most.
+         * @return Number of bytes that were read.
+         * @throws IOException if an error occurs.
+         */
         int read(byte[] buf, int offset, int length) throws IOException;
     }
 
