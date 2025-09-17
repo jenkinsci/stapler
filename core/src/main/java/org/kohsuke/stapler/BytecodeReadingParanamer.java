@@ -436,9 +436,9 @@ final class BytecodeReadingParanamer {
                             max = size;
                         }
                         break;
+                    default:
                         // case HamConstants.CLASS:
                         // case HamConstants.STR:
-                    default:
                         size = 3;
                         break;
                 }
@@ -729,6 +729,9 @@ final class BytecodeReadingParanamer {
          *               sufficiently large. It is not automatically resized.
          * @return the String corresponding to the specified UTF8 string.
          */
+        @SuppressFBWarnings(
+                value = {"SF_DEAD_STORE_DUE_TO_SWITCH_FALLTHROUGH", "SF_SWITCH_FALLTHROUGH"},
+                justification = "TODO: remove when https://github.com/spotbugs/spotbugs/issues/3617 is fixed")
         private String readUTF(int index, final int utfLen, final char[] buf) {
             int endIndex = index + utfLen;
             byte[] b = this.b;
@@ -1041,8 +1044,8 @@ final class BytecodeReadingParanamer {
                         } while (buf[off + len] != ';');
                     }
                     return new Type(ARRAY, buf, off, len + 1);
-                    // case 'L':
                 default:
+                    // case 'L':
                     len = 1;
                     while (buf[off + len] != ';') {
                         ++len;
@@ -1106,8 +1109,8 @@ final class BytecodeReadingParanamer {
                     return "double";
                 case ARRAY:
                     return getElementType().getClassName() + "[]".repeat(Math.max(0, getDimensions()));
-                    // case OBJECT:
                 default:
+                    // case OBJECT:
                     return new String(buf, off, len).replace('/', '.');
             }
         }
