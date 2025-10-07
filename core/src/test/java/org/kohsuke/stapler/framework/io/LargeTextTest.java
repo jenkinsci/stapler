@@ -30,6 +30,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.FileOutputStream;
@@ -60,6 +61,11 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     @Test
     public void writeLogToFromByteBuffer() throws Exception {
         writeLogToWith(byteBuffer());
+    }
+
+    @Test
+    public void writeLogToFromInterface() throws Exception {
+        writeLogToWith(interfaceBased());
     }
 
     @Test
@@ -115,11 +121,44 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         return new FromGzFile();
     }
 
+    BuildLargeText interfaceBased() {
+        return new FromInterface();
+    }
+
     static class FromByteBuffer implements BuildLargeText {
         public LargeText build(String text) throws IOException {
             ByteBuffer bb = new ByteBuffer();
             bb.write(text.getBytes(), 0, text.length());
             return new LargeText(bb, true);
+        }
+
+        public void close() {}
+    }
+
+    static class FromInterface implements BuildLargeText {
+        public LargeText build(String text) throws IOException {
+            LargeText.Source src = new LargeText.Source() {
+                private final byte[] textBytes = text.getBytes(StandardCharsets.UTF_8);
+
+                class BytesSession extends ByteArrayInputStream implements LargeText.Session {
+                    BytesSession() {
+                        super(textBytes);
+                    }
+                }
+
+                public LargeText.Session open() {
+                    return new BytesSession();
+                }
+
+                public long length() {
+                    return textBytes.length;
+                }
+
+                public boolean exists() {
+                    return true;
+                }
+            };
+            return new LargeText(src, StandardCharsets.UTF_8, true);
         }
 
         public void close() {}
