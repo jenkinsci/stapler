@@ -372,13 +372,18 @@ public class LargeText {
         return start;
     }
 
+    /**
+     * For multipart/form-data streaming mode: Enable searching for the first new line character after the provided ?start and abort searching at the given position.
+     */
+    protected static final String SEARCH_STOP_PARAMETER = "searchNewLineUntil";
+
     private void doProgressTextStreaming(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException {
         setContentType(rsp);
-        String ct = rsp.getContentType();
-        if (ct == null || ct.isEmpty()) {
-            ct = "text/plain;charset=UTF-8";
+        String contentType = rsp.getContentType();
+        if (contentType == null || contentType.isEmpty()) {
+            contentType = "text/plain;charset=UTF-8";
         }
-        if (ct.contains("\r") || ct.contains("\n")) {
+        if (contentType.contains("\r") || contentType.contains("\n")) {
             throw new IOException("Found CR/LF in Content-Type. Aborting streaming mode");
         }
         String boundary = UUID.randomUUID().toString();
@@ -386,10 +391,10 @@ public class LargeText {
         rsp.setStatus(HttpServletResponse.SC_OK);
         putStreamingMeta("completed", completed);
 
-        try (var w = rsp.getWriter()) {
-            w.write("--" + boundary + "\r\n" // preamble for first part
+        try (var writer = rsp.getWriter()) {
+            writer.write("--" + boundary + "\r\n" // preamble for first part
                     + "Content-Disposition: form-data;name=text\r\n"
-                    + "Content-Type: " + ct + "\r\n"
+                    + "Content-Type: " + contentType + "\r\n"
                     + "\r\n");
             long length = source.exists() ? source.length() : 0;
 
@@ -404,20 +409,20 @@ public class LargeText {
             } else if (start < 0) {
                 // tail on large file, start at first new line in tail
                 start = findNextLineStart(length + start, length);
-            } else if (req.getParameter("searchNewLineUntil") != null) {
+            } else if (req.getParameter(SEARCH_STOP_PARAMETER) != null) {
                 // fetch more, start at first new line before last start
-                long searchStop = Long.parseLong(req.getParameter("searchNewLineUntil"));
+                long searchStop = Long.parseLong(req.getParameter(SEARCH_STOP_PARAMETER));
                 start = findNextLineStart(start, searchStop);
             }
             putStreamingMeta("start", start);
 
             long end = length;
             if (start != end) {
-                end = writeLogTo(start, w);
+                end = writeLogTo(start, writer);
             }
             putStreamingMeta("end", end);
 
-            w.write("\r\n--" + boundary + "\r\n" // transition to next part
+            writer.write("\r\n--" + boundary + "\r\n" // transition to next part
                     + "Content-Disposition: form-data;name=meta\r\n"
                     + "Content-Type: application/json;charset=utf-8\r\n"
                     + "\r\n"

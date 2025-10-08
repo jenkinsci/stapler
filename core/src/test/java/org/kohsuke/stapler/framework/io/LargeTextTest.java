@@ -30,6 +30,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.kohsuke.stapler.framework.io.LargeText.SEARCH_STOP_PARAMETER;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
@@ -316,7 +317,8 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getHeader("Accept")).thenReturn("multipart/form-data");
 
         t.doProgressText(request, response);
-        expectStreamingResponse(text, "{\"completed\":true,\"start\":0,\"end\":12}");
+        expectStreamingResponse(text, """
+                {"completed":true,"start":0,"end":12}""");
     }
 
     @Test
@@ -329,7 +331,8 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getParameter("start")).thenReturn("6");
 
         t.doProgressText(request, response);
-        expectStreamingResponse("World!", "{\"completed\":true,\"start\":6,\"end\":12}");
+        expectStreamingResponse("World!", """
+                {"completed":true,"start":6,"end":12}""");
     }
 
     @Test
@@ -342,7 +345,8 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getParameter("start")).thenReturn("12");
 
         t.doProgressText(request, response);
-        expectStreamingResponse("", "{\"completed\":true,\"start\":12,\"end\":12}");
+        expectStreamingResponse("", """
+                {"completed":true,"start":12,"end":12}""");
     }
 
     @Test
@@ -362,7 +366,9 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getHeader("Accept")).thenReturn("multipart/form-data");
 
         t.doProgressText(request, response);
-        expectStreamingResponse(text, "{\"completed\":true,\"start\":0,\"foo\":\"42\",\"bar\":\"1337\",\"end\":12}");
+        expectStreamingResponse(
+                text, """
+                {"completed":true,"start":0,"foo":"42","bar":"1337","end":12}""");
     }
 
     @Test
@@ -379,7 +385,9 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getHeader("Accept")).thenReturn("multipart/form-data");
 
         t.doProgressText(request, response);
-        expectStreamingResponse("text/html; charset=utf-8", text, "{\"completed\":true,\"start\":0,\"end\":12}");
+        expectStreamingResponse(
+                "text/html; charset=utf-8", text, """
+                {"completed":true,"start":0,"end":12}""");
     }
 
     @Test
@@ -412,7 +420,8 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getParameter("start")).thenReturn("100");
 
         t.doProgressText(request, response);
-        expectStreamingResponse(text, "{\"completed\":true,\"start\":0,\"end\":12}");
+        expectStreamingResponse(text, """
+                {"completed":true,"start":0,"end":12}""");
     }
 
     @Test
@@ -425,7 +434,8 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getParameter("start")).thenReturn("-100");
 
         t.doProgressText(request, response);
-        expectStreamingResponse(text, "{\"completed\":true,\"start\":0,\"end\":12}");
+        expectStreamingResponse(text, """
+                {"completed":true,"start":0,"end":12}""");
     }
 
     @Test
@@ -438,7 +448,9 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getParameter("start")).thenReturn("-8");
 
         t.doProgressText(request, response);
-        expectStreamingResponse("World!", "{\"completed\":true,\"startFromNewLine\":true,\"start\":6,\"end\":12}");
+        expectStreamingResponse(
+                "World!", """
+                {"completed":true,"startFromNewLine":true,"start":6,"end":12}""");
     }
 
     @Test
@@ -451,7 +463,8 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getParameter("start")).thenReturn("-8");
 
         t.doProgressText(request, response);
-        expectStreamingResponse("o World!", "{\"completed\":true,\"start\":4,\"end\":12}");
+        expectStreamingResponse("o World!", """
+                {"completed":true,"start":4,"end":12}""");
     }
 
     @Test
@@ -465,7 +478,9 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
 
         t.doProgressText(request, response);
         expectStreamingResponse(
-                "Hello World!", "{\"completed\":true,\"startFromNewLine\":true,\"start\":10000,\"end\":10012}");
+                "Hello World!",
+                """
+                        {"completed":true,"startFromNewLine":true,"start":10000,"end":10012}""");
     }
 
     @Test
@@ -476,10 +491,11 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         LargeText t = new LargeText(bb, true);
         when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("100");
-        when(request.getParameter("searchNewLineUntil")).thenReturn("10000");
+        when(request.getParameter(SEARCH_STOP_PARAMETER)).thenReturn("10000");
 
         t.doProgressText(request, response);
-        expectStreamingResponse(text.substring(100), "{\"completed\":true,\"start\":100,\"end\":10012}");
+        expectStreamingResponse(text.substring(100), """
+                {"completed":true,"start":100,"end":10012}""");
     }
 
     @Test
@@ -490,11 +506,13 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         LargeText t = new LargeText(bb, true);
         when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("100");
-        when(request.getParameter("searchNewLineUntil")).thenReturn("10002");
+        when(request.getParameter(SEARCH_STOP_PARAMETER)).thenReturn("10002");
 
         t.doProgressText(request, response);
         expectStreamingResponse(
-                "Hello World!", "{\"completed\":true,\"startFromNewLine\":true,\"start\":10000,\"end\":10012}");
+                "Hello World!",
+                """
+                        {"completed":true,"startFromNewLine":true,"start":10000,"end":10012}""");
     }
 
     @Test
@@ -505,10 +523,11 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         LargeText t = new LargeText(bb, true);
         when(request.getHeader("Accept")).thenReturn("multipart/form-data");
         when(request.getParameter("start")).thenReturn("100");
-        when(request.getParameter("searchNewLineUntil")).thenReturn("200");
+        when(request.getParameter(SEARCH_STOP_PARAMETER)).thenReturn("200");
 
         t.doProgressText(request, response);
-        expectStreamingResponse(text.substring(100), "{\"completed\":true,\"start\":100,\"end\":10012}");
+        expectStreamingResponse(text.substring(100), """
+                {"completed":true,"start":100,"end":10012}""");
     }
 
     @Test
@@ -526,7 +545,8 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getParameter("start")).thenReturn("-8");
 
         t.doProgressText(request, response);
-        expectStreamingResponse(text, "{\"completed\":true,\"start\":0,\"end\":12}");
+        expectStreamingResponse(text, """
+                {"completed":true,"start":0,"end":12}""");
     }
 
     @Test
@@ -541,7 +561,8 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getParameter("start")).thenReturn("-8");
 
         t.doProgressText(request, response);
-        expectStreamingResponse("", "{\"completed\":true,\"start\":0,\"end\":0}");
+        expectStreamingResponse("", """
+                {"completed":true,"start":0,"end":0}""");
     }
 
     @Test
@@ -569,6 +590,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getParameter("start")).thenReturn("0");
 
         t.doProgressText(request, response);
-        expectStreamingResponse("x", "{\"completed\":false,\"start\":0,\"end\":1}");
+        expectStreamingResponse("x", """
+                {"completed":false,"start":0,"end":1}""");
     }
 }
