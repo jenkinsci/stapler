@@ -87,6 +87,11 @@ public class LargeText {
         boolean exists();
     }
 
+    /**
+     * For multipart/form-data streaming mode: Enable searching for the first new line character after the provided ?start and abort searching at the given position.
+     */
+    protected static final String SEARCH_STOP_PARAMETER = "searchNewLineUntil";
+
     private final Source source;
 
     protected final Charset charset;
@@ -371,11 +376,6 @@ public class LargeText {
         // fall back to original start.
         return start;
     }
-
-    /**
-     * For multipart/form-data streaming mode: Enable searching for the first new line character after the provided ?start and abort searching at the given position.
-     */
-    protected static final String SEARCH_STOP_PARAMETER = "searchNewLineUntil";
 
     private void doProgressTextStreaming(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException {
         setContentType(rsp);
