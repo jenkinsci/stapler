@@ -27,34 +27,78 @@
 package org.kohsuke.stapler.framework.io;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.kohsuke.stapler.framework.io.LargeText.SEARCH_STOP_PARAMETER;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.zip.GZIPOutputStream;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.jvnet.hudson.test.Issue;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.test.AbstractStaplerTestV4;
+import org.mockito.stubbing.Answer;
 
 public class LargeTextTest extends AbstractStaplerTestV4 {
+    String contentType = null;
     ByteArrayOutputStream responseBAOS = new ByteArrayOutputStream();
+
+    private void expectStreamingResponse(String text, String meta) {
+        expectStreamingResponse("text/plain;charset=UTF-8", text, meta);
+    }
+
+    private void expectStreamingResponse(String ct, String text, String meta) {
+        String body = responseBAOS.toString();
+        assertTrue(contentType.matches("^multipart/form-data;boundary=[a-f0-9-]{36}$"));
+        String boundary = contentType.substring(29, 29 + 36);
+        assertEquals(
+                "--" + boundary + "\r\n" // start of first part
+                        + "Content-Disposition: form-data;name=text\r\n"
+                        + "Content-Type: " + ct + "\r\n"
+                        + "\r\n" // start of body
+                        + text
+                        + "\r\n--" + boundary + "\r\n" // start of next part
+                        + "Content-Disposition: form-data;name=meta\r\n"
+                        + "Content-Type: application/json;charset=utf-8\r\n"
+                        + "\r\n" // start of body
+                        + meta
+                        + "\r\n--" + boundary + "--", // end of last part
+                body);
+    }
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         responseBAOS.reset();
         when(rawResponse.getWriter()).thenReturn(new PrintWriter(responseBAOS));
+
+        // wire up the setter and getter for Content-Type
+        doAnswer(invocationOnMock -> {
+                    contentType = invocationOnMock.getArgument(0);
+                    return null;
+                })
+                .when(rawResponse)
+                .setContentType(anyString());
+        when(rawResponse.getContentType()).thenAnswer((Answer<String>) invocationOnMock -> contentType);
     }
 
     @Issue("JENKINS-37664")
@@ -262,5 +306,291 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
 
         t.doProgressText(request, response);
         assertEquals(text.substring(0, stop), responseBAOS.toString());
+    }
+
+    @Test
+    public void doProgressTextStreaming() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse(text, """
+                {"completed":true,"start":0,"end":12}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingNext() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        when(request.getParameter("start")).thenReturn("6");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse("World!", """
+                {"completed":true,"start":6,"end":12}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingEnd() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        when(request.getParameter("start")).thenReturn("12");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse("", """
+                {"completed":true,"start":12,"end":12}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingExtraMetadata() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true) {
+            @Override
+            public long writeLogTo(long start, OutputStream out) throws IOException {
+                long r = super.writeLogTo(start, out);
+                putStreamingMeta("foo", "42");
+                putStreamingMeta("bar", "1337");
+                return r;
+            }
+        };
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse(
+                text, """
+                {"completed":true,"start":0,"foo":"42","bar":"1337","end":12}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingHTML() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true) {
+            @Override
+            protected void setContentType(StaplerResponse2 rsp) {
+                rsp.setContentType("text/html; charset=utf-8");
+            }
+        };
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse(
+                "text/html; charset=utf-8", text, """
+                {"completed":true,"start":0,"end":12}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingBadContentType() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true) {
+            @Override
+            protected void setContentType(StaplerResponse2 rsp) {
+                rsp.setContentType("text/plain; charset=utf-8\r\nFoo: bar");
+            }
+        };
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        try {
+            t.doProgressText(request, response);
+            fail("should have thrown");
+        } catch (IOException e) {
+            assertEquals("Found CR/LF in Content-Type. Aborting streaming mode", e.getMessage());
+        }
+    }
+
+    @Test
+    public void doProgressTextStreamingRollOver() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        when(request.getParameter("start")).thenReturn("100");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse(text, """
+                {"completed":true,"start":0,"end":12}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingTailSmall() throws Exception {
+        String text = "Hello\nWorld!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        when(request.getParameter("start")).thenReturn("-100");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse(text, """
+                {"completed":true,"start":0,"end":12}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingTailFindLF() throws Exception {
+        String text = "Hello\nWorld!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        when(request.getParameter("start")).thenReturn("-8");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse(
+                "World!", """
+                {"completed":true,"startFromNewLine":true,"start":6,"end":12}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingTailNoLF() throws Exception {
+        String text = "Hello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        when(request.getParameter("start")).thenReturn("-8");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse("o World!", """
+                {"completed":true,"start":4,"end":12}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingTailLarge() throws Exception {
+        String text = "x".repeat(9999) + "\nHello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        when(request.getParameter("start")).thenReturn("-10000");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse(
+                "Hello World!",
+                """
+                        {"completed":true,"startFromNewLine":true,"start":10000,"end":10012}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingFetchMoreEdge() throws Exception {
+        String text = "x".repeat(9999) + "\nHello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        when(request.getParameter("start")).thenReturn("100");
+        when(request.getParameter(SEARCH_STOP_PARAMETER)).thenReturn("10000");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse(text.substring(100), """
+                {"completed":true,"start":100,"end":10012}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingFetchMoreLF() throws Exception {
+        String text = "x".repeat(9999) + "\nHello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        when(request.getParameter("start")).thenReturn("100");
+        when(request.getParameter(SEARCH_STOP_PARAMETER)).thenReturn("10002");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse(
+                "Hello World!",
+                """
+                        {"completed":true,"startFromNewLine":true,"start":10000,"end":10012}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingFetchMoreNoLF() throws Exception {
+        String text = "x".repeat(9999) + "\nHello World!";
+        ByteBuffer bb = new ByteBuffer();
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        when(request.getParameter("start")).thenReturn("100");
+        when(request.getParameter(SEARCH_STOP_PARAMETER)).thenReturn("200");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse(text.substring(100), """
+                {"completed":true,"start":100,"end":10012}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingTailRolledOver() throws Exception {
+        String text = "Hello\nWorld!";
+        ByteBuffer bb = new ByteBuffer() {
+            @Override
+            public synchronized long length() {
+                return super.length() + 100;
+            }
+        };
+        bb.write(text.getBytes(), 0, text.length());
+        LargeText t = new LargeText(bb, true);
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        when(request.getParameter("start")).thenReturn("-8");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse(text, """
+                {"completed":true,"start":0,"end":12}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingMissing() throws Exception {
+        // Create a temporary file to ensure that the given name does not exist.
+        File missing = Files.createTempFile("stapler-test-missing", ".txt").toFile();
+        assertTrue(missing.delete());
+        assertFalse(missing.exists());
+
+        LargeText t = new LargeText(missing, true);
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        when(request.getParameter("start")).thenReturn("-8");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse("", """
+                {"completed":true,"start":0,"end":0}""");
+    }
+
+    @Test
+    public void doProgressTextStreamingInfinite() throws Exception {
+        ByteBuffer bb = new ByteBuffer() {
+            @Override
+            public InputStream newInputStream() {
+                return new InputStream() {
+                    @Override
+                    public int read() throws IOException {
+                        return 'x';
+                    }
+
+                    @Override
+                    public int read(@NonNull byte[] b) {
+                        Arrays.fill(b, (byte) 'x');
+                        return b.length;
+                    }
+                };
+            }
+        };
+        bb.write(42); // populate the initial byte to trigger streaming.
+        LargeText t = new LargeText(bb, false);
+        when(request.getHeader("Accept")).thenReturn("multipart/form-data");
+        when(request.getParameter("start")).thenReturn("0");
+
+        t.doProgressText(request, response);
+        expectStreamingResponse("x", """
+                {"completed":false,"start":0,"end":1}""");
     }
 }
