@@ -36,12 +36,11 @@ import java.util.List;
 import java.util.Set;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.fileupload2.core.FileItem;
 import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.json.SubmittedForm;
 import org.kohsuke.stapler.lang.Klass;
+import org.springframework.beans.BeanUtils;
 
 /**
  * Defines additional parameters/operations made available by Stapler.
@@ -269,9 +268,9 @@ public interface StaplerRequest2 extends HttpServletRequest {
      * be simply ignored.
      *
      * <p>
-     * Values are converted into the right type. See {@link ConvertUtils#convert(String, Class)}.
+     * Values are converted into the right type using Spring's conversion service.
      *
-     * @see BeanUtils#setProperty(Object, String, Object)
+     * @see BeanUtils#copyProperties(Object, Object)
      *
      * @param bean
      *      The object which will be filled out.
