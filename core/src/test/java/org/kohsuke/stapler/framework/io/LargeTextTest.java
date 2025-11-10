@@ -369,8 +369,7 @@ class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getHeader("Accept")).thenReturn("multipart/form-data");
 
         t.doProgressText(request, response);
-        expectStreamingResponse(
-                text, """
+        expectStreamingResponse(text, """
                 {"completed":true,"start":0,"foo":"42","bar":"1337","end":12}""");
     }
 
@@ -388,8 +387,7 @@ class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getHeader("Accept")).thenReturn("multipart/form-data");
 
         t.doProgressText(request, response);
-        expectStreamingResponse(
-                "text/html; charset=utf-8", text, """
+        expectStreamingResponse("text/html; charset=utf-8", text, """
                 {"completed":true,"start":0,"end":12}""");
     }
 
@@ -451,8 +449,7 @@ class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getParameter("start")).thenReturn("-8");
 
         t.doProgressText(request, response);
-        expectStreamingResponse(
-                "World!", """
+        expectStreamingResponse("World!", """
                 {"completed":true,"startFromNewLine":true,"start":6,"end":12}""");
     }
 
@@ -480,9 +477,7 @@ class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getParameter("start")).thenReturn("-10000");
 
         t.doProgressText(request, response);
-        expectStreamingResponse(
-                "Hello World!",
-                """
+        expectStreamingResponse("Hello World!", """
                         {"completed":true,"startFromNewLine":true,"start":10000,"end":10012}""");
     }
 
@@ -512,9 +507,7 @@ class LargeTextTest extends AbstractStaplerTestV4 {
         when(request.getParameter(SEARCH_STOP_PARAMETER)).thenReturn("10002");
 
         t.doProgressText(request, response);
-        expectStreamingResponse(
-                "Hello World!",
-                """
+        expectStreamingResponse("Hello World!", """
                         {"completed":true,"startFromNewLine":true,"start":10000,"end":10012}""");
     }
 
