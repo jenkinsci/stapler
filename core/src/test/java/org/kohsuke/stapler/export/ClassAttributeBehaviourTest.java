@@ -1,17 +1,17 @@
 package org.kohsuke.stapler.export;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Kohsuke Kawaguchi
  */
-public class ClassAttributeBehaviourTest {
+class ClassAttributeBehaviourTest {
 
     private ExportConfig config = new ExportConfig().withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
 
@@ -30,6 +30,7 @@ public class ClassAttributeBehaviourTest {
         @Exported
         public int y;
 
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public Point(int x, int y) {
             this.x = x;
             this.y = y;
@@ -41,6 +42,7 @@ public class ClassAttributeBehaviourTest {
         @Exported
         public int z;
 
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public Point3D(int x, int y, int z) {
             super(x, y);
             this.z = z;
@@ -51,7 +53,7 @@ public class ClassAttributeBehaviourTest {
      * Point type is inferred in the array but Point3D needs to be explicit
      */
     @Test
-    public void arrayItem() throws Exception {
+    void arrayItem() throws Exception {
         String s = write(new ArrayItem());
         assertEquals("{'_class':'ArrayItem','foo':[{'x':1,'y':2},{'_class':'Point3D','x':4,'y':5,'z':6}]}", s);
     }
@@ -66,7 +68,7 @@ public class ClassAttributeBehaviourTest {
      * Infer collection item type from generics
      */
     @Test
-    public void collectionItem() throws Exception {
+    void collectionItem() throws Exception {
         String s = write(new CollectionItem());
         assertEquals("{'_class':'CollectionItem','foo':[{'x':1,'y':2},{'_class':'Point3D','x':4,'y':5,'z':6}]}", s);
     }
@@ -81,7 +83,7 @@ public class ClassAttributeBehaviourTest {
      * Infer collection item type from generics
      */
     @Test
-    public void collectionItemWithTypeVariable() throws Exception {
+    void collectionItemWithTypeVariable() throws Exception {
         String s = write(new CollectionItemWithTypeVariable());
         assertEquals(
                 "{'_class':'CollectionItemWithTypeVariable','foo':[{'x':1,'y':2},{'_class':'Point3D','x':4,'y':5,'z':6}],'goo':[{'x':9,'y':8},{'_class':'Point3D','x':7,'y':6,'z':5}]}",

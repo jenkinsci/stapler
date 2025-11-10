@@ -1,22 +1,28 @@
 package org.kohsuke.stapler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import jakarta.servlet.ServletException;
 import java.util.Collections;
 import java.util.List;
-import junit.framework.TestCase;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the instantiation of nested objects.
  *
  * @author Kohsuke Kawaguchi
  */
-public class NestedJsonTest extends TestCase {
+class NestedJsonTest {
+
     public static final class Foo {
         public Bar bar;
 
         @DataBoundConstructor
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public Foo(Bar bar) {
             this.bar = bar;
         }
@@ -28,33 +34,37 @@ public class NestedJsonTest extends TestCase {
         public final int i;
 
         @DataBoundConstructor
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public BarImpl(int i) {
             this.i = i;
         }
     }
 
-    public void testCreateObject() throws Exception {
+    @Test
+    void testCreateObject() throws Exception {
         Foo o = createRequest().bindJSON(Foo.class, createDataSet());
 
         assertNotNull(o);
-        assertTrue(o.bar instanceof BarImpl);
+        assertInstanceOf(BarImpl.class, o.bar);
         assertEquals(123, ((BarImpl) o.bar).i);
     }
 
-    public void testInstanceFill() throws Exception {
+    @Test
+    void testInstanceFill() throws Exception {
         Foo o = new Foo(null);
         createRequest().bindJSON(o, createDataSet());
 
-        assertTrue(o.bar instanceof BarImpl);
+        assertInstanceOf(BarImpl.class, o.bar);
         assertEquals(123, ((BarImpl) o.bar).i);
     }
 
-    public void testCreateList() throws Exception {
+    @Test
+    void testCreateList() throws Exception {
         // Just one
         List<Foo> list = createRequest().bindJSONToList(Foo.class, createDataSet());
         assertNotNull(list);
         assertEquals(1, list.size());
-        assertTrue(list.get(0).bar instanceof BarImpl);
+        assertInstanceOf(BarImpl.class, list.get(0).bar);
         assertEquals(123, ((BarImpl) list.get(0).bar).i);
 
         // Longer list

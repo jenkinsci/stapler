@@ -23,16 +23,16 @@
 
 package org.kohsuke.stapler;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.URL;
 import java.net.URLClassLoader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class MetaClassLoaderTest {
+class MetaClassLoaderTest {
 
     @Test
-    public void inheritanceAndCaching() {
+    void inheritanceAndCaching() {
         ClassLoader cl1 = new URLClassLoader(new URL[0]);
         ClassLoader cl2 = new URLClassLoader(new URL[0], cl1);
         ClassLoader cl3 = new URLClassLoader(new URL[0], cl2);

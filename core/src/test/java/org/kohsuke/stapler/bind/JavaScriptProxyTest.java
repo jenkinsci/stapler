@@ -1,12 +1,14 @@
 package org.kohsuke.stapler.bind;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import org.htmlunit.AlertHandler;
-import org.htmlunit.Page;
 import org.htmlunit.WebClient;
 import org.htmlunit.html.HtmlPage;
+import org.junit.jupiter.api.Test;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerRequest2;
@@ -17,14 +19,15 @@ import org.kohsuke.stapler.test.JettyTestCase;
 /**
  * @author Kohsuke Kawaguchi
  */
-public class JavaScriptProxyTest extends JettyTestCase {
+class JavaScriptProxyTest extends JettyTestCase {
     private String anonymousValue;
     private Object anonymous = new MyObject();
 
     /**
      * Exports an object and see if it can be reached.
      */
-    public void testBind() throws Exception {
+    @Test
+    void testBind() throws Exception {
         final String[] msg = new String[1];
 
         // for interactive debugging
@@ -32,12 +35,7 @@ public class JavaScriptProxyTest extends JettyTestCase {
         //        System.in.read();
 
         WebClient wc = createWebClient();
-        wc.setAlertHandler(new AlertHandler() {
-            @Override
-            public void handleAlert(Page page, String message) {
-                msg[0] = message;
-            }
-        });
+        wc.setAlertHandler((AlertHandler) (page, message) -> msg[0] = message);
         HtmlPage page = wc.getPage(new URL(url, "/"));
 
         page.executeJavaScript("v.foo(3,'test',callback);");
@@ -56,7 +54,8 @@ public class JavaScriptProxyTest extends JettyTestCase {
     /**
      * Tests that an anonymous object can be bound.
      */
-    public void testAnonymousBind() throws Exception {
+    @Test
+    void testAnonymousBind() throws Exception {
         WebClient wc = createWebClient();
         HtmlPage page = wc.getPage(new URL(url, "/bindAnonymous"));
         page.executeJavaScript("v.xyz('hello');");

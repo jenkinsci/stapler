@@ -1,5 +1,9 @@
 package org.kohsuke.stapler.interceptor;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
@@ -9,9 +13,9 @@ import java.util.Map;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONSerializer;
 import org.htmlunit.AlertHandler;
-import org.htmlunit.Page;
 import org.htmlunit.WebClient;
 import org.htmlunit.html.HtmlPage;
+import org.junit.jupiter.api.Test;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerResponse2;
@@ -24,17 +28,13 @@ import org.kohsuke.stapler.test.JettyTestCase;
  *
  * @author Robert Sandell &lt;sandell.robert@gmail.com&gt;
  */
-public class JsonOutputFilterTest extends JettyTestCase {
+class JsonOutputFilterTest extends JettyTestCase {
 
-    public void testExclude() throws Exception {
+    @Test
+    void testExclude() throws Exception {
         final String[] msg = new String[1];
         WebClient wc = createWebClient();
-        wc.setAlertHandler(new AlertHandler() {
-            @Override
-            public void handleAlert(Page page, String message) {
-                msg[0] = message;
-            }
-        });
+        wc.setAlertHandler((AlertHandler) (page, message) -> msg[0] = message);
         HtmlPage page = wc.getPage(new URL(url, "/"));
 
         page.executeJavaScript("v.getSomeExcludedData(callback);");
@@ -47,15 +47,11 @@ public class JsonOutputFilterTest extends JettyTestCase {
         assertFalse(json.containsKey("secret"));
     }
 
-    public void testInclude() throws Exception {
+    @Test
+    void testInclude() throws Exception {
         final String[] msg = new String[1];
         WebClient wc = createWebClient();
-        wc.setAlertHandler(new AlertHandler() {
-            @Override
-            public void handleAlert(Page page, String message) {
-                msg[0] = message;
-            }
-        });
+        wc.setAlertHandler((AlertHandler) (page, message) -> msg[0] = message);
         HtmlPage page = wc.getPage(new URL(url, "/"));
 
         page.executeJavaScript("v.getSomeIncludedData(callback);");
@@ -68,15 +64,11 @@ public class JsonOutputFilterTest extends JettyTestCase {
         assertFalse(json.containsKey("secret"));
     }
 
-    public void testExcludeList() throws Exception {
+    @Test
+    void testExcludeList() throws Exception {
         final String[] msg = new String[1];
         WebClient wc = createWebClient();
-        wc.setAlertHandler(new AlertHandler() {
-            @Override
-            public void handleAlert(Page page, String message) {
-                msg[0] = message;
-            }
-        });
+        wc.setAlertHandler((AlertHandler) (page, message) -> msg[0] = message);
         HtmlPage page = wc.getPage(new URL(url, "/"));
 
         page.executeJavaScript("v.getSomeExcludedList(callback);");
@@ -133,6 +125,7 @@ public class JsonOutputFilterTest extends JettyTestCase {
         private String description;
         private String secret;
 
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public MyData(String name, String description, String secret) {
             this.name = name;
             this.description = description;

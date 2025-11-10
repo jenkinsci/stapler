@@ -26,38 +26,35 @@
 
 package org.kohsuke.stapler;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import net.sf.json.JSONArray;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class HttpResponseRendererTest {
+class HttpResponseRendererTest {
 
     @Test
-    public void quoteSimple() {
+    void quoteSimple() {
         testQuoteOn("foo");
     }
 
     @Test
-    public void quoteBackslash() {
+    void quoteBackslash() {
         testQuoteOn("to sleep \\ perchance to dream");
     }
 
     @Test
-    public void quoteQuotes() {
+    void quoteQuotes() {
         testQuoteOn("this \"thing\" should work");
     }
 
     @Test
-    public void quoteNewlines() {
+    void quoteNewlines() {
         testQuoteOn("one line\nsecond line");
     }
 
     private static void testQuoteOn(String text) {
         String quoted = HttpResponseRenderer.quote(text);
-        assertEquals(
-                text + " → " + quoted,
-                text,
-                JSONArray.fromObject("[" + quoted + "]").getString(0));
+        assertEquals(text, JSONArray.fromObject("[" + quoted + "]").getString(0), text + " → " + quoted);
     }
 }

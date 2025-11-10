@@ -26,21 +26,26 @@
 
 package org.kohsuke.stapler;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.net.URL;
 import org.htmlunit.FailingHttpStatusCodeException;
 import org.htmlunit.WebClient;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.For;
 import org.jvnet.hudson.test.Issue;
 import org.kohsuke.stapler.test.JettyTestCase;
 
 @For(Stapler.class) // but StaplerTest is not a JettyTestCase
-public class Stapler2Test extends JettyTestCase {
+class Stapler2Test extends JettyTestCase {
 
     @Issue("SECURITY-390")
-    public void testTraceXSS() {
+    @Test
+    void testTraceXSS() {
         WebClient wc = createWebClient();
         FailingHttpStatusCodeException exc;
         Dispatcher.TRACE = true;
@@ -53,8 +58,8 @@ public class Stapler2Test extends JettyTestCase {
         }
         assertEquals(HttpServletResponse.SC_NOT_FOUND, exc.getStatusCode());
         String html = exc.getResponse().getContentAsString();
-        assertTrue(html, html.contains("&lt;button&gt;"));
-        assertFalse(html, html.contains("<button>"));
+        assertTrue(html.contains("&lt;button&gt;"), html);
+        assertFalse(html.contains("<button>"), html);
     }
 
     public Object getThing(String name) {

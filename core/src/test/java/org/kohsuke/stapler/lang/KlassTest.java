@@ -1,18 +1,19 @@
 package org.kohsuke.stapler.lang;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.kohsuke.stapler.Function;
 
 /**
  * Contains tests for {@link Klass}.
  * @author Oleg Nenashev.
  */
-public class KlassTest {
+class KlassTest {
 
     @Test
-    public void shouldProperlyAccessJavaDeclaredMethods() throws Exception {
+    void shouldProperlyAccessJavaDeclaredMethods() throws Exception {
         final Klass<Class> classInstance = Klass.java(FooClass.class);
         final List<MethodRef> declaredFunctions = classInstance.getDeclaredMethods();
         for (MethodRef ref : declaredFunctions) {
@@ -21,11 +22,11 @@ public class KlassTest {
                 return;
             }
         }
-        Assert.fail("Have not found the 'doDynamic' declared method for FooClass");
+        fail("Have not found the 'doDynamic' declared method for FooClass");
     }
 
     @Test
-    public void shouldProperlyAccessJavaDeclaredFields() throws Exception {
+    void shouldProperlyAccessJavaDeclaredFields() throws Exception {
         final Klass<Class> classInstance = Klass.java(FooClass.class);
         final List<FieldRef> declaredFields = classInstance.getDeclaredFields();
         for (FieldRef ref : declaredFields) {
@@ -34,11 +35,11 @@ public class KlassTest {
                 return;
             }
         }
-        Assert.fail("Have not found 'fooField' in the returned field list");
+        fail("Have not found 'fooField' in the returned field list");
     }
 
     @Test
-    public void shouldProperlyAccessJavaDeclaredFunctions() throws Exception {
+    void shouldProperlyAccessJavaDeclaredFunctions() throws Exception {
         final Klass<Class> classInstance = Klass.java(FooClass.class);
         final List<Function> declaredFunctions = classInstance.getFunctions();
         for (Function ref : declaredFunctions) {
@@ -47,7 +48,7 @@ public class KlassTest {
                 return;
             }
         }
-        Assert.fail("Have not found 'doDynamic' function for FooClass");
+        fail("Have not found 'doDynamic' function for FooClass");
     }
 
     private static final class FooClass {

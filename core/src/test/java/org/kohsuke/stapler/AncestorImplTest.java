@@ -1,13 +1,17 @@
 package org.kohsuke.stapler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.net.URL;
 import org.htmlunit.WebClient;
+import org.junit.jupiter.api.Test;
 import org.kohsuke.stapler.test.JettyTestCase;
 
 /**
  * @author Kohsuke Kawaguchi
  */
-public class AncestorImplTest extends JettyTestCase {
+class AncestorImplTest extends JettyTestCase {
+
     public Object testRestOfUrl = new Foo();
 
     class Foo {
@@ -24,7 +28,8 @@ public class AncestorImplTest extends JettyTestCase {
     }
 
     // issue 34
-    public void testRestOfUrl() throws Exception {
+    @Test
+    void testRestOfUrl() throws Exception {
         WebClient wc = createWebClient();
         wc.getPage(new URL(url, "testRestOfUrl/bar/zot"));
     }

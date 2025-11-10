@@ -5,7 +5,8 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.kohsuke.stapler.test.AbstractStaplerTest;
 import org.mockito.Mockito;
 
@@ -16,7 +17,7 @@ import org.mockito.Mockito;
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class AbstractStaplerTestBase extends TestCase {
+public abstract class AbstractStaplerTestBase {
 
     protected WebApp webApp;
     protected RequestImpl request;
@@ -25,9 +26,8 @@ public abstract class AbstractStaplerTestBase extends TestCase {
     protected HttpServletRequest rawRequest;
     protected HttpServletResponse rawResponse;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeEach
+    protected void beforeEach() throws Exception {
         ServletContext servletContext = Mockito.mock(ServletContext.class);
 
         webApp = new WebApp(servletContext);
@@ -46,9 +46,8 @@ public abstract class AbstractStaplerTestBase extends TestCase {
         Stapler.CURRENT_RESPONSE.set(this.response);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @AfterEach
+    protected void afterEach() throws Exception {
         Stapler.CURRENT_REQUEST.remove();
         Stapler.CURRENT_RESPONSE.remove();
     }
