@@ -26,10 +26,10 @@
 
 package org.kohsuke.stapler.framework.io;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.kohsuke.stapler.framework.io.LargeText.SEARCH_STOP_PARAMETER;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -51,16 +51,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.zip.GZIPOutputStream;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.Issue;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.test.AbstractStaplerTestV4;
 import org.mockito.stubbing.Answer;
 
-public class LargeTextTest extends AbstractStaplerTestV4 {
-    String contentType = null;
-    ByteArrayOutputStream responseBAOS = new ByteArrayOutputStream();
+class LargeTextTest extends AbstractStaplerTestV4 {
+
+    private String contentType = null;
+    private ByteArrayOutputStream responseBAOS = new ByteArrayOutputStream();
 
     private void expectStreamingResponse(String text, String meta) {
         expectStreamingResponse("text/plain;charset=UTF-8", text, meta);
@@ -86,8 +88,9 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Override
-    public void setUp() throws Exception {
-        super.setUp();
+    @BeforeEach
+    protected void beforeEach() throws Exception {
+        super.beforeEach();
         responseBAOS.reset();
         when(rawResponse.getWriter()).thenReturn(new PrintWriter(responseBAOS));
 
@@ -103,27 +106,27 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
 
     @Issue("JENKINS-37664")
     @Test
-    public void writeLogToFromByteBuffer() throws Exception {
+    void writeLogToFromByteBuffer() throws Exception {
         writeLogToWith(byteBuffer());
     }
 
     @Test
-    public void writeLogToFromInterface() throws Exception {
+    void writeLogToFromInterface() throws Exception {
         writeLogToWith(interfaceBased());
     }
 
     @Test
-    public void writeLogToFromFile() throws Exception {
+    void writeLogToFromFile() throws Exception {
         writeLogToWith(file());
     }
 
     @Test
-    public void writeLogToFromFileWithGzipDetection() throws Exception {
+    void writeLogToFromFileWithGzipDetection() throws Exception {
         writeLogToWith(fileWithGzipDetection());
     }
 
     @Test
-    public void writeLogToFromGzFile() throws Exception {
+    void writeLogToFromGzFile() throws Exception {
         writeLogToWith(gzFile());
     }
 
@@ -263,8 +266,8 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
 
     @Issue("#141")
     @Test
-    @Ignore
-    public void writeLogToWithLargeFile() throws Exception {
+    @Disabled
+    void writeLogToWithLargeFile() throws Exception {
         Path path = Files.createTempFile("stapler-test", ".log");
         try {
             long size = Integer.MAX_VALUE + 256L;
@@ -292,7 +295,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextLimited() throws Exception {
+    void doProgressTextLimited() throws Exception {
         String text = "Hello World!";
         final int stop = text.length() - 1;
         ByteBuffer bb = new ByteBuffer() {
@@ -309,7 +312,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreaming() throws Exception {
+    void doProgressTextStreaming() throws Exception {
         String text = "Hello World!";
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
@@ -322,7 +325,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingNext() throws Exception {
+    void doProgressTextStreamingNext() throws Exception {
         String text = "Hello World!";
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
@@ -336,7 +339,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingEnd() throws Exception {
+    void doProgressTextStreamingEnd() throws Exception {
         String text = "Hello World!";
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
@@ -350,7 +353,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingExtraMetadata() throws Exception {
+    void doProgressTextStreamingExtraMetadata() throws Exception {
         String text = "Hello World!";
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
@@ -372,7 +375,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingHTML() throws Exception {
+    void doProgressTextStreamingHTML() throws Exception {
         String text = "Hello World!";
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
@@ -391,7 +394,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingBadContentType() throws Exception {
+    void doProgressTextStreamingBadContentType() throws Exception {
         String text = "Hello World!";
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
@@ -411,7 +414,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingRollOver() throws Exception {
+    void doProgressTextStreamingRollOver() throws Exception {
         String text = "Hello World!";
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
@@ -425,7 +428,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingTailSmall() throws Exception {
+    void doProgressTextStreamingTailSmall() throws Exception {
         String text = "Hello\nWorld!";
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
@@ -439,7 +442,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingTailFindLF() throws Exception {
+    void doProgressTextStreamingTailFindLF() throws Exception {
         String text = "Hello\nWorld!";
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
@@ -454,7 +457,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingTailNoLF() throws Exception {
+    void doProgressTextStreamingTailNoLF() throws Exception {
         String text = "Hello World!";
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
@@ -468,7 +471,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingTailLarge() throws Exception {
+    void doProgressTextStreamingTailLarge() throws Exception {
         String text = "x".repeat(9999) + "\nHello World!";
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
@@ -484,7 +487,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingFetchMoreEdge() throws Exception {
+    void doProgressTextStreamingFetchMoreEdge() throws Exception {
         String text = "x".repeat(9999) + "\nHello World!";
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
@@ -499,7 +502,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingFetchMoreLF() throws Exception {
+    void doProgressTextStreamingFetchMoreLF() throws Exception {
         String text = "x".repeat(9999) + "\nHello World!";
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
@@ -516,7 +519,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingFetchMoreNoLF() throws Exception {
+    void doProgressTextStreamingFetchMoreNoLF() throws Exception {
         String text = "x".repeat(9999) + "\nHello World!";
         ByteBuffer bb = new ByteBuffer();
         bb.write(text.getBytes(), 0, text.length());
@@ -531,7 +534,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingTailRolledOver() throws Exception {
+    void doProgressTextStreamingTailRolledOver() throws Exception {
         String text = "Hello\nWorld!";
         ByteBuffer bb = new ByteBuffer() {
             @Override
@@ -550,7 +553,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingMissing() throws Exception {
+    void doProgressTextStreamingMissing() throws Exception {
         // Create a temporary file to ensure that the given name does not exist.
         File missing = Files.createTempFile("stapler-test-missing", ".txt").toFile();
         assertTrue(missing.delete());
@@ -566,7 +569,7 @@ public class LargeTextTest extends AbstractStaplerTestV4 {
     }
 
     @Test
-    public void doProgressTextStreamingInfinite() throws Exception {
+    void doProgressTextStreamingInfinite() throws Exception {
         ByteBuffer bb = new ByteBuffer() {
             @Override
             public InputStream newInputStream() {

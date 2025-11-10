@@ -1,22 +1,27 @@
 package org.kohsuke.stapler.jelly.issue76;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.net.URL;
 import org.htmlunit.TextPage;
 import org.htmlunit.WebClient;
 import org.htmlunit.html.HtmlPage;
+import org.junit.jupiter.api.Test;
 import org.kohsuke.stapler.test.JettyTestCase;
 
 /**
  * @author Kohsuke Kawaguchi
  */
-public class Issue76Test extends JettyTestCase {
+class Issue76Test extends JettyTestCase {
     // bound to /robot
     public final Robot robot = new Robot();
 
     // protected version of /robot which mimics the URL structure but tweaks its routes
     public final Protection protectedRobot = new Protection(robot);
 
-    public void testRouting() throws Exception {
+    @Test
+    void testRouting() throws Exception {
         WebClient wc = createWebClient();
         HtmlPage p = wc.getPage(new URL(url, "robot/head/eye/3/"));
         assertTrue(p.getWebResponse().getContentAsString().contains("This is eye 3"));

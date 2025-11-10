@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
-import junit.framework.TestCase;
 import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.eclipse.jetty.ee9.webapp.WebAppContext;
@@ -16,6 +15,8 @@ import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.htmlunit.WebClient;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.WebApp;
 
@@ -28,7 +29,7 @@ import org.kohsuke.stapler.WebApp;
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class JettyTestCase extends TestCase {
+public abstract class JettyTestCase {
     protected Server server;
     /**
      * The top URL of this test web application.
@@ -39,9 +40,8 @@ public abstract class JettyTestCase extends TestCase {
     protected ServletContext servletContext;
     protected WebApp webApp;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeEach
+    protected void beforeEach() throws Exception {
         server = new Server();
 
         server.setHandler(new WebAppContext("/noroot", ""));
@@ -101,9 +101,8 @@ public abstract class JettyTestCase extends TestCase {
         new BufferedReader(new InputStreamReader(System.in, Charset.defaultCharset())).readLine();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @AfterEach
+    protected void afterEach() throws Exception {
         server.stop();
     }
 }

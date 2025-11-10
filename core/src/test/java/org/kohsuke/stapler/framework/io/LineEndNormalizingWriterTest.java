@@ -1,40 +1,46 @@
 package org.kohsuke.stapler.framework.io;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Kohsuke Kawaguchi
  */
-public class LineEndNormalizingWriterTest extends TestCase {
-    public void test1() throws IOException {
+class LineEndNormalizingWriterTest {
+
+    @Test
+    void test1() throws IOException {
         StringWriter sw = new StringWriter();
         Writer w = new LineEndNormalizingWriter(sw);
 
         w.write("abc\r\ndef\r");
         w.write("\n");
 
-        assertEquals(sw.toString(), "abc\r\ndef\r\n");
+        assertEquals("abc\r\ndef\r\n", sw.toString());
     }
 
-    public void test2() throws IOException {
+    @Test
+    void test2() throws IOException {
         StringWriter sw = new StringWriter();
         Writer w = new LineEndNormalizingWriter(sw);
 
         w.write("abc\ndef\n");
         w.write("\n");
 
-        assertEquals(sw.toString(), "abc\r\ndef\r\n\r\n");
+        assertEquals("abc\r\ndef\r\n\r\n", sw.toString());
     }
 
-    public void test3() throws IOException {
+    @Test
+    void test3() throws IOException {
         StringWriter sw = new StringWriter();
         Writer w = new LineEndNormalizingWriter(sw);
 
         w.write("\r\n\n");
 
-        assertEquals(sw.toString(), "\r\n\r\n");
+        assertEquals("\r\n\r\n", sw.toString());
     }
 }

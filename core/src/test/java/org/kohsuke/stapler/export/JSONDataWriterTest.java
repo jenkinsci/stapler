@@ -2,17 +2,18 @@ package org.kohsuke.stapler.export;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 import net.sf.json.JSONObject;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-public class JSONDataWriterTest {
+class JSONDataWriterTest {
+
     private ExportConfig config =
             new ExportConfig().withFlavor(Flavor.JSON).withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
 
@@ -41,7 +42,7 @@ public class JSONDataWriterTest {
     }
 
     @Test
-    public void testSimpleUsage() throws Exception {
+    void testSimpleUsage() throws Exception {
         assertEquals("{\"_class\":\"X\",\"a\":\"aval\",\"c\":\"cval\"}", serialize(new X(), X.class));
     }
 
@@ -73,7 +74,7 @@ public class JSONDataWriterTest {
     }
 
     @Test
-    public void testInheritance() throws Exception {
+    void testInheritance() throws Exception {
         assertEquals(
                 "{\"_class\":\"Container\",\"polymorph\":{\"_class\":\"Sub\",\"basic\":\"super\",\"generic\":\"sub\",\"specific\":\"sub\"}}",
                 serialize(new Container(), Container.class));
@@ -88,20 +89,20 @@ public class JSONDataWriterTest {
     }
 
     @Test
-    public void testEncodedChars() throws Exception {
+    void testEncodedChars() throws Exception {
         assertEquals(
                 "{\"_class\":\"Encoded\",\"bar\":\"\\ud834\\udd1e\",\"foo\":\"\\u0000\"}",
                 serialize(new Encoded(), Encoded.class));
     }
 
     @Test
-    public void testInheritance2() throws Exception { // JENKINS-13336
+    void testInheritance2() throws Exception { // JENKINS-13336
         assertEquals(
                 "{\"_class\":\"Sub2\",\"basic\":\"super\",\"generic\":\"sub2\"}", serialize(new Sub2(), Sub2.class));
     }
 
     @Test
-    public void exceptionHandling() throws IOException {
+    void exceptionHandling() throws IOException {
         assertEquals(
                 "{\"_class\":\"Supers\",\"elements\":[{\"_class\":\"Sub\",\"basic\":\"super\",\"generic\":\"sub\",\"specific\":\"sub\"},{\"_class\":\"Sub2\",\"basic\":\"super\",\"generic\":\"sub2\"}]}",
                 serialize(new Supers(new Sub(), new Broken(), new Sub2()), Supers.class));
@@ -120,13 +121,14 @@ public class JSONDataWriterTest {
         @Exported
         public final List<? extends Super> elements;
 
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public Supers(Super... elements) {
             this.elements = Arrays.asList(elements);
         }
     }
 
     @Test
-    public void JSONObjectWithoutNullValue() throws IOException {
+    void JSONObjectWithoutNullValue() throws IOException {
         String json = "{'key':'value', 'optional':'present'}";
 
         StringWriter w = new StringWriter();
@@ -140,8 +142,8 @@ public class JSONDataWriterTest {
     }
 
     @Test
-    @Ignore
-    public void JSONObjectWithNullValue() throws IOException {
+    @Disabled
+    void JSONObjectWithNullValue() throws IOException {
         String json = "{'key':'value', 'optional':null}";
 
         StringWriter w = new StringWriter();
@@ -158,6 +160,7 @@ public class JSONDataWriterTest {
     public static class ModelWithJsonField {
         private final JSONObject json;
 
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public ModelWithJsonField(String jsonAsString) {
             json = JSONObject.fromObject(jsonAsString.replace('\'', '"'));
         }

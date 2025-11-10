@@ -1,20 +1,20 @@
 package org.kohsuke.stapler.export;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
-public class NamedPathPrunerTest extends TestCase {
+class NamedPathPrunerTest {
 
     private static ExportConfig config =
             new ExportConfig().withFlavor(Flavor.JSON).withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
 
-    public NamedPathPrunerTest(String name) {
-        super(name);
-    }
-
-    public void testParse() {
+    @Test
+    void testParse() {
         assertEquals("{a={}, b={c={}}}", NamedPathPruner.parse("a,b[c]").toString());
         assertEquals("{a={}, b={c={}, d={}}}", NamedPathPruner.parse("a,b[c,d]").toString());
         assertEquals(
@@ -36,15 +36,11 @@ public class NamedPathPrunerTest extends TestCase {
     }
 
     private static void assertParseError(String spec) {
-        try {
-            NamedPathPruner.parse(spec);
-            fail();
-        } catch (IllegalArgumentException x) {
-            // pass
-        }
+        assertThrows(IllegalArgumentException.class, () -> NamedPathPruner.parse(spec));
     }
 
-    public void testPruning() throws Exception {
+    @Test
+    void testPruning() throws Exception {
         Jhob job1 = new Jhob("job1", "Job #1", "whatever");
         Jhob job2 = new Jhob("job2", "Job #2", "junk");
         Vhew view1 = new Vhew("All", "crap", new Jhob[] {job1, job2});
@@ -62,7 +58,8 @@ public class NamedPathPrunerTest extends TestCase {
                 "jobs[name,displayName]{,1},views[name,jobs[name]{,0}]");
     }
 
-    public void testRange() throws Exception {
+    @Test
+    void testRange() throws Exception {
         Jhob[] jobs = new Jhob[100];
         for (int i = 0; i < jobs.length; i++) {
             jobs[i] = new Jhob("job" + i, "aaa", "bbb");
@@ -83,6 +80,7 @@ public class NamedPathPrunerTest extends TestCase {
         @Exported
         public List<Vhew> views;
 
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public Stuff(Jhob[] jobs, List<Vhew> views) {
             this.jobs = jobs.clone();
             this.views = views;
@@ -100,6 +98,7 @@ public class NamedPathPrunerTest extends TestCase {
         @Exported
         public String trash;
 
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public Jhob(String name, String displayName, String trash) {
             this.name = name;
             this.displayName = displayName;
@@ -118,6 +117,7 @@ public class NamedPathPrunerTest extends TestCase {
         @Exported
         public Jhob[] jobs;
 
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public Vhew(String name, String trash, Jhob[] jobs) {
             this.name = name;
             this.trash = trash;

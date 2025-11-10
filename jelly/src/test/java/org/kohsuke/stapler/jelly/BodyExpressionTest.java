@@ -1,5 +1,8 @@
 package org.kohsuke.stapler.jelly;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import hudson.util.VersionNumber;
 import io.jenkins.lib.versionnumber.JavaSpecificationVersion;
 import java.net.URL;
@@ -9,11 +12,13 @@ import org.htmlunit.html.DomNodeList;
 import org.htmlunit.html.HtmlDefinitionDescription;
 import org.htmlunit.html.HtmlDefinitionTerm;
 import org.htmlunit.html.HtmlPage;
+import org.junit.jupiter.api.Test;
 import org.kohsuke.stapler.test.JettyTestCase;
 
-public class BodyExpressionTest extends JettyTestCase {
+class BodyExpressionTest extends JettyTestCase {
 
-    public void testBodyExpression() throws Exception {
+    @Test
+    void testBodyExpression() throws Exception {
         WebClient wc = createWebClient();
         HtmlPage page = wc.getPage(new URL(url, "/"));
 

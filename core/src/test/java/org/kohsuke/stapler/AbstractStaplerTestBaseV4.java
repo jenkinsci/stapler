@@ -1,14 +1,16 @@
 package org.kohsuke.stapler;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.kohsuke.stapler.test.AbstractStaplerTestV4;
-import org.mockito.Mockito;
 
 /**
  * This class needs to be in this package to access package-protected stuff.
@@ -26,18 +28,18 @@ public abstract class AbstractStaplerTestBaseV4 {
     protected HttpServletRequest rawRequest;
     protected HttpServletResponse rawResponse;
 
-    @Before
-    public void setUp() throws Exception {
-        ServletContext servletContext = Mockito.mock(ServletContext.class);
+    @BeforeEach
+    protected void beforeEach() throws Exception {
+        ServletContext servletContext = mock(ServletContext.class);
 
         webApp = new WebApp(servletContext);
 
-        ServletConfig servletConfig = Mockito.mock(ServletConfig.class);
-        Mockito.when(servletConfig.getServletContext()).thenReturn(servletContext);
+        ServletConfig servletConfig = mock(ServletConfig.class);
+        when(servletConfig.getServletContext()).thenReturn(servletContext);
         stapler.init(servletConfig);
 
-        rawRequest = Mockito.mock(HttpServletRequest.class);
-        rawResponse = Mockito.mock(HttpServletResponse.class);
+        rawRequest = mock(HttpServletRequest.class);
+        rawResponse = mock(HttpServletResponse.class);
 
         this.request = new RequestImpl(stapler, rawRequest, new ArrayList<>(), new TokenList(""));
         Stapler.CURRENT_REQUEST.set(this.request);
@@ -46,8 +48,8 @@ public abstract class AbstractStaplerTestBaseV4 {
         Stapler.CURRENT_RESPONSE.set(this.response);
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    protected void afterEach() throws Exception {
         Stapler.CURRENT_REQUEST.remove();
         Stapler.CURRENT_RESPONSE.remove();
     }

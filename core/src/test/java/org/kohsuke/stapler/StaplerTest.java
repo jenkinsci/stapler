@@ -1,15 +1,20 @@
 package org.kohsuke.stapler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Kohsuke Kawaguchi
  */
-public class StaplerTest extends TestCase {
-    public void testNormalization() {
+class StaplerTest {
+
+    @Test
+    void testNormalization() {
         assertIdemPotent("/");
         assertIdemPotent("");
         assertIdemPotent("/foo");
@@ -41,7 +46,8 @@ public class StaplerTest extends TestCase {
         }
     }
 
-    public void testToFileOnWindows() throws Exception {
+    @Test
+    void testToFileOnWindows() throws Exception {
         if (File.pathSeparatorChar == ':') {
             return; // this is Windows only test
         }
@@ -73,7 +79,8 @@ public class StaplerTest extends TestCase {
         }
     }
 
-    public void testToFileOnUnix() throws Exception {
+    @Test
+    void testToFileOnUnix() throws Exception {
         if (File.pathSeparatorChar == ';') {
             return; // this is Unix only test
         }
@@ -92,7 +99,8 @@ public class StaplerTest extends TestCase {
         }
     }
 
-    public void testGetCurrent() throws Exception {
-        assertNull("may be called outside an HTTP handling thread", Stapler.getCurrent());
+    @Test
+    void testGetCurrent() throws Exception {
+        assertNull(Stapler.getCurrent(), "may be called outside an HTTP handling thread");
     }
 }
