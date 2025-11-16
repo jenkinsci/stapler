@@ -24,8 +24,7 @@
 package org.kohsuke.stapler.jelly;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.StringWriter;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyTagException;
@@ -58,6 +57,12 @@ import org.xml.sax.helpers.AttributesImpl;
  * @since 1.342
  */
 public class ReallyStaticTagLibrary extends TagLibrary {
+    /**
+     * Escape hatch to disable writing the script location to the script body.
+     */
+    private static final boolean DISABLE_SCRIPT_BODY_PREFIX =
+            Boolean.getBoolean(ReallyStaticTagLibrary.class.getName() + ".disableScriptBodyPrefix");
+
     /**
      * IIUC, this method will never be invoked.
      */
@@ -101,19 +106,21 @@ public class ReallyStaticTagLibrary extends TagLibrary {
 
                 try {
                     output.startElement(getNsUri(), getLocalName(), getElementName(), actual);
-                    if (getElementName().equals("script")) {
-                        try (Writer writer = output.asWriter()) {
-                            writer.append("/*")
-                                    .append(getFileName()
-                                            .substring(getFileName().length() - 33))
-                                    .append(":")
-                                    .append(String.valueOf(getLineNumber()))
-                                    .append("*/\n");
-                        } catch (IOException e) {
-                            throw new JellyTagException(e);
+                    if (DISABLE_SCRIPT_BODY_PREFIX) {
+                        getTagBody().run(context, output);
+                    } else {
+                        final StringWriter writer = new StringWriter();
+                        // Write the body of the tag to a temporary buffer first to allow adding a prefix in case of
+                        // <script>
+                        XMLOutput bodyOutput = XMLOutput.createXMLOutput(writer);
+                        getTagBody().run(context, bodyOutput);
+                        if (writer.getBuffer().length() > 0 && getLocalName().equals("script")) {
+                            output.write(
+                                    "/*" + getFileName().substring(getFileName().length() - 33) + ":" + getLineNumber()
+                                            + "*/\n");
                         }
+                        output.write(writer.toString());
                     }
-                    getTagBody().run(context, output);
                     output.endElement(getNsUri(), getLocalName(), getElementName());
                 } catch (SAXException x) {
                     throw new JellyTagException(x);
