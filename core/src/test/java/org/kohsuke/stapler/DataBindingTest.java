@@ -1,6 +1,12 @@
 package org.kohsuke.stapler;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.annotation.PostConstruct;
 import java.lang.reflect.Type;
@@ -11,14 +17,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-import junit.framework.TestCase;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Kohsuke Kawaguchi
  */
-public class DataBindingTest extends TestCase {
+class DataBindingTest {
+
     public class Data {
         public int a;
         String myB;
@@ -28,7 +35,8 @@ public class DataBindingTest extends TestCase {
         }
     }
 
-    public void test1() {
+    @Test
+    void test1() {
         JSONObject json = new JSONObject();
         json.put("a", 123);
         json.put("b", "string");
@@ -38,24 +46,23 @@ public class DataBindingTest extends TestCase {
         assertEquals("string", data.myB);
     }
 
-    public void testMismatchingTypes() {
+    @Test
+    void testMismatchingTypes() {
         JSONObject json = new JSONObject();
         json.put("b", new String[] {"v1", "v2"});
-        try {
-            Data data = bind(json, new Data());
-            fail("Should have thrown an IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            assertEquals(
-                    "Error binding field b: Got type array but no lister class found for type class java.lang.String",
-                    e.getMessage());
-        }
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> bind(json, new Data()));
+        assertEquals(
+                "Error binding field b: Got type array but no lister class found for type class java.lang.String",
+                e.getMessage());
     }
 
     public class DataEnumSet {
         public EnumSet<Proxy.Type> set;
     }
 
-    public void testEnumSet() {
+    @Test
+    void testEnumSet() {
         JSONObject json = new JSONObject();
         json.put("DIRECT", false);
         json.put("HTTP", true);
@@ -70,15 +77,16 @@ public class DataBindingTest extends TestCase {
         assertFalse(data.set.contains(Proxy.Type.SOCKS));
     }
 
-    public void testFromStaplerMethod() throws Exception {
+    @Test
+    void testFromStaplerMethod() throws Exception {
         MockRequest mr = new MockRequest() {
             @Override
             public String getContentType() {
                 return "text/html";
             }
         };
-        mr.getParameterMap().put("a", "123");
-        mr.getParameterMap().put("b", "string");
+        mr.parameters.put("a", "123");
+        mr.parameters.put("b", "string");
         RequestImpl req = new RequestImpl(new Stapler(), mr, Collections.emptyList(), null);
         new Function.InstanceFunction(
                         getClass().getMethod("doFromStaplerMethod", StaplerRequest2.class, int.class, Binder.class))
@@ -111,22 +119,25 @@ public class DataBindingTest extends TestCase {
         }
     }
 
-    public void testCustomConverter() {
+    @Test
+    void testCustomConverter() {
         ReferToObjectWithCustomConverter r = bind("{data:'1,2'}", ReferToObjectWithCustomConverter.class);
-        assertEquals(r.data.x, 1);
-        assertEquals(r.data.y, 2);
+        assertEquals(1, r.data.x);
+        assertEquals(2, r.data.y);
     }
 
     public static class ReferToObjectWithCustomConverter {
         final ObjectWithCustomConverter data;
 
+        @SuppressWarnings("checkstyle:redundantmodifier")
         @DataBoundConstructor
         public ReferToObjectWithCustomConverter(ObjectWithCustomConverter data) {
             this.data = data;
         }
     }
 
-    public void testNullToFalse() {
+    @Test
+    void testNullToFalse() {
         TwoBooleans r = bind("{a:false}", TwoBooleans.class);
         assertFalse(r.a);
         assertFalse(r.b);
@@ -135,6 +146,7 @@ public class DataBindingTest extends TestCase {
     public static class TwoBooleans {
         private boolean a, b;
 
+        @SuppressWarnings("checkstyle:redundantmodifier")
         @DataBoundConstructor
         public TwoBooleans(boolean a, boolean b) {
             this.a = a;
@@ -142,7 +154,8 @@ public class DataBindingTest extends TestCase {
         }
     }
 
-    public void testScalarToArray() {
+    @Test
+    void testScalarToArray() {
         ScalarToArray r = bind("{a:'x',b:'y',c:5,d:6}", ScalarToArray.class);
         assertEquals("x", r.a[0]);
         assertEquals("y", r.b.get(0));
@@ -157,6 +170,7 @@ public class DataBindingTest extends TestCase {
         private List<Integer> d;
 
         @DataBoundConstructor
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public ScalarToArray(String[] a, List<String> b, Integer[] c, List<Integer> d) {
             this.a = a;
             this.b = b;
@@ -193,13 +207,15 @@ public class DataBindingTest extends TestCase {
         JSONArray y;
 
         @DataBoundConstructor
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public RawBinding(JSONObject x, JSONArray y) {
             this.x = x;
             this.y = y;
         }
     }
 
-    public void testRaw() {
+    @Test
+    void testRaw() {
         RawBinding r = bind("{x:{a:true,b:1},y:[1,2,3]}", RawBinding.class);
 
         // array coercion on y
@@ -218,6 +234,7 @@ public class DataBindingTest extends TestCase {
         private List<SetterBinding> children;
 
         @DataBoundConstructor
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public SetterBinding(int x, int y) {
             this.x = x;
             this.y = y;
@@ -258,6 +275,7 @@ public class DataBindingTest extends TestCase {
         int x, y;
 
         @DataBoundConstructor
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public Point(int x, int y) {
             this.x = x;
             this.y = y;
@@ -284,7 +302,8 @@ public class DataBindingTest extends TestCase {
         }
     }
 
-    public void testSetterInvocation() {
+    @Test
+    void testSetterInvocation() {
         SetterBinding r = bind(
                 "{x:1,y:2,z:3,w:1, children:[{x:5,y:5,z:5},{x:6,y:6,z:6}], anotherObject:{$class:'org.kohsuke.stapler.DataBindingTest$Point', x:1,y:1} }",
                 SetterBinding.class);
@@ -329,6 +348,7 @@ public class DataBindingTest extends TestCase {
 
     public static class Point3Derived extends Point3 {
         @DataBoundConstructor
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public Point3Derived() {}
 
         @PostConstruct
@@ -337,25 +357,28 @@ public class DataBindingTest extends TestCase {
         }
     }
 
-    public void testFieldInjection() {
+    @Test
+    void testFieldInjection() {
         Point3Derived r = bind("{x:1,y:2,z:3} }", Point3Derived.class);
         r.assertValues();
         assertEquals(10, r.post);
     }
 
-    public void testInterceptor1() {
+    @Test
+    void testInterceptor1() {
         String r = bind("{x:1}", String.class, new BindInterceptor() {
             @Override
             public Object onConvert(Type targetType, Class targetTypeErasure, Object jsonSource) {
-                assertEquals(targetType, String.class);
-                assertEquals(targetTypeErasure, String.class);
+                assertEquals(String.class, targetType);
+                assertEquals(String.class, targetTypeErasure);
                 return String.valueOf(((JSONObject) jsonSource).getInt("x"));
             }
         });
         assertEquals("1", r);
     }
 
-    public void testInterceptor2() {
+    @Test
+    void testInterceptor2() {
         RequestImpl req = createFakeRequest();
         req.setBindInterceptor(new BindInterceptor() {
             @Override
@@ -368,10 +391,11 @@ public class DataBindingTest extends TestCase {
         });
 
         String[] r = (String[]) req.bindJSON(String[].class, String[].class, JSONArray.fromObject("[{x:1},{x:2}]"));
-        assertArrayEquals(r, new String[] {"1", "2"});
+        assertArrayEquals(new String[] {"1", "2"}, r);
     }
 
-    public void testInterceptor3() {
+    @Test
+    void testInterceptor3() {
         RequestImpl req = createFakeRequest();
         req.setBindInterceptor(new BindInterceptor() {
             @Override
@@ -385,13 +409,14 @@ public class DataBindingTest extends TestCase {
 
         Object[] r = (Object[]) req.bindJSON(
                 Object[].class, Object[].class, JSONArray.fromObject("[{$class:'" + Point.class.getName() + "'}]"));
-        assertArrayEquals(r, new Object[] {new Point(1, 2)});
+        assertArrayEquals(new Object[] {new Point(1, 2)}, r);
     }
 
     public static class AsymmetricProperty {
         private final List<Integer> items = new ArrayList<>();
 
         @DataBoundConstructor
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public AsymmetricProperty() {}
 
         public List<Integer> getItems() {
@@ -408,13 +433,15 @@ public class DataBindingTest extends TestCase {
     /**
      * Sometimes a setter has more relaxing parameter definition than the corresponding getter.
      */
-    public void testAsymmetricProperty() {
+    @Test
+    void testAsymmetricProperty() {
         AsymmetricProperty r = bind("{items:[1,3,5]}", AsymmetricProperty.class);
         assertEquals(Arrays.asList(1, 3, 5), r.getItems());
     }
 
     public static class DerivedProperty extends AsymmetricProperty {
         @DataBoundConstructor
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public DerivedProperty() {}
 
         @Override
@@ -426,8 +453,55 @@ public class DataBindingTest extends TestCase {
     /**
      * Subtyping and overriding a setter shouldn't hide it.
      */
-    public void testDerivedProperty() {
+    @Test
+    void testDerivedProperty() {
         DerivedProperty r = bind("{items:[1,3,5]}", DerivedProperty.class);
         assertEquals(Arrays.asList(1, 3, 5), r.getItems());
+    }
+
+    public static class Thing {
+        @DataBoundConstructor
+        @SuppressWarnings("checkstyle:redundantmodifier")
+        public Thing() {}
+    }
+
+    public static class ThingHolder {
+        private final List<Thing> items;
+
+        @DataBoundConstructor
+        @SuppressWarnings("checkstyle:redundantmodifier")
+        public ThingHolder(List<Thing> items) {
+            this.items = items;
+        }
+    }
+
+    static class ThingInterceptor extends BindInterceptor {
+        public int seen;
+
+        @Override
+        public Object instantiate(Class actualType, JSONObject json) {
+            if (actualType == Thing.class) {
+                // all 'things' are tracked, but only 'valid' ones created
+                seen++;
+                if (!json.getBoolean("valid")) {
+                    return null;
+                }
+            }
+            return BindInterceptor.DEFAULT;
+        }
+    }
+
+    @Test
+    void testNullItemsOmittedFromLists() {
+        ThingInterceptor thingInterceptor = new ThingInterceptor();
+        ThingHolder thingHolder = bind(
+                "{items:[{$class:'" + Thing.class.getName() + "',valid:true},{$class:'" + Thing.class.getName()
+                        + "',valid:false}]}",
+                ThingHolder.class,
+                thingInterceptor);
+        // ensure we encountered two things, but only kept the non-null things
+        assertEquals(2, thingInterceptor.seen);
+        assertEquals(1, thingHolder.items.size());
+        assertNotNull(thingHolder.items.get(0));
     }
 }

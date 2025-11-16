@@ -25,6 +25,10 @@
 
 package org.kohsuke.stapler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -37,14 +41,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import net.sf.json.JSONObject;
 import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.Issue;
 import org.mockito.Mockito;
 
@@ -52,12 +54,13 @@ import org.mockito.Mockito;
  * @author <a href="mailto:tom.fennelly@gmail.com">tom.fennelly@gmail.com</a>
  * @author Nikolas Falco
  */
-public class RequestImplTest {
+class RequestImplTest {
 
     public static class SetterObject {
         private List<String> choices;
 
         @DataBoundConstructor
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public SetterObject() {
             choices = new ArrayList<>();
         }
@@ -79,7 +82,7 @@ public class RequestImplTest {
 
     @Issue("JENKINS-61438")
     @Test
-    public void verify_JSON_bind_work_with_setter_that_accept_object_type() {
+    void verify_JSON_bind_work_with_setter_that_accept_object_type() {
         final Stapler stapler = new Stapler();
         stapler.setWebApp(new WebApp(Mockito.mock(ServletContext.class)));
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -90,11 +93,11 @@ public class RequestImplTest {
         json.put("choices", "1\n2\n3");
 
         SetterObject o = req.bindJSON(SetterObject.class, json);
-        Assert.assertEquals(o.getChoices(), Arrays.asList("1", "2", "3"));
+        assertEquals(o.getChoices(), Arrays.asList("1", "2", "3"));
     }
 
     @Test
-    public void test_multipart_formdata() throws IOException, ServletException {
+    void test_multipart_formdata() throws IOException, ServletException {
         final Stapler stapler = new Stapler();
         final byte[] buf = generateMultipartData();
         final ByteArrayInputStream is = new ByteArrayInputStream(buf);
@@ -118,11 +121,6 @@ public class RequestImplTest {
             @Override
             public int getContentLength() {
                 return buf.length;
-            }
-
-            @Override
-            public Enumeration getParameterNames() {
-                return Collections.enumeration(List.of("p1"));
             }
 
             @Override
@@ -160,26 +158,27 @@ public class RequestImplTest {
                 };
             }
         };
+        mockRequest.parameters.put("p1", "somevalue");
 
         RequestImpl request = new RequestImpl(stapler, mockRequest, Collections.emptyList(), null);
 
         // Check that we can get the Form Fields. See https://github.com/jenkinsci/stapler/issues/52
-        Assert.assertEquals("text1_val", request.getParameter("text1"));
-        Assert.assertEquals("text2_val", request.getParameter("text2"));
+        assertEquals("text1_val", request.getParameter("text1"));
+        assertEquals("text2_val", request.getParameter("text2"));
 
         // Check that we can get the file
         FileItem fileItem = request.getFileItem2("pomFile");
-        Assert.assertNotNull(fileItem);
+        assertNotNull(fileItem);
 
         // Check getParameterValues
-        Assert.assertEquals("text1_val", request.getParameterValues("text1")[0]);
+        assertEquals("text1_val", request.getParameterValues("text1")[0]);
 
         // Check getParameterNames
-        Assert.assertTrue(Collections.list(request.getParameterNames()).contains("p1"));
-        Assert.assertTrue(Collections.list(request.getParameterNames()).contains("text1"));
+        assertTrue(Collections.list(request.getParameterNames()).contains("p1"));
+        assertTrue(Collections.list(request.getParameterNames()).contains("text1"));
 
         // Check getParameterMap
-        Assert.assertTrue(request.getParameterMap().containsKey("text1"));
+        assertTrue(request.getParameterMap().containsKey("text1"));
     }
 
     private byte[] generateMultipartData() throws IOException {

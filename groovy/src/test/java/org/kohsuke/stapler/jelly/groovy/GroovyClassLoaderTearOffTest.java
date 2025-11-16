@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,14 +15,17 @@ import java.nio.file.Path;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.XMLOutput;
+import org.junit.jupiter.api.Test;
 import org.kohsuke.stapler.MetaClassLoader;
 import org.kohsuke.stapler.test.AbstractStaplerTest;
 
 /**
  * @author Kohsuke Kawaguchi
  */
-public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
-    public void testFoo() throws IOException, JellyTagException {
+class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
+
+    @Test
+    void testFoo() throws IOException, JellyTagException {
         Path tmp = Files.createTempFile("groovy", "groovy");
 
         try {
@@ -44,7 +48,8 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
         }
     }
 
-    public void testGettext() throws Exception {
+    @Test
+    void testGettext() throws Exception {
         Path tmp = Files.createTempFile("xxx", ".groovy");
 
         try {
@@ -71,7 +76,8 @@ public class GroovyClassLoaderTearOffTest extends AbstractStaplerTest {
         }
     }
 
-    public void testTimeZone() throws IOException, JellyTagException {
+    @Test
+    void testTimeZone() throws IOException, JellyTagException {
         Path tmp = Files.createTempFile("groovy", "groovy");
 
         try {

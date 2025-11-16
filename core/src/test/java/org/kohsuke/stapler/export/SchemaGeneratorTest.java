@@ -26,7 +26,7 @@
 
 package org.kohsuke.stapler.export;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,10 +36,11 @@ import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXParseException;
 
-public class SchemaGeneratorTest {
+class SchemaGeneratorTest {
+
     @ExportedBean
     public static class Y {
         @Exported
@@ -58,12 +59,13 @@ public class SchemaGeneratorTest {
     }
 
     @Test
-    public void basics() throws Exception {
+    void basics() throws Exception {
         validate(new X(), X.class);
     }
 
     /* TODO currently fails
-    @Test public void inheritance() throws Exception {
+    @Test
+    void inheritance() throws Exception {
         validate(new XMLDataWriterTest.Container(), XMLDataWriterTest.Container.class);
     }
     */

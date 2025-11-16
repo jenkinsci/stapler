@@ -1,8 +1,11 @@
 package org.kohsuke.stapler.bind;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 import java.net.URL;
 import org.htmlunit.TextPage;
+import org.junit.jupiter.api.Test;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.test.JettyTestCase;
@@ -10,11 +13,12 @@ import org.kohsuke.stapler.test.JettyTestCase;
 /**
  * @author Kohsuke Kawaguchi
  */
-public class BoundObjectTableTest extends JettyTestCase {
+class BoundObjectTableTest extends JettyTestCase {
     /**
      * Exports an object and see if it can be reached.
      */
-    public void testExport() throws Exception {
+    @Test
+    void testExport() throws Exception {
         TextPage page = createWebClient().getPage(new URL(url, "/bind"));
         assertEquals("hello world", page.getContent());
     }
@@ -28,6 +32,7 @@ public class BoundObjectTableTest extends JettyTestCase {
     public static class HelloWorld {
         private final String message;
 
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public HelloWorld(String message) {
             this.message = message;
         }

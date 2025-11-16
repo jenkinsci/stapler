@@ -27,7 +27,7 @@ public interface UncaughtExceptionHandler {
         @Override
         @SuppressFBWarnings(
                 value = {"INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE", "XSS_SERVLET"},
-                justification = "Covered by the escape() method.")
+                justification = "Info exposure is Covered by the escape() method. XSS is TODO needs triage")
         public void reportException(
                 Throwable e, ServletContext context, HttpServletRequest req, HttpServletResponse rsp)
                 throws ServletException, IOException {

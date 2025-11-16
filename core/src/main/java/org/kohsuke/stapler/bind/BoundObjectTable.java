@@ -23,23 +23,19 @@
 
 package org.kohsuke.stapler.bind;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.lang.ref.WeakReference;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.Ancestor;
-import org.kohsuke.stapler.HttpResponse;
-import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerFallback;
@@ -63,7 +59,7 @@ public class BoundObjectTable implements StaplerFallback {
     }
 
     public static boolean isValidJavaIdentifier(String name) {
-        if (name == null || StringUtils.isBlank(name)) {
+        if (name == null || name.isBlank()) {
             return false;
         }
         if (!Character.isJavaIdentifierStart(name.charAt(0)) || Character.codePointAt(name, 0) > 255) {
@@ -150,22 +146,11 @@ public class BoundObjectTable implements StaplerFallback {
         return resolve(false);
     }
 
-    private Bound bind(Ref ref) {
-        return resolve(true).add(ref);
-    }
-
     /**
      * Binds an object temporarily and returns its URL.
      */
     public Bound bind(Object o) {
-        return bind(new StrongRef(o));
-    }
-
-    /**
-     * Binds an object temporarily and returns its URL.
-     */
-    public Bound bindWeak(Object o) {
-        return bind(new WeakRef(o));
+        return resolve(true).add(new StrongRef(o));
     }
 
     /**
@@ -213,7 +198,6 @@ public class BoundObjectTable implements StaplerFallback {
      */
     public static class Table implements Serializable {
         private final Map<String, Ref> entries = new HashMap<>();
-        private boolean logging;
 
         private synchronized Bound add(Ref ref) {
             final Object target = ref.get();
@@ -226,11 +210,20 @@ public class BoundObjectTable implements StaplerFallback {
                 return new WellKnownObjectHandle(url, w);
             }
 
+            // Before adding a new entry, clean up any old ones:
+            var it = entries.entrySet().iterator();
+            while (it.hasNext()) {
+                var entry = it.next();
+                if (!entry.getValue().valid()) {
+                    LOGGER.fine(() -> "removing stale " + entry.getKey() + ": "
+                            + entry.getValue().get());
+                    it.remove();
+                }
+            }
+
             final String id = UUID.randomUUID().toString();
             entries.put(id, ref);
-            if (logging) {
-                LOGGER.info(String.format("%s binding %s for %s", toString(), target, id));
-            }
+            LOGGER.fine(() -> String.format("%s binding %s for %s", toString(), target, id));
 
             return new Bound() {
                 @Override
@@ -260,38 +253,22 @@ public class BoundObjectTable implements StaplerFallback {
             return resolve(id);
         }
 
-        private synchronized Ref release(String id) {
-            return entries.remove(id);
+        /**
+         * Releases a particular id from the table.
+         * Normally would be called via {@link #releaseMe} which infers the id from the current request.
+         */
+        public void release(String id) {
+            var ref = entries.remove(id);
+            LOGGER.fine(() -> "releasing " + id + ": " + (ref != null ? ref.get() : null));
         }
 
         private synchronized Object resolve(String id) {
             Ref e = entries.get(id);
             if (e == null) {
-                if (logging) {
-                    LOGGER.info(toString() + " doesn't have binding for " + id);
-                }
+                LOGGER.fine(() -> toString() + " doesn't have binding for " + id);
                 return null;
             }
-            Object v = e.get();
-            if (v == null) {
-                if (logging) {
-                    LOGGER.warning(toString() + " had binding for " + id + " but it got garbage collected");
-                }
-                entries.remove(id); // reference is already garbage collected.
-            }
-            return v;
-        }
-
-        @SuppressFBWarnings(
-                value = "IS2_INCONSISTENT_SYNC",
-                justification = "This usage does not create synchronization problems.")
-        public HttpResponse doEnableLogging() {
-            if (DEBUG_LOGGING) {
-                this.logging = true;
-                return HttpResponses.text("Logging enabled for this session: " + this + "\n");
-            } else {
-                return HttpResponses.forbidden();
-            }
+            return e.get();
         }
     }
 
@@ -333,18 +310,27 @@ public class BoundObjectTable implements StaplerFallback {
      */
     interface Ref extends Serializable {
         Object get();
+
+        boolean valid();
     }
 
     private static class StrongRef implements Ref {
         private final Object o;
+        private final long expiration;
 
         StrongRef(Object o) {
             this.o = o;
+            expiration = System.currentTimeMillis() + EXPIRATION_TIME;
         }
 
         @Override
         public Object get() {
             return o;
+        }
+
+        @Override
+        public boolean valid() {
+            return /* compatibility */ expiration == 0 || System.currentTimeMillis() < expiration;
         }
 
         private Object writeReplace() {
@@ -357,30 +343,15 @@ public class BoundObjectTable implements StaplerFallback {
         }
     }
 
-    private static class WeakRef extends WeakReference implements Ref {
-        private WeakRef(Object referent) {
-            super(referent);
-        }
-
-        private Object writeReplace() {
-            Object o = get();
-            if (o instanceof Serializable) {
-                return this;
-            } else {
-                LOGGER.fine(() -> "Refusing to serialize " + o);
-                return new WeakRef(null);
-            }
-        }
-    }
+    /**
+     * How long (in milliseconds) a {@link StrongRef} remains valid for creation if it is not retrieved.
+     */
+    private static final long EXPIRATION_TIME = Long.getLong(
+            BoundObjectTable.class.getName() + ".EXPIRATION_TIME",
+            Duration.ofDays(1).toMillis());
 
     public static final String PREFIX = "/$stapler/bound/";
     static final String SCRIPT_PREFIX = "/$stapler/bound/script";
-
-    /**
-     * True to activate debug logging of session fragments.
-     */
-    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Legacy switch.")
-    public static boolean DEBUG_LOGGING = Boolean.getBoolean(BoundObjectTable.class.getName() + ".debugLog");
 
     private static final Logger LOGGER = Logger.getLogger(BoundObjectTable.class.getName());
 }

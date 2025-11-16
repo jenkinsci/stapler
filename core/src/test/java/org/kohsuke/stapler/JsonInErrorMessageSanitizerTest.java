@@ -24,11 +24,16 @@
 
 package org.kohsuke.stapler;
 
-import junit.framework.TestCase;
-import net.sf.json.JSONObject;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-public class JsonInErrorMessageSanitizerTest extends TestCase {
-    public void testNoopToReturnCopy() {
+import net.sf.json.JSONObject;
+import org.junit.jupiter.api.Test;
+
+class JsonInErrorMessageSanitizerTest {
+
+    @Test
+    void testNoopToReturnCopy() {
         JSONObject input = new JSONObject();
         input.accumulate("a", 1);
         input.accumulate("a", 2);

@@ -1,5 +1,6 @@
 package org.kohsuke.stapler.lang.util;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -28,6 +29,7 @@ public abstract class MethodRefFilter extends MethodRef {
         return getBase().invoke(_this, args);
     }
 
+    @SuppressFBWarnings(value = "HSM_HIDING_METHOD", justification = "TODO needs triage")
     public static MethodRef wrap(Method m) {
         return MethodRef.wrap(m);
     }

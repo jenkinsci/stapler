@@ -436,9 +436,9 @@ final class BytecodeReadingParanamer {
                             max = size;
                         }
                         break;
+                    default:
                         // case HamConstants.CLASS:
                         // case HamConstants.STR:
-                    default:
                         size = 3;
                         break;
                 }
@@ -1041,8 +1041,8 @@ final class BytecodeReadingParanamer {
                         } while (buf[off + len] != ';');
                     }
                     return new Type(ARRAY, buf, off, len + 1);
-                    // case 'L':
                 default:
+                    // case 'L':
                     len = 1;
                     while (buf[off + len] != ';') {
                         ++len;
@@ -1106,8 +1106,8 @@ final class BytecodeReadingParanamer {
                     return "double";
                 case ARRAY:
                     return getElementType().getClassName() + "[]".repeat(Math.max(0, getDimensions()));
-                    // case OBJECT:
                 default:
+                    // case OBJECT:
                     return new String(buf, off, len).replace('/', '.');
             }
         }

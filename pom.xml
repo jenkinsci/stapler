@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
-    <version>1.126</version>
+    <version>1.142</version>
     <relativePath />
   </parent>
 
@@ -41,9 +41,10 @@
   <properties>
     <changelist>999999-SNAPSHOT</changelist>
     <scmTag>HEAD</scmTag>
-    <jetty.version>12.0.15</jetty.version>
+    <jetty.version>12.1.4</jetty.version>
     <gitHubRepo>jenkinsci/stapler</gitHubRepo>
     <spotless.check.skip>false</spotless.check.skip>
+    <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
   </properties>
 
   <dependencyManagement>
@@ -65,12 +66,12 @@
       <dependency>
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
-        <version>1.3.4</version>
+        <version>1.3.5</version>
       </dependency>
       <dependency>
         <groupId>org.jenkins-ci.main</groupId>
         <artifactId>jenkins-test-harness-htmlunit</artifactId>
-        <version>196.v1ee3024c79d9</version>
+        <version>226.v08d56c2329f7</version>
       </dependency>
       <dependency>
         <groupId>org.kohsuke.metainf-services</groupId>
@@ -124,7 +125,7 @@
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>10.20.1</version>
+              <version>12.1.2</version>
             </dependency>
           </dependencies>
           <executions>

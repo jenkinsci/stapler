@@ -137,9 +137,15 @@ public abstract class Bound implements HttpResponse {
      */
     public static String getProxyScript(String url, String[] methods) {
         final String crumb = WebApp.getCurrent().getCrumbIssuer().issueCrumb();
-        final String methodNamesList =
-                Arrays.stream(methods).sorted().map(it -> "'" + it + "'").collect(Collectors.joining(","));
-        return "makeStaplerProxy('" + url + "','" + crumb + "',[" + methodNamesList + "])";
+        final String methodNamesList = Arrays.stream(methods)
+                .sorted()
+                .map(it -> "'" + escapeQuotedString(it) + "'")
+                .collect(Collectors.joining(","));
+        return "makeStaplerProxy('" + escapeQuotedString(url) + "','" + crumb + "',[" + methodNamesList + "])";
+    }
+
+    private static String escapeQuotedString(String singleQuotedJsValue) {
+        return singleQuotedJsValue.replace("\\", "\\\\").replace("'", "\\'");
     }
 
     private static String camelize(String name) {

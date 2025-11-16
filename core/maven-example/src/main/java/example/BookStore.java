@@ -4,8 +4,8 @@ import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /**
  * Root object of this web application.
@@ -60,7 +60,7 @@ public class BookStore {
      * <p>
      * Action methods are useful to perform some operations in Java.
      */
-    public void doHello( StaplerRequest request, StaplerResponse response ) throws IOException, ServletException {
+    public void doHello( StaplerRequest2 request, StaplerResponse2 response ) throws IOException, ServletException {
         System.out.println("Hello operation");
         request.setAttribute("systemTime",new Long(System.currentTimeMillis()));
 

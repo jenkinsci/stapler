@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler.jsp;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -45,9 +44,6 @@ final class RequestDispatcherWrapper implements RequestDispatcher {
     }
 
     @Override
-    @SuppressFBWarnings(
-            value = "REQUESTDISPATCHER_FILE_DISCLOSURE",
-            justification = "Forwarding the request to be handled correctly.")
     public void forward(ServletRequest req, ServletResponse rsp) throws ServletException, IOException {
         req.setAttribute("it", it);
         req.setAttribute("staplerRequest", req);
@@ -56,9 +52,6 @@ final class RequestDispatcherWrapper implements RequestDispatcher {
     }
 
     @Override
-    @SuppressFBWarnings(
-            value = "REQUESTDISPATCHER_FILE_DISCLOSURE",
-            justification = "Forwarding the request to be handled correctly.")
     public void include(ServletRequest req, ServletResponse rsp) throws ServletException, IOException {
         Object oldIt = push(req, "it", it);
         Object oldRq = push(req, "staplerRequest", req);

@@ -1,6 +1,6 @@
 package org.kohsuke.stapler.export;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -11,11 +11,12 @@ import java.util.List;
 import java.util.Set;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class XMLDataWriterTest {
+class XMLDataWriterTest {
+
     private ExportConfig config =
             new ExportConfig().withFlavor(Flavor.XML).withClassAttribute(ClassAttributeBehaviour.IF_NEEDED.simple());
 
@@ -106,7 +107,7 @@ public class XMLDataWriterTest {
     }
 
     @Test
-    public void testNestedBeans() throws Exception {
+    void testNestedBeans() throws Exception {
         System.out.println(serialize(new Job(), Job.class));
         assertEquals(
                 "<job _class='Job'><action _class='ParameterAction'><parameter><names>foo</names><values>bar</values></parameter></action><action _class='CauseAction'><cause>xyz</cause></action><name>job1</name></job>",
@@ -131,7 +132,7 @@ public class XMLDataWriterTest {
     }
 
     @Test
-    public void testSimpleUsage() throws Exception {
+    void testSimpleUsage() throws Exception {
         assertEquals("<x _class='X'><a>aval</a><c>cval</c></x>", serialize(new X(), X.class));
     }
 
@@ -163,7 +164,7 @@ public class XMLDataWriterTest {
     }
 
     @Test
-    public void testInheritance() throws Exception {
+    void testInheritance() throws Exception {
         assertEquals(
                 "<container _class='Container'><polymorph _class='Sub'><basic>super</basic><generic>sub</generic>"
                         + "<specific>sub</specific></polymorph></container>",
@@ -179,7 +180,7 @@ public class XMLDataWriterTest {
     }
 
     @Test
-    public void testInheritance2() throws Exception { // JENKINS-13336
+    void testInheritance2() throws Exception { // JENKINS-13336
         assertEquals(
                 "<sub2 _class='Sub2'><basic>super</basic><generic>sub2</generic></sub2>",
                 serialize(new Sub2(), Sub2.class));
@@ -194,7 +195,7 @@ public class XMLDataWriterTest {
      * Can we write out anonymous classes as the root object?
      */
     @Test
-    public void testAnonymousClass() throws Exception {
+    void testAnonymousClass() throws Exception {
         assertValidXML(serialize(new X() {}, X.class));
     }
 
@@ -205,12 +206,12 @@ public class XMLDataWriterTest {
     }
 
     @Test
-    public void testPrimitiveArrays() throws Exception {
+    void testPrimitiveArrays() throws Exception {
         assertEquals("<PA _class='PA'><v>1</v><v>2</v><v>3</v></PA>", serialize(new PA(), PA.class));
     }
 
     @Test
-    public void testMakeXmlName() {
+    void testMakeXmlName() {
         assertEquals("_", XMLDataWriter.makeXmlName(""));
         assertEquals("abc", XMLDataWriter.makeXmlName("abc"));
         assertEquals("abc", XMLDataWriter.makeXmlName("/abc"));
@@ -227,7 +228,7 @@ public class XMLDataWriterTest {
     }
 
     @Test
-    public void testToSingular() throws Exception {
+    void testToSingular() throws Exception {
         assertEquals(
                 "<arrays _class='Arrays'><category>general</category><category>specific</category><style>ornate</style><style>plain</style></arrays>",
                 serialize(new Arrays(), Arrays.class));
@@ -249,7 +250,7 @@ public class XMLDataWriterTest {
     }
 
     @Test
-    public void testToSingularWithPluralProperties() throws Exception {
+    void testToSingularWithPluralProperties() throws Exception {
         assertEquals(
                 "<arraysWithPluralProperties _class='ArraysWithPluralProperties'><bars>foo</bars><category>general</category><category>specific</category>"
                         + "<foos>foo</foos><style>ornate</style><style>plain</style></arraysWithPluralProperties>",

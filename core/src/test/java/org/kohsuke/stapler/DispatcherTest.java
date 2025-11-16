@@ -1,5 +1,9 @@
 package org.kohsuke.stapler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
@@ -11,6 +15,8 @@ import org.htmlunit.Page;
 import org.htmlunit.TextPage;
 import org.htmlunit.WebClient;
 import org.htmlunit.WebRequest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.json.JsonBody;
 import org.kohsuke.stapler.test.JettyTestCase;
@@ -21,13 +27,14 @@ import org.kohsuke.stapler.verb.PUT;
 /**
  * @author Kohsuke Kawaguchi
  */
-public class DispatcherTest extends JettyTestCase {
+class DispatcherTest extends JettyTestCase {
 
     public final IndexDispatchByName indexDispatchByName = new IndexDispatchByName();
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeEach
+    protected void beforeEach() throws Exception {
+        super.beforeEach();
         MetaClass.LEGACY_GETTER_MODE = true;
         MetaClass.LEGACY_WEB_METHOD_MODE = true;
     }
@@ -42,7 +49,8 @@ public class DispatcherTest extends JettyTestCase {
     /**
      * Makes sure @WebMethod(name="") has the intended effect of occupying the root of the object in the URL space.
      */
-    public void testIndexDispatchByName() throws Exception {
+    @Test
+    void testIndexDispatchByName() throws Exception {
         WebClient wc = createWebClient();
         TextPage p = wc.getPage(new URL(url, "indexDispatchByName"));
         assertEquals("Hello world", p.getContent());
@@ -69,17 +77,16 @@ public class DispatcherTest extends JettyTestCase {
     /**
      * Tests the dispatching of WebMethod based on verb
      */
-    public void testVerbMatch() throws Exception {
+    @Test
+    void testVerbMatch() throws Exception {
         WebClient wc = createWebClient();
 
         check(wc, HttpMethod.GET);
         check(wc, HttpMethod.POST);
-        try {
-            check(wc, HttpMethod.DELETE);
-            fail("There's no route for DELETE");
-        } catch (FailingHttpStatusCodeException e) {
-            assertEquals(404, e.getStatusCode());
-        }
+
+        FailingHttpStatusCodeException e =
+                assertThrows(FailingHttpStatusCodeException.class, () -> check(wc, HttpMethod.DELETE));
+        assertEquals(404, e.getStatusCode());
     }
 
     private void check(WebClient wc, HttpMethod m) throws IOException {
@@ -103,7 +110,8 @@ public class DispatcherTest extends JettyTestCase {
         }
     }
 
-    public void testArbitraryWebMethodName() throws Exception {
+    @Test
+    void testArbitraryWebMethodName() throws Exception {
         WebClient wc = createWebClient();
         TextPage p = wc.getPage(new URL(url, "arbitraryWebMethodName"));
         assertEquals("I'm index", p.getContent());
@@ -130,14 +138,13 @@ public class DispatcherTest extends JettyTestCase {
     /**
      * POST annotation selection needs to happen before databinding of the parameter happens.
      */
-    public void testInterceptorStage() throws Exception {
+    @Test
+    void testInterceptorStage() throws Exception {
         WebClient wc = createWebClient();
-        try {
-            wc.getPage(new URL(url, "interceptorStage/foo"));
-            fail("Expected 404");
-        } catch (FailingHttpStatusCodeException e) {
-            assertEquals(404, e.getStatusCode());
-        }
+
+        FailingHttpStatusCodeException e = assertThrows(
+                FailingHttpStatusCodeException.class, () -> wc.getPage(new URL(url, "interceptorStage/foo")));
+        assertEquals(404, e.getStatusCode());
 
         WebRequest req = new WebRequest(new URL(url, "interceptorStage/foo"), HttpMethod.POST);
         req.setAdditionalHeader("Content-Type", "application/json");
@@ -146,14 +153,13 @@ public class DispatcherTest extends JettyTestCase {
         assertEquals("3,5", p.getContent());
     }
 
-    public void testInterceptorStageContentTypeWithCharset() throws Exception {
+    @Test
+    void testInterceptorStageContentTypeWithCharset() throws Exception {
         WebClient wc = createWebClient();
-        try {
-            wc.getPage(new URL(url, "interceptorStage/foo"));
-            fail("Expected 404");
-        } catch (FailingHttpStatusCodeException e) {
-            assertEquals(404, e.getStatusCode());
-        }
+
+        FailingHttpStatusCodeException e = assertThrows(
+                FailingHttpStatusCodeException.class, () -> wc.getPage(new URL(url, "interceptorStage/foo")));
+        assertEquals(404, e.getStatusCode());
 
         WebRequest req = new WebRequest(new URL(url, "interceptorStage/foo"), HttpMethod.POST);
         req.setAdditionalHeader("Content-Type", "application/json; charset=utf-8");
@@ -180,7 +186,8 @@ public class DispatcherTest extends JettyTestCase {
         }
     }
 
-    public void testInheritance() throws Exception {
+    @Test
+    void testInheritance() throws Exception {
         WebClient wc = createWebClient();
 
         // the request should get to the overriding method and it should still see all the annotations in the base type
@@ -188,12 +195,9 @@ public class DispatcherTest extends JettyTestCase {
         assertEquals("abc", p.getContent());
 
         // doBar is a web method for 'foo', so bar endpoint shouldn't respond
-        try {
-            wc.getPage(new URL(url, "inheritance/bar"));
-            fail();
-        } catch (FailingHttpStatusCodeException e) {
-            assertEquals(404, e.getStatusCode());
-        }
+        FailingHttpStatusCodeException e =
+                assertThrows(FailingHttpStatusCodeException.class, () -> wc.getPage(new URL(url, "inheritance/bar")));
+        assertEquals(404, e.getStatusCode());
     }
 
     public final PutInheritance putInheritance = new PutInheritanceImpl();
@@ -216,7 +220,8 @@ public class DispatcherTest extends JettyTestCase {
         }
     }
 
-    public void testPutInheritance() throws Exception {
+    @Test
+    void testPutInheritance() throws Exception {
         WebClient wc = createWebClient();
 
         // the request should get to the overriding method and it should still see all the annotations in the base type
@@ -226,12 +231,9 @@ public class DispatcherTest extends JettyTestCase {
         assertEquals("Hello World!", p.getContent());
 
         // doBar is a web method for 'foo', so bar endpoint shouldn't respond
-        try {
-            wc.getPage(new URL(url, "putInheritance/bar"));
-            fail();
-        } catch (FailingHttpStatusCodeException e) {
-            assertEquals(404, e.getStatusCode());
-        }
+        FailingHttpStatusCodeException e = assertThrows(
+                FailingHttpStatusCodeException.class, () -> wc.getPage(new URL(url, "putInheritance/bar")));
+        assertEquals(404, e.getStatusCode());
 
         // Invoke Post as well
         wrs = new WebRequest(new URL(url, "putInheritance/acme"), HttpMethod.POST);
@@ -240,33 +242,32 @@ public class DispatcherTest extends JettyTestCase {
         assertEquals("POST: Hello", p.getContent());
     }
 
-    public void testInterfaceMethods() throws Exception {
+    @Test
+    void testInterfaceMethods() throws Exception {
         WebClient wc = createWebClient();
-        try {
-            wc.getPage(new URL(url, "usesInterfaceMethods/foo"));
-            fail();
-        } catch (FailingHttpStatusCodeException x) {
-            assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, x.getStatusCode());
-        }
+
+        FailingHttpStatusCodeException e = assertThrows(
+                FailingHttpStatusCodeException.class, () -> wc.getPage(new URL(url, "usesInterfaceMethods/foo")));
+        assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.getStatusCode());
+
         assertEquals(
                 "default",
                 wc.getPage(new WebRequest(new URL(url, "usesInterfaceMethods/foo"), HttpMethod.POST))
                         .getWebResponse()
                         .getContentAsString()
                         .trim());
-        try {
-            wc.getPage(new URL(url, "overridesInterfaceMethods/foo"));
-            fail();
-        } catch (FailingHttpStatusCodeException x) {
-            assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, x.getStatusCode());
-        }
+
+        e = assertThrows(
+                FailingHttpStatusCodeException.class, () -> wc.getPage(new URL(url, "overridesInterfaceMethods/foo")));
+        assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.getStatusCode());
+
         assertEquals(
-                "due to UnionAnnotatedElement it is even inherited",
                 "overridden",
                 wc.getPage(new WebRequest(new URL(url, "overridesInterfaceMethods/foo"), HttpMethod.POST))
                         .getWebResponse()
                         .getContentAsString()
-                        .trim());
+                        .trim(),
+                "due to UnionAnnotatedElement it is even inherited");
     }
 
     public interface InterfaceWithWebMethods {
@@ -306,23 +307,21 @@ public class DispatcherTest extends JettyTestCase {
         }
     }
 
-    public void testRequirePostOnBase() throws Exception {
+    @Test
+    void testRequirePostOnBase() throws Exception {
         WebClient wc = createWebClient();
         URL url = new URL(this.url, "requirePostOnBase/something");
 
-        try {
-            wc.getPage(url);
-            fail();
-        } catch (FailingHttpStatusCodeException e) {
-            assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.getStatusCode());
-        }
+        FailingHttpStatusCodeException e = assertThrows(FailingHttpStatusCodeException.class, () -> wc.getPage(url));
+        assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.getStatusCode());
 
         // POST should succeed
         wc.getPage(new WebRequest(url, HttpMethod.POST));
         assertEquals(1, requirePostOnBase.hit);
     }
 
-    public void testOverloads() throws Exception {
+    @Test
+    void testOverloads() throws Exception {
         TextPage p = createWebClient().getPage(new URL(url, "overloaded/x"));
         assertEquals("doX(StaplerRequest2)", p.getContent());
     }
@@ -368,7 +367,8 @@ public class DispatcherTest extends JettyTestCase {
         }
     }
 
-    public void testPublicFieldDispatch() throws Exception {
+    @Test
+    void testPublicFieldDispatch() throws Exception {
         WebClient wc = createWebClient();
         URL url = new URL(this.url, "testWithPublicField/testClass/value/");
 
@@ -379,21 +379,17 @@ public class DispatcherTest extends JettyTestCase {
         }
     }
 
-    public void testProtectedMethodDispatch() throws Exception {
+    @Test
+    void testProtectedMethodDispatch() throws Exception {
         WebClient wc = createWebClient();
         wc.getPage(new URL(url, "public/value"));
-        try {
-            wc.getPage(new URL(url, "protected/value"));
-            fail("should not have allowed protected access");
-        } catch (FailingHttpStatusCodeException x) {
-            assertEquals(HttpServletResponse.SC_NOT_FOUND, x.getStatusCode());
-        }
-        try {
-            wc.getPage(new URL(url, "private/value"));
-            fail("should not have allowed private access");
-        } catch (FailingHttpStatusCodeException x) {
-            assertEquals(HttpServletResponse.SC_NOT_FOUND, x.getStatusCode());
-        }
+
+        FailingHttpStatusCodeException e =
+                assertThrows(FailingHttpStatusCodeException.class, () -> wc.getPage(new URL(url, "protected/value")));
+        assertEquals(HttpServletResponse.SC_NOT_FOUND, e.getStatusCode());
+
+        e = assertThrows(FailingHttpStatusCodeException.class, () -> wc.getPage(new URL(url, "private/value")));
+        assertEquals(HttpServletResponse.SC_NOT_FOUND, e.getStatusCode());
     }
 
     public TestClass getPublic() {
@@ -423,6 +419,7 @@ public class DispatcherTest extends JettyTestCase {
         private Object target;
         public int counter = 0;
 
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public StaplerProxyImpl(Object target) {
             this.target = target;
         }
@@ -440,17 +437,16 @@ public class DispatcherTest extends JettyTestCase {
         }
     }
 
-    public void testStaplerProxy() throws Exception {
+    @Test
+    void testStaplerProxy() throws Exception {
         WebClient wc = createWebClient();
         Page p = wc.getPage(new URL(url, "staplerProxyOK"));
         assertEquals(200, p.getWebResponse().getStatusCode());
 
-        try {
-            p = wc.getPage(new URL(url, "staplerProxyFail"));
-            fail("expected failure");
-        } catch (FailingHttpStatusCodeException ex) {
-            assertEquals(404, ex.getStatusCode());
-        }
+        FailingHttpStatusCodeException e =
+                assertThrows(FailingHttpStatusCodeException.class, () -> wc.getPage(new URL(url, "staplerProxyFail")));
+        assertEquals(404, e.getStatusCode());
+
         assertTrue(staplerProxyOK.counter > 0);
         assertTrue(staplerProxyFail.counter > 0);
     }

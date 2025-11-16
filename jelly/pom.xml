@@ -12,8 +12,7 @@
   <description>Jelly binding for Stapler</description>
 
   <properties>
-    <jelly.version>1.1-jenkins-20241115</jelly.version>
-    <jellydoc-maven-plugin.version>195.v4662dd79fdb_d</jellydoc-maven-plugin.version>
+    <jelly.version>1.1-jenkins-20250731</jelly.version>
   </properties>
 
   <dependencies>
@@ -33,7 +32,7 @@
     <dependency>
       <groupId>org.dom4j</groupId>
       <artifactId>dom4j</artifactId>
-      <version>2.1.4</version>
+      <version>2.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci</groupId>
@@ -114,7 +113,6 @@
       <plugin>
         <groupId>io.jenkins.tools.maven</groupId>
         <artifactId>jellydoc-maven-plugin</artifactId>
-        <version>${jellydoc-maven-plugin.version}</version>
         <dependencies>
           <dependency>
             <groupId>com.github.olivergondza</groupId>
@@ -157,7 +155,6 @@
           <plugin>
             <groupId>io.jenkins.tools.maven</groupId>
             <artifactId>jellydoc-maven-plugin</artifactId>
-            <version>${jellydoc-maven-plugin.version}</version>
           </plugin>
         </plugins>
       </reporting>

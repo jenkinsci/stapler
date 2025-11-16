@@ -40,9 +40,12 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.UUID;
 import java.util.zip.GZIPInputStream;
+import net.sf.json.JSONObject;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.kohsuke.stapler.ReflectionUtils;
+import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse;
@@ -63,19 +66,39 @@ public class LargeText {
     /**
      * Represents the data source of this text.
      */
-    private interface Source {
+    public interface Source {
+        /**
+         * Open a Source for reading.
+         * @return Opened Session for reading.
+         * @throws IOException if an error occurs.
+         */
         Session open() throws IOException;
 
+        /**
+         * Size of the Source.
+         * @return Number of bytes in the Source.
+         */
         long length();
 
+        /**
+         * Check existence of the Source.
+         * @return true if it exists, otherwise false.
+         */
         boolean exists();
     }
+
+    /**
+     * For multipart/form-data streaming mode: Enable searching for the first new line character after the provided ?start and abort searching at the given position.
+     */
+    protected static final String SEARCH_STOP_PARAMETER = "searchNewLineUntil";
 
     private final Source source;
 
     protected final Charset charset;
 
     private volatile boolean completed;
+
+    private JSONObject streamingMeta;
 
     public LargeText(File file, boolean completed) {
         this(file, Charset.defaultCharset(), completed);
@@ -170,6 +193,12 @@ public class LargeText {
         this.completed = completed;
     }
 
+    public LargeText(Source source, Charset charset, boolean completed) {
+        this.charset = charset;
+        this.source = source;
+        this.completed = completed;
+    }
+
     public void markAsComplete() {
         completed = true;
     }
@@ -232,11 +261,30 @@ public class LargeText {
      */
     public long writeLogTo(long start, OutputStream out) throws IOException {
         CountingOutputStream os = new CountingOutputStream(out);
+        writeLogUncounted(start, os);
+        os.flush();
+        return os.getByteCount() + start;
+    }
 
+    private void writeLogUncounted(long start, OutputStream os) throws IOException {
         try (Session f = source.open()) {
-            f.skip(start);
+            if (f.skip(start) != start) {
+                throw new EOFException("Attempted to read past the end of the log");
+            }
 
-            if (completed) {
+            if (isStreamingRequest(Stapler.getCurrentRequest2())) {
+                // write everything until the previously determined EOF in bulk
+                long end = source.length();
+                long pos = start;
+                byte[] buf = new byte[64 * 1024];
+                int n;
+                while (pos < end && (n = f.read(buf)) >= 0) {
+                    long remaining = end - pos;
+                    if (n > remaining) n = (int) remaining;
+                    os.write(buf, 0, n);
+                    pos += n;
+                }
+            } else if (completed) {
                 // write everything till EOF
                 byte[] buf = new byte[1024];
                 int sz;
@@ -244,6 +292,7 @@ public class LargeText {
                     os.write(buf, 0, sz);
                 }
             } else {
+                // TODO is all this complexity actually useful? Can we not just stream to EOF?
                 ByteBuf buf = new ByteBuf(null, f);
                 HeadMark head = new HeadMark(buf);
                 TailMark tail = new TailMark(buf);
@@ -256,10 +305,6 @@ public class LargeText {
                 head.finish(os);
             }
         }
-
-        os.flush();
-
-        return os.getByteCount() + start;
     }
 
     /**
@@ -286,7 +331,111 @@ public class LargeText {
         doProgressTextImpl(StaplerRequest.toStaplerRequest2(req), StaplerResponse.toStaplerResponse2(rsp));
     }
 
+    /**
+     * Detect use of streaming mode.
+     * @param req The current request.
+     * @return true if the new streaming mode is requested.
+     */
+    public boolean isStreamingRequest(StaplerRequest2 req) {
+        if (req == null) return false;
+        String accept = req.getHeader("Accept");
+        if (accept == null || accept.isEmpty()) return false;
+        return accept.startsWith("multipart/form-data");
+    }
+
+    /**
+     * Add additional meta data to a streaming response.
+     * @param key The field to (over)write meta data for.
+     * @param value The meta data value.
+     */
+    protected void putStreamingMeta(String key, Object value) {
+        if (streamingMeta == null) streamingMeta = new JSONObject();
+        streamingMeta.put(key, value);
+    }
+
+    private long findNextLineStart(long start, long stop) throws IOException {
+        try (var f = source.open()) {
+            if (f.skip(start) != start) {
+                // The log file rolled over, send it in full.
+                return 0;
+            }
+            byte[] buf = new byte[64 * 1024];
+            long searchPosition = start;
+            int n;
+            while (searchPosition + 1 < stop && (n = f.read(buf)) > 0) {
+                for (int i = 0; i < n && searchPosition + 1 < stop; i++) {
+                    if (buf[i] == '\n') {
+                        // We have a match, send from after the \n.
+                        putStreamingMeta("startFromNewLine", true);
+                        return searchPosition + 1;
+                    }
+                    searchPosition++;
+                }
+            }
+        }
+        // fall back to original start.
+        return start;
+    }
+
+    private void doProgressTextStreaming(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException {
+        setContentType(rsp);
+        String contentType = rsp.getContentType();
+        if (contentType == null || contentType.isEmpty()) {
+            contentType = "text/plain;charset=UTF-8";
+        }
+        if (contentType.contains("\r") || contentType.contains("\n")) {
+            throw new IOException("Found CR/LF in Content-Type. Aborting streaming mode");
+        }
+        String boundary = UUID.randomUUID().toString();
+        rsp.setContentType("multipart/form-data;boundary=" + boundary);
+        rsp.setStatus(HttpServletResponse.SC_OK);
+        putStreamingMeta("completed", completed);
+
+        try (var writer = rsp.getWriter()) {
+            writer.write("--" + boundary + "\r\n" // preamble for first part
+                    + "Content-Disposition: form-data;name=text\r\n"
+                    + "Content-Type: " + contentType + "\r\n"
+                    + "\r\n");
+            long length = source.exists() ? source.length() : 0;
+
+            String s = req.getParameter("start");
+            long start = (s != null) ? Long.parseLong(s) : 0;
+            if (start > length) {
+                // text rolled over, send in full
+                start = 0;
+            } else if (start < 0 && length <= -start) {
+                // tail on small file, send in full
+                start = 0;
+            } else if (start < 0) {
+                // tail on large file, start at first new line in tail
+                start = findNextLineStart(length + start, length);
+            } else if (req.getParameter(SEARCH_STOP_PARAMETER) != null) {
+                // fetch more, start at first new line before last start
+                long searchStop = Long.parseLong(req.getParameter(SEARCH_STOP_PARAMETER));
+                start = findNextLineStart(start, searchStop);
+            }
+            putStreamingMeta("start", start);
+
+            long end = length;
+            if (start != end) {
+                end = writeLogTo(start, writer);
+            }
+            putStreamingMeta("end", end);
+
+            writer.write("\r\n--" + boundary + "\r\n" // transition to next part
+                    + "Content-Disposition: form-data;name=meta\r\n"
+                    + "Content-Type: application/json;charset=utf-8\r\n"
+                    + "\r\n"
+                    + streamingMeta + "\r\n--" + boundary + "--");
+        }
+    }
+
     private void doProgressTextImpl(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException {
+        if (isStreamingRequest(req)) {
+            doProgressTextStreaming(req, rsp);
+            return;
+        }
+
         setContentType(rsp);
         rsp.setStatus(HttpServletResponse.SC_OK);
 
@@ -303,21 +452,85 @@ public class LargeText {
             start = Long.parseLong(s);
         }
 
-        if (source.length() < start) {
+        long length = source.length();
+
+        if (start > length) {
             start = 0; // text rolled over
         }
 
-        CharSpool spool = new CharSpool();
-        long r = writeLogTo(start, spool);
-
-        rsp.addHeader("X-Text-Size", String.valueOf(r));
+        CharSpool spool;
+        long textSize;
+        if (delegateToWriteLogTo(req, rsp)) {
+            spool = new CharSpool();
+            textSize = writeLogTo(start, spool);
+        } else {
+            spool = null;
+            textSize = length;
+        }
+        rsp.addHeader("X-Text-Size", String.valueOf(textSize));
         if (!completed) {
             rsp.addHeader("X-More-Data", "true");
         }
 
-        Writer w = createWriter(req, rsp, r - start);
-        spool.writeTo(new LineEndNormalizingWriter(w));
-        w.close();
+        try (var w = rsp.getWriter();
+                var lenw = new LineEndNormalizingWriter(w)) {
+            if (spool != null) {
+                spool.writeTo(lenw);
+            } else {
+                try (var os = new WriterOutputStream(lenw, charset);
+                        var tos = new ThresholdingOutputStream(os, length - start)) {
+                    writeLogUncounted(start, tos);
+                }
+            }
+        }
+    }
+
+    /**
+     * Whether {@link #doProgressText(StaplerRequest2, StaplerResponse2)} should delegate to {@link #writeLogTo(long, Writer)}.
+     * @return true if so (more compatible and allows extra HTTP headers to be set, but less efficient); false (default) for efficiency
+     */
+    protected boolean delegateToWriteLogTo(StaplerRequest2 req, StaplerResponse2 rsp) {
+        return false;
+    }
+
+    /** Like {@link org.apache.commons.io.output.ThresholdingOutputStream} but fixing the TODO in {@code write}. */
+    private static final class ThresholdingOutputStream extends OutputStream {
+        private final OutputStream delegate;
+        private long remaining;
+
+        ThresholdingOutputStream(OutputStream delegate, long threshold) {
+            this.delegate = delegate;
+            remaining = threshold;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            if (remaining > 0) {
+                delegate.write(b);
+                remaining--;
+            }
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            if (remaining >= len) {
+                delegate.write(b, off, len);
+                remaining -= len;
+            } else if (remaining > 0) {
+                delegate.write(b, off, (int) remaining);
+                remaining = 0;
+            }
+        }
+
+        @Override
+        public void close() throws IOException {
+            delegate.close();
+        }
+
+        @Override
+        public void flush() throws IOException {
+            delegate.flush();
+        }
     }
 
     protected void setContentType(StaplerResponse2 rsp) {
@@ -338,24 +551,6 @@ public class LargeText {
 
     private void setContentTypeImpl(StaplerResponse2 rsp) {
         rsp.setContentType("text/plain;charset=UTF-8");
-    }
-
-    protected Writer createWriter(StaplerRequest2 req, StaplerResponse2 rsp, long size) throws IOException {
-        if (ReflectionUtils.isOverridden(
-                LargeText.class, getClass(), "createWriter", StaplerRequest.class, StaplerResponse.class, long.class)) {
-            return createWriter(
-                    StaplerRequest.fromStaplerRequest2(req), StaplerResponse.fromStaplerResponse2(rsp), size);
-        } else {
-            return rsp.getWriter();
-        }
-    }
-
-    /**
-     * @deprecated use {@link #createWriter(StaplerRequest2, StaplerResponse2, long)}
-     */
-    @Deprecated
-    protected Writer createWriter(StaplerRequest req, StaplerResponse rsp, long size) throws IOException {
-        return rsp.getWriter();
     }
 
     /**
@@ -456,13 +651,33 @@ public class LargeText {
 
     /**
      * Represents the read session of the {@link Source}.
-     * Methods generally follow the contracts of {@link InputStream}.
+     * Methods follow the contracts of {@link InputStream}.
      */
-    private interface Session extends Closeable {
-        void skip(long start) throws IOException;
+    public interface Session extends Closeable {
+        /**
+         * See also {@link InputStream#skip(long)}.
+         * @param n Number of bytes to skip ahead.
+         * @return Number of bytes that were skipped.
+         * @throws IOException if an error occurs. Skipping less than n bytes does not need to throw.
+         */
+        long skip(long n) throws IOException;
 
+        /**
+         * See also {@link InputStream#read(byte[])}.
+         * @param buf Buffer to fill.
+         * @return Number of bytes that were filled.
+         * @throws IOException if an error occurs.
+         */
         int read(byte[] buf) throws IOException;
 
+        /**
+         * See also {@link InputStream#read(byte[], int, int)}.
+         * @param buf Buffer to fill.
+         * @param offset Number of bytes to skip in buf.
+         * @param length Number of bytes to read at most.
+         * @return Number of bytes that were read.
+         * @throws IOException if an error occurs.
+         */
         int read(byte[] buf, int offset, int length) throws IOException;
     }
 
@@ -481,9 +696,16 @@ public class LargeText {
             file.close();
         }
 
+        /**
+         * Like {@link RandomAccessFile#skipBytes} but with long instead of int.
+         */
         @Override
-        public void skip(long start) throws IOException {
-            file.seek(file.getFilePointer() + start);
+        public long skip(long n) throws IOException {
+            if (n <= 0) return 0;
+            long pos = file.getFilePointer();
+            long newPos = Math.min(file.length(), pos + n);
+            file.seek(newPos);
+            return newPos - pos;
         }
 
         @Override
@@ -517,10 +739,8 @@ public class LargeText {
         }
 
         @Override
-        public void skip(long start) throws IOException {
-            while (start > 0) {
-                start -= gz.skip(start);
-            }
+        public long skip(long n) throws IOException {
+            return gz.skip(n);
         }
 
         @Override
@@ -601,14 +821,8 @@ public class LargeText {
         }
 
         @Override
-        public void skip(long start) throws IOException {
-            while (start > 0) {
-                long diff = in.skip(start);
-                if (diff == 0) {
-                    throw new EOFException("Attempting to read past end of buffer");
-                }
-                start -= diff;
-            }
+        public long skip(long n) throws IOException {
+            return in.skip(n);
         }
 
         @Override

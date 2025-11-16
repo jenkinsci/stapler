@@ -1,9 +1,9 @@
 package org.kohsuke.stapler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.servlet.ServletException;
 import java.io.IOException;
@@ -13,22 +13,22 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Alan Harder
  */
-public class ClassDescriptorTest {
+class ClassDescriptorTest {
 
     @Test
-    public void loadConstructorParam() throws Exception {
+    void loadConstructorParam() throws Exception {
         assertEquals(0, ClassDescriptor.loadParameterNames(C.class.getConstructor()).length);
         String[] names = ClassDescriptor.loadParameterNames(C.class.getConstructor(int.class, int.class, String.class));
         assertEquals("[a, b, x]", Arrays.asList(names).toString());
     }
 
     @Test
-    public void loadParameterNamesFromReflection() {
+    void loadParameterNamesFromReflection() {
         // collect test cases
         Map<String, Method> testCases = new HashMap<>();
         for (Method m : ClassDescriptorTest.class.getDeclaredMethods()) {
@@ -45,9 +45,9 @@ public class ClassDescriptorTest {
         // run tests
         for (Map.Entry<String, String[]> entry : expected.entrySet()) {
             Method testMethod = testCases.get(entry.getKey());
-            assertNotNull("Method missing for " + entry.getKey(), testMethod);
+            assertNotNull(testMethod, "Method missing for " + entry.getKey());
             String[] result = ClassDescriptor.loadParameterNamesFromReflection(testMethod);
-            assertNotNull("Null result for " + entry.getKey(), result);
+            assertNotNull(result, "Null result for " + entry.getKey());
             if (!Arrays.equals(entry.getValue(), result)) {
                 StringBuilder buf = new StringBuilder("|");
                 for (String s : result) {
@@ -59,7 +59,7 @@ public class ClassDescriptorTest {
     }
 
     @Test
-    public void loadParametersFromAsm() throws Exception {
+    void loadParametersFromAsm() throws Exception {
         // collect test cases
         Map<String, Method> testCases = new HashMap<>();
         for (Method m : ClassDescriptorTest.class.getDeclaredMethods()) {
@@ -76,9 +76,9 @@ public class ClassDescriptorTest {
         // run tests
         for (Map.Entry<String, String[]> entry : expected.entrySet()) {
             Method testMethod = testCases.get(entry.getKey());
-            assertNotNull("Method missing for " + entry.getKey(), testMethod);
+            assertNotNull(testMethod, "Method missing for " + entry.getKey());
             String[] result = BytecodeReadingParanamer.lookupParameterNames(testMethod);
-            assertNotNull("Null result for " + entry.getKey(), result);
+            assertNotNull(result, "Null result for " + entry.getKey());
             if (!Arrays.equals(entry.getValue(), result)) {
                 StringBuilder buf = new StringBuilder("|");
                 for (String s : result) {
@@ -90,7 +90,7 @@ public class ClassDescriptorTest {
     }
 
     @Test
-    public void inheritedWebMethods() {
+    void inheritedWebMethods() {
         // http://bugs.sun.com/view_bug.do?bug_id=6342411
         assertEquals(
                 1,
@@ -102,8 +102,10 @@ public class ClassDescriptorTest {
     }
 
     public static class C {
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public C() {}
 
+        @SuppressWarnings("checkstyle:redundantmodifier")
         public C(int a, int b, String x) {}
     }
 
@@ -126,7 +128,7 @@ public class ClassDescriptorTest {
      * D.x() overrides B.x()
      */
     @Test
-    public void overridingMethod() throws Exception {
+    void overridingMethod() throws Exception {
         FunctionList methods = new ClassDescriptor(D.class).methods.name("x");
         assertEquals(1, methods.size());
 

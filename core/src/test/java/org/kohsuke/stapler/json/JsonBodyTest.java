@@ -1,14 +1,18 @@
 package org.kohsuke.stapler.json;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.net.URL;
 import org.htmlunit.HttpMethod;
 import org.htmlunit.WebRequest;
 import org.htmlunit.WebResponse;
+import org.junit.jupiter.api.Test;
 import org.kohsuke.stapler.test.JettyTestCase;
 
-public class JsonBodyTest extends JettyTestCase {
+class JsonBodyTest extends JettyTestCase {
 
-    public void testSmokes() throws Exception {
+    @Test
+    void testSmokes() throws Exception {
         WebRequest req = new WebRequest(new URL(url, "double"), HttpMethod.POST);
         req.setAdditionalHeader("Content-Type", "application/json");
         req.setRequestBody("{\"x\":10,\"y\":5}");

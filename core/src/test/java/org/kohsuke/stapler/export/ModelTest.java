@@ -24,28 +24,28 @@
 
 package org.kohsuke.stapler.export;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.jvnet.hudson.test.Issue;
 
-public class ModelTest {
+class ModelTest {
+
     private ExportConfig config =
             new ExportConfig().withFlavor(Flavor.JSON).withClassAttribute(ClassAttributeBehaviour.ALWAYS.simple());
     ModelBuilder builder = new ModelBuilder();
 
-    @Test // JENKINS-26775
-    public void syntheticMethodShouldNotBeExported() {
+    @Issue("JENKINS-26775")
+    @Test
+    void syntheticMethodShouldNotBeExported() {
         Model<Impl> model = builder.get(Impl.class);
-        assertEquals(
-                "Redundant properties discovered: " + model.getProperties(),
-                1,
-                model.getProperties().size());
+        assertEquals(1, model.getProperties().size(), "Redundant properties discovered: " + model.getProperties());
     }
 
     public interface GenericInterface<T extends Number> {
@@ -64,7 +64,7 @@ public class ModelTest {
     // ===========================================
 
     @Test
-    public void merge() throws Exception {
+    void merge() throws Exception {
         StringWriter sw = new StringWriter();
         builder.get(B.class).writeTo(b, Flavor.JSON.createDataWriter(b, sw, config));
         // B.x should maskc C.x, so x should be 40
@@ -76,7 +76,7 @@ public class ModelTest {
      * y is a property from a merged object but that shouldn't be visible to {@link NamedPathPruner}.
      */
     @Test
-    public void merge_pathPrune() throws Exception {
+    void merge_pathPrune() throws Exception {
         StringWriter sw = new StringWriter();
         builder.get(B.class).writeTo(b, new NamedPathPruner("z,y"), Flavor.JSON.createDataWriter(b, sw, config));
         assertEquals("{'_class':'B','y':20,'z':30}", sw.toString().replace('"', '\''));
@@ -110,7 +110,7 @@ public class ModelTest {
     // ===========================================
 
     @Test
-    public void skipNull() throws Exception {
+    void skipNull() throws Exception {
         StringWriter sw = new StringWriter();
         SomeNullProperty o = new SomeNullProperty();
         builder.get(SomeNullProperty.class).writeTo(o, TreePruner.DEFAULT, Flavor.JSON.createDataWriter(o, sw, config));
@@ -168,7 +168,7 @@ public class ModelTest {
     }
 
     @Test
-    public void testNotExportedBean() throws IOException {
+    void testNotExportedBean() throws IOException {
         ExportConfig config = new ExportConfig()
                 .withFlavor(Flavor.JSON)
                 .withExportInterceptor(new ExportInterceptor1())
@@ -176,22 +176,23 @@ public class ModelTest {
         StringWriter writer = new StringWriter();
         ExportableBean b = new ExportableBean();
         builder.get(ExportableBean.class).writeTo(b, Flavor.JSON.createDataWriter(b, writer, config));
-        Assert.assertEquals(
+        assertEquals(
                 "{\"_class\":\"" + ExportableBean.class.getName()
                         + "\",\"name\":\"property1\",\"notExportedBean\":{},\"shouldBeNull\":null}",
                 writer.toString());
     }
 
     // should fail when serializing getShouldBeSkippedAsNull()
-    @Test(expected = IOException.class)
-    public void testNotExportedBeanFailing() throws IOException {
+    @Test
+    void testNotExportedBeanFailing() throws Exception {
         ExportConfig config = new ExportConfig()
                 .withFlavor(Flavor.JSON)
                 .withExportInterceptor(new ExportInterceptor2())
                 .withSkipIfFail(true);
         StringWriter writer = new StringWriter();
         ExportableBean b = new ExportableBean();
-        builder.get(ExportableBean.class).writeTo(b, Flavor.JSON.createDataWriter(b, writer, config));
+        DataWriter createDataWriter = Flavor.JSON.createDataWriter(b, writer, config);
+        assertThrows(IOException.class, () -> builder.get(ExportableBean.class).writeTo(b, createDataWriter));
     }
 
     @ExportedBean

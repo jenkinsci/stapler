@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler.tags;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
@@ -94,9 +93,6 @@ public class Include extends SimpleTagSupport {
     }
 
     @Override
-    @SuppressFBWarnings(
-            value = "REQUESTDISPATCHER_FILE_DISCLOSURE",
-            justification = "Forwarding the request to be handled correctly.")
     public void doTag() throws JspException, IOException {
         Object it = getJspContext().getAttribute("it", PageContext.REQUEST_SCOPE);
         final Object oldIt = it;

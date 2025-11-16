@@ -259,17 +259,30 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     }
 
     @Override
-    public Map getParameterMap() {
-        Map parameterMap = super.getParameterMap();
+    public Map<String, String[]> getParameterMap() {
+        var parameterMap = super.getParameterMap();
         if (isMultipart()) {
             Map<String, String> data = getFormDataFormFields();
-            parameterMap.putAll(data);
+            parameterMap = new HashMap<>(parameterMap);
+            for (var e : data.entrySet()) {
+                var values = parameterMap.get(e.getKey());
+                if (values == null) {
+                    values = new String[] {e.getValue()};
+                } else {
+                    int len = values.length;
+                    var moreValues = Arrays.copyOf(values, len + 1);
+                    moreValues[len] = e.getValue();
+                    values = moreValues;
+                }
+                parameterMap.put(e.getKey(), values);
+            }
+            parameterMap = Collections.unmodifiableMap(parameterMap);
         }
         return parameterMap;
     }
 
     @Override
-    public Enumeration getParameterNames() {
+    public Enumeration<String> getParameterNames() {
         if (!isMultipart()) {
             return super.getParameterNames();
         }
@@ -680,18 +693,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             x.initCause(e);
             throw x;
         } catch (InvocationTargetException e) {
-            Throwable x = e.getTargetException();
-            if (x instanceof Error) {
-                throw (Error) x;
-            }
-            if (x instanceof RuntimeException) {
-                throw (RuntimeException) x;
-            }
-            // TODO apply similar logic to other catchers of InvocationTargetException as needed
-            if (x instanceof HttpResponse) {
-                throw HttpResponses.wrap((HttpResponse) x);
-            }
-            throw new IllegalArgumentException(x);
+            launderITE(e);
+            return null; // never reached, but keeps the compiler happy
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Failed to invoke " + c + " with " + Arrays.asList(args), e);
         }
@@ -801,7 +804,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 return a;
             }
 
-            Lister l = Lister.create(type, genericType);
+            // It is legitimate for a JSON object to convert to null (via BindInterceptor, DataBoundResolvable, etc.),
+            // but that is intended to signify an invalid/undesired object.  Being invalid, omit them from collections.
+            Lister l = createNullFreeLister(type, genericType);
 
             if (o instanceof JSONObject j) {
 
@@ -946,6 +951,26 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 return l.toCollection();
             }
         }
+
+        private Lister createNullFreeLister(Class itemType, Type itemGenericType) {
+            Lister l = Lister.create(itemType, itemGenericType);
+            if (l == null) {
+                return null;
+            }
+            return new Lister(l.itemType, l.itemGenericType) {
+                @Override
+                public Object toCollection() {
+                    return l.toCollection();
+                }
+
+                @Override
+                public void add(Object o) {
+                    if (o != null) {
+                        l.add(o);
+                    }
+                }
+            };
+        }
     }
 
     /**
@@ -1044,8 +1069,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
                     // only invoking public methods for security reasons
                     wm.invoke(r, bindJSON(wm.getGenericParameterTypes()[0], pt[0], j.get(key)));
-                } catch (IllegalAccessException | InvocationTargetException e) {
+                } catch (IllegalAccessException e) {
                     LOGGER.log(Level.WARNING, "Cannot access property " + key + " of " + r.getClass(), e);
+                } catch (InvocationTargetException e) {
+                    launderITE(e);
                 }
             }
         }
@@ -1053,6 +1080,24 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         invokePostConstruct(getWebApp().getMetaClass(r).getPostConstructMethods(), r);
 
         return r;
+    }
+
+    /**
+     * Launders {@link InvocationTargetException} to throw the actual exception
+     */
+    private static void launderITE(InvocationTargetException e) {
+        Throwable x = e.getTargetException();
+        if (x instanceof Error err) {
+            throw err;
+        }
+        if (x instanceof RuntimeException rt) {
+            throw rt;
+        }
+        // TODO apply similar logic to other catchers of InvocationTargetException as needed
+        if (x instanceof HttpResponse httpResponse) {
+            throw HttpResponses.wrap(httpResponse);
+        }
+        throw new IllegalArgumentException(x);
     }
 
     private Method findDataBoundSetter(Class c, String name) {
@@ -1162,7 +1207,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         }
     }
 
-    private void parseMultipartFormData() throws ServletException {
+    private void parseMultipartFormData() throws IOException, ServletException {
         if (parsedFormData != null) {
             return;
         }
@@ -1238,25 +1283,27 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
             if (isMultipart()) {
                 isSubmission = true;
-                parseMultipartFormData();
-                FileItem item = parsedFormData.get("json");
-                if (item != null) {
-                    if (item.getContentType() == null && getCharacterEncoding() != null) {
-                        // JENKINS-11543: If client doesn't set charset per part, use request encoding
-                        try {
-                            p = item.getString(Charset.forName(getCharacterEncoding()));
-                        } catch (UnsupportedEncodingException uee) {
-                            LOGGER.log(
-                                    Level.WARNING,
-                                    "Request has unsupported charset, using default for 'json' parameter",
-                                    uee);
+                try {
+                    parseMultipartFormData();
+                    FileItem item = parsedFormData.get("json");
+                    if (item != null) {
+                        if (item.getContentType() == null && getCharacterEncoding() != null) {
+                            // JENKINS-11543: If client doesn't set charset per part, use request encoding
+                            try {
+                                p = item.getString(Charset.forName(getCharacterEncoding()));
+                            } catch (UnsupportedEncodingException uee) {
+                                LOGGER.log(
+                                        Level.WARNING,
+                                        "Request has unsupported charset, using default for 'json' parameter",
+                                        uee);
+                                p = item.getString();
+                            }
+                        } else {
                             p = item.getString();
-                        } catch (IOException e) {
-                            throw new UncheckedIOException(e);
                         }
-                    } else {
-                        p = item.getString();
                     }
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
                 }
             } else {
                 p = getParameter("json");
@@ -1307,7 +1354,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     @Deprecated
     @Override
     public org.apache.commons.fileupload.FileItem getFileItem(String name) throws ServletException, IOException {
-        return org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(getFileItem2(name));
+        FileItem fileItem = getFileItem2(name);
+        return fileItem != null ? org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(fileItem) : null;
     }
 
     private static final Logger LOGGER = Logger.getLogger(RequestImpl.class.getName());
