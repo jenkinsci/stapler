@@ -106,15 +106,13 @@ public class ReallyStaticTagLibrary extends TagLibrary {
 
                 try {
                     output.startElement(getNsUri(), getLocalName(), getElementName(), actual);
-                    if (DISABLE_SCRIPT_BODY_PREFIX) {
+                    if (DISABLE_SCRIPT_BODY_PREFIX || !getLocalName().equals("script")) {
                         getTagBody().run(context, output);
                     } else {
                         final StringWriter writer = new StringWriter();
-                        // Write the body of the tag to a temporary buffer first to allow adding a prefix in case of
-                        // <script>
                         XMLOutput bodyOutput = XMLOutput.createXMLOutput(writer);
                         getTagBody().run(context, bodyOutput);
-                        if (writer.getBuffer().length() > 0 && getLocalName().equals("script")) {
+                        if (writer.getBuffer().length() > 0) {
                             output.write(
                                     "/*" + getFileName().substring(getFileName().length() - 33) + ":" + getLineNumber()
                                             + "*/\n");
