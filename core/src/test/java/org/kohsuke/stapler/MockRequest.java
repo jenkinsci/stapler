@@ -237,7 +237,7 @@ public class MockRequest implements HttpServletRequest {
     public final String[] getParameterValues(String name) {
         String v = getParameter(name);
         if (v == null) {
-            return new String[0];
+            return null;
         }
         return new String[] {v};
     }
