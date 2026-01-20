@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import org.apache.commons.beanutils.Converter;
+import org.springframework.core.convert.converter.Converter;
 
 /**
  * Represents the {@code Accept} HTTP header and help server choose the right media type to serve.
@@ -234,10 +234,10 @@ public final class AcceptHeader {
     }
 
     // this performs databinding for @Header parameter injection
-    public static class StaplerConverterImpl implements Converter {
+    public static class StaplerConverterImpl implements Converter<String, Object> {
         @Override
-        public Object convert(Class type, Object value) {
-            return new AcceptHeader(value.toString());
+        public Object convert(String source) {
+            return new AcceptHeader(source);
         }
     }
 }
