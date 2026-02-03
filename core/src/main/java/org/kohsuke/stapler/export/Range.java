@@ -2,6 +2,7 @@ package org.kohsuke.stapler.export;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,6 +29,9 @@ public class Range {
             s = s.subList(0, max);
         }
         if (min > 0) {
+            if (min >= s.size()) {
+                return Collections.emptyList();
+            }
             s = s.subList(min, s.size());
         }
         return s;
