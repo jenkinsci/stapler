@@ -28,6 +28,9 @@ public class Range {
             s = s.subList(0, max);
         }
         if (min > 0) {
+            if (min >= s.size()) {
+                return java.util.Collections.emptyList();
+            }
             s = s.subList(min, s.size());
         }
         return s;

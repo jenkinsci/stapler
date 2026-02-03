@@ -38,4 +38,20 @@ class RangeTest {
         assertThat(r.apply(list), contains("e", "f"));
         assertThat(r.apply(set), contains("e", "f"));
     }
+
+    @Test
+    void rangeBeyondListSizeReturnsEmpty() {
+        Range r = new Range(10, 20);
+        assertThat(r.apply(array), org.hamcrest.Matchers.empty());
+        assertThat(r.apply(list), org.hamcrest.Matchers.empty());
+        assertThat(r.apply(set), org.hamcrest.Matchers.emptyIterable());
+    }
+
+    @Test
+    void rangeExactlyAtBoundaryReturnsEmpty() {
+        Range r = new Range(6, 10);
+        assertThat(r.apply(array), org.hamcrest.Matchers.empty());
+        assertThat(r.apply(list), org.hamcrest.Matchers.empty());
+        assertThat(r.apply(set), org.hamcrest.Matchers.emptyIterable());
+    }
 }
