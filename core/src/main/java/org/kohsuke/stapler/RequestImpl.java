@@ -1224,9 +1224,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         tmpDir.deleteOnExit();
         upload = new JakartaServletDiskFileUpload(
                 DiskFileItemFactory.builder().setFile(tmpDir).get());
-        upload.setFileCountMax(FILEUPLOAD_MAX_FILES);
-        upload.setFileSizeMax(FILEUPLOAD_MAX_FILE_SIZE);
-        upload.setSizeMax(FILEUPLOAD_MAX_SIZE);
+        upload.setMaxFileCount(FILEUPLOAD_MAX_FILES);
+        upload.setMaxFileSize(FILEUPLOAD_MAX_FILE_SIZE);
+        upload.setMaxSize(FILEUPLOAD_MAX_SIZE);
         try {
             for (FileItem fi : upload.parseRequest(this)) {
                 parsedFormData.put(fi.getFieldName(), fi);
