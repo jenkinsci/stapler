@@ -1,1 +1,1 @@
-_extends: jenkinsci/.github
+_extends: github:jenkinsci/.github:/.github/release-drafter.yml
