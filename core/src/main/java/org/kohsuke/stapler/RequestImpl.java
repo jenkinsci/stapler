@@ -1340,6 +1340,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
     @Override
     public FileItem getFileItem2(String name) throws ServletException, IOException {
+        if (!isMultipart()) {
+            return null;
+        }
         parseMultipartFormData();
         if (parsedFormData == null) {
             return null;
