@@ -27,6 +27,7 @@ package org.kohsuke.stapler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.servlet.ReadListener;
@@ -179,6 +180,77 @@ class RequestImplTest {
 
         // Check getParameterMap
         assertTrue(request.getParameterMap().containsKey("text1"));
+    }
+
+    @Test
+    void test_npe_in_getFileItem2_without_content_type() throws IOException, ServletException {
+        final Stapler stapler = new Stapler();
+        final byte[] buf = generateMultipartData();
+        final ByteArrayInputStream is = new ByteArrayInputStream(buf);
+        final MockRequest mockRequest = new MockRequest() {
+            @Override
+            public String getContentType() {
+                return null; // Would usually be "multipart/form-data; boundary=mpboundary";
+            }
+
+            @Override
+            public String getCharacterEncoding() {
+                return "UTF-8";
+            }
+
+            @Override
+            public String getHeader(String name) {
+                // FILEUPLOAD-195/FILEUPLOAD-228: ignore FileUploadBase.CONTENT_LENGTH
+                return null;
+            }
+
+            @Override
+            public int getContentLength() {
+                return buf.length;
+            }
+
+            @Override
+            public ServletInputStream getInputStream() throws IOException {
+                return new ServletInputStream() {
+                    @Override
+                    public int read() throws IOException {
+                        return is.read();
+                    }
+
+                    @Override
+                    public int read(byte[] b) throws IOException {
+                        return is.read(b);
+                    }
+
+                    @Override
+                    public int read(byte[] b, int off, int len) throws IOException {
+                        return is.read(b, off, len);
+                    }
+
+                    @Override
+                    public boolean isFinished() {
+                        return is.available() != 0;
+                    }
+
+                    @Override
+                    public boolean isReady() {
+                        return true;
+                    }
+
+                    @Override
+                    public void setReadListener(ReadListener readListener) {
+                        // ignored
+                    }
+                };
+            }
+        };
+        mockRequest.parameters.put("p1", "somevalue");
+
+        RequestImpl request = new RequestImpl(stapler, mockRequest, Collections.emptyList(), null);
+
+        // Throws null pointer exception without the fix in
+        // https://github.com/jenkinsci/stapler/pull/769
+        assertNull(request.getFileItem2("pomFile"));
     }
 
     private byte[] generateMultipartData() throws IOException {
