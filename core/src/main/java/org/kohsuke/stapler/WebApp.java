@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.servlet.ServletContextWrapper;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletConfig;
@@ -327,6 +328,7 @@ public class WebApp {
      * Take care that the generation of MetaClass information takes a bit of time and so
      * this call should not be called too often
      */
+    @SuppressFBWarnings(value = "USO_UNSAFE_METHOD_SYNCHRONIZATION", justification = "Warning is unreasonable")
     public synchronized void clearMetaClassCache() {
         // No ClassValue.clear() method, so need to just null it out instead.
         classMap = null;

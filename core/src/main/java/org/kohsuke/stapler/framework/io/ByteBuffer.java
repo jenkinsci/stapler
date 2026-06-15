@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.framework.io;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,6 +92,7 @@ public class ByteBuffer extends OutputStream {
             private int pos = 0;
 
             @Override
+            @SuppressFBWarnings(value = "USO_UNSAFE_OBJECT_SYNCHRONIZATION", justification = "Warning is unreasonable")
             public int read() throws IOException {
                 synchronized (ByteBuffer.this) {
                     if (pos >= size) {
@@ -101,6 +103,7 @@ public class ByteBuffer extends OutputStream {
             }
 
             @Override
+            @SuppressFBWarnings(value = "USO_UNSAFE_OBJECT_SYNCHRONIZATION", justification = "Warning is unreasonable")
             public int read(byte[] b, int off, int len) throws IOException {
                 synchronized (ByteBuffer.this) {
                     if (size == pos) {
@@ -115,6 +118,7 @@ public class ByteBuffer extends OutputStream {
             }
 
             @Override
+            @SuppressFBWarnings(value = "USO_UNSAFE_OBJECT_SYNCHRONIZATION", justification = "Warning is unreasonable")
             public int available() throws IOException {
                 synchronized (ByteBuffer.this) {
                     return size - pos;
@@ -122,6 +126,7 @@ public class ByteBuffer extends OutputStream {
             }
 
             @Override
+            @SuppressFBWarnings(value = "USO_UNSAFE_OBJECT_SYNCHRONIZATION", justification = "Warning is unreasonable")
             public long skip(long n) throws IOException {
                 synchronized (ByteBuffer.this) {
                     int diff = (int) Math.min(n, size - pos);
