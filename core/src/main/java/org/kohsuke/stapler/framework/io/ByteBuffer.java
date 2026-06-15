@@ -23,7 +23,6 @@
 
 package org.kohsuke.stapler.framework.io;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,7 +72,6 @@ public class ByteBuffer extends OutputStream {
     }
 
     @Override
-    @SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "Legacy behavior.")
     public synchronized String toString() {
         return new String(buf, 0, size);
     }
