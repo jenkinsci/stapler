@@ -73,7 +73,6 @@ public class ByteBuffer extends OutputStream {
     }
 
     @Override
-    @SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "Legacy behavior.")
     public synchronized String toString() {
         return new String(buf, 0, size);
     }
@@ -93,6 +92,7 @@ public class ByteBuffer extends OutputStream {
             private int pos = 0;
 
             @Override
+            @SuppressFBWarnings(value = "USO_UNSAFE_OBJECT_SYNCHRONIZATION", justification = "Warning is unreasonable")
             public int read() throws IOException {
                 synchronized (ByteBuffer.this) {
                     if (pos >= size) {
@@ -103,6 +103,7 @@ public class ByteBuffer extends OutputStream {
             }
 
             @Override
+            @SuppressFBWarnings(value = "USO_UNSAFE_OBJECT_SYNCHRONIZATION", justification = "Warning is unreasonable")
             public int read(byte[] b, int off, int len) throws IOException {
                 synchronized (ByteBuffer.this) {
                     if (size == pos) {
@@ -117,6 +118,7 @@ public class ByteBuffer extends OutputStream {
             }
 
             @Override
+            @SuppressFBWarnings(value = "USO_UNSAFE_OBJECT_SYNCHRONIZATION", justification = "Warning is unreasonable")
             public int available() throws IOException {
                 synchronized (ByteBuffer.this) {
                     return size - pos;
@@ -124,6 +126,7 @@ public class ByteBuffer extends OutputStream {
             }
 
             @Override
+            @SuppressFBWarnings(value = "USO_UNSAFE_OBJECT_SYNCHRONIZATION", justification = "Warning is unreasonable")
             public long skip(long n) throws IOException {
                 synchronized (ByteBuffer.this) {
                     int diff = (int) Math.min(n, size - pos);

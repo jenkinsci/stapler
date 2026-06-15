@@ -34,8 +34,9 @@ class AcceptHeaderTest {
 
     @Test
     void headerSelectUnsupportedMediaType() {
-        assertThrows(HttpResponses.HttpResponseException.class, () -> new AcceptHeader("text/html")
-                .select("application/json"));
+        assertThrows(
+                HttpResponses.HttpResponseException.class,
+                () -> new AcceptHeader("text/html").select("application/json"));
     }
 
     @Test
