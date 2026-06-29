@@ -36,6 +36,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.kohsuke.stapler.Ancestor;
+import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerFallback;
@@ -69,6 +70,30 @@ public class BoundObjectTable implements StaplerFallback {
         return name.substring(1)
                 .chars()
                 .allMatch(it -> Character.isJavaIdentifierPart(it) && !Character.isIdentifierIgnorable(it) && it < 256);
+    }
+
+    /**
+     * Explicitly unbind this object via HTTP.
+     *
+     * @throws HttpResponses.HttpResponseException expected outcome returning 200 OK
+     */
+    public void doRelease(StaplerRequest2 req, StaplerResponse2 rsp)
+            throws HttpResponses.HttpResponseException, IOException {
+        final Table table = resolve(false);
+        if (table == null) {
+            rsp.sendError(404);
+            return;
+        }
+
+        String id = req.getRestOfPath().replace("/", "");
+
+        Object object = table.resolve(id);
+        if (object == null) {
+            rsp.sendError(200);
+            return;
+        }
+        table.release(id);
+        rsp.sendError(200);
     }
 
     /**
@@ -232,6 +257,11 @@ public class BoundObjectTable implements StaplerFallback {
                 }
 
                 @Override
+                public String getReleaseURL() {
+                    return Stapler.getCurrentRequest2().getContextPath() + RELEASE_PREFIX + id;
+                }
+
+                @Override
                 public String getURL() {
                     return Stapler.getCurrentRequest2().getContextPath() + PREFIX + id;
                 }
@@ -351,6 +381,7 @@ public class BoundObjectTable implements StaplerFallback {
             Duration.ofDays(1).toMillis());
 
     public static final String PREFIX = "/$stapler/bound/";
+    public static final String RELEASE_PREFIX = "/$stapler/bound/release/";
     static final String SCRIPT_PREFIX = "/$stapler/bound/script";
 
     private static final Logger LOGGER = Logger.getLogger(BoundObjectTable.class.getName());

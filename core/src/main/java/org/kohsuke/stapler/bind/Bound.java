@@ -55,6 +55,13 @@ public abstract class Bound implements HttpResponse {
     public abstract String getURL();
 
     /**
+     * The URL where the object can be released, or {@code null} if not applicable.
+     */
+    public String getReleaseURL() {
+        return null;
+    }
+
+    /**
      * Gets the bound object.
      */
     public abstract Object getTarget();
