@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.servlet.ServletException;
 import java.io.IOException;
@@ -52,6 +53,17 @@ public abstract class Dispatcher {
      */
     public abstract boolean dispatch(RequestImpl req, ResponseImpl rsp, Object node)
             throws IOException, ServletException, IllegalAccessException, InvocationTargetException;
+
+    /**
+     * If this is a purely navigational dispatcher, indicates the next ancestor object.
+     * @param node starting point
+     * @param tokens the path to parse through
+     * @return the next node, if any
+     */
+    @CheckForNull
+    public Object next(Object node, TokenList tokens) {
+        return null;
+    }
 
     /**
      * Diagnostic string that explains this dispatch rule.

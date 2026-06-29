@@ -190,6 +190,21 @@ public interface StaplerRequest2 extends HttpServletRequest {
     Ancestor findAncestor(Object o);
 
     /**
+     * Finds ancestor objects which can be inferred from the referer header, if any.
+     * This is useful when the current request is triggered by JavaScript from a page
+     * and needs to look up certain types of objects in that page.
+     */
+    default List<Ancestor> getAncestorsFromReferer() {
+        var referer = getReferer();
+        var rootPath = getRootPath();
+        if (referer != null && referer.startsWith(rootPath)) {
+            return getStapler().parseAncestors(referer.substring(rootPath.length()));
+        } else {
+            return List.of();
+        }
+    }
+
+    /**
      * Short for {@code getParameter(name)!=null}
      */
     boolean hasParameter(String name);
