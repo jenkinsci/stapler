@@ -65,10 +65,6 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.beanutils.Converter;
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.fileupload2.core.DiskFileItem;
 import org.apache.commons.fileupload2.core.DiskFileItemFactory;
 import org.apache.commons.fileupload2.core.FileItem;
@@ -84,6 +80,11 @@ import org.kohsuke.stapler.bind.BoundObjectTable;
 import org.kohsuke.stapler.lang.Klass;
 import org.kohsuke.stapler.lang.MethodRef;
 import org.kohsuke.stapler.util.IllegalReflectiveAccessLogHandler;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.InvalidPropertyException;
+import org.springframework.core.convert.converter.Converter;
 
 /**
  * {@link StaplerRequest2} implementation.
@@ -617,7 +618,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 throw new IllegalArgumentException("Unable to convert to " + types[i]);
             }
 
-            args[i] = converter.convert(types[i], param);
+            args[i] = converter.convert(param);
         }
 
         return invokeConstructor(c, args);
@@ -734,7 +735,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                 if (last) {
                     copyProperty(bean, token, value);
                 } else {
-                    bean = BeanUtils.getProperty(bean, token);
+                    BeanWrapper wrapper = new BeanWrapperImpl(bean);
+                    bean = wrapper.getPropertyValue(token);
                 }
             } catch (IllegalAccessException x) {
                 throw new IllegalAccessError(x.getMessage());
@@ -747,8 +749,8 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     throw (Error) e;
                 }
                 throw new RuntimeException(x);
-            } catch (NoSuchMethodException e) {
-                // ignore if there's no such property
+            } catch (Exception e) {
+                // ignore if there's no such property or other spring bean exceptions
             }
         }
     }
@@ -936,7 +938,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                     throw new IllegalArgumentException("Unable to convert to " + type);
                 }
 
-                return converter.convert(type, o);
+                return converter.convert(o.toString());
             } else { // single value in a collection
                 Converter converter = Stapler.lookupConverter(l.itemType);
                 if (converter == null) {
@@ -946,7 +948,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                         throw new IllegalArgumentException("Unable to convert to " + l.itemType);
                     }
                 } else {
-                    l.add(converter.convert(l.itemType, o));
+                    l.add(converter.convert(o.toString()));
                 }
                 return l.toCollection();
             }
@@ -1146,14 +1148,15 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     private TypePair getPropertyType(Object bean, String name)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            PropertyDescriptor propDescriptor = PropertyUtils.getPropertyDescriptor(bean, name);
+            BeanWrapper wrapper = new BeanWrapperImpl(bean);
+            PropertyDescriptor propDescriptor = wrapper.getPropertyDescriptor(name);
             if (propDescriptor != null) {
                 Method m = propDescriptor.getWriteMethod();
                 if (m != null) {
                     return new TypePair(m.getGenericParameterTypes()[0], m.getParameterTypes()[0]);
                 }
             }
-        } catch (NoSuchMethodException e) {
+        } catch (Exception e) {
             // no such property
         }
 
@@ -1173,9 +1176,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     private static void copyProperty(Object bean, String name, Object value)
             throws IllegalAccessException, InvocationTargetException {
         PropertyDescriptor propDescriptor;
+        BeanWrapper wrapper = new BeanWrapperImpl(bean);
         try {
-            propDescriptor = PropertyUtils.getPropertyDescriptor(bean, name);
-        } catch (NoSuchMethodException e) {
+            propDescriptor = wrapper.getPropertyDescriptor(name);
+        } catch (InvalidPropertyException e) {
             propDescriptor = null;
         }
         if (propDescriptor != null && propDescriptor.getWriteMethod() == null) {
@@ -1184,11 +1188,11 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         if (propDescriptor != null) {
             Converter converter = Stapler.lookupConverter(propDescriptor.getPropertyType());
             if (converter != null) {
-                value = converter.convert(propDescriptor.getPropertyType(), value);
+                value = converter.convert(value.toString());
             }
             try {
-                PropertyUtils.setSimpleProperty(bean, name, value);
-            } catch (NoSuchMethodException e) {
+                wrapper.setPropertyValue(name, value);
+            } catch (BeansException e) {
                 throw new NoSuchMethodError(e.getMessage());
             }
             return;
@@ -1197,12 +1201,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         // try a field
         try {
             Field field = bean.getClass().getField(name);
-            Converter converter = ConvertUtils.lookup(field.getType());
+            Converter converter = Stapler.lookupConverter(field.getType());
             if (converter != null) {
-                value = converter.convert(field.getType(), value);
+                value = converter.convert(value.toString());
             }
             field.set(bean, value);
-        } catch (NoSuchFieldException e) {
+        } catch (Exception e) {
             // no such field
         }
     }

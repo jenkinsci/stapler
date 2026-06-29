@@ -1,6 +1,6 @@
 package org.kohsuke.stapler;
 
-import org.apache.commons.beanutils.Converter;
+import org.springframework.core.convert.converter.Converter;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -13,10 +13,10 @@ public class ObjectWithCustomConverter {
         this.y = y;
     }
 
-    public static class StaplerConverterImpl implements Converter {
+    public static class StaplerConverterImpl implements Converter<String, Object> {
         @Override
-        public Object convert(Class type, Object value) {
-            String[] tokens = value.toString().split(",");
+        public Object convert(String source) {
+            String[] tokens = source.split(",");
             return new ObjectWithCustomConverter(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]));
         }
     }
