@@ -203,7 +203,7 @@ public abstract class Function {
 
                 // if the databinding method is provided, call that
                 Function binder = PARSE_METHODS.get(t);
-                if (binder != RETURN_NULL) {
+                if (binder != StaticFunction.RETURN_NULL) {
                     arguments[i] = binder.bindAndInvoke(null, req, rsp);
                     continue;
                 }
@@ -222,59 +222,44 @@ public abstract class Function {
      * Computing map that discovers the static 'fromStapler' method from a class.
      * The discovered method will be returned as a Function so that the invocation can do parameter injections.
      */
-    private static final ClassValue<Function> PARSE_METHODS;
+    private static final ClassValue<Function> PARSE_METHODS = new ClassValue<>() {
+        @Override
+        public Function computeValue(Class<?> from) {
+            // MethdFunction for invoking a static method as a static method
+            FunctionList methods = new ClassDescriptor(from).methods.name("fromStapler");
+            switch (methods.size()) {
+                case 0:
+                    return StaticFunction.RETURN_NULL;
+                case 1:
+                    Method m = ((MethodFunction) methods.get(0)).m;
+                    return new MethodFunction(m) {
+                        @Override
+                        public Class[] getParameterTypes() {
+                            return m.getParameterTypes();
+                        }
 
-    private static final Function RETURN_NULL;
+                        @Override
+                        public Type[] getGenericParameterTypes() {
+                            return m.getGenericParameterTypes();
+                        }
 
-    static {
-        try {
-            RETURN_NULL = new StaticFunction(Function.class.getMethod("returnNull"));
-        } catch (NoSuchMethodException e) {
-            throw new AssertionError(e); // impossible
-        }
+                        @Override
+                        public Annotation[][] getParameterAnnotations() {
+                            return m.getParameterAnnotations();
+                        }
 
-        PARSE_METHODS = new ClassValue<>() {
-            @Override
-            public Function computeValue(Class<?> from) {
-                // MethdFunction for invoking a static method as a static method
-                FunctionList methods = new ClassDescriptor(from).methods.name("fromStapler");
-                switch (methods.size()) {
-                    case 0:
-                        return RETURN_NULL;
-                    case 1:
-                        Method m = ((MethodFunction) methods.get(0)).m;
-                        return new MethodFunction(m) {
-                            @Override
-                            public Class[] getParameterTypes() {
-                                return m.getParameterTypes();
-                            }
-
-                            @Override
-                            public Type[] getGenericParameterTypes() {
-                                return m.getGenericParameterTypes();
-                            }
-
-                            @Override
-                            public Annotation[][] getParameterAnnotations() {
-                                return m.getParameterAnnotations();
-                            }
-
-                            @Override
-                            public Object invoke(StaplerRequest2 req, StaplerResponse2 rsp, Object o, Object... args)
-                                    throws IllegalAccessException, InvocationTargetException {
-                                return m.invoke(null, args);
-                            }
-                        };
-                    default:
-                        throw new IllegalArgumentException("Too many 'fromStapler' methods on " + from);
-                }
+                        @Override
+                        public Object invoke(StaplerRequest2 req, StaplerResponse2 rsp, Object o, Object... args)
+                                throws IllegalAccessException, InvocationTargetException {
+                            return m.invoke(null, args);
+                        }
+                    };
+                default:
+                    throw new IllegalArgumentException("Too many 'fromStapler' methods on " + from);
             }
-        };
-    }
+        }
+    };
 
-    /**
-     * @see StaticFunction#RETURN_NULL
-     */
     public static Object returnNull() {
         return null;
     }
@@ -568,6 +553,16 @@ public abstract class Function {
      * Static methods on the wrapper type.
      */
     static final class StaticFunction extends MethodFunction {
+        static final Function RETURN_NULL;
+
+        static {
+            try {
+                RETURN_NULL = new StaticFunction(Function.class.getMethod("returnNull"));
+            } catch (NoSuchMethodException e) {
+                throw new AssertionError(e); // impossible
+            }
+        }
+
         StaticFunction(Method m) {
             super(m);
         }
