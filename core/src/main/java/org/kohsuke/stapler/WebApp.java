@@ -147,7 +147,8 @@ public class WebApp {
 
     private final CopyOnWriteArrayList<HttpResponseRenderer> responseRenderers = new CopyOnWriteArrayList<>();
 
-    private CrumbIssuer crumbIssuer = CrumbIssuer.DEFAULT;
+    /** By default, CSRF protection is disabled since TODO as the crumb issuer requires additional configuration now. */
+    private CrumbIssuer crumbIssuer = CrumbIssuer.NONE;
 
     /**
      * Provides access to {@link Stapler} servlet instances. This is useful

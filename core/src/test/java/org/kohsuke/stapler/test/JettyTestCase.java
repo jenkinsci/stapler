@@ -1,11 +1,13 @@
 package org.kohsuke.stapler.test;
 
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.UUID;
 import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.eclipse.jetty.ee9.webapp.WebAppContext;
@@ -17,7 +19,9 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.htmlunit.WebClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.kohsuke.stapler.CrumbIssuer;
 import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.WebApp;
 
 /**
@@ -39,6 +43,27 @@ public abstract class JettyTestCase {
     protected Stapler stapler;
     protected ServletContext servletContext;
     protected WebApp webApp;
+
+    private static final String ATTRIBUTE_NAME = JettyTestCase.class.getName() + ".CRUMB_ISSUER";
+
+    protected static final CrumbIssuer CRUMB_ISSUER = new CrumbIssuer() {
+        @Override
+        public String issueCrumb(StaplerRequest2 request) {
+            HttpSession s = request.getSession();
+            String v = (String) s.getAttribute(ATTRIBUTE_NAME);
+            if (v != null) {
+                return v;
+            }
+            v = UUID.randomUUID().toString();
+            s.setAttribute(ATTRIBUTE_NAME, v);
+            return v;
+        }
+
+        @Override
+        public String getCrumbExpression() {
+            return "document.head.dataset.crumbValue";
+        }
+    };
 
     @BeforeEach
     protected void beforeEach() throws Exception {
@@ -62,6 +87,7 @@ public abstract class JettyTestCase {
 
         servletContext = context.getServletContext();
         webApp = WebApp.get(servletContext);
+        webApp.setCrumbIssuer(CRUMB_ISSUER);
 
         // export the test object as the root as a reasonable default.
         webApp.setApp(this);

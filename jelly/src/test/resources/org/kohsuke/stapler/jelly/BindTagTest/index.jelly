@@ -1,5 +1,6 @@
 <j:jelly xmlns:st="jelly:stapler" xmlns:j="jelly:core">
   <html>
+    <head data-crumb-value="${it.crumbValue}"/>
     <body>
       <st:bind var="v" value="${it}"/>
     </body>
