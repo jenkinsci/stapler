@@ -57,9 +57,9 @@ class JSONDataWriter implements DataWriter {
     public void name(String name) throws IOException {
         comma();
         if (indent < 0) {
-            out.write('"' + name + "\":");
+            out.write('"' + escape(name) + "\":");
         } else {
-            out.write('"' + name + "\" : ");
+            out.write('"' + escape(name) + "\" : ");
         }
         needComma = false;
     }
@@ -112,8 +112,11 @@ class JSONDataWriter implements DataWriter {
 
     @Override
     public void value(String v) throws IOException {
+        data('"' + escape(v) + '"');
+    }
+
+    protected static String escape(String v) {
         StringBuilder buf = new StringBuilder(v.length());
-        buf.append('\"');
         for (int i = 0; i < v.length(); i++) {
             char c = v.charAt(i);
             if (Character.isISOControl(c) || Character.isHighSurrogate(c) || Character.isLowSurrogate(c)) {
@@ -149,8 +152,7 @@ class JSONDataWriter implements DataWriter {
                 }
             }
         }
-        buf.append('\"');
-        data(buf.toString());
+        return buf.toString();
     }
 
     @Override
