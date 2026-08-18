@@ -109,7 +109,8 @@ class JsonOutputFilterTest extends JettyTestCase {
     public void doIndex(StaplerResponse2 rsp) throws IOException {
         rsp.setContentType("text/html");
         PrintWriter w = rsp.getWriter();
-        w.println("<html><body><script src='script'></script>");
+        w.println("<html><head data-crumb-value='"
+                + WebApp.getCurrent().getCrumbIssuer().issueCrumb() + "'></head><body><script src='script'></script>");
         w.println("<script>var v = "
                 + WebApp.getCurrent().boundObjectTable.bind(this).getProxyScript() + ";</script>");
         w.println("<script>var callback = function(t){var x=t.responseObject(); alert(JSON.stringify(x)); };</script>");
