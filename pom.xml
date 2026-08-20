@@ -29,6 +29,7 @@
     <module>jsp</module>
     <module>jelly</module>
     <module>groovy</module>
+    <module>html</module>
   </modules>
 
   <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false" child.scm.url.inherit.append.path="false">
