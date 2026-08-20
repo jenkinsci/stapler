@@ -57,6 +57,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -64,21 +65,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.sf.json.JSONObject;
-import org.apache.commons.beanutils.ConversionException;
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.beanutils.ConvertUtilsBean;
-import org.apache.commons.beanutils.Converter;
-import org.apache.commons.beanutils.converters.DoubleConverter;
-import org.apache.commons.beanutils.converters.FloatConverter;
-import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.bind.BoundObjectTable;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.support.DefaultConversionService;
 
 /**
  * Maps an HTTP request to a method call / JSP invocation against a model object
@@ -1151,21 +1148,31 @@ public class Stapler extends HttpServlet {
     }
 
     /**
-     * This is the {@link Converter} registry that Stapler uses, primarily
+     * This is the converter registry that Stapler uses, primarily
      * for form-to-JSON binding in {@link StaplerRequest2#bindJSON(Class, JSONObject)}
      * and its family of methods.
      */
-    public static final ConvertUtilsBean CONVERT_UTILS = new ConvertUtilsBean();
+    public static final Map<Class<?>, Converter<String, Object>> CONVERT_UTILS = new ConcurrentHashMap<>();
 
-    public static Converter lookupConverter(Class type) {
-        Converter c = CONVERT_UTILS.lookup(type);
+    /**
+     * Spring's default conversion service for type conversion
+     */
+    static final DefaultConversionService CONVERSION_SERVICE = new DefaultConversionService();
+
+    public static Converter<String, Object> lookupConverter(Class type) {
+        Converter<String, Object> c = CONVERT_UTILS.get(type);
         if (c != null) {
             return c;
         }
-        // fall back to compatibility behavior
-        c = ConvertUtils.lookup(type);
-        if (c != null) {
-            return c;
+
+        // EnumSet conversion is handled by JSON binding, don't convert from string
+        if (EnumSet.class.isAssignableFrom(type)) {
+            return null;
+        }
+
+        // check if Spring's conversion service can handle it
+        if (CONVERSION_SERVICE.canConvert(String.class, type)) {
+            return source -> CONVERSION_SERVICE.convert(source, type);
         }
 
         // look for the associated converter
@@ -1175,7 +1182,7 @@ public class Stapler extends HttpServlet {
             }
             Class<?> cl = type.getClassLoader().loadClass(type.getName() + "$StaplerConverterImpl");
             c = (Converter) cl.getDeclaredConstructor().newInstance();
-            CONVERT_UTILS.register(c, type);
+            CONVERT_UTILS.put(type, c);
             return c;
         } catch (ClassNotFoundException e) {
             // fall through
@@ -1206,77 +1213,35 @@ public class Stapler extends HttpServlet {
             }
         }
 
-        // bean utils doesn't check the super type, so converters that apply to multiple types
-        // need to be handled outside its semantics
-        if (Enum.class.isAssignableFrom(type)) { // enum
-            return ENUM_CONVERTER;
-        }
-
         return null;
     }
 
     static {
-        CONVERT_UTILS.register(
-                new Converter() {
-                    @Override
-                    public Object convert(Class type, Object value) {
-                        if (value == null) {
-                            return null;
-                        }
-                        try {
-                            return new URL(value.toString());
-                        } catch (MalformedURLException e) {
-                            throw new ConversionException(e);
-                        }
-                    }
-                },
-                URL.class);
+        CONVERT_UTILS.put(URL.class, source -> {
+            try {
+                return new URL(source);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
-        CONVERT_UTILS.register(
-                new Converter() {
-                    @Override
-                    public FileItem convert(Class type, Object value) {
-                        if (value == null) {
-                            return null;
-                        }
-                        try {
-                            return Stapler.getCurrentRequest2().getFileItem2(value.toString());
-                        } catch (ServletException | IOException e) {
-                            throw new ConversionException(e);
-                        }
-                    }
-                },
-                FileItem.class);
+        CONVERT_UTILS.put(FileItem.class, source -> {
+            try {
+                return Stapler.getCurrentRequest2().getFileItem2(source);
+            } catch (ServletException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
-        CONVERT_UTILS.register(
-                new Converter() {
-                    @Override
-                    public org.apache.commons.fileupload.FileItem convert(Class type, Object value) {
-                        if (value == null) {
-                            return null;
-                        }
-                        try {
-                            return org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(
-                                    Stapler.getCurrentRequest2().getFileItem2(value.toString()));
-                        } catch (ServletException | IOException e) {
-                            throw new ConversionException(e);
-                        }
-                    }
-                },
-                org.apache.commons.fileupload.FileItem.class);
-
-        // mapping for boxed types should map null to null, instead of null to zero.
-        CONVERT_UTILS.register(new IntegerConverter(null), Integer.class);
-        CONVERT_UTILS.register(new FloatConverter(null), Float.class);
-        CONVERT_UTILS.register(new DoubleConverter(null), Double.class);
+        CONVERT_UTILS.put(org.apache.commons.fileupload.FileItem.class, source -> {
+            try {
+                return org.apache.commons.fileupload.FileItem.fromFileUpload2FileItem(
+                        Stapler.getCurrentRequest2().getFileItem2(source));
+            } catch (ServletException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
-
-    private static final Converter ENUM_CONVERTER = new Converter() {
-        @Override
-        public Object convert(Class type, Object value) {
-            return Enum.valueOf(type, value.toString());
-        }
-    };
 
     /**
      * Escapes HTML/XML unsafe characters for the PCDATA section.
