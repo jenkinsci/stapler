@@ -216,6 +216,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         return new RenderOnDemandParameters(
                 "makeStaplerProxy",
                 bound.getURL(),
+                bound.getReleaseURL(),
                 getWebApp().getCrumbIssuer().issueCrumb(),
                 bound.getBoundJavaScriptUrlNames());
     }
