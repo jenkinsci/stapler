@@ -27,7 +27,7 @@ import io.jenkins.servlet.ServletExceptionWrapper;
 import jakarta.servlet.ServletException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import org.apache.commons.beanutils.Converter;
+import org.springframework.core.convert.converter.Converter;
 
 /**
  * Handles stapler parameter annotations by determining what values to inject for a method call.
@@ -100,12 +100,12 @@ public abstract class AnnotationHandler<T extends Annotation> {
      * from String.
      */
     protected final Object convert(Class targetType, String value) {
-        Converter converter = Stapler.lookupConverter(targetType);
+        Converter<String, Object> converter = Stapler.lookupConverter(targetType);
         if (converter == null) {
             throw new IllegalArgumentException("Unable to convert to " + targetType);
         }
 
-        return converter.convert(targetType, value);
+        return converter.convert(value);
     }
 
     static Object handle(StaplerRequest2 request, Annotation[] annotations, String parameterName, Class targetType)
