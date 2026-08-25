@@ -161,6 +161,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     private static /* nonfinal for Jenkins script console */ long FILEUPLOAD_MAX_SIZE =
             Long.getLong(RequestImpl.class.getName() + ".FILEUPLOAD_MAX_SIZE", -1);
 
+    private static /* nonfinal for Jenkins script console */ boolean ALLOW_STATIC_FIELD_BINDING =
+            Boolean.getBoolean(RequestImpl.class.getName() + ".ALLOW_STATIC_FIELD_BINDING");
+
     static {
         ALLOWED_HTTP_VERBS_FOR_FORMS = Arrays.stream(
                         System.getProperty(RequestImpl.class.getName() + ".ALLOWED_HTTP_VERBS_FOR_FORMS", "POST")
@@ -1149,7 +1152,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             PropertyDescriptor propDescriptor = PropertyUtils.getPropertyDescriptor(bean, name);
             if (propDescriptor != null) {
                 Method m = propDescriptor.getWriteMethod();
-                if (m != null) {
+                if (m != null && (!Modifier.isStatic(m.getModifiers()) || ALLOW_STATIC_FIELD_BINDING)) {
                     return new TypePair(m.getGenericParameterTypes()[0], m.getParameterTypes()[0]);
                 }
             }
@@ -1159,7 +1162,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
         // try a field
         try {
-            return new TypePair(bean.getClass().getField(name));
+            final Field field = bean.getClass().getField(name);
+            if (!Modifier.isStatic(field.getModifiers()) || ALLOW_STATIC_FIELD_BINDING) {
+                return new TypePair(field);
+            }
         } catch (NoSuchFieldException e) {
             // no such field
         }
@@ -1197,6 +1203,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         // try a field
         try {
             Field field = bean.getClass().getField(name);
+            if (!ALLOW_STATIC_FIELD_BINDING && Modifier.isStatic(field.getModifiers())) {
+                return;
+            }
             Converter converter = ConvertUtils.lookup(field.getType());
             if (converter != null) {
                 value = converter.convert(field.getType(), value);
