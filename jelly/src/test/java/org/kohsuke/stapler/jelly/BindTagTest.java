@@ -13,7 +13,7 @@ import org.kohsuke.stapler.test.JettyTestCase;
 /**
  * @author Kohsuke Kawaguchi
  */
-class BindTagTest extends JettyTestCase {
+public class BindTagTest extends JettyTestCase {
 
     private String value;
 
@@ -43,5 +43,10 @@ class BindTagTest extends JettyTestCase {
     public void jsFoo(String arg, int arg2) {
         this.value = arg;
         this.number = arg2;
+    }
+
+    /* index.jelly */
+    public String getCrumbValue() {
+        return webApp.getCrumbIssuer().issueCrumb();
     }
 }

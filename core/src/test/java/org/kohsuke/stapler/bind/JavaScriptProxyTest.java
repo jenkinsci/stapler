@@ -75,7 +75,8 @@ class JavaScriptProxyTest extends JettyTestCase {
         rsp.setContentType("text/html");
         String crumb = req.getWebApp().getCrumbIssuer().issueCrumb();
         PrintWriter w = rsp.getWriter();
-        w.println("<html><body><script src='script'></script>");
+        w.println("<html><head data-crumb-value='"
+                + WebApp.getCurrent().getCrumbIssuer().issueCrumb() + "'></head><body><script src='script'></script>");
         w.println(
                 "<script>var v = makeStaplerProxy('/','" + crumb
                         + "',['foo','bar']);var callback = function(t){var x=t.responseObject();alert(typeof(x)+':'+x)};</script>");
@@ -85,7 +86,8 @@ class JavaScriptProxyTest extends JettyTestCase {
     public void doBindAnonymous(StaplerResponse2 rsp) throws IOException {
         rsp.setContentType("text/html");
         PrintWriter w = rsp.getWriter();
-        w.println("<html><body><script src='script'></script>");
+        w.println("<html><head data-crumb-value='"
+                + WebApp.getCurrent().getCrumbIssuer().issueCrumb() + "'></head><body><script src='script'></script>");
         w.println("<script>var v = "
                 + WebApp.getCurrent().boundObjectTable.bind(anonymous).getProxyScript() + ";</script>");
         w.println("</body></html>");

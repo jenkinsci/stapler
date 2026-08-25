@@ -1,8 +1,5 @@
 package org.kohsuke.stapler;
 
-import jakarta.servlet.http.HttpSession;
-import java.util.UUID;
-
 /**
  * Generates a nonce value that allows us to protect against cross-site request forgery (CSRF) attacks.
  *
@@ -44,6 +41,14 @@ public abstract class CrumbIssuer {
     }
 
     /**
+     * Returns the JavaScript expression that evaluates to the crumb value for the given request,
+     * for example, {@code document.head.dataset.crumbValue}.
+     *
+     * @return the JavaScript expression that evaluates to the crumb value for the given request. Never the crumb itself.
+     */
+    public abstract String getCrumbExpression();
+
+    /**
      * Sends the crumb value in plain text, enabling retrieval through XmlHttpRequest.
      */
     public HttpResponse doCrumb() {
@@ -76,21 +81,17 @@ public abstract class CrumbIssuer {
     }
 
     /**
-     * Default crumb issuer.
+     * No-op crumb issuer.
      */
-    public static final CrumbIssuer DEFAULT = new CrumbIssuer() {
+    public static final CrumbIssuer NONE = new CrumbIssuer() {
         @Override
         public String issueCrumb(StaplerRequest2 request) {
-            HttpSession s = request.getSession();
-            String v = (String) s.getAttribute(ATTRIBUTE_NAME);
-            if (v != null) {
-                return v;
-            }
-            v = UUID.randomUUID().toString();
-            s.setAttribute(ATTRIBUTE_NAME, v);
-            return v;
+            return "";
+        }
+
+        @Override
+        public String getCrumbExpression() {
+            return "''";
         }
     };
-
-    private static final String ATTRIBUTE_NAME = CrumbIssuer.class.getName();
 }

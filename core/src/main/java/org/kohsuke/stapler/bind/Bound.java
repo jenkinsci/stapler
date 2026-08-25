@@ -136,12 +136,12 @@ public abstract class Bound implements HttpResponse {
      * @return the Stapler proxy script for the specified URL and method names
      */
     public static String getProxyScript(String url, String[] methods) {
-        final String crumb = WebApp.getCurrent().getCrumbIssuer().issueCrumb();
+        final String crumb = WebApp.getCurrent().getCrumbIssuer().getCrumbExpression();
         final String methodNamesList = Arrays.stream(methods)
                 .sorted()
                 .map(it -> "'" + escapeQuotedString(it) + "'")
                 .collect(Collectors.joining(","));
-        return "makeStaplerProxy('" + escapeQuotedString(url) + "','" + crumb + "',[" + methodNamesList + "])";
+        return "makeStaplerProxy('" + escapeQuotedString(url) + "'," + crumb + ",[" + methodNamesList + "])";
     }
 
     private static String escapeQuotedString(String singleQuotedJsValue) {
