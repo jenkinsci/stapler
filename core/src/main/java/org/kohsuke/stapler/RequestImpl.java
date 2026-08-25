@@ -881,7 +881,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
 
                             String className = e.getKey().replace('-', '.'); // decode JSON-safe class name escaping
                             try {
-                                Class<?> itemType = cl.loadClass(className);
+                                Class<?> itemType = cl.loadClass(className).asSubclass(l.itemType);
                                 if (v instanceof JSONObject) {
                                     l.add(bindJSON(itemType, (JSONObject) v));
                                 }
@@ -890,7 +890,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
                                         l.add(i);
                                     }
                                 }
-                            } catch (ClassNotFoundException e1) {
+                            } catch (ClassNotFoundException | ClassCastException e1) {
                                 // ignore unrecognized element
                             }
                         }
