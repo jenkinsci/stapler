@@ -44,7 +44,7 @@ final class RubyDataWriter extends JSONDataWriter {
     @Override
     public void name(String name) throws IOException {
         comma();
-        out.write('"' + name + "\" => ");
+        out.write('"' + escape(name) + "\" => ");
         needComma = false;
     }
 
