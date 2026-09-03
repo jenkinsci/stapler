@@ -99,6 +99,11 @@ public class ProtectedClass {
                     }
 
                     @Override
+                    public Class<?> getDeclaringClass() {
+                        return f.getDeclaringClass();
+                    }
+
+                    @Override
                     public String getSignature() {
                         return f.getQualifiedName(); // doesn't really matter
                     }
