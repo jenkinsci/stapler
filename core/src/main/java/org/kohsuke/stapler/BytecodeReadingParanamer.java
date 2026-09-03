@@ -37,7 +37,6 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -62,18 +61,15 @@ final class BytecodeReadingParanamer {
     private static final Logger LOGGER = Logger.getLogger(BytecodeReadingParanamer.class.getName());
     private static final Object PLACEHOLDER = new Object();
 
-    private static final Map<String, String> primitives = new HashMap<>() {
-        {
-            put("int", "I");
-            put("boolean", "Z");
-            put("byte", "B");
-            put("char", "C");
-            put("short", "S");
-            put("float", "F");
-            put("long", "J");
-            put("double", "D");
-        }
-    };
+    private static final Map<String, String> primitives = Map.ofEntries(
+            Map.entry("int", "I"),
+            Map.entry("boolean", "Z"),
+            Map.entry("byte", "B"),
+            Map.entry("char", "C"),
+            Map.entry("short", "S"),
+            Map.entry("float", "F"),
+            Map.entry("long", "J"),
+            Map.entry("double", "D"));
 
     static String[] lookupParameterNames(Executable executable) throws IOException {
         String genericString = executable.toGenericString();
