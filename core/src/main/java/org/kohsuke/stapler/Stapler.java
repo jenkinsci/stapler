@@ -257,6 +257,22 @@ public class Stapler extends HttpServlet {
     }
 
     /**
+     * Calculates what ancestors in path would have been used for a given URL.
+     * Like actual request processing, this will call methods like {@code getXXX}
+     * expecting them to have no side effects.
+     * Will not load views, run {@code doXXX} methods, or otherwise invoke terminal operations.
+     * @param servletPath like {@link StaplerRequest2#getServletPath}
+     * @return like {@link StaplerRequest2#getAncestors}
+     */
+    public List<Ancestor> parseAncestors(String servletPath) {
+        var tokens = new TokenList(servletPath);
+        var ancestors = new ArrayList<AncestorImpl>();
+        // TODO follow same logic as tryInvoke incl. addToOwner, StaplerProxy, StaplerOverridable, StaplerFallback,
+        // but call Dispatcher.next after finding MetaClass
+        return Collections.unmodifiableList(ancestors);
+    }
+
+    /**
      * Tomcat and GlassFish returns a fresh {@link InputStream} every time
      * {@link URLConnection#getInputStream()} is invoked in their {@code org.apache.naming.resources.DirContextURLConnection}.
      *
