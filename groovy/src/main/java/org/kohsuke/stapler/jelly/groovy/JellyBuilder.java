@@ -469,6 +469,7 @@ public final class JellyBuilder extends GroovyObjectSupport {
      * @return null
      *      if nothing was generated.
      */
+    // TODO apparently unused
     public Element redirectToDom(Closure c) {
         SAXContentHandler sc = new SAXContentHandler();
         with(new XMLOutput(sc), c);
