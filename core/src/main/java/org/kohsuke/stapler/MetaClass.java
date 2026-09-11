@@ -380,6 +380,19 @@ public class MetaClass extends TearOffSupport {
                 }
 
                 @Override
+                protected Object doNext(Object node, TokenList tokens) {
+                    if (isAccepted) {
+                        String token = tokens.next();
+                        return ff.invoke(req, rsp, node, token); // TODO will need a new method in Function too
+                    } else {
+                        String token = tokens.next();
+                        tokens.prev();
+                        return null;
+                        // TODO is FilteredGetterTriggerListener relevant in this context?
+                    }
+                }
+
+                @Override
                 public String toString() {
                     if (isAccepted) {
                         return String.format(
