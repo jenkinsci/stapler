@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.karuslabs.elementary.Results;
 import com.karuslabs.elementary.junit.JavacExtension;
+import com.karuslabs.elementary.junit.annotations.Generation;
 import com.karuslabs.elementary.junit.annotations.Inline;
 import com.karuslabs.elementary.junit.annotations.Options;
 import com.karuslabs.elementary.junit.annotations.Processors;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(JavacExtension.class)
 @Options("-Werror")
 @Processors(QueryParameterAnnotationProcessor.class)
+@Generation(classes = Utils.CLASS_OUTPUT)
 class QueryParameterAnnotationProcessorTest {
 
     @Inline(
@@ -36,8 +38,8 @@ class QueryParameterAnnotationProcessorTest {
         assertEquals(
                 Set.of("Generating some/pkg/Stuff/doOneThing.stapler", "Generating some/pkg/Stuff/doAnother.stapler"),
                 diagnostics);
-        assertEquals("key", Utils.getGeneratedResource(results.sources, "some/pkg/Stuff/doOneThing.stapler"));
-        assertEquals("name,address", Utils.getGeneratedResource(results.sources, "some/pkg/Stuff/doAnother.stapler"));
+        assertEquals("key", Utils.getGeneratedResource("some/pkg/Stuff/doOneThing.stapler"));
+        assertEquals("name,address", Utils.getGeneratedResource("some/pkg/Stuff/doAnother.stapler"));
     }
 
     @Inline(
@@ -61,7 +63,7 @@ class QueryParameterAnnotationProcessorTest {
                 .map(d -> d.getMessage(Locale.ENGLISH))
                 .collect(Collectors.toSet());
         assertEquals(Set.of("Generating some/pkg/Stuff/doBuild.stapler"), diagnostics);
-        assertEquals("req,rsp,delay", Utils.getGeneratedResource(results.sources, "some/pkg/Stuff/doBuild.stapler"));
+        assertEquals("req,rsp,delay", Utils.getGeneratedResource("some/pkg/Stuff/doBuild.stapler"));
     }
 
     // TODO nested classes use qualified rather than binary name
