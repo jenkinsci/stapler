@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler.bind;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
@@ -221,7 +222,7 @@ public class BoundObjectTable implements StaplerFallback {
                 }
             }
 
-            final String id = UUID.randomUUID().toString();
+            final String id = newId();
             entries.put(id, ref);
             LOGGER.fine(() -> String.format("%s binding %s for %s", toString(), target, id));
 
@@ -351,6 +352,20 @@ public class BoundObjectTable implements StaplerFallback {
             Duration.ofDays(1).toMillis());
 
     public static final String PREFIX = "/$stapler/bound/";
+
+    /**
+     * Prepended (with a {@code -}) to the ids of bound objects, if set.
+     * Several servers sharing their users (behind one load balancer) give each a different prefix,
+     * so that a request for a bound object which reaches the wrong server can be forwarded to the one holding it.
+     */
+    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "for scripting and tests")
+    public static String ID_PREFIX = System.getProperty(BoundObjectTable.class.getName() + ".idPrefix", "");
+
+    static String newId() {
+        String uuid = UUID.randomUUID().toString();
+        return ID_PREFIX.isEmpty() ? uuid : ID_PREFIX + "-" + uuid;
+    }
+
     static final String SCRIPT_PREFIX = "/$stapler/bound/script";
 
     private static final Logger LOGGER = Logger.getLogger(BoundObjectTable.class.getName());

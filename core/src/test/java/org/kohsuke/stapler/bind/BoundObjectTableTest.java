@@ -42,4 +42,20 @@ class BoundObjectTableTest extends JettyTestCase {
             rsp.getWriter().write(message);
         }
     }
+
+    @Test
+    void idsCarryTheConfiguredPrefix() {
+        String old = BoundObjectTable.ID_PREFIX;
+        try {
+            BoundObjectTable.ID_PREFIX = "";
+            org.junit.jupiter.api.Assertions.assertFalse(
+                    BoundObjectTable.newId().contains("ctl-a-"));
+            BoundObjectTable.ID_PREFIX = "ctl-a";
+            String id = BoundObjectTable.newId();
+            org.junit.jupiter.api.Assertions.assertTrue(id.startsWith("ctl-a-"), id);
+            org.junit.jupiter.api.Assertions.assertEquals("ctl-a-".length() + 36, id.length());
+        } finally {
+            BoundObjectTable.ID_PREFIX = old;
+        }
+    }
 }
