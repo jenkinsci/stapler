@@ -1,10 +1,16 @@
 package org.kohsuke.stapler.bind;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.UUID;
 import org.htmlunit.TextPage;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerResponse2;
@@ -43,19 +49,55 @@ class BoundObjectTableTest extends JettyTestCase {
         }
     }
 
+    @AfterEach
+    void resetIdPrefix() {
+        BoundObjectTable.setIdPrefix("");
+    }
+
+    @Test
+    void idsAreBareUuidsByDefault() {
+        String id = BoundObjectTable.newId();
+        assertEquals(id, UUID.fromString(id).toString());
+        assertNull(BoundObjectTable.serverIdOf(id));
+    }
+
     @Test
     void idsCarryTheConfiguredPrefix() {
-        String old = BoundObjectTable.ID_PREFIX;
-        try {
-            BoundObjectTable.ID_PREFIX = "";
-            org.junit.jupiter.api.Assertions.assertFalse(
-                    BoundObjectTable.newId().contains("ctl-a-"));
-            BoundObjectTable.ID_PREFIX = "ctl-a";
-            String id = BoundObjectTable.newId();
-            org.junit.jupiter.api.Assertions.assertTrue(id.startsWith("ctl-a-"), id);
-            org.junit.jupiter.api.Assertions.assertEquals("ctl-a-".length() + 36, id.length());
-        } finally {
-            BoundObjectTable.ID_PREFIX = old;
+        BoundObjectTable.setIdPrefix("ctl-a.1_x");
+        String id = BoundObjectTable.newId();
+        assertTrue(id.startsWith("ctl-a.1_x-"), id);
+        UUID.fromString(id.substring("ctl-a.1_x-".length()));
+        assertEquals("ctl-a.1_x", BoundObjectTable.serverIdOf(id));
+        assertNotEquals(id, BoundObjectTable.newId());
+    }
+
+    @Test
+    void prefixedObjectIsReachable() throws Exception {
+        BoundObjectTable.setIdPrefix("ctl-a");
+        TextPage page = createWebClient().getPage(new URL(url, "/bind"));
+        assertEquals("hello world", page.getContent());
+        String path = page.getUrl().getPath();
+        assertTrue(path.startsWith(BoundObjectTable.PREFIX + "ctl-a-"), path);
+        String id = path.substring(BoundObjectTable.PREFIX.length()).replaceAll("/.*", "");
+        assertEquals("ctl-a", BoundObjectTable.serverIdOf(id));
+    }
+
+    @Test
+    void invalidPrefixesAreRejected() {
+        for (String bad : new String[] {"a/b", "a?b", "a\"b", "a%20", "a b", "x".repeat(65)}) {
+            assertThrows(IllegalArgumentException.class, () -> BoundObjectTable.setIdPrefix(bad), bad);
         }
+        assertEquals("", BoundObjectTable.getIdPrefix());
+    }
+
+    @Test
+    void serverIdOfIgnoresIdsWithoutOne() {
+        String uuid = UUID.randomUUID().toString();
+        assertNull(BoundObjectTable.serverIdOf(uuid));
+        assertNull(BoundObjectTable.serverIdOf("-" + uuid));
+        assertNull(BoundObjectTable.serverIdOf("a/b-" + uuid));
+        assertNull(BoundObjectTable.serverIdOf("ctl-a-not-a-uuid-at-all-not-a-uuid-at-a"));
+        assertNull(BoundObjectTable.serverIdOf("short"));
+        assertEquals("jenkins-a", BoundObjectTable.serverIdOf("jenkins-a-" + uuid));
     }
 }
