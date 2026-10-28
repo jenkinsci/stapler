@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.UUID;
 import org.htmlunit.TextPage;
@@ -99,5 +100,64 @@ class BoundObjectTableTest extends JettyTestCase {
         assertNull(BoundObjectTable.serverIdOf("ctl-a-not-a-uuid-at-all-not-a-uuid-at-a"));
         assertNull(BoundObjectTable.serverIdOf("short"));
         assertEquals("jenkins-a", BoundObjectTable.serverIdOf("jenkins-a-" + uuid));
+    }
+
+    @Test
+    void thePrefixIsReadFromTheSystemPropertyWhenTheClassLoads() throws Exception {
+        assertEquals("ctl-a", idPrefixLoadedWith("ctl-a"));
+    }
+
+    @Test
+    void anInvalidPrefixInTheSystemPropertyIsIgnored() throws Exception {
+        assertEquals("", idPrefixLoadedWith("a/b"));
+        assertEquals("", idPrefixLoadedWith(""));
+    }
+
+    /** The prefix of {@link BoundObjectTable} loaded afresh, as at startup, with its system property set to this. */
+    private static String idPrefixLoadedWith(String value) throws Exception {
+        String property = BoundObjectTable.class.getName() + ".idPrefix";
+        String was = System.getProperty(property);
+        System.setProperty(property, value);
+        try {
+            Class<?> fresh = Class.forName(BoundObjectTable.class.getName(), true, new Isolating());
+            assertNotEquals(BoundObjectTable.class, fresh);
+            return (String) fresh.getMethod("getIdPrefix").invoke(null);
+        } finally {
+            if (was == null) {
+                System.clearProperty(property);
+            } else {
+                System.setProperty(property, was);
+            }
+        }
+    }
+
+    /** Loads {@link BoundObjectTable} (and its nested classes) itself, and everything else from the test's loader. */
+    private static final class Isolating extends ClassLoader {
+        Isolating() {
+            super(BoundObjectTableTest.class.getClassLoader());
+        }
+
+        @Override
+        protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+            if (!name.equals(BoundObjectTable.class.getName())
+                    && !name.startsWith(BoundObjectTable.class.getName() + "$")) {
+                return super.loadClass(name, resolve);
+            }
+            synchronized (getClassLoadingLock(name)) {
+                Class<?> c = findLoadedClass(name);
+                if (c == null) {
+                    try (InputStream in = getParent().getResourceAsStream(name.replace('.', '/') + ".class")) {
+                        if (in == null) {
+                            throw new ClassNotFoundException(name);
+                        }
+                        byte[] bytes = in.readAllBytes();
+                        c = defineClass(name, bytes, 0, bytes.length);
+                    } catch (IOException e) {
+                        throw new ClassNotFoundException(name, e);
+                    }
+                }
+                return c;
+            }
+        }
     }
 }
