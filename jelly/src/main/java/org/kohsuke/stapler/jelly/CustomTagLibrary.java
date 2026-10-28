@@ -69,18 +69,18 @@ public final class CustomTagLibrary extends TagLibrary {
     private final Map<String, CachedScript> scripts = new ConcurrentHashMap<>();
 
     /**
-     * A compiled tag file, along with the file it was compiled from (if known) and its timestamp at that time,
-     * so that in {@link MetaClass#NO_CACHE} mode we only recompile tag files that have changed.
+     * A compiled tag file, along with the file it was compiled from (if known) and its timestamp from before it was
+     * read, so that in {@link MetaClass#NO_CACHE} mode we only recompile tag files that have changed.
      */
     private static final class CachedScript {
         final Script script;
         final File file;
         final long timestamp;
 
-        CachedScript(Script script, File file) {
+        CachedScript(Script script, File file, long timestamp) {
             this.script = script;
             this.file = file;
-            this.timestamp = file != null ? file.lastModified() : 0;
+            this.timestamp = timestamp;
         }
 
         boolean isUpToDate() {
@@ -171,15 +171,18 @@ public final class CustomTagLibrary extends TagLibrary {
             res = classLoader.getResource(basePath + '/' + name + ".jelly");
         }
         if (res != null) {
+            // take the timestamp before compiling, so an edit made while compiling is picked up on the next request
+            File file = fileOf(res);
+            long timestamp = file != null ? file.lastModified() : 0;
             script = loadJellyScript(res);
-            scripts.put(name, new CachedScript(script, fileOf(res)));
+            scripts.put(name, new CachedScript(script, file, timestamp));
             return script;
         }
 
         for (JellyTagFileLoader loader : loaders) {
             Script s = loader.load(this, name, classLoader);
             if (s != null) {
-                scripts.put(name, new CachedScript(s, null));
+                scripts.put(name, new CachedScript(s, null, 0));
                 return s;
             }
         }
