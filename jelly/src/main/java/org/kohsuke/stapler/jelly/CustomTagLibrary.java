@@ -23,12 +23,19 @@
 
 package org.kohsuke.stapler.jelly;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
+import org.apache.commons.jelly.JellyTagException;
 import org.apache.commons.jelly.Script;
 import org.apache.commons.jelly.Tag;
 import org.apache.commons.jelly.TagLibrary;
@@ -59,7 +66,27 @@ public final class CustomTagLibrary extends TagLibrary {
     /**
      * Compiled tag files.
      */
-    private final Map<String, Script> scripts = new Hashtable<>();
+    private final Map<String, CachedScript> scripts = new ConcurrentHashMap<>();
+
+    /**
+     * A compiled tag file, along with the file it was compiled from (if known) and its timestamp from before it was
+     * read, so that in {@link MetaClass#NO_CACHE} mode we only recompile tag files that have changed.
+     */
+    private static final class CachedScript {
+        final Script script;
+        final File file;
+        final long timestamp;
+
+        CachedScript(Script script, File file, long timestamp) {
+            this.script = script;
+            this.file = file;
+            this.timestamp = timestamp;
+        }
+
+        boolean isUpToDate() {
+            return timestamp != 0 && file.lastModified() == timestamp;
+        }
+    }
 
     private final List<JellyTagFileLoader> loaders;
 
@@ -81,8 +108,18 @@ public final class CustomTagLibrary extends TagLibrary {
 
         return new CallTagLibScript() {
             @Override
-            protected Script resolveDefinition(JellyContext context) {
-                return def;
+            protected Script resolveDefinition(JellyContext context) throws JellyTagException {
+                if (!MetaClass.NO_CACHE) {
+                    return def;
+                }
+                // The calling script may itself be cached (see AbstractTearOff), so resolve the tag file
+                // on every invocation rather than once at compile time, otherwise edits to it are not picked up.
+                try {
+                    Script current = load(name);
+                    return current != null ? current : def;
+                } catch (JellyException e) {
+                    throw new JellyTagException(e);
+                }
             }
         };
     }
@@ -111,12 +148,12 @@ public final class CustomTagLibrary extends TagLibrary {
      */
     private Script load(String name) throws JellyException {
 
-        Script script = scripts.get(name);
-        if (script != null && !MetaClass.NO_CACHE) {
-            return script;
+        CachedScript cached = scripts.get(name);
+        if (cached != null && (!MetaClass.NO_CACHE || cached.isUpToDate())) {
+            return cached.script;
         }
 
-        script = null;
+        Script script = null;
         if (MetaClassLoader.debugLoader != null) {
             script = load(name, MetaClassLoader.debugLoader.loader);
         }
@@ -134,20 +171,48 @@ public final class CustomTagLibrary extends TagLibrary {
             res = classLoader.getResource(basePath + '/' + name + ".jelly");
         }
         if (res != null) {
+            // take the timestamp before compiling, so an edit made while compiling is picked up on the next request
+            File file = fileOf(res);
+            long timestamp = file != null ? file.lastModified() : 0;
             script = loadJellyScript(res);
-            scripts.put(name, script);
+            scripts.put(name, new CachedScript(script, file, timestamp));
             return script;
         }
 
         for (JellyTagFileLoader loader : loaders) {
             Script s = loader.load(this, name, classLoader);
             if (s != null) {
-                scripts.put(name, s);
+                scripts.put(name, new CachedScript(s, null, 0));
                 return s;
             }
         }
 
         return null;
+    }
+
+    private static final Pattern JAR_URL = Pattern.compile("jar:(file:.+)!/.*");
+
+    @SuppressFBWarnings(
+            value = "PATH_TRAVERSAL_IN",
+            justification = "Files are read from approved plugins, not from user input.")
+    private static File fileOf(URL res) {
+        try {
+            switch (res.getProtocol()) {
+                case "file":
+                    return new File(res.toURI());
+                case "jar":
+                    Matcher m = JAR_URL.matcher(res.toString());
+                    if (m.matches()) {
+                        return new File(new URI(m.group(1)));
+                    } else {
+                        return null;
+                    }
+                default:
+                    return null;
+            }
+        } catch (URISyntaxException | IllegalArgumentException x) {
+            return null; // caching is a best effort
+        }
     }
 
     private Script loadJellyScript(URL res) throws JellyException {
