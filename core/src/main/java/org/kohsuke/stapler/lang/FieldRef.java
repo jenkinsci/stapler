@@ -50,6 +50,13 @@ public abstract class FieldRef extends AnnotatedRef {
     public abstract String getQualifiedName();
 
     /**
+     * Returns the {@code Class} object representing the class or interface
+     * that declares the executable represented by this object.
+     * @see java.lang.reflect.Member#getDeclaringClass()
+     */
+    public abstract Class<?> getDeclaringClass();
+
+    /**
      * Gets the signature for this for use in lists
      *
      * @see org.kohsuke.stapler.Function#getSignature()
@@ -104,6 +111,11 @@ public abstract class FieldRef extends AnnotatedRef {
             public String getSignature() {
                 String prefix = isStatic() ? "staticField" : "field";
                 return String.join(" ", prefix, f.getDeclaringClass().getName(), getName());
+            }
+
+            @Override
+            public Class<?> getDeclaringClass() {
+                return f.getDeclaringClass();
             }
 
             @Override
