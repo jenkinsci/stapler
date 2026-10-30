@@ -43,13 +43,17 @@ class AncestorImpl implements Ancestor {
     private final boolean endsWithSlash;
 
     AncestorImpl(RequestImpl req, Object object) {
-        this.owner = req.ancestors;
+        this(req.ancestors, object, req.tokens, req.getContextPath());
+    }
+
+    AncestorImpl(List<AncestorImpl> owner, Object object, TokenList tokens, String contextPath) {
+        this.owner = owner;
         listIndex = owner.size();
         this.object = object;
-        this.tokens = req.tokens.rawTokens;
-        this.index = req.tokens.idx;
-        this.endsWithSlash = req.tokens.endsWithSlash;
-        this.contextPath = req.getContextPath();
+        this.tokens = tokens.rawTokens;
+        this.index = tokens.idx;
+        this.endsWithSlash = tokens.endsWithSlash;
+        this.contextPath = contextPath;
     }
 
     void addToOwner() {
