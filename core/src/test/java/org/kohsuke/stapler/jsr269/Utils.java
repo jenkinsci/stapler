@@ -3,23 +3,21 @@ package org.kohsuke.stapler.jsr269;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 import java.util.TreeMap;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardLocation;
 
 class Utils {
-    public static String getGeneratedResource(List<JavaFileObject> generated, String filename) {
-        JavaFileObject fo = generated.stream()
-                .filter(it -> it.getName().equals("/" + StandardLocation.CLASS_OUTPUT + "/" + filename))
-                .findFirst()
-                .orElse(null);
-        if (fo == null) {
+    static final String CLASS_OUTPUT = "target/elementary-classes";
+
+    public static String getGeneratedResource(String filename) {
+        Path resource = Path.of(CLASS_OUTPUT, filename);
+        if (!Files.exists(resource)) {
             return null;
         }
         try {
-            return fo.getCharContent(true).toString();
+            return Files.readString(resource);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
