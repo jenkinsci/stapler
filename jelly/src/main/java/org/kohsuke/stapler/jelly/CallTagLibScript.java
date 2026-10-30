@@ -123,6 +123,15 @@ public abstract class CallTagLibScript extends TagScript {
             this.attrs = attrs;
         }
 
+        Body detached() {
+            if (attrs instanceof Map<?, ?> m && m.containsKey("ownerTag")) { // set by jelly:define's DynamicTag
+                Map<Object, Object> copy = new HashMap<>(m);
+                copy.remove("ownerTag");
+                return new Body(tagBody, copy);
+            }
+            return this;
+        }
+
         @Override
         public Script compile() throws JellyException {
             return this;
@@ -138,6 +147,18 @@ public abstract class CallTagLibScript extends TagScript {
                 m.put("attrs", oldAttrs);
             }
         }
+    }
+
+    /**
+     * A tag body (the value of {@code org.apache.commons.jelly.body} in a tag's context) that can be kept after the page
+     * is rendered, to be run later (as a body rendered on demand is). It keeps no tag, and so no context, of the page:
+     * the {@code ownerTag} of {@code attrs} from a {@code jelly:define} tag is left out.
+     *
+     * @param body a tag body
+     * @return a body to keep, or the given one if it keeps nothing of the page
+     */
+    public static Script detach(Script body) {
+        return body instanceof Body b ? b.detached() : body;
     }
 
     protected String getSource() {
