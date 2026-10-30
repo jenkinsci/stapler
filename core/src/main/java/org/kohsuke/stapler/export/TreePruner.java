@@ -44,6 +44,12 @@ public abstract class TreePruner {
     }
 
     public static class ByDepth extends TreePruner {
+        /**
+         * Probably the most common {@link TreePruner} that just visits the top object and its properties,
+         * but none of the referenced objects.
+         */
+        public static final ByDepth DEFAULT = new ByDepth(1);
+
         final int n;
         private ByDepth next;
 
@@ -70,10 +76,4 @@ public abstract class TreePruner {
             return next();
         }
     }
-
-    /**
-     * Probably the most common {@link TreePruner} that just visits the top object and its properties,
-     * but none of the referenced objects.
-     */
-    public static final TreePruner DEFAULT = new ByDepth(1);
 }
