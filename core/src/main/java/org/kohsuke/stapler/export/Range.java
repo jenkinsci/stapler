@@ -1,5 +1,6 @@
 package org.kohsuke.stapler.export;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,6 +26,13 @@ public class Range {
     }
 
     public <T> List<T> apply(List<T> s) {
+        if (s instanceof AlwaysIterate) {
+            List<T> result = new ArrayList<>();
+            for (T item : apply((Iterable<T>) s)) {
+                result.add(item);
+            }
+            return result;
+        }
         if (max < s.size()) {
             s = s.subList(0, max);
         }
@@ -42,7 +50,7 @@ public class Range {
     }
 
     public <T> Iterable<T> apply(final Iterable<T> s) {
-        if (s instanceof List) {
+        if (s instanceof List && !(s instanceof AlwaysIterate)) {
             return apply((List<T>) s);
         } else {
             return new Iterable<>() {
