@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.karuslabs.elementary.Results;
 import com.karuslabs.elementary.junit.JavacExtension;
+import com.karuslabs.elementary.junit.annotations.Generation;
 import com.karuslabs.elementary.junit.annotations.Inline;
 import com.karuslabs.elementary.junit.annotations.Options;
 import com.karuslabs.elementary.junit.annotations.Processors;
@@ -18,6 +19,7 @@ import org.jvnet.hudson.annotation_indexer.AnnotationProcessorImpl;
 @ExtendWith(JavacExtension.class)
 @Options("-Werror")
 @Processors({AnnotationProcessorImpl.class, ExportedBeanAnnotationProcessor.class})
+@Generation(classes = Utils.CLASS_OUTPUT)
 class ExportedBeanAnnotationProcessorTest {
 
     private void assertEqualsCRLF(String s1, String s2) {
@@ -44,14 +46,12 @@ class ExportedBeanAnnotationProcessorTest {
         assertEquals(Set.of("Generating some/pkg/Stuff.javadoc"), diagnostics);
         assertEqualsCRLF(
                 "some.pkg.Stuff\n",
-                Utils.getGeneratedResource(
-                        results.sources, "META-INF/services/annotations/org.kohsuke.stapler.export.ExportedBean"));
+                Utils.getGeneratedResource("META-INF/services/annotations/org.kohsuke.stapler.export.ExportedBean"));
         assertEqualsCRLF(
-                "some.pkg.Stuff\n",
-                Utils.getGeneratedResource(results.sources, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
+                "some.pkg.Stuff\n", Utils.getGeneratedResource(ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
         assertEquals(
                 "{getDisplayName=This gets the display name. }",
-                Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.javadoc")));
+                Utils.normalizeProperties(Utils.getGeneratedResource("some/pkg/Stuff.javadoc")));
     }
 
     @Inline(
@@ -71,14 +71,11 @@ class ExportedBeanAnnotationProcessorTest {
         assertEquals(Set.of("Generating some/pkg/Stuff.javadoc"), diagnostics);
         assertEqualsCRLF(
                 "some.pkg.Stuff\n",
-                Utils.getGeneratedResource(
-                        results.sources, "META-INF/services/annotations/org.kohsuke.stapler.export.ExportedBean"));
+                Utils.getGeneratedResource("META-INF/services/annotations/org.kohsuke.stapler.export.ExportedBean"));
         assertEqualsCRLF(
-                "some.pkg.Stuff\n",
-                Utils.getGeneratedResource(results.sources, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
+                "some.pkg.Stuff\n", Utils.getGeneratedResource(ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
         // TODO should it be null, i.e. is it desired to create an empty *.javadoc file?
-        assertEquals(
-                "{}", Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.javadoc")));
+        assertEquals("{}", Utils.normalizeProperties(Utils.getGeneratedResource("some/pkg/Stuff.javadoc")));
     }
 
     @Inline(
@@ -106,13 +103,12 @@ class ExportedBeanAnnotationProcessorTest {
                 .collect(Collectors.toSet());
         assertEquals(Set.of("Generating some/pkg/Super.javadoc"), diagnostics);
         /* #7188605: broken in JDK 6u33 + org.jvnet.hudson:annotation-indexer:1.2:
-        assertEquals("some.pkg.Stuff\n", Utils.getGeneratedResource(results.sources, "META-INF/services/annotations/org.kohsuke.stapler.export.ExportedBean"));
+        assertEquals("some.pkg.Stuff\n", Utils.getGeneratedResource("META-INF/services/annotations/org.kohsuke.stapler.export.ExportedBean"));
         */
         // TODO is it intentional that these are not listed here? (example: hudson.plugins.mercurial.MercurialSCM)
         assertEqualsCRLF(
-                "some.pkg.Super\n",
-                Utils.getGeneratedResource(results.sources, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
-        assertNull(Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.javadoc")));
+                "some.pkg.Super\n", Utils.getGeneratedResource(ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
+        assertNull(Utils.normalizeProperties(Utils.getGeneratedResource("some/pkg/Stuff.javadoc")));
     }
 
     @Inline(
@@ -142,11 +138,10 @@ class ExportedBeanAnnotationProcessorTest {
         assertEquals(Set.of("Generating some/pkg/Stuff.javadoc", "Generating some/pkg/MoreStuff.javadoc"), diagnostics);
         assertEqualsCRLF(
                 "some.pkg.MoreStuff\nsome.pkg.Stuff\n",
-                Utils.getGeneratedResource(
-                        results.sources, "META-INF/services/annotations/org.kohsuke.stapler.export.ExportedBean"));
+                Utils.getGeneratedResource("META-INF/services/annotations/org.kohsuke.stapler.export.ExportedBean"));
         assertEqualsCRLF(
                 "some.pkg.MoreStuff\nsome.pkg.Stuff\n",
-                Utils.getGeneratedResource(results.sources, ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
+                Utils.getGeneratedResource(ExportedBeanAnnotationProcessor.STAPLER_BEAN_FILE));
     }
 
     // TODO nested classes - currently saved as qualified rather than binary name, intentional?
