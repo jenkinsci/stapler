@@ -121,11 +121,12 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     private Map<String, FileItem> parsedFormData;
 
     /**
-     * If the request is "multipart/form-data", the form field only parts of the parsed result go here.
+     * If the request is "multipart/form-data", the form field only parts of the parsed result go here,
+     * with every value of a repeated field in body order.
      *
      * @see #parseMultipartFormData()
      */
-    private Map<String, String> parsedFormDataFormFields;
+    private Map<String, List<String>> parsedFormDataFormFields;
 
     private BindInterceptor bindInterceptor = BindInterceptor.NOOP;
 
@@ -251,10 +252,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     @Override
     public String getParameter(String name) {
         if (isMultipart()) {
-            Map<String, String> data = getFormDataFormFields();
-            String value = data.get(name);
-            if (value != null) {
-                return value;
+            Map<String, List<String>> data = getFormDataFormFields();
+            List<String> values = data.get(name);
+            if (values != null) {
+                return values.get(0);
             }
             // Fallback ...
         }
@@ -265,19 +266,10 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     public Map<String, String[]> getParameterMap() {
         var parameterMap = super.getParameterMap();
         if (isMultipart()) {
-            Map<String, String> data = getFormDataFormFields();
+            Map<String, List<String>> data = getFormDataFormFields();
             parameterMap = new HashMap<>(parameterMap);
             for (var e : data.entrySet()) {
-                var values = parameterMap.get(e.getKey());
-                if (values == null) {
-                    values = new String[] {e.getValue()};
-                } else {
-                    int len = values.length;
-                    var moreValues = Arrays.copyOf(values, len + 1);
-                    moreValues[len] = e.getValue();
-                    values = moreValues;
-                }
-                parameterMap.put(e.getKey(), values);
+                parameterMap.put(e.getKey(), appendValues(parameterMap.get(e.getKey()), e.getValue()));
             }
             parameterMap = Collections.unmodifiableMap(parameterMap);
         }
@@ -289,7 +281,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         if (!isMultipart()) {
             return super.getParameterNames();
         }
-        Map<String, String> data = getFormDataFormFields();
+        Map<String, List<String>> data = getFormDataFormFields();
         if (data.isEmpty()) {
             return super.getParameterNames();
         }
@@ -305,25 +297,22 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
         if (!isMultipart()) {
             return super.getParameterValues(name);
         }
-        Map<String, String> data = getFormDataFormFields();
-        if (data.isEmpty()) {
+        List<String> formFieldValues = getFormDataFormFields().get(name);
+        if (formFieldValues == null) {
             return super.getParameterValues(name);
         }
+        return appendValues(super.getParameterValues(name), formFieldValues);
+    }
 
-        String formFieldVal = data.get(name);
-        if (formFieldVal == null) {
-            return super.getParameterValues(name);
-        }
-
-        String[] values = super.getParameterValues(name);
+    private static String[] appendValues(String[] values, List<String> moreValues) {
         if (values == null) {
-            values = new String[0];
+            return moreValues.toArray(new String[0]);
         }
-        String[] extValues = new String[values.length + 1];
-        System.arraycopy(values, 0, extValues, 0, values.length);
-        extValues[extValues.length - 1] = formFieldVal;
-
-        return extValues;
+        String[] all = Arrays.copyOf(values, values.length + moreValues.size());
+        for (int i = 0; i < moreValues.size(); i++) {
+            all[values.length + i] = moreValues.get(i);
+        }
+        return all;
     }
 
     @Override
@@ -1240,7 +1229,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
             for (FileItem fi : upload.parseRequest(this)) {
                 parsedFormData.put(fi.getFieldName(), fi);
                 if (fi.isFormField()) {
-                    parsedFormDataFormFields.put(fi.getFieldName(), fi.getString());
+                    parsedFormDataFormFields
+                            .computeIfAbsent(fi.getFieldName(), k -> new ArrayList<>())
+                            .add(fi.getString());
                 }
             }
         } catch (FileUploadFileCountLimitException e) {
@@ -1269,7 +1260,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements StaplerReq
     /**
      * A version of parseMultipartFormData() that doesn't throw exceptions.
      */
-    private Map<String, String> getFormDataFormFields() {
+    private Map<String, List<String>> getFormDataFormFields() {
         try {
             parseMultipartFormData();
         } catch (Exception e) {
