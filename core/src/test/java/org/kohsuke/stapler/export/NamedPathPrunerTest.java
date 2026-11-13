@@ -72,6 +72,28 @@ class NamedPathPrunerTest {
         assertResult("{_class:Vhew,jobs:[{name:job97},{name:job98},{name:job99}]}", v, "jobs[name]{97,}");
     }
 
+    @Test
+    void testRangeOnMarkedList() throws Exception {
+        RangeTest.IteratedList<Jhob> jobs = new RangeTest.IteratedList<>(List.of(
+                new Jhob("job0", "a", "b"),
+                new Jhob("job1", "a", "b"),
+                new Jhob("job2", "a", "b"),
+                new Jhob("job3", "a", "b")));
+        assertResult("{_class:ListView,jobs:[{name:job1},{name:job2}]}", new ListView(jobs), "jobs[name]{1,3}");
+        assertEquals(3, jobs.consumed);
+    }
+
+    @ExportedBean
+    public static class ListView {
+        @Exported
+        public List<Jhob> jobs;
+
+        @SuppressWarnings("checkstyle:redundantmodifier")
+        public ListView(List<Jhob> jobs) {
+            this.jobs = jobs;
+        }
+    }
+
     @ExportedBean
     public static class Stuff {
         @Exported
