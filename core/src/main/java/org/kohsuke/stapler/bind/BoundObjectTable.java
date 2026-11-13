@@ -23,6 +23,8 @@
 
 package org.kohsuke.stapler.bind;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
@@ -35,6 +37,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.Stapler;
@@ -221,7 +224,7 @@ public class BoundObjectTable implements StaplerFallback {
                 }
             }
 
-            final String id = UUID.randomUUID().toString();
+            final String id = newId();
             entries.put(id, ref);
             LOGGER.fine(() -> String.format("%s binding %s for %s", toString(), target, id));
 
@@ -351,7 +354,104 @@ public class BoundObjectTable implements StaplerFallback {
             Duration.ofDays(1).toMillis());
 
     public static final String PREFIX = "/$stapler/bound/";
+
     static final String SCRIPT_PREFIX = "/$stapler/bound/script";
 
     private static final Logger LOGGER = Logger.getLogger(BoundObjectTable.class.getName());
+
+    /**
+     * The characters a server id may use: they need no escaping in a URL path, an HTML attribute or a JavaScript string.
+     */
+    private static final Pattern VALID_SERVER_ID = Pattern.compile("[A-Za-z0-9_.-]{1,64}");
+
+    /**
+     * Length of the random part of a bound id, a {@link UUID} in its canonical form.
+     */
+    private static final int UUID_LENGTH = 36;
+
+    /**
+     * The server id prepended (with a {@code -}) to the ids of bound objects, or empty (the default) for bare UUIDs.
+     * Read once, when this class loads, from the system property {@code org.kohsuke.stapler.bind.BoundObjectTable.idPrefix}.
+     */
+    private static String idPrefix =
+            initialIdPrefix(System.getProperty(BoundObjectTable.class.getName() + ".idPrefix"));
+
+    private static String initialIdPrefix(@CheckForNull String value) {
+        if (value == null || value.isEmpty()) {
+            return "";
+        }
+        if (!isValidServerId(value)) {
+            LOGGER.warning(() -> "Ignoring invalid " + BoundObjectTable.class.getName() + ".idPrefix " + value
+                    + ": it must match " + VALID_SERVER_ID.pattern());
+            return "";
+        }
+        return value;
+    }
+
+    private static boolean isValidServerId(String value) {
+        return VALID_SERVER_ID.matcher(value).matches();
+    }
+
+    /**
+     * The server id this server prepends to the ids of the objects it binds.
+     *
+     * <p>Bound objects live in the session of the server that bound them and cannot be serialized.
+     * When several servers sit behind one load balancer and share their users,
+     * each can be started with a different prefix
+     * (system property {@code org.kohsuke.stapler.bind.BoundObjectTable.idPrefix},
+     * up to 64 characters from {@code [A-Za-z0-9_.-]}),
+     * so that a request for {@code /$stapler/bound/<id>} which reaches another server
+     * can be routed (by a filter or a proxy) to the one holding the object; see {@link #serverIdOf(String)}.
+     * The property is read once, when this class loads; an invalid value is logged and ignored.
+     *
+     * <p>The prefix is sent to browsers as part of every bound URL, so it should not be anything secret
+     * such as an internal host name you do not want to disclose.
+     *
+     * @return the prefix, or an empty string if ids are not prefixed (the default)
+     */
+    @NonNull
+    public static String getIdPrefix() {
+        return idPrefix;
+    }
+
+    /**
+     * For tests.
+     */
+    static void setIdPrefix(@NonNull String prefix) {
+        if (!prefix.isEmpty() && !isValidServerId(prefix)) {
+            throw new IllegalArgumentException("Invalid server id: " + prefix);
+        }
+        idPrefix = prefix;
+    }
+
+    /**
+     * Parses the server id out of the id of a bound object, the inverse of how this class makes ids:
+     * a prefixed id is {@code <server id>-<UUID>}, and the server id may itself contain {@code -}.
+     *
+     * <p>The id comes from the request URL, so the result is an untrusted routing hint chosen by the client.
+     * It must never be used to decide whether a request is authorized:
+     * a bound object can only be reached from the session that bound it, on the server that holds it.
+     *
+     * @param id the id of a bound object, the path segment after {@link #PREFIX}
+     * @return the server id, or {@code null} if the id has no (valid) server id
+     */
+    @CheckForNull
+    public static String serverIdOf(@NonNull String id) {
+        int dash = id.length() - UUID_LENGTH - 1;
+        if (dash <= 0 || id.charAt(dash) != '-') {
+            return null;
+        }
+        try {
+            UUID.fromString(id.substring(dash + 1));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+        String serverId = id.substring(0, dash);
+        return isValidServerId(serverId) ? serverId : null;
+    }
+
+    static String newId() {
+        String uuid = UUID.randomUUID().toString();
+        return idPrefix.isEmpty() ? uuid : idPrefix + "-" + uuid;
+    }
 }
