@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.karuslabs.elementary.Results;
 import com.karuslabs.elementary.junit.JavacExtension;
+import com.karuslabs.elementary.junit.annotations.Generation;
 import com.karuslabs.elementary.junit.annotations.Inline;
 import com.karuslabs.elementary.junit.annotations.Options;
 import com.karuslabs.elementary.junit.annotations.Processors;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(JavacExtension.class)
 @Options("-Werror")
 @Processors(ConstructorProcessor.class)
+@Generation(classes = Utils.CLASS_OUTPUT)
 class ConstructorProcessorTest {
 
     @Inline(
@@ -39,7 +41,7 @@ class ConstructorProcessorTest {
         assertEquals(Set.of("Generating some/pkg/Stuff.stapler"), diagnostics);
         assertEquals(
                 "{constructor=count,name}",
-                Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
+                Utils.normalizeProperties(Utils.getGeneratedResource("some/pkg/Stuff.stapler")));
     }
 
     @Inline(
@@ -58,7 +60,7 @@ class ConstructorProcessorTest {
         assertEquals(Set.of("Generating some/pkg/Stuff.stapler"), diagnostics);
         assertEquals(
                 "{constructor=name,count}",
-                Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
+                Utils.normalizeProperties(Utils.getGeneratedResource("some/pkg/Stuff.stapler")));
     }
 
     @Inline(
@@ -79,7 +81,7 @@ class ConstructorProcessorTest {
         assertEquals(Set.of("Generating some/pkg/Stuff.stapler"), diagnostics);
         assertEquals(
                 "{constructor=count,name}",
-                Utils.normalizeProperties(Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler")));
+                Utils.normalizeProperties(Utils.getGeneratedResource("some/pkg/Stuff.stapler")));
     }
 
     @Inline(
@@ -196,7 +198,7 @@ class ConstructorProcessorTest {
                 .collect(Collectors.toSet());
         assertEquals(Set.of("Generating some/pkg/Stuff.stapler"), diagnostics);
         assertThat(
-                Utils.getGeneratedResource(results.sources, "some/pkg/Stuff.stapler"),
+                Utils.getGeneratedResource("some/pkg/Stuff.stapler"),
                 not(containsString(Integer.toString(Year.now().getValue()))));
     }
 }
