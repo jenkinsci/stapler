@@ -24,6 +24,7 @@
 package org.kohsuke.stapler.jelly;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.StringWriter;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.JellyTagException;
@@ -56,6 +57,12 @@ import org.xml.sax.helpers.AttributesImpl;
  * @since 1.342
  */
 public class ReallyStaticTagLibrary extends TagLibrary {
+    /**
+     * Escape hatch to disable writing the script location to the script body.
+     */
+    private static final boolean DISABLE_SCRIPT_BODY_PREFIX =
+            Boolean.getBoolean(ReallyStaticTagLibrary.class.getName() + ".disableScriptBodyPrefix");
+
     /**
      * IIUC, this method will never be invoked.
      */
@@ -99,7 +106,19 @@ public class ReallyStaticTagLibrary extends TagLibrary {
 
                 try {
                     output.startElement(getNsUri(), getLocalName(), getElementName(), actual);
-                    getTagBody().run(context, output);
+                    if (DISABLE_SCRIPT_BODY_PREFIX || !getLocalName().equals("script")) {
+                        getTagBody().run(context, output);
+                    } else {
+                        final StringWriter writer = new StringWriter();
+                        XMLOutput bodyOutput = XMLOutput.createXMLOutput(writer);
+                        getTagBody().run(context, bodyOutput);
+                        if (writer.getBuffer().length() > 0) {
+                            output.write(
+                                    "/*" + getFileName().substring(getFileName().length() - 33) + ":" + getLineNumber()
+                                            + "*/\n");
+                        }
+                        output.write(writer.toString());
+                    }
                     output.endElement(getNsUri(), getLocalName(), getElementName());
                 } catch (SAXException x) {
                     throw new JellyTagException(x);
