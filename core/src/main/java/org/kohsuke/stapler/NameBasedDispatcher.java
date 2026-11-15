@@ -23,6 +23,7 @@
 
 package org.kohsuke.stapler;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -67,4 +68,25 @@ abstract class NameBasedDispatcher extends Dispatcher {
 
     protected abstract boolean doDispatch(RequestImpl req, ResponseImpl rsp, Object node)
             throws IOException, ServletException, IllegalAccessException, InvocationTargetException;
+
+    @Override
+    public final Object next(Object node, TokenList tokens) {
+        if (!tokens.hasMore() || !tokens.peek().equals(name)) {
+            return null;
+        }
+        if (tokens.countRemainingTokens() <= argCount) {
+            return null;
+        }
+        tokens.next();
+        var n = doNext(node, tokens);
+        if (n == null) {
+            tokens.prev();
+        }
+        return n;
+    }
+
+    @CheckForNull
+    protected Object doNext(Object node, TokenList tokens) {
+        return null;
+    }
 }
