@@ -23,7 +23,7 @@
 
 package org.kohsuke.stapler.jelly;
 
-import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -43,9 +43,13 @@ public class JellyClassLoaderTearOff {
     private final MetaClassLoader owner;
 
     /**
-     * See {@link JellyClassTearOff#scripts} for why we use {@link WeakReference} here.
+     * The tag libraries of this class loader, kept until memory is short, as compiled views are
+     * (see {@link org.kohsuke.stapler.AbstractTearOff}). Each holds its compiled tag files. Jelly views hold the tags
+     * they use from when they were compiled, but Groovy views look their tag libraries up here on every call: held
+     * weakly, as they were, the libraries went at every garbage collection, and Groovy views compiled the tag files
+     * they used again.
      */
-    private volatile WeakReference<ConcurrentMap<String, TagLibrary>> taglibs;
+    private volatile SoftReference<ConcurrentMap<String, TagLibrary>> taglibs;
 
     static ExpressionFactory EXPRESSION_FACTORY = new JexlExpressionFactory();
 
@@ -60,7 +64,7 @@ public class JellyClassLoaderTearOff {
         }
         if (m == null) {
             m = new ConcurrentHashMap<>();
-            taglibs = new WeakReference<>(m);
+            taglibs = new SoftReference<>(m);
         }
         TagLibrary tl = m.computeIfAbsent(nsUri, key -> {
             if (owner.parent != null) {
