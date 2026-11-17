@@ -18,3 +18,6 @@ updates:
       # Provided by the Web container, so aligned with Jetty.
       - dependency-name: "jakarta.servlet:jakarta.servlet-api"
       - dependency-name: "jakarta.servlet.jsp:jakarta.servlet.jsp-api"
+      # https://github.com/jenkinsci/stapler/pull/812
+      - dependency-name: "commons-codec:commons-codec"
+        versions: ["1.23.0"]
