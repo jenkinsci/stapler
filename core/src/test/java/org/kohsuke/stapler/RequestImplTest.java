@@ -25,6 +25,7 @@
 
 package org.kohsuke.stapler;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -180,6 +181,11 @@ class RequestImplTest {
 
         // Check getParameterMap
         assertTrue(request.getParameterMap().containsKey("text1"));
+
+        // Repeated form fields keep every value, in body order, as for url-encoded bodies
+        assertArrayEquals(new String[] {"a", "b"}, request.getParameterValues("multi"));
+        assertArrayEquals(new String[] {"a", "b"}, request.getParameterMap().get("multi"));
+        assertEquals("a", request.getParameter("multi"));
     }
 
     @Test
@@ -260,6 +266,8 @@ class RequestImplTest {
         reqEntityBuilder.addBinaryBody("pomFile", new File("./pom.xml"), ContentType.TEXT_XML, "pom.xml");
         reqEntityBuilder.addTextBody("text1", "text1_val");
         reqEntityBuilder.addTextBody("text2", "text2_val");
+        reqEntityBuilder.addTextBody("multi", "a");
+        reqEntityBuilder.addTextBody("multi", "b");
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             reqEntityBuilder.build().writeTo(outputStream);
